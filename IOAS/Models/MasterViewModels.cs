@@ -9,6 +9,7 @@ namespace IOAS.Models
 {
         public class BankMasterViewModel
         {
+
             public string Bankname { get; set; }
             public string AccountNumber { get; set; }
             public string BranchName { get; set; }
