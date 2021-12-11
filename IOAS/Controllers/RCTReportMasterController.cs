@@ -1952,7 +1952,7 @@ namespace IOAS.Controllers
                     dt4 = dataset4.Tables[0].Copy();
                     dt4.TableName = "ATTENDANCE";
 
-                    command.CommandText = "select ROW_NUMBER() OVER(ORDER BY [EMPLOYEENO]) AS [S. No.],EMPLOYEENO,EmployeeName [EMPLOYEE NAME],ProjectNumber [PROJECT NO],DESIGNATION ,OtherType [CATEGORY],Head [CATEGORY TYPE],Amount [AMOUNT (Rs.)],CreatedBy,[Created_TS] from [dbo].[vw_RCTOTHPayDeductionReport] where Status = 'Completed' and EMPLOYEENO LIKE '%VS%' and Created_TS between '" + strFrom + "' and '" + strTo + "'";
+                    command.CommandText = "select ROW_NUMBER() OVER(ORDER BY [EMPLOYEENO]) AS [S. No.],EMPLOYEENO,EmployeeName [EMPLOYEE NAME],ProjectNumber [PROJECT NO],DESIGNATION ,OtherType [CATEGORY],Head [CATEGORY TYPE],Amount [AMOUNT (Rs.)],CreatedBy,[Created_TS],UpdatedBy,Updated_TS from [dbo].[vw_RCTOTHPayDeductionReport] where Status = 'Completed' and EMPLOYEENO LIKE '%VS%' and Created_TS between '" + strFrom + "' and '" + strTo + "'";
                     var adapter5 = new SqlDataAdapter(command);
                     adapter5 = new SqlDataAdapter(command);
                     adapter5.Fill(dataset5);
@@ -1967,7 +1967,7 @@ namespace IOAS.Controllers
                     dt6.TableName = "RELIEVING";
 
 
-                    command.CommandText = "select ROW_NUMBER() OVER(ORDER BY [EMPLOYEE ID]) AS [S. No.],[EMPLOYEE ID],[NAME],[EMPL TYPE],[DESIGNATION],[EXISTING FROM],[EXISTING TO],[PREVIOUS BASIC PAY],[PREVIOUS GROSS PAY],[PROJECT NO.],[PROJECT DETAILS],[COMMITMENT NO.],[FROM],[TO],[DATE OF INCREMENT],[YEARLY INCREMENT],[CURRENT BASIC SALARY],[CURRENT GROSS PAY],[PF Eligiblity],[ESIC Eligiblity],[LOG_TIME],[CREATED_BY],[LOG CREATED_BY] FROM [dbo].[vw_RCTOSGChagofprojectReport] where LOG_TIME between '" + strFrom + "' and '" + strTo + "'";
+                    command.CommandText = "select ROW_NUMBER() OVER(ORDER BY [EMPLOYEE ID]) AS [S. No.],[EMPLOYEE ID],[NAME],[EMPL TYPE],[DESIGNATION],[EXISTING FROM],[EXISTING TO],[PREVIOUS BASIC PAY],[PREVIOUS GROSS PAY],[PROJECT NO.],[PROJECT DETAILS],[COMMITMENT NO.],[FROM],[TO],[DATE OF INCREMENT],[YEARLY INCREMENT],[CURRENT BASIC SALARY],[CURRENT GROSS PAY],[PF Eligiblity],[ESIC Eligiblity],[CREATED_TIME],[CREATED_BY],[LOG_TIME],[LOG CREATED_BY] FROM [dbo].[vw_RCTOSGChagofprojectReport] where LOG_TIME between '" + strFrom + "' and '" + strTo + "'";
                     var adapter7 = new SqlDataAdapter(command);
                     adapter7 = new SqlDataAdapter(command);
                     adapter7.Fill(dataset7);
@@ -1976,7 +1976,7 @@ namespace IOAS.Controllers
 
 
 
-                    command.CommandText = "select ROW_NUMBER() OVER(ORDER BY [EMPLOYEE ID]) AS [S. No.],[EMPLOYEE ID],[NAME],[EMPL TYPE],[DESIGNATION],[EXISTING FROM],[EXISTING TO],[PREVIOUS BASIC PAY],[PREVIOUS GROSS PAY],[PROJECT NO.],[PROJECT DETAILS],[COMMITMENT NO.],[FROM],[TO],[DATE OF INCREMENT],[YEARLY INCREMENT],[CURRENT BASIC SALARY],[CURRENT GROSS PAY],[PF Eligiblity],[ESIC Eligiblity],[LOG_TIME],[CREATED_BY],[LOG CREATED_BY] FROM [dbo].[vw_RCTOSGAmendmentReport] where LOG_TIME between '" + strFrom + "' and '" + strTo + "'";
+                    command.CommandText = "select ROW_NUMBER() OVER(ORDER BY [EMPLOYEE ID]) AS [S. No.],[EMPLOYEE ID],[NAME],[EMPL TYPE],[DESIGNATION],[EXISTING FROM],[EXISTING TO],[PREVIOUS BASIC PAY],[PREVIOUS GROSS PAY],[PROJECT NO.],[PROJECT DETAILS],[COMMITMENT NO.],[FROM],[TO],[DATE OF INCREMENT],[YEARLY INCREMENT],[CURRENT BASIC SALARY],[CURRENT GROSS PAY],[PF Eligiblity],[ESIC Eligiblity],[CREATED_TIME],[CREATED_BY],[LOG_TIME],[LOG CREATED_BY] FROM [dbo].[vw_RCTOSGAmendmentReport] where LOG_TIME between '" + strFrom + "' and '" + strTo + "'";
                     var adapter8 = new SqlDataAdapter(command);
                     adapter8 = new SqlDataAdapter(command);
                     adapter8.Fill(dataset8);
