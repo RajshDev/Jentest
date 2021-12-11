@@ -1,0 +1,778 @@
+﻿@model IOAS.Models.OtherReceiptModel
+@{
+    ViewBag.Title = "Other Receipt";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+@using (Html.BeginForm("OtherReceipt", "CoreAccounts", FormMethod.Post, new { @class = "", role = "form", @id = "formRCV", enctype = "multipart/form-data" }))
+{
+    <div class="row hd-tt-bg">
+        <div class="col-md-12">
+            <h4><b>Other Receipt</b> </h4>
+        </div>
+    </div>
+    <div class="row">
+        <div class="white-bg ad-navbar">
+
+            <div class="col-md-3 col-md-offset-9">
+                <div class="reg-no custom-reg-no">
+                    <div class="form-group custom-form-group">
+                        <label>Number</label>
+                        <h4>@Html.DisplayFor(m => m.ReceiptNumber)</h4>
+                        @Html.HiddenFor(m => m.ReceiptId)
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="page-wrapper">
+            <div class="col-md-12 mt30">
+
+                <div class="col-md-12 col-sm-12 m-b-sm">
+                    <div class="row">
+                        <div class="page-wrapper">
+                            <div class="col-md-12">
+                                <div class="white-bg">
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label class="required">Category</label>
+                                                @Html.DropDownListFor(m => m.Category, new SelectList(ViewBag.CategoryList, "id", "name"), "Select any", new { @class = "form-control", @id = "categorydropdown" })
+                                                @Html.ValidationMessageFor(m => m.Category)
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6" id="modediv">
+                                            <div class="form-group custom-form-group">
+                                                <label class="required">Mode Of Receipt</label>
+                                                @Html.DropDownListFor(m => m.ModeOfReceipt, new SelectList(ViewBag.ModeOfReceiptList, "id", "name"), "Select any", new { @class = "form-control" })
+                                                @Html.ValidationMessageFor(m => m.ModeOfReceipt)
+                                                <h5 class="dis-none" id="add"></h5>
+                                                <h5 class="dis-none" id="rev"></h5>
+                                                <h5 class="dis-none" id="Receipt"></h5>
+                                                <h5 class="dis-none" id="NetBalance"></h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label>Ref. Number</label>
+                                                @Html.TextBoxFor(m => m.RefNo, new { @class = "form-control" })
+                                                @Html.ValidationMessageFor(m => m.RefNo)
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label>Ref. Date</label>
+                                                @Html.EditorFor(m => m.RefDate, new { @class = "form-control" })
+                                                @Html.ValidationMessageFor(m => m.RefDate)
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        @*<div class="col-md-6">
+                                                <div class="form-group custom-form-group">
+                                                    @Html.CheckBoxFor(m => m.IsProject)<label class="ml15">Is Project Receipt</label> <br />
+                                                </div>
+                                            </div>*@
+                                        <div id="divProj" class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label class="required">Project</label>
+                                                @Html.TextBoxFor(m => m.Project, new { @class = "form-control" })
+                                                @Html.TextBoxFor(m => m.ProjectId, new { @class = "form-control dis-none" })
+                                                @Html.ValidationMessageFor(m => m.ProjectId)
+                                            </div>
+                                        </div>
+                                        <div id="divInv" class="col-md-6 dis-none">
+                                            <div class="form-group custom-form-group">
+                                                <label>Invoice No.</label>
+                                                @Html.TextBoxFor(m => m.InvoiceNo, new { @class = "form-control" })
+                                                @Html.TextBoxFor(m => m.InvoiceId, new { @class = "form-control dis-none" })
+                                                @Html.ValidationMessageFor(m => m.InvoiceId)
+                                                @*@Html.HiddenFor(m=>m.InvoiceTypeId)*@
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div id="divNegativeRecp" class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label class="required">Negative Receipt No.</label>
+                                                @Html.DropDownListFor(m => m.NegativeReceiptNo, new SelectList(ViewBag.NegReceiptList, "id", "name"), "Select any", new { @class = "form-control" })
+                                                @Html.ValidationMessageFor(m => m.Category)
+                                            </div>
+                                        </div>
+                                        @*<div id="divForeignCurrency" class="col-md-6">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="required">Foreign Currency</label>
+                                                    @Html.TextBoxFor(m => m.RevarsalForeignCurrency, new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)", @autocomplete = "off" })
+                                                    @Html.ValidationMessageFor(m => m.RevarsalForeignCurrency)
+                                                </div>
+                                            </div>*@
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label>Remarks</label>
+                                                @Html.TextAreaFor(m => m.Remarks, new { @class = "form-control", @rows = "3" })
+                                                @Html.ValidationMessageFor(m => m.Remarks)
+
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label>Attachement</label>
+                                                <input type="file" id="file" name="file">
+                                                @Html.ValidationMessage("Document")
+                                                <a href="@Url.Action("ShowDocument","Project",new { file = Model.DocumentName, filepath = Model.DocumentPath })" target="_blank">@Model.DocumentActualName</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row pro-div">
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label>Sanction Order Number</label>
+                                                @Html.TextBoxFor(m => m.SanctionOrderNo, new { @class = "form-control" ,@placeholder = "if not available for funds received, enter NA"})
+                                                @Html.ValidationMessageFor(m => m.SanctionOrderNo)
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label>Sanction Order Date</label>
+                                                @Html.EditorFor(m => m.SanctionOrderDate, new { @class = "form-control" })
+                                                @Html.ValidationMessageFor(m => m.SanctionOrderDate)
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row pro-div">
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label>Project Opening Sanction No.</label>
+                                                <h4 id="projectSanNo">@Html.DisplayFor(m => m.ProjectSanctionOrderNo)</h4>
+                                                @Html.HiddenFor(m => m.ProjectSanctionOrderNo)
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                @Html.CheckBoxFor(m => m.IsBudgetHeadPosting)<label class="ml15">Is budget head posting required</label> <br />
+                                                @Html.Hidden("IsProject")
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label class="required">Bank</label>
+                                                @Html.DropDownListFor(m => m.Bank, new SelectList(ViewBag.BankList, "id", "name"), "Select any", new { @class = "form-control" })
+                                                @Html.DropDownList("AccountGroupListDisabled", new SelectList(ViewBag.AccountGroupList, "id", "name"), "Select any",
+                                            new { @class = "form-control dis-none" })
+                                                @Html.ValidationMessageFor(m => m.Bank)
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label class="required">Amount</label>
+                                                @Html.TextBoxFor(m => m.BankAmount, new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)", @onblur = "CalculateTxTotal()", @autocomplete = "off" })
+                                                @Html.ValidationMessageFor(m => m.BankAmount)
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="gray-bg br-rd">
+                                        <h3 class="mt-null col-md-6"></h3>
+                                        <div class="col-md-6 text-right mb-md">
+                                            <a href="javascript:void(0)" id="btnAddExpense" class="btn btn-primary">Add New</a>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="m-b-sm">
+                                                    <table class="table table-bordered">
+                                                        <thead>
+                                                            <tr>
+                                                                <th class="required">Account Group</th>
+                                                                <th class="required"> Account Head</th>
+                                                                <th class="required">Transaction Type</th>
+                                                                <th style="width:200px;" class="required">Amount</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="tbodyExpenseList">
+                                                            @if (Model.ExpenseDetail != null && Model.ExpenseDetail.Count() > 0)
+                                                            {
+                                                                var count = 0;
+                                                                foreach (var item in Model.ExpenseDetail)
+                                                                {
+                                                                    var accountGroup = "ExpenseDetail[" + count + "].AccountGroupId";
+                                                                    var accountHead = "ExpenseDetail[" + count + "].AccountHeadId";
+                                                                    var expDetailId = "ExpenseDetail[" + count + "].BillExpenseDetailId";
+                                                                    var transType = "ExpenseDetail[" + count + "].TransactionType";
+                                                                    var amt = "ExpenseDetail[" + count + "].Amount";
+                                                                    <tr>
+                                                                        <td>
+                                                                            @Html.DropDownList(@accountGroup, new SelectList(ViewBag.AccountGroupList, "id", "name", item.AccountGroupId), new { @class = "form-control required" })
+                                                                            @Html.ValidationMessage(@accountGroup)
+                                                                            @Html.Hidden("ExpenseDetail.Index", @count)
+                                                                            @Html.Hidden(@expDetailId, item.BillExpenseDetailId)
+                                                                        </td>
+                                                                        <td>
+                                                                            @Html.DropDownList(@accountHead, new SelectList(item.AccountHeadList, "id", "name", item.AccountHeadId), new { @class = "form-control required" })
+                                                                            @Html.ValidationMessage(@accountHead)
+                                                                        </td>
+                                                                        <td>
+                                                                            @Html.DropDownList(@transType, new SelectList(ViewBag.TransactionTypeList, "name", "name", item.TransactionType), new { @class = "form-control required", @onchange = "CalculateTxTotal()" })
+                                                                            @Html.ValidationMessage(@transType)
+                                                                        </td>
+                                                                        <td>
+                                                                            @Html.TextBox(@amt, item.Amount, new { @class = "form-control required", @onkeypress = "return ValidateDecimalOnly(event)", @onblur = "CalculateTxTotal()", @autocomplete = "off" })
+                                                                            @Html.ValidationMessage(@amt)
+                                                                        </td>
+                                                                        <td>
+                                                                            <a href="javascript:void(0)" class="removeExpense btn-circle"><i class="ion-close-round"></i></a>
+                                                                        </td>
+                                                                    </tr>
+                                                                    count++;
+
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                <tr>
+                                                                    <td>
+                                                                        @Html.DropDownList("ExpenseDetail[0].AccountGroupId", new SelectList(ViewBag.AccountGroupList, "id", "name"), "Select any", new { @class = "form-control required" })
+                                                                        @Html.ValidationMessage("ExpenseDetail[0].AccountGroupId")
+                                                                        @Html.Hidden("ExpenseDetail.Index", "0")
+                                                                        @Html.Hidden("ExpenseDetail[0].BillExpenseDetailId")
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.DropDownList("ExpenseDetail[0].AccountHeadId", new SelectList(ViewBag.AccountHeadList, "id", "name"), "Select any", new { @class = "form-control required" })
+                                                                        @Html.ValidationMessage("ExpenseDetail[0].AccountHeadId")
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.DropDownList("ExpenseDetail[0].TransactionType", new SelectList(ViewBag.TransactionTypeList, "name", "name"), "Select any", new { @class = "form-control required", @onchange = "CalculateTxTotal()" })
+                                                                        @Html.ValidationMessage("ExpenseDetail[0].TransactionType")
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.TextBox("ExpenseDetail[0].Amount", "", new { @class = "form-control required", @onkeypress = "return ValidateDecimalOnly(event)", @onblur = "CalculateTxTotal()", @autocomplete = "off" })
+                                                                        @Html.ValidationMessage("ExpenseDetail[0].Amount")
+                                                                    </td>
+                                                                    <td>
+                                                                        <a href="javascript:void(0)" class="removeExpense btn-circle"><i class="ion-close-round"></i></a>
+                                                                    </td>
+                                                                </tr>
+                                                            }
+
+
+                                                        </tbody>
+                                                    </table>
+
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="gray-bg br-rd">
+                                        <h3 class="mt-null">Taxes</h3>
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="m-b-sm">
+                                                    <table class="table table-bordered">
+                                                        <thead>
+                                                            <tr>
+                                                                <th >Group</th>
+                                                                <th>Account Head</th>
+                                                                <th>Amount</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="tbodyDeductionList">
+                                                            @if (Model.DeductionDetail != null && Model.DeductionDetail.Count() > 0)
+                                                            {
+                                                                var count = 0;
+                                                                foreach (var item in Model.DeductionDetail)
+                                                                {
+                                                                    var amt = "DeductionDetail[" + count + "].Amount";
+                                                                    var groupId = "DeductionDetail[" + count + "].AccountGroupId";
+                                                                    var headId = "DeductionDetail[" + count + "].DeductionHeadId";
+                                                                    var deductDetailId = "DeductionDetail[" + count + "].BillDeductionDetailId";
+                                                                    var deductionHead = "DeductionDetail[" + count + "].DeductionHead";
+                                                                    var accountGroup = "DeductionDetail[" + count + "].AccountGroup";
+                                                                    <tr>
+                                                                        <td>@item.AccountGroup</td>
+                                                                        <td>@item.DeductionHead</td>
+                                                                        <td>
+                                                                            @Html.TextBox(@amt, item.Amount, new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)", @onblur = "CalculateTxTotal()", @autocomplete = "off" })
+                                                                            @Html.Hidden(@groupId, item.AccountGroupId)
+                                                                            @Html.Hidden(@headId, item.DeductionHeadId)
+                                                                            @Html.Hidden(@deductDetailId, item.BillDeductionDetailId)
+                                                                            @Html.Hidden(@deductionHead, item.DeductionHead)
+                                                                            @Html.Hidden(@accountGroup, item.AccountGroup)
+                                                                        </td>
+                                                                    </tr>
+                                                                    count++;
+
+                                                                }
+                                                            }
+                                                        </tbody>
+                                                    </table>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-3  col-md-offset-6">
+                                                <div class="form-group custom-form-group ">
+                                                    <label>Total Credit <span class="cr">(Cr)</span> :</label>
+                                                    @Html.TextBoxFor(m => m.CreditAmount, new { @class = "form-control", @readonly = "readonly", @autocomplete = "off" })
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3 ">
+                                                <div class="form-group custom-form-group ">
+                                                    <label>Total Debit <span class="dr">(Dr)</span> :</label>
+                                                    @Html.TextBoxFor(m => m.DebitAmount, new { @class = "form-control", @readonly = "readonly", @autocomplete = "off" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row text-center mb-lg">
+                                            <button type="submit" id="btnSave" class="btn btn-primary">Submit</button>
+                                            <button type="button" class="btn btn-default" onclick="window.location.href='@Url.Action("OtherReceiptList", "CoreAccounts")';">Close</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+}
+
+<script>
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+
+    $(document).ready(function () {
+        $('#SanctionOrderDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true, yearRange: '-30:+0' });
+        $('#RefDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy' });
+        //  applyAutoComplete($('#Project'), $('#ProjectId'), "@Url.Action("LoadProjectList", "CoreAccounts")");
+        applyAutoComplete($('#Project'), $('#ProjectId'), '@Url.Action("LoadProjectNumber","CoreAccounts")', 'ProjectSummary', undefined, undefined);
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+
+        resetForm();
+        CalculateTxTotal();
+        ProjectSummary('update');
+        //GetInvoiceType();
+    });
+    $('#InvoiceNo').blur(function () {
+        if ($(this).val() == '') {
+            $('#InvoiceId,#InvoiceTypeId').val('');
+        }
+    });
+    //$('#IsProject').click(function () {
+    //    if ($(this).is(':checked')) {
+    //        $('#divProj').removeClass('dis-none');
+    //    } else {
+    //        $('#ProjectId,#Project').val('');
+    //        $('#divProj').addClass('dis-none');
+    //    }
+    //});
+
+    function ProjectSummary(mode) {
+        $('.loading-bg').removeClass('dis-none');
+        var projectId = $("#ProjectId").val();
+        if (projectId != "" || projectId != 0) {
+            $.getJSON("@Url.Action("LoadProjectDetails", "Account")", { ProjectId: projectId },
+            function (result) {
+                if (result.projectData.ProjectNo != null) {
+                    $("#Receipt").text(result.projectData.TotalGrantReceived);
+                    $("#NetBalance").text(result.projectData.NetBalance);
+                    $("#projectSanNo").text(result.projectData.SanctionOrderNo);
+                    $("#ProjectSanctionOrderNo").val(result.projectData.SanctionOrderNo);
+                }
+            });
+            if (mode === undefined)
+                $('#InvoiceNo,#InvoiceId').val('')
+            var param = { projectId: projectId };
+            applyAutoComplete($('#InvoiceNo'), $('#InvoiceId'), '@Url.Action("ACInvoiceListForNegReceipt", "CoreAccounts")', 'GetReceiptNoList', undefined, undefined, param);
+        
+        }
+        $('.loading-bg').addClass('dis-none');
+    }
+    function GetInvoiceType() {
+        $('.loading-bg').removeClass('dis-none');
+        var invId = $("#InvoiceId").val() || 0;
+        $('#InvoiceNo,#InvoiceId,#NegativeReceiptNo').val('');
+        $('#divForeignCurrency').addClass('dis-none');
+        if (invId != 0) {
+            $.getJSON("@Url.Action("GetInvoiceType", "CoreAccounts")", { InvoiceId: invId },
+            function (result) {
+                $('#InvoiceTypeId').val(result);
+                if (result == 1)
+                    $('#divForeignCurrency').removeClass('dis-none');
+            });
+        }
+        $('.loading-bg').addClass('dis-none');
+    }
+    $('#NegativeReceiptNo').change(function () {
+        var rId = $(this).val() || 0;
+        if (rId != 0) CheckIsReceiptOHPosted(rId);
+    });
+    function CheckIsReceiptOHPosted(rId) {
+        if (rId != 0) {
+            $('.loading-bg').removeClass('dis-none');
+            $.getJSON("@Url.Action("CheckIsReceiptOHPosted", "CoreAccounts")", { recId: rId },
+            function (result) {
+                if (result.status == false) {
+                    $("#alert").text("Overhead not posted against this receipt.");
+                    $('#Validation').modal('show');
+                    $('.loading-bg').addClass('dis-none');
+                } else {
+                    var data = result.data;
+                    $('#tbodyDeductionList tr td').find('input[name$=".Amount"]').val('');
+                    $('#tbodyExpenseList tr').not(':first').remove();
+                    $('#tbodyExpenseList tr td').find("input[name!='ExpenseDetail.Index']").val('');
+                    $('#BankAmount').val(data.BankAmount);
+                    $('#Bank').val(data.Bank);
+                    $.each(data.ExpenseDetail, function (i, item) {
+                        if (i == 0) {
+                            var trEle = $('#tbodyExpenseList tr:first');
+                            $(trEle).find('input[name$=".Amount"]').val(item.Amount);
+                            $(trEle).find('select[name$=".TransactionType"]').val(item.TransactionType);
+                            $(trEle).find("input[name='ExpenseDetail.Index']").val(i);
+                            var selectGroup = $(trEle).find('select[name$=".AccountGroupId"]');
+                            selectGroup.empty();
+                            $.each(item.AccountGroupList, function (idx, itemData) {
+                                selectGroup.append($('<option/>', {
+                                    value: itemData.id,
+                                    text: itemData.name,
+                                }));
+                            });
+                            selectGroup.val(item.AccountGroupId);
+                            var selectHead = $(trEle).find('select[name$=".AccountHeadId"]');
+                            selectHead.empty();
+                            var grpId = $(trEle).find('select[name$=".AccountGroupId"]').val();
+                            if (grpId == 38 && item.AccountHeadList.length > 1) {
+                                selectHead.append($('<option/>', {
+                                    value: "",
+                                    text: "Select any",
+                                }));
+                            }
+                            $.each(item.AccountHeadList, function (idx, itemData) {
+                                selectHead.append($('<option/>', {
+                                    value: itemData.id,
+                                    text: itemData.name,
+                                }));
+                            });
+                            selectHead.val(item.AccountHeadId);
+                        } else {
+                            var trEleNew = $('#tbodyExpenseList tr:first').clone().find('input').val('').end();
+                            var index = $('#tbodyExpenseList tr:last').find("input[name='ExpenseDetail.Index']").val();
+                            index = parseInt(index) + 1;
+                            $(trEleNew).find('input[name$=".Amount"]').val(item.Amount);
+                            $(trEleNew).find("input[name='ExpenseDetail.Index']").val(index);
+                            $(trEleNew).find('select[name$=".TransactionType"]').val(item.TransactionType);
+                            $(trEleNew).find("input,Select").each(function () {
+                                $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+                                $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+                            });
+                            $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                                $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+                            });
+
+                            var selectGroup = $(trEleNew).find('select[name$=".AccountGroupId"]');
+                            selectGroup.empty();
+                            $.each(item.AccountGroupList, function (idx, itemData) {
+                                selectGroup.append($('<option/>', {
+                                    value: itemData.id,
+                                    text: itemData.name,
+                                }));
+                            });
+                            selectGroup.val(item.AccountGroupId);
+                            var selectHead = $(trEleNew).find('select[name$=".AccountHeadId"]');
+                            selectHead.empty();
+                            var grpId = $(trEleNew).find('select[name$=".AccountGroupId"]').val();
+                            if (grpId == 38 && item.AccountHeadList.length > 1) {
+                                selectHead.append($('<option/>', {
+                                    value: "",
+                                    text: "Select any",
+                                }));
+                            }
+                            $.each(item.AccountHeadList, function (idx, itemData) {
+                                selectHead.append($('<option/>', {
+                                    value: itemData.id,
+                                    text: itemData.name,
+                                }));
+                            });
+                            selectHead.val(item.AccountHeadId);
+                        }
+                    });
+                    CalculateTxTotal();
+                    $('.loading-bg').addClass('dis-none');
+                }
+            });
+        }
+    }
+    function CalculateTxTotal() {
+        var bankamount = parseFloat($('#BankAmount').val()) || 0;
+        var ttlDrVal = parseFloat($('#BankAmount').val()) || 0;
+        var ttlExpVal = 0;
+        var category = $('#categorydropdown').val();
+        $('#tbodyExpenseList select[name$=".TransactionType"]').each(function (i, rowEle) {
+            if ($(this).val() == 'Credit') {
+                var parseVal = parseFloat($(this).closest('tr').find("input[name$='.Amount']").val()) || 0;
+                if (!isNaN(parseVal)) {
+
+                    ttlExpVal = ttlExpVal + parseVal;
+                }
+            } else if ($(this).val() == 'Debit') {
+                var parseVal = parseFloat($(this).closest('tr').find("input[name$='.Amount']").val()) || 0;
+                if (!isNaN(parseVal)) {
+                    ttlDrVal = ttlDrVal + parseVal;
+
+                }
+            }
+        });
+        var deductionAmt = 0;
+        $('#tbodyDeductionList input[name$=".Amount"]').each(function (i, rowEle) {
+            var parseVal = parseFloat($(this).val()) || 0;
+            deductionAmt += parseVal;
+            if (!isNaN(parseVal))
+                ttlExpVal = ttlExpVal + parseVal;
+        });
+        if (category == "15" || category == "18") {
+            ttlDrVal = ttlDrVal - bankamount + deductionAmt;
+            $('#DebitAmount').val(ttlDrVal);
+            ttlExpVal = ttlExpVal + bankamount - deductionAmt;
+            $('#CreditAmount').val(ttlExpVal);
+        } else {
+            $('#DebitAmount').val(ttlDrVal);
+            $('#CreditAmount').val(ttlExpVal);
+        }
+        //$('#DebitAmount').val(ttlDrVal);
+        //$('#CreditAmount').val(ttlExpVal);
+    }
+    function ValidateTransaction() {
+        var msg = 'valid';
+
+        var ttlCrAmt = parseFloat($('#CreditAmount').val()) || 0; 0
+        var ttlDrAmt = parseFloat($('#DebitAmount').val()) || 0;
+        if (ttlCrAmt != ttlDrAmt) {
+            msg = 'Not a valid entry. Credit and Debit value are not equal.';
+        }
+        var hdList = [];
+        $('#tbodyExpenseList tr').find('select[name$=".AccountHeadId"]').each(function (idx, val) {
+            hdList.push($(val).val());
+        });
+        hdList.sort();
+        for (var k = 1; k < hdList.length; ++k) {
+            if (hdList[k] == hdList[k - 1]) {
+                msg = "Duplicate account head exist in expense details. Please select a different head.";
+            }
+        }
+        return msg;
+    }
+    $('#btnSave').click(function (e) {
+        e.preventDefault();
+        formSave();
+    })
+    function formSave() {
+        var validationMsg = 'valid';
+        if ($('#categorydropdown').val() != "18")
+            validationMsg = ValidateTransaction();
+
+        if (validationMsg != 'valid') {
+            $("#alert").text(validationMsg);
+            $('#Validation').modal('show');
+            return false;
+        }
+        //if ($('#categorydropdown').val() == "15") {
+        //    var msg = ValidateReceipt();
+        //    if (msg != 'valid') {
+        //        $("#alert").text(msg);
+        //        $('#Validation').modal('show');
+        //        return false;
+        //    }
+        //}
+
+        var isValid = $('#formRCV').valid();
+        if (!isValid)
+            return false;
+
+        $('#formRCV').submit();
+    }
+
+    $('input[name$="Amount"]').on("copy cut paste drop", function () {
+        return false;
+    });
+    function GetReceiptNoList() {
+        var invId = $("#InvoiceId").val() || 0;
+        var select = $('#NegativeReceiptNo');
+        select.empty();
+        select.append($('<option/>', {
+            value: "",
+            text: "Select any",
+        }));
+        if (invId > 0) {
+            $.getJSON("@Url.Action("GetReceiptNoByInvoice", "CoreAccounts")", { "invId": invId },
+            function (locationdata) {
+                $.each(locationdata, function (index, itemData) {
+                    select.append($('<option/>', {
+                        value: itemData.id,
+                        text: itemData.name,
+                    }));
+                });
+            });
+        }
+    }
+    $(document).on('change', 'select[name$=".AccountGroupId"]', function () {
+        var groupId = $(this).val();
+        var ele = $(this).closest('tr');
+        var select = ele.find("select[name$='.AccountHeadId']");
+        select.empty();
+        select.append($('<option/>', {
+            value: "",
+            text: "Select any",
+        }));
+        if (groupId != '') {
+            $.getJSON("@Url.Action("GetAccountHead", "CoreAccounts")", { "accountGroupId": groupId, "isBank": false },
+             function (locationdata) {
+                 $.each(locationdata, function (index, itemData) {
+                     select.append($('<option/>', {
+                         value: itemData.id,
+                         text: itemData.name,
+                     }));
+                 });
+             });
+        }
+    });
+    $('#btnAddExpense').click(function () {
+        var cln = $('#tbodyExpenseList tr:first').clone().find("select,input").val("").end();
+        var index = $('#tbodyExpenseList tr:last').find("input[name='ExpenseDetail.Index']").val();
+        index = parseInt(index) + 1;
+        $(cln).find("input[name='ExpenseDetail.Index']").val(index);
+        $(cln).find("input, select").each(function () {
+            $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+            $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+        });
+        $(cln).find("span[data-valmsg-for]").each(function () {
+            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+        });
+
+        var selectHead = $(cln).find("select[name$='.AccountHeadId']");
+        selectHead.empty();
+        selectHead.append($('<option/>', {
+            value: "",
+            text: "Select any",
+        }));
+        $('#tbodyExpenseList').append(cln);
+    });
+    $(document).on('click', 'a.removeExpense', function () {
+        if ($('#tbodyExpenseList tr').length != 1) {
+            $(this).closest('tr').remove();
+            CalculateTxTotal();
+        }
+    });
+    //$(document).on('change', '#categorydropdown', function () {
+    var previous;
+    $("#categorydropdown").on('focus', function () {
+        // Store the current value on focus and on change
+        previous = this.value;
+    }).change(function () {
+        if (previous == 18) {
+            var selectGroup = $('select[name="ExpenseDetail[0].AccountGroupId"]');
+            selectGroup.empty();
+            $("#AccountGroupListDisabled > option").each(function () {
+                selectGroup.append($('<option/>', {
+                    value: this.value,
+                    text: this.text,
+                }));
+            });
+            $('#NegativeReceiptNo').val('');
+        }
+        var ttlExpVal = 0; var ttlDrVal = 0;
+        $('#BankAmount').val(0);
+        $('#DebitAmount').val(0);
+        $('#CreditAmount').val(0);
+        $('#tbodyDeductionList tr td').find('input[name$=".Amount"]').val('');
+        $('#tbodyExpenseList tr').not(':first').remove();
+        $('select[name="ExpenseDetail[0].AccountHeadId"]').empty();
+        $('#tbodyExpenseList tr td').find("select,input[name!='ExpenseDetail.Index']").val('');
+        $('#BankAmount,#Bank').val('');
+        resetForm();
+        previous = this.value;
+    });
+    function resetForm() {
+        var category = $('#categorydropdown').val() || 0;
+        if (category == "18") {
+            $('#modediv,#btnAddExpense,.removeExpense').addClass('dis-none');
+            $('#divInv,#divNegativeRecp').removeClass('dis-none');
+            $("#Bank,#BankAmount,select[name$='.AccountHeadId'],select[name$='.AccountGroupId'],select[name$='.TransactionType'],input[name$='.Amount']").attr("disabled", "disabled");
+        } else {
+            $('#modediv,#btnAddExpense,.removeExpense').removeClass('dis-none');
+            if (category == "15")
+                $('#modediv').addClass('dis-none');
+            $('#divInv,#divNegativeRecp').addClass('dis-none');
+            $("#Bank,#BankAmount,select[name$='.AccountHeadId'],select[name$='.AccountGroupId'],select[name$='.TransactionType'],input[name$='.Amount']").removeAttr("disabled", "disabled");
+        }
+        if ($('#categorydropdown').val() == "1" || $('#categorydropdown').val() == "14") {
+            $('#divProj,.pro-div').addClass('dis-none');
+            $('#IsProject').val('false');
+        } else {
+            $('#divProj,.pro-div').removeClass('dis-none');
+            $('#IsProject').val('true');
+        }
+    }
+    function ValidateReceipt() {
+
+        var Receipt = parseFloat($("#Receipt").text()) || 0;
+        var NetBalance = parseFloat($("#NetBalance").text()) || 0;
+        var msg = 'valid';
+        var Amt = parseFloat($('#BankAmount').val()) || 0;
+        var ProjectId = $("#ProjectId").val();
+        if (ProjectId != "" || ProjectId != 0) {
+            @*$.getJSON("@Url.Action("LoadProjectDetails", "Account")", { ProjectId: ProjectId },
+        function (result) {
+            if (result.projectData.ProjectNo != null) {
+                if (Amt > result.projectData.TotalReceipt)
+                {
+                    $("#rev").text('Negative Receipt Amount Should not  be greater than Receipt Amount ');
+                    msg = 'Negative Receipt Amount Should not  be greater than Receipt Amount '
+                }
+            else
+            {
+                msg='valid'
+                $("#rev").text('valid');
+   }
+
+            }
+        });*@
+
+            if (Amt > Receipt) {
+                $("#rev").text('Negative Receipt Amount Should not  be greater than Receipt Amount ');
+                msg = 'Negative Receipt Amount Should not  be greater than Receipt Amount '
+            } else if (Amt > NetBalance) {
+                $("#rev").text('Negative Receipt Amount Should not  be greater than NetBalance ');
+                msg = 'Negative Receipt Amount Should not  be greater than NetBalance '
+
+            }
+            else {
+                msg = 'valid'
+                $("#rev").text('valid');
+            }
+        } else {
+            msg = 'Project Number is required'
+        }
+        return msg;
+    }
+</script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>

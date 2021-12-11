@@ -1,0 +1,608 @@
+﻿@model IOAS.Models.UTRModel
+@{
+    ViewBag.Title = "UTR";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<style>
+    /*div.table-wrapper {
+         border: 1px solid #ccc;
+         height: 100px;
+         width: 100%;
+         overflow-y: auto;
+        }*/
+    .lds-grid {
+        display: inline-block;
+        position: relative;
+        width: 80px;
+        height: 80px;
+    }
+
+        .lds-grid div {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #fff;
+            animation: lds-grid 1.2s linear infinite;
+        }
+
+            .lds-grid div:nth-child(1) {
+                top: 8px;
+                left: 8px;
+                animation-delay: 0s;
+            }
+
+            .lds-grid div:nth-child(2) {
+                top: 8px;
+                left: 32px;
+                animation-delay: -0.4s;
+            }
+
+            .lds-grid div:nth-child(3) {
+                top: 8px;
+                left: 56px;
+                animation-delay: -0.8s;
+            }
+
+            .lds-grid div:nth-child(4) {
+                top: 32px;
+                left: 8px;
+                animation-delay: -0.4s;
+            }
+
+            .lds-grid div:nth-child(5) {
+                top: 32px;
+                left: 32px;
+                animation-delay: -0.8s;
+            }
+
+            .lds-grid div:nth-child(6) {
+                top: 32px;
+                left: 56px;
+                animation-delay: -1.2s;
+            }
+
+            .lds-grid div:nth-child(7) {
+                top: 56px;
+                left: 8px;
+                animation-delay: -0.8s;
+            }
+
+            .lds-grid div:nth-child(8) {
+                top: 56px;
+                left: 32px;
+                animation-delay: -1.2s;
+            }
+
+            .lds-grid div:nth-child(9) {
+                top: 56px;
+                left: 56px;
+                animation-delay: -1.6s;
+            }
+
+
+    table {
+        width: 100%;
+    }
+
+        table thead tr th {
+            text-align: left;
+            position: sticky;
+            top: 0px;
+            /*background-color: #666;
+          color: #fff;*/
+        }
+
+    .bk-tb-scrl {
+        height: 550px;
+    }
+
+    .table > tbody > tr > td, .table > tbody > tr > th, .table > tfoot > tr > td, .table > tfoot > tr > th, .table > thead > tr > td, .table > thead > tr > th {
+        font-size: 12px;
+        font-weight: 300;
+        /*background:transparent !important;*/
+    }
+    
+
+    .bc-td-bg .table > tbody > tr > td {
+        padding: 5px 5px;
+    }
+
+    .bc-td-bg .table .ad-inp .form-control {
+        height: 33px;
+    }
+
+    .bc-td-bg .table .form-control {
+        height: 33px;
+    }
+</style>
+@using (Html.BeginForm("UTR", "CoreAccounts", FormMethod.Post, new { @class = "", role = "form", @id = "formUTR", enctype = "multipart/form-data" }))
+{
+
+    <div class="row hd-tt-bg">
+        <div class="col-md-12">
+            <h4><b>UTR</b> </h4>
+        </div>
+    </div>
+    <div class="row">
+        <div class="white-bg ad-navbar">
+
+            <div class="col-md-3 col-md-offset-9">
+                <div class="reg-no custom-reg-no">
+                    <div class="form-group custom-form-group">
+                        <label>Number</label>
+                        <h4>@Html.DisplayFor(m => m.BatchNumber)</h4>
+                        @Html.HiddenFor(m => m.BOADraftId)
+                        @Html.HiddenFor(m => m.DocumentName)
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="page-wrapper">
+
+            <div class="col-md-12 mb-lg mt-lg">
+                <div class="bl-lg-panel-box">
+                    <div class="cmn-panel-box">
+                        <div class="row cmn-panel-box-adj">
+
+
+                            <div class="col-md-3">
+                                <div class="form-group custom-form-group mb-null ">
+                                    <label>Upload UTR</label>
+                                    <input id="UTRFile" type="file">
+                                    @if (!String.IsNullOrEmpty(Model.DocumentName))
+                                    {
+                                        <a href="@Url.Action("ShowDocument","Project",new { file = Model.DocumentName, filepath = Model.DocumentPath })" target="_blank">@Model.DocumentActualName</a>
+                                    }
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group custom-form-group mb-null ">
+
+                                    <a id="btnImportUTR" href="javascript:void(0)" class="btn btn-default">View Details</a>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="row mb-md">
+                            <div class="col-md-12">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <h3 class="mt-null">UTR Statement</h3>
+                                    </div>
+                                </div>
+                                @*<div class="row">
+                                        <div class="col-md-3">
+                                            <input type="text" id="searchBS" class="form-control" placeholder="search" />
+                                        </div>
+                                        <div class="col-md-3">
+                                            <input type="text" id="searchBSAmt" class="form-control" placeholder="amount" />
+                                        </div>
+                                    </div>*@
+                                <div class="grey-bg-adj bc-td-bg mb-lg">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="bk-tb-scrl">
+                                                <table class="table table-bordered mb-null" style="width: 1150px; max-width:1200px">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Name</th>
+                                                            <th>Record Ref. No</th>
+                                                            <th>Amount</th>
+                                                            <th>Beneficiary Ac. No</th>
+                                                            <th>Input Value Date</th>
+                                                            <th>Status</th>
+                                                            <th>User Ref. No</th>
+                                                            <th>UTR No</th>
+                                                            <th style="width:200px;">Verify Status</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="tbodyBTX">
+
+                                                        @{
+                                                            if (Model.txDetail != null)
+                                                            {
+                                                                int index = 0;
+                                                                foreach (var item in Model.txDetail)
+                                                                {
+                                                                    var name = "txDetail[" + index + "].Name";
+                                                                    var acNo = "txDetail[" + index + "].BeneficiaryAccountNumber";
+                                                                    var recRefNo = "txDetail[" + index + "].Recordreferencenumber";
+                                                                    var amt = "txDetail[" + index + "].Amount";
+                                                                    var inpValDate = "txDetail[" + index + "].InputValueDate";
+                                                                    var status = "txDetail[" + index + "].Status";
+                                                                    var userRefNo = "txDetail[" + index + "].UserReferenceNumber";
+                                                                    var utrNo = "txDetail[" + index + "].UTRNO";
+                                                                    var verifyStatus = "txDetail[" + index + "].VerifyStatus";
+                                                                    var detailId = "txDetail[" + index + "].BOADraftDetailId";
+                                                                    <tr>
+                                                                        <td>
+                                                                            @item.Name
+                                                                            <input type="hidden" name="@name" value="@item.Name" />
+                                                                        </td>
+                                                                        <td>
+                                                                            @item.Recordreferencenumber
+                                                                            <input type="hidden" name="@recRefNo" value="@item.Recordreferencenumber" />
+                                                                        </td>
+                                                                        <td>
+                                                                            @item.Amount
+                                                                            <input type="hidden" name="@amt" value="@item.Amount" />
+                                                                        </td>
+                                                                        <td>
+                                                                            @item.BeneficiaryAccountNumber
+                                                                            <input type="hidden" name="@acNo" value="@item.BeneficiaryAccountNumber" />
+                                                                        </td>
+                                                                        <td>
+                                                                            @item.InputValueDate.Value.ToString("dd/MM/yyyy")
+                                                                            <input type="hidden" name="@inpValDate" value="@item.InputValueDate" />
+                                                                            <input type="hidden" name="@detailId" value="@item.BOADraftDetailId" />
+                                                                        </td>
+                                                                        <td>
+                                                                            @item.Status
+                                                                            <input type="hidden" name="@status" value="@item.Status" />
+                                                                        </td>
+                                                                        <td>
+                                                                            @item.UserReferenceNumber
+                                                                            <input type="hidden" name="@userRefNo" value="@item.UserReferenceNumber" />
+                                                                        </td>
+                                                                        <td>
+                                                                            @item.UTRNO
+                                                                            <input type="hidden" name="@utrNo" value="@item.UTRNO" />
+                                                                        </td>
+                                                                        <td>
+                                                                            @item.VerifyStatus
+                                                                            <input type="hidden" name="@verifyStatus" value="@item.VerifyStatus" />
+                                                                        </td>
+                                                                    </tr>
+                                                                    index++;
+                                                                }
+                                                            }
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 text-center">
+                                <p><input id="chkAcknowledge" type="checkbox" class=""><span class="ml10">I acknowledge this UTR verified by me</span></p>
+                            </div>
+                            <div>
+                                @Html.HiddenFor(m => m.Verified_By)
+                                @Html.HiddenFor(m => m.VerifierName)
+                                @Html.HiddenFor(m => m.DocumentName)
+                                @Html.HiddenFor(m => m.DocumentActualName)
+                                @Html.HiddenFor(m => m.DocumentPath)
+                                <div class="col-md-3 col-md-offset-9">
+                                    <div class="form-group custom-form-group">
+                                        <label>Verified by</label>
+                                        <h4 id="Verified_ByName">@Html.DisplayFor(m => m.VerifierName)</h4>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-lg">
+                                <div class="col-md-12 text-center">
+                                    <a href="javascript:void(0)" id="lnkVerify" class="dis-none mr10">Verify</a>
+                                </div>
+                            </div>
+
+                            <div id="verifyModal" class="modal fade modal-pr-vw" role="dialog">
+                                <div class="modal-dialog">
+
+                                    <!-- Modal content-->
+                                    <div class="modal-content">
+
+                                        <div class="modal-body">
+                                            <div class="row">
+                                                <div class="page-wrapper">
+
+                                                    <div class="col-md-12">
+                                                        <div class="row">
+
+                                                            <div class="col-md-12">
+                                                                <div>
+                                                                    <div>
+                                                                        <div class="row">
+                                                                            <div class="col-md-12">
+                                                                                <div class="form-group custom-form-group mb-null">
+
+                                                                                    <div class="row">
+
+                                                                                        <div class="col-md-12">
+                                                                                            <div class="form-group custom-form-group mb-null">
+                                                                                                <label class="required">Password</label>
+                                                                                                <input class="form-control required" id="VerifierPassword" type="password">
+                                                                                                <span id="errorPass" class="field-validation-error"></span>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+
+                                                                    </div>
+
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                            <div class="page-wrapper">
+                                                <div class="col-md-12">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <a id="btnVerify" href="javascript:void(0);" class="btn btn-primary">Verify</a>
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="col-md-12 text-center">
+                                <div class="form-group custom-form-group ">
+                                    <button type="submit" id="btnSave" class="btn btn-primary">Submit</button>
+                                    <button type="button" class="btn btn-default" onclick="window.location.href='@Url.Action("PaymentProcessInitList", "CoreAccounts" )';">Close</button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+                                                            }
+<div id="popup"></div>
+@Html.AntiForgeryToken()
+<script>
+    var requestRunning = false;
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+    });
+
+    function parseDate(s) {
+        var months = {
+            january: 0, february: 1, march: 2, april: 3, may: 4, june: 5,
+            july: 6, august: 7, september: 8, october: 9, november: 10, december: 11
+        };
+        var p = s.split('-');
+        return new Date(p[2], months[p[1].toLowerCase()], p[0]);
+    }
+    $('#btnImportUTR').click(function () {
+        if (requestRunning) { // don't do anything if an AJAX request is pending
+            return;
+        }
+        var file = $('#UTRFile').val();
+        var draftId = $('#BOADraftId').val() || 0;
+        var model = new FormData();
+        if (file != "") {
+            var extension = file.substr((file.lastIndexOf('.') + 1)).toLowerCase();
+            switch (extension) {
+                case 'xls':
+                case 'xlsx':
+                    isValidExten = true;
+                    break;
+                default:
+                    isValidExten = false;
+            }
+            if (isValidExten == false) {
+                messageBox("Please upload any one of these type file [xls, xlsx].", "warning");
+                return false;
+            }
+            model.append("file", $('#UTRFile')[0].files[0]);
+        }
+        else {
+            var choice = confirm("Are you sure you want to process without bank statement?");
+            if (choice === false) {
+                return false;
+            }
+        }
+        if (draftId == "") {
+            messageBox("something went wrong.", "warning");
+            return false;
+        }
+        model.append("boaDraftId", draftId);
+        var ajaxOpts = {
+            type: "POST",
+            url: '@Url.Action("ImportUTRStatement", "Coreaccounts")',
+            data: model,
+            contentType: false,//"application/x-www-form-urlencoded",
+            dataType: "json",
+            processData: false,
+            success: function (result) {
+                $('#tbodyBTX tr').remove();
+                if (result.status == "Valid") {
+                    var responseData = result.data;
+                    $('#DocumentName').val(responseData.DocumentName);
+                    $('#DocumentActualName').val(responseData.DocumentActualName);
+                    $('#DocumentPath').val(responseData.DocumentPath);
+                    $.each(responseData.txDetail, function (idx, item) {
+                        var txDate = new Date(parseInt(item.InputValueDate.replace(/(^.*\()|([+-].*$)/g, '')));
+                        var day = txDate.getDate();       // yields date
+                        var month = txDate.getMonth() + 1;    // yields month (add one as '.getMonth()' is zero indexed)
+                        var year = txDate.getFullYear();  // yields year
+
+                        $('#tbodyBTX').append(
+                            $('<tr>')
+                             .append($('<td>').append(item.Name).append($('<input/>', { type: 'hidden', name: "txDetail[" + idx + "].Name", value: item.Name })))
+                             .append($('<td>').append(item.Recordreferencenumber).append($('<input/>', { type: 'hidden', name: "txDetail[" + idx + "].Recordreferencenumber", value: item.Recordreferencenumber })))
+                             .append($('<td>').append(item.Amount).append($('<input/>', { type: 'hidden', name: "txDetail[" + idx + "].Amount", value: item.Amount })))
+                             .append($('<td>').append(item.BeneficiaryAccountNumber).append($('<input/>', { type: 'hidden', name: "txDetail[" + idx + "].BeneficiaryAccountNumber", value: item.BeneficiaryAccountNumber })))
+                                .append($('<td>').append(day + "/" + month + "/" + year).append($('<input/>', { type: 'hidden', name: "txDetail[" + idx + "].InputValueDate", value: txDate.toLocaleString("en-US") }))).append($('<input/>', { type: 'hidden', name: "txDetail.index", value: idx })).append($('<input/>', { type: 'hidden', name: "txDetail[" + idx + "].BOADraftDetailId", value: item.BOADraftDetailId }))
+                                .append($('<td>').append(item.Status).append($('<input/>', { type: 'hidden', name: "txDetail[" + idx + "].Status", value: item.Status })))
+                                .append($('<td>').append(item.UserReferenceNumber).append($('<input/>', { type: 'hidden', name: "txDetail[" + idx + "].UserReferenceNumber", value: item.UserReferenceNumber })))
+                                .append($('<td>').append(item.UTRNO).append($('<input/>', { type: 'hidden', name: "txDetail[" + idx + "].UTRNO", value: item.UTRNO })))
+                                .append($('<td>').append(item.VerifyStatus).append($('<input/>', { type: 'hidden', name: "txDetail[" + idx + "].VerifyStatus", value: item.VerifyStatus })))
+                        );
+                    });
+                } else {
+                    messageBox(msg, "error");
+                }
+                requestRunning = false;
+                $('.loading-bg').addClass('dis-none');
+            },
+            error: function (err) {
+                requestRunning = false;
+                $('.loading-bg').addClass('dis-none');
+                console.log("error : " + err);
+            }
+        };
+        requestRunning = true;
+        $('.loading-bg').removeClass('dis-none');
+        $.ajax(ajaxOpts);
+
+    });
+
+    $('#btnSave').click(function (e) {
+        e.preventDefault();
+        var isValid = $('#formUTR').valid();
+        if (!isValid)
+            return false;
+        var bTxLen = $('#tbodyBTX tr').length;
+        if (bTxLen <= 0) {
+            messageBox("No transaction details exists.", "warning");
+            return false;
+        }
+        else if ($('#Verified_By').val() == '') {
+            messageBox("Please acknowledge the UTR.", "warning");
+            return false;
+        }
+        $('#formUTR').submit();
+    });
+    $('#chkAcknowledge').click(function () {
+        if ($(this).is(':checked')) {
+            $('#lnkVerify').removeClass("dis-none");
+        } else {
+            $('#lnkVerify').addClass("dis-none");
+        }
+        $('#Verified_By').val('');
+        $('#VerifierName').val('');
+        $('#Verified_ByName').html('');
+    });
+    $('#lnkVerify').click(function () {
+        var checked = $('#chkAcknowledge').is(':checked');
+        if (checked) {
+            $('#verifyModal').modal('show');
+        } else {
+            $("#alert").text("Please acknowledge the UTR.");
+            $('#Validation').modal('show');
+        }
+    });
+
+    $('#btnVerify').click(function () {
+        var password = $('#VerifierPassword').val();
+        if (password == '') {
+            $('#errorPass').html('This field is required.');
+        } else {
+            $('#errorPass').html('');
+            $.getJSON("@Url.Action("Verification", "Account")", { Password: password },
+            function (data) {
+                if (data != false) {
+                    $('#Verified_By').val(data.userId);
+                    $('#VerifierName').val(data.firstName);
+                    $('#Verified_ByName').html(data.firstName);
+                    $('#verifyModal').modal('hide');
+                } else {
+                    $('#errorPass').html('The password you entered is incorrect.');
+                }
+            });
+        }
+    });
+    $('#searchBS,#searchBSAmt').on('keyup', function (event) {
+        var keycode = (event.keyCode ? event.keyCode : event.which);
+        if (keycode == '119') {
+            var $rows = $("#tbodyBTX tr");
+            $rows.each(function (index) {
+                $row = $(this);
+                if ($row.hasClass('tb-close') || $row.hasClass('active')) {
+                    $row.hide();
+                }
+                else {
+                    $row.show();
+                }
+            });
+            return false;
+        }
+        var value = $('#searchBS').val().toUpperCase();
+        var amtSrc = $('#searchBSAmt').val().toUpperCase();
+        var $rows = $("#tbodyBTX tr");
+
+        if (value === '' && amtSrc === '') {
+            $rows.show();
+            return false;
+        } else if (value !== '' && amtSrc !== '') {
+            $rows.each(function (index) {
+                $row = $(this);
+
+                var refNo = $row.find('input[name $=".ReferenceNumber"]').val().toUpperCase();
+                var des = $row.find("td").eq(2).text().toUpperCase();
+                var amt = $row.find("td").eq(3).text().toUpperCase();
+                var txType = $row.find("td").eq(4).text().toUpperCase();
+
+                if ((refNo.indexOf(value) > -1 || des.indexOf(value) > -1 || txType.indexOf(value) > -1) && amt.indexOf(amtSrc) > -1) {
+                    $row.show();
+                }
+                else {
+                    $row.hide();
+                }
+            });
+        } else if (value === '' && amtSrc !== '') {
+            $rows.each(function (index) {
+                $row = $(this);
+                var amt = $row.find("td").eq(3).text().toUpperCase();
+                if (amt.indexOf(amtSrc) > -1) {
+                    $row.show();
+                }
+                else {
+                    $row.hide();
+                }
+            });
+        } else if (value !== '' && amtSrc === '') {
+            $rows.each(function (index) {
+                $row = $(this);
+
+                var refNo = $row.find('input[name $=".ReferenceNumber"]').val().toUpperCase();
+                var des = $row.find("td").eq(2).text().toUpperCase();
+                var txType = $row.find("td").eq(4).text().toUpperCase();
+
+                if (refNo.indexOf(value) > -1 || des.indexOf(value) > -1 || txType.indexOf(value) > -1) {
+                    $row.show();
+                }
+                else {
+                    $row.hide();
+                }
+            });
+        }
+    });
+    $(window).keydown(function (e) {
+        if (e.keyCode == 13) {
+            e.preventDefault();
+            return false;
+        }
+    });
+</script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>

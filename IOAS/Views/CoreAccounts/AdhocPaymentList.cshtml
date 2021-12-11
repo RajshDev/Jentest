@@ -1,0 +1,480 @@
+﻿@model IOAS.Models.AdhocPaymentModel
+@{
+    ViewBag.Title = "Reimbursement Payment";
+    ViewBag.Subtitle = "Ad hoc Payment List";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<div class="row hd-tt-bg">
+    <div class="col-md-4">
+        <h3>Reimbursement Payment List</h3>
+    </div>
+    <div id="addnewpage" class="col-md-8 flt-nav-links">
+
+        <a href="Javascript:void(0)" id="btnFilter" class="pull-right"> <i class="ion-android-funnel"></i>Filters</a>
+        <a href="@Url.Action("AdhocPayment")"> <i class="ion-plus"></i>Add New</a>
+
+    </div>
+</div>
+<div class="row mt30">
+    <div class="page-wrapper">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="custom-jsgrid-normal">
+                    <div id="AdhocPaymentList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="popup" ></div>
+<div id="popupFilter" class="filter-popup">
+    <div class="">
+        <div class="filter-content">
+            <div class="white-bg">
+                <div class="form-group custom-form-group">
+                    <h3>Filter by</h3>
+                </div>
+
+                @*<div class="form-group custom-form-group">
+                    @Html.TextBoxFor(m => m.SearchField.InvoiceNumber, new { @id = "srchinvoicenumber", @placeholder = "Invoice Number", @class = "form-control" })
+                </div>*@
+
+                <div class="form-group custom-form-group">
+                    @Html.TextBoxFor(m => m.SearchField.AdhocPaymentNumber, new { @id = "srchadhocpaynumber", @placeholder = "Reimbursement Number", @class = "form-control" })
+                </div>
+                <div class="form-group custom-form-group">
+                    @Html.TextBoxFor(m => m.SearchField.PayeeName, new { @id = "srchPayeeName", @placeholder = "Payee Name", @class = "form-control" })                    
+                </div>               
+                <div id="DivCrtdDate" class="form-group custom-form-group">
+                    <label class="full-width">Created Date</label>
+                    <label class="half-form">From Date </label>
+                    @Html.TextBoxFor(m => m.SearchField.FromDate, new { @id = "FromDate", @class = "form-control half-form", @readonly = "readonly" })
+                    <label class="half-form">To Date </label>
+                    @Html.TextBoxFor(m => m.SearchField.ToDate, new { @id = "ToDate", @class = "form-control half-form", @readonly = "readonly" })
+                </div>
+                <div class="form-group custom-form-group mt30 text-center">
+                    <a id="btnReset" href="javascript:void(0)">Reset</a>
+                </div>
+                <div class="form-group custom-form-group mt30 text-center">
+                    <button id="btnSearch" type="button" class="btn btn-primary mr10">Search</button>
+                    <button name="btnClose" type="button" class="btn btn-default">Close</button>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <a href="javascript:void(0)" name="btnClose" class="close-btn"><i class="ion-android-cancel"></i></a>
+
+</div>
+<script type="text/javascript">
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    $(document).ready(function () {
+        
+        $("#FromDate, #ToDate").datepicker
+           ({
+               dateFormat: 'dd-MM-yy',
+               showStatus: true,
+               showWeeks: true,
+               changeYear: true,
+               yearRange: '-100:+100',
+               highlightWeek: true,
+               numberOfMonths: 1,
+               showAnim: "scale",
+               showOptions: {
+                   origin: ["top", "left"]
+               }
+           });
+
+    });
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+    });
+    var DateField = function (config) {
+        jsGrid.Field.call(this, config);
+    };
+
+    DateField.prototype = new jsGrid.Field({
+        sorter: function (date1, date2) {
+            return new Date(date1) - new Date(date2);
+        },
+
+        itemTemplate: function (value) {
+            return new Date(value).toDateString();
+        },
+
+        filterTemplate: function () {
+            var now = new Date();
+            this._fromPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() - 1), changeYear: true });
+            this._toPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() + 1), changeYear: true });
+            return $("<div>").append(this._fromPicker).append(this._toPicker);
+        },
+
+        insertTemplate: function (value) {
+            return this._insertPicker = $("<input>").datepicker({ defaultDate: new Date() });
+        },
+
+        editTemplate: function (value) {
+            return this._editPicker = $("<input>").datepicker().datepicker("setDate", new Date(value));
+        },
+
+        insertValue: function () {
+            return this._insertPicker.datepicker("getDate").toISOString();
+        },
+
+        editValue: function () {
+            return this._editPicker.datepicker("getDate").toISOString();
+        },
+
+        filterValue: function () {
+            return {
+                from: this._fromPicker.datepicker("getDate"),
+                to: this._toPicker.datepicker("getDate")
+            };
+        }
+    });
+    jsGrid.fields.date = DateField;
+    var db;
+    $("#AdhocPaymentList").jsGrid({
+        paging: true,
+        pageIndex: 1,
+        pageSize: 5,
+        editing: false,
+        filtering: true,
+        pageLoading: true,
+        autoload: true,
+        controller: {
+
+            loadData: function (filter) {
+                //return $.grep(db, function (ow) {
+                   // return (!filter.BillNumber || ow.BillNumber.toLowerCase().indexOf(filter.BillNumber.toLowerCase()) > -1)
+                   //&& (!filter.Name || ow.Name.toLowerCase().indexOf(filter.Name.toLowerCase()) > -1)
+                   //&& (!filter.AdhocPaymentNumber || ow.AdhocPaymentNumber.toLowerCase().indexOf(filter.AdhocPaymentNumber.toLowerCase()) > -1)
+                   //&& (!filter.AdhocPaymentDate.from || new Date(ow.AdhocPaymentDate) >= filter.AdhocPaymentDate.from)
+                   //&& (!filter.AdhocPaymentDate.to || new Date(ow.AdhocPaymentDate) <= filter.AdhocPaymentDate.to);
+                //});
+                var searchData = [];
+                searchData = {
+                    InNameOfPI: filter.Name||null,
+                    InPaymentNumber: filter.AdhocPaymentNumber || null,
+                    InNetPaybleAmount: filter.NetPayableValue || null,
+                    InStatus: filter.Status || null,
+                    ExPaymentNumber: $("#srchadhocpaynumber").val() || null,
+                    ExNameOfPI: $("#srchPayeeName").val() || null,
+                    ExFromDate: $("#FromDate").val() || null,
+                    ExToDate: $("#ToDate").val() || null,
+                },
+                filter.model = searchData;
+                var deferred = $.Deferred();
+                $.ajax({
+                    type: "post",
+                    url: 'GetAdhocPaymentList',
+                    data: JSON.stringify(filter),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (result) {
+                        //db = result;
+                        //$("#AdvanceBillPaymentList").jsGrid({ data: db });
+                        var da = {
+                            data: result.Adhoclist,
+                            itemsCount: result.TotalRecords
+                        }
+                        deferred.resolve(da);
+                    },
+                    error: function (err) {
+                        console.log("error : " + err);
+                    }
+
+                });
+                return deferred.promise();
+            }
+
+        },
+
+        fields: [
+            { name: "SlNo", title: "S.No", editing: false, width: 10 },
+            { type: "number", name: "AdhocId", title: "Id", visible: false, align: "left" },
+           // { type: "number", name: "Projectid", title: "Project Id", visible: false, align: "left" },
+           // { type: "number", name: "ProjectNumber", title: "Project Number", align: "left", width: 70 },
+            { type: "text", name: "Name", title: "Name of Payee", editing: false, align: "left", width: 70 },
+            { type: "text", name: "AdhocPaymentNumber", title: "Reimbursement Payment Number", editing: false, align: "left", width: 70 },           
+            { type: "text",name: "NetPayableValue", title: "Net Payable Amount", editing: false, align: "left", width: 70 },
+            { type: "date", name: "AdhocPaymentDate", title: "Date", editing: false, align: "left", width: 70 },
+            {
+                type: "text", name: "Status", title: "Status", editing: false, align: "left", width: 60,
+                cellRenderer: function (item, value) {
+                    if (value.BillProcessingStatus == true) {
+                        return $("<td>").addClass("bg-green").append(value.Status);
+                    }
+                    else {
+                        return $("<td>").append(value.Status);
+                    }
+                }
+            },
+             {
+                 type: "control", editButton: false, deleteButton: false, title: "Action", width: 80,
+                 itemTemplate: function (value, item) {
+                     var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+                     if (item.Status == "Open") {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "Edit", name: "Edit" }, { id: "Print Bill", name: "Print Bill" }, { id: "Submit for approval", name: "Submit for approval" }, { id: "View", name: "View" }]
+                     } else if (item.Status == "Approval Pending") {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "Print Bill", name: "Print Bill" }, { id: "View", name: "View" }]
+                     } else if (item.Status == "Approved") {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "Print Bill", name: "Print Bill" }, { id: "View", name: "View" }]
+                     }
+                     else if (item.Status == "Active") {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "Print Bill", name: "Print Bill" }, { id: "View", name: "View" }]
+                     }
+                     else
+                     {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "Print Bill", name: "Print Bill" }, { id: "View", name: "View" }]
+                     }
+                     var $customSelect = $("<select>")
+                         .attr("class", "form-control").prop("selectedIndex", "")
+                    
+                     $.each(statusList, function (index, itemData) {
+                         $customSelect.append($('<option/>', {
+                             
+                             value: itemData.id,
+                             text: itemData.name
+                         }));
+                     });
+
+                     $customSelect.change(function (e) {
+                         var selVal = $(this).val();
+                         @*if (selVal == "Delete") {
+                             var choice = confirm("Are you sure, Do you want to delete this bill?");
+                             if (choice === true) {
+                                 $.ajax({
+                                     type: "POST",
+                                     url: '@Url.Action("DeleteSummerInternship", "CoreAccounts")',
+                                     data: {
+                                         travelBillId: item.TravelBillId
+                                     },
+                                     success: function (result) {
+                                         if (result == true) {
+                                             $('#alertSuccess').html("Advance bill has been deleted successfully.");
+                                             $('#Success').modal('toggle');
+                                             loadDetails();
+                                         } else if (result == false) {
+                                             $('#FailedAlert').html("Something went wrong please contact administrator");
+                                             $('#Failed').modal('toggle');
+                                         }
+                                     },
+                                     error: function (err) {
+                                         console.log("error1 : " + err);
+                                     }
+                                 });
+                             }
+                         } else*@
+                         if (selVal == "Edit") {
+                             var url = '@Url.Action("AdhocPayment", "CoreAccounts")?adhocId=' + item.AdhocId;
+                             window.location.href = url;
+                         } else if (selVal == "Print Bill") {
+                             var url = '@Url.Action("ReimbursementBill", "ReportMaster")?Id=' + item.AdhocId;
+                             window.open(url, '_blank');
+                         }
+                         else if (selVal == "Submit for approval") {
+                             var choice = confirm("Are you sure, Do you want to submit this bill for approval process?");
+                             if (choice === true) {
+                                 $.ajax({
+                                     type: "POST",
+                                     url: '@Url.Action("AdhocPaymentWFInit", "CoreAccounts")',
+                                     data: {
+                                         billId: item.AdhocId
+                                     },
+                                     success: function (result) {
+                                         if (result.status == true) {
+                                             $('#alertSuccess').html("Ad hoc payment has been submitted for approval process successfully.");
+                                             $('#Success').modal('toggle');
+                                             getData();
+                                         } else if (result.status == false) {
+                                             $('#FailedAlert').html(result.msg);
+                                             $('#Failed').modal('toggle');
+                                         }
+                                     },
+                                     error: function (err) {
+                                         console.log("error1 : " + err);
+                                     }
+                                 });
+                             }
+                         }
+                         @*else if (selVal == "Approve") {
+                             var choice = confirm("Are you sure, Do you want to approve this entry?");
+                             if (choice === true) {
+                                 $.ajax({
+                                     type: "GET",
+                                     url: '@Url.Action("AdhocPaymentApprove", "CoreAccounts")',
+                                     data: { id: item.AdhocId },
+                                     success: function (result) {
+                                         if (result == true) {
+                                             $('#alertSuccess').html("Ad hoc payment has been submitted for approval process successfully.");
+                                             $('#Success').modal('toggle');
+                                             loadDetails();
+                                         } else if (result == false) {
+                                             $('#FailedAlert').html("Something went wrong please contact administrator.");
+                                             $('#Failed').modal('toggle');
+                                         }
+                                     },
+                                     error: function (err) {
+                                         console.log("error1 : " + err);
+                                     }
+                                 });
+                             }
+                         }*@                         
+                         else if (selVal == "View") {
+                             var url = '@Url.Action("AdhocPaymentView", "CoreAccounts")?adhocId=' + item.AdhocId;
+                             window.location.href = url;
+                         }
+                         $(this).val("");
+                         return false;
+                         e.stopPropagation();
+                     });
+
+                     return $result.add($customSelect);
+                 },
+                 _createFilterSwitchButton: function () {
+                     return this._createOnOffSwitchButton("filtering", this.searchModeButtonClass, false);
+                 }
+             }
+
+
+        ],
+
+    });
+    $("#AdhocPaymentList").jsGrid("option", "filtering", false);
+    //loadDetails();
+    function loadDetails() {     
+        @*$.ajax({
+            type: "GET",
+            url: '@Url.Action("GetAdhocPaymentList", "CoreAccounts")',
+            data: { },
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (result) {
+                    db = result;
+                    $("#AdhocPaymentList").jsGrid({ data: db });
+            },
+            error: function (err) {
+                console.log("error : " + err);
+            }
+
+        });*@
+        var input = [];
+        input = {
+            //InNameOfPI: filter.Name || null,
+            //InPaymentNumber: filter.InPaymentNumber || null,
+            //InNetPaybleAmount: filter.NetPayableValue || null,
+            //InStatus: filter.InStatus || null,
+            ExPaymentNumber: $("#srchadhocpaynumber").val() || null,
+            ExNameOfPI: $("#srchPayeeName").val() || null,
+            ExFromDate: $("#FromDate").val() || null,
+            ExToDate: $("#ToDate").val() || null,
+        },
+        $("#AdhocPaymentList").jsGrid("search", input, pageIndex = 1, pageSize = 5);
+    }
+    //$('input[id^="SearchBy_"]').change(function () {
+    //    var value = $(this).val();
+    //    if (value == 'InternshipDate') {
+    //        $('#DivSIDate').show();
+    //        $('#DivCrtdDate').hide();
+    //    }
+    //    else {
+    //        $('#DivCrtdDate').show();
+    //        $('#DivSIDate').hide();
+    //    }
+    //    $('#FromSIDate').val('');
+    //    $('#ToSIDatex ').val('');
+    //    $('#FromDate').val('');
+    //    $('#ToDate').val('');
+    //});
+    $('a[name="btnClose"],button[name="btnClose"]').click(function () {
+        $('#popupFilter').css("display", "none");
+    });
+    $("#btnFilter").click(function () {
+        $('#popupFilter').css("display", "Block");
+    });
+
+    function ResetForm() {
+        $('#srchadhocpaynumber').val('');
+        $('#srchinvoicenumber').val();
+        $('#srchPayeeName').val('');
+        $('#FromDate').val('');
+        $('#ToDate').val('');
+    }
+    $('#btnReset').click(function () {
+        ResetForm();
+        //getData();
+        loadDetails();
+    });
+    $('#btnSearch').on('click', function () {
+        // var token = $("input[name=__RequestVerificationToken]").val();
+       // getData(1);
+        loadDetails();
+    });
+   // var searchAdhocPayURL = 'SearchAdhocPaymentList';
+    function getData() {
+        
+        //var InvoiceNumber = $('#srchinvoicenumber').val();
+        //var Adhocnumber = $('#srchadhocpaynumber').val();
+        //var Payeename = $('#srchPayeeName').val();       
+        //var FromDate = $('#FromDate').val();
+        //var ToDate = $('#ToDate').val();
+       
+        //if (InvoiceNumber == "") {
+        //    InvoiceNumber = null;
+        //}
+        //if (Adhocnumber == "") {
+        //    Adhocnumber = null;
+        //}
+        //if (Payeename == "") {
+        //    Payeename = null;
+        //} 
+        //if (FromDate == "") {
+        //    FromDate = null;
+        //}
+        //if (ToDate == "") {
+        //    ToDate = null;
+        //}        
+        //  var searchdata = { "__RequestVerificationToken": token, "ProjectType": Projecttype,"ProposalNumber": Proposalnumber, "PIname": PIName, "Searchby": SearchBy, "FromSOdate": FromSODate, "ToSOdate": ToSODate, "Fromdate": FromDate, "Todate": ToDate };
+        var searchdata = {
+            //InNameOfPI: filter.Name || null,
+            //InPaymentNumber: filter.InPaymentNumber || null,
+            //InNetPaybleAmount: filter.NetPayableValue || null,
+            //InStatus: filter.InStatus || null,
+            ExPaymentNumber: $("#srchadhocpaynumber").val() || null,
+            ExNameOfPI: $("#srchPayeeName").val() || null,
+            ExFromDate: $("#FromDate").val() || null,
+            ExToDate: $("#ToDate").val() || null,
+        };
+
+        $.ajax({
+            type: "post",
+            url: 'GetAdhocPaymentList',
+            data: searchdata,
+            //data: { "ProjectType": Projecttype, "ProposalNumber": Proposalnumber, "FromSOdate": FromSODate, "ToSOdate": ToSODate, },
+            //contentType: "application/x-www-form-urlencoded",
+            dataType: "json",
+            success: function (result) {
+                // dataProposal = result;
+                $("#AdhocPaymentList").jsGrid({
+                    data: result.Adhoclist,
+                    itemsCount: result.TotalRecords
+                });
+                //   $('#popupFilter').hide();
+            },
+            error: function (err) {
+                console.log("error : " + err);
+            }
+        });
+    }
+</script>

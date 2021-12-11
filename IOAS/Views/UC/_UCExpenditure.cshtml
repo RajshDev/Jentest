@@ -1,0 +1,174 @@
+﻿@model IEnumerable<IOAS.Models.UCExpenditureModel>
+<div class="row">
+    <div class="col-md-12">
+        <h3 class="mt-null mb-lg">Expenditure</h3>
+    </div>
+</div>
+<div class="mb-lg">
+    <div class="row">
+        <div class="col-md-12 vw-dts-bg mt-null pdt-null">
+            <div class="scrl-table scrl-table-po-bl">
+                <table class="table table-bordered  mb-null">
+                    <thead>
+                        <tr>
+                            <th rowspan="2"><b>Head</b></th>
+                            <th rowspan="2"><b>As per Book (A)</b></th>
+                            <th colspan="4"><b>Commitment</b></th>
+                            <th rowspan="2"><b>As per UC (A+B)-(C+D)</b></th>
+                        </tr>
+                        <tr>
+
+                            <th>Commitment treated as exp (B)</th>
+                            <th>UC commitment utilized (C)</th>
+                            <th>UC commitment withdrawn (D)</th>
+                            <th>UC commitment unutilized</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyExpList">
+                        @if (Model.Count() > 0)
+                        {
+                            var count = 0;
+                            foreach (var item in Model)
+                            {
+                                var hdId = "ExpDetails[" + count + "].AllocationHeadId";
+                                var expUC = "ExpDetails[" + count + "].ExpenditureAsPerUC";
+                                var expBook = "ExpDetails[" + count + "].ExpenditureAsPerBook";
+                                var commtUtilize = "ExpDetails[" + count + "].UCCommitmentUtilized";
+                                var commtExp = "ExpDetails[" + count + "].CommitmentTreatedAsExp";
+                                var commtUnutilize = "ExpDetails[" + count + "].UCCommitmentUnutilized";
+                                var commtwithdrawn = "ExpDetails[" + count + "].UCCommitmentWithdrawn";
+                                <tr>
+                                    <td class="dis-none">
+                                        @Html.Hidden(@hdId, item.AllocationHeadId)
+                                        @Html.Hidden(@expUC, item.ExpenditureAsPerUC)
+                                        @Html.Hidden(@expBook, item.ExpenditureAsPerBook)
+                                        @Html.Hidden(@commtUtilize, item.UCCommitmentUtilized)
+                                        @Html.Hidden(@commtExp, item.CommitmentTreatedAsExp)
+                                        @Html.Hidden(@commtUnutilize, item.UCCommitmentUnutilized)
+                                        @Html.Hidden(@commtwithdrawn, item.UCCommitmentWithdrawn)
+                                    </td>
+                                    <td>
+                                        @item.AllocationHead
+                                    </td>
+                                    <td>@item.ExpenditureAsPerBook</td>
+                                    <td>@item.CommitmentTreatedAsExp</td>
+                                    <td>@item.UCCommitmentUtilized</td>
+                                    <td>@item.UCCommitmentWithdrawn</td>
+                                    <td>@item.UCCommitmentUnutilized</td>
+                                    <td>@item.ExpenditureAsPerUC</td>
+                                   
+                                </tr>
+                                count++;
+
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td class="dis-none">
+                                    @Html.Hidden("ExpDetails[0].AllocationHeadId", "0")
+                                    @Html.Hidden("ExpDetails[0].ExpenditureAsPerUC", "0")
+                                    @Html.Hidden("ExpDetails[0].ExpenditureAsPerBook", "0")
+                                    @Html.Hidden("ExpDetails[0].CommitmentTreatedAsExp", "0")
+                                    @Html.Hidden("ExpDetails[0].UCCommitmentUtilized", "0")
+                                    @Html.Hidden("ExpDetails[0].UCCommitmentUnutilized", "0")
+                                    @Html.Hidden("ExpDetails[0].UCCommitmentWithdrawn", "0")
+                                </td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        }
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-md-4 col-md-offset-8">
+            <div class="form-group custom-form-group ">
+                <label>Total Value :</label>
+                @Html.TextBox("TotalExpenditure", "", new { @class = "form-control", @readonly = "readonly" })
+                @Html.Hidden("overAllCommExp")
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    function getHeadwiseExp(projId, UCId, UCType, finYear) {
+        EmptyExpList();
+        $('.loading-bg').removeClass('dis-none');
+        $.ajax({
+            type: "GET",
+            url: "@Url.Action("GetExpenditure", "UC")",
+            data: { "projectId": projId, "UCId": UCId, "UCType": UCType, "finYear": finYear },
+            dataType: "json",
+            success: function (result) {
+                $.each(result, function (i, item) {
+                    if (i == 0) {
+                        var trEle = $('#tbodyExpList tr:first');
+                        $(trEle).find('input[name$=".AllocationHeadId"]').val(item.AllocationHeadId);
+                        $(trEle).find('input[name$=".ExpenditureAsPerBook"]').val(item.ExpenditureAsPerBook);
+                        $(trEle).find('input[name$=".ExpenditureAsPerUC"]').val(item.ExpenditureAsPerUC);
+                        $(trEle).find('input[name$=".CommitmentTreatedAsExp"]').val(item.CommitmentTreatedAsExp);
+                        $(trEle).find('input[name$=".UCCommitmentUtilized"]').val(item.UCCommitmentUtilized);
+                        $(trEle).find('input[name$=".UCCommitmentUnutilized"]').val(item.UCCommitmentUnutilized);
+                        $(trEle).find('input[name$=".UCCommitmentWithdrawn"]').val(item.UCCommitmentWithdrawn);
+                        $(trEle).find('td:nth-child(2)').html(item.AllocationHead);
+                        $(trEle).find('td:nth-child(3)').html(item.ExpenditureAsPerBook);
+                        $(trEle).find('td:nth-child(4)').html(item.CommitmentTreatedAsExp);
+                        $(trEle).find('td:nth-child(5)').html(item.UCCommitmentUtilized);
+                        $(trEle).find('td:nth-child(6)').html(item.UCCommitmentWithdrawn);
+                        $(trEle).find('td:nth-child(7)').html(item.UCCommitmentUnutilized);
+                        $(trEle).find('td:nth-child(8)').html(item.ExpenditureAsPerUC);
+                    } else {
+                        var trEleNew = $('#tbodyExpList tr:first').clone();
+                        $(trEleNew).find('input[name$=".AllocationHeadId"]').val(item.AllocationHeadId);
+                        $(trEleNew).find('input[name$=".ExpenditureAsPerBook"]').val(item.ExpenditureAsPerBook);
+                        $(trEleNew).find('input[name$=".ExpenditureAsPerUC"]').val(item.ExpenditureAsPerUC);
+                        $(trEleNew).find('input[name$=".CommitmentTreatedAsExp"]').val(item.CommitmentTreatedAsExp);
+                        $(trEleNew).find('input[name$=".UCCommitmentUtilized"]').val(item.UCCommitmentUtilized);
+                        $(trEleNew).find('input[name$=".UCCommitmentUnutilized"]').val(item.UCCommitmentUnutilized);
+                        $(trEleNew).find('input[name$=".UCCommitmentWithdrawn"]').val(item.UCCommitmentWithdrawn);
+                        $(trEleNew).find('td:nth-child(2)').html(item.AllocationHead);
+                        $(trEleNew).find('td:nth-child(3)').html(item.ExpenditureAsPerBook);
+                        $(trEleNew).find('td:nth-child(4)').html(item.CommitmentTreatedAsExp);
+                        $(trEleNew).find('td:nth-child(5)').html(item.UCCommitmentUtilized);
+                        $(trEleNew).find('td:nth-child(6)').html(item.UCCommitmentWithdrawn);
+                        $(trEleNew).find('td:nth-child(7)').html(item.UCCommitmentUnutilized);
+                        $(trEleNew).find('td:nth-child(8)').html(item.ExpenditureAsPerUC);
+                        $(trEleNew).find("input").each(function () {
+                            $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                            $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                        });
+                        $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                        });
+                        $('#tbodyExpList').append(trEleNew);
+                    }
+                });
+                $('.loading-bg').addClass('dis-none');
+                calcUCAmount();
+            },
+            error: function (err) {
+                $('.loading-bg').addClass('dis-none');
+                console.log("error : " + err);
+            }
+        });
+    }
+
+    function EmptyExpList() {
+        $('#tbodyExpList tr').not(':first').remove();
+        $('#tbodyExpList tr td').not(':first').html('');
+        $('#tbodyExpList tr td').find("input").val("");
+    }
+
+
+
+</script>

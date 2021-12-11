@@ -1,0 +1,465 @@
+﻿@model IOAS.Models.OfficeMonthlyReportModel
+
+@{
+    ViewBag.Title = "OfficeMonthlyBillDetails";
+}
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="Connect UW">
+    <!-- favicon icon -->
+    <link rel="shortcut icon" href="images/connectuw-icn.png" />
+    <title>OfficeMonthlyBill</title>
+    <link href="https://fonts.googleapis.com/css?family=Poppins:400,400i,700,700i" rel="stylesheet">
+    <link href="@Url.Content("~/Content/IOASContent/css/bootstrap.min.css")" rel="stylesheet" />
+
+    <style>
+        .umr-body {
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+            color: #2a2a2a;
+        }
+
+        .umr-hd {
+            text-align: center;
+            border-bottom: 1px solid #d4d4d4;
+            padding-bottom: 20px;
+            padding-top: 20px;
+        }
+
+            .umr-hd h2 {
+                font-size: 16px;
+                color: #000;
+                font-weight: normal;
+                text-align: left;
+            }
+
+                .umr-hd h2 em {
+                    font-size: 14px;
+                    float: left;
+                    font-style: normal;
+                }
+
+                .umr-hd h2 b {
+                    font-size: 14px;
+                    float: right;
+                    font-weight: normal;
+                }
+
+        .umr-hd-tt {
+            font-size: 26px;
+        }
+
+        .umr-hd-stt {
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .sb-tt {
+            margin-top: 0px;
+            font-weight: normal;
+            text-decoration: underline;
+        }
+
+        .mb-md {
+            margin-bottom: 30px;
+        }
+
+        .mb-sm {
+            margin-bottom: 15px;
+        }
+
+        .mt-md {
+            margin-top: 30px;
+        }
+
+        .mt-sm {
+            margin-top: 15px;
+        }
+
+        .mb-sm {
+            margin-bottom: 10px;
+        }
+
+        .umr-body li {
+            margin-bottom: 10px;
+        }
+
+        .tp-tt {
+            margin-top: 20px;
+            text-decoration: underline;
+            font-weight: bold;
+        }
+
+        .grey-bg {
+            background: #eee;
+            padding: 15px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+            .grey-bg .icn-box {
+                padding: 10px;
+            }
+
+                .grey-bg .icn-box em {
+                    font-size: 13px;
+                    color: #000;
+                    font-style: normal;
+                    width: 100%;
+                    display: inline-block;
+                    margin-bottom: 5px;
+                }
+
+                .grey-bg .icn-box span {
+                    font-size: 15px;
+                    color: #000;
+                    font-style: normal;
+                }
+
+        .cnt-bg {
+            padding: 15px;
+        }
+
+        .gr-bg {
+            background: #eee;
+        }
+
+        .logo-section .icsr-logo {
+            width: 80px;
+            float: left;
+        }
+
+        .logo-section .dts {
+            /* width: calc(100% - 230px);
+            float: left*/
+        }
+
+        .logo-section h4 {
+            margin-top: 0px;
+        }
+
+        .logo-section .iitm-logo {
+            width: 100px;
+            float: right;
+        }
+
+        .logo-section h5 {
+            font-size: 16px;
+        }
+
+
+
+        .fn-bl {
+            font-weight: bold;
+        }
+
+
+        .cnt-bg .table em {
+            font-size: 13px;
+            font-style: normal;
+            width: 100%;
+            display: inline-block;
+            margin-bottom: 5px;
+        }
+
+        .table-bordered > tbody > tr > td {
+            vertical-align: middle;
+        }
+
+        .table-bordered {
+            display: inline-block;
+        }
+    </style>
+
+</head>
+<body class="umr-body">
+
+    <header class="umr-hd">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="logo-section">
+                        <table width="100%">
+                            <tbody>
+                                <tr>
+                                    <td><img src="~/Content/InstituteLogo/icsr_logo.png" class="icsr-logo" /></td>
+                                    <td class="text-center">
+                                        <div class="dts " style="width:100%;">
+                                            <h3 style="padding-bottom: 5px;"><b>Centre for IC & SR, IIT Madras</b></h3>
+                                            <h5 style="padding-bottom: 5px;"><b>Chennai 600 036</b></h5>
+                                            <h4>Details of Sponsored Assignments - @Html.DisplayFor(m => m.CurrMonth)</h4>
+                                        </div>
+                                    </td>
+                                    <td><img src="~/Content/InstituteLogo/iitm_logo.png" class="iitm-logo" /></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+
+    <section class="cnt-bg  umr-hd">
+        <div class="container-fluid">
+            <div class="row mt-sm">
+                <div class="col-md-12">
+                    <table class="table table-bordered mb-md ct-tr-tb">
+                        <tbody>
+                            <tr>
+                                <td colspan="3" rowspan="2" style="width:320px;"><b>Department / Centre</b></td>
+                                <td colspan="3"><b>No. of Sponsored Assigments </b></td>
+                                <td colspan="3"><b>Value of Sponsored Assignments  (Rs. In Lakhs)</b></td>
+                                <td colspan="3"><b>Actual funds received  (Rs. In Lakhs)</b></td>
+                            </tr>
+                            <tr>
+                                <td>@Html.DisplayFor(m => m.CurrMonth)</td>
+                                <td style="width:100px;">@Html.DisplayFor(m => m.FromDate) To @Html.DisplayFor(m => m.ToDate)</td>
+                                <td>Total</td>
+                                <td>@Html.DisplayFor(m => m.CurrMonth)</td>
+                                <td style="width:100px;">@Html.DisplayFor(m => m.FromDate) To @Html.DisplayFor(m => m.ToDate)</td>
+                                <td>Total</td>
+                                <td>@Html.DisplayFor(m => m.CurrMonth)</td>
+                                <td style="width:100px;">@Html.DisplayFor(m => m.FromDate) To @Html.DisplayFor(m => m.ToDate)</td>
+                                <td>Total</td>
+                            </tr>
+                            @if (Model != null)
+                            {
+                                var count = 0;
+                                for (int i = 0; i < Model.List.Count; i++)
+                                {
+                            <tr>
+                                <td colspan="2" rowspan="2"><b>@Html.DisplayFor(m => Model.List[i].DepartmentName)</b></td>
+                                <td><b>A</b></td>
+                                <td>@Html.DisplayFor(m => Model.List[i].NoOfProjCurMonth_A)</td>
+                                <td>@Html.DisplayFor(m => Model.List[i].NoOfProjPrevMonth_A)</td>
+                                <td><b>@Html.DisplayFor(m => Model.List[i].TotalProj_A)</b></td>
+                                <td>@Html.DisplayFor(m => Model.List[i].AmtforCurMonth_A)</td>
+                                <td>@Html.DisplayFor(m => Model.List[i].AmtforPrevMonth_A)</td>
+                                <td><b>@Html.DisplayFor(m => Model.List[i].TotalAmt_A)</b></td>
+                                <td rowspan="2">@Html.DisplayFor(m => Model.List[i].AmtforRecCurMonth)</td>
+                                <td rowspan="2">@Html.DisplayFor(m => Model.List[i].AmtforRecPrevMonth)</td>
+                                <td rowspan="2"><b>@Html.DisplayFor(m => Model.List[i].TotalRecAmt)</b></td>
+                            </tr>
+                            <tr>
+                                <td><b>B</b></td>
+                                <td>@Html.DisplayFor(m => Model.List[i].NoOfProjCurMonth_B)</td>
+                                <td>@Html.DisplayFor(m => Model.List[i].NoOfProjPrevMonth_B)</td>
+                                <td><b>@Html.DisplayFor(m => Model.List[i].TotalProj_B)</b></td>
+                                <td>@Html.DisplayFor(m => Model.List[i].AmtforCurMonth_B)</td>
+                                <td>@Html.DisplayFor(m => Model.List[i].AmtforPrevMonth_B)</td>
+                                <td><b>@Html.DisplayFor(m => Model.List[i].TotalAmt_B)</b></td>
+                            </tr>
+                                    if (i == 14)
+                                    {
+                                        break;
+                                    }
+                                    count++;
+                                }
+                            }
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="cnt-bg umr-hd">
+        <div class="container-fluid">
+            <div class="row mt-sm">
+                <div class="col-md-12">
+
+                    <table class="table table-bordered mb-md ct-tr-tb">
+                        <tbody>
+                            <tr>
+                                <td colspan="3" rowspan="2" style="width:320px;"><b>Department / Centre</b></td>
+                                <td colspan="3"><b>No. of Sponsored Assigments </b></td>
+                                <td colspan="3"><b>Value of Sponsored Assignments  (Rs. In Lakhs)</b></td>
+                                <td colspan="3"><b>Actual funds received  (Rs. In Lakhs)</b></td>
+                            </tr>
+                            <tr>
+                                <td>@Html.DisplayFor(m => m.CurrMonth)</td>
+                                <td style="width:100px;">@Html.DisplayFor(m => m.FromDate) To @Html.DisplayFor(m => m.ToDate)</td>
+                                <td>Total</td>
+                                <td>@Html.DisplayFor(m => m.CurrMonth)</td>
+                                <td style="width:100px;">@Html.DisplayFor(m => m.FromDate) To @Html.DisplayFor(m => m.ToDate)</td>
+                                <td>Total</td>
+                                <td>@Html.DisplayFor(m => m.CurrMonth)</td>
+                                <td style="width:100px;">@Html.DisplayFor(m => m.FromDate) To @Html.DisplayFor(m => m.ToDate)</td>
+                                <td>Total</td>
+                            </tr>
+                            @if (Model != null)
+                            {
+                                var count = 0;
+                                for (int i = 15; i < Model.List.Count; i++)
+                                {
+                            <tr>
+                                <td colspan="2" rowspan="2"><b>@Html.DisplayFor(m => Model.List[i].DepartmentName)</b></td>
+                                <td><b>A</b></td>
+                                <td>@Html.DisplayFor(m => Model.List[i].NoOfProjCurMonth_A)</td>
+                                <td>@Html.DisplayFor(m => Model.List[i].NoOfProjPrevMonth_A)</td>
+                                <td><b>@Html.DisplayFor(m => Model.List[i].TotalProj_A)</b></td>
+                                <td>@Html.DisplayFor(m => Model.List[i].AmtforCurMonth_A)</td>
+                                <td>@Html.DisplayFor(m => Model.List[i].AmtforPrevMonth_A)</td>
+                                <td><b>@Html.DisplayFor(m => Model.List[i].TotalAmt_A)</b></td>
+                                <td rowspan="2">@Html.DisplayFor(m => Model.List[i].AmtforRecCurMonth)</td>
+                                <td rowspan="2">@Html.DisplayFor(m => Model.List[i].AmtforRecPrevMonth)</td>
+                                <td rowspan="2"><b>@Html.DisplayFor(m => Model.List[i].TotalRecAmt)</b></td>
+                            </tr>
+                            <tr>
+                                <td><b>B</b></td>
+                                <td>@Html.DisplayFor(m => Model.List[i].NoOfProjCurMonth_B)</td>
+                                <td>@Html.DisplayFor(m => Model.List[i].NoOfProjPrevMonth_B)</td>
+                                <td><b>@Html.DisplayFor(m => Model.List[i].TotalProj_B)</b></td>
+                                <td>@Html.DisplayFor(m => Model.List[i].AmtforCurMonth_B)</td>
+                                <td>@Html.DisplayFor(m => Model.List[i].AmtforPrevMonth_B)</td>
+                                <td><b>@Html.DisplayFor(m => Model.List[i].TotalAmt_B)</b></td>
+                            </tr>
+                                    if (i == 30)
+                                    {
+                                        break;
+                                    }
+                                    count++;
+                                }
+                            }
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+  
+    <section class="cnt-bg umr-hd">
+        <div class="container-fluid">
+            <div class="row mt-sm">
+                <div class="col-md-12">
+
+                    <table class="table table-bordered mb-md ct-tr-tb">
+                        <tbody>
+                            <tr>
+                                <td colspan="3" rowspan="2" style="width:320px;"><b>Department / Centre</b></td>
+                                <td colspan="3"><b>No. of Sponsored Assigments </b></td>
+                                <td colspan="3"><b>Value of Sponsored Assignments  (Rs. In Lakhs)</b></td>
+                                <td colspan="3"><b>Actual funds received  (Rs. In Lakhs)</b></td>
+                            </tr>
+                            <tr>
+                                <td>@Html.DisplayFor(m => m.CurrMonth)</td>
+                                <td style="width:100px;">@Html.DisplayFor(m => m.FromDate) To @Html.DisplayFor(m => m.ToDate)</td>
+                                <td>Total</td>
+                                <td>@Html.DisplayFor(m => m.CurrMonth)</td>
+                                <td style="width:100px;">@Html.DisplayFor(m => m.FromDate) To @Html.DisplayFor(m => m.ToDate)</td>
+                                <td>Total</td>
+                                <td>@Html.DisplayFor(m => m.CurrMonth)</td>
+                                <td style="width:100px;">@Html.DisplayFor(m => m.FromDate) To @Html.DisplayFor(m => m.ToDate)</td>
+                                <td>Total</td>
+                            </tr>
+                            @if (Model != null)
+                            {
+                                var count = 0;
+                                for (int i = 31; i < Model.List.Count; i++)
+                                {
+                                    <tr>
+                                        <td colspan="2" rowspan="2"><b>@Html.DisplayFor(m => Model.List[i].DepartmentName)</b></td>
+                                        <td><b>A</b></td>
+                                        <td>@Html.DisplayFor(m => Model.List[i].NoOfProjCurMonth_A)</td>
+                                        <td>@Html.DisplayFor(m => Model.List[i].NoOfProjPrevMonth_A)</td>
+                                        <td><b>@Html.DisplayFor(m => Model.List[i].TotalProj_A)</b></td>
+                                        <td>@Html.DisplayFor(m => Model.List[i].AmtforCurMonth_A)</td>
+                                        <td>@Html.DisplayFor(m => Model.List[i].AmtforPrevMonth_A)</td>
+                                        <td><b>@Html.DisplayFor(m => Model.List[i].TotalAmt_A)</b></td>
+                                        <td rowspan="2">@Html.DisplayFor(m => Model.List[i].AmtforRecCurMonth)</td>
+                                        <td rowspan="2">@Html.DisplayFor(m => Model.List[i].AmtforRecPrevMonth)</td>
+                                        <td rowspan="2"><b>@Html.DisplayFor(m => Model.List[i].TotalRecAmt)</b></td>
+                                    </tr>
+                                    <tr>
+                                        <td><b>B</b></td>
+                                        <td>@Html.DisplayFor(m => Model.List[i].NoOfProjCurMonth_B)</td>
+                                        <td>@Html.DisplayFor(m => Model.List[i].NoOfProjPrevMonth_B)</td>
+                                        <td><b>@Html.DisplayFor(m => Model.List[i].TotalProj_B)</b></td>
+                                        <td>@Html.DisplayFor(m => Model.List[i].AmtforCurMonth_B)</td>
+                                        <td>@Html.DisplayFor(m => Model.List[i].AmtforPrevMonth_B)</td>
+                                        <td><b>@Html.DisplayFor(m => Model.List[i].TotalAmt_B)</b></td>
+                                    </tr>
+
+                                    count++;
+                                }
+                            }
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cnt-bg umr-hd">
+        <div class="container-fluid">
+            <div class="row mt-sm">
+                <div class="col-md-12">
+                    <table class="table table-bordered mb-md ct-tr-tb">
+                        <tbody>
+                            <tr>
+                                <td colspan="3" rowspan="2" style="width:320px;"><b>Department / Centre</b></td>
+                                <td colspan="3"><b>No. of Sponsored Assigments </b></td>
+                                <td colspan="3"><b>Value of Sponsored Assignments  (Rs. In Lakhs)</b></td>
+                                <td colspan="3"><b>Actual funds received  (Rs. In Lakhs)</b></td>
+                            </tr>
+                            <tr>
+                                <td>@Html.DisplayFor(m => m.CurrMonth)</td>
+                                <td style="width:100px;">@Html.DisplayFor(m => m.FromDate) To @Html.DisplayFor(m => m.ToDate)</td>
+                                <td>Total</td>
+                                <td>@Html.DisplayFor(m => m.CurrMonth)</td>
+                                <td style="width:100px;">@Html.DisplayFor(m => m.FromDate) To @Html.DisplayFor(m => m.ToDate)</td>
+                                <td>Total</td>
+                                <td>@Html.DisplayFor(m => m.CurrMonth)</td>
+                                <td style="width:100px;">@Html.DisplayFor(m => m.FromDate) To @Html.DisplayFor(m => m.ToDate)</td>
+                                <td>Total</td>
+                            </tr>
+                            <tr>
+                                <td colspan="2"><b>Over all Total</b></td>
+                                <td><b></b></td>
+                                <td>@((Model.List.Sum(m => m.NoOfProjCurMonth_A) + Model.List.Sum(m => m.NoOfProjCurMonth_B) ) / 2)</td>
+                                <td>@((Model.List.Sum(m => m.NoOfProjPrevMonth_A) + Model.List.Sum(m => m.NoOfProjPrevMonth_B) ) / 2)  </td>
+                                <td><b>@((Model.List.Sum(m => m.TotalProj_A+ m.TotalProj_B)  ) / 2)  </b></td>
+                                <td>  @Html.DisplayFor(m => m.TotalAmount)  </td>
+                                <td>@Html.DisplayFor(m => m.TotalPrevAmt)  </td>
+                                <td><b>@Math.Round((Model.TotalAmount + Model.TotalPrevAmt),2)  </b></td>
+                                <td>@Math.Round((Model.List.Sum(m => m.AmtforRecCurMonth) / 2), 2)</td>
+                                <td>@Math.Round((Model.List.Sum(m => m.AmtforRecPrevMonth) / 2), 2)</td>
+                                <td><b>@Math.Round((Model.List.Sum(m => m.TotalRecAmt) / 2), 2)  </b></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+          
+            </div>
+        </div>
+    </section>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div style="padding:10px">
+                    <h4>* Enhancement of Previously Sanctioned Projects</h4>
+                    <h4>A -> Research Projects</h4>
+                    <h4>B -> Infrastructure Development Projects</h4>
+                    <h4>To All IC & SR Board members/Deans/HoDs/Centres/DR(F&A)</h4>
+                    <h4>CC:Director for kind information</h4> <h3 style="text-align:right">DEAN,IC & SR</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+   
+    <!-- main js files -->
+    <script src="js/plugins/jquery-2.2.4.min.js"></script>
+    <script src="js/bootstrap.js"></script>
+
+</body>
+</html>

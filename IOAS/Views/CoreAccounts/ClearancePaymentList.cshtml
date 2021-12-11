@@ -1,0 +1,429 @@
+﻿
+@{
+    ViewBag.Title = "Clearance Payment";
+    ViewBag.Subtitle = "Clearance Payment List";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<style>
+    .st-md-bg {
+list-style: none;
+}
+
+.st-md-bg li{
+list-style: none;
+margin:0;
+}
+.st-md-bg li{
+padding: 8px 10px;
+border-radius: 4px;
+border: 1px solid rgba(0,0,0,0.15);
+width: auto;
+display: inline-block;
+margin-bottom: 15px;
+margin-right: 15px;
+}
+</style>
+<div class="row hd-tt-bg">
+    <div class="col-md-4">
+        <h3>Clearance Payment List</h3>
+    </div>
+    <div id="addnewpage" class="col-md-8 flt-nav-links">
+
+        @*<a href="Javascript:void(0)" id="btnFilter" class="pull-right"> <i class="ion-android-funnel"></i>Filters</a>*@
+        <a href="@Url.Action("ClearancePayment")"> <i class="ion-plus"></i>Add New</a>
+
+    </div>
+</div>
+<div class="row mt30">
+    <div class="page-wrapper">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="custom-jsgrid-normal">
+                    <div id="ClearancePaymentList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="popupmodel">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="row">
+
+                    <div class="col-md-offset-4 col-md-4 text-center">
+                        <h3 id="modelheading"></h3>
+                    </div>
+                    <div class="col-md-4">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+
+                    <div class="col-md-offset-1 col-md-10">
+                       
+                        <div class="st-md-bg" id="popuplist">
+                          
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+    });
+    var DateField = function (config) {
+        jsGrid.Field.call(this, config);
+    };
+
+    DateField.prototype = new jsGrid.Field({
+        sorter: function (date1, date2) {
+            return new Date(date1) - new Date(date2);
+        },
+
+        itemTemplate: function (value) {
+            return new Date(value).toDateString();
+        },
+
+        filterTemplate: function () {
+            var now = new Date();
+            this._fromPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() - 1), changeYear: true });
+            this._toPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() + 1), changeYear: true });
+            return $("<div>").append(this._fromPicker).append(this._toPicker);
+        },
+
+        insertTemplate: function (value) {
+            return this._insertPicker = $("<input>").datepicker({ defaultDate: new Date() });
+        },
+
+        editTemplate: function (value) {
+            return this._editPicker = $("<input>").datepicker().datepicker("setDate", new Date(value));
+        },
+
+        insertValue: function () {
+            return this._insertPicker.datepicker("getDate").toISOString();
+        },
+
+        editValue: function () {
+            return this._editPicker.datepicker("getDate").toISOString();
+        },
+
+        filterValue: function () {
+            return {
+                from: this._fromPicker.datepicker("getDate"),
+                to: this._toPicker.datepicker("getDate")
+            };
+        }
+    });
+    jsGrid.fields.date = DateField;
+    var db;
+    $("#ClearancePaymentList").jsGrid({
+        paging: true,
+        pageIndex: 1,
+        pageSize: 5,
+        editing: false,
+        filtering: true,
+        pageLoading: true,
+        autoload: true,
+        controller: {
+
+            loadData: function (filter) {
+                //return $.grep(db, function (ow) {
+                   // return (!filter.BillNumber || ow.BillNumber.toLowerCase().indexOf(filter.BillNumber.toLowerCase()) > -1)
+                   //&& (!filter.Vendor || ow.Vendor.toLowerCase().indexOf(filter.Vendor.toLowerCase()) > -1)
+                   //&& (!filter.PostedDate.from || new Date(ow.PostedDate) >= filter.PostedDate.from)
+                   //&& (!filter.PostedDate.to || new Date(ow.PostedDate) <= filter.PostedDate.to);
+                //});
+                var searchData = [];
+                searchData = {
+                    Number: filter.BillNumber||null,
+                    Status: filter.Status||null,
+                    ClearanceAgent: filter.ClearanceAgentName || null,
+                    Amount: filter.CreditorAmount || null,
+                    InvoiceNo: filter.InvoiceNo || null,
+                    ProjectNumber: filter.ProjNo || null,
+                    AccountType: filter.AccType || null,
+                    AmountPayableValue: filter.AmountPayable || null,
+                    CommitmentNO: filter.CommitmentNo || null,
+                    PONumber: filter.PONumber || null,
+                },
+                filter.model = searchData;
+                filter.typeCode = "CLP";
+                var deferred = $.Deferred();
+                $.ajax({
+                    type: "post",
+                    url: 'GetClearancePaymentList',
+                    data: JSON.stringify(filter),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (result) {
+                        //db = result;
+                        //$("#AdvanceBillPaymentList").jsGrid({ data: db });
+                        var da = {
+                            data: result.list,
+                            itemsCount: result.TotalRecords
+                        }
+                        deferred.resolve(da);
+                    },
+                    error: function (err) {
+                        console.log("error : " + err);
+                    }
+
+                });
+                return deferred.promise();
+            }
+
+        },
+        
+        fields: [
+            { name: "SlNo", title: "S.No", editing: false, width: 50 },
+            { type: "number", name: "BillId", title: "Id", visible: false },
+            { type: "text", name: "BillNumber", title: "Clearance Payment Bill Number", editing: false },
+            { type: "text", name: "ClearanceAgentName", title: "Clearance Agent", editing: false },
+            { name: "PostedDate", title: "Posted Date", type: "date", width: 100, align: "center" },
+            {
+                name: "CommitmentNo", itemTemplate: function (value, item) {
+                    var $customCommitmentNo = $("<a>").addClass("CommitmentGrid").text(value);
+                   
+                    $customCommitmentNo.click(function (e) {
+                        var row="";
+                        var table;
+                        $.ajax({
+                            type: "POST",
+                            url: '@Url.Action("GetCommonProjectSearch", "CoreAccounts")',
+                            data: {
+                                TypeCode: 'CLP', RefId: item.BillId, commit_f: true
+                            },                           
+                            success: function (locationdata) {                 
+                                $(locationdata.Project).each(function (i, v) {
+                                    row += "<tr><td> <h3 >" + v.ProjectNumber + "</h3></td> <td><h3>" + v.CommitmentNumber + "</h3></td><td><h3>" + v.AllocationHead + "</h3></td><td><h3 >" + v.Amount + "</h3> </td></tr>"
+                                });
+                               table = " <table class='table table-bordered'> <tbody><tr><td> <label>Project Number :</label></td> <td><label>Commitment Number:</label></td><td><label>Allocation Head:</label></td><td> <label>Amount:</label> </td></tr> " + row + "</tbody> </table>"
+                                $("#modelheading").text('Commitment(s)');
+                                $("#popuplist").empty();
+                                $("#popuplist").append(table);
+                                $("#popupmodel").modal('toggle');
+                            },
+                        })
+                    })
+                    return $customCommitmentNo;
+                }, title: "Commitment number", type: "text", width: 100, align: "center"
+            },
+            {
+                name: "ProjNo", itemTemplate: function (value, item) {
+                    var $customProjectNo = $("<a>").addClass("ProjectNoGrid").text(value);
+                    $customProjectNo.click(function (e) {
+                        var row = "";
+                        var table;
+                        $.ajax({
+                            type: "POST",
+                            url: '@Url.Action("GetCommonProjectSearch", "CoreAccounts")',
+                            data: {
+                                TypeCode: 'CLP', RefId: item.BillId, project_f: true
+                            },
+
+                            success: function (locationdata) {
+
+                                $(locationdata.Project).each(function (i, v) {
+                                    row += "<tr><td> <h3 >" + v.ProjectNumber + "</h3></td> <td><h3>" + v.CommitmentNumber + "</h3></td><td><h3>" + v.AllocationHead + "</h3></td><td><h3 >" + v.Amount + "</h3> </td></tr>"
+
+                                });
+                                 table = " <table class='table table-bordered'> <tbody><tr><td> <label>Project Number :</label></td> <td><label>Commitment Number:</label></td><td><label>Allocation Head:</label></td><td> <label>Amount:</label> </td></tr> " + row + "</tbody> </table>"
+
+                                $("#modelheading").text('Project Number');
+                                $("#popuplist").empty();
+                                $("#popuplist").append(table);
+                                $("#popupmodel").modal('toggle');
+                            },
+                        })
+                    })
+                    return $customProjectNo;
+                }, title: "Project number", type: "text", width: 100, align: "center"
+            },
+            {
+                name: "InvoiceNo", itemTemplate: function (value, item) {
+                    var $customInvoiceNo = $("<a>").addClass("InvoiceNoGrid").text(value);
+                    $customInvoiceNo.click(function (e) {
+                        var row = "";
+                        var table;
+                        $.ajax({
+                            type: "POST",
+                            url: '@Url.Action("GetCommonProjectSearch", "CoreAccounts")',
+                            data: {
+                                TypeCode: 'CLP', RefId: item.BillId, inv_f:true
+                            },
+
+                            success: function (locationdata) {
+                                $(locationdata.Invoice).each(function (i, v) {
+                                    row += "<tr><td> <h3 >" + v.InvoiceNumber + "</h3></td> <td><h3>" + v.InvoiceAmount + "</h3></td><td><h3>" + v.Date + "</h3></td></tr>"
+
+                                });
+                               table = " <table class='table table-bordered'> <tbody><tr><td> <label>Invoice Number :</label></td> <td><label>Amount:</label></td><td> <label>Date</label> </td></tr> " + row + "</tbody> </table>"
+
+                                $("#modelheading").text('Invoice Number');
+                                $("#popuplist").empty();
+                                $("#popuplist").append(table);
+                                $("#popupmodel").modal('toggle');
+                            },
+                        })
+                    })
+                    return $customInvoiceNo;
+                }, title: "Invoice number", type: "text", width: 100, align: "center"
+            },
+            { name: "AccType", title: "Account type", type: "text", width: 100, align: "center" },
+             { name: "AmountPayable", title: "Amount payable value", type: "text", width: 100, align: "center" },
+            //{ name: "BillAmount", title: "Bill Amount", editing: false },
+            { type: "text", name: "CreditorAmount", title: "Total Amount" },
+             { type: "text", name: "PONumber", title: "Po Number" },
+            {
+                type: "text", name: "Status", title: "Status", editing: false,
+                cellRenderer: function (item, value) {
+                    if (value.BillProcessingStatus == true) {
+                        return $("<td>").addClass("bg-green").append(value.Status);
+                    }
+                    else {
+                        return $("<td>").append(value.Status);
+                    }
+                }
+            },
+             {
+                 type: "control", editButton: false, deleteButton: false, width: 120, title: "Action",
+
+                 itemTemplate: function (value, item) {
+                     var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+                     if (item.Status == "Open") {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "Edit", name: "Edit" }, { id: "Submit for approval", name: "Submit for approval" }, { id: "Print Bill", name: "Print Bill" }, { id: "View", name: "View" }]
+                     }
+                     else {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "Print Bill", name: "Print Bill" }, { id: "View", name: "View" }]
+                     }
+                     var $customSelect = $("<select>")
+                         .attr("class", "form-control").prop("selectedIndex", "")
+                     $.each(statusList, function (index, itemData) {
+                         $customSelect.append($('<option/>', {
+
+                             value: itemData.id,
+                             text: itemData.name
+                         }));
+                     });
+                     $customSelect.change(function (e) {
+                         var selVal = $(this).val();
+                         if (selVal == "Edit") {
+                             var url = '@Url.Action("ClearancePayment", "CoreAccounts")?billId=' + item.BillId;
+                             window.location.href = url;
+                         }
+                         else if (selVal == "View") {
+                             var url = '@Url.Action("ClearancePaymentView", "CoreAccounts")?billId=' + item.BillId;
+                             window.location.href = url;
+                         } else if (selVal == "Print Bill") {
+                             var url = '@Url.Action("ClearancePaymentBill", "ReportMaster")?Id=' + item.BillId;
+                             window.open(url, '_blank');
+                         }
+                         else if (selVal == "Approve") {
+                             var choice = confirm("Are you sure, Do you want to submit this bill for approval process?");
+                             if (choice === true) {
+                                 $.ajax({
+                                     type: "POST",
+                                     url: '@Url.Action("ClearancePaymentApprove", "CoreAccounts")',
+                                     data: {
+                                         CLPId: item.BillId
+                                     },
+                                     success: function (result) {
+                                         if (result.status == true) {
+                                             $('#alertSuccess').html("Clearance payment has been submitted for approval process successfully.");
+                                             $('#Success').modal('toggle');
+                                             loadDetails();
+                                             @*var url = '@Url.Action("ClearancePaymentList", "CoreAccounts");
+                                             window.location.href = url;*@
+                                         } else if (result.status == false) {
+                                             $('#FailedAlert').html("Something went wrong please contact administrator");
+                                             $('#Failed').modal('toggle');
+                                         }
+                                     },
+                                     error: function (err) {
+                                         console.log("error1 : " + err);
+                                     }
+                                 });
+                             }
+                         } else if (selVal == "Submit for approval") {
+                             var choice = confirm("Are you sure, Do you want to submit this bill for approval process?");
+                             if (choice === true) {
+                                 $.ajax({
+                                     type: "POST",
+                                     url: '@Url.Action("ClearancePaymentWFInit", "CoreAccounts")',
+                                     data: {
+                                         CLPId: item.BillId
+                                     },
+                                     success: function (result) {
+                                         if (result.status == true) {
+                                             $('#alertSuccess').html("Clearance payment bill has been submitted for approval process successfully.");
+                                             $('#Success').modal('toggle');
+                                             loadDetails();
+                                         } else if (result.status == false) {
+                                             $('#FailedAlert').html(result.msg);
+                                             $('#Failed').modal('toggle');
+                                         }
+                                     },
+                                     error: function (err) {
+                                         console.log("error1 : " + err);
+                                     }
+                                 });
+                             }
+                         }
+                         $(this).val("");
+                         return false;
+                         e.stopPropagation();
+                     });
+                     return $result.add($customSelect);
+                 },
+                 _createFilterSwitchButton: function () {
+                     return this._createOnOffSwitchButton("filtering", this.searchModeButtonClass, false);
+                 }
+             }
+
+
+        ],
+
+    });
+    $("#ClearancePaymentList").jsGrid("option", "filtering", false);
+    @*loadDetails();
+    function loadDetails() {
+        
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("GetClearancePaymentList", "CoreAccounts")',
+            data: {typeCode : "CLP"},
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (result) {
+                    db = result;
+                    $("#ClearancePaymentList").jsGrid({ data: db });
+            },
+            error: function (err) {
+                console.log("error : " + err);
+            }
+
+        });
+    }*@
+
+   
+</script>

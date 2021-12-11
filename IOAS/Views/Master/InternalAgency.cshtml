@@ -1,0 +1,644 @@
+﻿@model IOAS.Models.InternalAgencyViewModel
+@{
+    ViewBag.Title = "InternalAgency";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+@Styles.Render("~/bundles/JSGridCss")
+@Scripts.Render("~/bundles/JSGrid")
+<script src="@Url.Content("~/Scripts/Master/InternalAgency.js")"></script>
+<div class="row hd-tt-bg" id="addnewpage">
+    <div class="col-md-4">
+
+        <h3>Internal Agency</h3>
+
+    </div>
+    <div class="col-md-8 flt-nav-links">
+
+
+        <a href="#" id="btnaddnew"> <i class="ion-plus"></i>Add New</a>
+        <a href="Javascript:void(0)" id="btnFilterUser" class="pull-right"> <i class="ion-android-funnel"></i>Filters</a>
+    </div>
+</div>
+<div id="popFilterIntanal" class="filter-popup">
+    <div class="">
+        <div class="filter-content">
+            <div class="white-bg">
+                <div class="form-group custom-form-group">
+                    <h3>Filter by</h3>
+                </div>
+                <div class="form-group custom-form-group">
+                    <label>Agency Name</label><br>
+                    @Html.TextBoxFor(M => M.SearchAgencyName, new { @class = "form-control", @id = "txtsrchname" })
+                </div>
+                <div class="form-group custom-form-group">
+                    <label>Agency Code</label><br>
+                    @Html.TextBoxFor(M => M.SearchAgencyCode, new { @id = "txtSeaAgencyCode", @class = "form-control" })
+                </div>
+                
+                <div class="form-group custom-form-group mt30 text-center">
+                    <button id="btnSrchUser" type="button" class="btn btn-primary mr10">Search</button>
+                    <button id="btnResetSrchUser" type="button" class="btn btn-default">Reset</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <a href="javascript:void(0)" name="btnCloseUser" class="close-btn"><i class="ion-android-cancel"></i></a>
+
+</div>
+@using (Html.BeginForm("InternalAgency", "Master", FormMethod.Post, new { @class = "", role = "form", @id = "formIA", enctype = "multipart/form-data" }))
+{
+    <div class="col-md-12">
+        <div class="page-wrapper" id="internalagncy" style="display:none">
+            <div class="white-bg">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label class="required">Project Type</label>
+                            @Html.DropDownListFor(M => M.ProjectType, new SelectList(ViewBag.project, "codevalAbbr", "CodeValDetail"), "Select Project Type", new { @id = "ddlProjectType", @class = "form-control", @required = "required"})
+                            <div class="txt-error txt-red"> @Html.ValidationMessageFor(M => M.ProjectType)</div>
+                           
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label class="required">Agency Name</label>
+                          @Html.TextBoxFor(M => M.InternalAgencyName, new { @class = "form-control", @id = "txtinagencyname", @required = "required" })
+                            <div class="txt-error txt-red"> @Html.ValidationMessageFor(M => M.InternalAgencyName)</div>
+                            @Html.HiddenFor(M => M.InternalAgencyId, new { @id = "txtinagencyid" })
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label class="required">Agency code</label>
+                            @Html.TextBoxFor(M => M.InternalAgencyCode, new { @class = "form-control", @id = "txtagencycode", @required = "required" })
+                            <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.InternalAgencyCode)</div>
+                        </div>
+                    </div>
+                   
+            </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label>Contact Person</label>
+                            @Html.TextBoxFor(M => M.InternalAgencyContactPerson, new { @class = "form-control", @id = "txtinconperson"})
+                            @*<div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.InternalAgencyContactPerson)</div>*@
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label>Contact Number</label>
+                            @Html.TextBoxFor(M => M.InternalAgencyContactNumber, new { @class = "form-control", @id = "txtinconnum" })
+                            @*<div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.InternalAgencyContactNumber)</div>*@
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label>Contact Email</label>
+                            @Html.TextBoxFor(M => M.InternalConatactEmail, new { @class = "form-control", @id = "txtinconemail"})
+                            <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.InternalConatactEmail)</div>
+                        </div>
+                    </div>
+                    
+                </div>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-group custom-form-group">
+                    <label>Address</label>
+                    @Html.TextBoxFor(M => M.InternalAgencyAddress, new { @class = "form-control", @id = "txtinconadd"})
+                    @*<div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.InternalAgencyAddress)</div>*@
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group custom-form-group">
+                    <label>Agency Registered Name</label>
+                    @Html.TextBoxFor(M => M.InternalAgencyRegisterName, new { @class = "form-control", @id = "txtinagnregname" })
+                    @*<div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.InternalAgencyRegisterName)</div>*@
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group custom-form-group">
+                    <label>Agency Registered Address</label>
+                    @Html.TextBoxFor(M => M.InternalAgencyRegisterAddress, new { @class = "form-control", @id = "txtinagnregadd"})
+                    @*<div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.InternalAgencyRegisterAddress)</div>*@
+                </div>
+            </div>
+            
+        </div>
+          <div class="row">
+              <div class="col-md-4">
+                  <div class="form-group custom-form-group">
+                      <label>District</label>
+                      @Html.TextBoxFor(M => M.InternalDistrict, new { @class = "form-control", @id = "txtinagndist" })
+                      @*<div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.InternalDistrict)</div>*@
+                  </div>
+              </div>
+              <div class="col-md-4">
+                  <div class="form-group custom-form-group">
+                      <label>Pin Code</label>
+                      @Html.TextBoxFor(M => M.InternalPincode, new { @class = "form-control", @id = "txtinagnpincode" })
+                      
+                  </div>
+              </div>
+              <div class="col-md-4">
+                  <div class="form-group custom-form-group">
+                      <label>State</label>
+                      @Html.TextBoxFor(M => M.InternalAgencyState, new { @class = "form-control", @id = "txtinagnstate"})
+                      @*<div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.InternalAgencyState)</div>*@
+                  </div>
+              </div>
+             
+          </div>
+      </div>
+            <div class="white-bg">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h3 class="spl-title">Supporting Documents</h3>
+                    </div>
+                </div>
+                <div class="row">
+                    <div id="DocdivContent">
+                        <div class="col-md-11 mt10">
+                            <div class="col-md-4">
+                                <div class="form-group custom-form-group">
+                                    <label>Attachment type</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group custom-form-group">
+                                    <label> Attachment Name </label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group custom-form-group">
+                                    <label> Attachment (.pdf, .doc, .docx)</label>
+                                </div>
+                            </div>
+                            <div class="col-md-1">
+
+                            </div>
+                        </div>
+                        <div id="DocprimaryDiv">
+                            <div class="col-md-11">
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        @Html.DropDownList("DocumentType", new SelectList(ViewBag.agencydoc, "id", "name"), "Select Document Type",
+                                                        new { @class = "form-control", @id = "doctype" })
+                                        @Html.Hidden("DocumentId")
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group custom-form-group">
+                                        <input class="form-control" name="AttachName" id="docname" value="" type="text">
+                                        @*@Html.TextBoxFor(m => m.DocName, new { @class = "form-control", @required = "required", @id="Docname" })*@
+                                    </div>
+                                </div>
+                                <div class="col-md-3" id="browsebtn">
+                                    <div class="form-group custom-form-group mt5">
+                                        <input type="file" name="File" id="docfile" />&nbsp;&nbsp;&nbsp;
+                                        @Html.ValidationMessageFor(m => m.DocPath)
+                                    </div>
+                                </div>
+                                <div class="col-md-2 doclink mt6" id="doclink">
+                                    @*<a href="@Url.Action("ShowDocument", new { Controller = "Manage", file = Model.DocPath, filepath = "~/Content/ProposalDocuments/", link=Model.DocPath })"> </a>*@
+                                    <a href="#" class="link1" target="_blank"></a>
+                                </div>
+                                <div class="col-md-1 ml40 mt5">
+                                    <button class="dis-none" type="button" name="removeButton"><i class="ion-android-close"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-1">
+                        <button type="button" id="btnAddDoc" class="btn-sm"><i class="ion-android-add"></i> </button>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 text-center pd-tb-30">
+                    <input type="submit" class="btn btn-primary mr10" value="Save" name="Button" id="btnSave" />
+                    <input type="submit" class="btn btn-primary mr10" value="Update" name="Button" id="btnUpdate" style="display:none" />
+                    <input type="button" onclick="window.location.href='@Url.Action("InternalAgency", "Master")';" class="btn btn-default" value="Close" name="Button" id="btnReset" />
+                </div>
+            </div>
+    </div>
+        <div class="row mt30" id="gridlist">
+            <div class="col-md-12">
+                <div class="page-wrapper">
+                    <div class="custom-jsgrid-normal">
+                        <div id="Internalagencylist"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+</div>
+}
+<div id="savemodal" class="modal fade modal-success" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-checkmark-circle"></i>
+                <h3 class="modal-title">Created successfully</h3>
+            </div>
+            <div class="modal-body">
+
+                <p>Agency  created successfully</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<div id="warrningmodal" class="modal fade modal-warning" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-warning"></i>
+                <h3 class="modal-title">Agency name exists !.</h3>
+            </div>
+            <div class="modal-body">
+
+                <p>@ViewBag.Msg</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<div id="updatemodal" class="modal fade modal-success" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-checkmark-circle"></i>
+                <h3 class="modal-title">Updated successfully</h3>
+            </div>
+            <div class="modal-body">
+
+                <p>Agency Updated successfully</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="deletemodal" class="modal fade modal-success" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-checkmark-circle"></i>
+                <h3 class="modal-title">Deleted successfully</h3>
+            </div>
+            <div class="modal-body">
+                <p>Agency  Deleted successfully</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="Errormodal" class="modal fade modal-error" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-cancel"></i>
+                <h3 class="modal-title">Error Message</h3>
+            </div>
+            <div class="modal-body">
+
+                <p>@ViewBag.error</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div id="deletemodalerror" class="modal fade modal-error" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-cancel"></i>
+                <h3 class="modal-title">Error Message</h3>
+            </div>
+            <div class="modal-body">
+
+                <p>Somthing went to worng please contact Admin!.</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div id="ValidationModal" class="modal fade modal-warning" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-warning"></i>
+                <h3 class="modal-title">Warning</h3>
+            </div>
+            <div class="modal-body">
+
+                <p id="MsgValidation"></p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div id="filewarrning" class="modal fade modal-warning" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-warning"></i>
+                <h3 class="modal-title">File Upload Message !.</h3>
+            </div>
+            <div class="modal-body">
+
+                <p>@ViewBag.filemsg</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div id="internalcode" class="modal fade modal-warning" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-warning"></i>
+                <h3 class="modal-title">File Upload Message !.</h3>
+            </div>
+            <div class="modal-body">
+
+                <p>Internal agency code already exits</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script type="text/javascript">
+    $('#btnaddnew').on('click', function () {
+        $('#createagency').show();
+        $('#internalagncy').show();
+        $('#gridlist').hide();
+        $('#addnewpage').hide();
+        Reset();
+        //InternalAgencycode();
+    });
+    function InternalAgencycode() {
+
+        $.ajax({
+
+            type: "GET",
+            url: '@Url.Action("GetInternalAgencycode", "Master")',
+            data: "",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (result) {
+
+                $('#txtagencycode').val(result);
+            }
+
+        });
+    }
+    $(document).ready(function () {
+
+        var add = '@ViewBag.success';
+        if (add != '') {
+            $('#savemodal').modal('show');
+        }
+        var warrning = '@ViewBag.Msg';
+        if (warrning != '') {
+            $('#warrningmodal').modal('show');
+        }
+        var update = '@ViewBag.update';
+        if (update != '') {
+            $('#updatemodal').modal('show');
+        }
+        var error = '@ViewBag.error';
+        if (error != '') {
+            $('#Errormodal').modal('show');
+        }
+        var filemsg = '@ViewBag.filemsg';
+        if (filemsg != '') {
+            $('#filewarrning').modal('show');
+        }
+        var intalnalcode = '@ViewBag.intalcode';
+        if(intalnalcode!='')
+        {
+            $('#internalcode').modal('show');
+        }
+    });
+    function Reset() {
+        $('#txtinagencyid,#txtinagencyname,#txtagencycode,#txtinconperson,#txtinconnum,#txtinconemail,#txtinconadd,#txtinagnregname,#txtinagnregadd,#txtinagndist,#txtinagnpincode,#txtinagnstate').val('');
+        $('#ddlProjectType').prop('selectedIndex', 0);
+ }
+    $('#btnAddDoc').click(function () {
+
+        var cln = $("#DocprimaryDiv").clone().find("input").val("").end();
+        $(cln).find('.dis-none').removeClass('dis-none');
+        $(cln).find('.doclink').addClass('dis-none');
+        $('#DocdivContent').append(cln)
+
+    });
+    $(document).on('click', '#DocdivContent button', function () {
+
+        $(this).parent().parent("Div").remove();
+
+    });
+    $('#btnSave').click(function (d) {
+        
+        d.preventDefault();
+        var isValid = $('#formIA').valid();
+        if (!isValid)
+            return false;
+    // to validate if attachment type or attachment name is not left blank when either one of them is filled
+        var doctypevalues = [];
+        var docnamevalues = [];
+        var attachfile = [];
+        $('select[name="DocumentType"]').each(function (idx, val) { doctypevalues.push($(val).val()); });
+        $('input[name="AttachName"]').each(function (idx, val) { docnamevalues.push($(val).val()); });
+        $('input[name="File"]').each(function (idx, val) { attachfile.push($(val).val()); });
+        //// Sort it
+        doctypevalues.sort();
+        docnamevalues.sort();
+        attachfile.sort();
+        for (var k = 0; k < doctypevalues.length; ++k) {
+            if ((doctypevalues[k] > 0) && ((docnamevalues[k] == null) || docnamevalues[k] == "")) {
+                isValid = false;
+
+                $('#MsgValidation').html("Please fill Attachment name");
+                $('#ValidationModal').modal('toggle');
+                return false;
+
+            }
+            if ((docnamevalues[k] != null && docnamevalues[k] != "") && (doctypevalues[k] == null || doctypevalues[k] == 0)) {
+                isValid = false;
+
+                $('#MsgValidation').html("Please select Attachment type");
+                $('#ValidationModal').modal('toggle');
+                return false;
+
+            }
+
+        }
+        // duplicate check
+        for (var k = 1; k < doctypevalues.length; ++k) {
+            if (doctypevalues[k] == doctypevalues[k - 1]) {
+                isValid = false;
+
+                $('#MsgValidation').html("Attachment type is already existing. Please select a different Attachment type.");
+                $('#ValidationModal').modal('toggle');
+                return false;
+
+            }
+        }
+        //if (attachfile[k] != null || attachfile[k] != "") {
+        //    var extension = attachfile[k].split('.').pop().toLowerCase();
+        //    if ($.inArray(extension, ["pdf", "doc", "docx", "DOC", "DOCX", "PDF"]) === -1) {
+        //        isValid = false;
+        //        $('#MsgValidation').html("Please upload any one of these type doc [.pdf, .doc, .docx]");
+        //        $('#ValidationModal').modal('toggle');
+        //        return false;
+        //    }
+
+        //}
+        if (isValid)
+            $('#formIA').submit();
+
+         $(this).closest("form").submit();
+    });
+    $('#btnUpdate').click(function (d) {
+        
+        d.preventDefault();
+        var isValid = $('#formIA').valid();
+
+        if (!isValid)
+            return false;
+// to validate if attachment type or attachment name is not left blank when either one of them is filled
+        var doctypevalues = [];
+        var docnamevalues = [];
+        var attachfile = [];
+        $('select[name="DocumentType"]').each(function (idx, val) { doctypevalues.push($(val).val()); });
+        $('input[name="AttachName"]').each(function (idx, val) { docnamevalues.push($(val).val()); });
+        $('input[name="File"]').each(function (idx, val) { attachfile.push($(val).val()); });
+        //// Sort it
+        doctypevalues.sort();
+        docnamevalues.sort();
+        attachfile.sort();
+        for (var k = 0; k < doctypevalues.length; ++k) {
+            if ((doctypevalues[k] > 0) && ((docnamevalues[k] == null) || docnamevalues[k] == "")) {
+                isValid = false;
+
+                $('#MsgValidation').html("Please fill Attachment name");
+                $('#ValidationModal').modal('toggle');
+                return false;
+
+            }
+            if ((docnamevalues[k] != null && docnamevalues[k] != "") && (doctypevalues[k] == null || doctypevalues[k] == 0)) {
+                isValid = false;
+
+                $('#MsgValidation').html("Please select Attachment type");
+                $('#ValidationModal').modal('toggle');
+                return false;
+
+            }
+            if (attachfile[k] != null || attachfile[k] != "") {
+                var extension = attachfile[k].split('.').pop().toLowerCase();
+                if (extension != "") {
+                    if ($.inArray(extension, ["pdf", "doc", "docx", "DOC", "DOCX", "PDF"]) === -1) {
+                        isValid = false;
+                        $('#MsgValidation').html("Please upload any one of these type doc [.pdf, .doc, .docx]");
+                        $('#ValidationModal').modal('toggle');
+                        return false;
+                    }
+                }
+            }
+        }
+        // duplicate check
+        for (var k = 1; k < doctypevalues.length; ++k) {
+            if (doctypevalues[k] == doctypevalues[k - 1]) {
+                isValid = false;
+
+                $('#MsgValidation').html("Attachment type is already existing. Please select a different Attachment type.");
+                $('#ValidationModal').modal('toggle');
+                return false;
+
+            }
+        }
+        
+        if (isValid)
+            $('#formIA').submit();
+
+         $(this).closest("form").submit();
+    });
+    $('#btnFilterUser').off("click").on("click", function () {
+        $('#popFilterIntanal').css("display", "Block");
+    });
+    $('a[name="btnCloseUser"],button[name="btnCloseUser"]').click(function () {
+        $('#popFilterIntanal').css("display", "none");
+    });
+</script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")"></script>

@@ -1,0 +1,74 @@
+﻿@model IOAS.Models.RCTReportProjectModel
+@{
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<div class="row hd-tt-bg">
+    <div class="col-md-12">
+        <h4><b>Recruitment Project type Count</b></h4>
+
+    </div>
+</div>
+<div class="row cts-mn-dts">
+    <div class="page-wrapper mt30">
+        <div>
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="bl-lg-panel-box pb-null">
+                            <div class="cmn-panel-box">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label class="required">From Date</label>
+                                            @Html.EditorFor(m => m.FromDate, new { @class = "form-control" })
+                                            <div>@Html.ValidationMessageFor(m => m.FromDate)</div>
+                                            </div>
+                                     </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label class="required">To Date</label>
+                                            @Html.EditorFor(m => m.ToDate, new { @class = "form-control" })
+                                            <div>@Html.ValidationMessageFor(m => m.ToDate)</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12 mb-lg text-center">
+        <input type="submit" class="btn btn-primary" value="Submit" name="Button" id="btnRCTReport" />
+        <input type="button" onclick="window.location.href='@Url.Action("Dashboard", "Home")';" class="btn btn-default" value="Close" id="btnclose" />
+    </div>
+</div>
+<script>
+    var currentdate = moment(new Date()).toDate();
+    $('#FromDate,#ToDate').datepicker({
+        dateFormat: 'dd-MM-yy',
+        changeYear: true
+    }).datepicker("option", "maxDate", currentdate);
+    //$('#FromDate,#ToDate').datepicker("option", "maxDate",new Date());
+    $('#btnRCTReport').on('click', function () {
+        var frmdate = $('#FromDate').val();
+        var todate = $('#ToDate').val();
+        if(frmdate!=""&&todate!="")
+        {
+            var url = '@Url.Action("RCTgetAppointmenttypeProject", "RCTReportMaster")?FromDate=' + frmdate+"&ToDate="+todate;
+            window.open(url, "_blank");
+        }
+        else {
+            $('#FailedAlert').html("From Date,To Date fields are required");
+            $('#Failed').modal('toggle');
+        }
+    });
+</script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>

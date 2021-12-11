@@ -1,0 +1,303 @@
+﻿@model IEnumerable <IOAS.Models.EducationModel>
+<div class="row">
+    <div class="col-md-12">
+        <div class="bl-lg-panel-box pb-null">
+            <div class="cmn-panel-box">
+                <div class="grey-bg-adj mb-lg">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="rc-tb-scrl">
+                                <table class="table alter-table mb-null">
+                                    <thead>
+                                        <tr>
+                                            <th>COURSE</th>
+                                            <th>QUALIFICATION</th>
+                                            <th>Discipline</th>
+                                            <th>UNIVERSITY / INSTITUTION </th>
+                                            <th>YEAR OF PASSING</th>
+                                            <th>MARK TYPE</th>
+                                            <th>MARKS/CGPA</th>
+                                            <th>Attachment File (doc,docx,pdf)</th>
+                                            <th>Remarks</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbodyEducation">
+                                        @if (Model.Count()>0)
+                                    {
+                                        var count = 0;
+                                        foreach (var item in Model)
+                                        {
+                                            var eduId = "EducationDetail[" + count + "].EducationId";
+                                            var qullfi = "EducationDetail[" + count + "].QualificationId";
+                                            var decpid = "EducationDetail[" + count + "].DisciplineId";
+                                            var instu = "EducationDetail[" + count + "].Institution";
+                                            var yearpass = "EducationDetail[" + count + "].YearofPassing";
+                                            var marks = "EducationDetail[" + count + "].Marks";
+                                            var MarkType = "EducationDetail[" + count + "].MarkType";
+                                            var devob = "EducationDetail[" + count + "].DivisionClassObtained";
+                                            var cetrifid = "EducationDetail[" + count + "].CertificateId";
+                                            var cerfile = "EducationDetail[" + count + "].Certificate";
+                                            var remark = "EducationDetail[" + count + "].Remarks";
+                                            var qulfiappId = "qulfiAPP_"+ count + "";
+                                                <tr>
+                                                    <td>
+                                                        @Html.DropDownList(@qullfi, new SelectList(ViewBag.Qualification, "id", "name",item.QualificationId), "Select Qualification",
+                                                 new {@class = "form-control", @id = @qulfiappId})
+                                                        @Html.ValidationMessage(@qullfi)
+                                                        @Html.Hidden("EducationDetail.Index", @count)
+                                                        @Html.Hidden(@eduId, item.EducationId)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DropDownList(@decpid, new SelectList(item.ddlList, "id", "name",item.DisciplineId),
+                                                 new { @class = "form-control", @id = "decpAPP", @title = "Select any" })
+                                                        @*<script>
+                                        $('select[name="@decpid"]').val(@Html.Raw(Json.Encode(item.DisciplineId)));
+                                    </script>*@
+                                                    </td>
+                                                    <td>
+                                                        @Html.TextBox(@devob, item.DivisionClassObtained, new { @class = "form-control" })
+                                                        @Html.ValidationMessage(@devob)
+                                                    </td>
+                                                    <td>
+                                                        @Html.TextBox(@instu,item.Institution,new {@class="form-control" })
+                                                        @Html.ValidationMessage(@instu)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DropDownList(@yearpass, new SelectList(ViewBag.Years, "id", "name", item.YearofPassing), "Select year", new { @class = "form-control" })
+                                                        @Html.ValidationMessage(@yearpass)
+
+                                                    </td>
+                                                    <td>
+                                                        @Html.DropDownList(@MarkType, new SelectList(ViewBag.MarkType, "id", "name", item.MarkType), "Select MarkType", new { @class = "form-control" })
+                                                        @Html.ValidationMessage(@MarkType)
+                                                    </td>
+                                                    <td>
+                                                        @Html.TextBox(@marks, item.Marks, new { @class = "form-control" })
+                                                        @Html.ValidationMessage(@marks)
+
+                                                    </td>
+
+
+                                                    <td>
+                                                        @if (item.EducationId == null)
+                                                    {
+                                                            <input type="file" class="" name="@cerfile" />@:&nbsp; &nbsp; &nbsp;
+                                                    }
+                                                    else
+                                                    {
+
+                                                            <input type="file" class="" name="@cerfile" />@:&nbsp; &nbsp; &nbsp;
+
+                                                            if (!string.IsNullOrEmpty(item.DocumentName))
+                                                            {
+                                                                <a href="@Url.Action("ShowFile", new { Controller="Requirement", filepath="~/Content/Requirement",file=item.DocumentName})" class="doclink" target="_blank"> <b> @item.DocumentName.Split('_').LastOrDefault() </b></a>
+                                                            }
+
+                                                    }
+
+
+                                                    </td>
+                                                    @*<td>
+                                    <a href="@Url.Action("ShowDocument","Project",new { file = item.DocumentName, filepath = item.DocumentPath })" target="_blank">@item.DocumentActualName</a>
+                                </td>*@
+                                                    <td>
+                                                        @Html.TextBox(@remark, item.Remarks, new { @class = "form-control" })
+                                                        @Html.ValidationMessage(@remark)
+                                                    </td>
+                                                    <td>
+                                                        <a href="javascript:void(0)" class="btn-sm btn btn-danger removeEducationDetail"><i class="ion-android-close"></i></a>
+                                                    </td>
+                                                </tr>
+                                            count++;
+                                        }
+                                    }
+                                    else
+                                    {
+                                            <tr>
+                                                <td>
+                                                    @Html.DropDownList("EducationDetail[0].QualificationId", new SelectList(ViewBag.Qualification, "id", "name"), "Select Qualification",
+                                                 new { @class = "form-control", @id = "qulfiAPP_0"})
+                                                    @Html.ValidationMessage("EducationDetail[0].QualificationId")
+                                                    @Html.Hidden("EducationDetail.Index", 0)
+
+                                                </td>
+                                                <td>
+                                                    @Html.DropDownList("EducationDetail[0].DisciplineId", new SelectList(ViewBag.List, "id", "name"),
+                                                 new { @class = "form-control", @id = "decpAPP",@title = "Select any" })
+                                                    @Html.ValidationMessage("EducationDetail[0].DisciplineId")
+                                                </td>
+                                                <td>
+                                                    @Html.TextBox("EducationDetail[0].DivisionClassObtained", "", new { @class = "form-control" })
+                                                    @Html.ValidationMessage("EducationDetail[0].DivisionClassObtained")
+                                                </td>
+                                                <td>
+                                                    @Html.TextBox("EducationDetail[0].Institution", "", new { @class = "form-control" })
+                                                    @Html.ValidationMessage("EducationDetail[0].Institution")
+                                                </td>
+                                                <td>
+                                                    @Html.DropDownList("EducationDetail[0].YearofPassing", new SelectList(ViewBag.Years, "id", "name"), "Select year", new { @class = "form-control" })
+                                                    @Html.ValidationMessage("EducationDetail[0].YearofPassing")
+                                                </td>
+                                                <td>
+                                                    @Html.DropDownList("EducationDetail[0].MarkType", new SelectList(ViewBag.MarkType, "id", "name"), "Select MarkType", new { @class = "form-control" })
+                                                    @Html.ValidationMessage("EducationDetail[0].MarkType")
+                                                </td>
+                                                <td>
+                                                    @Html.TextBox("EducationDetail[0].Marks", "", new { @class = "form-control", @onkeypress = "return isNumberKey(event)", @autocomplete = "off", @placeholder = "CGPA / Marks" })
+                                                    @Html.ValidationMessage("EducationDetail[0].Marks")
+                                                </td>
+
+
+                                                <td>
+                                                    <input type="file" class="" name="EducationDetail[0].Certificate" />&nbsp;&nbsp;&nbsp;
+                                                    <a href="#" class="link1" target="_blank"></a>
+                                                    <input type="text" name="EducationDetail[0].DocumentPath" class="dis-none" />
+                                                    <input type="text" name="EducationDetail[0].DocumentActualName" class="dis-none" />
+
+                                                </td>
+                                                <td>
+                                                    @Html.TextBox("EducationDetail[0].Remarks","", new { @class = "form-control" })
+                                                    @Html.ValidationMessage("EducationDetail[0].Remarks")
+                                                </td>
+                                                <td>
+                                                    <a href="javascript:void(0)" class="btn-sm btn btn-danger removeEducationDetail"><i class="ion-android-close"></i></a>
+                                                </td>
+                                            </tr>
+
+                                    }
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col-md-6 mt-md">
+                                <a href="javascript:void(0)" id="btnAddEducation" class="btn btn-primary">Add New</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script  type="text/javascript">
+    
+    $("#btnAddEducation").click(function () {
+        var cln = $('#tbodyEducation tr:first').clone().find("input,select").val("").end();
+        $(cln).find('select[name$=".DisciplineId"]').empty().append($('<option/>', { value: "", text: "Select Course" }));
+        $(cln).find('a.doclink').addClass('dis-none');
+        //$(cln).find('select[id="decpAPP"]').parent().replaceWith(selectPickerApiElement($(cloneElement), "empty", [], ''));
+        $(cln).find('.link1').remove();
+        $(cln).find("input[name$='.Certificate']").removeClass("dis-none");
+        var index = $('#tbodyEducation tr:last').find("input[name='EducationDetail.Index']").val();
+        index = parseInt(index) + 1;
+        idx = index;
+        $(cln).find("input[name='EducationDetail.Index']").val(index);
+        $(cln).find("input,select").each(function () {
+            if ($(this).attr("name") != undefined)
+            $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+            if ($(this).attr("id") != undefined)
+                $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+        });
+        
+        $(cln).find("span[data-valmsg-for]").each(function () {
+            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+        });
+        $('#tbodyEducation').append(cln);
+    });
+    $(document).on('click', 'a.removeEducationDetail', function () {
+        if ($('#tbodyEducation tr').length != 1) {
+            $(this).closest('tr').remove();
+
+        }
+    });
+    $(document).on('change', 'select[id^="qulfiAPP_"]', function () {
+       
+        var Departmentid = $(this).val();
+        var ID = $(this).attr("id");
+        var idx = ID.substr(ID.lastIndexOf("_") + 1);
+        var select = $(this).closest('#tbodyEducation').find('select[name="EducationDetail['+idx+'].DisciplineId"]');
+        $(select).empty().append($('<option/>', { value: "", text: "Select Course" }));
+        $.getJSON("@Url.Action("LoadPIByCourseList", "RequirementMaster")", { DepartmentId: Departmentid },
+                    function (locationdata) {
+                        
+                      $.each(locationdata, function (index, itemData) {
+                            $(select).append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name
+                            }))
+                        });
+                    });
+    });
+    var selectPickerApiElement = function (el, choice, options, select) {
+        $(el).find('select').selectpicker({
+            liveSearch: true
+        });
+        $(el).children().eq(2).siblings().remove();
+        if (choice == "add") {
+            $(el).find('.selectpicker').append("<option>" + options + "</option>");
+        } else if (choice == "all" && select != '') {
+            $(el).find('.selectpicker').children().remove();
+            for (var i = 0 ; i < options.length ; i++) {
+                $(el).find('.selectpicker').append("<option value=" + options[i].id + ">" + options[i].name + "</option>");
+            }
+            $(el).find('.selectpicker option[value=' + select + ']').attr('selected', 'selected');
+        } else if (choice == "all" && select == '') {
+            $(el).find('.selectpicker').children().remove();
+            for (var i = 0 ; i < options.length ; i++) {
+                $(el).find('.selectpicker').append("<option value=" + options[i].id + ">" + options[i].name + "</option>");
+            }
+        } else if (choice == "empty") {
+            $(el).find('.selectpicker').children().remove();
+            $(el).find('.selectpicker').append("<option value=''>Select any</option>");
+        } else {
+            var selectOptionsLength = $(el).find('.selectpicker').children().length;
+            for (var i = 1 ; i <= selectOptionsLength ; i++) {
+                if (options == $(el).find('.selectpicker').children().eq(i).val()) {
+                    $(el).find('.selectpicker').children().eq(i).remove();
+                    break;
+                } else {
+                    continue;
+                }
+
+            }
+
+        }
+        $(el).find('select').selectpicker('refresh');
+        return $(el).children().first().unwrap();
+
+    }
+        $(document).on('change', 'input[name$=".Certificate"]', function () {
+            var file = $(this).val();
+            if (file != "") {
+                var file_size = $(this)[0].files[0].size;
+                var extension = file.substr((file.lastIndexOf('.') + 1)).toLowerCase();
+                switch (extension) {
+                    case 'pdf':
+                    case 'png':
+                    case 'gif':
+                    case 'jpeg':
+                    case 'jpg':
+                    isValidExten = true;
+                     break;
+                    default:
+                        isValidExten = false;
+                }
+                if (isValidExten == false) {
+                    $('#alert').html("Please upload any one of these type file [doc, docx, pdf].");
+                    $('#Validation').modal('toggle');
+                    $(this).val('');
+                    return false;
+                }
+                else if (file_size > 5242880) {
+                    $('#alert').html("You can upload the file up to 5 MB.");
+                    $('#Validation').modal('toggle');
+                    $(this).val('');
+                    return false;
+                }
+            }
+        });
+
+
+    
+
+</script>

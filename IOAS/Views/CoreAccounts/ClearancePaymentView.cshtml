@@ -1,0 +1,688 @@
+﻿@model IOAS.Models.ClearancePaymentEntryModel
+@{
+    ViewBag.Title = "Clearance Payment";
+    ViewBag.DocmentTypeList = ViewBag.DocmentTypeList;
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<style>
+    /* Hide all steps by default: */
+    .tab {
+        display: none;
+    }
+</style>
+<div class="row hd-tt-bg">
+    <div class="col-md-12">
+        <h4><b>Clearance Payment</b> @*<em>(123asdf123123123)</em>*@</h4>
+    </div>
+</div>
+<div class="row">
+    <div class="white-bg ad-navbar">
+        <div class="col-md-3 ds-spl-bg">
+            <div class="ds-icn">
+                <i class="ion-ios-list-outline "></i>
+            </div>
+            <div class="ds-tt">
+                <span>Request Reference</span>
+                <h4>@Model.SourceName</h4>
+
+            </div>
+        </div>
+        <div class="col-md-3 ds-spl-bg">
+            <div class="ds-icn">
+                <i class="ion-ios-calendar-outline"></i>
+            </div>
+            @if (Model.ReferenceNumber != null)
+            {
+                <div class="ds-tt">
+                    <span>Ref Number (WF / Tapal)</span>
+                    <span>@Html.DisplayFor(m => m.ReferenceNumber)</span>
+                </div>
+            }
+            @if (Model.SourceEmailDate != null)
+            {
+                <div class="ds-tt">
+                    <span>Email Date</span>
+                    <h4>@Html.DisplayFor(m => m.SourceEmail)</h4>
+                </div>
+            }
+        </div>
+
+
+        <div class="col-md-3 col-md-offset-3">
+            <div class="reg-no custom-reg-no">
+                <div class="form-group custom-form-group">
+                    <label>Number</label>
+                    <h4>@Html.DisplayFor(m => m.BillNumber)</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="vw-dts-bg">
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table table-bordered mb-null">
+                <tbody>
+                    <tr>
+                        <td>
+                            <label>Clearance Agent</label>
+                            <h4>@Model.ClearanceAgentName</h4>
+                            @if (Model.ClearanceAgentId != null)
+                            {
+                                <a href="javascript:void(0)" id="lnkBillHistory">View previous bill history</a>
+                            }
+                            else
+                            {
+                                <a href="javascript:void(0)" id="lnkBillHistory" class="dis-none">View previous bill history</a>
+                            }
+                            @Html.Hidden("SourceTapalOrWorkflow", "True")
+                            @Html.HiddenFor(m => m.SubCode)
+                            @Html.Hidden("TransactionTypeCode", "STM")
+                            @Html.Hidden("BillType", "3")
+                            @Html.Hidden("isHaveElgGST")
+                        </td>
+                        <td>
+                            <label>Bank Head</label>
+                            <h4>@Model.BankHeadName</h4>
+                        </td>
+                        <td>
+                            <label>Reference PO Number</label>
+                            <h4>@Model.PONumber</h4>
+                        </td>
+                        <td>
+                            <label>Reference PO Date</label>
+                            <h4>@Model.ClearncePoDate</h4>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label>Invoice Number</label>
+                            <h4>@Model.InvoiceNumber</h4>
+                        </td>
+                        <td>
+                            <label>Invoice Date</label>
+                            <h4>@Model.ClearnceInvoiceDate</h4>
+                        </td>
+                        <td>
+                            <label>PAN</label>
+                            <h4 id="lblAgentPAN"></h4>
+                            <label id="lblStateCode" class="dis-none"></label>
+                        </td>
+                        <td>
+                            <label>GSTIN</label>
+                            <h4 id="lblAgentGSTIN"></h4>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label>Address</label>
+                            <h4 id="lblAgentAddr"></h4>
+                        </td>
+                        <td>
+                            <label></label>
+                            <h4></h4>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            @Html.Partial("_PODetailsView", Model.PODetail)
+        </div>
+
+    </div>
+    <div class="row mt-20">
+        <div class="col-md-12">
+            <div class="col-md-offset-6">
+                <div class="tb-bl-dts alter-bg">
+                    <h3>Total Value</h3>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group custom-form-group ">
+                                <label>Total Value :</label>
+                                <h4 id="lblAdvTtlAmt"></h4>
+                                @Html.HiddenFor(m => m.hiddenSettAmt)
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="form-group custom-form-group">
+                                <label>Total TAX :</label>
+                                <h4><span id="lblAdvTtlTaxAmt"></span> <i id="taxTT" class="ion-information-circled" data-toggle="tooltip" data-html="true" data-placement="top" title="<span>CGST :<b>0.00</b></span><br><span>SGST  :<b>0.00</b></span><br><span>IGST  :<b>0.00</b></span><br>"></i></h4>
+                                @Html.HiddenFor(m => m.hiddenSettTaxAmt)
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group custom-form-group">
+                                <label>Net Bill Total:</label>
+                                <h4 id="lblAdvNetAmt"></h4>
+                                @Html.HiddenFor(m => m.hiddenNetTotalAmt)
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group custom-form-group ">
+                                <label>GST Eligible Value :</label>
+                                <h4 id="lblTaxEligibleAmt"></h4>
+                                @Html.HiddenFor(m => m.hiddenTaxEligibleAmt)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            @Html.Partial("_InvoiceBreakUpView", Model.InvoiceBreakDetail)
+            @Html.Partial("_PaymentBreakUpView", Model.PaymentBreakDetail)
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            @Html.Partial("_CommitmentDetailsView", Model.CommitmentDetail)
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            @Html.Partial("_TransactionDetailsView", Model)
+        </div>
+    </div>
+    <div class="row">
+
+        <div class="col-md-12">
+            <div>
+                @Html.Partial("_CheckListDetailView", Model.CheckListDetail)
+            </div>
+            <table class="table table-bordered mb-null">
+                <tbody>
+                    <tr>
+
+                        <td>
+                            @Html.HiddenFor(m => m.CheckListVerified_By, new { @disabled = "disabled" })
+                            @Html.HiddenFor(m => m.CheckListVerifierName, new { @disabled = "disabled" })
+                            <label>Verified by</label>
+                            <h4 id="Verified_ByName">@Html.DisplayFor(m => m.CheckListVerifierName)</h4>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            @Html.Partial("_DocumentDetailView", Model.DocumentDetail)
+        </div>
+    </div>
+
+</div>
+<div class="row">
+    @if (Model.PFInit != true)
+    {
+        <div class="col-md-12 text-center pd-tb-30">
+
+            <input type="button" onclick="window.location.href='@Url.Action("ClearancePaymentList", "CoreAccounts")';" class="btn btn-default" value="Close" id="btnclose" />
+        </div>
+    }
+    else
+    {
+        <div class="col-md-12 text-center pd-tb-30">
+
+            <input type="button" onclick="window.location.href='@Url.Action("Dashboard", "Home")';" class="btn btn-default" value="Close" id="btnclose" />
+        </div>
+    }
+</div>
+
+@Html.AntiForgeryToken()
+<div id="popup"></div>
+<input type="hidden" id="currentRefId" value="@Model.BillId" />
+<input type="hidden" id="processGuideLineId" value="@ViewBag.processGuideLineId" />
+@Html.Partial("_ProcessStatus")
+<script>
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+    });
+    $('.selectpicker').selectpicker({
+        liveSearch: true
+    });
+
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    $('#SourceEmailDate, #srchFromDate, #srchToDate,#InvoiceDate,#PODate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
+    $('#srchToDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true }).datepicker("setDate", "0");
+    var defaultFromDate = moment(new Date()).add(-10, 'days').toDate();
+    $('#srchFromDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true }).datepicker("setDate", defaultFromDate);
+    $(document).ready(function () {
+
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+        var selSource = $('#Source').val();
+        var agentId = '@Model.ClearanceAgentId';
+        if(agentId != ''){
+            $.ajax({
+                type: "GET",
+                url: "@Url.Action("GetClearanceAgentDetails", "CoreAccounts")",
+                data: { "agentId": agentId },
+                dataType: "json",
+                success: function (result) {
+                    $('#lblAgentPAN').text(result.PAN);
+                    $('#lblAgentGSTIN').text(result.GSTIN);
+                    $('#lblAgentAddr').text(result.Address);
+                    $('#lblStateCode').text(result.StateCode);
+                    UpdateGSTSplitUp()
+                },
+                error: function (err) {
+                    console.log("error : " + err);
+                }
+            });
+        }
+
+        $("#divRefNum, #divRefEmailDate").addClass('dis-none');
+        if (selSource == '1') {
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACWorkflowRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+        } else if (selSource == '3') {
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACTapalRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+        }
+        else if (selSource == '2') {
+            $('#divRefEmailDate').removeClass('dis-none');
+        } else {
+            $("#divRefNum").removeClass('dis-none');
+        }
+
+        var offsetValue = $("input[name='GST']:checked").val();
+        if (offsetValue == 'NotEligible') {
+            $('#ExpenseRequired').val('False');
+        }
+
+        if($('#hiddenSettAmt').val() == '0'){
+            //$('select[name="ExpenseDetail[0].AccountGroupId"],select[name="ExpenseDetail[0].AccountHeadId"],input[name="ExpenseDetail[0].Amount"]').removeClass('required');
+            //$("input[name='ExpenseDetail.Index']").val('');
+        }else{
+            $('select[name="ExpenseDetail[0].AccountGroupId"],select[name="ExpenseDetail[0].AccountHeadId"],input[name="ExpenseDetail[0].Amount"]').addClass('required');
+        }
+
+        $('#lblVendorName').html($('#ClearanceAgentId option:selected').text());
+        CalculatePaymentValue();
+        CalculateDeductionTotal();
+        CalculatePOValue();
+        CalculatePaymentBUTotal();
+        //GetTransactionDetails();
+        $('#CreditorAmount').val($('#PaymentBUTotal').val());
+        $('#NeedUpdateTransDetail').val('false');
+    });
+
+    function fillMasterDropDown(ele,data,fillDafaultText){
+        if(fillDafaultText !== undefined){
+            ele.append($('<option/>', {
+                value: '',
+                text: 'Select any',
+            }));
+        }
+        $.each(data, function (index, itemData) {
+            ele.append($('<option/>', {
+                value: itemData.id,
+                text: itemData.name,
+            }));
+        });
+    }
+    $('#lnkBillHistory').click(function(){
+        var agentId = '@Model.ClearanceAgentId';
+        if (agentId != '') {
+            var token = $("input[name=__RequestVerificationToken]").val();
+            var searchData = { "__RequestVerificationToken": token, "agentId": agentId };
+            $.ajax({
+                url: "@Url.Action("_PreviousCLPBillHistory", "CoreAccounts")",
+                type: "POST",
+                data: searchData,
+                contentType: "application/x-www-form-urlencoded",
+                success: function (data) {
+                    $("#popup").html(data);
+                    $("#preBillHistoryModal").modal('toggle');
+                },
+                error: function (err) {
+                    console.log("error : " + err);
+                }
+            });
+        }
+    });
+
+    $('#PODate').change(function(){
+        $('#hiddenPODate').val($(this).val());
+    });
+
+
+    function resetClearanceAgent() {
+        $('#lblAgentPAN, #lblAgentGSTIN, #lblAgentAddr, #lblStateCode').text('');
+        //$('#divPreBill').addClass('dis-none');
+    }
+    function resetPOMasterDetails() {
+        $('#PONumber, #selPONumber, #PODate, #hiddenPODate, #InvoiceNumber, #InvoiceDate, #BillType, #hiddenBillType').val('');
+        //$('#divPreBill').addClass('dis-none');
+    }
+    function parseDate(s) {
+        var months = {
+            january: 0, february: 1, march: 2, april: 3, may: 4, june: 5,
+            july: 6, august: 7, september: 8, october: 9, november: 10, december: 11
+        };
+        var p = s.split('-');
+        return new Date(p[2], months[p[1].toLowerCase()], p[0]);
+    }
+
+    $('#ClearanceAgentId').change(function () {
+        resetClearanceAgent();
+        var agentId = $(this).val();
+        $('#NeedUpdateTransDetail').val('true');
+        $('#lblVendorName').html($('#ClearanceAgentId option:selected').text());
+        var selPO = $('#selPONumber');
+        selPO.empty();
+        if (agentId != '') {
+            $('#lnkBillHistory').removeClass('dis-none');
+            $.ajax({
+                type: "GET",
+                url: "@Url.Action("GetClearanceAgentDetails", "CoreAccounts")",
+                data: { "agentId": agentId, "poNumberRequired" : true },
+                dataType: "json",
+                success: function (result) {
+                    $('#lblAgentPAN').text(result.PAN);
+                    $('#lblAgentGSTIN').text(result.GSTIN);
+                    $('#lblAgentAddr').text(result.Address);
+                    $('#lblStateCode').text(result.StateCode);
+                    fillMasterDropDown(selPO,result.PONumberList,true);
+                    UpdateGSTSplitUp()
+                },
+                error: function (err) {
+                    console.log("error : " + err);
+                }
+            });
+        }else{
+            $('#lnkBillHistory').addClass('dis-none');
+        }
+    });
+
+    $(document).on('click', 'a.removePOItem', function () {
+        $(this).closest('tr').remove();
+        CalculatePOValue();
+    });
+
+    function AddNewExpense(){
+        $.ajax({
+            type: "GET",
+            url: "@Url.Action("GetAddNewExpenseDetails", "CoreAccounts")",
+            data: { "typeCode": "STM","tSubCode" : "1"},
+        traditional: true,
+        dataType: "json",
+        success: function (result) {
+            $.each(result.ExpenseDetail, function (i, item) {
+                var cln = $('#tbodyExpenseList tr:first').clone().find("select,input").val("").end();
+                $(cln).find('a.dis-none').removeClass('dis-none');
+                var index = $('#tbodyExpenseList tr:last').find("input[name='ExpenseDetail.Index']").val();
+                index = parseInt(index) + 1;
+                $(cln).find("input[name='ExpenseDetail.Index']").val(index);
+                $(cln).find("input, select").each(function () {
+                    $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+                    $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+                });
+                $(cln).find("span[data-valmsg-for]").each(function () {
+                    $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+                });
+
+                var selectGroup = $(cln).find("select[name$='.AccountGroupId']");
+                selectGroup.empty();
+                $.each(item.AccountGroupList, function (index, itemData) {
+                    selectGroup.append($('<option/>', {
+                        value: itemData.id,
+                        text: itemData.name,
+                    }));
+                });
+
+                var selectHead = $(cln).find("select[name$='.AccountHeadId']");
+                selectHead.empty();
+                $.each(item.AccountHeadList, function (index, itemData) {
+                    selectHead.append($('<option/>', {
+                        value: itemData.id,
+                        text: itemData.name,
+                    }));
+                });
+                $('#tbodyExpenseList').append(cln);
+            });
+        },
+        error: function (err) {
+            console.log("error : " + err);
+        }
+    });
+    }
+    @*function GetTransactionDetails() {
+        var stateCode = $('#lblStateCode').html();
+         EmptyExpenseDeductionDetails();
+            $.ajax({
+                type: "GET",
+                url: "@Url.Action("GetTransactionDetails", "CoreAccounts")",
+                data: {"typeCode": "CLP", "tSubCode" : "1"},
+                traditional: true,
+                dataType: "json",
+                success: function (result) {
+                    $.each(result.ExpenseDetail, function (i, item) {
+                        if (i == 0) {
+                            var trEle = $('#tbodyExpenseList tr:first');
+                            $(trEle).find('input[name$=".Amount"]').val('');
+                            $(trEle).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                            $(trEle).find('input[name$=".IsJV"]').val(item.IsJV);
+                            $(trEle).find('#lblTransType').text(item.TransactionType);
+                            $(trEle).find("input[name='ExpenseDetail.Index']").val(i);
+
+                            var selectGroup = $(trEle).find('select[name$=".AccountGroupId"]');
+                            selectGroup.empty();
+                            $.each(item.AccountGroupList, function (index, itemData) {
+                                selectGroup.append($('<option/>', {
+                                    value: itemData.id,
+                                    text: itemData.name,
+                                }));
+                            });
+
+                            var selectHead = $(trEle).find('select[name$=".AccountHeadId"]');
+                            selectHead.empty();
+                            $.each(item.AccountHeadList, function (index, itemData) {
+                                selectHead.append($('<option/>', {
+                                    value: itemData.id,
+                                    text: itemData.name,
+                                }));
+                            });
+                        } else {
+                            var trEleNew = $('#tbodyExpenseList tr:first').clone().find('input').val('').end();
+                            $(trEleNew).find('input[name$=".Amount"]').val('');
+                            $(trEleNew).find("input[name='ExpenseDetail.Index']").val(i);
+                            $(trEleNew).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                            $(trEleNew).find('input[name$=".IsJV"]').val(item.IsJV);
+                            $(trEleNew).find('#lblTransType').text(item.TransactionType);
+                            $(trEleNew).find("input,Select").each(function () {
+                                $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                                $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                            });
+                            $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                                $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                            });
+
+                            var selectGroup = $(trEleNew).find('select[name$=".AccountGroupId"]');
+                            selectGroup.empty();
+                            $.each(item.AccountGroupList, function (index, itemData) {
+                                selectGroup.append($('<option/>', {
+                                    value: itemData.id,
+                                    text: itemData.name,
+                                }));
+                            });
+
+                            var selectHead = $(trEleNew).find('select[name$=".AccountHeadId"]');
+                            selectHead.empty();
+                            $.each(item.AccountHeadList, function (index, itemData) {
+                                selectHead.append($('<option/>', {
+                                    value: itemData.id,
+                                    text: itemData.name,
+                                }));
+                            });
+                            $('#tbodyExpenseList').append(trEleNew);
+                        }
+                    });
+                    if ($('#isHaveElgGST').val().toLowerCase() == 'true') {
+                        $.each(result.DeductionDetail, function (i, item) {
+                            var expensRequired = $('#ExpenseRequired').val();
+                            var ttlAdvTax = parseFloat($('#lblAdvTtlTaxAmt').html());
+                            var splitAmt = (ttlAdvTax / 2).toFixed(2);
+                            var stateCode = $('#lblStateCode').html();
+                            if (i == 0) {
+                                var trEle = $('#tbodyDeductionList tr:first');
+                                $(trEle).find('input').val('');
+                                var amtEle = $(trEle).find('input[name$=".Amount"]');
+                                if (expensRequired == 'True') {
+                                    amtEle.addClass('required');
+                                    if (BillType != 3) {
+                                        if (stateCode == "33" && (item.DeductionHead.includes("CGST") || item.DeductionHead.includes("SGST"))) {
+                                            amtEle.val(splitAmt);
+                                        } else if (item.DeductionHead.includes("IGST")) {
+                                            amtEle.val(ttlAdvTax);
+                                        }
+                                    }
+                                } else {
+                                    amtEle.removeClass('required');
+                                }
+                                $(trEle).find('input[name$=".AccountGroupId"]').val(item.AccountGroupId);
+                                $(trEle).find('input[name$=".DeductionHeadId"]').val(item.DeductionHeadId);
+                                $(trEle).find('input[name$=".DeductionHead"]').val(item.DeductionHead);
+                                $(trEle).find('input[name$=".AccountGroup"]').val(item.AccountGroup);
+                                $(trEle).find('td:nth-child(1)').html(item.AccountGroup);
+                                $(trEle).find('td:nth-child(2)').html(item.DeductionHead);
+                            } else {
+                                var trEleNew = $('#tbodyDeductionList tr:first').clone().find('input').val('').end();
+                                $(trEleNew).find("input").each(function () {
+                                    $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                                    $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                                });
+                                $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                                    $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                                });
+                                var amtEle = $(trEleNew).find('input[name$=".Amount"]');
+                                if (expensRequired == 'True') {
+                                    amtEle.addClass('required');
+                                    if (BillType != 3) {
+                                        if (stateCode == "33" && (item.DeductionHead.includes("CGST") || item.DeductionHead.includes("SGST"))) {
+                                            amtEle.val(splitAmt);
+                                        } else if (item.DeductionHead.includes("IGST")) {
+                                            amtEle.val(ttlAdvTax);
+                                        }
+                                    }
+                                } else {
+                                    amtEle.removeClass('required');
+                                }
+                                $(trEleNew).find('input[name$=".AccountGroupId"]').val(item.AccountGroupId);
+                                $(trEleNew).find('input[name$=".DeductionHeadId"]').val(item.DeductionHeadId);
+                                $(trEleNew).find('input[name$=".DeductionHead"]').val(item.DeductionHead);
+                                $(trEleNew).find('input[name$=".AccountGroup"]').val(item.AccountGroup);
+                                $(trEleNew).find('td:nth-child(1)').html(item.AccountGroup);
+                                $(trEleNew).find('td:nth-child(2)').html(item.DeductionHead);
+                                $('#tbodyDeductionList').append(trEleNew);
+                            }
+                        });
+                    }
+                    $('#NeedUpdateTransDetail').val('false');
+                    CalculateDeductionTotal();
+                },
+                error: function (err) {
+                    console.log("error : " + err);
+                }
+            });
+    }*@
+
+    function UpdateGSTSplitUp() {
+        var ttlAdvTax = parseFloat($('#lblAdvTtlTaxAmt').html());
+        var stateCode = $('#lblStateCode').html();
+        if (stateCode == '33') {
+            if (ttlAdvTax > 0) {
+                var splitAmt = (ttlAdvTax / 2).toFixed(2);
+                $('#taxTT').attr('data-original-title', '<span>CGST :<b>' + splitAmt + '</b></span><br><span>SGST  :<b>' + splitAmt + '</b></span><br>')
+            } else {
+                $('#taxTT').attr('data-original-title', '<span>CGST :<b>0.00</b></span><br><span>SGST  :<b>0.00</b></span><br>');
+            }
+        } else {
+            if (ttlAdvTax > 0) {
+                $('#taxTT').attr('data-original-title', '<span>IGST :<b>' + ttlAdvTax.toFixed(2) + '</b></span><br>')
+            } else {
+                $('#taxTT').attr('data-original-title', '<span>IGST :<b>0.00</b></span><br>')
+            }
+        }
+    }
+    function CalculatePOValue() {
+
+        var advPct = 100;
+        var ttlPOVal = 0, ttlPOTaxVal = 0, netPOVal = 0, ttlAdvVal = 0, ttlAdvTaxVal = 0, netAdvVal = 0;
+        var elgF = false;
+        var ttlGSTElgAmt = 0;
+        $('#tbodyPO tr').not(':first').each(function (i, rowEle) {
+            var amt = parseFloat($(rowEle).find('input[name$=".TotalAmount"]').val());
+            var chckElg = $(rowEle).find('input[type="checkbox"][name$=".IsTaxEligible"]').prop('checked');
+            if (chckElg)
+                elgF = true;
+            if (!isNaN(amt))
+                ttlPOVal = ttlPOVal + amt;
+            if (amt > 0) {
+                var taxPct = parseFloat($(rowEle).find('input[name$=".TaxPct"]').val());
+                if (isNaN(taxPct))
+                    taxPct = 0;
+                var advTaxVal = 0, advAmt = 0, netAdvAmt = 0;
+                advAmt = amt * advPct / 100;
+                ttlAdvVal = ttlAdvVal + advAmt;
+                if (taxPct > 0) {
+                    var taxAmt = amt * taxPct / 100;
+                    ttlPOTaxVal = ttlPOTaxVal + taxAmt;
+
+                    advTaxVal = advAmt * taxPct / 100;
+                    ttlAdvTaxVal = ttlAdvTaxVal + advTaxVal;
+                    if (chckElg)
+                        ttlGSTElgAmt = ttlGSTElgAmt + advTaxVal;
+                }
+                netAdvAmt = advAmt + advTaxVal;
+                $(rowEle).find('.tdAdvPct').html(advPct.toFixed(2));
+                $(rowEle).find('.tdAdvAmt').html(advAmt.toFixed(2));
+                $(rowEle).find('.tdTaxAmt').html(advTaxVal.toFixed(2));
+                $(rowEle).find('.tdNetAmt').html(netAdvAmt.toFixed(2));
+            }
+        });
+        if (elgF)
+            $('#isHaveElgGST').val('true');
+        else
+            $('#isHaveElgGST').val('false');
+        $('#lblAdvTtlAmt').text(ttlAdvVal.toFixed(2));
+        $('#lblAdvTtlTaxAmt').text(ttlAdvTaxVal.toFixed(2));
+        $('#hiddenTaxEligibleAmt').val(ttlGSTElgAmt);
+        $('#lblTaxEligibleAmt').text(ttlGSTElgAmt.toFixed(2));
+        netAdvVal = (ttlAdvVal + ttlAdvTaxVal).toFixed(2);
+        $('#lblAdvNetAmt').text(netAdvVal);
+        $('#hiddenNetTotalAmt').val(netAdvVal).trigger("change");
+        UpdateGSTSplitUp();
+    }
+     $('#CommitmentAmount, #ExpenseAmount, #CreditorAmount, input[name $=".PaymentAmount"], input[name $=".Quantity"], input[name $=".TotalAmount"], input[name $=".Amount"], #ttlCr, #totlCr, #ttlDr').on("copy cut paste drop", function () {
+        return false;
+    });
+
+
+
+
+    $('#hiddenNetTotalAmt').change(function () {
+        amt = $(this).val();
+        $('#CreditorAmount').val(amt);
+    });
+
+
+</script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>

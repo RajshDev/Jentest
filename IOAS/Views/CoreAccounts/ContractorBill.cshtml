@@ -1,0 +1,321 @@
+﻿@model IOAS.Models.ContractorBillModel
+@{
+    ViewBag.Title = "Contractors Bill";
+    ViewBag.Subtitle = "Contractors Bill";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<div class="row hd-tt-bg">
+    <div class="col-md-4 pull-left">
+        <h3>Contractor Bill</h3>
+    </div>
+</div>
+<div class="row">
+    @using (Html.BeginForm("ContractorBill", "CoreAccounts", FormMethod.Post, new { @id = "frmTapal", role = "form", enctype = "multipart/form-data" }))
+    {
+
+        <div class="page-wrapper" id="createproposal">
+            <div class="white-bg">
+                @*<div class="col-md-12 text-right">
+                    @Html.CheckBoxFor(m => m.IsPdf) PDF
+                    @Html.CheckBoxFor(m => m.IsDoc) DOC
+                </div>*@
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label class="required">Project Number</label>
+                            @Html.TextBox("ProjectNumber", Model.ProjectNumber, new { @class = "form-control", @required = "required" })
+                            @Html.HiddenFor(m => m.ProjectId,new {@required= "required" })
+                            @*@Html.ValidationMessage("ProjectId")*@
+                            <div class="txt-error txt-red"> @Html.ValidationMessageFor(m => m.ProjectNumber)</div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            @Html.HiddenFor(m => m.ContractorBillId)
+                            <div class="form-group custom-form-group">
+                                <label class="required">Head of Accounts</label>
+                                @Html.TextBoxFor(m => m.HeadOfAccounts, new { @class = "form-control", @required = "required" })
+                                <div class="txt-error txt-red"> @Html.ValidationMessageFor(m => m.HeadOfAccounts)</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="reg-no">
+                            <div class="form-group custom-form-group ">
+                                <label class="required"> Refrence Number </label>
+                                @Html.TextBoxFor(m => m.RefNo, new { @class = "form-control", @id = "RefNo", @disabled = "disabled" })
+                                <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.RefNo)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label class="required">Agreement No</label>
+                            @Html.TextBoxFor(m => m.AgreementNo, new { @class = "form-control", @required = "required" })
+                            <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.AgreementNo)</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label class="required">From Date</label>
+                            @Html.EditorFor(m => m.FromDate, new { @class = "form-control", @id = "ReceiptDate", @required = "required" })
+                            <div class="txt-error txt-red"> @Html.ValidationMessageFor(m => m.FromDate)</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label class="required">To Date</label>
+                            @Html.EditorFor(m => m.ToDate, new { @class = "form-control", @id = "ReceiptDate", @required = "required" })
+                            <div class="txt-error txt-red"> @Html.ValidationMessageFor(m => m.ToDate)</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label class="">Attach Final Contractor Bill(.pdf, .doc, .docx)</label>
+                            @Html.TextBoxFor(m => m.FinalAttachDoc, new { @class = "form-control", @type = "file" })
+                        </div>
+                    </div>
+                    @if (!String.IsNullOrEmpty(Model.DocDetail))
+                    {
+                        var Name = Model.DocDetail.Split('_');
+                        var OrgDocName = Name[1];
+                        var Path = "~/Content/ContractorBillDocuments/";
+                        <div class="col-md-4">
+                            <div class="form-group custom-form-group">
+                                <label class="required">Uploaded document</label>
+                                <a href="@Url.Action("ShowUploadedDocument", "CoreAccounts", new { file = Model.DocDetail, filepath = @Path })" target="_blank"> @OrgDocName</a>
+                            </div>
+                        </div>
+                    }
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label class="required">Address</label>
+                            @Html.TextAreaFor(m => m.Address, new { @class = "form-control", @required = "required" })
+                            <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.Address)</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label class="required">Issued Date</label>
+                            @Html.EditorFor(m => m.FirmDate, new { @class = "form-control", @required = "required" })
+                            <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.FirmDate)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="white-bg">
+                <div id="DocdivContent">
+
+                    <div class="gray-bg br-rd">
+                        <div class="row">
+                            <div class="col-md-12" id="DocdivContent">
+                                <div class="row m-b-sm">
+                                    @*<div class="col-md-11 text-right">
+                                        <a href="javascript:void(0)" id="btnAddDoc" class="btn btn-primary btnAddPCF">Add New</a>
+                                    </div>*@
+                                </div>
+                                <div class="m-b-sm scrl-table scrl-table-po-bl">
+                                    <table class="table table-bordered" style="width: 1280px;">
+                                        <thead>
+                                            <tr>
+                                                <th colspan="6"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tbodyPCF">
+                                            <tr class="tr1">
+
+                                                <td style="width: 250px;">Vocher No</td>
+                                                <td style="width: 200px;">Date</td>
+                                                <td style="width: 150px;">Unit</td>
+                                                <td style="width: 200px;">Description</td>
+                                                <td style="width: 200px;">Quantity</td>
+                                                <td style="width: 200px;">Rate</td>
+                                                <td style="width: 200px;">Total Cost</td>
+                                                <td style="width: 200px;">Remarks</td>
+                                                @*<td>Action</td>*@
+                                            </tr>
+                                            @if (Model.BillDetails.Count > 0)
+                                            {
+                                                var count = 0;
+                                                foreach (var item in Model.BillDetails)
+                                                {
+                                                    var contradetailid= "BillDetails[" + count + "].ContractorBillDetailsId";
+                                                    var vouchno= "BillDetails[" + count + "].SupportingVocherNo";
+                                                    var vocdate= "BillDetails[" + count + "].VoucherDate";
+                                                    var Uni = "BillDetails[" + count + "].Unit";
+                                                    var desc= "BillDetails[" + count + "].Description";
+                                                    var Qty= "BillDetails[" + count + "].Quantity";
+                                                    var Rat= "BillDetails[" + count + "].Rate";
+                                                    var tat= "BillDetails[" + count + "].TotalCost";
+                                                    var rem= "BillDetails[" + count + "].DetailRemarks";
+                                                <tr id="trPrimary">
+
+                                                    <td>
+                                                        @Html.TextBox(@vouchno, item.SupportingVocherNo, new { @class = "form-control", @autocomplete = "off" })
+                                                        @Html.Hidden("BillDetails.Index", @count)
+                                                        @Html.Hidden(@contradetailid,item.ContractorBillDetailsId)
+                                                    </td>
+                                                    <td>
+                                                        @*@Html.TextBoxFor(m => m.VoucherDate, new { @class = "form-control", @id = "VoucherDate" })*@
+
+                                                        @Html.TextBox(@vocdate,String.Format("{0:dd-MMMM-yyyy}", item.VoucherDate),new { @class = "form-control", @id = "" })
+                                                    </td>
+                                                    <td>
+                                                        @Html.TextBox(@Uni,item.Unit, new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)" })
+
+                                                    </td>
+                                                    <td>
+                                                        @Html.TextArea(@desc, item.Description, new { @class = "form-control" })
+
+                                                    </td>
+                                                    <td>
+                                                        @Html.TextBox(@Qty, item.Quantity, new { @class = "form-control", @onkeypress = "return ValidateNumberOnly(event)" })
+
+                                                    </td>
+                                                    <td>
+                                                        @Html.TextBox(@Rat, item.Rate, new { @class = "form-control", @onkeypress = "return ValidateNumberOnly(event)" })
+
+                                                    </td>
+                                                    <td>
+                                                        @Html.TextBox(@tat, item.TotalCost, new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)" })
+
+                                                    </td>
+                                                    <td>
+                                                        @Html.TextBox(@rem,item.DetailRemarks,new {@class="form-control" })
+                                                    </td>
+                                                    @*<td>
+                                                       @if (count == 0)
+                                                       {
+                                                        <a href="javascript:void(0)" class="btn-circle dis-none removePCFItem"><i class="ion-trash-a"></i></a>
+                                                       }
+                                                       else
+                                                       {
+                                                        <a href="javascript:void(0)" class="btn-circle  removePCFItem"><i class="ion-trash-a"></i></a>
+                                                       }
+                                                    </td>*@
+                                                </tr>
+                                                    count++;
+                                                }
+                                             }
+                                            else
+                                            {
+                                            <tr id="trPrimary">
+
+                                                <td>
+                                                    @Html.TextBox("BillDetails[0].SupportingVocherNo","", new { @class = "form-control", @autocomplete = "off" })
+                                                    @Html.Hidden("BillDetails.Index", "0")
+                                                </td>
+                                                <td>
+                                                    @Html.TextBox("BillDetails[0].VoucherDate","", new { @class = "form-control" })
+                                                 
+                                                  
+                                                </td>
+                                                <td>
+                                                    @Html.TextBox("BillDetails[0].Unit", "", new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)" })
+                                                  
+                                                </td>
+                                                <td>
+                                                    @Html.TextArea("BillDetails[0].Description","",new { @class = "form-control" })
+                                                  
+                                                </td>
+                                                <td>
+                                                    @Html.TextBox("BillDetails[0].Quantity", "", new { @class = "form-control", @onkeypress = "return ValidateNumberOnly(event)" })
+                                                  
+                                                </td>
+                                                <td>
+                                                    @Html.TextBox("BillDetails[0].Rate", "", new { @class = "form-control", @onkeypress = "return ValidateNumberOnly(event)" })
+
+                                                </td>
+                                                <td>
+                                                    @Html.TextBox("BillDetails[0].TotalCost", "",new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)" })
+                                                  
+                                                </td>
+                                                <td>
+                                                    @Html.TextBox("BillDetails[0].DetailRemarks", "", new { @class = "form-control" })
+                                                </td>
+                                                @*<td>
+                                                    <a href="javascript:void(0)" class="btn-circle dis-none removePCFItem"><i class="ion-trash-a"></i></a>
+                                                </td>*@
+                                            </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 text-center pd-tb-30">
+                    <input type="submit" class="btn btn-primary mr10" value="Save" name="Button"/>
+                    <input type="button" onclick="window.location.href='@Url.Action("ContractorBillList", "CoreAccounts")';" class="btn btn-default" value="Close" id="btnclose" />
+                </div>
+            </div>
+        </div>
+
+    }
+</div>
+
+<script type="text/javascript">
+
+    applyProjectAutoComplete($('#ProjectNumber'), $('#ProjectId'));
+
+    $("#VoucherDate").datepicker
+          ({
+              dateFormat: 'dd-MM-yy',
+              yearRange: '-100:+3'
+          });
+
+    $('.btnAddPCF').click(function () {
+
+        var cln = $('#tbodyPCF tr:nth-child(2)').clone().find("input,textarea").val("").end();
+        $(cln).find('.pcftdAmt, .pcftdOH, .tdNet').text('');
+        $(cln).find('a.dis-none').removeClass('dis-none');
+        var index = $('#tbodyPCF tr:last').find("input[name='BillDetails.Index']").val();
+        index = parseInt(index) + 1;
+        $(cln).find("input[name='BillDetails.Index']").val(index);
+        $(cln).find("input, select,textarea").each(function () {
+            $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+            if ($(this).attr("id"))
+                $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+        });
+        $(cln).find("span[data-valmsg-for]").each(function () {
+            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+        });
+        $(cln).find('.hasDatepicker').attr("id", "").removeClass('hasDatepicker').removeData('datepicker').unbind().datepicker({
+            dateFormat: 'dd-MM-yy', changeYear: true, yearRange: '-100:+3'
+        });
+        $('#tbodyPCF').append(cln);
+    });
+    $('input[name$=".VoucherDate"]').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
+    $(document).on('click', 'a.removePCFItem', function () {
+        $(this).closest('tr').remove();
+    });
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+    });
+   
+   
+</script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>

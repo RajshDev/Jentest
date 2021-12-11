@@ -1,0 +1,508 @@
+﻿@*@model List<IOAS.Models.ProcessEngineModel>*@
+
+@Html.AntiForgeryToken()
+
+<div id="ProcessStatusContainer">
+
+    <a href="#" class="wz-stk-btn" id="wz-stk-btn1"><i class="ion-ios-bell-outline"></i>Act <b>Now</b></a>
+
+    <div class="wz-sld-bar" id="wz-sld-bar1">
+        <a href="#" class="wz-min-btn" id="wz-min-btn1"><i class="ion-android-arrow-down"></i></a>
+
+        <div class="wz-top-wrp">
+            <h4 class="wz-tt">Process Flow</h4>
+            <div id="ApproveBox">
+                <div class="wz-form row">
+                    <!--NOTE: Need to fix this inline style. Added it for quick fix -->
+                    <div class="col-md-8 pd-null">
+                    </div>
+                </div>
+                <div class="row wz-form">
+                    <div class="col-md-9">
+                        <select class="form-control" id="ddlActionList">
+                            <option value="-1">Actions</option>
+                            <option value="approve">Recommend</option>
+                            <option value="reject">Reject</option>
+                            @*<option value="clarify">Clarify</option>*@
+                            @*<option value="complete">Complete</option>*@
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="javascript:void(0);" id="btnProcessStatusSubmit" class="form-control"><i class="ion-forward"></i></a>
+
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <textarea class="form-control" id="txtProcessComment" rows="5" cols="25" style="color: #3c2d2d;"></textarea>
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    @*<div class="col-lg-6">
+                            <button type="button" id="btnProcessStatusSubmit" class="btn btn-default" data-dismiss="modal">Submit</button>
+                        </div>*@
+                    <div class="col-lg-6">
+                        <div id="upload">
+                            <button type="button" id="btnUploadModal" class="btn btn-default" data-dismiss="modal">Upload</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="wz-form-drpdown">
+                <a href="#" class="drpdown-btn" id="preComments">View all Comments</a>
+                <div class="alter-box-bg" id="previousComments" style="display:none;">
+                  
+                </div>
+            </div>
+        </div>
+        <div id="taskTab" class="wz-scrl img-bg-green">
+            <input type="hidden" id="currentItem" value="" />
+            <input type="hidden" id="transactionId" value="" />
+            @*<input type="hidden" id="RefID" value="" />*@
+            <div class="wz-btm-wrp" id="taskList">
+
+                <h4 class="wz-tt">Process Flow</h4>
+                @*<div class="wz-tb img-bg-green ">
+                    <div class="wz-tb-tt">
+                        <img src="img/user-img.jpg" class="img-circle">
+                    </div>
+                    <div class="wz-tb-bd">
+                        <span>Initated by </span>
+                        <h4>ramesh</h4>
+                    </div>
+
+                    <div class="cmp-status">
+                        <i class="ion-checkmark"></i>
+                    </div>
+
+                </div>
+
+                <div class="wz-tb img-bg-blue">
+
+                    <div class="wz-tb-tt">
+                        <img src="img/user-img.jpg" class="img-circle">
+                    </div>
+                    <div class="wz-tb-bd">
+                        <span>Recommended by </span>
+                        <h4>ramesh</h4>
+                    </div>
+
+                    <div class="ip-status">
+                    </div>
+
+                    <div class="wz-msg-box">
+                        File is here
+                    </div>
+
+
+                </div>
+
+                <div class="wz-tb img-bg-red ">
+
+                    <div class="wz-tb-tt">
+                        <img src="img/user-img.jpg" class="img-circle">
+                    </div>
+                    <div class="wz-tb-bd">
+                        <span>Rejected by </span>
+                        <h4>ramesh</h4>
+                    </div>
+
+                </div>
+
+                <div class="wz-tb img-bg-yellow  ">
+
+                    <div class="wz-tb-tt">
+                        <img src="img/user-img.jpg" class="img-circle">
+                    </div>
+                    <div class="wz-tb-bd">
+                        <span>Clarification Request by </span>
+                        <h4>ramesh</h4>
+                    </div>
+
+                </div>
+
+                <div class="wz-tb img-bg-green">
+
+                    <div class="wz-tb-tt">
+                        <img src="img/user-img.jpg" class="img-circle">
+                    </div>
+                    <div class="wz-tb-bd">
+                        <span>Recommended by </span>
+                        <h4>ramesh</h4>
+                    </div>
+                </div>*@
+            </div>
+        </div>
+
+
+    </div>
+</div>
+
+@Html.Partial("FileUploader")
+@Html.Partial("_ApproveList")
+
+<!-- Modal -->
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h3 class="modal-title">Assign More User</h3>
+            </div>
+            <div class="modal-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">No</th>
+                            <th scope="col">Users</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>xyz1</td>
+                            <td><a href="#" class="btn btn-primary">Add</a></td>
+                        </tr>
+                        <tr>
+                            <td>1</td>
+                            <td>xyz1</td>
+                            <td><a href="#" class="btn btn-primary">Add</a></td>
+                        </tr>
+                        <tr>
+                            <td>1</td>
+                            <td>xyz1</td>
+                            <td><a href="#" class="btn btn-primary">Add</a></td>
+                        </tr>
+                        <tr>
+                            <td>1</td>
+                            <td>xyz1</td>
+                            <td><a href="#" class="btn btn-primary">Add</a></td>
+                        </tr>
+
+
+
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $("#btnUploadModal").on("click", function () {
+            $('#uploadModal').modal('show');
+        });
+        $("#btnApproveListModal").on("click", function () {
+            $('#ApproveListModal').modal('show');
+        });
+
+        $("#preComments").click(function () {
+            $("#previousComments").toggle();
+        });
+
+        var kyecodes = [27, 13, 32, 9];
+
+        //$(document).on('keydown',function (e) {
+        //    console.log(e.which);
+        //    if (kyecodes.indexOf(e.keyCode) > -1) {
+        //        //$("#popdiv").fadeOut(500);
+        //        $("#previousComments").css('display:none;');
+        //    }
+        //});
+
+        //$(document).on('mousedown',function (e) {
+        //    console.log(e.which);
+        //    if (kyecodes.indexOf(e.keyCode) > -1) {
+        //        //$("#popdiv").fadeOut(500);
+        //        $("#previousComments").css('display:none;');
+        //    }
+        //});
+
+        $("#wz-stk-btn1").click(function () {
+            //				alert('hi');
+            $("#wz-sld-bar1").css({ 'right': '0px', 'opacity': '1' });
+            $("#wz-stk-btn1").hide();
+        });
+
+        $("#wz-min-btn1").click(function () {
+            $("#wz-sld-bar1").css({ 'right': '-250px', 'opacity': '0' });
+            $("#wz-stk-btn1").show();
+        });
+
+    });
+
+    var processList = [];
+    var statusItemArray = [];
+    var currentIndex = 0;
+    $("#btnProcessStatusSubmit").on("click", function () {
+        $('.loading-bg').removeClass('dis-none');
+        UpdateProcessStatus();
+    });
+
+    function alertBox(title, message) {
+        $.alert({
+            title: title || 'Alert!',
+            content: message || ''
+        });
+    }
+
+    function UpdateProcessStatus() {
+
+        var token = $("input[name=__RequestVerificationToken]").val();
+        var headers = {
+            contentType: 'application/json'
+        }
+        headers['__RequestVerificationToken'] = token;
+        var processGuideLineId = $("#processGuideLineId").val() || -1;
+        var refId, refFieldName;
+        refId = $("#currentRefId").val() || -1;
+        refFieldName = (processList && processList.length > 0) ? processList[0].RefFieldName : "";
+        var actionStatus = $("#ddlActionList option:selected").val();
+        if (actionStatus === -1 || actionStatus === '-1') {
+            alertBox('Missing', 'Please select an action. ');
+            $('.loading-bg').addClass('dis-none');
+            return;
+        }
+        var model = {
+            ActionStatus: $("#ddlActionList option:selected").text(),
+            Comments: $("#txtProcessComment").val(),
+            RefId: refId,
+            RefFieldName: refFieldName,
+            ProcessGuidelineId: processGuideLineId
+        };
+        if (processList && processList.length > 0) {
+            model.ProcessTransactionId = processList[0].ProcessTransactionId;
+            model.Approverid = processList[0].Approverid;
+            model.ApproverLevel = processList[0].ApproverLevel;
+        }
+        var body = {
+            model: model,
+            processGuideLineId: processGuideLineId
+        }
+
+        $.ajax({
+            url: '@Url.Action("UpdateProcessStatus", "ProcessEngine")?processGuideLineId=' + processGuideLineId,
+            type: "POST",
+            headers: headers,
+            //dataType: 'json',
+            data: model,
+            success: function (response) {
+                alertBox('Message', response.result);
+                if (response.result == "Approved successfully" || response.result == "You've rejected" || response.result == "Send for clarification")
+                {
+                    setTimeout(function () {
+                        var url = '@Url.Action("Dashboard", "Home")';
+                        window.location.href = url;
+                    }, 2000);
+                }
+                //moveItems('next');
+                LoadProcessTransaction();
+                $('.loading-bg').addClass('dis-none');
+            },
+            error: function (err) {
+                alertBox('Error', 'something went wrong.');
+                $('.loading-bg').addClass('dis-none');
+                console.log(err);
+            }
+        });
+
+    }
+
+    function moveItems(action) {
+        if (action === 'next') {
+            currentIndex = (processList && currentIndex < processList.length-1) ? currentIndex + 1 : currentIndex;
+        }
+        if (action === 'prev') {
+            currentIndex = (currentIndex > 0) ? currentIndex - 1 : currentIndex;
+        }
+        var refId = -1;
+        var transactionId = -1;
+        if (processList && Array.isArray(processList)) {
+            if ($("#currentItem").val() === '') {
+                currentIndex = 0;
+                refId = processList[currentIndex].RefId
+                $("#currentItem").val(refId);
+            } else {
+                var currentItem = $("#currentItem").val();
+                refId = processList[currentIndex].RefId;
+                transactionId = processList[currentIndex].ProcessTransactionId
+            }
+        }
+        $('#transactionId').val(transactionId);
+        $("#currentItem").val(refId);
+        LoadProcessTransaction();
+
+    }
+
+    LoadProcessTransaction();
+
+
+    function LoadProcessTransaction() {
+        var token = $("input[name=__RequestVerificationToken]").val();
+        var headers = {
+            contentType: 'application/x-www-form-urlencoded',
+            '__RequestVerificationToken': token
+        };
+
+        var refId = $("#currentRefId").val() || -1;
+        var processGuideLineId = $("#processGuideLineId").val() || -1;
+        $("#ApproveBox").hide();
+        $("#ddlActionList").empty();
+        $("#ddlActionList").append($('<option/>', {
+            value: -1,
+            text: "Actions"
+        }));
+
+        $.ajax({
+            url: '@Url.Action("LoadProcessFlowTransaction", "ProcessEngine")?processGuideLineId=' + processGuideLineId + "&refId=" + refId,
+            type: "GET",
+            headers: headers,
+            data: "",
+            success: function (response) {
+                var data = response.transaction;
+                var comments = response.comments;
+                $("#taskList").empty();
+                $("#taskList").append('<h4 class="wz-tt">Heading</h4>')
+                $("#previousComments").empty();
+
+                if (response && response.currentApprover === response.currentUser) {
+                    $("#ApproveBox").show();
+                }
+                if (response && response.approve === true) {
+                    $("#ddlActionList").append($('<option/>', {
+                        value: "approve",
+                        text: "Recommend"
+                    }));
+                }
+                if (response && response.clarify === true) {
+                    $("#ddlActionList").append($('<option/>', {
+                        value: "clarify",
+                        text: "Clarify"
+                    }));
+                }
+                if (response && response.reject === true) {
+                    $("#ddlActionList").append($('<option/>', {
+                        value: "reject",
+                        text: "Reject"
+                    }));
+                }
+                var rejected = false;
+                $.each(data, function (index, itemData) {
+                    var pendingItem, actionItem;
+                    var url = '@Url.Content("~/Content/UserImage/")' + 'user-img.png';
+                    if (itemData.UserImage != null && itemData.UserImage != '') {
+                        url = '@Url.Content("~/Content/UserImage/")' + itemData.UserImage;
+                    }
+                    if(itemData.ActionStatus.toLowerCase() === "clarify") {
+                        actionItem = '<div class="wz-tb img-bg-yellow "><div class="wz-tb-tt">' +
+                            '<img src="' + url + '" class="img-circle">' +
+                            '</div><div class="wz-tb-bd">' +
+                            //'<span>' + itemData.ActionStatus + ' by</span>' +
+                            '<span>Clarification</span>' +
+                            '<h4>' + itemData.FirstName + ' ' + itemData.LastName + '</h4>' +
+                            '</div><div class="ip-status">' +
+                            '</div>' +
+                            '<div class="wz-msg-box">File is here</div>' +
+                            '</div>';
+                    }
+                    else if (itemData.ActionStatus.toLowerCase() === "rejected") {
+                        actionItem = '<div class="wz-tb img-bg-red "><div class="wz-tb-tt">' +
+                            '<img src="' + url + '" class="img-circle">' +
+                            '</div><div class="wz-tb-bd">' +
+                            '<span>' + itemData.ActionStatus + ' by</span>' +
+                            '<h4>' + itemData.FirstName + ' ' + itemData.LastName + '</h4>' +
+                            '</div><div class="ip-status">' +
+                            '</div>' +
+                            '<div class="wz-msg-box">File is here</div>' +
+                            '</div>';
+                        rejected = true;
+                    }
+                    else if (itemData && itemData.ProcessTransactionDetailId > 0) {
+                        actionItem = '<div class="wz-tb img-bg-green "><div class="wz-tb-tt">' +
+                            '<img src="' + url + '" class="img-circle">' +
+                            '</div><div class="wz-tb-bd">' +
+                            '<span>' + itemData.ActionStatus + ' by</span>' +
+                            '<h4>' + itemData.FirstName + ' ' + itemData.LastName + '</h4>' +
+                            '</div><div class="cmp-status">' +
+                            '<i class="ion-checkmark"></i>' +
+                            '</div></div>';
+
+                        pendingItem = "";
+
+                    } else if (itemData.ProcessTransactionDetailId === 0 && itemData.ApproverId === response.currentApprover && rejected === false) {
+                        pendingItem = '<div class="wz-tb img-bg-blue "><div class="wz-tb-tt">' +
+                            '<img src="' + url + '" class="img-circle">' +
+                            '</div><div class="wz-tb-bd">' +
+                            '<span>' + itemData.ActionStatus + ' with</span>' +
+                            '<h4>' + itemData.FirstName + ' ' + itemData.LastName + '</h4>' +
+                            '</div><div class="ip-status">' +
+                            '<i class="ion-checkmark"></i>' +
+                            '</div >' +
+                            '<div class="wz-msg-box">'+
+                            'File is here'+
+                            '</div></div>';
+                    } else {
+
+                        pendingItem = '<div class="wz-tb img-bg-blue "><div class="wz-tb-tt">' +
+                            '<img src="' + url + '" class="img-circle">' +
+                            '</div><div class="wz-tb-bd">' +
+                            '<span>' + itemData.ActionStatus + ' with</span>' +
+                            '<h4>' + itemData.FirstName + ' ' + itemData.LastName + '</h4>' +
+                            '</div><div class="ip-status">' +
+                            '<i class="ion-checkmark"></i>' +
+                            '</div></div>';
+                        actionItem = "";
+
+                    }
+
+                    if (actionItem) {
+                        $("#taskList").append(actionItem);
+                    }
+                    if (pendingItem) {
+                        $("#taskList").append(pendingItem);
+                    }
+
+                });
+
+                $.each(comments, function (index, itemData) {
+
+                        var comment = '<div class="alter-box">' +
+                        '<div class="tb-tt bg-blue">' +
+                        '<span>' + itemData.ActionStatus + '</span>' +
+                        '<h4>' + itemData.FirstName + ' ' + itemData.LastName + '</h4>' +
+                        '<h4>' + itemData.Comments +'</h4>' +
+                            '</div>' +
+                            '<div class="tb-body">' +
+                            '<a href="#"><i class="ion-document"></i> File Name :  xyz.doc</a>' +
+                            '</div>' +
+                        '</div>'
+                    if (itemData.Comments && itemData.ProcessTransactionDetailId > 0) {
+                        $("#previousComments").append(comment);
+                    } else {
+                      
+                    }
+                });
+                if ($('#previousComments').is(':empty')) {
+                    var comments = '<div class="alter-box">' +
+                         '<div class="tb-tt bg-blue">' + '<h4>No Comments to display</h4>' +
+                        '</div></div>';
+                    $("#previousComments").append(comments);
+                }
+            },
+            error: function (err) {
+                alertBox("Error","Sorry somthing went wrong.")
+            }
+        });
+    }
+
+</script>

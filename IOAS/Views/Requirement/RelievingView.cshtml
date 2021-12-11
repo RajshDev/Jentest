@@ -1,0 +1,464 @@
+﻿@model IOAS.Models.RelievingModel
+@{
+    ViewBag.Title = "Relieving Order";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<style>
+    .modal-dialog {
+        width: 850px;
+    }
+
+    .wrd-wrap {
+        word-wrap: break-word;
+    }
+</style>
+
+<div class="row hd-tt-bg">
+    <div class="col-md-12">
+        <h4><b>Relieving Order </b></h4>
+
+    </div>
+</div>
+<div id="formRelieving">
+    <div class="row">
+        <div class="white-bg ad-navbar">
+            <div class="col-md-2 ds-spl-bg">
+
+            </div>
+            <div class="col-md-3 ds-spl-bg">
+                <div class="ds-icn">
+                    <i class="ion-ios-list-outline "></i>
+                </div>
+                <div class="ds-tt">
+                    @Html.HiddenFor(m => m.ApplicationID)
+                    @Html.HiddenFor(m => m.OrderID)
+                    @Html.HiddenFor(m => m.Status)
+                    @Html.HiddenFor(m => m.TypeCode)
+                    <span>Request Reference</span>
+                    @Html.DropDownListFor(m => m.RequestReference, new SelectList(ViewBag.ReferenceType, "id", "name"), "Select", new { @class = "form-control" })
+                    <div>@Html.ValidationMessageFor(m => m.RequestReference)</div>
+                </div>
+            </div>
+            <div class="col-md-3 ds-spl-bg">
+                <div class="ds-icn">
+                    <i class="ion-ios-list-outline "></i>
+                </div>
+                <div class="ds-tt" id="divRefNum">
+                    <span class="required">Ref Number (WF / Tapal)</span>
+                    @Html.TextBoxFor(M => M.ReferenceNo, new { @class = "form-control" })
+                    <div>@Html.ValidationMessageFor(M => M.ReferenceNo)</div>
+                    @*@Html.TextBoxFor(m => m.SourceReferenceNumber, new { @class = "form-control dis-none" })
+                        <div>@Html.ValidationMessageFor(M => M.SourceReferenceNumber)</div>*@
+                    @Html.Hidden("SourceTapalOrWorkflow", "True")
+                </div>
+                <div class="dis-none ds-tt" id="divRefEmailDate">
+                    <span class="required">Email Date</span>
+                    @Html.EditorFor(m => m.SourceEmailDate, new { @class = "form-control" })
+                    <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.SourceEmailDate)</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+
+            </div>
+
+        </div>
+    </div>
+    <div class="row cts-mn-dts" id="tab-01">
+        <div class="page-wrapper mt30">
+            <div>
+                <div class="col-md-12">
+
+                    <div class="row">
+                        <div class="col-md-12">
+
+                            <div class="bl-lg-panel-box pb-null">
+                                <div class="cmn-panel-box">
+
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label>Employee Id</label>
+                                                <h4>@Html.DisplayFor(m => m.EmployeeID)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label>Name </label>
+                                                <h4>@Html.DisplayFor(m => m.Name)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label>Type of appointment </label>
+                                                <h4>@Html.DisplayFor(m => m.Typeofappointment)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label>Email ID</label>
+                                                <h4>@Html.DisplayFor(m => m.Appointmentdetails.Email)</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row ">
+                                        <div class="col-md-3 wrd-wrap">
+                                            <div class="form-group custom-form-group  ">
+                                                <label>Permanent Address</label>
+                                                <h4>@Html.DisplayFor(m => m.PermanentAddress)</h4>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-3 wrd-wrap">
+                                            <div class="form-group custom-form-group  ">
+                                                <label>Temporary Address  </label>
+                                                <h4>
+                                                    @Html.DisplayFor(m => m.PresentAddress)
+                                                </h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group mb-sm ">
+                                                <label>Contact No</label>
+                                                <h4>@Html.DisplayFor(m => m.ContactNumber)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group ">
+                                                <label>Date of Birth</label>
+                                                <h4>@Html.DisplayFor(m => m.DateofBirth)</h4>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="row ">
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group ">
+                                                <label>Age</label>
+                                                <h4>@Html.DisplayFor(m => m.Age)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group  ">
+                                                <label>Sex</label>
+                                                <h4>@Html.DisplayFor(m => m.Sex)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label>Application Receive Date</label>
+                                                @Html.EditorFor(m => m.ApplicationReceiveDate, new { @class = "form-control", @required = "required" })
+                                                <div>@Html.ValidationMessageFor(m => m.ApplicationReceiveDate)</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label>PI approval letter</label><br>
+                                                @if (Model.OrderID > 0 && !string.IsNullOrEmpty(Model.PILetterPath))
+                                                {
+                                                @Html.ActionLink(Model.PILetterFileName, "ShowDocument", new { Controller = "Account", filepath = "Requirement", file = Model.PILetterPath }, new { @name = "DocDownload", @target = "_blank" })
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row ">
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label class="required">Relieve Mode</label>
+                                                @Html.DropDownListFor(m => m.RelievingMode, new SelectList(ViewBag.RelieveMode, "id", "name", Model.RelievingMode), "Select", new { @class = "form-control" })
+                                                <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.RelievingMode)</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                @Html.RadioButton("ForenoonOrAfternoon", "FN") <label>Forenoon</label><br>
+                                                @Html.RadioButton("ForenoonOrAfternoon", "AN") <label>Afternoon</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label class="required">Date of relieving</label>
+                                                <h4 id="date-relieving" style="display:none;"></h4>
+                                                @Html.EditorFor(m => m.RelievingDate, new { @class = "form-control required" })
+                                                <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.RelievingDate)</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group  ">
+                                                <label class="required">Commitment Option</label> <br>
+                                                @Html.DropDownListFor(m => m.CommitmentOption, new SelectList(ViewBag.CommitmentOptions, "id", "name", Model.CommitmentOption), "Select", new { @class = "form-control" })
+                                                <h4 id="cmt-opt" style="display:none;"></h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 reg-no">
+                                            <div class="form-group custom-form-group  ">
+                                                <label class="required">Withdraw Commitment Amount</label> <br>
+                                                <h4>@Html.DisplayFor(m => m.WithdrawalAmount)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group  ">
+                                                <label>NO Dues </label> <br>
+                                                @if (Model.OrderID > 0 && Model.NODuesFilePath != null)
+                                                {
+                                                    int Count = 0;
+                                                    foreach (var item in Model.NODuesFilePath)
+                                                    {
+                                                        if (item != "")
+                                                        {
+                                                @Html.ActionLink(Model.NODuesFileName[Count], "ShowDocument", new { Controller = "Account", filepath = "Requirement", file = item }, new { @name = "DocDownload", @target = "_blank" })
+                                                        }
+                                                        Count++;
+                                                    }
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="bl-lg-panel-box  pb-null">
+                                <div class="bl-lg-panel-box-hd mb-m-5 pd-null">
+                                    <div class="cmn-panel-box">
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Project Number</label>
+                                                    <h4>@Model.Appointmentdetails.ProjectNumber</h4>
+                                                    @Html.HiddenFor(m => m.ProjectId)
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Project Title</label>
+                                                    <h4>@Model.Appointmentdetails.ProjectTitle</h4>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>PI Name</label>
+                                                    <h4>@Model.Appointmentdetails.PIName</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+                                        <div class="row">
+
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Project Start Date</label>
+                                                    <h4>@Model.Appointmentdetails.ProjectStartDate</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Project End Date</label>
+                                                    <h4>@Model.Appointmentdetails.ProjectClosureDate</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Appointment start date</label>
+                                                    <h4>@Model.Appointmentdetails.AppointmentStartDate</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Appointment End date</label>
+                                                    <h4>@Model.Appointmentdetails.AppointmentClosureDate</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Designation</label>
+                                                    <h4>@Model.Appointmentdetails.Designation</h4>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Designation Code</label>
+                                                    <h4>@Model.Appointmentdetails.DesignationCode</h4>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Department Name</label>
+                                                    <h4>@Model.Appointmentdetails.PIDepartmentName</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Commitment Amount</label>
+                                                    <h4>@Model.Appointmentdetails.CommitmentAmmount</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Salary</label>
+                                                    <h4>@Model.Appointmentdetails.Salary</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>HRA</label>
+                                                    <h4>@Model.Appointmentdetails.HRA</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Medical</label>
+                                                    <h4>@Model.Appointmentdetails.MedicalAmmount</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Commitment Number</label>
+                                                    <h4>@Html.DisplayFor(m => m.Appointmentdetails.CommitmentNo)</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Commitment Balance</label>
+                                                    <h4>@Html.DisplayFor(m => m.Appointmentdetails.CommitmentBalance)</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 mb-lg text-center">
+            @Html.HiddenFor(m => m.List_f)
+            @if (!Model.List_f.Contains("EmployeeMaster"))
+            {
+                <button type="button" class="btn btn-default" onclick="window.location.href='@Url.Action(Model.List_f, "Requirement")';">Close</button>
+            }
+            else
+            {
+                <button type="button" class="btn btn-default" onclick="window.location.href='@Url.Action("Dashboard", "Home")';">Close</button>
+            }
+
+        </div>
+    </div>
+</div>
+
+
+<div class="loading-bg dis-none">
+</div>
+<div id="popup">
+
+</div>
+<input type="hidden" id="currentRefId" value="@Model.OrderID" />
+<input type="hidden" id="processGuideLineId" value="@ViewBag.processGuideLineId" />
+<div id="act-now">
+    @Html.Partial("_ProcessStatus")
+</div>
+<script>
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+        $('.selectpicker').selectpicker({
+            liveSearch: true
+        });
+        $('.selectpicker').selectpicker('refresh');
+
+    });
+    var addyear = 0;
+    $("#RelievingDate,#ApplicationReceiveDate").datepicker
+        ({
+            dateFormat: 'dd-MM-yy',
+            showStatus: true,
+            showWeeks: true,
+            changeYear: true,
+            yearRange: '1920:+30',
+            highlightWeek: true,
+            numberOfMonths: 1,
+            showAnim: "scale",
+            showOptions: {
+                origin: ["top", "left"]
+            }
+        });
+
+    function formDisabled()
+    {
+        $("#formRelieving").find("input, select, textarea").each(function () {
+            if (!$(this).is(":disabled"))
+                $(this).attr("disabled", "disabled");
+        });
+    }
+
+    formDisabled();
+
+    //$(document).on('keyup', 'textarea,input[type="text"]', function () {
+    //    this.value = this.value.toUpperCase();
+    //});
+
+    var selSource = $('#RequestReference').val();
+    $("#divRefNum, #divRefEmailDate").addClass('dis-none');
+    if (selSource == '1') {
+        applyAutoComplete($('#ReferenceNo'), $('#SourceReferenceNumber'), "@Url.Action("GetACWorkflowRefNumber", "Proposal")");
+        $("#divRefNum").removeClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('True');
+    }
+    else if (selSource == '3') {
+        applyAutoComplete($('#ReferenceNo'), $('#SourceReferenceNumber'), "@Url.Action("GetACTapalRefNumber", "Proposal")");
+        $("#divRefNum").removeClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('True');
+    }
+    else if (selSource == '2') {
+        $('#divRefEmailDate').removeClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('False');
+    }
+    else {
+        $("#divRefNum").removeClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('True');
+    }
+
+    if(@Html.Raw(Json.Encode(Model.ForenoonOrAfternoon)) != "")
+    {
+        $('input[name=ForenoonOrAfternoon]').prop("disabled",true);
+        $("input[name=ForenoonOrAfternoon]").prop('checked', false);
+        if(@Html.Raw(Json.Encode(Model.ForenoonOrAfternoon)) == "FN") {
+            $("input[name=ForenoonOrAfternoon][value=FN]").prop('checked', true);
+        }
+        else {
+            $("input[name=ForenoonOrAfternoon][value=AN]").prop('checked', true);
+        }
+    }
+
+</script>
+<script src="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/js/bootstrap-select.min.js")"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>
+

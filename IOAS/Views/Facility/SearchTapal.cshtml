@@ -1,0 +1,537 @@
+﻿@model IOAS.Models.CreateTapalModel
+@using IOAS.Infrastructure
+@{
+    var UserId = Common.GetUserid(User.Identity.Name);
+    var AccessRole = Common.GetRoleAccess(UserId, 14);
+}
+
+<div class="page-wrapper">
+    @if (Model.GetTapalInventryDetails.Data.Any())
+    {
+        foreach (var item in Model.GetTapalInventryDetails.Data)
+        {
+            <div class="tp-frm-bg">
+                <div class="col-md-2 ls-dts-bg">
+
+                    <div class="ls-dts text-center">
+                        <img src="~/Content/IOASContent/img/stamp-icon.png" width="50" height="50" />
+                        <p>
+                            <span>Inward Date</span>
+                            <b>@item.ReceiptDate</b>
+                            <input type="hidden" value="@item.TapalId" name="tplId" />
+                            @{ var btnEdit = "btnEdit_" + item.TapalId;  }
+                        </p>
+                        @*@if (AccessRole.Count > 0)
+                    {
+                        var AccessIsUpdate = AccessRole.Select(m => m.IsUpdate).Distinct().ToArray();
+                        for (int i = 0; i < AccessIsUpdate.Length; i++)
+                        {
+                            if (AccessIsUpdate[i] == true)
+                           {*@
+                                    <a id="@btnEdit" href="javascript:void(0)" class=""> <i class="ion-edit"></i> </a>
+                                       @*}
+                                    }
+                                    }*@
+                    </div>
+
+                    <div class="ls-dts active text-center">
+                        <b>@item.TapalNo</b>
+                    </div>
+
+                </div>
+
+                <div class="col-md-6 ls-dts-bg">
+
+                    <div class="row">
+
+                        <div class="col-md-4">
+                            <div class="ls-dts">
+                                <p>
+                                    <span>Tapal Catagory</span>
+                                    <b>@item.TapalType</b>
+                                    <input type="hidden" value="@item.slNo" name="tblCount" />
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="ls-dts">
+                                <p>
+                                    <span>Documents Uploaded</span>
+                                    @if (item.DocDetail.Count > 0)
+                                    {
+                                        for (int j = 0; j < item.DocDetail.Count; j++)
+                                        {
+                                            <a class="icn" data-toggle="tooltip" data-placement="top" title="@item.DocDetail[j].FileName" href="@Url.Action("ShowDocument","Facility",new {TapalDocId=item.DocDetail[j].TapalDocDetailId, TapalId = item.DocDetail[j].TabalId })" target="_blank"> <i class="ion-document" style="font-size: 22px;"></i></a>
+                                        }
+                                    }
+
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="ls-dts">
+                                <p>
+                                    <span>Sender Detail</span>
+                                    <b>@item.SenderDetails</b>
+                                </p>
+                            </div>
+                        </div>
+
+
+
+
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="ls-dts">
+                                <p>
+                                    <span>Project Tapal</span>
+
+
+                                    @if (item.ProjectTabal == true)
+                                    {
+                                        <b>
+                                            Yes
+                                        </b>
+                                    }
+                                    else
+                                    {
+                                        <b>
+                                            No
+                                        </b>
+                                    }
+                                </p>
+                            </div>
+                        </div>
+                        @if (item.ProjectTabal == true)
+                    {
+                            <div class="col-md-4" id="PrjNo">
+                                <div class="ls-dts">
+                                    <p>
+                                        <span>Project Number</span>
+                                        <b>@item.ProjectNo</b>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4" id="PIName">
+                                <div class="ls-dts">
+                                    <p>
+                                        <span>PI Name</span>
+                                        <b>@item.PIName</b>
+                                    </p>
+                                </div>
+                            </div>
+                        }
+
+
+                    </div>
+                    @{
+                        var UserName = Common.GetUserFirstName(item.CreateUserId);
+                    }
+
+                    @if (item.Action != 0)
+                    {
+                        <div class="row">
+
+                            <div class="col-md-4">
+                                <div class="ls-dts active">
+                                    <p>
+                                        @{
+                                            var role = Common.GetRoleIdByUserId(item.CreateUserId);
+                                        }
+                                        <span>From</span>
+                                        @if (item.Department == "")
+                                        {
+                                            <b>Tapal</b>
+                                        }
+                                        else
+                                        {
+                                            if (role == 1)
+                                            {
+                                                <b>Tapal</b>
+                                            }
+                                            else
+                                            {
+                                                <b>@item.Department</b>
+                                            }
+                                        }
+
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="ls-dts active">
+                                    <p>
+                                        <span>User</span>
+                                        <b>@UserName</b>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="ls-dts active">
+                                    <p>
+                                        <span>Previous Action</span>
+                                        @if (item.Action == 1)
+                                        {
+                                            <b>Forwarded</b>
+                                        }
+                                        else if (item.Action == 2)
+                                        {
+                                            <b>Recommended</b>
+                                        }
+                                        else if (item.Action == 3)
+                                        {
+                                            <b>Accepted</b>
+                                        }
+                                        else if (item.Action == 4)
+                                        {
+                                            <b>Not Relavant</b>
+                                        }
+                                    </p>
+                                </div>
+                            </div>
+
+
+                        </div>
+                                            }
+
+                </div>
+
+                @{
+                    var submit = "btnSubmit_" + item.slNo;
+                    var Department = "Department_" + item.slNo;
+                    var User = "User_" + item.slNo;
+                    var Remarks = "Remarks_" + item.slNo;
+                    var Role = "Role_" + item.slNo;
+                    var Action = "Action_" + item.slNo;
+                }
+
+                <div class="col-md-4 ls-dts-frm-bg">
+
+                    <div class="row">
+                        <div class="col-md-2 ls-dts-frm">
+                            <label class="required">Action:</label>
+                        </div>
+                        <div class="col-md-4 ls-dts-frm">
+                            @Html.DropDownListFor(m => m.selAction, new SelectList(ViewBag.Action, "id", "name"), "Select Action", new { @class = "form-control", @id = Action })
+                        </div>
+                        <div class="col-md-2 ls-dts-frm">
+                            <label class="required">Mark To:</label>
+                        </div>
+                        <div class="col-md-4 ls-dts-frm">
+                            @Html.DropDownListFor(m => m.selDepartment, new SelectList(ViewBag.Department, "id", "name"), "Select Department", new { @class = "form-control", @id = Department })
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-2 ls-dts-frm">
+                            <label class="required">Role:</label>
+                        </div>
+                        <div class="col-md-4 ls-dts-frm">
+                            @Html.DropDownListFor(m => m.selRole, new SelectList(ViewBag.Role, "id", "name"), "Select Role", new { @class = "form-control", @id = Role })
+                        </div>
+                        <div class="col-md-2 ls-dts-frm">
+                            <label class="required">User:</label>
+                        </div>
+                        <div class="col-md-4 ls-dts-frm">
+                            @Html.DropDownListFor(m => m.selUser, new SelectList(ViewBag.UserList, "id", "name"), "Select User", new { @class = "form-control", @id = User })
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12 ls-dts-frm">
+                            <label class="required">Remarks:</label>
+                        </div>
+                        <div class="col-md-8  ls-dts-frm">
+                            @Html.TextAreaFor(m => m.Remarks, new { @rows = "2", @cols = "50", @class = "form-control", @id = Remarks })
+                        </div>
+                        <div class="col-md-4  ls-dts-frm">
+                            <a href="javascript:void(0)" class="btn btn-default" id="@submit">Submit</a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+                    }
+                    <div>
+                        @{
+                            var maxpage = Model.GetTapalInventryDetails.visiblePages;
+                            var startpage = 1;
+
+                            if (Model.GetTapalInventryDetails.TotalPages < Model.GetTapalInventryDetails.visiblePages)
+                            {
+                                startpage = 1;
+                                maxpage = Model.GetTapalInventryDetails.TotalPages;
+                            }
+                            else if (Model.GetTapalInventryDetails.CurrentPage >= maxpage)
+                            {
+                                startpage = Model.GetTapalInventryDetails.CurrentPage;
+
+                                if (startpage + Model.GetTapalInventryDetails.visiblePages <= Model.GetTapalInventryDetails.TotalPages)
+                                {
+                                    maxpage = startpage + Model.GetTapalInventryDetails.visiblePages;
+                                }
+                                else
+                                {
+                                    maxpage = Model.GetTapalInventryDetails.TotalPages;
+                                }
+
+                                if (maxpage > Model.GetTapalInventryDetails.TotalPages)
+                                {
+                                    maxpage = Model.GetTapalInventryDetails.TotalPages;
+                                    startpage = maxpage - (Model.GetTapalInventryDetails.visiblePages - 1);
+                                }
+
+                            }
+
+                            if (Model.GetTapalInventryDetails.TotalPages > Model.GetTapalInventryDetails.visiblePages)
+                            {
+                                <a id='firstPage' name="pageButton" class="btn btn-primary  btn-md" href="#" onclick="return false;">
+                                    First
+                                </a>
+                                <a id='previousPage' name="pageButton" class="btn btn-default  btn-md" href="#" onclick="return false;">
+                                    Previous
+                                </a>
+                            }
+
+                            for (int i = startpage; i <= maxpage; i++)
+                            {
+
+
+                                if (i == Model.GetTapalInventryDetails.CurrentPage)
+                                {
+                                    if (Model.GetTapalInventryDetails.TotalPages > 1)
+                                    {
+                                        <a id='currentPage' name="pageButton" class="btn btn-primary  btn-md" href="#" onclick="return false;">@i</a>
+                                    }
+                                }
+                                else
+                                {
+                                    <a name="pageButton" class="btn btn-default  btn-md" href="#" onclick="return false;">@i</a>
+                                }
+                            }
+                            if (Model.GetTapalInventryDetails.TotalPages > Model.GetTapalInventryDetails.visiblePages)
+                            {
+                                <a id='nextPage' name="pageButton" class="btn btn-default  btn-md" href="#" onclick="return false;">
+                                    Next
+                                </a>
+                                <a id='lastPage' name="pageButton" class="btn btn-primary  btn-md" href="#" onclick="return false;">
+                                    Last
+                                </a>
+                            }
+                        }
+                        @{ if (Model.GetTapalInventryDetails.TotalPages > 1)
+                            {
+                                <h6 class="color-white" style="float: right; color: Red;">
+                                    Displaying page <span>@Model.GetTapalInventryDetails.CurrentPage</span> of <span>
+                                        @Model.GetTapalInventryDetails.TotalPages
+                                    </span>
+                                </h6>
+                            }
+                        }
+                    </div>
+                            }
+                            else
+                            {
+                                <div class="text-center"> <h3>No data to display! </h3></div>
+                            }
+
+</div>
+
+<script type="text/javascript">
+    var lastpage = '@Model.GetTapalInventryDetails.TotalPages';
+    $(document).ready(function () {
+        var firstpage = 1
+        var currentPage = $('#currentPage').text();
+        if (parseInt(currentPage, 10) === parseInt(lastpage, 10)) {
+            $('#lastPage').addClass('disabled');
+            $('#nextPage').addClass('disabled');
+        }
+        else if (parseInt(currentPage, 10) === parseInt(firstpage, 10)) {
+            $('#firstPage').addClass('disabled');
+            $('#previousPage').addClass('disabled');
+        }
+    });
+
+    $('a[name="pageButton"]').click(function () {
+
+        var pageNo = $(this).text();
+
+        if ($(this).text().trim() === 'First') {
+            pageNo = 1;
+        }
+        else if ($(this).text().trim() === 'Last') {
+            pageNo = lastpage;
+        }
+        else if ($(this).text().trim() === 'Previous') {
+            if (parseInt($('#currentPage').text(), 10) > 1) {
+                pageNo = parseInt($('#currentPage').text(), 10) - 1;
+            }
+
+        }
+        else if ($(this).text().trim() === 'Next') {
+
+            pageNo = parseInt($('#currentPage').text(), 10) + 1;
+        }
+        else {
+            pageNo = $(this).text();
+        }       
+        getData(pageNo)
+        //window.location.href = '@Url.Action("Tapal", "Facility")?page=' + pageNo + '';
+    });
+    $('[id^="btnEdit_"]').click(function () {
+        var ID = $(this).attr("id");
+        ID = ID.substr(ID.lastIndexOf("_") + 1);
+        TapalIU(ID)
+    });
+    $('[id^="Role_"]').change(function () {
+        var RoleId = $(this).val();
+        var index = $(this).closest('.tp-frm-bg').index();
+        var Count = document.getElementsByName('tblCount')[index].value;
+        $.getJSON("../Facility/LoadUserList", { ID: RoleId },
+                    function (dataUser) {
+
+                        var select = $("#User_" + Count);
+                        select.empty();
+                        select.append($('<option/>', {
+                            value: "",
+                            text: "Select User"
+                        }));
+                        $.each(dataUser, function (index, itemData) {
+                            select.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name
+                            }));
+                        });
+                    });
+    });
+    $('[id^="Department_"]').change(function () {
+
+        var departmentId = $(this).val();
+        var index = $(this).closest('.tp-frm-bg').index();
+        var Count = document.getElementsByName('tblCount')[index].value;
+        $.getJSON("../Facility/LoadRoleList", { ID: departmentId },
+                    function (dataRole) {
+
+                        var select = $("#Role_" + Count);
+                        select.empty();
+                        select.append($('<option/>', {
+                            value: "",
+                            text: "Select Role"
+                        }));
+                        $.each(dataRole, function (index, itemData) {
+                            select.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name
+                            }));
+                        });
+                    });
+    });
+
+    $('[id^="btnSubmit_"]').click(function () {
+
+        var index = $(this).closest('.tp-frm-bg').index();
+        var Count = document.getElementsByName('tblCount')[index].value;
+        var intTapalId = document.getElementsByName('tplId')[index].value;
+        var intAction = $("#Action_" + Count).val();
+        var intDepartment = $("#Department_" + Count).val();
+        var intRole = $("#Role_" + Count).val();
+        var intUser = $("#User_" + Count).val();
+        var strRemarks = $("#Remarks_" + Count).val();
+        if (intAction == "") {
+            $("#alert").text("Please select Action");
+            $('#Validation').modal('show');
+            return false;
+        }
+        if (intAction != 3 && intAction != 4) {
+            if (intDepartment == "") {
+                $("#alert").text("Please select Mark to");
+                $('#Validation').modal('show');
+                return false;
+            } if (intRole == "" || intRole == null) {
+                $("#alert").text("Please select Role");
+                $('#Validation').modal('show');
+                return false;
+            } if (intUser == "" || intUser == null) {
+                $("#alert").text("Please select User");
+                $('#Validation').modal('show');
+                return false;
+            }
+        }
+        if (strRemarks == "") {
+            $("#alert").text("Please write comments");
+            $('#Validation').modal('show');
+            return false;
+        }
+        if (intAction == 3) {
+            intDepartment = 0, intRole = 0, intUser = 0;
+        } else if (intAction == 4) {
+            intDepartment = 0, intRole = 0, intUser = 0;
+        }
+        var IsPopUpEdit = false;
+
+        var Data = { "Action": intAction, "Department": intDepartment, "Role": intRole, "ToUser": intUser, "Remarks": strRemarks, "TapalId": intTapalId, 'PopUpEdit': IsPopUpEdit }
+        $.ajax({
+            url: '@Url.Action("SaveInwardEntry", "Facility")',
+            type: 'POST',
+            contentType: 'application/json',
+            dataType: 'json',
+            data: JSON.stringify(Data),
+            success: function (data) {
+
+                if (data == 1) {
+                    $("#alertSuccess").text('Successfully submited');
+                    $('#Success').modal('show');
+                    setTimeout(function () { location.reload(); }, 4000);
+                }
+                else {
+                    $("#FailedAlert").text('Error. Try again!');
+                    $('#Failed').modal('show');
+                }
+            }
+        });
+    });
+    $('[id^="Action_"]').change(function () {
+
+        var index = $(this).closest('.tp-frm-bg').index();
+        var Count = document.getElementsByName('tblCount')[index].value;
+        var Id = $(this).val();
+           @*var AccessRole=@AccessRole;*@
+
+           if (Id == 3 || Id == 4) {
+               //if(AccessRole.Count>0){
+               //    for(var i = 0; i <AccessRole.Count; i++)
+               //    {
+               //        if (AccessRole[i].IsApprove == true)
+               //        {
+               $("#Department_" + Count).attr("disabled", "disabled");
+               $("#Role_" + Count).attr("disabled", "disabled");
+               $("#User_" + Count).attr("disabled", "disabled");
+               //$("#Remarks_" + Count).attr("disabled", "disabled");
+               return false;
+               //    }
+               //    else
+               //    {
+               //        $("#alert").text("You are not authorized to accept tapal");
+               //        $('#Validation').modal('show');
+               //        return false;
+               //    }
+               //}
+
+               //}
+
+           }
+    else {
+               $("#Department_" + Count).removeAttr("disabled");
+        $("#Role_" + Count).removeAttr("disabled");
+        $("#User_" + Count).removeAttr("disabled");
+    }
+           return true;
+    });
+</script>
+

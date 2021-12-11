@@ -1,0 +1,939 @@
+﻿@model IOAS.Models.STEViewModel
+@{
+    ViewBag.Title = "Outsourcing";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+    <link href="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/css/bootstrap-select.min.css")" rel="stylesheet" />
+}
+<style>
+    .modal-dialog {
+        width: 850px;
+    }
+
+</style>
+<div class="row hd-tt-bg">
+    <div class="col-md-12">
+        <h4><b>Outsourcing</b></h4>
+    </div>
+</div>
+<div class="row cust-tab">
+    <div class="page-wrapper mt30">
+        <div>
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="bl-lg-panel-box pb-null">
+                            <div class="cmn-panel-box">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group">
+                                            @Html.HiddenFor(m => m.STEId)
+                                            @Html.HiddenFor(M => M.DesignationId)
+                                            <label>Employee category</label><br>
+                                            @Html.DisplayFor(m => m.EmployeeType)
+                                            @Html.HiddenFor(M => M.StatutoryId)
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 dis-none" id="divOld">
+                                        @if (Model.OldNumber != "" && Model.OldNumber != null)
+                                        {
+                                            <div class="form-group custom-form-group">
+                                                <label>Old Employee Number</label><br>
+                                                @Html.DisplayFor(m => m.OldNumber)
+                                            </div>
+                                        }
+                                    </div>
+                                    <div class="col-md-4" id="divNew">
+                                        @if (Model.NIDNumber != "" && Model.NIDNumber != null)
+                                        {
+                                            <div class="form-group custom-form-group">
+                                                <label>NID Number</label><br>
+                                                @Html.DisplayFor(m => m.NIDNumber)
+                                            </div>
+                                        }
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group">
+                                            <label class="">Employee Number</label>
+                                            <br>@Html.DisplayFor(m => m.EmployeeID)
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group">
+                                            <label class="">Type of appointment</label>
+                                            <br>@Html.DisplayFor(m => m.Typeofappointment)
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group">
+                                            <label>Photo</label> <br>
+                                            @if (!string.IsNullOrEmpty(Model.PersonImagePath))
+                                            {
+                                                <img id="displayImg" class="img-profile" src="@Url.Action("ShowDocument", "Account", new { file =Model.PersonImagePath, filepath = "RCTEmployeeImages"})"><br>
+                                                @*<img id="displayImg" src="~/Content/Requirement/@Model.PersonImagePath" class="img-profile">*@<br>
+                                            }
+                                            else
+                                            {
+                                                <img id="displayImg" src="~/Content/IOASContent/img/Image_placeholder.png" class="img-profile"><br>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group">
+                                            <label>Singnature</label> <br>
+                                            @if (!string.IsNullOrEmpty(Model.SingnaturePath))
+                                            {
+                                                <img id="displayImg1"  class="img-profile" src="@Url.Action("ShowDocument", "Account", new { file = Model.SingnaturePath, filepath = "Requirement" })"><br>
+                                            }
+                                            else
+                                            {
+                                                <img id="displayImg1" src="~/Content/IOASContent/img/Image_placeholder.png" class="img-profile"><br>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row ">
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label class="">Name</label>
+                                            <br>
+                                            @Html.DisplayFor(m => m.Name)
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group mb-sm ">
+                                            <label class="">Father’s / Husband’s Name</label>
+                                            <br>
+                                            @Html.DisplayFor(m => m.Nameoftheguardian)
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        @if (Model.AadhaarNumber != "" && Model.AadhaarNumber != null)
+                                        {
+                                            <div class="form-group custom-form-group ">
+                                                <label class="">Aadhaar Number :</label>
+                                                <br>
+                                                @Html.DisplayFor(m => m.AadhaarNumber)
+                                            </div>
+                                        }
+                                    </div>
+                                    <div class="col-md-6">
+                                        @if (Model.PANNo != "" && Model.PANNo != null)
+                                        {
+                                            <div class="form-group custom-form-group mb-sm ">
+                                                <label class="">PAN No</label>
+                                                <br>
+                                                @Html.DisplayFor(m => m.PANNo)
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                                <div class="row ">
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group ">
+                                            <label class="">Date of Birth</label>
+                                            <br>
+                                            @Html.DisplayFor(m => m.DateofBirth)
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group ">
+                                            <label>Age</label>
+                                            <br>
+                                            @Html.DisplayFor(m => m.Age)
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group  ">
+                                            <label class="">Sex</label>
+                                            <br>
+                                            @Html.DisplayFor(m => m.Sex)
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group ">
+                                            <label class="">Caste</label>
+                                            <br>
+                                            @Html.DisplayFor(m => m.Caste)
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group mb-sm ">
+                                            <label class="">Contact No</label>
+                                            <br>
+                                            @Html.DisplayFor(m => m.ContactNo)
+                                        </div>
+                                    </div>
+                                    @if (!string.IsNullOrEmpty(Model.EmergencyContactNo))
+                                    {
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group mb-sm ">
+                                                <label>Emergency Contact No</label>
+                                                <br>
+                                                @Html.DisplayFor(m => m.EmergencyContactNo)
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 wrd-wrap">
+                                        <div class="form-group custom-form-group  ">
+                                            <label class="">Email ID</label>
+                                            <br>
+                                            @Html.DisplayFor(m => m.Email)
+                                        </div>
+                                        <div class="form-group custom-form-group  ">
+                                            <label>
+                                                Permanent Address
+                                            </label> <br>
+                                            @Html.DisplayFor(m => m.PermanentAddress)
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 wrd-wrap">
+                                        <div class="form-group custom-form-group">
+                                            <label class="">Present Address</label>
+                                            <br>
+                                            @Html.DisplayFor(m => m.PresentAddress)
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group mb-sm ">
+                                            <label>Blood Group</label>
+                                            <br>
+                                            @Html.DisplayFor(m => m.BloodGroup)
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group mb-sm ">
+                                            <label>RH</label>
+                                            <br>
+                                            @Html.DisplayFor(m => m.BloodGroupRH)
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group  mb-sm">
+                                            <label>Staff Category</label>
+                                            <br>
+                                            @Html.DisplayFor(m => m.StaffCategory)
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row ">
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group ">
+                                            <label class="">Nationality</label>
+                                            <br>
+                                            @Html.DisplayFor(m => m.Nationality)
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group ">
+                                            <label>Physically Challenged</label>
+                                            <br>
+                                            @Html.DisplayFor(m => m.PhysicallyChanged)
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group ">
+                                            <label>Are you related to any employee at IIT Madras? </label>
+                                            <br>
+                                            @Html.DisplayFor(m => m.RelasionIIT)
+                                            @Html.HiddenFor(m => m.RelasionIIT)
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row dis-none" id="divRelationShip">
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group ">
+                                            <label>(if yes) (a) Relationship</label>
+                                            <br>
+                                            @Html.DisplayFor(m => m.Relationship)
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group ">
+                                            <label>(b) Name of the Faculty / Staff, Designation & Department</label>
+                                            <br>
+                                            @Html.DisplayFor(m => m.RelationName)
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group">
+                                            @if (Model.ConsolidatedPay || Model.Fellowship)
+                                            {
+                                                <label>Pay category :</label>
+                                                <br>
+                                                if (Model.ConsolidatedPay)
+                                                {
+                                                    <h4>Consolidated Pay</h4>
+                                                }
+                                                else if (Model.Fellowship)
+                                                {
+                                                    <h4>Fellowship Pay</h4>
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group ">
+                                            <label>IITM Pensioner / CSIR Staff :</label>
+                                            <br>
+                                            @Html.HiddenFor(m => m.IITMPensionerCSIRStaff)
+                                            @Html.DisplayFor(m => m.IITMPensionerOrCSIRStaff)
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 dis-none" id="divPensionerNo">
+                                        <div class="form-group custom-form-group">
+                                            <label>PPO No :</label>
+                                            <br>
+                                            @Html.DisplayFor(m => m.PPONo)
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4 dis-none" id="divCSIRStaff">
+                                        <div class="form-group custom-form-group">
+                                            <label>CSIR staff  :</label>
+                                            <br>
+                                            @Html.DisplayFor(m => m.CSIRStaff)
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="row" id="divMSPHDDetails">
+                                    @if (Model.MsPhd)
+                                    {
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group ">
+                                                @Html.CheckBoxFor(m => m.MsPhd, new { @id = "IsMsPhd", @disabled = "disabled" }) MS/Ph.d
+                                            </div>
+                                        </div>
+                                        <div class="dis-none" id="phdDetails">
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group ">
+                                                    @Html.DisplayFor(m => m.PhdDetail)
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="bl-lg-panel-box pb-null">
+                            <div class="bl-lg-panel-box-hd mb-m-5 pd-null">
+                                <div class="cmn-panel-box">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>Project Number</label>
+                                                <input type="text" class="form-control" name="ProjectNumber" value="@Model.ProjectNumber" id="txtProjectNumber" readonly>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>Project Title</label>
+                                                <h4 id="txtProjectTitle1">@Html.DisplayFor(m => m.ProjectDetailsModel.ProjectTitle)</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>Name of the Client / Sponsoring Agency</label>
+                                                <h4 id="txtClietAgency1">@Html.DisplayFor(m => m.ProjectDetailsModel.SponsoringAgency)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>Project Type</label>
+                                                <h4 id="txtProjectType1">@Html.DisplayFor(m => m.ProjectDetailsModel.ProjectType)</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>PI Name</label>
+                                                <h4 id="txtPIName1">@Html.DisplayFor(m => m.ProjectDetailsModel.PIName)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>Project Start Date</label>
+                                                <h4 id="txtProjectStartDate1">@Html.DisplayFor(m => m.ProjectDetailsModel.ProjectStartDate)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>Project Closure Date</label>
+                                                <h4 id="txtProjectClosureDate1">@Html.DisplayFor(m => m.ProjectDetailsModel.ProjectClosureDate)</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>PI Code</label>
+                                                <h4 id="txtPICode1">@Html.DisplayFor(m => m.ProjectDetailsModel.PICode)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>PI Email ID</label>
+                                                <h4 id="txtPIEmailID1">@Model.ProjectDetailsModel.Email</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>PI Phone No</label>
+                                                <h4 id="txtPIPhone1">@Html.DisplayFor(m => m.ProjectDetailsModel.Phone)</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>Department code </label>
+                                                <h4 id="txtDepartmentCode1">@Html.DisplayFor(m => m.ProjectDetailsModel.PIDepartmentCode)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>Department Name</label>
+                                                <h4 id="txtDepartmentName1">@Html.DisplayFor(m => m.ProjectDetailsModel.PIDepartmentName)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label>Medical</label> <br>
+                                                @Html.DropDownListFor(m => m.Medical, new SelectList(ViewBag.Medical, "id", "name"), "Select Medical", new { @class = "form-control", @disabled = "disabled" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label>Designation Code</label>
+                                                <h4 id="lblDesignationCode1"></h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label class="">Designation</label>
+                                                <h4 id="lblDesignationName1"></h4>
+                                            </div>
+                                        </div>
+                                        @if (Model.ActualAppointmentstartdate != "")
+                                        {
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="">Actual Appointment startdate</label>
+                                                    <h4 id="">@Html.DisplayFor(m => m.ActualAppointmentstartdate)</h4>
+                                                </div>
+                                            </div>
+                                        }
+
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label>Appointment start date</label>
+                                                <input type="text" value="@Model.Appointmentstartdate" class="form-control" id="" disabled>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label>Appointment End date</label>
+                                                <input type="text" value="@Model.AppointmentEndDate" class="form-control" id="" disabled>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label>HRA</label>
+                                                <h4>@Html.DisplayFor(m => m.HRA)</h4>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label>Medical Amount</label>
+                                                <h4>@Html.DisplayFor(m => m.MedicalAmmount)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label>Salary</label>
+                                                <h4>@Html.DisplayFor(m => m.BasicPay)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                @*<label>Commitment Amount</label>
+                                                <input type="text" value="@Model.CommitmentAmount" class="form-control" id="" disabled>*@
+                                                <label>Commitment Balance</label>
+                                                <h4>@Html.DisplayFor(m => m.CommitmentBalance)</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label>Commitment Number</label>
+                                                <h4>@Html.DisplayFor(m => m.CommitmentNo)</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bl-lg-panel-box pb-null">
+                            <div class="cmn-panel-box">
+                                <div class="row ">
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label class="">Bank Account No </label>
+                                            <br>
+                                            @Html.DisplayFor(m => m.BankAC)
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label class="">Bank Name </label>
+                                            <br>
+                                            @Html.DisplayFor(m => m.BankName)
+                                        </div>
+                                    </div><div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label class="">IFSC </label>
+                                            <br>
+                                            @Html.DisplayFor(m => m.IFSC)
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="bl-lg-panel-box pb-null">
+                        <div class="cmn-panel-box">
+                            <div class="grey-bg-adj mb-lg">
+                                <div class="row">
+                                    <h4>Education Details:</h4>
+                                    <div class="col-md-12">
+                                        <table class="table alter-table mb-null">
+                                            <thead>
+                                                <tr>
+                                                    <th>QUALIFICATION</th>
+                                                    <th>COURSE</th>
+                                                    <th>DISCIPILINE</th>
+                                                    <th>UNIVERSITY / INSTITUTION </th>
+                                                    <th>YEAR OF PASSING</th>
+                                                    <th>MARK TYPE</th>
+                                                    <th>MARKS/CGPA</th>
+                                                    <th>Attachment File</th>
+                                                    <th>Remarks</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="tbodyEducation">
+                                                @if (Model.EducationDetail != null)
+                                                {
+                                                    foreach (var item in Model.EducationDetail)
+                                                    {
+                                                        <tr>
+                                                            <td>
+                                                                <span>@item.Education</span>
+                                                            </td>
+                                                            <td>
+                                                                <span>@item.Discipline</span>
+                                                            </td>
+
+                                                            <td>
+                                                                <span>@item.DivisionClassObtained</span>
+                                                            </td>
+                                                            <td>
+                                                                <span>@item.Institution</span>
+                                                            </td>
+                                                            <td>
+                                                                <span>@item.YearofPassing</span>
+                                                            </td>
+                                                            <td>
+                                                                <span>@item.strMarkType</span>
+                                                            </td>
+                                                            <td>
+                                                                <span>@item.Marks</span>
+                                                            </td>
+
+                                                            <td>
+                                                                @if (Model.STEId > 0 && !string.IsNullOrEmpty(item.CertificatePath))
+                                                                {
+                                                                    @Html.ActionLink(item.CertificateName, "ShowDocument", new { Controller = "Account", filepath = "Requirement", file = item.CertificatePath }, new { @name = "DocDownload", @target = "_blank" })
+                                                                }
+                                                            </td>
+                                                            <td>
+                                                                <span>@item.Remarks</span>
+                                                            </td>
+                                                            <td>
+                                                                <a href="javascript:void(0)" class="btn-sm btn btn-danger dis-none removeEducationDetail"><i class="ion-android-close"></i></a>
+                                                            </td>
+                                                        </tr>
+                                                    }
+                                                    <tr id="ScoreDetails">
+                                                        <td colspan="8">
+                                                            @if (Model.isHaveGateScore == "Yes")
+                                                            {
+                                                                <span>Having Valid Gate Score:</span>
+                                                                if (Model != null && !String.IsNullOrWhiteSpace(Model.isHaveGateScore) && Model.isHaveGateScore == "No")
+                                                                {
+                                                                    @Html.RadioButtonFor(M => M.isHaveGateScore, "Yes", new { @id = "isYesGateScore", @disabled = "disabled" })@:&nbsp;<label>Yes</label>
+                                                                    @Html.RadioButtonFor(M => M.isHaveGateScore, "No", new { @id = "isNoGateScore", @checked = "checked", @disabled = "disabled" })@:&nbsp;<label>No</label>
+                                                                }
+                                                                else
+                                                                {
+                                                                    @Html.RadioButtonFor(M => M.isHaveGateScore, "Yes", new { @id = "isYesGateScore", @checked = "checked", @disabled = "disabled" })@:&nbsp;<label>Yes</label>
+                                                                    @Html.RadioButtonFor(M => M.isHaveGateScore, "No", new { @id = "isNoGateScore", @disabled = "disabled" })@:&nbsp;<label>No</label>
+                                                                 }
+                                                            }
+                                                        </td>
+                                                        <td id="divScore" class="dis-none">
+                                                            <label>Score</label>
+                                                            @Html.TextBoxFor(M => M.GateScore, new { @class = "form-control", @id = "Score" })
+                                                        </td>
+                                                        <td></td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="bl-lg-panel-box pb-null">
+                        <div class="cmn-panel-box">
+                            <div class="grey-bg-adj mb-lg">
+                                <div class="row">
+                                    <h4>Experience Details:</h4>
+                                    <div class="col-md-12">
+                                        <table class="table alter-table mb-null">
+                                            <thead>
+                                                <tr>
+                                                    <th style="width:130px;">Type</th>
+                                                    <th>ORGANISATION</th>
+                                                    <th>DESIGNATION </th>
+                                                    <th style="width: 160px;">FROM</th>
+                                                    <th style="width: 160px;">TO</th>
+                                                    <th>SALARY DRAWN / MONTH (Rs.)</th>
+                                                    <th>Attachment File</th>
+                                                    <th>Remarks</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="tbodyExperience">
+                                                @if (Model.ExperienceDetail != null)
+                                                {
+                                                    foreach (var item in Model.ExperienceDetail)
+                                                    {
+                                                        <tr>
+                                                            <td>
+                                                                <span>@item.ExperienceType</span>
+                                                            </td>
+                                                            <td>
+                                                                <span>@item.Organisation</span>
+                                                            </td>
+                                                            <td>
+                                                                <span>@item.DesignationautoComplete</span>
+                                                            </td>
+                                                            <td>
+                                                                <span>@item.strFromDate</span>
+                                                            </td>
+                                                            <td>
+                                                                <span>@item.strToDate</span>
+                                                            </td>
+                                                            <td>
+                                                                <span>@item.SalaryDrawn</span>
+                                                            </td>
+                                                            <td>
+                                                                @if (Model.STEId > 0 && !string.IsNullOrEmpty(item.ExperienceFilePath))
+                                                                {
+                                                                    @Html.ActionLink(item.ExperienceFileName, "ShowDocument", new { Controller = "Account", filepath = "Requirement", file = item.ExperienceFilePath }, new { @name = "DocDownload", @target = "_blank" })
+                                                                }
+                                                            </td>
+                                                            <td>
+                                                                <span>@item.Remarks</span>
+                                                            </td>
+                                                            <td>
+                                                                <a href="javascript:void(0)" class="btn-sm btn btn-danger removeExperienceDetail dis-none"><i class="ion-android-close"></i></a>
+                                                            </td>
+                                                        </tr>
+                                                    }
+                                                }
+                                            </tbody>
+
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="bl-lg-panel-box pb-null">
+                        <div class="cmn-panel-box">
+                            <div class="grey-bg-adj mb-lg">
+                                <div class="row">
+                                    <h4>Other Document Details:</h4>
+                                    <div class="col-md-12">
+                                        <table class="table alter-table mb-null">
+                                            <thead>
+                                                <tr>
+                                                    <th>Other Detail</th>
+                                                    <th>Description</th>
+                                                    <th>Attachment File</th>
+                                                    @*<th>Upload File </th>*@
+                                                    <th>Remarks</th>
+                                                    @*<th>Verify</th>*@
+                                                </tr>
+                                            </thead>
+                                            <tbody id="tbodyOthers">
+                                                @if (Model.OtherDetail != null)
+                                                {
+                                                    var count = 0;
+                                                    foreach (var item in Model.OtherDetail)
+                                                    {
+                                                        var othrId = "OtherDetail[" + count + "].OtherDetailId";
+                                                        var othrnam = "OtherDetail[" + count + "].OtherNames";
+                                                        var desc = "OtherDetail[" + count + "].Description";
+                                                        var file = "OtherDetail[" + count + "].OtherDetailFile";
+                                                        var filePath = "OtherDetail[" + count + "].OtherDetailFilePath";
+                                                        var remark = "OtherDetail[" + count + "].Remarks";
+                                                        var verify = "OtherDetail[" + count + "].Verify";
+                                                        <tr>
+                                                            <td>
+                                                                @Html.TextBox(@othrnam, item.OtherNames, new { @class = "form-control dis-none" })
+                                                                @Html.ValidationMessage(@othrnam)
+                                                                @Html.Hidden("OtherDetail.Index", @count)
+                                                                @Html.Hidden(@othrId, item.OtherDetailId)
+                                                                <h4 class="lbl-rv">@Html.DisplayFor(m => m.OtherDetail[count].OtherNames)</h4>
+
+                                                            </td>
+                                                            <td>
+                                                                @Html.TextBox(@desc, item.Description, new { @class = "form-control dis-none" })
+                                                                <h4 class="lbl-rv">@Html.DisplayFor(m => m.OtherDetail[count].Description)</h4>
+                                                                @Html.ValidationMessage(@desc)
+                                                            </td>
+                                                            <td>
+                                                                @if (Model.STEId > 0 && !string.IsNullOrEmpty(item.OtherDetailFilePath))
+                                                                {
+                                                                    @Html.ActionLink(item.OtherDetailFileName, "ShowDocument", new { Controller = "Account", filepath = "Requirement", file = item.OtherDetailFilePath }, new { @name = "DocDownload", @target = "_blank" })
+                                                                }
+                                                            </td>
+                                                            @*<td>
+
+                                                                                @if (item.OtherDetailId == null)
+                                                                        {
+                                                                <input type="file" class="required form-control" name="@file" />@:&nbsp; &nbsp; &nbsp;
+                                                                                                 }
+                                                                        else if (item.OtherDetailId != null && string.IsNullOrEmpty(item.OtherDetailFilePath))
+                                                                        {
+                                                                <input type="file" class="required form-control" name="@file" />@:&nbsp; &nbsp; &nbsp;
+                                                                                                }
+                                                                        else
+                                                                        {
+                                                                <input type="file" class="form-control" name="@file" />@:&nbsp; &nbsp; &nbsp;
+                                                                                                }
+                                                                                @Html.ValidationMessage(@file)
+                                                                            </td>*@
+                                                            <td>
+                                                                @Html.TextBox(@remark, item.Remarks, new { @class = "form-control dis-none" })
+                                                                <h4 class="lbl-rv">@Html.DisplayFor(m => m.OtherDetail[count].Remarks)</h4>
+                                                                @Html.ValidationMessage(@remark)
+                                                            </td>
+                                                            @*<td>
+                                                                    @Html.CheckBox(@verify, false, new { @class = "" })
+                                                                    @Html.ValidationMessage(@verify)
+                                                                </td>*@
+                                                            @*<td>
+                                                                    <a href="javascript:void(0)" class="btn-sm btn btn-danger dis-none removeOtherDetail"><i class="ion-android-close"></i></a>
+                                                                </td>*@
+                                                        </tr>
+
+                                                        count++;
+                                                    }
+                                                }
+
+                                            </tbody>
+                                        </table>
+
+                                        @*<div class="col-md-6 mt-md">
+                                                <a href="javascript:void(0)" id="btnAddOthers" class="btn btn-primary">Add New</a>
+                                            </div>*@
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="text-center" style="margin-bottom:50px;">
+        @Html.HiddenFor(m => m.List_f)
+        @if (!string.IsNullOrEmpty(Model.List_f))
+        {
+            <button type="button" class="btn btn-default" onclick="window.location.href='@Url.Action(Model.List_f,"Requirement")';">Close</button>
+        }
+        else
+        {
+            <button type="button" class="btn btn-default" onclick="window.location.href='@Url.Action("Dashboard", "Home")';">Close</button>
+        } 
+    </div>
+</div>
+
+<div class="loading-bg dis-none">
+</div>
+<div id="popup">
+
+</div>
+
+<script>
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+
+    $(document).ready(function () {
+        if(@Model.STEId>0){
+            $('#Medical').val(@Model.Medical);
+        }
+        if (succMsg != '') {
+            if (succMsg.includes('|') == true) {
+                var Msg = succMsg.split('|');
+                $('#alertSuccessMsg').html(Msg[0]);
+                $('#SuccessDiv').modal('toggle');
+                var win = window.open('', '_blank');
+                win.location.href = Msg[1];
+            }
+            else {
+                $('#alertSuccess').html(succMsg);
+                $('#Success').modal('toggle');
+            }
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+        $('.selectpicker').selectpicker({
+            liveSearch: true
+        });
+        $('.selectpicker').selectpicker('refresh');
+    });
+    if ($("#DesignationId").val() >= 0) {
+        LoadFillDesignation()
+    }
+    function LoadFillDesignation() {
+        var DesignationID = $('#DesignationId').val();
+        if (DesignationID > 0) {
+            $.getJSON("@Url.Action("LoadDesignationDetails", "Requirement")", { DesignationID: DesignationID },
+        function (result) {
+            if (result.DesignationData.DestinationID > 0) {
+                $('#lblDesignationCode1').text(result.DesignationData.DesignationCode);
+                $('#lblDesignationName1').text(result.DesignationData.Designation);
+                $('#ClDesignation').text(result.DesignationData.Designation);
+            }
+        });
+        }
+    }
+    var isMedical = $('select[name="Medical"]').val();
+    if (isMedical != "") {
+        $('#divMedicalAmmount').removeClass('dis-none');
+        if (isMedical == 1) {
+            $('#MedicalAmmount').val(175);
+        }
+        else if (isMedical == 3) {
+            $('#MedicalAmmount').val(0);
+            $('#divMedicalAmmount').addClass('dis-none');
+        }
+        else {
+            $('#MedicalAmmount').val(0);
+        }
+    }
+
+    var EmployeeType = $("input[name='EmployeeType']:checked").val();
+    if (EmployeeType == "Old Employee") {
+        $('#divOld').removeClass('dis-none');
+        $('#divNew').addClass('dis-none');
+    }
+    else {
+        $('#divNew').removeClass('dis-none');
+        $('#divOld').addClass('dis-none');
+    }
+
+    var RelatedIITMadras = $("input[name='RelasionIIT']").val();
+    if (RelatedIITMadras == "Yes") {
+        $('#divRelationShip').removeClass('dis-none');
+    }
+    else {
+        $('#divRelationShip').addClass('dis-none');
+    }
+
+    if ($('#IsMsPhd').is(":checked")) {
+        $('#phdDetails').removeClass('dis-none');
+    } else {
+        $('#phdDetails').addClass('dis-none');
+    }
+
+
+    var PensionerCSIStaff = parseInt($('input[name="IITMPensionerCSIRStaff"]').val());
+    if (PensionerCSIStaff == 1) {
+        $('#divPensionerNo').removeClass('dis-none');
+        $('#divCSIRStaff').addClass('dis-none');
+        $('#divMSPHDDetails').addClass('dis-none');
+        $('#IsMsPhd').prop('checked', false);
+        $('#phdDetails').addClass('dis-none');
+    }
+    else if (PensionerCSIStaff == 2) {
+        $('#divPensionerNo').addClass('dis-none');
+        $('#divCSIRStaff').removeClass('dis-none');
+        $('#divMSPHDDetails').removeClass('dis-none');
+    }
+    else {
+        $('#divPensionerNo').addClass('dis-none');
+        $('#divCSIRStaff').addClass('dis-none');
+    }
+    var isHaveGateScore = $("input[name='isHaveGateScore']:checked").val();
+    if (isHaveGateScore == "Yes")
+        $('#divScore').removeClass('dis-none');
+    else
+        $('#divScore').addClass('dis-none');
+</script>
+<script src="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/js/bootstrap-select.min.js")"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>

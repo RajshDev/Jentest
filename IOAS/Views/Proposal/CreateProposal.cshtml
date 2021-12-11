@@ -1,0 +1,2636 @@
+﻿@model IOAS.Models.CreateProposalModel
+@{
+    ViewBag.Title = "Create Proposal";
+    ViewBag.Subtitle = "Proposal";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+@*<script src="@Url.Content("~/Scripts/Proposal/Proposal.js")"></script>*@
+
+<div class="row hd-tt-bg">
+    <div class="col-md-4 pull-left">
+        <h3>Create Proposal</h3>
+       
+    </div>
+
+</div>
+<div class="row">
+    @using (Html.BeginForm("CreateProposal", "Proposal", FormMethod.Post, new { @class = "", role = "form", @id = "formCP", enctype = "multipart/form-data" }))
+
+    {
+        <div class="col-md-12">
+            @if (ViewBag.message != null)
+            {
+                <span>@ViewBag.message</span>
+            }
+            <div class="page-wrapper">
+
+                <div class="white-bg">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h3 class="spl-title">Proposal References </h3>
+                            @Html.Hidden("ProposalID")
+                            @Html.Hidden("WFproposalid")
+                        </div>
+                    </div>
+                    <div class="row">
+
+                        <div class="col-md-4">
+                            <div class="form-group custom-form-group">
+                                <label class="required">Financial Year</label>
+                                @Html.DropDownListFor(m => m.FinYear, new SelectList(ViewBag.finYearList, "id", "name", ViewBag.refFinYear), "Select Financial Year",
+                               new { @class = "form-control", @required = "required" })
+
+                                <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.FinYear)</div>
+                            </div>
+                       </div>
+                        <div class="col-md-4">
+                            <div class="form-group custom-form-group">
+                                <label class="required">Proposal Source</label>
+                                @Html.DropDownListFor(m => m.ProposalSource, new SelectList(ViewBag.projectsource, "codevalAbbr", "CodeValDetail"), "Select Project Source",
+                               new { @class = "form-control", @required = "required", @id = "ddlprpslsrc" })
+
+                                <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.ProposalSource)</div>
+                            </div>
+                        </div>
+                        @*<div class="col-md-4">
+                                <div class="form-group custom-form-group">
+                                    <label class="required">Proposal input Date</label>
+                                    @Html.EditorFor(m => m.Inputdate, new { @class = "form-control", @id = "inputdatepickerid" })
+                                    <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.Inputdate)</div>
+                                    @Html.Hidden("Inputdate")
+                                </div>
+                            </div>*@
+                        <div class="col-md-4">
+                            <div class="reg-no">
+                                <div class="form-group custom-form-group ">
+                                    <label class="required"> Proposal Number </label>
+                                    @Html.TextBoxFor(m => m.ProposalNumber, new { @class = "form-control", @id = "propslnum", @disabled = "disabled" })
+                                    <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.ProposalNumber)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group custom-form-group">
+                                <label class="required">Inward Date</label>
+                                @Html.EditorFor(m => m.Proposalinwarddate, new { @class = "form-control", @id = "datepickerid" })
+                                <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.Proposalinwarddate)</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 dis-none" id="divRefNum">
+                            <div class="form-group custom-form-group">
+                                <label class="required">Ref. Number</label>
+                                @*@Html.DropDownListFor(m => m.RefNumber, new SelectList(ViewBag.refNumberList, "id", "name"),
+                               new { @class = "form-control", @id = "ddlRefNumber" })*@
+                                @Html.Hidden("SourceTapalOrWorkflow")
+                                <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.RefNumber)</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4" id="divRefEmailDate">
+                            <div class="form-group custom-form-group">
+                                <label class="required">Approval Date</label>
+                                @Html.EditorFor(m => m.EmailDate, new { @class = "form-control", @required = "required" })
+                                <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.EmailDate)</div>
+                            </div>
+                        </div>
+                    </div>
+
+                   
+                </div>
+                <div class="white-bg">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h3 class="spl-title">Categorization  </h3>
+                        </div>
+                    </div>
+                    <div class="row">
+                        @*<div class="col-md-4">
+                    <div class="form-group custom-form-group">
+                        <label>Proposal Approved Date</label>
+                        @Html.EditorFor(m => m.ProposalApproveddate, new { @class = "form-control", @id = "approveddatepickerid" })
+                        <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.ProposalApproveddate)</div>
+                    </div>
+                </div>*@
+                        
+                        <div class="col-md-4">
+                            <div class="form-group custom-form-group">
+                                <label class="required">Project Type</label>
+                                @Html.DropDownListFor(m => m.ProjectType, new SelectList(ViewBag.projType, "codevalAbbr", "CodeValDetail"), "Select Project Type",
+                               new { @class = "form-control", @required = "required", @id = "Prjcttype" })
+                                <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.ProjectType)</div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 dis-none" id="sponprojectsubtype">
+                            <div class="form-group custom-form-group">
+                                <label class="required">Project Sub Type</label>
+                                @Html.DropDownListFor(m => m.ProjectSubtype, new SelectList(ViewBag.projectsubtype, "codevalAbbr", "CodeValDetail"), "Select Project Type",
+                               new { @class = "form-control", @id = "Prjctsubtype" })
+                                <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.ProjectSubtype)</div>
+                               
+                            </div>
+                        </div>
+                        <div class="col-md-4 dis-none" id="projectcategory">
+                            <div class="form-group custom-form-group">
+                                <label class="required">Project Category</label>
+                                @Html.DropDownListFor(m => m.ProjectCategory, new SelectList(ViewBag.projectcategory, "codevalAbbr", "CodeValDetail"), "Select Project Category",
+                               new { @class = "form-control", @id = "Prjctcategory" })
+                                <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.ProjectCategory)</div>
+                                @Html.Hidden("ProjectCategory")
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group custom-form-group">
+                                <label class="required">Agency</label>
+                                @*@Html.DropDownListFor(m => m.SponsoringAgency, new SelectList(ViewBag.Agency, "id", "name"), "Select Agency",
+                               new { @class = "form-control", @required = "required", @id = "Agncy" })*@
+                               @Html.TextBoxFor(m => m.SponsoringAgencyName, new { @class = "form-control", @id = "sponAgencyName", @autocomplete = "off", @onpaste = "return false", @onblur = "changeAgencyName()" })
+                                @Html.TextBoxFor(m => m.SponsoringAgency, new { @class = "form-control dis-none", @id = "Agncy", @autocomplete = "off" })
+                                <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.SponsoringAgency)</div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 dis-none" id="projectscheme">
+                            <div class="form-group custom-form-group">
+                                <label class="required">Project Scheme</label>
+                                @Html.DropDownListFor(m => m.Schemename, new SelectList(ViewBag.Scheme, "id", "name"), "Select Project scheme",
+                               new { @class = "form-control", @id = "Prjctscheme" })
+                                <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.Schemename)</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 dis-none" id="projectschemecode">
+                            <div class="form-group custom-form-group">
+                                <label >Scheme Code</label>
+                                @*@Html.TextBoxFor(m => m.SponsoredSchemes, new { @class = "form-control", @id = "idSponsoredSchemes", @autocomplete = "off", @onpaste = "return false" })
+                                @Html.TextBoxFor(m => m.SchemeCode, new { @class = "form-control dis-none", @id = "idschemecode", @autocomplete = "off" })*@
+
+
+                                 @Html.DropDownListFor(m => m.SchemeCode, new SelectList(ViewBag.schemeCodeList, "id", "name"), "Select Scheme Code",
+                               new { @class = "form-control selectpicker", @id = "schemecode" })
+                                @Html.ValidationMessageFor(m => m.SchemeCode)
+                                @Html.Hidden("PFMSSchemeCode")
+
+                            </div>
+                        </div>
+                        <div class="col-md-4 dis-none" id="projectconstype">
+                            <div class="form-group custom-form-group">
+                                <label class="required">Consultancy Type</label>
+                                @Html.DropDownListFor(m => m.Constype, new SelectList(ViewBag.Scheme, "id", "name"), "Select Project scheme",
+                               new { @class = "form-control", @id = "Prjctconsultype" })
+                                <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.Constype)</div>
+                            </div>
+                        </div>
+                        @*<div class="col-md-4 dis-none" id="projectconstypecode">
+                            <div class="form-group custom-form-group">
+                                <label class="required">Consultancy Type Code</label>
+                                @Html.TextBoxFor(m => m.Constypecode, new { @class = "form-control", @id = "Prjctconsultypecode" })
+
+                                @Html.ValidationMessageFor(m => m.Constypecode)
+
+                            </div>
+                        </div>*@
+                        <div class="col-md-4 dis-none" id="sponsanctionnumber">
+                            <div class="form-group custom-form-group">
+                                <label>Sanction Number</label>
+                                @Html.TextBoxFor(m => m.SanctionNumber, new { @class = "form-control", @id = "sanctionnumber" })
+                                <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.SanctionNumber)</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group custom-form-group">
+                                <label>Person applied</label>
+                                @Html.TextBoxFor(m => m.Personapplied, new { @class = "form-control", @id = "txtpersonapplied" })
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group custom-form-group">
+                                <label>Place</label>
+                                @Html.TextBoxFor(m => m.PersonAppliedPlace, new { @class = "form-control", @id = "txtpersonappliedplace" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+
+                        <div class="col-md-4">
+                            <div class="form-group custom-form-group dis-none" id="SponFunType">
+                                <label>Sponsored Funding Type</label>
+                                @Html.DropDownListFor(m => m.SponsoredProposalFundingType, new SelectList(ViewBag.SponproposalType, "id", "name"), "Select Funding Type",
+                               new { @class = "form-control", @id = "ddlSponsoredFunType" })
+                                <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.SponsoredProposalFundingType)</div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="white-bg">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h3 class="spl-title">Proposal Details  </h3>
+                        </div>
+                    </div>
+                   
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group custom-form-group">
+                                <label class="required">Title of assignment</label>
+                                @Html.TextBoxFor(m => m.Projecttitle, new { @class = "form-control", @required = "required", @id = "txtprjcttitle" })
+                                <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.Projecttitle)</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        
+                        <div class="col-md-4">
+                            <div class="form-group custom-form-group">
+                                <label class="required">Base value</label>
+                                @Html.TextBoxFor(m => m.BasicValue, new { @class = "form-control txtvalue", @id = "txtprpslbasicval", @required = "required", @onkeypress = "return isNumberKey(event)" })
+                                <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.BasicValue)</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group custom-form-group">
+                                <label class="required">Applicable Taxes(%)</label>
+                                @Html.TextBoxFor(m => m.ApplicableTaxes, new { @class = "form-control txtvalue", @id = "txtprpsltaxes", @onkeypress = "return isNumberKey(event)" })
+                                <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.ApplicableTaxes)</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+
+                            <div>
+                                <label class="fn-normal">Total Value (Base value + GST)</label>
+                            </div>
+                            <label id="lblOverallTtl"></label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        
+                       
+                       
+                        <div class="col-md-4">
+                            <div class="form-group custom-form-group">
+                                <label>Name of Institute</label>
+                                @Html.TextBoxFor(m => m.PersonAppliedInstitute, new { @class = "form-control", @id = "txtpersonappliedinstitute" })
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h3 class="spl-title">Duration  </h3>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group custom-form-group">
+                                <label class="required">Tentative Start Date</label>
+                                @Html.EditorFor(m => m.TentativeStartDate, new { @class = "form-control"})
+                                <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.TentativeStartDate)</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group custom-form-group">
+                                <label class="required">Tentative Close Date</label>
+                                @Html.EditorFor(m => m.TentativeCloseDate, new { @class = "form-control" })
+                                <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.TentativeCloseDate)</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div>
+                                <label class="fn-normal">Duration</label>                               
+                            </div>
+                            <label id="lblDuration"></label>
+                        </div>
+                        @*<div class="col-md-4">
+                            <div class="form-group custom-form-group">
+                                <label class="required full-width">Duration (Year(s) / Month(s))</label>
+                                @Html.TextBoxFor(m => m.Projectdurationyears, new { @class = "form-control quarter-form", @placeholder = "Year(s)", @required = "required", @id = "txtprjctduratnyears" })
+                                @Html.TextBoxFor(m => m.Projectdurationmonths, new { @class = "form-control quarter-form", @placeholder = "Month(s)", @required = "required", @id = "txtprjctduratnmonths" })
+                                <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.Projectdurationyears)</div>
+                                <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.Projectdurationmonths)</div>
+                            </div>
+                        </div>*@
+                    </div>
+                   
+                </div>
+                <div class="white-bg">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h3 class="spl-title">Principal Investigator Details</h3>
+                        </div>
+                    </div>
+                    <div class="row">
+
+                        <div class="col-md-4">
+                            <div class="form-group custom-form-group">
+                                <label class="required">Department</label>
+                                @Html.DropDownListFor(m => m.Department, new SelectList(ViewBag.deprtmnt, "code", "name"), "Select any",
+                   new { @class = "form-control", @required = "required", @id = "department" })
+                                <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.Department)</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group custom-form-group">
+                                <label class="required"> Name of Principal Investigator </label>
+                                @Html.DropDownListFor(m => m.PIname, new SelectList(ViewBag.PI, "id", "name"), "Select any",
+                                           new { @class = "form-control selectpicker", @required = "required", @id = "PI" })
+                                <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.PIname)</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group custom-form-group">
+                                <label>Email Id of PI</label>
+                                @Html.TextBoxFor(m => m.PIEmail, new { @class = "form-control", @id = "txtPIemail" ,@readonly=true})
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="white-bg">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h3 class="spl-title">Co Investigator Details</h3>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div id="divContent">
+                            <div class="mt10 mb10">
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label>Department of Co PI</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group custom-form-group">
+                                        <label> Name of Co PI </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group custom-form-group">
+                                        <label>Email id of Co PI</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="primaryDiv">
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group" id="copidprt">
+                                        @Html.DropDownList("CoPIDepartment", new SelectList(ViewBag.deprtmnt, "code", "name"), "Select any",
+                   new { @class = "form-control", @id = "copidepartment" })
+                                    </div>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <div class="form-group custom-form-group" id="copinam">
+                                        @Html.DropDownList("CoPIname", new SelectList(ViewBag.PI, "id", "name"), "Select any",
+                                           new { @class = "form-control selectpicker", @id = "CoPI" })
+                                        @Html.Hidden("CoPIid")
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group custom-form-group" id="copimail">
+                                        @Html.TextBox("CoPIEmail", "", new { @class = "form-control", @id = "txtcopiemail" ,@readonly=true})
+                                        <div> @Html.ValidationMessageFor(m => m.CoPIEmail)</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-1">
+                                    <button class="dis-none" type="button" name="removeButton"><i class="ion-android-close"></i></button>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="col-md-1">
+                            <button type="button" id="btnAddCoPI" class="btn-sm"><i class="ion-android-add"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="white-bg">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h3 class="spl-title">
+                                Co Investigator from Other Institute&nbsp;&nbsp;
+                                @Html.RadioButtonFor(m => m.Otherinstcopi_Qust_1, "Yes", new { @id = "Otherinstcopi_yes" })<span></span> &nbsp; Yes  &nbsp;&nbsp;
+                                @Html.RadioButtonFor(m => m.Otherinstcopi_Qust_1, "No", new { @id = "Otherinstcopi_no", @checked = "checked" }) <span></span> &nbsp; No
+                            </h3>
+                        </div>
+                    </div>
+                    <div class="row" id="otherinstitutecopidetail">
+                        <div id="divotherinstcopiContent">
+                            <div class="mt10 mb10">
+                                <div class="col-md-3">
+                                    <div class="form-group custom-form-group">
+                                        <label>Institute of Co PI</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group custom-form-group">
+                                        <label>Department of Co PI</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="form-group custom-form-group">
+                                        <label> Name of Co PI </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="form-group custom-form-group">
+                                        <label>Remarks</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="primaryotherinstcopiDiv">
+                                <div class="col-md-3">
+                                    <div class="form-group custom-form-group">
+                                        @Html.TextBox("CoPIInstitute",null, new { @class = "form-control", @id = "copiinstitute" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group custom-form-group">
+                                        @Html.TextBox("OtherInstituteCoPIDepartment", null, new { @class = "form-control", @id = "OtherInstcopidepartment" })
+                                    </div>
+                                </div>
+
+                                <div class="col-md-2">
+                                    <div class="form-group custom-form-group">
+                                        @Html.TextBox("OtherInstituteCoPIName", null, new { @class = "form-control", @id = "OtherinstituteCoPI" })
+                                        @Html.Hidden("OtherInstituteCoPIid")
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="form-group custom-form-group">
+                                        @Html.TextBox("RemarksforOthrInstCoPI", "", new { @class = "form-control", @id = "txtCoPIremarks" })
+
+                                    </div>
+                                </div>
+                                <div class="col-md-1">
+                                    <button class="dis-none" type="button" name="removeButton"><i class="ion-android-close"></i></button>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="col-md-1">
+                            <button type="button" id="btnAddotherinstCoPI" class="btn-sm"><i class="ion-android-add"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="white-bg">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h3 class="spl-title required">
+                                Is there any Artificial Intelligence Component in the proposed project?&nbsp;&nbsp;
+                                @Html.RadioButtonFor(m => m.IsthereAnyArtificialIntelligence, "Yes", new { @id = "aiCOM_yes" })<span></span> &nbsp; Yes  &nbsp;&nbsp;
+                                @Html.RadioButtonFor(m => m.IsthereAnyArtificialIntelligence, "No", new { @id = "aiCOM_no", @checked = "checked" }) <span></span> &nbsp; No
+                            </h3>
+                        </div>
+                    </div>
+                    <div class="row">
+                        
+                            <div class="col-md-12">
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Please select the domain relevant to the project</label>
+                                        @Html.DropDownListFor(m => m.Domainrelevant, new SelectList(ViewBag.Proposaldomain, "name", "name"), "Select Domain List",
+                                      new { @class = "form-control" })
+                                        <div>@Html.ValidationMessageFor(m => m.Domainrelevant)</div>
+                                    </div>
+                                </div>
+                                <div class="dis-none" id="aiDetail">
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label class="required">If yes, please provide a description of the same in 200 characters</label>
+                                            @Html.TextAreaFor(m => m.AIDescription, new { @class = "form-control" })
+                                            <div>@Html.ValidationMessageFor(m => m.AIDescription)</div>
+                                        </div>
+                                    </div>
+                                </div>
+                           </div>
+                        
+                    </div>
+                </div>
+
+                <div class="white-bg">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h3 class="spl-title">Supporting Documents</h3>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div id="DocdivContent">
+                            <div class="col-md-11 mt10">
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label>Attachment type</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group custom-form-group">
+                                        <label> Attachment Name </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label> Attachment (.pdf, .doc, .docx)</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-1">
+
+                                </div>
+                            </div>
+                            <div id="DocprimaryDiv">
+                                <div class="col-md-11">
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group">
+                                            @Html.DropDownList("DocType", new SelectList(ViewBag.Docmenttype, "id", "name"), "Select Document Type",
+                   new { @class = "form-control", @id = "doctype" })
+                                            @Html.Hidden("Docid")
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group custom-form-group">
+                                            <input class="form-control" name="AttachName" id="docname" value="" type="text">
+                                            @*@Html.TextBoxFor(m => m.DocName, new { @class = "form-control", @required = "required", @id="Docname" })*@
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2" id="browsebtn">
+                                        <div class="form-group custom-form-group mt5">
+                                            <input type="file" name="file" id="docfile" />&nbsp;&nbsp;&nbsp;
+                                            @Html.ValidationMessageFor(m => m.DocPath)
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 doclink mt6" id="doclink">
+                                        @*<a href="@Url.Action("ShowDocument", new { Controller = "Manage", file = Model.DocPath, filepath = "~/Content/ProposalDocuments/", link=Model.DocPath })"> </a>*@
+                                        <a href="#" class="link1" target="_blank"></a>
+                                        @Html.Hidden("DocPath", "", new { @class = "HiddenDocPath" })
+                                        @Html.Hidden("DocName", "", new { @class = "HiddenDocName" })
+                                    </div>
+                                    <div class="col-md-1 ml40 mt5">
+                                        <input class="btn btn-default dis-none" type="button" value="remove" id="firstremoveButton" />
+                                    </div>
+                                    <div class="col-md-1 ml40 mt5">
+                                        <button class="dis-none" type="button" id="idremoveButton" name="removeButton"><i class="ion-android-close"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                            <button type="button" id="btnAddDoc" class="btn-sm"><i class="ion-android-add"></i> </button>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group custom-form-group">
+                                <label>Remarks</label>
+                                @Html.TextBoxFor(m => m.Remarks, new { @class = "form-control", @id = "txtremarks" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" id="saveproposal">
+                    <div class="col-md-12 text-center pd-tb-30">
+                        <input type="submit" class="btn btn-primary mr10" value="Submit" name="Button" id="btnSave" />
+                        <input type="button" onclick="window.location.href='@Url.Action("ProposalList", "Proposal")';" class="btn btn-default" value="Close" id="btnclose" />
+                    </div>
+                </div>
+                @*<div class="row" id="updateproposal">
+                    <div class="col-md-12 text-center pd-tb-30">
+                        <input type="submit" class="btn btn-primary mr10" value="Update" name="Button" id="btnupdate" />
+                        <input type="button" onclick="window.location.href='@Url.Action("CreateProposal", "Proposal")';" class="btn btn-default" value="Close" id="btnclose" />
+                    </div>
+                </div>*@
+            </div>
+
+          
+            @*<div class="row mt30" id="gridsearchlist">
+
+                    <div class="col-md-12">
+                        <div class="page-wrapper">
+                            <div class="custom-jsgrid-normal">
+                                <div id="gridsearchProposalList"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>*@
+        </div>
+    }
+</div>
+
+@if (ViewBag.succMsg != null)
+{
+    <div id="myModal" class="modal fade modal-success" role="dialog">
+        <div class="modal-dialog modal-sm">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" onclick="window.location.href='@Url.Action("CreateProposal", "Proposal")';">&times;</button>
+                    <i class="ion-android-checkmark-circle"></i>
+                    <h3 class="modal-title">Saved successfully</h3>
+                </div>
+                <div class="modal-body">
+
+                    <p>@ViewBag.succMsg</p>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" onclick="window.location.href='@Url.Action("CreateProposal", "Proposal")';">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            $('#myModal').modal('show');
+        });
+
+    </script>
+
+}
+
+@if (ViewBag.errMsg != null)
+{
+    <div id="myModal1" class="modal fade modal-error" role="dialog">
+        <div class="modal-dialog modal-sm">
+
+             Modal content
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <i class="ion-android-cancel"></i>
+                    <h3 class="modal-title">Error Message</h3>
+                </div>
+                <div class="modal-body">
+
+                    <p>@ViewBag.errMsg</p>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            $('#myModal1').modal('show');
+        });
+
+    </script>
+}
+<div id="ValidationModal" class="modal fade modal-warning" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-warning"></i>
+                <h3 class="modal-title">Warning</h3>
+            </div>
+            <div class="modal-body">
+
+                <p id="MsgValidation"></p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div id="popupFilter" class="filter-popup">
+    <div class="">
+        <div class="filter-content">
+            <div class="white-bg">
+                <div class="form-group custom-form-group">
+                    <h3>Filter by</h3>
+                </div>
+                <div class="form-group custom-form-group">
+                    @Html.DropDownList("srchPrjcttype", new SelectList(ViewBag.projType, "codevalAbbr", "CodeValDetail"), "Project type", new { @id = "srchPrjcttype", @class = "form-control" })
+                </div>
+                <div class="form-group custom-form-group">
+                    @Html.TextBox("srchpropslnum","", new { @id = "srchpropslnum", @placeholder = "Proposal Number", @class = "form-control" })
+                </div>
+                @*<div class="form-group custom-form-group">
+                        @Html.TextBoxFor(m => m.ProjectNumber, new { @id = "projectnumber", @placeholder = "Project Number", @class = "form-control" })
+                    </div>*@
+                <div class="form-group custom-form-group">
+                    @Html.DropDownListFor(m => m.SearchField.PIName, new SelectList(ViewBag.PI, "id", "name"), "PI Name", new { @id = "srchPIName", @class = "form-control" })
+                </div>
+
+
+                <div class="form-group custom-form-group">
+                    <label class="full-width">Created Date</label>
+                    @Html.TextBoxFor(m => m.SearchField.FromDate, new { @id = "FromDate", @class = "form-control half-form" })
+                    @Html.TextBoxFor(m => m.SearchField.ToDate, new { @id = "ToDate", @class = "form-control half-form" })
+                </div>
+                <div class="form-group custom-form-group">
+                    @Html.DropDownListFor(m=>m.FilterStatus, new SelectList(ViewBag.functionstatus, "name", "name"), "Status", new { @id = "srchPrjcttypeStatus", @class = "form-control" })
+                </div>
+                <div class="form-group custom-form-group mt30 text-center">
+                    <a id="btnReset" href="javascript:void(0)">Reset</a>
+                </div>
+                <div class="form-group custom-form-group text-center">
+                    <button id="btnSearch" type="button" class="btn btn-primary mr10">Search</button>
+                    <button name="btnClose" type="button" class="btn btn-default">Close</button>
+                </div>
+
+
+            </div>
+        </div>
+
+    </div>
+
+    <a href="javascript:void(0)" name="btnClose" class="close-btn"><i class="ion-android-cancel"></i></a>
+
+</div>
+
+<script>
+    var errMsg = '@ViewBag.errMsg';
+    var piList = '@Html.Raw(Json.Encode(ViewBag.PI))';
+    @*var allocationHeads = '@Html.Raw(Json.Encode(ViewBag.allocatehead))'*@
+    var modelData = '@Html.Raw(Json.Encode(Model))';
+    //$('input[name="ProposalID"]').val("");
+    //$('input[name="Docid"]').val("");
+    //$('input[name="CoPIid"]').val("");
+    $('#Prjctsubtype').val(@Html.Raw(Json.Encode(Model.ProjectSubtype)));
+
+    $('#Prjctcategory').val(@Html.Raw(Json.Encode(Model.ProjectCategory)));
+    $('#EmailDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true }).attr('readonly', 'readonly');
+    $('#TentativeCloseDate, #TentativeStartDate').datepicker({ dateFormat: 'dd-MM-yy', changeYear: true, yearRange: '-10:+50' });
+    $(document).ready(function () {
+        //get the relevant form
+        //  var form = $('#frmSRB');
+        $('.selectpicker').selectpicker({
+            liveSearch: true
+        });
+        if (errMsg) {
+            //$('#FailedAlert').html(errMsg);
+            //$('#Failed').modal('toggle');
+            //var jsonData = JSON.parse(modelData);
+            //$('#addnewpage').hide();
+            //$('#createproposal').show();
+            //$('#saveproposal').show();
+            //$('#updateproposal').hide();
+            //$('#gridlist').hide();
+
+            //$('#viewdoc').hide();
+            //fillData(jsonData);
+
+        } else {
+
+
+            //   $('#viewdoc').hide();
+            //   $('#saveproposal').hide();
+            //   $('#updateproposal').hide();
+        }
+        GetSourceDetails();
+        GetProjectTypeDetails();
+        calcDateDiff();
+        calculateProjectTotal();
+        var aidomain=@Html.Raw(Json.Encode(Model.IsthereAnyArtificialIntelligence));
+        if(aidomain=="Yes")
+        {
+            $('#aiCOM_yes').prop('checked', true);
+            $('#aiDetail').removeClass("dis-none");
+        }
+        else
+        {
+            $('#aiDetail').addClass("dis-none");
+        }
+        $('[id^="aiCOM_"]').change(function () {
+            var ID = $(this).attr("id");
+            var qustType = ID.substr(ID.lastIndexOf("_") + 1);
+            var qustNo = ID.substring(ID.indexOf("_") + 1, ID.lastIndexOf("_"));
+            $('#aiDetail').addClass("dis-none");
+            if (qustType === "yes") {
+                $('#aiDetail').removeClass("dis-none");
+            }
+            if (qustType === "no") {
+                $('#aiDetail').addClass("dis-none");
+                $('#Domainrelevant').val("");
+                $('#AIDescription').val("");
+            }
+
+        });
+    });
+
+    //$('#Prjcttype').prop("selectedIndex", 0);
+    //$('#datepickerid').val("");
+    ////$('#inputdatepickerid').val("");
+
+    //$('#ddlprpslsrc').val("");
+    //$('#txtprjcttitle').val("");
+    //$('#Agncy').prop("selectedIndex", 0);
+    //$('#txtprpslval').val("");
+    //$('#txtprjctduratn').val("");
+    //$('#txtpersonapplied').val("");
+    //$('#schemename').prop("selectedIndex", 0);
+    //$('#txtremarks').val("");
+
+    $('#Proposalinwarddate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
+    //$('#Inputdate').datepicker({ maxDate: 0, minDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
+    $('#ProposalApproveddate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
+
+    //$('#department').prop("selectedIndex", 0);
+    //$('#PI').prop("selectedIndex", 0);
+    //$('#txtPIemail').val("");
+
+    //$('#copidepartment').prop("selectedIndex", 0);
+    //$('#CoPI').prop("selectedIndex", 0);
+    //$('#txtcopiemail').val("");
+
+    //$('#doctype').prop("selectedIndex", 0);
+    //$('#docname').val("");
+
+    //$('#createproposal').hide();
+    //$('#saveproposal').hide();
+    //$('#updateproposal').hide();
+    //$('#viewdoc').hide();
+    $('#btnAddCoPI').click(function () {
+        var cln = $("#primaryDiv").clone().find("input").val("").end();
+        var cloneElement = $("#primaryDiv").find('#CoPI').parent().clone();
+        cln.find('#CoPI').parent().replaceWith(selectPickerApiElement($(cloneElement), "empty", [], ''));
+        $(cln).find('.dis-none').removeClass('dis-none');
+        $('#divContent').append(cln)
+
+    });
+    $(document).on('click', '#sponAgencyName', function () {
+        applyAutoComplete($('#sponAgencyName'), $('#Agncy'), "../Project/LoadAgencytList", undefined, undefined, undefined);
+
+    });
+    $("#TentativeStartDate, #TentativeCloseDate").change(function () {
+        calcDateDiff();
+    });
+    function calcDateDiff() {
+        var strDate = $("#TentativeStartDate").val();
+        var clsDate = $("#TentativeCloseDate").val();
+        if (strDate != '' && clsDate != '') {
+            var startDate = moment(parseDate(strDate));
+            var closeDate = moment(parseDate(clsDate));
+
+            var mins = closeDate.diff(startDate, 'minutes');
+            if (mins <= 0) {
+                $('#MsgValidation').html("Tentative Close Date must be greater than start date.");
+                $('#ValidationModal').modal('toggle');
+                return false;
+            }
+            var result = '';
+            var years = closeDate.diff(startDate, 'year');
+            startDate.add(years, 'years');
+
+            var months = closeDate.diff(startDate, 'months');
+            startDate.add(months, 'months');
+
+            var days = closeDate.diff(startDate, 'days');
+            if (years > 1) {
+                result = years + ' years ';
+            } else if (years == 1) {
+                result = years + ' year ';
+            }
+            if (months > 1) {
+                result = result +  months + ' months ';
+            } else if (months == 1) {
+                result = result + months + ' month ';
+            }
+            if (days > 1) {
+                result = result + days + ' days';
+            } else if (days == 1) {
+                result = result + days + ' day';
+            }
+            $('#lblDuration').html(result);
+        }
+    }
+    function parseDate(s) {
+        var months = {
+            january: 0, february: 1, march: 2, april: 3, may: 4, june: 5,
+            july: 6, august: 7, september: 8, october: 9, november: 10, december: 11
+        };
+        var p = s.split('-');
+        return new Date(p[2], months[p[1].toLowerCase()], p[0]);
+    }
+    function GetSourceDetails() {
+        var src = $("#ddlprpslsrc").val();
+        var select = $("#ddlRefNumber");
+        var WFid =@Html.Raw(Json.Encode(Model.WFproposalid));
+        if(!(WFid>0))
+            select.empty();
+        $("#divRefNum").addClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('False');
+        if (src != '') {
+            if (src == '1' ) {
+                if( !(WFid>0))
+                { $.getJSON("@Url.Action("GetWorkflowRefNumber","Proposal")",
+                function (locationdata) {
+                    $.each(locationdata, function (index, itemData) {
+                        select.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+                });
+                }
+
+              // $("#divRefNum").removeClass('dis-none');
+                $("#SourceTapalOrWorkflow").val('True');
+            } else if (src == '3') {
+                $.getJSON("@Url.Action("GetTapalRefNumber","Proposal")",
+                function (locationdata) {
+                    $.each(locationdata, function (index, itemData) {
+                        select.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+                });
+             //   $("#divRefNum").removeClass('dis-none');
+                $("#SourceTapalOrWorkflow").val('True');
+            }
+
+        }
+        else {
+          //  $('#ddlRefNumber').val("");
+           // $('input[name="EmailDate"]').val("")
+           // $('input[name="SourceTapalOrWorkflow"]').val("")
+        }
+
+    }
+
+    $('#ddlprpslsrc').change(function () {
+        var src = $(this).val();
+        var select = $("#ddlRefNumber");
+        var WFid =@Html.Raw(Json.Encode(Model.WFproposalid));
+        if(!(WFid>0))
+            select.empty();
+        $("#divRefNum").addClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('False');
+        if (src != '') {
+            if (src == '1' ) {
+                if(!(WFid>0)){
+                    $.getJSON("@Url.Action("GetWorkflowRefNumber","Proposal")",
+                                    function (locationdata) {
+                                        $.each(locationdata, function (index, itemData) {
+                                            select.append($('<option/>', {
+                                                value: itemData.id,
+                                                text: itemData.name,
+                                            }));
+                                        });
+                                    });
+                }
+
+                // $("#divRefNum").removeClass('dis-none');
+                $("#SourceTapalOrWorkflow").val('True');
+            } else
+                if (src == '3') {
+                    $.getJSON("@Url.Action("GetTapalRefNumber","Proposal")",
+                    function (locationdata) {
+                        $.each(locationdata, function (index, itemData) {
+                            select.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name,
+                            }));
+                        });
+                    });
+                    //  $("#divRefNum").removeClass('dis-none');
+                    $("#SourceTapalOrWorkflow").val('True');
+                }
+
+        }
+       // $('#ddlRefNumber').val("");
+       // $('input[name="EmailDate"]').val("")
+       // $('input[name="SourceTapalOrWorkflow"]').val("")
+    });
+    $('#btnAddotherinstCoPI').click(function () {
+        var cln = $("#primaryotherinstcopiDiv").clone().find("input").val("").end();
+        var cloneElement = $("#primaryotherinstcopiDiv").find('#OtherinstituteCoPI').parent().clone();
+        $(cln).find('.dis-none').removeClass('dis-none');
+        $('#divotherinstcopiContent').append(cln)
+
+    });
+
+    $(document).on('click', '#divotherinstcopiContent button[name="removeButton"]', function () {
+        $(this).parent().parent("Div").remove();
+    });
+    function changeAgencyName() {
+        var sponagey = $("#sponAgencyName").val();
+        if (sponagey == null || sponagey == "") {
+            $('#Agncy').val('');
+        }
+    }
+    $('#btnaddnew').on('click', function () {
+        //$('#propslnum').val();
+        //$('#prpslid').hide();
+        //$('#docid').hide();
+        //$('#copiid').hide();
+        $('#addnewpage').hide();
+        $('#createproposal').show();
+        $('#gridlist').hide();
+        //  $('#gridsearchlist').hide();
+        $('#saveproposal').show();
+        $('#updateproposal').hide();
+        $('#viewdoc').hide();
+        // $('#createuserid').show();
+        // $('#editproposal').hide();
+    });
+
+
+    $('#btnSave').click(function (d) {
+        d.preventDefault();
+        var isValid = $('#formCP').valid();
+        var pidept = $("#department").val(); //Year, Month, Date
+        var piname = $("#PI").val();
+        var projecttype = $("#Prjcttype").val();
+        var projectsubtype = $("#Prjctsubtype").val();
+        var projectcategory = $("#Prjctcategory").val();
+        var agencyid = $("#Agncy").val();
+        //var scheme = $("#Prjctscheme").val();
+        //var schemecode = $("#schemecode").val();
+        //var constype = $("#Prjctconsultype").val();
+        //var constypecode = $("#Prjctconsultypecode").val();
+
+        if (!isValid)
+            return false;
+        if ((projecttype == 1) && (projectsubtype == 2) && (projectcategory == null || projectcategory == 0 || projectcategory == "")) {
+            isValid = false;
+            $('#MsgValidation').html("Please select Project Category");
+            $('#ValidationModal').modal('toggle');
+            return false;
+        }
+        if ((projecttype == 2) && (projectcategory == null || projectcategory == 0 || projectcategory == "")) {
+            isValid = false;
+            $('#MsgValidation').html("Please select Project Category");
+            $('#ValidationModal').modal('toggle');
+            return false;
+        }
+        if ((projecttype == 1) && (projectsubtype == 0 || projectsubtype == null || projectsubtype == "")) {
+            isValid = false;
+            $('#MsgValidation').html("Please select Project Sub Type");
+            $('#ValidationModal').modal('toggle');
+            return false;
+        }
+        if ((agencyid == null || agencyid == 0 || agencyid == "")) {
+            isValid = false;
+            $('#MsgValidation').html("Please Select Agency Name");
+            $('#ValidationModal').modal('toggle');
+            return false;
+        }
+        //if ((projecttype == 1) && (projectsubtype == 2) && (scheme == 0 || scheme == "" || scheme == "Select any") && (schemecode == 0 || schemecode == "" || schemecode == null))
+        //{
+        //    isValid = false;
+        //    $('#MsgValidation').html("Please fill Project Scheme details");
+        //    $('#ValidationModal').modal('toggle');
+        //    return false;
+        //}
+        //if ((projecttype == 2) && (constype == 0 || constype == "" || constype == "Select any") && (constypecode == 0 || constypecode == "" || constypecode == null)) {
+        //    isValid = false;
+        //    $('#MsgValidation').html("Please fill Consultancy type details");
+        //    $('#ValidationModal').modal('toggle');
+        //    return false;
+        //}
+        if ((pidept!=null||pidept!="") && (piname == null || piname == 0)) {
+            isValid = false;
+
+            $('#MsgValidation').html("Please select Principal Investigator name");
+            $('#ValidationModal').modal('toggle');
+            return false;
+
+        }
+
+        if ((pidept == null || pidept == 0) && (piname > 0)) {
+            isValid = false;
+
+            $('#MsgValidation').html("Please select Department of selected Principal Investigator");
+            $('#ValidationModal').modal('toggle');
+            return false;
+
+        }
+
+        if ((pidept == 0 || pidept == null) && (piname == null || piname == 0)) {
+            isValid = false;
+
+            $('#MsgValidation').html("Please select Department and Principal Investigator name");
+            $('#ValidationModal').modal('toggle');
+            return false;
+
+        }
+
+
+        // to validate if copi department or copiname is left unselected when either one of them is selected
+        var copideptvalues = [];
+        var copinamvalues = [];
+
+        $('select[name="CoPIDepartment"]').each(function (idx, val) { copideptvalues.push($(val).val()); });
+        $('select[name="CoPIname"]').each(function (idx, val) { copinamvalues.push($(val).val()); });
+        //// Sort it
+        copideptvalues.sort();
+        copinamvalues.sort();
+
+        for (var k = 0; k < copideptvalues.length; ++k) {
+            var piVal = parseInt(copinamvalues[k]);
+            if ((copideptvalues[k] > 0) && isNaN(piVal)) {
+                isValid = false;
+                $('#MsgValidation').html("Please fill Co PI name");
+                $('#ValidationModal').modal('toggle');
+                return false;
+
+            }
+
+            if ((copideptvalues[k] == null || copideptvalues[k] == 0) && (copinamvalues[k] > 0)) {
+                isValid = false;
+
+                $('#MsgValidation').html("Please fill Department of selected Co PI");
+                $('#ValidationModal').modal('toggle');
+                return false;
+
+            }
+        }
+        // duplicate check
+        for (var k = 1; k < copinamvalues.length; ++k) {
+            if (copinamvalues[k] == copinamvalues[k - 1]) {
+                isValid = false;
+
+                $('#MsgValidation').html("Co PI already selected. Please select a different Co PI.");
+                $('#ValidationModal').modal('toggle');
+                return false;
+
+            }
+        }
+
+        // to validate if attachment type or attachment name is not left blank when either one of them is filled
+        var doctypevalues = [];
+        var docnamevalues = [];
+        var docfile = [];
+        var docId = [];
+        $('select[name="DocType"]').each(function (idx, val) { doctypevalues.push($(val).val()); });
+        $('input[name="AttachName"]').each(function (idx, val) { docnamevalues.push($(val).val()); });
+        $('input[name="file"]').each(function (idx, val) { docfile.push($(val).val()); });
+        $('input[name="Docid"]').each(function (idx, val) { docId.push($(val).val()); });
+
+        for (var k = 0; k < docId.length; ++k) {
+            if (docId[k] == 0 || docId[k] == '' || docId[k] == null) {
+
+                if ((doctypevalues[k] > 0) && ((docnamevalues[k] == null) || docnamevalues[k] == "")) {
+                    isValid = false;
+
+                    $('#MsgValidation').html("Please fill Attachment name");
+                    $('#ValidationModal').modal('toggle');
+                    return false;
+
+                }
+                if ((doctypevalues[k] > 0) && (docfile[k] == "")) {
+                    isValid = false;
+
+                    $('#MsgValidation').html("Attachment field is required");
+                    $('#ValidationModal').modal('toggle');
+                    return false;
+
+                }
+                if ((docnamevalues[k] != null && docnamevalues[k] != "") && (doctypevalues[k] == null || doctypevalues[k] == 0)) {
+                    isValid = false;
+
+                    $('#MsgValidation').html("Please select Attachment type");
+                    $('#ValidationModal').modal('toggle');
+                    return false;
+
+                }
+                if ((docnamevalues[k] != null && docnamevalues[k] != "") && (docfile[k] == "")) {
+                    isValid = false;
+
+                    $('#MsgValidation').html("Attachment field is required");
+                    $('#ValidationModal').modal('toggle');
+                    return false;
+
+                }
+                if (docfile[k] != "" && (doctypevalues[k] == null || doctypevalues[k] == 0)) {
+                    isValid = false;
+
+                    $('#MsgValidation').html("Please select Attachment type");
+                    $('#ValidationModal').modal('toggle');
+                    return false;
+
+                }
+                if (docfile[k] != "" && ((docnamevalues[k] == null) || docnamevalues[k] == "")) {
+                    isValid = false;
+
+                    $('#MsgValidation').html("Please fill Attachment name");
+                    $('#ValidationModal').modal('toggle');
+                    return false;
+
+                }
+            } else {
+                if ((docnamevalues[k] == null) || docnamevalues[k] == "") {
+                    isValid = false;
+
+                    $('#MsgValidation').html("Please fill Attachment name");
+                    $('#ValidationModal').modal('toggle');
+                    return false;
+
+                }
+                if (doctypevalues[k] == '' || doctypevalues[k] == 0) {
+                    isValid = false;
+
+                    $('#MsgValidation').html("Please select Attachment type");
+                    $('#ValidationModal').modal('toggle');
+                    return false;
+
+                }
+            }
+        }
+        //// Sort it
+        doctypevalues.sort();
+        // duplicate check
+        for (var k = 1; k < doctypevalues.length; ++k) {
+            if (doctypevalues[k] == doctypevalues[k - 1]) {
+                isValid = false;
+
+                $('#MsgValidation').html("Attachment type is already existing. Please select a different Attachment type.");
+                $('#ValidationModal').modal('toggle');
+                return false;
+
+            }
+        }
+        var strDate = $("#TentativeStartDate").val();
+        var clsDate = $("#TentativeCloseDate").val();
+        if (strDate != '' && clsDate != '') {
+            var startDate = moment(parseDate(strDate));
+            var closeDate = moment(parseDate(clsDate));
+
+            var mins = closeDate.diff(startDate, 'minutes');
+            if (mins <= 0) {
+                $('#MsgValidation').html("Tentative Close Date must be greater than start date.");
+                $('#ValidationModal').modal('toggle');
+                return false;
+            }
+        }
+        if (isValid)
+            $('#formCP').submit();
+
+        // $(this).closest("form").submit();
+    });
+
+    $('#btnupdate').on('click', function (e) {
+        // to validate if PI department or PI name is left unselected when either one of them is selected
+        e.preventDefault();
+        var isValid = $('#formCP').valid();
+        var pidept = $("#department").val(); //Year, Month, Date
+        var piname = $("#PI").val();
+        var projecttype = $("#Prjcttype").val();
+        var projectsubtype = $("#Prjctsubtype").val();
+        var projectcategory = $("#Prjctcategory").val();
+        //var scheme = $("#Prjctscheme").val();
+        //var schemecode = $("#schemecode").val();
+        //var constype = $("#Prjctconsultype").val();
+        //var constypecode = $("#Prjctconsultypecode").val();
+        if (!isValid)
+            return false;
+        if ((projecttype == 1) && (projectsubtype == 2) && (projectcategory == null || projectcategory == 0 || projectcategory == "")) {
+            isValid = false;
+            $('#MsgValidation').html("Please select Project Category");
+            $('#ValidationModal').modal('toggle');
+            return false;
+        }
+        if ((projecttype == 2) && (projectcategory == null || projectcategory == 0 || projectcategory == "")) {
+            isValid = false;
+            $('#MsgValidation').html("Please select Project Category");
+            $('#ValidationModal').modal('toggle');
+            return false;
+        }
+        if ((projecttype == 1) && (projectsubtype == 0 || projectsubtype == null || projectsubtype == "")) {
+            isValid = false;
+            $('#MsgValidation').html("Please select Project Sub Type");
+            $('#ValidationModal').modal('toggle');
+            return false;
+        }
+        //if ((projecttype == 1) && (projectsubtype == 2) && (scheme == 0 || Scheme == "" || Scheme == "Select any") && (schemecode == 0 || schemecode == "" || schemecode == null)) {
+        //    isValid = false;
+        //    $('#MsgValidation').html("Please fill Project Scheme details");
+        //    $('#ValidationModal').modal('toggle');
+        //    return false;
+        //}
+        //if ((projecttype == 2) && (constype == 0 || constype == "" || constype == "Select any") && (constypecode == 0 || constypecode == "" || constypecode == null)) {
+        //    isValid = false;
+        //    $('#MsgValidation').html("Please fill Consultancy type details");
+        //    $('#ValidationModal').modal('toggle');
+        //    return false;
+        //}
+        if ((pidept > 0) && (piname == null || piname == 0)) {
+            isValid = false;
+
+            $('#MsgValidation').html("Please select Principal Investigator name");
+            $('#ValidationModal').modal('toggle');
+            return false;
+
+        }
+
+        if ((pidept == null || pidept == 0) && (piname > 0)) {
+            isValid = false;
+
+            $('#MsgValidation').html("Please select Department of selected Principal Investigator");
+            $('#ValidationModal').modal('toggle');
+            return false;
+
+        }
+
+        if ((pidept == 0 || pidept == null) && (piname == null || piname == 0)) {
+            isValid = false;
+
+            $('#MsgValidation').html("Please select Department and Principal Investigator name");
+            $('#ValidationModal').modal('toggle');
+            return false;
+
+        }
+
+
+        // to validate if copi department or copiname is left unselected when either one of them is selected
+        var copideptvalues = [];
+        var copinamvalues = [];
+
+        $('select[name="CoPIDepartment"]').each(function (idx, val) { copideptvalues.push($(val).val()); });
+        $('select[name="CoPIname"]').each(function (idx, val) { copinamvalues.push($(val).val()); });
+        //// Sort it
+        copideptvalues.sort();
+        copinamvalues.sort();
+
+        for (var k = 0; k < copideptvalues.length; ++k) {
+            var piVal = parseInt(copinamvalues[k]);
+            if ((copideptvalues[k] > 0) && isNaN(piVal)) {
+                isValid = false;
+                $('#MsgValidation').html("Please fill Co PI name");
+                $('#ValidationModal').modal('toggle');
+                return false;
+
+            }
+
+            if ((copideptvalues[k] == null || copideptvalues[k] == 0) && (copinamvalues[k] > 0)) {
+                isValid = false;
+
+                $('#MsgValidation').html("Please fill Department of selected Co PI");
+                $('#ValidationModal').modal('toggle');
+                return false;
+
+            }
+        }
+        // duplicate check
+        for (var k = 1; k < copinamvalues.length; ++k) {
+            if (copinamvalues[k] == copinamvalues[k - 1]) {
+                isValid = false;
+
+                $('#MsgValidation').html("Co PI already selected. Please select a different Co PI.");
+                $('#ValidationModal').modal('toggle');
+                return false;
+
+            }
+        }
+
+        // to validate if attachment type or attachment name is not left blank when either one of them is filled
+        var doctypevalues = [];
+        var docnamevalues = [];
+        var docfile = [];
+        var docId = [];
+        $('select[name="DocType"]').each(function (idx, val) { doctypevalues.push($(val).val()); });
+        $('input[name="AttachName"]').each(function (idx, val) { docnamevalues.push($(val).val()); });
+        $('input[name="file"]').each(function (idx, val) { docfile.push($(val).val()); });
+        $('input[name="Docid"]').each(function (idx, val) { docId.push($(val).val()); });
+
+        for (var k = 0; k < docId.length; ++k) {
+            if (docId[k] == 0 || docId[k] == '' || docId[k] == null) {
+
+                if ((doctypevalues[k] > 0) && ((docnamevalues[k] == null) || docnamevalues[k] == "")) {
+                    isValid = false;
+
+                    $('#MsgValidation').html("Please fill Attachment name");
+                    $('#ValidationModal').modal('toggle');
+                    return false;
+
+                }
+                if ((doctypevalues[k] > 0) && (docfile[k] == "")) {
+                    isValid = false;
+
+                    $('#MsgValidation').html("Attachment field is required");
+                    $('#ValidationModal').modal('toggle');
+                    return false;
+
+                }
+                if ((docnamevalues[k] != null && docnamevalues[k] != "") && (doctypevalues[k] == null || doctypevalues[k] == 0)) {
+                    isValid = false;
+
+                    $('#MsgValidation').html("Please select Attachment type");
+                    $('#ValidationModal').modal('toggle');
+                    return false;
+
+                }
+                if ((docnamevalues[k] != null && docnamevalues[k] != "") && (docfile[k] == "")) {
+                    isValid = false;
+
+                    $('#MsgValidation').html("Attachment field is required");
+                    $('#ValidationModal').modal('toggle');
+                    return false;
+
+                }
+                if (docfile[k] != "" && (doctypevalues[k] == null || doctypevalues[k] == 0)) {
+                    isValid = false;
+
+                    $('#MsgValidation').html("Please select Attachment type");
+                    $('#ValidationModal').modal('toggle');
+                    return false;
+
+                }
+                if (docfile[k] != "" && ((docnamevalues[k] == null) || docnamevalues[k] == "")) {
+                    isValid = false;
+
+                    $('#MsgValidation').html("Please fill Attachment name");
+                    $('#ValidationModal').modal('toggle');
+                    return false;
+
+                }
+            } else {
+                if ((docnamevalues[k] == null) || docnamevalues[k] == "") {
+                    isValid = false;
+
+                    $('#MsgValidation').html("Please fill Attachment name");
+                    $('#ValidationModal').modal('toggle');
+                    return false;
+
+                }
+                if (doctypevalues[k] == '' || doctypevalues[k] == 0) {
+                    isValid = false;
+
+                    $('#MsgValidation').html("Please select Attachment type");
+                    $('#ValidationModal').modal('toggle');
+                    return false;
+
+                }
+            }
+        }
+
+        doctypevalues.sort();
+        // duplicate check
+        for (var k = 1; k < doctypevalues.length; ++k) {
+            if (doctypevalues[k] == doctypevalues[k - 1]) {
+                isValid = false;
+                $('#MsgValidation').html("Attachment type is already existing. Please select a different Attachment type.");
+                $('#ValidationModal').modal('toggle');
+                return false;
+            }
+        }
+        var strDate = $("#TentativeStartDate").val();
+        var clsDate = $("#TentativeCloseDate").val();
+        if (strDate != '' && clsDate != '') {
+            var startDate = moment(parseDate(strDate));
+            var closeDate = moment(parseDate(clsDate));
+
+            var mins = closeDate.diff(startDate, 'minutes');
+            if (mins <= 0) {
+                $('#MsgValidation').html("Tentative Close Date must be greater than start date.");
+                $('#ValidationModal').modal('toggle');
+                return false;
+            }
+        }
+        if (isValid)
+            $('#formCP').submit();
+    });
+
+    $(document).ready(function () {
+        var len= document.getElementsByName('DocType').length;
+        if(len==1)
+            $("#firstremoveButton").removeClass('dis-none');
+        var SearchBy = $('input[name^="SearchField.SearchBy"]:checked').val();
+        if (SearchBy == 'SODate') {
+            $('#DivSODate').show();
+            $('#DivCrtdDate').hide();
+        }
+        else {
+            $('#DivCrtdDate').show();
+            $('#DivSODate').hide();
+        }
+        $("#FromSODate, #ToSODate, #FromDate, #ToDate").datepicker
+           ({
+               dateFormat: 'dd-MM-yy',
+               showStatus: true,
+               showWeeks: true,
+               changeYear: true,
+               yearRange: '-100:+0',
+               highlightWeek: true,
+               numberOfMonths: 1,
+               showAnim: "scale",
+               showOptions: {
+                   origin: ["top", "left"]
+               }
+           });
+
+    });
+
+    $('a[name="btnClose"],button[name="btnClose"]').click(function () {
+        $('#popupFilter').css("display", "none");
+    });
+    $("#btnFilter").click(function () {
+        $('#popupFilter').css("display", "Block");
+    });
+
+    function ResetFilter() {
+        $('#srchPrjcttype').val('');
+        $('#srchpropslnum').val('');
+        $('#srchPIName').val('');
+        $('#FromDate').val('');
+        $('#ToDate').val('');
+        $('#srchPrjcttypeStatus').val('');
+    }
+    $('#btnReset').click(function () {
+        ResetFilter();
+        getData();
+    });
+    function getData() {
+        var searchProposalURL = 'SearchProposalList';
+        var Projecttype = $('#srchPrjcttype').val();
+        var Proposalnumber = $('#srchpropslnum').val();
+        var PIName = $('#srchPIName').val();
+        var FromDate = $('#FromDate').val() || null;
+        var ToDate = $('#ToDate').val() || null;
+        var funcstatus = $('#srchPrjcttypeStatus').val();
+        var searchData = { ProjectType: Projecttype, PslNumber: Proposalnumber, Fromdate: FromDate, Todate: ToDate, PIName: PIName, FunctionStatus: funcstatus, pageIndex: 1, pageSize: 5 };
+        $("#gridProposalList").jsGrid("search", searchData);
+        //$.ajax({
+        //    type: "GET",
+        //    url: searchProposalURL,
+        //    data: { ProjectType: Projecttype, ProposalNumber: Proposalnumber, Fromdate: FromDate, Todate: ToDate, PIName: PIName, FunctionStatus: funcstatus },
+        //    contentType: "application/json; charset=utf-8",
+        //    dataType: "json",
+        //    success: function (result) {
+        //        $("#gridProposalList").jsGrid({ data: result });
+        //        $('#projectopening').hide();
+        //        $('#gridlist').show();
+        //        $('#popupFilter').hide();
+        //    },
+        //    error: function (err) {
+        //        console.log("error : " + err);
+        //    }
+        //});
+    }
+    $('#btnSearch').on('click', function () {
+        getData();
+    });
+
+    $(document).on('click', '#divContent button[name="removeButton"]', function () {
+        $(this).parent().parent("Div").remove();
+    });
+
+    $('#btnAddDoc').click(function () {
+        var cln = $("#DocprimaryDiv").clone().find("input").val("").end();
+        $(cln).find('#idremoveButton').removeClass('dis-none');
+        $(cln).find('#firstremoveButton').addClass('dis-none');
+        $(cln).find('.doclink').addClass('dis-none');
+        $('#DocdivContent').append(cln);
+        var len= document.getElementsByName('DocType').length;
+        if(len==1)
+            $("#firstremoveButton").removeClass('dis-none');
+    });
+
+
+    $(document).on('click', '#DocdivContent button', function () {
+        $(this).parent().parent("Div").remove();
+        var len= document.getElementsByName('DocType').length;
+        if(len==1)
+            $("#firstremoveButton").removeClass('dis-none');
+    });
+    $(document).on('click', '#firstremoveButton', function () {
+        document.getElementsByName('DocType')[0].value = "";
+        document.getElementsByName('AttachName')[0].value = "";
+        document.getElementsByName('file')[0].value = "";
+        document.getElementsByName('Docid')[0].value = "";
+        document.getElementsByClassName('link1')[0].text = "";
+        document.getElementsByClassName('link1')[0].href = "";
+    });
+    function GetProjectTypeDetails() {
+        var typeid = $("#Prjcttype").val();
+        var subtypeid = $("#Prjctsubtype").val();
+        var category = $('#Prjctcategory').val();
+        $("#projectschemecode").addClass('dis-none');
+        $("#PFMSSchemeCode").val("False");
+
+        if (typeid == 0) {
+            $("#sponprojectsubtype").addClass('dis-none');
+            $("#sponsanctionnumber").addClass('dis-none');
+            $("#projectcategory").addClass('dis-none');
+            $("#projectconstype").addClass('dis-none');
+            //$("#projectconstypecode").addClass('dis-none');
+            $("#projectscheme").addClass('dis-none');
+            $("#SponFunType").addClass('dis-none');
+            $.getJSON("../Account/LoadPrjctcategorybytype", { typeid: typeid },
+                   function (locationdata) {
+                       var select = $("#Prjctscheme");
+                       select.empty();
+
+                       $.each(locationdata, function (index, itemData) {
+
+                           select.append($('<option/>', {
+                               value: itemData.id,
+                               text: itemData.name,
+                           }));
+
+                           $('input[name="Schemename"]').val(@Html.Raw(Json.Encode(Model.Schemename)));
+                           $('select[name="SchemeCode"]').val(@Html.Raw(Json.Encode(Model.SchemeCode)));
+                       });
+                   });
+            $.getJSON("../Account/Loadcategorybytype", { typeid: typeid },
+                       function (locationdata) {
+                           var select = $("#Prjctcategory");
+                           select.empty();
+                           select.append($('<option/>', {
+                               value: "",
+                               text: "Select any",
+                           }));
+                           $.each(locationdata, function (index, itemData) {
+
+                               select.append($('<option/>', {
+                                   value: itemData.codevalAbbr,
+                                   text: itemData.CodeValDetail,
+                               }));
+                           });
+                       });
+            $.getJSON("../Account/LoadAgencybysubtype", { subtypeid: 0 },
+                          function (locationdata) {
+                              var select = $("#Agncy");
+                              select.empty();
+
+                              $.each(locationdata, function (index, itemData) {
+
+                                  select.append($('<option/>', {
+                                      value: itemData.id,
+                                      text: itemData.name,
+                                  }));
+                              });
+                          });
+        }
+        if (typeid == 1) {
+            $("#projectconstype").addClass('dis-none');
+            //$("#projectconstypecode").addClass('dis-none');
+            $("#sponprojectsubtype").removeClass('dis-none');
+            $("#sponsanctionnumber").removeClass('dis-none');
+            $("#SponFunType").removeClass('dis-none');
+            $.getJSON("../Account/LoadAgencybysubtype", { subtypeid: subtypeid },
+                          function (locationdata) {
+                              var select = $("#Agncy");
+                              select.empty();
+
+                              $.each(locationdata, function (index, itemData) {
+
+                                  select.append($('<option/>', {
+                                      value: itemData.id,
+                                      text: itemData.name,
+                                  }));
+                              });
+                          });
+            $.getJSON("../Account/Loadcategorybytype", { typeid: typeid },
+                       function (locationdata) {
+                           var select = $("#Prjctcategory");
+                           select.empty();
+                           select.append($('<option/>', {
+                               value: "",
+                               text: "Select any",
+                           }));
+                           $.each(locationdata, function (index, itemData) {
+
+                               select.append($('<option/>', {
+                                   value: itemData.codevalAbbr,
+                                   text: itemData.CodeValDetail,
+                               }));
+
+                           });
+                           $("#Prjctcategory").val(@Html.Raw(Json.Encode(Model.ProjectCategory)));
+                       });
+            $.getJSON("../Account/LoadPrjctcategorybytype", { typeid: typeid },
+                   function (locationdata) {
+                       var select = $("#Prjctscheme");
+                       select.empty();
+                       select.append($('<option/>', {
+                           value: "",
+                           text: "Select any",
+                       }));
+                       $.each(locationdata, function (index, itemData) {
+
+                           select.append($('<option/>', {
+                               value: itemData.id,
+                               text: itemData.name,
+                           }));
+                           $("#Prjctscheme").val(@Html.Raw(Json.Encode(Model.Schemename)));
+                           $("#schemecode").val(@Html.Raw(Json.Encode(Model.SchemeCode)));
+                       });
+                   });
+            if (subtypeid == 1 || subtypeid == 0) {
+                $("#projectscheme").addClass('dis-none');
+                $("#projectcategory").addClass('dis-none');
+                $("#projectconstype").addClass('dis-none');
+                // $("#projectconstypecode").addClass('dis-none');
+            }
+            if (subtypeid == 2) {
+                $("#projectscheme").removeClass('dis-none');
+                if (category == 1) {
+                    $("#projectschemecode").removeClass('dis-none');
+                    $("#PFMSSchemeCode").val("True");
+                }
+                $("#projectcategory").removeClass('dis-none');
+                $("#projectconstype").addClass('dis-none');
+                //  $("#projectconstypecode").addClass('dis-none');
+            }
+        }
+
+        if (typeid == 2) {
+
+            $("#projectscheme").addClass('dis-none');
+            $("#sponprojectsubtype").addClass('dis-none');
+            $("#sponsanctionnumber").addClass('dis-none');
+            $("#projectcategory").removeClass('dis-none');
+            $("#SponFunType").addClass('dis-none');
+            $('#Prjctcategory').addClass('required',true);
+            $.getJSON("../Account/LoadPrjctcategorybytype", { typeid: typeid },
+                    function (locationdata) {
+                        var select = $("#Prjctconsultype");
+                        select.empty();
+                        select.append($('<option/>', {
+                            value: "",
+                            text: "Select any",
+                        }));
+                        $.each(locationdata, function (index, itemData) {
+
+                            select.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name,
+                            }));
+                            $('#Prjctconsultype').val(@Html.Raw(Json.Encode(Model.Schemename)));
+                        });
+                    });
+            $.getJSON("../Account/Loadcategorybytype", { typeid: typeid },
+                       function (locationdata) {
+                           var select = $("#Prjctcategory");
+                           select.empty();
+                           select.append($('<option/>', {
+                               value: "",
+                               text: "Select any",
+                           }));
+                           $.each(locationdata, function (index, itemData) {
+
+                               select.append($('<option/>', {
+                                   value: itemData.codevalAbbr,
+                                   text: itemData.CodeValDetail,
+                               }));
+                           });
+                           $("#Prjctcategory").val(@Html.Raw(Json.Encode(Model.ProjectCategory)));
+                       });
+            $.getJSON("../Account/LoadAgencybysubtype", { subtypeid: 2 },
+                       function (locationdata) {
+                           var select = $("#Agncy");
+                           select.empty();
+
+                           $.each(locationdata, function (index, itemData) {
+
+                               select.append($('<option/>', {
+                                   value: itemData.id,
+                                   text: itemData.name,
+                               }));
+                           });
+                       });
+            $("#projectconstype").removeClass('dis-none');
+            //  $("#projectconstypecode").removeClass('dis-none');
+        }
+
+    }
+    $("#Prjcttype").change(function () {
+
+        var typeid = $(this).val();
+        var subtypeid = $("#Prjctsubtype").val();
+        var category = $('#Prjctcategory').val();
+        $("#projectschemecode").addClass('dis-none');
+        $("#PFMSSchemeCode").val("False");
+        if (typeid == 0) {
+            $("#sponprojectsubtype").addClass('dis-none');
+            $("#sponsanctionnumber").addClass('dis-none');
+            $("#projectcategory").addClass('dis-none');
+            $("#projectconstype").addClass('dis-none');
+            $("#SponFunType").addClass('dis-none');
+            $('#Prjctcategory').addClass('required',false);
+            //$("#projectconstypecode").addClass('dis-none');
+            $("#projectscheme").addClass('dis-none');
+            $.getJSON("../Account/LoadPrjctcategorybytype", { typeid: typeid },
+                   function (locationdata) {
+                       var select = $("#Prjctscheme");
+                       select.empty();
+
+                       $.each(locationdata, function (index, itemData) {
+
+                           select.append($('<option/>', {
+                               value: itemData.id,
+                               text: itemData.name,
+                           }));
+                       });
+                   });
+            $.getJSON("../Account/Loadcategorybytype", { typeid: typeid },
+                       function (locationdata) {
+                           var select = $("#Prjctcategory");
+                           select.empty();
+
+                           $.each(locationdata, function (index, itemData) {
+
+                               select.append($('<option/>', {
+                                   value: itemData.codevalAbbr,
+                                   text: itemData.CodeValDetail,
+                               }));
+                           });
+                       });
+            $.getJSON("../Account/LoadAgencybysubtype", { subtypeid: 0 },
+                          function (locationdata) {
+                              var select = $("#Agncy");
+                              select.empty();
+
+                              $.each(locationdata, function (index, itemData) {
+
+                                  select.append($('<option/>', {
+                                      value: itemData.id,
+                                      text: itemData.name,
+                                  }));
+                              });
+                          });
+        }
+        if (typeid == 1) {
+            $("#projectconstype").addClass('dis-none');
+            //$("#projectconstypecode").addClass('dis-none');
+            $("#sponprojectsubtype").removeClass('dis-none');
+            $("#sponsanctionnumber").removeClass('dis-none');
+            $("#SponFunType").removeClass('dis-none');
+            $.getJSON("../Account/LoadAgencybysubtype", { subtypeid: subtypeid },
+                          function (locationdata) {
+                              var select = $("#Agncy");
+                              select.empty();
+
+                              $.each(locationdata, function (index, itemData) {
+
+                                  select.append($('<option/>', {
+                                      value: itemData.id,
+                                      text: itemData.name,
+                                  }));
+                              });
+                          });
+            $.getJSON("../Account/Loadcategorybytype", { typeid: typeid },
+                       function (locationdata) {
+                           var select = $("#Prjctcategory");
+                           select.empty();
+                           select.append($('<option/>', {
+                               value: "",
+                               text: "Select any",
+                           }));
+                           $.each(locationdata, function (index, itemData) {
+
+                               select.append($('<option/>', {
+                                   value: itemData.codevalAbbr,
+                                   text: itemData.CodeValDetail,
+                               }));
+                           });
+                       });
+            $.getJSON("../Account/LoadPrjctcategorybytype", { typeid: typeid },
+                   function (locationdata) {
+                       var select = $("#Prjctscheme");
+                       select.empty();
+                       select.append($('<option/>', {
+                           value: "",
+                           text: "Select any",
+                       }));
+                       $.each(locationdata, function (index, itemData) {
+
+                           select.append($('<option/>', {
+                               value: itemData.id,
+                               text: itemData.name,
+                           }));
+                       });
+                   });
+            if (subtypeid == 1 || subtypeid == 0) {
+                $("#projectscheme").addClass('dis-none');
+                $("#projectcategory").addClass('dis-none');
+                $("#projectconstype").addClass('dis-none');
+                // $("#projectconstypecode").addClass('dis-none');
+            }
+            if (subtypeid == 2) {
+                $("#projectscheme").removeClass('dis-none');
+                if (category == 1){
+                    $("#projectschemecode").removeClass('dis-none');
+                    $("#PFMSSchemeCode").val("True");
+                }
+                $("#projectcategory").removeClass('dis-none');
+                $("#projectconstype").addClass('dis-none');
+                //  $("#projectconstypecode").addClass('dis-none');
+            }
+        }
+
+        if (typeid == 2) {
+
+            $("#projectscheme").addClass('dis-none');
+            $("#sponprojectsubtype").addClass('dis-none');
+            $("#sponsanctionnumber").addClass('dis-none');
+            $("#projectcategory").removeClass('dis-none');
+            $("#SponFunType").addClass('dis-none');
+            $('#Prjctcategory').addClass('required',true);
+            $.getJSON("../Account/LoadPrjctcategorybytype", { typeid: typeid },
+                    function (locationdata) {
+                        var select = $("#Prjctconsultype");
+                        select.empty();
+                        select.append($('<option/>', {
+                            value: "",
+                            text: "Select any",
+                        }));
+                        $.each(locationdata, function (index, itemData) {
+
+                            select.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name,
+                            }));
+                        });
+                    });
+            $.getJSON("../Account/Loadcategorybytype", { typeid: typeid },
+                       function (locationdata) {
+                           var select = $("#Prjctcategory");
+                           select.empty();
+                           select.append($('<option/>', {
+                               value: "",
+                               text: "Select any",
+                           }));
+                           $.each(locationdata, function (index, itemData) {
+
+                               select.append($('<option/>', {
+                                   value: itemData.codevalAbbr,
+                                   text: itemData.CodeValDetail,
+                               }));
+                           });
+                       });
+            $.getJSON("../Account/LoadAgencybysubtype", { subtypeid: 2 },
+                       function (locationdata) {
+                           var select = $("#Agncy");
+                           select.empty();
+
+                           $.each(locationdata, function (index, itemData) {
+
+                               select.append($('<option/>', {
+                                   value: itemData.id,
+                                   text: itemData.name,
+                               }));
+                           });
+                       });
+            $("#projectconstype").removeClass('dis-none');
+            //  $("#projectconstypecode").removeClass('dis-none');
+        }
+        else {
+            //$('#Prjctcategory').val('');
+            //$('#Prjctsubtype').val('');
+            //$('#schemecode').val('');
+            //$('#Prjctscheme').val('');
+            ////$('#Prjctconsultypecode').val('');
+            //$('#sanctionnumber').val('');
+        }
+    });
+    $("#Prjctcategory").change(function () {
+        var category = $(this).val();
+        $("#projectschemecode").addClass('dis-none');
+        var subtypeid = $("#Prjctsubtype").val();
+        if (category == 1 && subtypeid == 2) {
+            $("#projectschemecode").removeClass('dis-none');
+            $("#PFMSSchemeCode").val("True");
+        }
+    });
+    $("#Prjctsubtype").change(function () {
+        var typeid = $("#Prjcttype").val();
+        var subtypeid = $(this).val();
+        var category = $('#Prjctcategory').val();
+        $("#projectschemecode").addClass('dis-none');
+        $("#PFMSSchemeCode").val("False");
+        if (typeid == 1 && subtypeid == 1) {
+            $("#projectscheme").addClass('dis-none');
+            $("#projectcategory").addClass('dis-none');
+            $.getJSON("../Account/LoadAgencybysubtype", { subtypeid: subtypeid },
+                           function (locationdata) {
+                               var select = $("#Agncy");
+                               select.empty();
+
+                               $.each(locationdata, function (index, itemData) {
+
+                                   select.append($('<option/>', {
+                                       value: itemData.id,
+                                       text: itemData.name,
+                                   }));
+                               });
+                           });
+            $('#Prjctcategory').addClass('required',false);
+        }
+        if (typeid == 1 && subtypeid == 2) {
+            $("#projectscheme").removeClass('dis-none');
+            if (category == 1) {
+                $("#projectschemecode").removeClass('dis-none');
+                $("#PFMSSchemeCode").val("True");
+            }
+            $("#projectcategory").removeClass('dis-none');
+            $.getJSON("../Account/LoadPrjctcategorybytype", { typeid: typeid },
+                   function (locationdata) {
+                       var select = $("#Prjctscheme");
+                       select.empty();
+                       select.append($('<option/>', {
+                           value: "",
+                           text: "Select any",
+                       }));
+                       $.each(locationdata, function (index, itemData) {
+
+                           select.append($('<option/>', {
+                               value: itemData.id,
+                               text: itemData.name,
+                           }));
+                       });
+                   });
+
+            $.getJSON("../Account/LoadAgencybysubtype", { subtypeid: subtypeid },
+                          function (locationdata) {
+                              var select = $("#Agncy");
+                              select.empty();
+
+                              $.each(locationdata, function (index, itemData) {
+
+                                  select.append($('<option/>', {
+                                      value: itemData.id,
+                                      text: itemData.name,
+                                  }));
+                              });
+                          });
+            $.getJSON("../Account/Loadcategorybytype", { typeid: typeid },
+                       function (locationdata) {
+                           var select = $("#Prjctcategory");
+                           select.empty();
+                           select.append($('<option/>', {
+                               value: "",
+                               text: "Select any",
+                           }));
+                           $.each(locationdata, function (index, itemData) {
+
+                               select.append($('<option/>', {
+                                   value: itemData.codevalAbbr,
+                                   text: itemData.CodeValDetail,
+                               }));
+                           });
+                       });
+            $('#Prjctcategory').addClass('required',true);
+        }
+        if (typeid == 1 && subtypeid == 0) {
+            $("#projectscheme").addClass('dis-none');
+            $("#projectconstype").addClass('dis-none');
+            // $("#projectconstypecode").addClass('dis-none');
+            $("#projectcategory").removeClass('dis-none');
+            $.getJSON("../Account/LoadAgencybysubtype", { subtypeid: subtypeid },
+                          function (locationdata) {
+                              var select = $("#Agncy");
+                              select.empty();
+
+                              $.each(locationdata, function (index, itemData) {
+
+                                  select.append($('<option/>', {
+                                      value: itemData.id,
+                                      text: itemData.name,
+                                  }));
+                              });
+                          });
+        }
+        if (typeid == 0 && subtypeid == 0) {
+            $("#projectscheme").addClass('dis-none');
+            $("#projectcategory").addClass('dis-none');
+            $("#projectconstype").addClass('dis-none');
+            // $("#projectconstypecode").addClass('dis-none');
+            $.getJSON("../Account/LoadAgencybysubtype", { subtypeid: subtypeid },
+                          function (locationdata) {
+                              var select = $("#Agncy");
+                              select.empty();
+
+                              $.each(locationdata, function (index, itemData) {
+
+                                  select.append($('<option/>', {
+                                      value: itemData.id,
+                                      text: itemData.name,
+                                  }));
+                              });
+                          });
+            $.getJSON("../Account/LoadPrjctcategorybytype", { typeid: typeid },
+                        function (locationdata) {
+                            var select = $("#Prjctscheme");
+                            select.empty();
+                            select.append($('<option/>', {
+                                value: "",
+                                text: "Select any",
+                            }));
+                            $.each(locationdata, function (index, itemData) {
+
+                                select.append($('<option/>', {
+                                    value: itemData.id,
+                                    text: itemData.name,
+                                }));
+                            });
+                        });
+
+        }
+
+        if (typeid == 2) {
+            $("#projectscheme").addClass('dis-none');
+            $("#projectconstype").removeClass('dis-none');
+            // $("#projectconstypecode").removeClass('dis-none');
+            $("#projectcategory").removeClass('dis-none');
+            $.getJSON("../Account/LoadAgencybysubtype", { subtypeid: 2 },
+                           function (locationdata) {
+                               var select = $("#Agncy");
+                               select.empty();
+
+                               $.each(locationdata, function (index, itemData) {
+
+                                   select.append($('<option/>', {
+                                       value: itemData.id,
+                                       text: itemData.name,
+                                   }));
+                               });
+                           });
+        }
+        //$('#Prjctcategory').val('');
+        //$('#Prjctscheme').val('');
+        //$('#Prjctconsultype').val('');
+        //$('#Prjctconsultypecode').val('');
+
+    });
+    //$("#Agncy").change(function () {
+    //    var agency = $(this).val();
+    //    var typeid = $("#Prjcttype").val();
+    //    var subtypeid = $("#Prjctsubtype").val();
+    //    $.getJSON("../Account/LoadPrjctschemebyagency", { agency: agency },
+    //                   function (locationdata) {
+    //                       var select = $("#Prjctscheme");
+    //                       select.empty();
+
+    //                       $.each(locationdata, function (index, itemData) {
+
+    //                           select.append($('<option/>', {
+    //                               value: itemData.id,
+    //                               text: itemData.name,
+    //                           }));
+    //                       });
+    //                   });
+    //});
+    window.onload = function () {
+        //var subtypeid = $("#Prjctsubtype").val();
+        //$.getJSON("../Account/LoadAgencybysubtype", { subtypeid: subtypeid },
+        //                  function (locationdata) {
+        //                      var select = $("#Agncy");
+        //                      select.empty();
+
+        //                      $.each(locationdata, function (index, itemData) {
+
+        //                          select.append($('<option/>', {
+        //                              value: itemData.id,
+        //                              text: itemData.name,
+        //                          }));
+        //                      });
+        //                  });
+
+        //$('[id^="Otherinstcopi_"]').each(function () {
+        //    debugger;
+        //    var ID = $(this).attr("id");
+        //    var qustType = ID.substr(ID.lastIndexOf("_") + 1);
+        //    var qustNo = ID.substring(ID.indexOf("_") + 1, ID.lastIndexOf("_"));
+
+        //    if (qustType === "yes") {
+        //        $('#otherinstitutecopidetail').css("display", "block");
+        //    }
+        //    if (qustType === "no") {
+        //        $('#otherinstitutecopidetail').css("display", "none");
+        //    }
+        //});
+        //$('#copiinstitute').val('');
+        //$('#OtherInstcopidepartment').val('');
+        //$('#OtherinstituteCoPI').val('');
+        //$('#txtCoPIremarks').val('');
+
+    }
+    $('#txtprpsltaxes,#txtprpslbasicval').blur(function () {
+        calculateProjectTotal();
+    });
+    function calculateProjectTotal() {
+        var baseVal = parseFloat($('#txtprpslbasicval').val()) || 0;
+        var taxVal = parseFloat($('#txtprpsltaxes').val()) || 0;
+        var ttlVal = baseVal;
+        if (taxVal != 0)
+            ttlVal = baseVal + (baseVal * taxVal / 100);
+        $('#lblOverallTtl').text(ttlVal.toFixed(2));
+    }
+
+    $('[id^="Otherinstcopi_"]').change(function () {
+        var ID = $(this).attr("id");
+        var qustType = ID.substr(ID.lastIndexOf("_") + 1);
+        var qustNo = ID.substring(ID.indexOf("_") + 1, ID.lastIndexOf("_"));
+
+        if (qustType === "yes") {
+            $('#otherinstitutecopidetail').css("display", "block");
+        }
+        if (qustType === "no") {
+            $('#otherinstitutecopidetail').css("display", "none");
+        }
+        $('#copiinstitute').val('');
+        $('#OtherInstcopidepartment').val('');
+        $('#OtherinstituteCoPI').val('');
+        $('#txtCoPIremarks').val('');
+    });
+    @*window.onload = function () {
+
+
+        var CoPIName = @Html.Raw(Json.Encode(Model.CoPIname));
+        var CoPIemail = @Html.Raw(Json.Encode(Model.CoPIEmail));
+        var CoPIDep = @Html.Raw(Json.Encode(Model.CoPIDepartment));
+        $.each(CoPIName, function( i, val ){
+            if(i == 0){
+                document.getElementsByName('CoPIname')[0].value = CoPIName[0];
+                document.getElementsByName('CoPIDepartment')[0].value = CoPIDep[0];
+                document.getElementsByName('CoPIEmail')[0].value = CoPIemail[0];
+            }else{
+                var cln = $("#primaryDiv").clone().find("input").val("").end();
+                var cloneElement = $("#primaryDiv").find('#CoPI').parent().clone() ;
+                cln.find('#CoPI').parent().replaceWith(selectPickerApiElement($(cloneElement),"empty",[],''));
+                $(cln).find('.dis-none').removeClass('dis-none');
+                $('#divContent').append(cln)
+                document.getElementsByName('CoPIname')[i].value = CoPIname[i];
+                document.getElementsByName('CoPIDepartment')[i].value = CoPIdepartment[i];
+                document.getElementsByName('CoPIEmail')[i].value = CoPIEmail[i];
+            }
+        });
+
+        var Docname = @Html.Raw(Json.Encode(Model.AttachName));
+        var Doctype = @Html.Raw(Json.Encode(Model.DocType));
+
+        $.each(Docname, function( i, val ){
+            if(i == 0){
+                document.getElementsByName('DocType')[0].value = Doctype[0];
+                document.getElementsByName('AttachName')[0].value = Docname[0];
+            }else{
+                var cln = $("#DocprimaryDiv").clone().find("input").val("").end();
+                $(cln).find('.dis-none').removeClass('dis-none');
+                $('#divContent').append(cln)
+                document.getElementsByName('DocType')[i].value = Doctype[i];
+                document.getElementsByName('AttachName')[i].value = Docname[i];
+            }
+        });
+    }*@
+
+    $("#department").change(function () {
+        var Departmentid = $(this).val();
+        $.getJSON("../Account/LoadPIByDepartment", { Departmentid: Departmentid, Instituteid: 3 },
+                    function (locationdata) {
+                        var select = $("#PI");
+                        select.empty();
+
+                        $.each(locationdata, function (index, itemData) {
+
+                            select.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name
+                            }));
+                        });
+                        select.selectpicker('refresh');
+                    });
+
+        var PIId = 0;
+        $.getJSON("../Account/LoadPIEmailById", { Profid: PIId },
+                function (locationdata) {
+                    $('input[name="PIEmail"]').val(locationdata.name);
+                });
+
+    });
+
+    $(document).on('change', 'select[name="CoPIDepartment"]', function () {
+        var Departmentid = $(this).val();
+        //var index = $(this).closest('#primaryDiv').index();
+        //var select = $(this).closest('#primaryDiv').find('select[name="CoPIname"]');
+        var select = $(this).closest('#primaryDiv').find('select[name="CoPIname"]');
+        $(select).empty().selectpicker('refresh');
+        $.getJSON("@Url.Action("LoadPIByDepartment", "Account")", { Departmentid: Departmentid, Instituteid: 3 },
+                    function (locationdata) {
+                        // $(select).selectpicker("destroy");
+                        $.each(locationdata, function (index, itemData) {
+                            $(select).append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name
+                            })).selectpicker('refresh');
+                        });
+                    });
+
+        var Copiid = 0;
+        var CoPIEmail = $(this).closest('#primaryDiv').find('input[name="CoPIEmail"]');
+        $.getJSON("../Account/LoadPIEmailById", { Profid: Copiid },
+                function (locationdata) {
+                    CoPIEmail.val(locationdata.name);
+                });
+
+
+    });
+    function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode != 46 && charCode > 31
+          && (charCode < 48 || charCode > 57))
+            return false;
+
+        return true;
+    }
+    function noedit() {
+        return false;
+    }
+
+    $(document).on('change', 'select[name="OtherInstituteCoPIDepartment"]', function () {
+        var Departmentid = $(this).val();
+        var Institute = $(this).closest('#primaryotherinstcopiDiv').find('select[name="CoPIInstitute"]');
+        var Instituteid = Institute.val();
+
+        //var index = $(this).closest('#primaryDiv').index();
+        //var select = $(this).closest('#primaryDiv').find('select[name="CoPIname"]');
+        var select = $(this).closest('#primaryotherinstcopiDiv').find('select[name="OtherInstituteCoPIName"]');
+        $(select).empty().selectpicker('refresh');
+        $.getJSON("@Url.Action("LoadOtherInstCoPIByDepartment", "Account")", { Departmentid: Departmentid, InstituteId: Instituteid },
+                    function (locationdata) {
+                        // $(select).selectpicker("destroy");
+                        $.each(locationdata, function (index, itemData) {
+                            $(select).append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name
+                            })).selectpicker('refresh');
+                        });
+                    });
+        //}
+    });
+
+    $(document).on('change', 'select[name="CoPIInstitute"]', function () {
+        var Department = $(this).closest('#primaryotherinstcopiDiv').find('select[name="OtherInstituteCoPIDepartment"]');
+        var Departmentid = Department.val();
+        var Instituteid = $(this).val();
+        //var index = $(this).closest('#primaryDiv').index();
+        //var select = $(this).closest('#primaryDiv').find('select[name="CoPIname"]');
+        var select = $(this).closest('#primaryotherinstcopiDiv').find('select[name="OtherInstituteCoPIName"]');
+        $(select).empty().selectpicker('refresh');
+        $.getJSON("@Url.Action("LoadOtherInstCoPIByDepartment", "Account")", { Departmentid: Departmentid, InstituteId: Instituteid },
+                    function (locationdata) {
+                        // $(select).selectpicker("destroy");
+                        $.each(locationdata, function (index, itemData) {
+                            $(select).append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name
+                            })).selectpicker('refresh');
+                        });
+                    });
+
+    });
+    $(document).on('change', 'select[name="CoPIname"]', function () {
+        // var select = $(this).closest('#primaryDiv').find('select[name="CoPIname"]');
+        var CoPIid = $(this).val();
+        var CoPIEmail = $(this).closest('#primaryDiv').find('input[name="CoPIEmail"]');
+        if (CoPIid > 0) {
+            $.getJSON("@Url.Action("LoadPIEmailById", "Account")", { Profid: CoPIid },
+                    function (locationdata) {
+
+                        //$("#txtcopiemail").val(locationdata.name);
+                        CoPIEmail.val(locationdata.name);
+                    });
+        }
+        else {
+            var Copiid = 0;
+            $.getJSON("../Account/LoadPIEmailById", { Profid: Copiid },
+                    function (locationdata) {
+                        CoPIEmail.val(locationdata.name);
+                    });
+        }
+    });
+    $("#PI").change(function () {
+        var PIid = $(this).val();
+        if (PIid > 0) {
+            $.getJSON("../Account/LoadPIEmailById", { Profid: PIid },
+                    function (locationdata) {
+
+                        //$("#txtcopiemail").val(locationdata.name);
+                        $('input[name="PIEmail"]').val(locationdata.name);
+                    });
+        }
+        else {
+            var PIId = 0;
+            $.getJSON("../Account/LoadPIEmailById", { Profid: PIId },
+                    function (locationdata) {
+                        $('input[name="PIEmail"]').val(locationdata.name);
+                    });
+        }
+
+    });
+    //$("#Prjctscheme").change(function () {
+    //    var Schemeid = $(this).val();
+
+    //    $.getJSON("../Account/LoadSchemeCodeById", { SchemeId: Schemeid },
+    //                function (locationdata) {
+
+    //                    //$("#txtcopiemail").val(locationdata.name);
+    //                    $("#schemecode").val(locationdata.name);
+    //                });
+
+
+    //});
+    //$("#Prjctconsultype").change(function () {
+    //    var Schemeid = $(this).val();
+
+    //    $.getJSON("../Account/LoadSchemeCodeById", { SchemeId: Schemeid },
+    //                function (locationdata) {
+
+    //                    //$("#txtcopiemail").val(locationdata.name);
+    //                    $("#Prjctconsultypecode").val(locationdata.name);
+    //                });
+
+
+    //});
+    $(document).ready(function (){
+        //Fill Copi Details in Edit Mode
+        var CoPIName =@Html.Raw(Json.Encode(Model.CoPIname));
+        var CoPIemail = @Html.Raw(Json.Encode(Model.CoPIEmail));
+        var CoPIDep =  @Html.Raw(Json.Encode(Model.CoPIDepartment));
+        var CoPIID =  @Html.Raw(Json.Encode(Model.CoPIid));
+        var WFproposalid =@Html.Raw(Json.Encode(Model.WFproposalid));
+        $.each(CoPIName, function (i, val) {
+            if (i == 0) {
+                var select = $("#CoPI");
+                select.empty();
+                select.append($('<option/>', {
+                    value: '0',
+                    text: 'Select any'
+                }));
+                $.each(JSON.parse(piList), function (index, itemData) {
+                    if (itemData.code == CoPIDep[0]) {
+                        select.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name
+                        }));
+                    }
+                });
+                $('#CoPI').val(CoPIName[0]);
+                select.selectpicker('refresh');
+                document.getElementsByName('CoPIname')[0].value = CoPIName[0];
+                document.getElementsByName('CoPIDepartment')[0].value = CoPIDep[0];
+                document.getElementsByName('CoPIEmail')[0].value = CoPIemail[0];
+                document.getElementsByName('CoPIid')[i].value = CoPIID[i];
+
+            } else {
+                var cln = $("#primaryDiv").clone().find("input").val("").end();
+                var cloneElement = $("#primaryDiv").find('#CoPI').parent().clone();
+                var dptPIs = []
+                $.each(JSON.parse(piList), function (index, itemData) {
+                    if (itemData.code == CoPIDep[i]) {
+                        dptPIs.push(itemData)
+                    }
+                });
+                var cln = $("#primaryDiv").clone().find("input").val("").end();
+                var cloneElement = $("#primaryDiv").find('#CoPI').parent().clone() ;
+                cln.find('#CoPI').parent().replaceWith(selectPickerApiElement($(cloneElement), "all", dptPIs, CoPIName[i]));
+                $(cln).find('.dis-none').removeClass('dis-none');
+                $('#divContent').append(cln)
+                document.getElementsByName('CoPIname')[i].value = CoPIName[i];
+                document.getElementsByName('CoPIDepartment')[i].value = CoPIDep[i];
+                document.getElementsByName('CoPIEmail')[i].value = CoPIemail[i];
+                document.getElementsByName('CoPIid')[i].value = CoPIID[i];
+
+            }
+        });
+
+        //Fill OtherInst Copidetails
+        var otherinstutecopi=@Html.Raw(Json.Encode(Model.Otherinstcopi_Qust_1));
+        if(otherinstutecopi=="Yes")
+        {
+            // $('input[name=Otherinstcopi_Qust_1][value=' + Model.Otherinstcopi_Qust_1 + ']').prop('checked', true);
+            $('#Otherinstcopi_yes').prop('checked', true);
+            $('#otherinstitutecopidetail').css("display", "block");
+        }
+        else
+        {
+            $('#otherinstitutecopidetail').css("display", "none");
+        }
+        var OtherInstCoPIName =@Html.Raw(Json.Encode(Model.OtherInstituteCoPIName));
+        var OtherInstCoPIRemarks = @Html.Raw(Json.Encode(Model.RemarksforOthrInstCoPI));
+        var OtherInstCoPIInst = @Html.Raw(Json.Encode(Model.CoPIInstitute));
+        var OtherInstCoPIDep = @Html.Raw(Json.Encode(Model.OtherInstituteCoPIDepartment));
+        var OtherInstCoPIID = @Html.Raw(Json.Encode(Model.OtherInstituteCoPIid));
+        if (OtherInstCoPIName != null) {
+            $.each(OtherInstCoPIName, function (i, val) {
+                if (i == 0) {
+                    document.getElementsByName('OtherInstituteCoPIName')[0].value = OtherInstCoPIName[0];
+                    document.getElementsByName('CoPIInstitute')[0].value = OtherInstCoPIInst[0];
+                    document.getElementsByName('OtherInstituteCoPIDepartment')[0].value = OtherInstCoPIDep[0];
+                    document.getElementsByName('RemarksforOthrInstCoPI')[0].value = OtherInstCoPIRemarks[0];
+                    document.getElementsByName('OtherInstituteCoPIid')[0].value = OtherInstCoPIID[0];
+                } else {
+                    var cln = $("#primaryotherinstcopiDiv").clone().find("input").val("").end();
+                    var cloneElement = $("#primaryotherinstcopiDiv").find('#OtherinstituteCoPI').parent().clone();
+                    $(cln).find('.dis-none').removeClass('dis-none');
+                    $('#divotherinstcopiContent').append(cln);
+                    document.getElementsByName('OtherInstituteCoPIName')[i].value = OtherInstCoPIName[i];
+                    document.getElementsByName('CoPIInstitute')[i].value = OtherInstCoPIInst[i];
+                    document.getElementsByName('OtherInstituteCoPIDepartment')[i].value = OtherInstCoPIDep[i];
+                    document.getElementsByName('RemarksforOthrInstCoPI')[i].value = OtherInstCoPIRemarks[i];
+                    document.getElementsByName('OtherInstituteCoPIid')[i].value = OtherInstCoPIID[i];
+                }
+            });
+        }
+        //Fill Document Details in Edit Mode
+        var Docname =@Html.Raw(Json.Encode(Model.DocName));
+        var Attachname = @Html.Raw(Json.Encode(Model.AttachName));
+        var Doctype =@Html.Raw(Json.Encode(Model.DocType));
+        var Docpath =@Html.Raw(Json.Encode(Model.DocPath));
+        var DocID = @Html.Raw(Json.Encode(Model.Docid));
+        $.each(Docname, function (i, val) {
+            if(WFproposalid>0){
+                if (i == 0) {
+                    document.getElementsByName('DocType')[0].value = Doctype[0];
+                    document.getElementsByName('AttachName')[0].value = Attachname[0];
+                    document.getElementsByName('Docid')[0].value = DocID[0];
+                    document.getElementsByClassName('link1')[0].text = Docname[0];
+                    document.getElementsByClassName('link1')[0].href = "ShowWFProposalDocument?file=" + Docpath[0] + "&filepath=Proposal";
+                } else {
+                    var cln = $("#DocprimaryDiv").clone().find("input").val("").end();
+                    $(cln).find('.dis-none').removeClass('dis-none');
+                    $('#DocdivContent').append(cln)
+                    document.getElementsByName('DocType')[i].value = Doctype[i];
+                    document.getElementsByName('AttachName')[i].value = Attachname[i];
+                    document.getElementsByName('Docid')[i].value = DocID[i];
+                    document.getElementsByClassName('link1')[i].text = Docname[i];
+                    document.getElementsByClassName('link1')[i].href = "ShowWFProposalDocument?file=" + Docpath[i] + "&filepath=Proposal";
+                }
+            }
+            else{
+                if (i == 0) {
+                    document.getElementsByName('DocType')[0].value = Doctype[0];
+                    document.getElementsByName('AttachName')[0].value = Attachname[0];
+                    document.getElementsByName('Docid')[0].value = DocID[0];
+                    document.getElementsByClassName('link1')[0].text = Docname[0];
+                    document.getElementsByClassName('link1')[0].href = "ShowDocument?file=" + Docpath[0] + "&filepath=~%2FContent%2FSupportDocuments%2F";
+                } else {
+                    var cln = $("#DocprimaryDiv").clone().find("input").val("").end();
+                    $(cln).find('.dis-none').removeClass('dis-none');
+                    $('#DocdivContent').append(cln)
+                    document.getElementsByName('DocType')[i].value = Doctype[i];
+                    document.getElementsByName('AttachName')[i].value = Attachname[i];
+                    document.getElementsByName('Docid')[i].value = DocID[i];
+                    document.getElementsByClassName('link1')[i].text = Docname[i];
+                    document.getElementsByClassName('link1')[i].href = "ShowDocument?file=" + Docpath[i] + "&filepath=~%2FContent%2FSupportDocuments%2F";
+                }
+            }
+
+
+
+        });
+    });
+    var selectPickerApiElement = function (el, choice, options, select) {
+        $(el).find('select').selectpicker({
+            liveSearch: true
+        });
+        $(el).children().eq(2).siblings().remove();
+        if (choice == "add") {
+            $(el).find('.selectpicker').append("<option>" + options + "</option>");
+        } else if (choice == "all" && select != '') {
+            $(el).find('.selectpicker').children().remove();
+            for (var i = 0 ; i < options.length ; i++) {
+                $(el).find('.selectpicker').append("<option value=" + options[i].id + ">" + options[i].name + "</option>");
+            }
+            $(el).find('.selectpicker option[value=' + select + ']').attr('selected', 'selected');
+        } else if (choice == "all" && select == '') {
+            $(el).find('.selectpicker').children().remove();
+            for (var i = 0 ; i < options.length ; i++) {
+                $(el).find('.selectpicker').append("<option value=" + options[i].id + ">" + options[i].name + "</option>");
+            }
+        } else if (choice == "empty") {
+            $(el).find('.selectpicker').children().remove();
+            $(el).find('.selectpicker').append("<option value=''>Select any</option>");
+        } else {
+            var selectOptionsLength = $(el).find('.selectpicker').children().length;
+            for (var i = 1 ; i <= selectOptionsLength ; i++) {
+                if (options == $(el).find('.selectpicker').children().eq(i).val()) {
+                    $(el).find('.selectpicker').children().eq(i).remove();
+                    break;
+                } else {
+                    continue;
+                }
+            }
+
+        }
+        $(el).find('select').selectpicker('refresh');
+        return $(el).children().first().unwrap();
+
+    }
+    $(document).on('click', '#idSponsoredSchemes', function () {
+        applyAutoComplete($('#idSponsoredSchemes'), $('#idschemecode'), "../Proposal/GetAutoCompleteSponsoredSchemes", undefined, undefined, undefined);
+    });
+</script>
+<link href="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/css/bootstrap-select.min.css")" rel="stylesheet" />
+<script src="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/js/bootstrap-select.min.js")"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>

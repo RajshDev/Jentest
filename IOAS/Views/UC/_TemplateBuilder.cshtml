@@ -1,0 +1,461 @@
+﻿<style>
+    .spl-tb {
+        width: 100%;
+        vertical-align: top;
+    }
+
+        .spl-tb tbody tr td {
+            padding: 5px;
+        }
+
+    .spl-editor {
+        font-family: Times New Roman, Times, serif, -webkit-standard;
+    }
+
+    .drag-btn {
+        background: #f6f6f6;
+        padding: 0px 10px;
+        border: 1px solid #ccc;
+        float: left;
+        border-radius: 30px;
+        margin-left: 5px;
+        font-size: 12px;
+    }
+
+    .drg-spl-bg {
+        padding: 15px;
+        border-radius: 4px;
+        background: #fff;
+    }
+
+    .uc-ed-vw .col-md-3 {
+        width: 20%;
+    }
+
+    .uc-ed-vw .col-md-9 {
+        width: 80%;
+    }
+
+    .uc-ed-vw .cmn-panel-box {
+        padding: 15px;
+    }
+
+    .uc-ed-vw .bl-lg-panel-box .custom-form-group label {
+        font-size: 12px;
+        color: #000;
+    }
+
+    .uc-ed-vw .bl-lg-panel-box {
+        min-height: 500px;
+        overflow: auto;
+    }
+
+    .co-pi-hgt {
+        width: 100%;
+        height: 140px;
+        overflow: auto;
+    }
+    
+    .pdt-null {
+        padding-top: 0px !important;
+    }
+    #divComp{
+        height:800px;
+    }
+</style>
+<link href="@Url.Content("~/Content/IOASContent/css/froala/froala_editor.min.css")" rel="stylesheet" />
+<link href="@Url.Content("~/Content/IOASContent/css/froala/froala_editor.pkgd.min.css")" rel="stylesheet" />
+@model IOAS.Models.BuilderModel
+<div class="col-md-12">
+    <div class="row uc-ed-vw">
+        <div class="col-md-3">
+            <div class="bl-lg-panel-box pb-null">
+                <div class="cmn-panel-box">
+                    <div class="row ">
+                        <div id="divComp" class="col-md-12">
+                            <div id="divDupComp" class="form-group custom-form-group mb-md dis-none">
+                                <label class="pull-left">Project Title</label>
+                                <div id="dragPT" draggable="true" class="drag-btn"></div>
+                            </div>
+                            @*<div class="form-group custom-form-group mb-md">
+                                    <label class="pull-left">Project Number</label>
+                                    <div id="dragPN" draggable="true" class="drag-btn"></div>
+                                </div>
+                                <div class="form-group custom-form-group mb-md ">
+                                    <label class="pull-left">PI</label>
+                                    <div id="dragPI" draggable="true" class="drag-btn"></div>
+                                </div>
+                                <div class="form-group custom-form-group mb-md">
+                                    <label class="pull-left">Start Date</label>
+                                    <div id="dragStrDate" draggable="true" class="drag-btn"></div>
+                                </div>
+                                <div class="form-group custom-form-group mb-md">
+                                    <label class="pull-left">Close Date</label>
+                                    <div id="dragClosDate" draggable="true" class="drag-btn"></div>
+                                </div>
+                                <div class="form-group custom-form-group mb-md">
+                                    <label class="pull-left">Sanctioned Value</label>
+                                    <div id="dragSanValue" draggable="true" class="drag-btn"></div>
+                                </div>
+                                <div class="form-group custom-form-group mb-md">
+                                    <label class="pull-left">San. Order No.</label>
+                                    <div id="dragSanNo" draggable="true" class="drag-btn"></div>
+                                </div>
+                                <div class="form-group custom-form-group mb-md">
+                                    <label class="pull-left">Grant Received</label>
+                                    <div id="dragGrantRec" draggable="true" class="drag-btn"></div>
+                                </div>
+                                <div class="form-group custom-form-group mb-md">
+                                    <label class="pull-left">Total Expenditure</label>
+                                    <div id="dragTtlExp" draggable="true" class="drag-btn"></div>
+                                </div>
+                                <div class="form-group custom-form-group mb-md">
+                                    <label class="pull-left">Neg. Balance</label>
+                                    <div id="dragNegBal" draggable="true" class="drag-btn"></div>
+                                </div>
+                                <div class="form-group custom-form-group mb-md">
+                                    <label class="pull-left">Net Balance</label>
+                                    <div id="dragNetBal" draggable="true" class="drag-btn"></div>
+                                </div>*@
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+
+            <div class="drg-spl-bg">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group custom-form-group mb-null ">
+                            <label class="pull-left">Template</label>
+                            @Html.DropDownListFor(m => m.TemplateId, new SelectList(ViewBag.TemplateList, "id", "name"), "Select any", new { @class = "form-control required" })
+                            @Html.ValidationMessageFor(m => m.TemplateId)
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group custom-form-group mb-md">
+                            <label class="pull-left">Finance Year</label>
+                            <div id="dragFinYear" draggable="true" class="drag-btn"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group custom-form-group mb-md">
+                            <label class="pull-left">Total Expenditure</label>
+                            <div id="dragTtlExp" draggable="true" class="drag-btn"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-md">
+                    <div class="col-md-12">
+                        <table class="table table-bordered  mb-null">
+                            <thead>
+                               <tr>
+
+                                    <th>Head</th>
+                                    <th>Total expenditure</th>
+
+                                </tr>
+                            </thead>
+                            <tbody id="tbodyDragExpList">
+                              <tr>
+                                  <td></td>
+                                  <td></td>
+                              </tr>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!--- Editor Start -->
+                <div id="editor">
+                    <div id='edit' style="margin-top: 30px;" class="spl-editor">
+
+                        <div>
+
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-md-12">
+                    <div class="col-md-3">
+                        <div class="form-group custom-form-group mb-null ">
+                            <a href="javascript:void(0)" id="lnkCrtTemplate">Create Template</a>
+                        </div>
+                    </div>
+                    <div id="divTempName" class="col-md-3 dis-none">
+                        <div class="form-group custom-form-group mb-null ">
+                            <label class="pull-left">Template Name</label>
+                            @Html.TextBox("CrtTemplateName", "", new { @class = "form-control" })
+                        </div>
+                    </div>
+                    <div id="divTempSaveBtn" class="col-md-3 dis-none">
+                        <div class="form-group custom-form-group mb-null ">
+                            <a href="javascript:void(0)" id="lnkSaveTemplate">Save Template</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12" id="divmodfiytemp">
+                    <div class="col-md-3">
+                        <div class="form-group custom-form-group mb-null ">
+                            <a href="javascript:void(0)" id="lnkupdTemplate">Modify Template</a>
+                        </div>
+                    </div>
+                    
+                    <div id="divTempupdateBtn" class="col-md-3 dis-none">
+                        <div class="form-group custom-form-group mb-null ">
+                            <a href="javascript:void(0)" id="lnkmodifyTemplate">Update Template</a>
+                        </div>
+                    </div>
+                </div>
+                <!--- End editor start -->
+            </div>
+        </div>
+
+    </div>
+
+</div>
+<script type="text/javascript" src="@Url.Content("~/Content/IOASContent/js/froala/froala_editor.min.js")"></script>
+<script type="text/javascript" src="@Url.Content("~/Content/IOASContent/js/froala/froala_editor.pkgd.min.js")"></script>
+<!-- Include PDF export JS lib. -->
+<script type="text/javascript" src="https://raw.githack.com/eKoopmans/html2pdf/master/dist/html2pdf.bundle.js"></script>
+
+<script>
+    var dragCallback = function (e) {
+        e.dataTransfer.setData('Text', this.id);
+    };
+    $('#TemplateId').change(function () {
+        var tempId = $(this).val();
+        if (tempId != '') {
+            $('.loading-bg').removeClass('dis-none');
+            $.ajax({
+                type: "GET",
+                url: "@Url.Action("GetTemplateDetail", "UC")",
+                data: { "tempId": tempId },
+                dataType: "json",
+                success: function (result) {
+                    $('.loading-bg').addClass('dis-none');
+                    editor.html.set('');
+                    editor.html.insert(result);
+                    autoFillTemplate();
+                },
+                error: function (err) {
+                    $('.loading-bg').addClass('dis-none');
+                    console.log("error : " + err);
+                }
+            });
+        }
+    });
+   
+    function LoadTemplate() {
+        var tempId = $('#TemplateId').val();
+        if (tempId != '') {
+            $('.loading-bg').removeClass('dis-none');
+            $.ajax({
+                type: "GET",
+                url: "@Url.Action("GetTemplateDetail", "UC")",
+                data: { "tempId": tempId },
+            dataType: "json",
+            success: function (result) {
+                $('.loading-bg').addClass('dis-none');
+                editor.html.set('');
+                editor.html.insert(result);
+                //autoFillTemplate();
+            },
+            error: function (err) {
+                $('.loading-bg').addClass('dis-none');
+                console.log("error : " + err);
+            }
+        });
+    }
+    }
+    function autoFillTemplate() {
+        var tempData = editor.html.get();
+        if (tempData != '') {
+            tempData = tempData.replace("{{FinYear}}", $('#dragFinYear').html());
+            tempData = tempData.replace("{{Total_Exp_Selected_FinYear}}", $('#dragTtlExp').html());
+            $(".drag-btn").each(function () {
+                var id = $(this).attr("id");
+                tempData = tempData.replace(new RegExp("{{" + id + "}}", 'g'), $(this).html());
+            });
+            editor.html.set('');
+            editor.html.insert(tempData);
+        }
+    }
+    $('#lnkCrtTemplate').click(function () {
+        if ($('#divTempName').hasClass('dis-none')) {
+            $('#divTempName,#divTempSaveBtn').removeClass('dis-none');
+            $('#divmodfiytemp').addClass('dis-none');
+            $('#divTempupdateBtn,#divTempupdateBtn').addClass('dis-none');
+        } else {
+            $('#divTempName,#divTempSaveBtn').addClass('dis-none');
+            $('#divmodfiytemp').removeClass('dis-none');
+        }
+       
+    });
+    $('#lnkupdTemplate').click(function () {
+        if ($('#divTempupdateBtn').hasClass('dis-none')) {
+            $('#divTempupdateBtn,#divTempupdateBtn').removeClass('dis-none');
+            $('#divTempName,#divTempSaveBtn').addClass('dis-none');
+            LoadTemplate();
+        } else {
+            $('#divTempupdateBtn,#divTempupdateBtn').addClass('dis-none');
+            
+        }
+        
+        
+    });
+    $('#lnkSaveTemplate').click(function () {
+        var tempName = $('#CrtTemplateName').val();
+        var tempData = editor.html.get();//$('div#edit').froalaEditor('html.get');
+        if (tempName == '') {
+            $("#alert").text("Template Name filed is required.");
+            $('#Validation').modal('show');
+            return false;
+        } else if (tempData == '') {
+            $("#alert").text("Template Content filed is required.");
+            $('#Validation').modal('show');
+            return false;
+        }
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("CreateTemplate", "UC")",
+            data: { "tempName": tempName, "tempData": tempData },
+            success: function (result) {
+                $('.loading-bg').addClass('dis-none');
+                if (result.status == "Success") {
+                    var selectTemp = $('#TemplateId');
+                    selectTemp.empty();
+                    selectTemp.append($('<option/>', {
+                        value: "",
+                        text: "Select any",
+                    }));
+                    $.each(result.data, function (index, itemData) {
+                        selectTemp.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+                    $('#alertSuccess').html("Template has been created successfully.");
+                    $('#Success').modal('toggle');
+                } else {
+                    $("#FailedAlert").text(result.status);
+                    $('#Failed').modal('show');
+                }
+            },
+            error: function (err) {
+                $('.loading-bg').addClass('dis-none');
+                console.log("error : " + err);
+            }
+        });
+    });
+    $('#lnkmodifyTemplate').click(function () {
+        var tempId = $('#TemplateId').val();
+        var tempData = editor.html.get();//$('div#edit').froalaEditor('html.get');
+        if (tempId == '') {
+            $("#alert").text("Select Template Name.");
+            $('#Validation').modal('show');
+            return false;
+        } else if (tempData == '') {
+            $("#alert").text("Template Content filed is required.");
+            $('#Validation').modal('show');
+            return false;
+        }
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("UpdateTemplate", "UC")",
+            data: { "tempId": tempId, "tempData": tempData },
+        success: function (result) {
+            $('.loading-bg').addClass('dis-none');
+            if (result.status == "Success") {
+                var selectTemp = $('#TemplateId');
+                selectTemp.empty();
+                selectTemp.append($('<option/>', {
+                    value: "",
+                    text: "Select any",
+                }));
+                $.each(result.data, function (index, itemData) {
+                    selectTemp.append($('<option/>', {
+                        value: itemData.id,
+                        text: itemData.name,
+                    }));
+                });
+                $('#alertSuccess').html("Template has been Updated successfully.");
+                $('#Success').modal('toggle');
+               
+            } else {
+                $("#FailedAlert").text(result.status);
+                $('#Failed').modal('show');
+            }
+        },
+        error: function (err) {
+            $('.loading-bg').addClass('dis-none');
+            console.log("error : " + err);
+        }
+    });
+    });
+    function setDragDrop() {
+        // For Firefox to work.
+        var classname = document.getElementsByClassName("drag-btn");
+        //document.querySelector('.drag-btn').addEventListener('dragstart', dragCallback);
+        for (var i = 0; i < classname.length; i++) {
+            classname[i].addEventListener('dragstart', dragCallback);
+        }
+    }
+    // For Firefox to work.
+    var classname = document.getElementsByClassName("drag-btn");
+    //document.querySelector('.drag-btn').addEventListener('dragstart', dragCallback);
+    for (var i = 0; i < classname.length; i++) {
+        classname[i].addEventListener('dragstart', dragCallback);
+    }
+    var editor = new FroalaEditor('#edit', {
+       
+        events: {
+            initialized: function () {
+                var editor = this;
+                var tempData = $('#UCRawFile').val();
+                if (tempData != '') {
+                    editor.html.set('');
+                    editor.html.insert(tempData);
+                }
+                
+                editor.events.on('drop', function (dropEvent) {
+                    // Focus at the current posisiton.
+                    editor.markers.insertAtPoint(dropEvent.originalEvent);
+                    var $marker = editor.$el.find('.fr-marker');
+                    $marker.replaceWith(FroalaEditor.MARKERS);
+                    editor.selection.restore();
+
+                    // Save into undo stack the current position.
+                    if (!editor.undo.canDo()) editor.undo.saveStep();
+
+                    // Insert HTML.
+                    var dragEleId = dropEvent.originalEvent.dataTransfer.getData('Text');
+                    
+                    editor.html.insert($('#' + dragEleId).html());
+
+                    // Save into undo stack the changes.
+                    editor.undo.saveStep();
+
+                    // Stop event propagation.
+                    dropEvent.preventDefault();
+                    dropEvent.stopPropagation();
+
+                    // Firefox show cursor.
+                    if (editor.core.hasFocus() && editor.browser.mozilla) {
+                        editor.events.disableBlur();
+                        setTimeout(function () {
+                            editor.$el.blur().focus();
+                            editor.events.enableBlur();
+                        }, 0);
+                    }
+
+                    return false;
+                }, true);
+            }
+        },
+        html2pdf: window.html2pdf
+    });
+    
+</script>

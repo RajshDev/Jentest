@@ -1,0 +1,294 @@
+﻿@model IOAS.Models.DepartmentModel
+@{
+    ViewBag.Title = "Department";
+    ViewBag.Subtitle = "Create department";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/Account/Department.js")"></script>
+
+<div id="addnewstatusbar">
+<div class="row hd-tt-bg">
+    <div class="col-md-4">
+        <h3>Department</h3>
+    </div>
+    <div class="col-md-8 flt-nav-links">
+        <a href="#" id="Addnewid"> <i class="ion-plus"></i>Add New</a>
+        <a href="Javascript:void(0)" id="btnFilterDept" class="pull-right"> <i class="ion-android-funnel"></i>Filters</a>
+    </div>
+</div>
+</div>
+ <div id="popFilterDept" class="filter-popup">
+    <div class="">
+        <div class="filter-content">
+            <div class="white-bg">
+                <div class="form-group custom-form-group">
+                    <h3>Filter by</h3>
+                </div>
+                <div class="form-group custom-form-group">
+                    <label>Department Name</label><br>
+                    @Html.TextBoxFor(m => m.SearchDepartment, new { @class = "form-control", @id = "txtsrchDept" })
+                </div>
+                <div class="form-group custom-form-group">
+                    <label>HOD</label><br>
+                 @Html.TextBoxFor(m => m.SearchHead, new {@class="form-control",@id="txtHead" })
+                </div>
+                <div class="form-group custom-form-group mt30 text-center">
+                    <button id="btnSrchDept" type="button" class="btn btn-primary mr10">Search</button>
+                    <button id="btnResetSrchDept" type="button" class="btn btn-default">Reset</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <a href="javascript:void(0)" name="btnCloseDept" class="close-btn"><i class="ion-android-cancel"></i></a>
+
+</div>      
+       
+
+
+   
+<div class="row">
+    @using (Html.BeginForm("Department", "Account", FormMethod.Post, new { @class = "", role = "form", enctype = "multipart/form-data" }))
+
+    {
+        <div class="col-md-12">
+
+            <div class="page-wrapper">
+                <div id="Adddepartment">
+                    <div class="white-bg">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h3 class="spl-title">Department</h3>
+                            </div>
+                        </div>
+                        <div class="row">
+
+                            <div class="col-md-4">
+                                <div class="form-group custom-form-group">
+                                    <label class="required">Department Name</label>
+                                    @Html.TextBoxFor(m => m.Departmentname, new { @class = "form-control", @id = "txtdepartment" })
+                                    <div> @Html.ValidationMessageFor(m => m.Departmentname)</div>
+
+                                    @Html.HiddenFor(m => m.Departmentid, new { @id = "txtdeptid" })
+                                </div>
+
+
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="form-group custom-form-group">
+                                    <label class="required">HOD</label>
+                                    @Html.TextBoxFor(m => m.HOD, new { @class = "form-control", @id = "txthod" })
+                                    <div> @Html.ValidationMessageFor(m => m.HOD)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 text-center pd-tb-30">
+
+                            <input type="submit" class="btn btn-primary mr10" value="Save" name="Button" id="btnSave" />
+                            <input type="submit" class="btn btn-primary mr10" value="Update" name="Button" id="btnUpdate"  style="display:none"/>
+                            <input type="button" onclick="window.location.href='@Url.Action("Department", "Account")';" class="btn btn-default" value="Close" name="Button" id="btnReset" />
+                        </div>
+                    </div>
+                </div>
+                <div class="txt-error txt-red">@Html.ValidationSummary(true)</div>
+                <div id="tblrowid">
+                <div class="row mt30">
+                    <div class="col-md-12">
+                        <div class="custom-jsgrid-normal">
+                            <div id="departmentgrid"></div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+    <div id="savemodal" class="modal fade modal-success" role="dialog">
+                    <div class="modal-dialog modal-sm">
+
+                        <!-- Modal content-->
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                <i class="ion-android-checkmark-circle"></i>
+                                <h3 class="modal-title">Saved successfully</h3>
+                            </div>
+                            <div class="modal-body">
+
+                                <p>Department name saved successfully</p>
+
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+<div id="updatemodal" class="modal fade modal-success" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-checkmark-circle"></i>
+                <h3 class="modal-title">Updated successfully</h3>
+            </div>
+            <div class="modal-body">
+
+                <p>Department name Updated successfully</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+                
+<div id="deletemodal" class="modal fade modal-success" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-checkmark-circle"></i>
+                <h3 class="modal-title">Deleted successfully</h3>
+            </div>
+            <div class="modal-body">
+
+                <p>Department name Deleted successfully.</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div id="warringmodal" class="modal fade modal-warning" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-warning"></i>
+                <h3 class="modal-title">Delete is not allowed !.</h3>
+            </div>
+            <div class="modal-body">
+
+                <p>One or more roles have been assigned to this department</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="existsmodal" class="modal fade modal-warning" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-warning"></i>
+                <h3 class="modal-title">Name alredy exists!.</h3>
+            </div>
+            <div class="modal-body">
+
+                <p>Department name alredy exists</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="Errormodal" class="modal fade modal-error" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-cancel"></i>
+                <h3 class="modal-title">Error Message</h3>
+            </div>
+            <div class="modal-body">
+
+                <p>"Something went to wrong please contact admin."</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        $('#Adddepartment').hide();
+        var page = 1, Departmentid = 0;
+        function Reset() {
+            $('#txtdeptid').val("");
+            $('#txtdepartment').val("");
+            $('#txthod').val("");
+        };
+        Reset();
+            
+       
+        $('#Addnewid').on('click', function () {
+            $('#Adddepartment').show();
+            $('#btnUpdate,#addnewstatusbar').hide();
+            $('#tblrowid').hide();
+        });
+
+        var addnew = '@ViewBag.add';
+        if(addnew!='')
+        {
+            $('#savemodal').modal('show');
+        }
+        var update = '@ViewBag.update';
+        if (update != '') {
+            $('#updatemodal').modal('show');
+        }
+        var Msg = '@ViewBag.message';
+        if (Msg != '') {
+            $('#existsmodal').modal('show');
+        }
+        var error = '@ViewBag.error';
+        if (error = '') {
+            $('#Errormodal').modal('show');
+        }
+        
+    });
+    $('#btnFilterDept').off("click").on("click", function () {
+        $('#popFilterDept').css("display", "Block");
+    });
+    $('a[name="btnCloseDept"],button[name="btnCloseDept"]').click(function () {
+        $('#popFilterDept').css("display", "none");
+    });
+</script>

@@ -1,0 +1,805 @@
+﻿@model IOAS.Models.TravelBillReportModel
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="Connect UW">
+    <!-- favicon icon -->
+    <link rel="shortcut icon" href="images/connectuw-icn.png" />
+    <title>Bill</title>
+    <link href="https://fonts.googleapis.com/css?family=Poppins:400,400i,700,700i" rel="stylesheet">
+    <link href="@Url.Content("~/Content/IOASContent/css/bootstrap.min.css")" rel="stylesheet" />
+    <style>
+        /*
+            body{
+                width: 21cm;
+                height: 29.7cm;
+                margin: 30mm 45mm 30mm 45mm;
+                border: 1px solid #ccc;
+            }
+        */
+        .umr-body {
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+            color: #2a2a2a;
+            padding: 15px 15px 15px 15px;
+        }
+
+        .umr-hd {
+            text-align: center;
+            border-bottom: 2px solid black;
+            padding-bottom: 15px;
+            padding-top: 10px;
+        }
+
+        .umr-hd1 {
+            text-align: center;
+            border-bottom: 2px solid black;
+            padding-bottom: 15px;
+            padding-top: 50px;
+        }
+
+        .umr-hd h2 {
+            font-size: 16px;
+            color: #000;
+            font-weight: normal;
+            text-align: left;
+        }
+
+            .umr-hd h2 em {
+                font-size: 14px;
+                float: left;
+                font-style: normal;
+            }
+
+            .umr-hd h2 b {
+                font-size: 14px;
+                float: right;
+                font-weight: normal;
+            }
+
+        .umr-hd-tt {
+            font-size: 26px;
+        }
+
+        .umr-hd-stt {
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .sb-tt {
+            margin-top: 0px;
+            font-weight: normal;
+            text-decoration: underline;
+        }
+
+        .mb-md {
+            margin-bottom: 30px;
+        }
+
+        .mb-sm {
+            margin-bottom: 15px;
+        }
+
+        .mt-md {
+            margin-top: 30px;
+        }
+
+        .mb-sm {
+            margin-bottom: 10px;
+        }
+
+        .umr-body li {
+            margin-bottom: 10px;
+        }
+
+        .tp-tt {
+            margin-top: 20px;
+            text-decoration: underline;
+            font-weight: bold;
+        }
+
+        .grey-bg {
+            background: #eee;
+            padding: 15px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+            .grey-bg .icn-box {
+                padding: 10px;
+            }
+
+                .grey-bg .icn-box em {
+                    font-size: 13px;
+                    color: #000;
+                    font-style: normal;
+                    width: 100%;
+                    display: inline-block;
+                    margin-bottom: 5px;
+                }
+
+                .grey-bg .icn-box span {
+                    font-size: 15px;
+                    color: #000;
+                    font-style: normal;
+                }
+
+        .cnt-bg {
+            padding: 0px;
+        }
+
+        .cnt-bg1 {
+            padding: 0px;
+            padding-bottom: 10px;
+            padding-top: 15px;
+        }
+
+        .gr-bg {
+            background: #eee;
+        }
+
+        .logo-section .icsr-logo {
+            width: 80px;
+            float: left;
+        }
+
+        .logo-section .dts {
+            width: calc(100% - 230px);
+            float: left;
+        }
+
+        .logo-section h4 {
+            margin-top: 0px;
+        }
+
+        .logo-section .iitm-logo {
+            width: 100px;
+            float: right;
+        }
+
+        .logo-section h5 {
+            font-size: 16px;
+        }
+
+        .umr-body .table > tbody > tr > td, .umr-body .table > tbody > tr > th, .umr-body .table > tfoot > tr > td, .umr-body .table > tfoot > tr > th, .umr-body .table > thead > tr > td, .umr-body .table > thead > tr > th {
+            padding: 8px;
+        }
+
+        .ct-tb em {
+            width: 100%;
+            display: inline-block;
+            font-size: 13px;
+            font-style: normal;
+        }
+
+        .ct-tb span {
+            font-weight: bold;
+        }
+
+        .ct-tb {
+            margin-bottom: 15px;
+        }
+
+        .ct-tr-tb {
+            margin-bottom: 0px;
+        }
+
+            .ct-tr-tb.table-bordered > tbody > tr > td, .ct-tr-tb.table-bordered {
+                border: 0px;
+            }
+
+        .ct-br-tb.table-bordered > tbody > tr > td {
+            border-color: rgba(0,0,0,0.7);
+        }
+
+        .logo-section h3 {
+            margin-top: 0px;
+            margin-bottom: 3px;
+            font-size: 28px;
+        }
+
+        .logo-section h4 {
+            margin-bottom: 3px;
+            font-weight: normal;
+        }
+
+        .logo-section h5 {
+            margin-bottom: 3px;
+            font-weight: normal;
+            font-size: 15px;
+            margin-top: 0px;
+        }
+    </style>
+</head>
+<body class="umr-body">
+
+
+    <div class="umr-hd">
+        <div class="row">
+            <div class="col-md-10 col-md-offset-1">
+
+                <div class="logo-section">
+                    <img src="~/Content/InstituteLogo/icsr_logo.png" class="icsr-logo" />
+                    <div class="dts">
+                        <h3 style="padding-bottom: 5px;"><b>Centre for IC & SR, IIT Madras</b></h3>
+                        <h5 style="padding-bottom: 5px;"><b>Chennai 600 036</b></h5>
+                        <b>GSTIN: 33AAAAI3615G1Z6</b><b style="margin-left:5px;">PAN: AAAAI3615G</b>
+
+                        @Html.HiddenFor(m => m.BillId)
+                    </div>
+                    <img src="~/Content/InstituteLogo/iitm_logo.png" class="iitm-logo" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <section style="padding-top: 10px;">
+        <table class="table table-bordered ct-tb ct-tr-tb">
+            <tbody>
+                <tr>
+                    <td>
+                        <b>Bill for the month of :</b>
+                    </td>
+                    <td>
+                        @Html.DisplayFor(m => m.BillMonth)
+                    </td>
+                    <td>
+                        <b>Bill Number :</b>
+                    </td>
+                    <td>
+                        @Html.DisplayFor(m => m.BillNumber)
+                    </td>
+                    <td>
+                        <b>Total Bill Value :</b>
+                    </td>
+                    <td>
+                        @Html.DisplayFor(m => m.TotalBillValue)
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <b>Bill Date :</b>
+                    </td>
+                    <td>
+                        @Html.DisplayFor(m => m.BillDate)
+                    </td>
+                    <td>
+                        <b>Bill Type :</b>
+                    </td>
+                    <td>
+                        @Html.DisplayFor(m => m.BillType)
+                    </td>
+
+                    <td>
+                        <b>Bank Account (Cr) :</b>
+                    </td>
+                    <td>
+                        @Html.DisplayFor(m => m.BankAccount)
+                    </td>
+                </tr>
+
+
+            </tbody>
+        </table>
+
+    </section>
+
+    <section class="cnt-bg">
+        <div class="container-fluid">
+            <div class="row">
+
+                <div class="col-md-12">
+                    <table class="table table-bordered ct-br-tb">
+                        <tbody>
+                            <tr>
+                                @*<td style="width:150px;font-weight:bold !important" class="text-center"><span style="font-weight:bold !important">Date</span></td>*@
+                                <td class="text-center"><b>Particulars</b></td>
+                                <td style="width:100px;" class="text-center"><b>Amount</b></td>
+                            </tr>
+                            <tr style="height:300px;">
+                                @*<td></td>*@
+                                <td>
+                                    <table class="table table-bordered ct-tr-tb" style="margin-bottom:0px;">
+                                        <tbody>
+                                            <tr>
+                                                <td colspan="4"><b>Total Value</b></td>
+                                                <td class="text-right">@Html.DisplayFor(m => m.TotalBillValue)</td>
+                                            </tr>
+
+
+
+                                        </tbody>
+                                    </table>
+                                </td>
+                                <td style="vertical-align:bottom;" class="text-right"> @Html.DisplayFor(m => m.TotalBillValue)</td>
+                            </tr>
+
+                            <tr>
+                                @*<td></td>
+                                    <td></td>*@
+                                <td style="width:200px;" class="text-right"><b>Total Payable Amount</b></td>
+                                <td style="vertical-align:bottom;" class="text-right"><b>@Html.DisplayFor(m => m.TotalAmount)</b></td>
+                            </tr>
+                            <tr>
+                                @*<td></td>*@
+                                <td colspan="2"><b>Rupees :</b> @Html.DisplayFor(m => m.Rupees)</td>
+                            </tr>
+
+                            <tr>
+                                <td colspan="2" class="text-center"><span><b>Commitment Details</b></span></td>
+                            </tr>
+
+                            <tr style="height:150px;">
+                                @*<td></td>*@
+                                <td colspan="2">
+                                    <table class="table table-bordered ct-tr-tb" style="margin-bottom:0px;">
+                                        <tbody>
+                                            <tr>
+                                                <td class="text-center"><b>Number</b></td>
+                                                <td class="text-center"><b>Project No</b></td>
+                                                <td class="text-center"><b>Project Type</b></td>
+                                                <td class="text-center"><b>ShemeCode</b></td>
+                                                <td class="text-center"><b>CloseDate</b></td>
+                                                <td class="text-center"><b>Net Balance</b></td>
+                                                <td class="text-center"><b>Head</b></td>
+                                                <td class="text-center"><b>Value</b></td>
+                                            </tr>
+                                            @if (Model.BillId > 0)
+                                            {
+                                                if (Model.Comm != null)
+                                                {
+                                                    var count = 0;
+                                                    foreach (var item in Model.Comm)
+                                                    {
+                                                        <tr>
+                                                            <td class="text-center">
+                                                                @Html.DisplayFor(m => item.Number)
+                                                            </td>
+                                                            <td class="text-center">
+                                                                @Html.DisplayFor(m => item.ProjNo)
+                                                            </td>
+                                                            <td class="text-center">
+                                                                @Html.DisplayFor(m => item.ProjectType)
+                                                            </td>
+                                                            <td class="text-center">
+                                                                @Html.DisplayFor(m => item.SchemeCode)
+                                                            </td>
+                                                            <td class="text-center">
+                                                                @Html.DisplayFor(m => item.Date)
+                                                            </td>
+                                                            <td class="text-center">
+                                                                @Html.DisplayFor(m => item.NetBalance)
+                                                            </td>
+                                                            <td class="text-center">
+                                                                @Html.DisplayFor(m => item.Head)
+                                                            </td>
+                                                            <td class="text-right">
+                                                                @Html.DisplayFor(m => item.Value)
+                                                            </td>
+                                                        </tr>
+                                                        count++;
+                                                    }
+                                                }
+                                            }
+
+                                        </tbody>
+                                    </table>
+                                </td>
+
+                            </tr>
+
+
+                            <tr>
+                                <td colspan="2">
+                                    <table class="table table-bordered ct-tr-tb">
+                                        <tbody>
+                                            <tr>
+                                                <td style="height:50px;"></td>
+
+                                                <td> </td>
+                                                <td> </td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+
+                                                <td style="width:120px"><b>D. Asst</b></td>
+                                                <td style="width:120px"><b>Acct.</b></td>
+                                                <td style="width:120px"><b>SMR</b></td>
+                                                <td style="width:120px"><b>CMFA</b></td>
+                                                <td style="width:120px"><b>A.R</b></td>
+                                                <td style="width:120px"><b>D.R</b></td>
+                                                <td style="width:120px"><b>Registrar</b> </td>
+                                                <td style="width:120px"><b>Director</b></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" style="padding:0px;">
+
+                                    <table class="table table-bordered ct-tr-tb">
+                                        <tbody>
+                                            <tr>
+                                                <td style="width:60%; border-right:1px solid #000; padding:0px; height:150px;">
+                                                    <b style="padding:15px; display:inline-block; width:100%;">Remarks</b>
+                                                    @Html.DisplayFor(m => m.Remarks)
+                                                </td>
+                                                <td style="padding:0px; vertical-align:middle;">
+
+                                                    <span style="padding:15px;display:inline-block; width:100%;"><b>Cheque Number:</b></span><br>
+                                                    <span style="padding:15px;display:inline-block; width:100%;"><b>Cheque Date:</b></span>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+
+                            </tr>
+
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+        </div>
+    </section>
+    <section style="padding-top: 10px;">
+
+        <table class="table table-bordered ct-tb ct-tr-tb">
+            <tbody>
+                <tr>
+                    <td>
+                        Printed date : @Html.DisplayFor(m => m.PrintedDate)
+                    </td>
+
+                    <td class="text-right">
+                        Printed by : @Html.DisplayFor(m => m.PrintedBy)
+                    </td>
+
+                </tr>
+                <tr>
+                    <td>
+                        Page 1 of 3
+                    </td>
+
+                    <td class="text-right">
+                        Created by : @Html.DisplayFor(m => m.TravelerName)
+                    </td>
+
+                </tr>
+            </tbody>
+        </table>
+
+    </section>
+
+    @*Benifi*@
+    <div class="umr-hd1">
+        <div class="row">
+            <div class="col-md-10 col-md-offset-1">
+
+                <div class="logo-section">
+                    <img src="~/Content/InstituteLogo/icsr_logo.png" class="icsr-logo" />
+                    <div class="dts">
+                        <h3 style="padding-bottom: 5px;"><b>Centre for IC & SR, IIT Madras</b></h3>
+                        <h5 style="padding-bottom: 5px;"><b>Chennai 600 036</b></h5>
+                        <b>GSTIN: 33AAAAI3615G1Z6</b><b style="margin-left:5px;">PAN: AAAAI3615G</b>
+
+                        @Html.HiddenFor(m => m.BillId)
+                    </div>
+                    <img src="~/Content/InstituteLogo/iitm_logo.png" class="iitm-logo" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <section style="padding-top: 10px;">
+        <table class="table table-bordered ct-tb ct-tr-tb">
+            <tbody>
+                <tr>
+                    <td>
+                        <b>Bill for the month of :</b>
+                    </td>
+                    <td>
+                        @Html.DisplayFor(m => m.BillMonth)
+                    </td>
+                    <td>
+                        <b>Bill Number :</b>
+                    </td>
+                    <td>
+                        @Html.DisplayFor(m => m.BillNumber)
+                    </td>
+                    <td>
+                        <b>Total Bill Value :</b>
+                    </td>
+                    <td>
+                        @Html.DisplayFor(m => m.TotalBillValue)
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <b>Bill Date :</b>
+                    </td>
+                    <td>
+                        @Html.DisplayFor(m => m.BillDate)
+                    </td>
+                    <td>
+                        <b>Bill Type :</b>
+                    </td>
+                    <td>
+                        @Html.DisplayFor(m => m.BillType)
+                    </td>
+
+                    <td>
+                        <b>Bank Account (Cr) :</b>
+                    </td>
+                    <td>
+                        @Html.DisplayFor(m => m.BankAccount)
+                    </td>
+                </tr>
+
+
+
+            </tbody>
+        </table>
+
+    </section>
+    <section class="cnt-bg1" style="min-height:1070px">
+        <div class="container-fluid">
+            <div class="row">
+
+                <div class="col-md-12">
+                    <table class="table table-bordered ct-br-tb">
+                        <tbody>
+                            <tr>
+                                @*<td style="width:150px;font-weight:bold !important" class="text-center"><span style="font-weight:bold !important">Date</span></td>*@
+                                <td colspan="6" class="text-center"><b>Beneficiary Details</b></td>
+
+                            </tr>
+                            <tr>
+                                <td class="text-center"><b>Sl.No </b></td>
+                                <td class="text-center"><b>Payee Category</b></td>
+                                <td class="text-center"><b>PayBill No</b></td>
+                                <td class="text-center"><b>Name </b></td>
+                                <td class="text-center"><b>Amount</b></td>
+                                <td class="text-center"><b>Type</b></td>
+
+                            </tr>
+                            @if (Model.BillId > 0)
+                            {
+                                if (Model.Payable != null)
+                                {
+                                    var count = 0;
+                                    for (int i = 0; i < Model.Payable.Count; i++)
+                                    {
+                                        var j = i + 1;
+                                        <tr>
+                                            <td class="text-center">@j</td>
+                                            <td class="text-center">
+                                                @Html.DisplayFor(m => Model.Payable[i].Category)
+                                            </td>
+                                            <td class="text-center">
+                                                @Html.DisplayFor(m => Model.Payable[i].PaybillNo)
+                                            </td>
+                                            <td class="text-center">
+                                                @Html.DisplayFor(m => Model.Payable[i].Name)
+                                            </td>
+                                            <td class="text-center">
+                                                @Html.DisplayFor(m => Model.Payable[i].Amount)
+                                            </td>
+                                            <td class="text-center">
+                                                @Html.DisplayFor(m => Model.Payable[i].Type)
+                                            </td>
+
+                                        </tr>
+                                        count++;
+                                    }
+                                }
+                            }
+
+
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+        </div>
+    </section>
+    <section style="padding-top: 10px;">
+
+        <table class="table table-bordered ct-tb ct-tr-tb">
+            <tbody>
+                <tr>
+                    <td>
+                        Printed date : @Html.DisplayFor(m => m.PrintedDate)
+                    </td>
+
+                    <td class="text-right">
+                        Printed by : @Html.DisplayFor(m => m.PrintedBy)
+                    </td>
+
+                </tr>
+                <tr>
+                    <td>
+                        Page 2 of 3
+                    </td>
+
+                    <td class="text-right">
+                        Created by : @Html.DisplayFor(m => m.TravelerName)
+                    </td>
+
+                </tr>
+            </tbody>
+        </table>
+
+    </section>
+    @*PCF*@
+    <div class="umr-hd1">
+        <div class="row">
+            <div class="col-md-10 col-md-offset-1">
+
+                <div class="logo-section">
+                    <img src="~/Content/InstituteLogo/icsr_logo.png" class="icsr-logo" />
+                    <div class="dts">
+                        <h3 style="padding-bottom: 5px;"><b>Centre for IC & SR, IIT Madras</b></h3>
+                        <h5 style="padding-bottom: 5px;"><b>Chennai 600 036</b></h5>
+                        <h4 style="padding-bottom: 5px;"><b>'@Html.DisplayFor(m => m.BillHeading)'</b></h4>
+                        <b>GSTIN: 33AAAAI3615G1Z6</b><b style="margin-left:5px;">PAN: AAAAI3615G</b>
+
+                        @Html.HiddenFor(m => m.BillId)
+                    </div>
+                    <img src="~/Content/InstituteLogo/iitm_logo.png" class="iitm-logo" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <section style="padding-top: 10px;">
+        <table class="table table-bordered ct-tb ct-tr-tb">
+            <tbody>
+                <tr>
+                    <td>
+                        <b>Bill for the month of :</b>
+                    </td>
+                    <td>
+                        @Html.DisplayFor(m => m.BillMonth)
+                    </td>
+                    <td>
+                        <b>Bill Number :</b>
+                    </td>
+                    <td>
+                        @Html.DisplayFor(m => m.BillNumber)
+                    </td>
+                    <td>
+                        <b>Total Bill Value :</b>
+                    </td>
+                    <td>
+                        @Html.DisplayFor(m => m.TotalBillValue)
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <b>Bill Date :</b>
+                    </td>
+                    <td>
+                        @Html.DisplayFor(m => m.BillDate)
+                    </td>
+                    <td>
+                        <b>Bill Type :</b>
+                    </td>
+                    <td>
+                        @Html.DisplayFor(m => m.BillType)
+                    </td>
+
+                    <td>
+                        <b>Bank Account (Cr) :</b>
+                    </td>
+                    <td>
+                        @Html.DisplayFor(m => m.BankAccount)
+                    </td>
+                </tr>
+
+
+            </tbody>
+        </table>
+
+    </section>
+    <section class="cnt-bg1" style="min-height:1070px">
+        <div class="container-fluid">
+            <div class="row">
+
+                <div class="col-md-12">
+                    <table class="table table-bordered ct-br-tb">
+                        <tbody>
+                            <tr>
+                                @*<td style="width:150px;font-weight:bold !important" class="text-center"><span style="font-weight:bold !important">Date</span></td>*@
+                                <td colspan="3" class="text-center"><b>Ledger Details</b></td>
+
+                            </tr>
+                            <tr>
+                                <td class="text-center"><b>Sl.No </b></td>
+                                <td class="text-center"><b>Ledger Name </b></td>
+                                <td class="text-center"><b>Amount</b></td>
+                            </tr>
+
+                            <tr>
+                                <td class="text-center"><b>1</b></td>
+                                <td class="text-center"><b>DISTRIBUTION SALARY </b></td>
+                                <td class="text-center"><b>@Html.DisplayFor(m => m.DisSalary)</b></td>
+                            </tr>
+                            <tr>
+                                <td class="text-center"><b>2 </b></td>
+                                <td class="text-center"><b>MANDAYS SALARY </b></td>
+                                <td class="text-center"><b>@Html.DisplayFor(m => m.MdySalary)</b></td>
+                            </tr>
+                            <tr>
+                                <td class="text-center"><b>3</b></td>
+                                <td class="text-center"><b>HONORARIUM SALARY </b></td>
+                                <td class="text-center"><b>@Html.DisplayFor(m => m.HonSalary)</b></td>
+                            </tr>
+                            <tr>
+                                <td class="text-center"><b>4 </b></td>
+                                <td class="text-center"><b>FELLOWSHIP SALARY</b></td>
+                                <td class="text-center"><b>@Html.DisplayFor(m => m.FssSalary)</b></td>
+                            </tr>
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+        </div>
+    </section>
+    <section style="padding-top: 10px;">
+
+        <table class="table table-bordered ct-tb ct-tr-tb">
+            <tbody>
+                <tr>
+                    <td>
+                        Printed date : @Html.DisplayFor(m => m.PrintedDate)
+                    </td>
+
+                    <td class="text-right">
+                        Printed by : @Html.DisplayFor(m => m.PrintedBy)
+                    </td>
+
+                </tr>
+                <tr>
+                    <td>
+                        Page 2 of 3
+                    </td>
+
+                    <td class="text-right">
+                        Created by : @Html.DisplayFor(m => m.TravelerName)
+                    </td>
+
+                </tr>
+            </tbody>
+        </table>
+
+    </section>
+
+   
+    <!-- main js files -->
+    <script src="js/plugins/jquery-2.2.4.min.js"></script>
+    <script src="js/bootstrap.js"></script>
+
+</body>
+</html>
+

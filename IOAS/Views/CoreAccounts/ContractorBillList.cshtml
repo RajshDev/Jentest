@@ -1,0 +1,252 @@
+﻿@model IOAS.Models.ContractorBillModel
+@using IOAS.Infrastructure
+@{
+    ViewBag.Title = "Contractor Bill";
+    ViewBag.Subtitle = "Contractor Bill";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+    var UserId = Common.GetUserid(User.Identity.Name);
+    var AccessRole = Common.GetRoleAccess(UserId, 14);
+}
+
+
+<style>
+    .txt-red {
+        color: red;
+    }
+
+    .txt-green {
+        color: green;
+    }
+</style>
+
+<div class="row hd-tt-bg">
+
+    <div class="col-md-4">
+        <h3>Contractor Bill</h3>
+    </div>
+    <div class="col-md-8 flt-nav-links">
+        
+        
+		<a href="@Url.Action("ContractorBill","CoreAccounts")" id="btnAddNew"> <i class="ion-plus"></i>Add New Entry </a>
+         @*<a href="Javascript:void(0)" id="btnShowFilter" class="pull-right search-btn"> <i class="ion-android-funnel"></i>Filters</a>*@
+    </div>
+</div>
+
+<div class="row mt30">
+    <div class="page-wrapper">
+        <div class="row">
+     
+                <div class="col-md-12">
+                    <div class="page-wrapper">
+                        <div class="custom-jsgrid-normal">
+                            <div id="gridProposalList"></div>
+                        </div>
+                    </div>
+          
+            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="popup"></div>
+               <div id="popupFilter" class="filter-popup">
+    <div class="">
+        <div class="filter-content">
+            <div class="white-bg">
+                <div class="form-group custom-form-group">
+                    <h3>Filter by</h3>
+                </div>
+                <div class="form-group custom-form-group">
+                    @*@Html.DropDownList("srchPrjcttype", new SelectList(ViewBag.projType, "codevalAbbr", "CodeValDetail"), "Project type", new { @id = "srchPrjcttype", @class = "form-control" })*@
+                </div>
+                <div class="form-group custom-form-group">
+                    @Html.TextBox("srchpropslnum", "", new { @id = "srchpropslnum", @placeholder = "Proposal Number", @class = "form-control" })
+                </div>
+                @*<div class="form-group custom-form-group">
+                        @Html.TextBoxFor(m => m.ProjectNumber, new { @id = "projectnumber", @placeholder = "Project Number", @class = "form-control" })
+                    </div>*@
+                <div class="form-group custom-form-group">
+                    @*@Html.DropDownListFor(m => m.SearchField.PIName, new SelectList(ViewBag.PI, "id", "name"), "PI Name", new { @id = "srchPIName", @class = "form-control" })*@
+                </div>
+
+
+                <div class="form-group custom-form-group">
+                    <label class="full-width">Created Date</label>
+                    @*@Html.TextBoxFor(m => m.SearchField.FromDate, new { @id = "FromDate", @class = "form-control half-form" })
+                    @Html.TextBoxFor(m => m.SearchField.ToDate, new { @id = "ToDate", @class = "form-control half-form" })*@
+                </div>
+                <div class="form-group custom-form-group">
+                    @*@Html.DropDownListFor(m => m.FilterStatus, new SelectList(ViewBag.functionstatus, "name", "name"), "Status", new { @id = "srchPrjcttypeStatus", @class = "form-control" })*@
+                </div>
+                <div class="form-group custom-form-group mt30 text-center">
+                    <a id="btnReset" href="javascript:void(0)">Reset</a>
+                </div>
+                <div class="form-group custom-form-group text-center">
+                    <button id="btnSearch" type="button" class="btn btn-primary mr10">Search</button>
+                    <button name="btnClose" type="button" class="btn btn-default">Close</button>
+                </div>
+
+
+            </div>
+        </div>
+
+    </div>
+
+    <a href="javascript:void(0)" name="btnClose" class="close-btn"><i class="ion-android-cancel"></i></a>
+
+</div>
+<script type="text/javascript">
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+    });
+
+    $("#btnShowFilter").click(function () {
+        $('#popupCommitmentFilter').css("display", "Block");
+    });
+    var getContractorBillURL = 'GetContractorBillDetails'
+var db;
+//var DateField = function (config) {
+//    jsGrid.Field.call(this, config);
+//};
+
+//DateField.prototype = new jsGrid.Field({
+//    sorter: function (date1, date2) {
+//        return new Date(date1) - new Date(date2);
+//    },
+
+//    itemTemplate: function (value) {
+//        return new Date(value).toDateString();
+//    },
+
+//    filterTemplate: function () {
+//        var now = new Date();
+//        this._fromPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() - 1), changeYear: true });
+//        this._toPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() + 1), changeYear: true });
+//        return $("<div>").append(this._fromPicker).append(this._toPicker);
+//    },
+
+//    insertTemplate: function (value) {
+//        return this._insertPicker = $("<input>").datepicker({ defaultDate: new Date() });
+//    },
+
+//    editTemplate: function (value) {
+//        return this._editPicker = $("<input>").datepicker().datepicker("setDate", new Date(value));
+//    },
+
+//    insertValue: function () {
+//        return this._insertPicker.datepicker("getDate").toISOString();
+//    },
+
+//    editValue: function () {
+//        return this._editPicker.datepicker("getDate").toISOString();
+//    },
+
+//    filterValue: function () {
+//        return {
+//            from: this._fromPicker.datepicker("getDate"),
+//            to: this._toPicker.datepicker("getDate")
+//        };
+//    }
+//});
+
+//jsGrid.fields.date = DateField;
+$(function () {
+   
+    $("#gridProposalList").jsGrid({
+        paging: true,
+        pageIndex: 1,
+        pageSize: 5,
+        editing: false,
+        filtering: true,
+        pageLoading: true,
+        autoload: true,
+        controller: {
+            loadData: function (filter) {
+                var searchData = [];
+                searchData = {
+                    SearchRefNo: filter.RefNo,
+                    HeadofAccounts: filter.HeadOfAccounts,
+                    SearchAgNo: filter.AgreementNo,
+                    SearchProjectNumber:filter.ProjectNumber
+                },
+                filter.model = searchData;
+                var deferred = $.Deferred();
+                $.ajax({
+                    type: "post",
+                    url: getContractorBillURL,
+                    data: JSON.stringify(filter),
+                    contentType: "application/json; charset=utf-8",
+                    success: function (result) {
+
+                        var da = {
+                            data: result.ContractList,
+                            itemsCount: result.TotalRecords
+                        }
+                        deferred.resolve(da);
+                    },
+                    error: function (err) {
+                        console.log("error : " + err);
+                    }
+
+                });
+                return deferred.promise();
+            }
+
+        },
+        fields: [
+            { name: "SlNo", title: "S.No", editing: false, width: 40 },
+            { type: "text", name: "RefNo", title: "RefNo", editing: false},
+            { type: "text", name: "HeadOfAccounts", title: "Head Of Accounts", editing: false },
+            { type: "text", name: "ProjectNumber", title: "Project no", editing: false },
+            { type: "text", name: "AgreementNo", title: "Agreement no", editing: false },
+            {
+                type: "control", editButton: false, deleteButton: false, width: 120, title: "Action",
+               
+                itemTemplate: function (value, item) {
+                    var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+                    statusList = [{ id: "", name: "Select Action" }, { id: "PrintBill", name: "Print Bill" }, { id: "Edit", name: "Edit" }]
+                    var $customSelect = $("<select>")
+                     .attr("class", "form-control").prop("selectedIndex", "")
+                    $.each(statusList, function (index, itemData) {
+                        $customSelect.append($('<option/>', {
+
+                            value: itemData.id,
+                            text: itemData.name
+                        }));
+                    });
+                    $customSelect.change(function (e) {
+                        var selVal = $(this).val();
+                        if (selVal == "Edit") {
+                            var url = '@Url.Action("ContractorBill", "CoreAccounts")?ContractorBillId=' + item.ContractorBillId;
+                            window.location.href = url;
+                        }
+                        else if (selVal == "PrintBill") {
+                            var url = '@Url.Action("ContractorBillViewFile", "ReportMaster")?ContractID=' + item.ContractorBillId;
+                            window.open(url, '_blank');
+                        }
+                        $(this).val("");
+                        return false;
+                        e.stopPropagation();
+                    });
+                    return $result.add($customSelect);
+                },
+                _createFilterSwitchButton: function () {
+                    return this._createOnOffSwitchButton("filtering", this.searchModeButtonClass, false);
+                }
+            }
+        ],
+    });
+    $("#gridProposalList").jsGrid("option", "filtering", false);
+});
+
+
+
+</script>

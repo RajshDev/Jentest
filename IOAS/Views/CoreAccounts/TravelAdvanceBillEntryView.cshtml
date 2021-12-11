@@ -1,0 +1,724 @@
+﻿@model IOAS.Models.TravelAdvanceBillEntryModel
+@{
+    ViewBag.Title = "Travel Advance Bill Entry";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<div class="row hd-tt-bg">
+    <div class="col-md-12">
+        <h4><b>Travel Advance Bill Entry</b> </h4>
+    </div>
+</div>
+<div class="row">
+    <div class="white-bg ad-navbar">
+        <div class="col-md-3 ds-spl-bg">
+            <div class="ds-icn">
+                <i class="ion-ios-list-outline "></i>
+            </div>
+            <div class="ds-tt">
+                <span>Request Reference</span> <br />
+                <span>@Html.DisplayFor(m => m.SourceName)</span>
+                @Html.HiddenFor(m => m.Source, new { @id = "Source" })
+                @Html.HiddenFor(m => m.TravelBillId)
+            </div>
+        </div>
+        <div class="col-md-3 ds-spl-bg">
+            <div class="ds-icn">
+                <i class="ion-ios-calendar-outline"></i>
+            </div>
+            @if (Model.ReferenceNumber != null)
+            {
+                <div class="ds-tt">
+                    <span>Ref Number (WF / Tapal)</span>
+                    <span>@Html.DisplayFor(m => m.ReferenceNumber)</span>
+                    @Html.TextBoxFor(m => m.ReferenceNumber, new { @class = "form-control dis-none" })
+                    @Html.TextBoxFor(m => m.SourceReferenceNumber, new { @class = "form-control dis-none" })
+
+                </div>
+            }
+            else
+            {
+                <div class="ds-tt">
+                    <span>Email Date</span><br />
+                    <span>@Html.DisplayFor(m => m.SourceBillEmailDate)</span>
+                </div>
+            }
+        </div>
+
+
+        <div class="col-md-3 col-md-offset-3">
+            <div class="reg-no custom-reg-no vw-reg-no">
+                <div class="form-group custom-form-group">
+                    <label>Number</label>
+                    <h4>@Html.DisplayFor(m => m.BillNumber)</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="vw-dts-bg">
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table table-bordered mb-null">
+                <tbody>
+                    <tr>
+                        <td>
+                            <label>PI</label>
+                            <h4>@Html.DisplayFor(m => m.PIName)</h4>
+                        </td>
+                        <td>
+                            <label>Country</label>
+
+
+                            <h4>@Html.DisplayFor(m => m.CountryName)</h4>
+                        </td>
+                        <td>
+                            <label>From Duration</label>
+
+                            <h4>@Html.DisplayFor(m => m.TravelBillFromDate)</h4>
+                            <label id="lblDuration"></label>
+                        </td>
+                        <td>
+                            <label>To Duration</label>
+
+                            <h4>@Html.DisplayFor(m => m.TravelBillToDate)</h4>
+                        </td>
+                        <td style="width:200px;">
+                            <label>Place</label>
+
+                            <h4>@Html.DisplayFor(m => m.Place)</h4>
+                        </td>
+                    </tr>
+                    <tr>
+
+                        <td>
+                            <label>Purpose</label>
+
+                            <h4>@Html.DisplayFor(m => m.Purpose)</h4>
+                        </td>
+                        <td>
+                            <label>No. of Travelers</label>
+
+                            <h4>@Html.DisplayFor(m => m.NoOfTraveller)</h4>
+                        </td>
+                        <td>
+                            <label>Estimated Budget</label>
+                            @Html.HiddenFor(m => m.EstimatedValue, new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)" })
+                            <h4>@Html.DisplayFor(m => m.EstimatedValue)</h4>
+                        </td>
+                        <td>
+                            <label>Advance Requested</label>
+                            @Html.HiddenFor(m => m.AdvanceValue, new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)" })
+                            <h4>@Html.DisplayFor(m => m.AdvanceValue)</h4>
+                        </td>
+                        <td>
+                            <label>Remarks</label>
+
+                            <h4>@Html.DisplayFor(m => m.Remarks)</h4>
+                        </td>
+                    </tr>
+                    <tr>
+
+                        <td colspan="2">
+                            <label>Approved for 100% : </label>
+                            @if (Model.Adv100Pct_f == true)
+                            {
+                                <h4>Yes</h4>
+                            }
+                            else
+                            {
+                                <h4>No</h4>
+                            }
+                            <label>Proforma Invoice Attached : </label>
+                            @if (Model.ProformaInvoiceSubmit_f == true)
+                            {
+                                <h4>Yes</h4>
+                            }
+                            else
+                            {
+                                <h4>No</h4>
+                            }
+
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="col-md-12">
+            <h3>Traveller Details</h3>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Name</th>
+
+                    </tr>
+                </thead>
+                <tbody id="tbodyTraveller">
+                    <tr>
+                        <td>
+
+                            <h4>@Html.Display("CategoryName", "")</h4>
+                        </td>
+                        <td class="tdDDLTraveler">
+
+                            <h4>@Html.Display("TravellerName", "")</h4>
+                        </td>
+                        <td class="tdTxtTraveler dis-none">
+                            <h4>@Html.Display("TravellerName", "")</h4>
+                        </td>
+
+
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            @Html.Partial("_InvoiceBreakUpView", Model.InvoiceBreakDetail)
+            @Html.Partial("_PaymentBreakUpView", Model.PaymentBreakDetail)
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            @Html.Partial("_CommitmentDetailsView", Model.CommitmentDetail)
+            @Html.Partial("_ADVTransactionDetailsView", Model)
+        </div>
+    </div>
+    <div class="vw-dts-bg">
+        <div class="row">
+
+            <div class="col-md-12">
+                @Html.Partial("_CheckListDetailView", Model.CheckListDetail)
+
+            </div>
+            <div>
+                @Html.HiddenFor(m => m.CheckListVerified_By)
+                @Html.HiddenFor(m => m.CheckListVerifierName)
+                <div class="col-md-3 col-md-offset-9">
+
+                    <label>Verified by</label>
+                    <h4 id="Verified_ByName">@Html.DisplayFor(m => m.CheckListVerifierName)</h4>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="vw-dts-bg">
+        <div class="row">
+            <div class="col-md-12">
+                @Html.Partial("_DocumentDetailView", Model.DocumentDetail)
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb20">
+        @if (Model.PFInit != true)
+        {
+            <div class="col-md-12 text-center pd-tb-30">
+
+                <input type="button" onclick="window.location.href='@Url.Action("TravelAdvancePaymentList", "CoreAccounts")';" class="btn btn-default" value="Close" id="btnclose" />
+            </div>
+
+        }
+        else
+        {
+            <div class="col-md-12 text-center pd-tb-30">
+
+                <input type="button" onclick="window.location.href='@Url.Action("Dashboard", "Home")';" class="btn btn-default" value="Close" id="btnclose" />
+            </div>
+        }
+    </div>
+
+</div>
+@Html.AntiForgeryToken()
+<div id="popup"></div>
+<input type="hidden" id="currentRefId" value="@Model.TravelBillId" />
+<input type="hidden" id="processGuideLineId" value="@ViewBag.processGuideLineId" />
+@Html.Partial("_ProcessStatus")
+<script>
+
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    $('#TravelToDate, #TravelFromDate,#SourceEmailDate').datepicker({ minDate: -1, maxDate: -2, dateFormat: 'dd-MM-yy' }).attr('readonly', 'readonly');
+    $('#srchToDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true }).datepicker("setDate", "0");
+    var defaultFromDate = moment(new Date()).add(-10, 'days').toDate();
+    $('#srchFromDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true }).datepicker("setDate", defaultFromDate);
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+        $('.selectpicker').selectpicker({
+            liveSearch: true,
+
+        });
+
+        var selSource = $('#Source').val();
+        $("#divRefNum, #divRefEmailDate").addClass('dis-none');
+        if (selSource == '1') {
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACWorkflowRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+        } else if (selSource == '3') {
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACTapalRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+        }
+        else if (selSource == '2') {
+            $('#divRefEmailDate').removeClass('dis-none');
+        } else {
+            $("#divRefNum").removeClass('dis-none');
+        }
+        var category = @Html.Raw(Json.Encode(Model.CategoryId));
+        var tID = @Html.Raw(Json.Encode(Model.TravellerId));
+        var tName = @Html.Raw(Json.Encode(Model.TravellerName));
+        var countryies = @Html.Raw(Json.Encode(Model.CountryId));
+        $('#CountryId').val(countryies)
+        $('#CountryId').selectpicker('refresh');
+        $.each(category, function (i, selVal) {
+            var trEle;
+            if (i == 0) {
+                trEle = $('#tbodyTraveller tr:first');
+                $('#tbodyTraveller tr').not(':first').remove();
+            } else {
+                trEle = $('#tbodyTraveller tr:first').clone().find("input,select").val("").end();
+                //$(trEle).find('a.dis-none').removeClass('dis-none');
+                $('#tbodyTraveller').append(trEle);
+            }
+            $(trEle).find("select[name='CategoryId']").val(selVal);
+            if (selVal == 1) {
+                $(trEle).closest('tr').find("td.tdDDLTraveler").removeClass('dis-none');
+                $(trEle).closest('tr').find("td.tdTxtTraveler").addClass('dis-none');
+                var ele = $(trEle).find("input[name='autoComplete']");
+                var eleTId = $(trEle).find("input[name='TravellerId']");
+                var eleTName = $(trEle).find("input[name='TravellerName']");
+                $(eleTId).addClass('required');
+                $(eleTName).removeClass('required');
+                $(eleTName).val(tName[i]);
+                $(ele).val(tName[i]);
+                $(eleTId).val(tID[i]);
+                setAutoComplete(ele, "@Url.Action("LoadPIList", "CoreAccounts")", true)
+            } else if (selVal == 2) {
+                $(trEle).closest('tr').find("td.tdDDLTraveler").removeClass('dis-none');
+                $(trEle).closest('tr').find("td.tdTxtTraveler").addClass('dis-none');
+                var ele = $(trEle).find("input[name='autoComplete']");
+                var eleTId = $(trEle).find("input[name='TravellerId']");
+                var eleTName = $(trEle).find("input[name='TravellerName']");
+                $(eleTId).addClass('required');
+                $(eleTName).removeClass('required');
+                $(eleTName).val(tName[i]);
+                $(ele).val(tName[i]);
+                $(eleTId).val(tID[i]);
+                setAutoComplete(ele, "@Url.Action("LoadStudentList", "CoreAccounts")", false);
+            } else if (selVal == 4) {
+                $(trEle).closest('tr').find("td.tdDDLTraveler").removeClass('dis-none');
+                $(trEle).closest('tr').find("td.tdTxtTraveler").addClass('dis-none');
+                var ele = $(trEle).find("input[name='autoComplete']");
+                var eleTId = $(trEle).find("input[name='TravellerId']");
+                var eleTName = $(trEle).find("input[name='TravellerName']");
+                $(eleTId).addClass('required');
+                $(eleTName).removeClass('required');
+                $(eleTName).val(tName[i]);
+                $(ele).val(tName[i]);
+                $(eleTId).val(tID[i]);
+                setAutoComplete(ele, "@Url.Action("LoadACProjectStaff", "CoreAccounts")", true)
+            }
+            else if (selVal == 5) {
+                $(trEle).closest('tr').find("td.tdDDLTraveler").removeClass('dis-none');
+                $(trEle).closest('tr').find("td.tdTxtTraveler").addClass('dis-none');
+                var ele = $(trEle).find("input[name='autoComplete']");
+                var eleTId = $(trEle).find("input[name='TravellerId']");
+                var eleTName = $(trEle).find("input[name='TravellerName']");
+                $(eleTId).addClass('required');
+                $(eleTName).removeClass('required');
+                $(eleTName).val(tName[i]);
+                $(ele).val(tName[i]);
+                $(eleTId).val(tID[i]);
+                setAutoComplete(ele, "@Url.Action("LoadInstituteStaffList", "CoreAccounts")", true)
+            }
+            else if (selVal == 6) {
+                $(trEle).closest('tr').find("td.tdDDLTraveler").removeClass('dis-none');
+                $(trEle).closest('tr').find("td.tdTxtTraveler").addClass('dis-none');
+                var ele = $(trEle).find("input[name='autoComplete']");
+                var eleTId = $(trEle).find("input[name='TravellerId']");
+                var eleTName = $(trEle).find("input[name='TravellerName']");
+                $(eleTId).addClass('required');
+                $(eleTName).removeClass('required');
+                $(eleTName).val(tName[i]);
+                $(ele).val(tName[i]);
+                $(eleTId).val(tID[i]);
+                setAutoComplete(ele, "@Url.Action("LoadAdhocStaffList", "CoreAccounts")", true)
+            }else if (selVal == 3) {
+                $(trEle).closest('tr').find("td.tdDDLTraveler").addClass('dis-none');
+                $(trEle).closest('tr').find("td.tdTxtTraveler").removeClass('dis-none');
+                var ele = $(trEle).find("input[name='TravellerId']");
+                $(ele).removeClass('required');
+                var eleTName = $(trEle).find("input[name='TravellerName']");
+                $(eleTName).addClass('required');
+                $(eleTName).val(tName[i]);
+            }
+        });
+        $('#lblVendorName').html('PI / Clearance Agent');
+        CalculatePaymentBUTotal();
+        CalculateDeductionTotal();
+        CalculateNoOfTraveller();
+        CalculatePaymentValue();
+        calcDateDiff();
+        $("#CreditorAmount").val($('#AdvanceValue').val());
+    });
+    function setAutoComplete(ele,url,setId) {
+        $(ele).autocomplete({
+            select: function (event, ui) {
+                event.preventDefault();
+                $(ele).val(ui.item.label);
+                if (setId == true) {
+                    $(ele).closest('tr').find("input[name='TravellerId']").val(ui.item.value);
+                    $(ele).closest('tr').find("input[name='TravellerName']").val(ui.item.label);
+                } else {
+                    $(ele).closest('tr').find("input[name='TravellerId']").val(ui.item.label);
+                    $(ele).closest('tr').find("input[name='TravellerName']").val(ui.item.label);
+                }
+            },
+            focus: function (event, ui) {
+                event.preventDefault();
+                $(ele).val(ui.item.label);
+            },
+            source: function (request, response) {
+                $.getJSON(url,{ term: request.term },
+                 function (locationdata) {
+                     response(locationdata);
+                 });
+            },
+            minLength: 3
+        });
+    }
+    $(document).on('click', 'a.removeTravellerDetail', function () {
+        $(this).closest('tr').remove();
+        CalculateNoOfTraveller();
+    });
+    $('#btnAddTraveller').click(function () {
+        var cln = $('#tbodyTraveller tr:first').clone().find("input,select").val("").end();
+        $(cln).find('a.dis-none').removeClass('dis-none');
+        $(cln).find('td.tdDDLTraveler').removeClass('dis-none');
+        $(cln).find('td.tdTxtTraveler').addClass('dis-none');
+        $('#tbodyTraveller').append(cln);
+        CalculateNoOfTraveller();
+    });
+    $('#Source').change(function () {
+        var selSource = $(this).val();
+        $("#SourceReferenceNumber,#ReferenceNumber").val('');
+		$("#divRefNum, #divRefEmailDate").addClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('False');
+		if (selSource == '1') {
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACWorkflowRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        } else if (selSource == '3') {
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACTapalRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        }
+        else if (selSource == '2') {
+            $('#divRefEmailDate').removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('False');
+        } else {
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        }
+    });
+
+    $("#TravelToDate, #TravelFromDate").change(function () {
+        calcDateDiff();
+    });
+    function calcDateDiff() {
+        var strDate = '@Model.TravelBillFromDate';
+        var clsDate = '@Model.TravelBillToDate';
+        if (strDate != '' && clsDate != '') {
+            var startDate = moment(parseDate(strDate));
+            var closeDate = moment(parseDate(clsDate));
+
+            var mins = closeDate.diff(startDate, 'minutes');
+            if (mins <= 0) {
+                $('#alert').html("To Date must be greater than from date.");
+                $('#Validation').modal('toggle');
+                return false;
+            }
+            var result = '';
+            var years = closeDate.diff(startDate, 'year');
+            startDate.add(years, 'years');
+
+            var months = closeDate.diff(startDate, 'months');
+            startDate.add(months, 'months');
+
+            var days = closeDate.diff(startDate, 'days');
+            if (years > 1) {
+                result = years + ' years ';
+            } else if (years == 1) {
+                result = years + ' year ';
+            }
+            if (months > 1) {
+                result = result + months + ' months ';
+            } else if (months == 1) {
+                result = result + months + ' month ';
+            }
+            if (days > 1) {
+                result = result + days + ' days';
+            } else if (days == 1) {
+                result = result + days + ' day';
+            }
+            $('#lblDuration').html(result);
+        }
+    }
+    function parseDate(s) {
+        var months = {
+            january: 0, february: 1, march: 2, april: 3, may: 4, june: 5,
+            july: 6, august: 7, september: 8, october: 9, november: 10, december: 11
+        };
+        var p = s.split('-');
+        return new Date(p[2], months[p[1].toLowerCase()], p[0]);
+    }
+
+    function CalculateNoOfTraveller() {
+        var len = $('#tbodyTraveller tr').length;
+        $('#NoOfTraveller').val(len);
+    }
+    $('#CommitmentAmount, #CreditorAmount, #ExpenseAmount, #CreditorAmount, input[name $=".PaymentAmount"], input[name $=".Amount"], #ttlCr, #ttlDr,#AdvanceValue, #AdvanceValue, #NoOfTraveller').on("copy cut paste drop", function () {
+        return false;
+    });
+    @*$(document).on('change','select[name="CategoryId"]',function () {
+        var selVal = $(this).val();
+        if (selVal == 1) {
+            $(this).closest('tr').find("td.tdDDLTraveler").removeClass('dis-none');
+            $(this).closest('tr').find("td.tdTxtTraveler").addClass('dis-none');
+            var ele = $(this).closest('tr').find("select[name='TravellerId']");
+            $(ele).addClass('required');
+            $(this).closest('tr').find("input[name='TravellerName']").removeClass('required');
+            $.getJSON("@Url.Action("LoadPIList", "CoreAccounts")",
+             function (locationdata) {
+                 ele.empty();
+                 fillAutoCompleteDropDown(ele, locationdata, true);
+             });
+        } else if (selVal == 2) {
+            $(this).closest('tr').find("td.tdDDLTraveler").removeClass('dis-none');
+            $(this).closest('tr').find("td.tdTxtTraveler").addClass('dis-none');
+            var ele = $(this).closest('tr').find("select[name='TravellerId']");
+            $(ele).addClass('required');
+            $(this).closest('tr').find("input[name='TravellerName']").removeClass('required');
+            $.getJSON("@Url.Action("LoadStudentList", "CoreAccounts")",
+             function (locationdata) {
+                 ele.empty();
+                 fillAutoCompleteDropDown(ele, locationdata, true,true);
+             });
+        } else if (selVal == 3) {
+            $(this).closest('tr').find("td.tdDDLTraveler").addClass('dis-none');
+            $(this).closest('tr').find("td.tdTxtTraveler").removeClass('dis-none');
+            var ele = $(this).closest('tr').find("select[name='TravellerId']");
+            $(ele).removeClass('required');
+            $(this).closest('tr').find("input[name='TravellerName']").addClass('required');
+
+        }
+    });*@
+    function fillMasterDropDown(ele, data, fillDafaultText,valueAsName) {
+        if (fillDafaultText !== undefined) {
+            ele.append($('<option/>', {
+                value: '',
+                text: 'Select any',
+            }));
+        }
+        if(valueAsName !== undefined) {
+            $.each(data, function (index, itemData) {
+                ele.append($('<option/>', {
+                    value: itemData.name,
+                    text: itemData.name,
+                }));
+            });
+        }else{
+            $.each(data, function (index, itemData) {
+                ele.append($('<option/>', {
+                    value: itemData.id,
+                    text: itemData.name,
+                }));
+            });
+        }
+    }
+
+    function AddNewExpense(){
+        //var stateCode = $('#lblStateCode').html();
+        //var BillType = $('#BillType').val();
+        $.ajax({
+            type: "GET",
+            url: "@Url.Action("GetAddNewExpenseDetails", "CoreAccounts")",
+            data: { "typeCode": "ADV","tSubCode" : "1"},
+            traditional: true,
+            dataType: "json",
+            success: function (result) {
+                $.each(result.ExpenseDetail, function (i, item) {
+                    var cln = $('#tbodyExpenseList tr:first').clone().find("select,input").val("").end();
+                    $(cln).find('a.dis-none').removeClass('dis-none');
+                    var index = $('#tbodyExpenseList tr:last').find("input[name='ExpenseDetail.Index']").val();
+                    index = parseInt(index) + 1;
+                    $(cln).find("input[name='ExpenseDetail.Index']").val(index);
+                    $(cln).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                    $(cln).find('#lblTransType').text(item.TransactionType);
+                    $(cln).find("input, select").each(function () {
+                        $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+                        $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+                    });
+                    $(cln).find("span[data-valmsg-for]").each(function () {
+                        $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+                    });
+
+                    var selectGroup = $(cln).find("select[name$='.AccountGroupId']");
+                    selectGroup.empty();
+                    $.each(item.AccountGroupList, function (index, itemData) {
+                        selectGroup.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+
+                    var selectHead = $(cln).find("select[name$='.AccountHeadId']");
+                    selectHead.empty();
+                    $.each(item.AccountHeadList, function (index, itemData) {
+                        selectHead.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+                    $('#tbodyExpenseList').append(cln);
+                });
+            },
+            error: function (err) {
+                console.log("error : " + err);
+            }
+        });
+    }
+    function GetTransactionDetails() {
+        //var stateCode = $('#lblStateCode').html();
+        //var BillType = $('#BillType').val();
+        EmptyExpenseDeductionDetails();
+        $.ajax({
+            type: "GET",
+            url: "@Url.Action("GetTransactionDetails", "CoreAccounts")",
+            data: { "typeCode": "TAD","tSubCode" : "1"},
+            traditional: true,
+            dataType: "json",
+            success: function (result) {
+                $.each(result.ExpenseDetail, function (i, item) {
+                    if (i == 0) {
+                        var trEle = $('#tbodyExpenseList tr:first');
+                        $(trEle).find('input[name$=".Amount"]').val('');
+                        $(trEle).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                        $(trEle).find('#lblTransType').text(item.TransactionType);
+                        $(trEle).find("input[name='ExpenseDetail.Index']").val(i);
+
+                        var selectGroup = $(trEle).find('select[name$=".AccountGroupId"]');
+                        selectGroup.empty();
+                        $.each(item.AccountGroupList, function (index, itemData) {
+                            selectGroup.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name,
+                            }));
+                        });
+
+                        var selectHead = $(trEle).find('select[name$=".AccountHeadId"]');
+                        selectHead.empty();
+                        $.each(item.AccountHeadList, function (index, itemData) {
+                            selectHead.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name,
+                            }));
+                        });
+                    } else {
+                        var trEleNew = $('#tbodyExpenseList tr:first').clone().find('input').val('').end();
+                        $(trEleNew).find('input[name$=".Amount"]').val('');
+                        $(trEleNew).find("input[name='ExpenseDetail.Index']").val(i);
+                        $(trEleNew).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                        $(trEleNew).find('#lblTransType').text(item.TransactionType);
+                        $(trEleNew).find("input,Select").each(function () {
+                            $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                            $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                        });
+                        $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                        });
+
+                        var selectGroup = $(trEleNew).find('select[name$=".AccountGroupId"]');
+                        selectGroup.empty();
+                        $.each(item.AccountGroupList, function (index, itemData) {
+                            selectGroup.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name,
+                            }));
+                        });
+
+                        var selectHead = $(trEleNew).find('select[name$=".AccountHeadId"]');
+                        selectHead.empty();
+                        $.each(item.AccountHeadList, function (index, itemData) {
+                            selectHead.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name,
+                            }));
+                        });
+                        $('#tbodyExpenseList').append(trEleNew);
+                    }
+                });
+                $.each(result.DeductionDetail, function (i, item) {
+                    if (i == 0) {
+                        var trEle = $('#tbodyDeductionList tr:first');
+                        var amtEle = $(trEle).find('input[name$=".Amount"]');
+                        if(item.TDSPercentage == null){
+                            amtEle.val('');
+                        }else{
+                            tds = ttlAdvTax * item.TDSPercentage / 100;
+                            amtEle.val(tds);
+                        }
+
+                        amtEle.addClass('required');
+                        $(trEle).find('input[name$=".AccountGroupId"]').val(item.AccountGroupId);
+                        $(trEle).find('input[name$=".DeductionHeadId"]').val(item.DeductionHeadId);
+                        $(trEle).find('input[name$=".DeductionHead"]').val(item.DeductionHead);
+                        $(trEle).find('input[name$=".AccountGroup"]').val(item.AccountGroup);
+                        $(trEle).find('td:nth-child(1)').html(item.AccountGroup);
+                        $(trEle).find('td:nth-child(2)').html(item.DeductionHead);
+                    } else {
+                        var trEleNew = $('#tbodyDeductionList tr:first').clone().find('input').val('').end();
+                        //$(trEleNew).find("input[name='DeductionDetail.Index']").val(i);
+                        $(trEleNew).find("input").each(function () {
+                            $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                            $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                        });
+                        $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                        });
+                        var amtEle = $(trEleNew).find('input[name$=".Amount"]');
+                        amtEle.addClass('required');
+                        if(item.TDSPercentage != null){
+                            tds = ttlAdvTax * item.TDSPercentage / 100;
+                            amtEle.val(tds);
+                        }
+                        $(trEleNew).find('input[name$=".AccountGroupId"]').val(item.AccountGroupId);
+                        $(trEleNew).find('input[name$=".DeductionHeadId"]').val(item.DeductionHeadId);
+                        $(trEleNew).find('input[name$=".DeductionHead"]').val(item.DeductionHead);
+                        $(trEleNew).find('input[name$=".AccountGroup"]').val(item.AccountGroup);
+                        $(trEleNew).find('td:nth-child(1)').html(item.AccountGroup);
+                        $(trEleNew).find('td:nth-child(2)').html(item.DeductionHead);
+                        $('#tbodyDeductionList').append(trEleNew);
+                    }
+                });
+                $('#NeedUpdateTransDetail').val('false');
+                CalculateDeductionTotal();
+            },
+            error: function (err) {
+                console.log("error : " + err);
+            }
+        });
+    }
+
+</script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>

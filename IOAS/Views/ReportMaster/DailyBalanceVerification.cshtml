@@ -1,0 +1,237 @@
+﻿@model IOAS.Models.DailyBalanceVerificationModel
+
+@{
+    ViewBag.Title = "Daily Balance Verification";
+    ViewBag.Subtitle = "Reports";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+<div class="row hd-tt-bg">
+    <div class="col-md-12">
+        <h4><b>Daily Balance</b> </h4>
+    </div>
+</div>
+
+
+<style>
+    .vw-dts-bg .hgt-bg{
+       background: #597df0;
+    color: #fff;
+    }
+    .vw-dts-bg .hgt-bg label{
+        font-size: 16px !important;
+    color: #fff !important;
+    }
+    .vw-dts-bg .hgt-bg h4{
+        font-size: 18px !important;
+    color: #fff;
+    }
+    .vw-dts-bg .hgt-bg-pl{
+       background: #e11eda;
+    color: #fff;
+    }
+    .vw-dts-bg .hgt-bg-pl label{
+        font-size: 16px !important;
+    color: #fff !important;
+    }
+    .vw-dts-bg .hgt-bg-pl h4{
+        font-size: 18px !important;
+    color: #fff;
+    }
+
+</style>
+<div class="row">
+    <div class="white-bg ad-navbar">
+        <div class="col-md-3 ds-spl-bg">
+            <div class="ds-icn">
+                <i class="ion-ios-list-outline "></i>
+            </div>
+            <div class="ds-tt">
+                    <span class="required">Date</span>
+                    @Html.EditorFor(m => m.Date, new { @class = "form-control", @id = "date" })
+            </div>
+        </div>
+
+        <div class="col-md-3 ds-spl-bg">
+            <div class="ds-icn">
+                <i class="ion-ios-calendar-outline"></i>
+            </div>
+            <div class="ds-tt">
+                <span class="required">Project No</span>
+                @Html.TextBoxFor(m => m.Project, new { @class = "form-control", @id = "projectno" })
+                @Html.TextBoxFor(m => m.ProjectId, new { @class = "form-control dis-none", @id = "projectid" })               
+               
+            </div>
+        </div>
+
+        <div class="col-md-3 ds-spl-bg">            
+            <div class="ds-tt">
+                <input type="submit" value="View Report" class="btn btn-primary mt-20" id="btnSubmit" />
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<div class="row vw-dts-bg">
+    <div class="col-md-12">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th colspan="4">Project Summary :</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <label>Type :</label>
+                        <h4 id="typename"></h4>
+                    </td>
+                    <td>
+                        <label>Classification :</label>
+                        <h4 id="classifi"></h4>
+                    </td>
+                    <td>
+                        <label>PI :</label>
+                        <h4 id="pi"></h4>
+                    </td>
+                    <td>
+                        <label> Total Sanction :</label>
+                        <h4 id="tlsanction"></h4>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label> Total Receipt :</label>
+                        <h4 id="tlreceipt"></h4>
+                    </td>
+                    <td>
+                        <label> Total Expenditure :</label>
+                        <h4 id="tlexpent"></h4>
+                    </td>
+                    <td>
+                        <label>Distribution :</label>
+                        <h4 id="tdDis"></h4>
+                    </td>
+                    <td>
+                        <label> Total Commitment :</label>
+                        <h4 id="tlcommitment"></h4>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>Available Balance :</label>
+                        <h4 id="tlavailbalance"></h4>
+                    </td>
+                    <td>
+                        <label> Total Negative Balance :</label>
+                        <h4 id="tlnegativebalance"></h4>
+                    </td>
+                    <td class="hgt-bg-pl">
+                        <label> Net Balance :</label>
+                        <h4 id="netbalance"></h4>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+
+
+
+        <div class="col-md-12">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th colspan="4">Balance Report As on <p id="currdate"></p></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="hgt-bg">
+                            <label>Opening Balance : </label>
+                            <h4 id="openingbalance"></h4>
+                        </td>
+                        <td>
+                            <label>Receipt :</label>
+                            <h4 id="receipt"></h4>
+                        </td>
+                        <td>
+                            <label>Expenditure :</label>
+                            <h4 id="amountspent"></h4>
+                        </td>
+                        <td>
+                            <label>Distribution :</label>
+                            <h4 id="dis"></h4>
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td>
+                            <label>Commitment : </label>
+                            <h4 id="commitment"></h4>
+                        </td>
+                        <td>
+                            <label>Negative Balance :</label>
+                            <h4 id="negbal"></h4>
+                        </td>
+                        <td class="hgt-bg">
+                            <label>Closing Balance :</label>
+                            <h4 id="closingbalance"></h4>
+                        </td>
+                    <td></td>
+                 </tr>
+
+                   
+                </tbody>
+            </table>
+        </div>
+</div>
+
+  
+    
+
+    <script>
+        $('#Date').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
+
+     
+        $(document).on('click', '#projectno', function () {
+            applyAutoComplete($('#projectno'), $('#projectid'), "../CoreAccounts/LoadProjectNumber", undefined, undefined, undefined);
+        });
+        $('#btnSubmit').click(function () {
+            var projectid = $("#projectid").val();
+            var SerDate = $("#Date").val();
+            if (projectid != "" && SerDate!="") {
+                $.getJSON("@Url.Action("GetDailyBalSummary", "ReportMaster")", { projectid: projectid, SerDate: SerDate },
+                                  function (locationdata) {
+                                      var dat = $("#Date").val();
+                                      $("#classifi").text(locationdata.ProjClassification);
+                                      $("#tdDis").text(locationdata.TotalDistribution);
+                                      $("#currdate").text(locationdata.ReportDate);
+                                      $("#tlprojectno").text(locationdata.ProjectNo);
+                                      $("#pi").text(locationdata.PI);
+                                      $("#typename").text(locationdata.TypeName);
+                                      $("#tlavailbalance").text(locationdata.TotalAvailBalance);
+                                      $("#tlnegativebalance").text(locationdata.TotalNegativeBalance);
+                                      $("#tlsanction").text(locationdata.TotalSanction);
+                                      $("#tlreceipt").text(locationdata.TotalReceipt);
+                                      $("#tlexpent").text(locationdata.TotalExpent);
+                                      $("#tlcommitment").text(locationdata.TotalCommitment);
+                                      $("#openingbalance").text(locationdata.OpeningBalance);
+                                      $("#receipt").text(locationdata.Receipt);
+                                      $("#commitment").text(locationdata.PreviousCommitment);
+                                      $("#netbalance").text(locationdata.NetBalance);
+                                      $("#amountspent").text(locationdata.AmountSpent);
+                                      $("#closingbalance").text(locationdata.ClosingBalance);
+                                      $("#dis").text(locationdata.Distribution);
+                                      $("#negbal").text(locationdata.ApprovedNegativeBalance);
+                                  });
+            } else {
+                $('#FailedAlert').html("Project No,Date field required");
+                $('#Failed').modal('toggle');
+            }
+        });
+    </script>
+
+

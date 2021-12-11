@@ -1,0 +1,352 @@
+﻿@model IOAS.Models.CommonPaymentModel
+    @*<div id="pnlLedgerInfo">
+    <h3 id="CreditorLabel">Creditor</h3>
+    <table class="table table-bordered mb-null">
+        
+        <tbody>
+            <tr>
+                <td>
+                    <div id="creditor">
+                        <label class="required">Creditor Type</label>
+                        <h4>@Model.CreditorType</h4>
+                    </div>
+                </td>
+                <td>
+                    <label id="subledger">Sub ledger</label>
+                    <h4 id="lblVendorName"></h4>
+                </td>
+                <td>
+                    <label id="subledgeramountlabel">Sub ledger amount</label>
+                    @Html.HiddenFor(m => m.CreditorAmount, new { @class = "form-control", @autocomplete = "off", @readonly = "readonly" })
+                    <h4><label id="lblcrdAmount"></label></h4>
+                </td>
+            </tr>
+        </tbody>
+
+    </table>
+</div>*@
+<h3 id="ExpenseLabel" class="">Expense Details</h3>
+<table class="table table-bordered mb-null">
+    <thead>
+        <tr>
+            <th>Account Group</th>
+            <th>Account Head</th>
+            <th>Transaction Type</th>
+            <th style="width:200px;">Amount</th>
+        </tr>
+    </thead>
+    <tbody id="tbodyExpenseList">
+        @if (Model.ExpenseDetail != null && Model.ExpenseDetail.Count() > 0)
+        {
+            var count = 0;
+            foreach (var item in Model.ExpenseDetail)
+            {
+                var accountGroup = "ExpenseDetail[" + count + "].AccountGroupId";
+                var accountGroupName = "ExpenseDetail[" + count + "].AccountGroupName";
+                var accountHead = "ExpenseDetail[" + count + "].AccountHeadId";
+                var accountHeadName = "ExpenseDetail[" + count + "].AccountHeadName";
+                var expDetailId = "ExpenseDetail[" + count + "].BillExpenseDetailId";
+                var transType = "ExpenseDetail[" + count + "].TransactionType";
+                var jv = "ExpenseDetail[" + count + "].IsJV";
+                var amt = "ExpenseDetail[" + count + "].Amount";
+                <tr>
+                    <td>
+                        @*@Html.DropDownList(@accountGroup, new SelectList(item.AccountGroupList, "id", "name", item.AccountGroupId), new { @class = "form-control required" })*@
+                        <h4>@item.AccountGroupName</h4>
+                        @Html.Hidden("ExpenseDetail.Index", @count)
+                        @Html.Hidden(@expDetailId, item.BillExpenseDetailId)
+                        @Html.Hidden(@jv, item.IsJV)
+                    </td>
+                    <td>
+                        @*@Html.DropDownList(@accountHead, new SelectList(item.AccountHeadList, "id", "name", item.AccountHeadId), new { @class = "form-control required" })
+                            @Html.ValidationMessage(@accountHead)*@
+                        <h4>@item.AccountHeadName</h4>
+                    </td>
+                    <td>
+                        <h4 id="lblTransType">@item.TransactionType</h4>
+                        @Html.Hidden(@transType, item.TransactionType)
+
+                    </td>
+                    <td>
+                        @Html.Hidden(@amt, item.Amount, new { @class = "form-control required", @onkeypress = "return ValidateDecimalOnly(event)", @onblur = "CalculateDeductionTotal()", @autocomplete = "off" })
+                        <h4>@item.Amount</h4>
+                    </td>
+
+                </tr>
+                count++;
+
+            }
+        }
+        else
+        {
+            <tr>
+                <td>
+                    @*@Html.DropDownList("ExpenseDetail[0].AccountGroupId", new SelectList(ViewBag.AccountGroupList, "id", "name"), "Select any", new { @class = "form-control required" })*@
+
+                    @Html.Hidden("ExpenseDetail.Index", "0")
+                    @Html.Hidden("ExpenseDetail[0].BillExpenseDetailId")
+                    @Html.Hidden("ExpenseDetail[0].IsJV")
+                </td>
+                <td>
+                    @*@Html.DropDownList("ExpenseDetail[0].AccountHeadId", new SelectList(ViewBag.AccountHeadList, "id", "name"), "Select any", new { @class = "form-control required" })
+                        @Html.ValidationMessage("ExpenseDetail[0].AccountHeadId")*@
+                </td>
+                <td>
+                    <h4 id="lblTransType"></h4>
+                    @Html.Hidden("ExpenseDetail[0].TransactionType")
+
+                </td>
+                <td>
+                    @Html.Hidden("ExpenseDetail[0].Amount", "", new { @class = "form-control required", @onkeypress = "return ValidateDecimalOnly(event)", @onblur = "CalculateDeductionTotal()", @autocomplete = "off" })
+
+                </td>
+
+            </tr>
+        }
+
+        <tr>
+            <td class="dis-none">               
+                    <label>Total Value <span class="dr">(Dr)</span> :</label>
+                    @Html.HiddenFor(m => m.ExpenseAmount, new { @class = "form-control", @readonly = "readonly", @autocomplete = "off" })
+                    @Html.DisplayFor(m => m.ExpenseAmount)
+               
+            </td>
+        </tr>
+
+
+    </tbody>
+</table>
+<h3>Taxes</h3>
+
+<table class="table table-bordered mb-null">
+    <thead>
+        <tr>
+            <th>Group</th>
+            <th>Account Head</th>
+            <th>Amount</th>
+        </tr>
+    </thead>
+    <tbody id="tbodyDeductionList">
+        @if (Model.DeductionDetail != null && Model.DeductionDetail.Count() > 0)
+        {
+            var count = 0;
+            foreach (var item in Model.DeductionDetail)
+            {
+                var amt = "DeductionDetail[" + count + "].Amount";
+                var groupId = "DeductionDetail[" + count + "].AccountGroupId";
+                var headId = "DeductionDetail[" + count + "].DeductionHeadId";
+                var deductDetailId = "DeductionDetail[" + count + "].BillDeductionDetailId";
+                var deductionHead = "DeductionDetail[" + count + "].DeductionHead";
+                var accountGroup = "DeductionDetail[" + count + "].AccountGroup";
+                <tr>
+                    <td>@item.AccountGroup</td>
+                    <td>@item.DeductionHead</td>
+                    <td>
+                        <h4>@item.Amount</h4>
+                        @Html.Hidden(@amt, item.Amount, new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)", @onblur = "CalculateDeductionTotal()", @autocomplete = "off" })
+                        @Html.Hidden(@groupId, item.AccountGroupId)
+                        @Html.Hidden(@headId, item.DeductionHeadId)
+                        @Html.Hidden(@deductDetailId, item.BillDeductionDetailId)
+                        @Html.Hidden(@deductionHead, item.DeductionHead)
+                        @Html.Hidden(@accountGroup, item.AccountGroup)
+                    </td>
+                </tr>
+                count++;
+
+            }
+        }
+        else
+        {
+            <tr>
+
+                <td></td>
+                <td></td>
+                <td>
+                    @Html.Hidden("DeductionDetail[0].Amount", "", new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)", @onblur = "CalculateDeductionTotal()", @autocomplete = "off" })
+                    @Html.ValidationMessage("DeductionDetail[0].Amount")
+                    @Html.Hidden("DeductionDetail[0].AccountGroupId")
+                    @Html.Hidden("DeductionDetail[0].DeductionHeadId")
+                    @Html.Hidden("DeductionDetail[0].BillDeductionDetailId")
+                    @Html.Hidden("DeductionDetail[0].DeductionHead")
+                    @Html.Hidden("DeductionDetail[0].AccountGroup")
+                </td>
+            </tr>
+        }
+        <tr>
+            <td>
+                <label>Total Value <span class="dr">(Dr)</span> :</label>
+                @Html.HiddenFor(m => m.DeductionAmount, new { @class = "form-control", @readonly = "readonly", @autocomplete = "off" })
+                @Html.DisplayFor(m => m.DeductionAmount)
+            </td>
+            <td class="reg-no">
+               
+                    <label class="lblval">Total Credit <span class="cr">(Cr)</span> :</label>
+                    @*<input value="" name="CreditAmount" id="ttlCr" class="form-control" readonly="readonly" autocomplete="off" type="text">*@
+                    @Html.Hidden("ttlJVCr")
+                    <h4 id="ttlCr"class="tatval"></h4>
+                
+            </td>
+            <td class="reg-no">
+              
+                    <label  class="lblval">Total Debit <span class="dr">(Dr)</span> :</label>
+                    @*<input value="" name="DebitAmount" id="ttlDr" class="form-control" readonly="readonly" autocomplete="off" type="text">*@
+                    @Html.Hidden("ttlJVDr")
+                    <h4 id="ttlDr" class="tatval"></h4>
+               
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<script type="text/javascript">
+    function CalculateDeductionTotal() {
+        var ttlExpVal = 0, ttlDrVal = 0, ttlDedtVal = 0,ttlJVExpVal = 0, ttlJVDrVal = 0;
+        $('#tbodyExpenseList input[name$=".TransactionType"]').each(function (i, rowEle) {
+            var jv = $(this).closest('tr').find("input[name$='.IsJV']").val();
+            if ($(this).val() == 'Credit') {
+                var parseVal = parseFloat($(this).closest('tr').find("input[name$='.Amount']").val());
+                if (!isNaN(parseVal)) {
+                    ttlExpVal = ttlExpVal + parseVal;
+                    if (jv.toLowerCase()== "true")
+                        ttlJVExpVal = ttlJVExpVal + parseVal;
+                }
+            } else if ($(this).val() == 'Debit') {
+                var parseVal = parseFloat($(this).closest('tr').find("input[name$='.Amount']").val());
+                if (!isNaN(parseVal)) {
+                    ttlDrVal = ttlDrVal + parseVal;
+                    if (jv.toLowerCase()== "true")
+                        ttlJVDrVal = ttlJVDrVal + parseVal;
+                }
+            }
+
+        });
+        //$('#tbodyExpenseList input[name$=".Amount"]').each(function (i, rowEle) {
+        //    var parseVal = parseFloat($(this).val());
+        //    if (!isNaN(parseVal))
+        //        ttlExpVal = ttlExpVal + parseVal;
+        //});
+
+        $('#tbodyDeductionList input[name$=".Amount"]').each(function (i, rowEle) {
+            var parseVal = parseFloat($(this).val());
+            if (!isNaN(parseVal))
+                ttlDedtVal = ttlDedtVal + parseVal;
+        });
+        var tlDr = (ttlDrVal + ttlDedtVal).toFixed(2);
+        ttlDrVal = ttlDrVal.toFixed(2);
+        ttlDedtVal = ttlDedtVal.toFixed(2);
+        ttlJVDrVal = ttlJVDrVal.toFixed(2);
+        ttlJVExpVal = ttlJVExpVal.toFixed(2);
+        ttlExpVal = ttlExpVal.toFixed(2);
+        $('#ExpenseAmount').val(ttlDrVal);
+        $('#DeductionAmount').val(ttlDedtVal);
+        $('#ttlJVDr').val(ttlJVDrVal);
+        $('#ttlJVCr').val(ttlJVExpVal);
+        $('#ttlDr').text(tlDr);
+        $('#ttlCr').text(ttlExpVal);
+    }
+    function EmptyExpenseDeductionDetails() {
+        $('#tbodyDeductionList tr').not(':first').remove();
+        $('#tbodyDeductionList tr td').find('input, select').val('');
+        $('#tbodyExpenseList tr').not(':first').remove();
+        $('#tbodyExpenseList tr td').find("input[name!='ExpenseDetail.Index']").val('');
+        $('#tbodyDeductionList tr td').not(':last').html('');
+        $('input[name="CreditAmount"],input[name="DebitAmount"],#ExpenseAmount,#DeductionAmount,#ttlJVDr,#ttlJVCr,#ttlDr,#ttlCr').val('0');
+    }
+    $('#btnAddExpense').click(function () {
+        AddNewExpense();
+        @*var cln = $('#tbodyExpenseList tr:first').clone().find("select,input").val("").end();
+        $(cln).find('a.dis-none').removeClass('dis-none');
+        var index = $('#tbodyExpenseList tr:last').find("input[name='ExpenseDetail.Index']").val();
+        index = parseInt(index) + 1;
+        $(cln).find("input[name='ExpenseDetail.Index']").val(index);
+        $(cln).find("input, select").each(function () {
+            $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+            $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+        });
+        $(cln).find("span[data-valmsg-for]").each(function () {
+            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+        });
+        var options = [];
+        $('#tbodyExpenseList tr select[name$=".AccountGroupId"]').find('option').each(function () {
+            var obj = { value: $(this).val(), text: $(this).text() };
+            if (options.findIndex(x => x.value == obj.value) == -1)
+                options.push(obj);
+        });
+        var select = $(cln).find("select[name$='.AccountGroupId']");
+        var firstGroupId = 0;
+        select.empty();
+        $.each(options, function (i, option) {
+            if (i == 0)
+                firstGroupId = option.value;
+            select.append($('<option/>', option));
+        });
+
+        var selectHead = $(cln).find("select[name$='.AccountHeadId']");
+        selectHead.empty();
+        $.getJSON("@Url.Action("GetAccountHead", "CoreAccounts")", { "accountGroupId": firstGroupId },
+             function (locationdata) {
+                 $.each(locationdata, function (index, itemData) {
+                     selectHead.append($('<option/>', {
+                         value: itemData.id,
+                         text: itemData.name,
+                     }));
+                 });
+             });
+        $('#tbodyExpenseList').append(cln);*@
+    });
+    $('#btnReset').click(function () {
+        GetTransactionDetails();
+    });
+    $(document).on('click', 'a.removeExpense', function () {
+        if ($('#tbodyExpenseList tr').length != 1) {
+            $(this).closest('tr').remove();
+            CalculateDeductionTotal();
+        }
+    });
+    $(document).on('change', 'select[name$=".AccountGroupId"]', function () {
+        var groupId = $(this).val();
+        var ele = $(this).closest('tr');
+        var select = ele.find("select[name$='.AccountHeadId']");
+        select.empty();
+        select.append($('<option/>', {
+            value: "",
+            text: "Select any",
+        }));
+        ele.find('input[name$=".TransactionType"]').val('');
+        ele.find('input[name$=".IsJV"]').val('false');
+        ele.find('#lblTransType').text('');
+        if (groupId != '') {
+            $.getJSON("@Url.Action("GetAccountHead", "CoreAccounts")", { "accountGroupId": groupId },
+             function (locationdata) {
+                 $.each(locationdata, function (index, itemData) {
+                     select.append($('<option/>', {
+                         value: itemData.id,
+                         text: itemData.name,
+                     }));
+                 });
+             });
+        }
+    });
+
+    $(document).on('change', 'select[name$=".AccountHeadId"]', function () {
+        var headId = $(this).val();
+        var sCode = $('#SubCode').val();
+        var tCode = $('#TransactionTypeCode').val();
+        var ele = $(this).closest('tr');
+        var groupId = $(this).closest('tr').find("select[name$='.AccountGroupId']").val();
+        if (headId != '') {
+            $.getJSON("@Url.Action("GetTransactionType", "CoreAccounts")", { "accountGroupId": groupId, "accountHeadId": headId, "typeCode": tCode, "tSubCode": sCode },
+             function (data) {
+                 ele.find('input[name$=".TransactionType"]').val(data.tType);
+                 ele.find('input[name$=".IsJV"]').val(data.isJv);
+                 ele.find('#lblTransType').text(data.tType);
+                 CalculateDeductionTotal();
+             });
+        } else {
+            ele.find('input[name$=".TransactionType"]').val('');
+            ele.find('input[name$=".IsJV"]').val('false');
+            ele.find('#lblTransType').text('');
+            CalculateDeductionTotal();
+        }
+    });
+</script>

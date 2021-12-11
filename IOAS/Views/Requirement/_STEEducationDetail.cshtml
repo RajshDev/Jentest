@@ -1,0 +1,349 @@
+﻿@model IOAS.Models.STEModel
+<div class="row">
+    <div class="col-md-12">
+        <div class="bl-lg-panel-box pb-null">
+            <div class="cmn-panel-box">
+                <div class="grey-bg-adj mb-lg">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="rc-tb-scrl">
+                                <table class="table alter-table mb-null">
+                                    <thead>
+                                        <tr>
+                                            <th class="required">QUALIFICATION</th>
+                                            <th class="required">COURSE</th>
+                                            <th>DISCIPILINE</th>
+                                            <th class="required">UNIVERSITY / INSTITUTION </th>
+                                            <th class="required">YEAR OF PASSING</th>
+                                            <th class="required">MARK TYPE</th>
+                                            <th class="required">MARKS/CGPA</th>
+                                            <th>Attachment File</th>
+                                            <th>Remarks</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbodyEducation">
+                                        @if (Model.EducationDetail != null)
+                                        {
+                                            var count = 0;
+                                            foreach (var item in Model.EducationDetail)
+                                            {
+                                                var eduId = "EducationDetail[" + count + "].EducationId";
+                                                var qullfi = "EducationDetail[" + count + "].QualificationId";
+                                                var decpid = "EducationDetail[" + count + "].DisciplineId";
+                                                var instu = "EducationDetail[" + count + "].Institution";
+                                                var yearpass = "EducationDetail[" + count + "].YearofPassing";
+                                                var marks = "EducationDetail[" + count + "].Marks";
+                                                var MarkType = "EducationDetail[" + count + "].MarkType";
+                                                var devob = "EducationDetail[" + count + "].DivisionClassObtained";
+                                                var cetrifid = "EducationDetail[" + count + "].CertificateId";
+                                                var cerfile = "EducationDetail[" + count + "].Certificate";
+                                                var cerfilePath = "EducationDetail[" + count + "].CertificatePath";
+                                                var remark = "EducationDetail[" + count + "].Remarks";
+                                                var qulfiappId = "qulfiAPP_" + count;
+                                                var decpAPP = "decpAPP_" + count;
+
+                                                <tr>
+                                                    <td>
+                                                        @Html.DropDownList(@qullfi, new SelectList(ViewBag.Qualification, "id", "name", item.QualificationId), "Select Qualification",
+                                                 new { @class = "form-control", @id = @qulfiappId })
+                                                        @Html.ValidationMessage(@qullfi)
+                                                        @Html.Hidden("EducationDetail.Index", @count)
+                                                        @Html.Hidden(@eduId, item.EducationId)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DropDownList(@decpid, new SelectList(item.DisiplineList, "id", "name", item.DisciplineId), "Select Course",
+                                                 new { @class = "form-control", @id = @decpAPP })
+                                                        @Html.ValidationMessage(@decpid)
+                                                        @*<script>
+                                                                $('select[name="@decpid"]').val(@Html.Raw(Json.Encode(item.DisciplineId)));
+                                                            </script>*@
+                                                    </td>
+                                                    <td>
+                                                        @Html.TextBox(@devob, item.DivisionClassObtained, new { @class = "form-control" })
+                                                        @Html.ValidationMessage(@devob)
+                                                    </td>
+                                                    <td>
+                                                        @Html.TextBox(@instu, item.Institution, new { @class = "form-control" })
+                                                        @Html.ValidationMessage(@instu)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DropDownList(@yearpass, new SelectList(ViewBag.Years, "id", "name", item.YearofPassing), "Select year", new { @class = "form-control" })
+                                                        @Html.ValidationMessage(@yearpass)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DropDownList(@MarkType, new SelectList(ViewBag.MarkType, "id", "name", item.MarkType), "Select MarkType", new { @class = "form-control" })
+                                                        @Html.ValidationMessageFor(m => m.EducationDetail[count].MarkType)
+                                                    </td>
+                                                    <td>
+                                                        @Html.TextBox(marks, item.Marks, new { @id = "ddlMarks_" + count, @class = "form-control", @autocomplete = "off", @placeholder = "99.99 / 9.99" })
+                                                        @Html.ValidationMessageFor(m => m.EducationDetail[count].Marks)
+                                                    </td>
+                                                    <td>
+                                                        @if (item.EducationId == null)
+                                                        {
+                                                            <input type="file" class="" name="@cerfile" />@:&nbsp; &nbsp; &nbsp;
+                                                        }
+                                                        else
+                                                        {
+                                                            <input type="file" class="" name="@cerfile" />@:&nbsp; &nbsp; &nbsp;
+                                                            if (Model.STEId > 0 && !string.IsNullOrEmpty(item.CertificatePath))
+                                                            {
+                                                                @*@Html.Hidden(@cerfilePath, item.CertificatePath)*@
+                                                                <a href="@Url.Action("ShowDocument", new { Controller="Account", filepath="Requirement",file = item.CertificatePath, target="_blank" })"><b>@item.CertificateName</b></a>
+                                                            }
+                                                        }
+                                                        @Html.ValidationMessage(@cerfile)
+                                                    </td>
+                                                    <td>
+                                                        @Html.TextBox(@remark, item.Remarks, new { @class = "form-control" })
+                                                        @Html.ValidationMessage(@remark)
+                                                    </td>
+                                                    <td>
+                                                        <a href="javascript:void(0)" class="btn-sm btn btn-danger removeEducationDetail"><i class="ion-android-close"></i></a>
+                                                    </td>
+                                                </tr>
+
+                                                count++;
+                                            }
+                                            <tr id="ScoreDetails">
+                                                <td colspan="6">
+                                                    Having Valid Gate Score:
+                                                    @if (Model != null && !String.IsNullOrWhiteSpace(Model.isHaveGateScore) && Model.isHaveGateScore == "No")
+                                                    {
+                                                        @Html.RadioButtonFor(M => M.isHaveGateScore, "Yes", new { @id = "isYesGateScore" })@:&nbsp;<label>Yes</label>
+                                                        @Html.RadioButtonFor(M => M.isHaveGateScore, "No", new { @id = "isNoGateScore", @checked = "checked" })@:&nbsp;<label>No</label>
+                                                    }
+                                                    else
+                                                    {
+                                                        @Html.RadioButtonFor(M => M.isHaveGateScore, "Yes", new { @id = "isYesGateScore", @checked = "checked" })@:&nbsp;<label>Yes</label>
+                                                        @Html.RadioButtonFor(M => M.isHaveGateScore, "No", new { @id = "isNoGateScore" })@:&nbsp;<label>No</label>
+                                                    }
+                                                </td>
+                                                <td id="divScore" class="dis-none">
+                                                    <label>Score</label>
+                                                    @Html.TextBoxFor(M => M.GateScore, new { @class = "form-control", @id = "Score", @onkeypress = "return isNumberKey(event)", @placeholder = "00.00" })
+                                                    @Html.ValidationMessageFor(M => M.GateScore)
+                                                </td>
+                                                <td></td>
+                                            </tr>
+                                        }
+                                        else
+                                        {
+                                            <tr>
+                                                <td>
+                                                    @Html.DropDownList("EducationDetail[0].QualificationId", new SelectList(ViewBag.Qualification, "id", "name"), "Select Qualification",
+                                                 new { @class = "form-control", @id = "qulfiAPP_0" })
+                                                    @Html.ValidationMessage("EducationDetail[0].QualificationId")
+                                                    @Html.Hidden("EducationDetail.Index", 0)
+                                                </td>
+                                                <td>
+                                                    @Html.DropDownList("EducationDetail[0].DisciplineId", new SelectList(ViewBag.List, "id", "name"), "Select Course",
+                                                 new { @class = "form-control", @id = "decpAPP" })
+                                                    @Html.ValidationMessage("EducationDetail[0].DisciplineId")
+                                                </td>
+
+                                                <td>
+                                                    @Html.TextBox("EducationDetail[0].DivisionClassObtained", "", new { @class = "form-control" })
+                                                    @Html.ValidationMessage("EducationDetail[0].DivisionClassObtained")
+                                                </td>
+                                                <td>
+                                                    @Html.TextBox("EducationDetail[0].Institution", "", new { @class = "form-control" })
+                                                    @Html.ValidationMessage("EducationDetail[0].Institution")
+                                                </td>
+                                                <td>
+                                                    @Html.DropDownList("EducationDetail[0].YearofPassing", new SelectList(ViewBag.Years, "id", "name"), "Select year", new { @class = "form-control" })
+                                                    @Html.ValidationMessage("EducationDetail[0].YearofPassing")
+                                                </td>
+                                                <td>
+                                                    @Html.DropDownList("EducationDetail[0].MarkType", new SelectList(ViewBag.MarkType, "id", "name"), "Select MarkType", new { @class = "form-control" })
+                                                    @Html.ValidationMessage("EducationDetail[0].MarkType")
+                                                </td>
+                                                <td>
+                                                    @Html.TextBox("EducationDetail[0].Marks", null, new { @id = "ddlMarks_0", @class = "form-control", @autocomplete = "off", @placeholder = "99.99 / 9.99" })
+                                                    @Html.ValidationMessage("EducationDetail[0].Marks")
+                                                </td>
+                                                <td>
+                                                    <input type="file" class="" name="EducationDetail[0].Certificate" />&nbsp;&nbsp;&nbsp;
+                                                    @Html.ValidationMessage("EducationDetail[0].Certificate")
+                                                    <a href="#" class="link1" target="_blank"></a>
+                                                    <input type="text" name="EducationDetail[0].CertificatePath" class="dis-none" />
+                                                    <input type="text" name="EducationDetail[0].CertificateName" class="dis-none" />
+                                                </td>
+                                                <td>
+                                                    @Html.TextBox("EducationDetail[0].Remarks", "", new { @class = "form-control" })
+                                                    @Html.ValidationMessage("EducationDetail[0].Remarks")
+                                                </td>
+                                                <td>
+                                                    <a href="javascript:void(0)" class="btn-sm btn btn-danger removeEducationDetail"><i class="ion-android-close"></i></a>
+                                                </td>
+                                            </tr>
+                                            <tr id="ScoreDetails">
+                                                <td colspan="6">
+                                                    Having Valid Gate Score:
+                                                    @Html.RadioButtonFor(M => M.isHaveGateScore, "Yes", new { @id = "isYesGateScore" })&nbsp;<label>Yes</label>
+                                                    @Html.RadioButtonFor(M => M.isHaveGateScore, "No", new { @id = "isNoGateScore", @checked = "checked" })&nbsp;<label>No</label>
+                                                </td>
+                                                <td id="divScore" class="dis-none">
+                                                    <label>Score</label>
+                                                    @Html.TextBoxFor(M => M.GateScore, new { @class = "form-control", @id = "Score", @onkeypress = "return isNumberKey(event)", @placeholder = "00.00" })
+                                                    @Html.ValidationMessageFor(M => M.GateScore)
+                                                </td>
+                                                <td></td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="col-md-6 mt-md">
+                                <a href="javascript:void(0)" id="btnAddEducation" class="btn btn-primary">Add New</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    //$('#tbodyEducation').find('input[name$=".Marks"]').each(function (inx) {
+
+    $("#btnAddEducation").click(function () {
+        var cln = $('#tbodyEducation tr:first').clone().find("input,select").val("").end();
+        $(cln).find('select[name$=".DisciplineId"]').empty().append($('<option/>', { value: "", text: "Select Course" }));
+        $(cln).find('b').parent('a').remove();
+        $(cln).find('b').remove();
+        $(cln).find('.link1').remove();
+        $(cln).find("input[name$='.Certificate']").removeClass("dis-none");
+        var index = $('#tbodyEducation tr:not("#ScoreDetails"):last').find("input[name='EducationDetail.Index']").val();
+        index = parseInt(index) + 1;
+        idx = index;
+        $(cln).find("input[name='EducationDetail.Index']").val(index);
+        $(cln).find("input,select").each(function () {
+            if ($(this).attr("name") != undefined)
+                $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+            if ($(this).attr("id") != undefined)
+                $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+        });
+        $(cln).find("span[data-valmsg-for]").each(function () {
+            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+        });
+        $(cln).insertBefore("#tbodyEducation #ScoreDetails");
+    });
+
+    $(document).on('click', 'a.removeEducationDetail', function () {
+        if ($('#tbodyEducation tr:not("#ScoreDetails")').length != 1) {
+            $(this).closest('tr:not("#ScoreDetails")').remove();
+        }
+    });
+
+    $(document).on('change', 'select[id^="qulfiAPP_"]', function () {
+        var Departmentid = $(this).val();
+        var ID = $(this).attr("id");
+        var idx = ID.substr(ID.lastIndexOf("_") + 1);
+        var select = $(this).closest('#tbodyEducation').find('select[name="EducationDetail[' + idx + '].DisciplineId"]');
+        $(select).empty().append($('<option/>', { value: "", text: "Select Course" }));
+        $.getJSON("@Url.Action("LoadPIByCourseList", "Requirement")", { DepartmentId: Departmentid },
+                    function (locationdata) {
+                        $.each(locationdata, function (index, itemData) {
+                            $(select).append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name
+                            }));
+                        });
+                    });
+    });
+
+
+    $('input[name="isHaveGateScore"]').change(function () {
+        var value = $("input[name='isHaveGateScore']:checked").val();
+        if (value == "Yes")
+            $('#divScore').removeClass('dis-none');
+        else
+            $('#divScore').addClass('dis-none');
+    });
+
+    var isHaveGateScore = $("input[name='isHaveGateScore']:checked").val();
+    if (isHaveGateScore == "Yes")
+        $('#divScore').removeClass('dis-none');
+    else
+        $('#divScore').addClass('dis-none');
+
+
+    $(document).on('change', 'input[name="GateScore"]', function () {
+        var value = parseInt($(this).val());
+        if (value > 0) {
+            if (isNaN(value)) {
+                $.alert({
+                    icon: 'ion-close-circled',
+                    title: 'Error Alert!',
+                    content: 'Enter valid gate score',
+                    type: 'red'
+                });
+                return false;
+            }
+            if (value > 100) {
+                $.alert({
+                    icon: 'ion-close-circled',
+                    title: 'Error Alert!',
+                    content: 'Gate score should be between 0 and 100',
+                    type: 'red'
+                });
+                $(this).val('')
+                return false;
+            }
+        }
+    });
+
+    $(document).on('keypress', 'input[name$=".Marks"],input[name="GateScore"]', function (event) {
+        var $this = $(this);
+        if ((event.which != 46 || $this.val().indexOf('.') != -1) &&
+           ((event.which < 48 || event.which > 57) &&
+           (event.which != 0 && event.which != 8))) {
+            event.preventDefault();
+        }
+
+        var text = $(this).val();
+        if ((event.which == 46) && (text.indexOf('.') == -1)) {
+            setTimeout(function () {
+                if ($this.val().substring($this.val().indexOf('.')).length > 3) {
+                    $this.val($this.val().substring(0, $this.val().indexOf('.') + 3));
+                }
+            }, 1);
+        }
+
+        if ((text.indexOf('.') != -1) &&
+            (text.substring(text.indexOf('.')).length > 2) &&
+            (event.which != 0 && event.which != 8) &&
+            ($(this)[0].selectionStart >= text.length - 2)) {
+            event.preventDefault();
+        }
+    });
+
+    $('input[name$=".Marks"],input[name="GateScore"]').bind("paste", function (e) {
+        var text = e.originalEvent.clipboardData.getData('Text');
+        if ($.isNumeric(text)) {
+            if ((text.substring(text.indexOf('.')).length > 3) && (text.indexOf('.') > -1)) {
+                e.preventDefault();
+                $(this).val(text.substring(0, text.indexOf('.') + 3));
+            }
+        }
+        else {
+            e.preventDefault();
+        }
+    });
+
+    $(document).on('keypress', 'input[name$=".Institution"]', function (e) {
+        var regex = new RegExp("^[a-zA-Z ]+$");
+        var str = String.fromCharCode(!e.charCode ? e.which : e.charCode);
+        if (regex.test(str)) {
+            return true;
+        }
+        else {
+            e.preventDefault();
+            return false;
+        }
+    });
+
+</script>

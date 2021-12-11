@@ -1,0 +1,302 @@
+﻿@model IOAS.Models.GenerateOrdersModel
+@using IOAS.GenericServices
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="IIT Madras">
+    <!-- favicon icon -->
+    <link rel="shortcut icon" href="images/connectuw-icn.png" />
+    <title>ENHANCEMENT ORDER </title>
+    <link href="@Url.Content("~/Content/IOASContent/css/bootstrap.min.css")" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Poppins:400,400i,700,700i&display=swap" rel="stylesheet">
+    <style>
+        /*
+            body{
+                width: 21cm;
+                height: 29.7cm;
+                margin: 30mm 45mm 30mm 45mm;
+                border: 1px solid #ccc;
+            }
+        */
+        .umr-body {
+            font-family: 'Poppins', sans-serif;
+            font-size: 15px;
+            color: #000000;
+            /*padding: 15px 15px 15px 15px;*/
+               padding: 0px 45px 0px 45px;
+            line-height : 2;
+            text-align: justify;
+
+        }
+
+        .umr-hd {
+            text-align: center;
+            border-bottom: 2px solid black;
+            padding-bottom: 15px;
+            padding-top: 10px;
+        }
+
+            .umr-hd h2 {
+                font-size: 16px;
+                color: #000;
+                font-weight: normal;
+                text-align: left;
+            }
+
+                .umr-hd h2 em {
+                    font-size: 14px;
+                    float: left;
+                    font-style: normal;
+                }
+
+                .umr-hd h2 b {
+                    font-size: 14px;
+                    float: right;
+                    font-weight: normal;
+                }
+
+        .umr-hd-tt {
+            font-size: 26px;
+        }
+
+        .umr-hd-stt {
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .sb-tt {
+            margin-top: 0px;
+            font-weight: normal;
+            text-decoration: underline;
+        }
+
+        .mb-md {
+            margin-bottom: 30px;
+        }
+
+        .mb-sm {
+            margin-bottom: 15px;
+        }
+
+        .mt-md {
+            margin-top: 30px;
+        }
+
+        .mb-sm {
+            margin-bottom: 10px;
+        }
+
+        .umr-body li {
+            margin-bottom: 10px;
+        }
+
+        .tp-tt {
+            margin-top: 20px;
+            text-decoration: underline;
+            font-weight: bold;
+        }
+
+        .grey-bg {
+            background: #eee;
+            padding: 15px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+            .grey-bg .icn-box {
+                padding: 10px;
+            }
+
+                .grey-bg .icn-box em {
+                    font-size: 13px;
+                    color: #000;
+                    font-style: normal;
+                    width: 100%;
+                    display: inline-block;
+                    margin-bottom: 5px;
+                }
+
+                .grey-bg .icn-box span {
+                    font-size: 15px;
+                    color: #000;
+                    font-style: normal;
+                }
+
+        .cnt-bg {
+            padding: 0px;
+        }
+
+        .cnt-bg1 {
+            padding: 0px;
+            padding-bottom: 10px;
+            padding-top: 15px;
+        }
+
+        .gr-bg {
+            background: #eee;
+        }
+
+        .logo-section .icsr-logo {
+            width: 80px;
+            float: right;
+        }
+
+        .logo-section .dts {
+            width: calc(100% - 230px);
+            float: left;
+            text-align: center;
+        }
+
+        .logo-section h4 {
+            margin-top: 0px;
+        }
+
+        .logo-section .iitm-logo {
+            width: 100px;
+            float: left;
+        }
+
+        .logo-section h5 {
+            font-size: 16px;
+        }
+
+        .umr-body .table > tbody > tr > td, .umr-body .table > tbody > tr > th, .umr-body .table > tfoot > tr > td, .umr-body .table > tfoot > tr > th, .umr-body .table > thead > tr > td, .umr-body .table > thead > tr > th {
+            padding: 8px;
+            border-color: rgba(0,0,0,0);
+        }
+
+        .ct-tb em {
+            width: 100%;
+            display: inline-block;
+            font-size: 13px;
+            font-style: normal;
+        }
+
+        .ct-tb span {
+            font-weight: bold;
+        }
+
+        .ct-tb {
+            margin-bottom: 15px;
+        }
+
+        .ct-tr-tb {
+            margin-bottom: 0px;
+        }
+
+            .ct-tr-tb.table-bordered > tbody > tr > td, .ct-tr-tb.table-bordered {
+                border: 0px;
+            }
+
+        .ct-br-tb.table-bordered > tbody > tr > td, .ct-br-tb.table-bordered > tbody > tr > th {
+            border-color: #000000;
+        }
+
+        .logo-section h3 {
+            margin-top: 0px;
+            margin-bottom: 3px;
+            font-size: 28px;
+        }
+
+        .logo-section h4 {
+            margin-bottom: 3px;
+            font-weight: normal;
+        }
+
+        .logo-section h5 {
+            margin-bottom: 3px;
+            font-weight: normal;
+            font-size: 15px;
+            margin-top: 0px;
+        }
+    </style>
+</head>
+<body class="umr-body">
+    <div class="umr-hd">
+        <div class="row">
+            @*<div class="col-md-10 col-md-offset-1">
+                    <div class="logo-section">
+                        <img src="~/Content/InstituteLogo/iitm_logo.png" class="iitm-logo" />
+                        <div class="dts">
+                            <h5 style="padding-bottom: 5px;"><b>CENTER FOR INDUSTRIAL CONSULTANCY & SPONSORED RESEARCH</b></h5>
+                            <h5 style="padding-bottom: 5px;"><b>INDIAN INSTITUTE OF TECHNOLOGY </b></h5>
+                            <h4 style="padding-bottom: 5px;"><b>MADRAS,CHENNAI-600 036</b></h4>
+                        </div>
+                        <img src="~/Content/InstituteLogo/icsr_logo.png" class="icsr-logo" />
+                    </div>
+                </div>*@
+            <div class="col-md-12">
+                <div class="logo-section">
+                    <img src="~/Content/InstituteLogo/iitm_logo.png" class="iitm-logo" />
+                    <div class="dts">
+                        <h4 style="padding-bottom: 10px;"><b>CENTER FOR INDUSTRIAL CONSULTANCY & SPONSORED RESEARCH</b></h4>
+                        <h4 style="padding-bottom: 10px;"><b>INDIAN INSTITUTE OF TECHNOLOGY MADRAS,</b></h4>
+                        <h4 style="padding-bottom: 10px;"><b>CHENNAI-600 036</b></h4>
+                    </div>
+                    <img src="~/Content/InstituteLogo/icsr_logo.png" class="icsr-logo" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mt-md">
+        <div class="col-md-6">
+            <h5>No: @Model.OrderNo</h5>
+        </div>
+        <div class="col-md-6 text-right">
+            <h5>Dated: @string.Format("{0:dd-MMMM-yyyy}", Model.OrderDate)</h5>
+        </div>
+    </div>
+    <div class="row mt-md">
+        <div class="col-md-12">
+            @if (Model.applicationtype != "CON")
+            {
+                <p>@Model.ApplicantName</p>
+            }
+            <h4 class="text-center sb-tt">AMENDMENT ORDER</h4>
+            <br/>
+            @if (Model.applicationtype == "CON")
+            {
+                <p>@Model.ApplicantName</p>
+                <p>
+                    This is with reference to your engagement order @Model.ReferenceOrder <b>@Model.ReferenceNumber</b> dated <b>@Model.OrderDate</b>,
+                    your tenure end date is amended as <b>@Model.ToDate</b> from <b>@Model.AmendmentToDate</b> based on the request submitted by the <b>Prof.</b> @Model.ProjectDetail.PIName.
+                </p>
+                <p> All other terms and conditions mentioned in the consultant offer remain unchanged. </p>
+            }
+            else
+            {
+                <p>
+                    This is with reference to your @Model.ReferenceOrder <b>@Model.ReferenceNumber</b> dated <b>@Model.OrderDate</b>,
+                    Your term end date has been amended as <b>@Model.ToDate</b>. This is based on the information provided by Prof. @Model.ProjectDetail.PIName, Project coordinator.
+                </p>
+                <p>All other terms and conditions mentioned in the office order remain unchanged. </p>
+            }
+         
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th class="text-center" width="80%"></th>
+                            <th class="text-center" width="20%">
+                                <br />
+                                <br />
+                                <br />
+                                <span>SENIOR MANAGER - HR </span><br>
+                                <span>(Project Recruitment)</span><br>
+                                <span>IC&SR</span>
+                            </th>
+                        </tr>
+                    </thead>
+                </table>
+            <p>
+                <br />
+                <br />
+                <br />
+                <em>*This is a system generated copy, hence signature is not required.</em>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

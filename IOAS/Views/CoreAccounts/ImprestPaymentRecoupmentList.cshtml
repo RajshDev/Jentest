@@ -1,0 +1,474 @@
+﻿@model IOAS.Models.ImprestPaymentModel
+@{
+    ViewBag.Title = "Imprest Bill Booking";
+    ViewBag.Subtitle = "Imprest Bill Booking List";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<div class="row hd-tt-bg">
+    <div class="col-md-4">
+        <h3>Imprest Bill Booking List</h3>
+    </div>
+    <div id="addnewpage" class="col-md-8 flt-nav-links">
+
+        <a href="Javascript:void(0)" id="btnFilter" class="pull-right"> <i class="ion-android-funnel"></i>Filters</a>
+        @*<a href="@Url.Action("TemporaryAdvancePayment")"> <i class="ion-plus"></i>Add New</a>*@
+
+    </div>
+</div>
+<div id="popupFilter" class="filter-popup">
+    <div class="">
+        <div class="filter-content">
+            <div class="white-bg">
+                <div class="form-group custom-form-group">
+                    <h3>Filter by</h3>
+                </div>
+
+                @*<div class="form-group custom-form-group">
+                    @Html.TextBoxFor(m => m.SearchField.ProjectNumber, new { @id = "srchprojectnumber", @placeholder = "Project Number", @class = "form-control" })
+                </div>*@
+
+                <div class="form-group custom-form-group">
+                    @Html.TextBoxFor(m => m.SearchField.ImprestcardNumber, new { @id = "srchCardNumber", @placeholder = "Imprest Card Number", @class = "form-control" })
+                </div>
+                <div class="form-group custom-form-group">
+                    @Html.TextBoxFor(m => m.SearchField.RecoupmentNumber, new { @id = "srchrecoupmentnumber", @placeholder = "Recoupment Number", @class = "form-control" })
+                </div>
+                <div class="form-group custom-form-group">
+                    @Html.TextBoxFor(m => m.SearchField.PIName, new { @id = "srchPIName", @placeholder = "PI Name", @class = "form-control" })
+                    @*@Html.DropDownListFor(m => m.SearchField.PIName, new SelectList(ViewBag.PI, "id", "name"), "PI Name", new { @id = "srchPIName", @class = "form-control" })*@
+                </div>
+                
+                <div id="DivCrtdDate" class="form-group custom-form-group">
+                    <label class="full-width">Bill Booking Date</label>
+                    <label class="half-form">From Date </label>
+                    @Html.TextBoxFor(m => m.SearchField.EntryFromDate, new { @id = "EntryFromDate", @class = "form-control half-form" })
+                    <label class="half-form">To Date </label>
+                    @Html.TextBoxFor(m => m.SearchField.EntryToDate, new { @id = "EntryToDate", @class = "form-control half-form" })
+                </div>
+                <div class="form-group custom-form-group mt30 text-center">
+                    <a id="btnReset" href="javascript:void(0)">Reset</a>
+                </div>
+                <div class="form-group custom-form-group mt30 text-center">
+                    <button id="btnSearch" type="button" class="btn btn-primary mr10">Search</button>
+                    <button name="btnClose" type="button" class="btn btn-default">Close</button>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <a href="javascript:void(0)" name="btnClose" class="close-btn"><i class="ion-android-cancel"></i></a>
+
+</div>
+<div class="row mt30" id="gridlist">
+    <div class="page-wrapper">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="custom-jsgrid-normal">
+                    <div id="ImprestRecoupmentList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="popup" ></div>
+<script type="text/javascript">    
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    $(document).ready(function () {
+
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+    });
+
+    function ResetForm() {
+       // $('#srchprojectnumber').val('');
+        $('#srchCardNumber').val('');
+        $('#srchrecoupmentnumber').val('');
+        $('#srchPIName').val('');
+        $('#EntryFromDate').val('');
+        $('#EntryToDate').val('');
+    }
+    $('#btnReset').click(function () {
+        ResetForm();
+        getData(1);
+    });
+    $('#btnSearch').on('click', function () {
+        // var token = $("input[name=__RequestVerificationToken]").val();
+        getData(1);
+    });
+    function getData(page) {
+        var input = [];
+        input = {
+            ExImprestNumber: $('#srchrecoupmentnumber').val() || null,
+           // ExImprestAccNumber: $('#srchacnumber').val() || null,
+            ExImprestCardNumber: $('#srchCardNumber').val() || null,
+            ExImprestNamePI: $('#srchPIName').val() || null,
+            ExFromDate: $('#EntryFromDate').val() || null,
+            ExToDate: $('#EntryToDate').val() || null
+        },
+         $("#ImprestRecoupmentList").jsGrid("search", input, pageIndex = 1, pageSize = 5);
+
+    }
+    var DateField = function (config) {
+        jsGrid.Field.call(this, config);
+    };
+
+    DateField.prototype = new jsGrid.Field({
+        sorter: function (date1, date2) {
+            return new Date(date1) - new Date(date2);
+        },
+
+        itemTemplate: function (value) {
+            return new Date(value).toDateString();
+        },
+
+        filterTemplate: function () {
+            var now = new Date();
+            this._fromPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() - 1), changeYear: true });
+            this._toPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() + 1), changeYear: true });
+            return $("<div>").append(this._fromPicker).append(this._toPicker);
+        },
+
+        insertTemplate: function (value) {
+            return this._insertPicker = $("<input>").datepicker({ defaultDate: new Date() });
+        },
+
+        editTemplate: function (value) {
+            return this._editPicker = $("<input>").datepicker().datepicker("setDate", new Date(value));
+        },
+
+        insertValue: function () {
+            return this._insertPicker.datepicker("getDate").toISOString();
+        },
+
+        editValue: function () {
+            return this._editPicker.datepicker("getDate").toISOString();
+        },
+
+        filterValue: function () {
+            return {
+                from: this._fromPicker.datepicker("getDate"),
+                to: this._toPicker.datepicker("getDate")
+            };
+        }
+    });
+    jsGrid.fields.date = DateField;
+    var db;
+    $("#ImprestRecoupmentList").jsGrid({
+        paging: true,
+        pageIndex: 1,
+        pageSize: 5,
+        editing: false,
+        filtering: true,
+        pageLoading: true,
+        autoload: true,
+        controller: {
+
+            loadData: function (filter) {
+                //return $.grep(db, function (ow) {
+                //    return (!filter.RecoupmentNumber || ow.RecoupmentNumber.toLowerCase().indexOf(filter.RecoupmentNumber.toLowerCase()) > -1)
+                //        && (!filter.ImprestcardNumber || ow.ImprestcardNumber.toLowerCase().indexOf(filter.ImprestcardNumber.toLowerCase()) > -1)
+                //        && (!filter.Status || ow.Status.toLowerCase().indexOf(filter.Status.toLowerCase()) > -1)
+                //   && (!filter.RequestedDate.from || new Date(ow.RequestedDate) >= filter.RequestedDate.from)
+                //   && (!filter.RequestedDate.to || new Date(ow.RequestedDate) <= filter.RequestedDate.to);
+                //});
+                var searchData = [];
+                searchData = {
+                    InImprestNumber: filter.RecoupmentNumber,
+                    InImprestAccNumber: filter.ImprestBankACNumber,
+                    InImprestCardNumber: filter.ImprestcardNumber,
+                    InTotalCardValue: filter.ImprestValue,
+                    InBillValue: filter.RecoupmentValue,
+                    InImprestStatus: filter.Status,
+                    ExImprestNumber: $('#srchrecoupmentnumber').val() || null,
+                    // ExImprestAccNumber: $('#srchacnumber').val() || null,
+                    ExImprestCardNumber: $('#srchCardNumber').val() || null,
+                    ExImprestNamePI: $('#srchPIName').val() || null,
+                    ExFromDate: $('#EntryFromDate').val() || null,
+                    ExToDate: $('#EntryToDate').val() || null
+                },
+                filter.model = searchData;
+                var deferred = $.Deferred();
+                $.ajax({
+                    type: "post",
+                    url: 'SearchImprestBillBookingList',
+                    data: JSON.stringify(filter),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (result) {
+                        //db = result;
+                        //$("#AdvanceBillPaymentList").jsGrid({ data: db });
+                        var da = {
+                            data: result.ImpMaster,
+                            itemsCount: result.TotalRecords
+                        }
+                        deferred.resolve(da);
+                    },
+                    error: function (err) {
+                        console.log("error : " + err);
+                    }
+
+                });
+                return deferred.promise();
+
+            }
+
+        },
+
+        fields: [
+            { name: "SlNo", title: "S.No", editing: false, width: 10 },
+            { type: "number", name: "RecoupmentId", title: "Id", visible: false, align: "left" },
+            { type: "number", name: "ImprestcardId", title: "Imprest card Id", visible: false, align: "left" },
+            { type: "number", name: "ImprestProjectDetailsId", title: "Imprest DetailsId", visible: false, align: "left" },
+            { type: "number", name: "PIId", title: "PI Id", visible: false, align: "left" },
+           // { type: "number", name: "ProjectNumber", title: "Project Number", align: "left", width: 70 },
+            { type: "text", name: "RecoupmentNumber", title: "Imprest Bill Booking Number", editing: false, align: "left", width: 70 },
+            { type: "text", name: "ImprestBankACNumber", title: "Imprest AC Number", editing: false, align: "left", width: 80 },
+            { type: "date", name: "RequestedDate", title: "Requested Date", align: "left", width: 70 },
+           // { name: "TotalExpenseValue", title: "Total Expense", editing: false },
+            { type: "text", name: "ImprestValue", title: "Total Imprest Value", editing: false, align: "left", width: 50 },
+            { type: "text", name: "RecoupmentValue", title: "Bills Booked Amount", editing: false, align: "left", width: 50 },
+            { type: "text", name: "Status", title: "Status", editing: false, align: "left", width: 60 },
+             {
+                 type: "control", editButton: false, deleteButton: false, title: "Action", width: 70,
+                 itemTemplate: function (value, item) {
+                     var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+                     if (item.Status == "Open") {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "Submit for Approval", name: "Submit for Approval" }, { id: "Edit", name: "Edit" }, { id: "View", name: "View" }, { id: "Print Bill", name: "Print Bill" }]
+                     }
+                     //if (item.Status == "Open") {
+                     //    statusList = [{ id: "", name: "Select Action" }, { id: "Approve", name: "Approve" }, { id: "Edit", name: "Edit" }, { id: "View", name: "View" }, { id: "Print Bill", name: "Print Bill" }]
+                     //}
+                     else if (item.Status == "Approved") {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "Recoupment", name: "Recoupment" }, { id: "View", name: "View" }, { id: "Print Bill", name: "Print Bill" }]
+                     }
+
+                     else {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }, { id: "Print Bill", name: "Print Bill" }]
+                     }
+                     var $customSelect = $("<select>")
+                         .attr("class", "form-control").prop("selectedIndex", "")
+
+                     $.each(statusList, function (index, itemData) {
+                         $customSelect.append($('<option/>', {
+
+                             value: itemData.id,
+                             text: itemData.name
+                         }));
+                     });
+
+                     $customSelect.change(function (e) {
+                         var selVal = $(this).val();
+                         @*if (selVal == "Delete") {
+                             var choice = confirm("Are you sure, Do you want to delete this?");
+                             if (choice === true) {
+                                 $.ajax({
+                                     type: "POST",
+                                     url: '@Url.Action("DeleteTemporaryAdvanceBill", "CoreAccounts")',
+                                     data: {
+                                         temporaryAdvanceId: item.TemporaryAdvanceId
+                                     },
+                                     success: function (result) {
+                                         if (result == true) {
+                                             $('#alertSuccess').html("Temporary Advance bill has been deleted successfully.");
+                                             $('#Success').modal('toggle');
+                                             loadDetails();
+                                         } else if (result == false) {
+                                             $('#FailedAlert').html("Something went wrong please contact administrator");
+                                             $('#Failed').modal('toggle');
+                                         }
+                                     },
+                                     error: function (err) {
+                                         console.log("error1 : " + err);
+                                     }
+                                 });
+                             }
+                         } else
+                         if (selVal == "Book Commitment") {
+                             $.ajax({
+                                 type: "GET",
+                                 url: '@Url.Action("_TemporaryADVCommitment", "CoreAccounts")',
+                                 data: {
+                                     temporaryAdvanceId: item.TemporaryAdvanceId
+                                 },
+                                 contentType: "application/x-www-form-urlencoded",
+                                 success: function (data) {
+                                     $("#popup").html(data);
+                                     $('#TABCModal').modal('toggle');
+                                 }
+                             });
+                         } else  *@
+                         if (selVal == "Recoupment") {
+                             var url = '@Url.Action("ImprestBillsRecoupment", "CoreAccounts")?id=' + item.RecoupmentId + '&ImprestDetailsId=0';
+                             window.location.href = url;
+                         }
+                         if (selVal == "Edit") {
+                             var url = '@Url.Action("ImprestPaymentRecoupment", "CoreAccounts")?ImprestRecoupId=' + item.RecoupmentId + '&ImprestDetailsId=' + item.ImprestProjectDetailsId;
+                             window.location.href = url;
+                         }
+                         else if (selVal == "Print Bill") {
+                             var url = '@Url.Action("ImprestBillBokingBill", "ReportMaster")?Id=' + item.RecoupmentId;
+                             window.open(url, '_blank');
+                         }
+                         else if (selVal == "Submit for Approval") {
+                             var choice = confirm("Are you sure, Do you want to submit this bill for approval process?");
+                             if (choice === true) {
+                                 $.ajax({
+                                     type: "POST",
+                                     url: '@Url.Action("ImprestBillBookingWFInit", "CoreAccounts")',
+                                     data: {
+                                         billId: item.RecoupmentId
+                                     },
+                                     success: function (result) {
+                                         if (result.status == true) {
+                                             $('#alertSuccess').html("Imprest Bill has been Submitted for approval process successfully.");
+                                             $('#Success').modal('toggle');
+                                             loadDetails();
+                                         } else if (result.status == false) {
+                                             $('#FailedAlert').html(result.msg);
+                                             $('#Failed').modal('toggle');
+                                         }
+                                     },
+                                     error: function (err) {
+                                         console.log("error1 : " + err);
+                                     }
+                                 });
+                             }
+                         }
+                         //else if (selVal == "Approve") {
+                         //    var approveurl = 'ImprestRecoupmentApprove';
+                         //    var choice = confirm("Are you sure, Do you want to submit this Imprest Payment for approval process?");
+                         //    if (choice === true) {
+                         //        var getImprestCardList = 'GetImprestRecoupmentList'
+                                
+                         //        $.ajax({
+                         //            type: "GET",
+                         //            url: approveurl,
+                         //            data: { recoupmentId: item.RecoupmentId },
+                         //            contentType: "application/json; charset=utf-8",
+                         //            success: function (result) {
+                         //                if (result.status == true) {
+                         //                    $('#alertSuccess').html("Imprest Bill Booking has been approved successfully.");
+                         //                    $('#Success').modal('toggle');
+                         //                    loadDetails();
+                         //                } else if (result.status == false) {
+                         //                    $('#FailedAlert').html(result.msg);
+                         //                    $('#Failed').modal('toggle');
+                         //                }
+                         //            },
+                         //            error: function (err) {
+                         //                console.log("error1 : " + err);
+                         //            }
+                         //        });
+                         //        //$.ajax({
+                         //        //    type: "GET",
+                         //        //    url: getImprestCardList,
+                         //        //    data: param = "",
+                         //        //    contentType: "application/json; charset=utf-8",
+                         //        //    success: function (result) {
+                         //        //        // dataProposal = result;
+                         //        //        $("#ImprestRecoupmentList").jsGrid({ data: result });
+                         //        //        $('#gridlist').show();
+                         //        //        $('#addnewpage').show();
+                         //        //    },
+                         //        //    error: function (err) {
+                         //        //        console.log("error : " + err);
+                         //        //    }
+                         //        //});
+                         //    }
+                         //}
+                             
+                         @*else if (selVal == "Settlement") {
+                             var url = '@Url.Action("TemporaryAdvanceSettlement", "CoreAccounts")?TempAdvId=' + item.TemporaryAdvanceId;
+                             window.location.href = url;
+                         } else if (selVal == "Submit for approval") {
+                             var choice = confirm("Are you sure, Do you want to submit this bill for approval process?");
+                             if (choice === true) {
+                                 $.ajax({
+                                     type: "POST",
+                                     url: '@Url.Action("TemporaryAdvanceBillWFInit", "CoreAccounts")',
+                                     data: {
+                                         tempAdvId: item.TemporaryAdvanceId
+                                     },
+                                     success: function (result) {
+                                         if (result == true) {
+                                             $('#alertSuccess').html("Advance bill has been submitted for approval process successfully.");
+                                             $('#Success').modal('toggle');
+                                             loadDetails();
+                                         } else if (result == false) {
+                                             $('#FailedAlert').html("Something went wrong please contact administrator");
+                                             $('#Failed').modal('toggle');
+                                         }
+                                     },
+                                     error: function (err) {
+                                         console.log("error1 : " + err);
+                                     }
+                                 });
+                             }
+                         }*@
+                         else if (selVal == "View") {
+                             var url = '@Url.Action("ImprestRecoupmentView", "CoreAccounts")?ImprestRecoupId=' + item.RecoupmentId;
+                             window.location.href = url;
+                         }
+                         $(this).val("");
+                         return false;
+                         e.stopPropagation();
+                     });
+
+                     return $result.add($customSelect);
+                 },
+                 _createFilterSwitchButton: function () {
+                     return this._createOnOffSwitchButton("filtering", this.searchModeButtonClass, false);
+                 }
+             }
+
+        ],
+
+    });
+    $("#ImprestRecoupmentList").jsGrid("option", "filtering", false);
+   // loadDetails();
+    function loadDetails() {
+        var input = [];
+        input = {
+            ExImprestNumber: $('#srchrecoupmentnumber').val() || null,
+            // ExImprestAccNumber: $('#srchacnumber').val() || null,
+            ExImprestCardNumber: $('#srchCardNumber').val() || null,
+            ExImprestNamePI: $('#srchPIName').val() || null,
+            ExFromDate: $('#EntryFromDate').val() || null,
+            ExToDate: $('#EntryToDate').val() || null
+        },
+         $("#ImprestRecoupmentList").jsGrid("search", input, pageIndex = 1, pageSize = 5);
+       
+    }
+    $('a[name="btnClose"],button[name="btnClose"]').click(function () {
+        $('#popupFilter').css("display", "none");
+    });
+    $("#btnFilter").click(function () {
+        $('#popupFilter').css("display", "Block");
+    });
+
+    
+    $("#EntryFromDate, #EntryToDate").datepicker
+           ({
+               dateFormat: 'dd-MM-yy',
+               showStatus: true,
+               showWeeks: true,
+               changeYear: true,
+               yearRange: '-100:+100',
+               highlightWeek: true,
+               numberOfMonths: 1,
+               showAnim: "scale",
+               showOptions: {
+                   origin: ["top", "left"]
+               }
+           });
+   
+</script>

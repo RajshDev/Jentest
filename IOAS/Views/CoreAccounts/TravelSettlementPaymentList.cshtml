@@ -1,0 +1,281 @@
+﻿
+@{
+    ViewBag.Title = "Travel Payment";
+    ViewBag.Subtitle = "Travel Settlement List";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<div class="row hd-tt-bg">
+    <div class="col-md-4">
+        <h3>Travel Settlement List</h3>
+    </div>
+    <div id="addnewpage" class="col-md-8 flt-nav-links">
+
+        @*<a href="Javascript:void(0)" id="btnFilter" class="pull-right"> <i class="ion-android-funnel"></i>Filters</a>*@
+        <a href="@Url.Action("TravelSettlementPayment")"> <i class="ion-plus"></i>Add New</a>
+
+    </div>
+</div>
+<div class="row mt30">
+    <div class="page-wrapper">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="custom-jsgrid-normal">
+                    <div id="TravelSettlementPaymentList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="popup"></div>
+<script type="text/javascript">
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+    });
+    var DateField = function (config) {
+        jsGrid.Field.call(this, config);
+    };
+
+    DateField.prototype = new jsGrid.Field({
+        sorter: function (date1, date2) {
+            return new Date(date1) - new Date(date2);
+        },
+
+        itemTemplate: function (value) {
+            return new Date(value).toDateString();
+        },
+
+        filterTemplate: function () {
+            var now = new Date();
+            this._fromPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() - 1), changeYear: true });
+            this._toPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() + 1), changeYear: true });
+            return $("<div>").append(this._fromPicker).append(this._toPicker);
+        },
+
+        insertTemplate: function (value) {
+            return this._insertPicker = $("<input>").datepicker({ defaultDate: new Date() });
+        },
+
+        editTemplate: function (value) {
+            return this._editPicker = $("<input>").datepicker().datepicker("setDate", new Date(value));
+        },
+
+        insertValue: function () {
+            return this._insertPicker.datepicker("getDate").toISOString();
+        },
+
+        editValue: function () {
+            return this._editPicker.datepicker("getDate").toISOString();
+        },
+
+        filterValue: function () {
+            return {
+                from: this._fromPicker.datepicker("getDate"),
+                to: this._toPicker.datepicker("getDate")
+            };
+        }
+    });
+    jsGrid.fields.date = DateField;
+    var db;
+    $("#TravelSettlementPaymentList").jsGrid({
+        paging: true,
+        pageIndex: 1,
+        pageSize: 5,
+        editing: false,
+        filtering: true,
+        pageLoading: true,
+        autoload: true,
+        controller: {
+
+            loadData: function (filter) {
+                //return $.grep(db, function (ow) {
+                //    return (!filter.BillNumber || ow.BillNumber.toLowerCase().indexOf(filter.BillNumber.toLowerCase()) > -1)
+                //   && (!filter.RequestedDate.from || new Date(ow.RequestedDate) >= filter.RequestedDate.from)
+                //   && (!filter.RequestedDate.to || new Date(ow.RequestedDate) <= filter.RequestedDate.to);
+                //});
+                var searchData = [];
+                searchData = {
+                    Number: filter.BillNumber,
+                    Status: filter.Status,
+                    OverallExpense: filter.OverallExpense
+                },
+                filter.model = searchData;
+                filter.typeCode = "TST";
+                var deferred = $.Deferred();
+                $.ajax({
+                    type: "post",
+                    url: 'GetTravelBillList',
+                    data: JSON.stringify(filter),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (result) {
+                        //db = result;
+                        //$("#AdvanceBillPaymentList").jsGrid({ data: db });
+                        var da = {
+                            data: result.Travellist,
+                            itemsCount: result.TotalRecords
+                        }
+                        deferred.resolve(da);
+                    },
+                    error: function (err) {
+                        console.log("error : " + err);
+                    }
+
+                });
+                return deferred.promise();
+
+            }
+
+        },
+
+        fields: [
+            { name: "SlNo", title: "S.No", editing: false, width: 50 },
+            { type: "number", name: "TravelBillId", title: "Id", visible: false },
+            { type: "text", name: "BillNumber", title: "Bill Number", editing: false },
+            { name: "RequestedDate", title: "Requested Date", type: "date", width: 100, align: "center" },
+            { type:"text",name: "OverallExpense", title: "Settlement Value", editing: false },
+            {
+                type: "text", name: "Status", title: "Status", editing: false,
+                cellRenderer: function (item, value) {
+                    if (value.BillProcessingStatus == true) {
+                        return $("<td>").addClass("bg-green").append(value.Status);
+                    }
+                    else {
+                        return $("<td>").append(value.Status);
+                    }
+                }
+            },
+             {
+                 type: "control", editButton: false, deleteButton: false, width: 120, title: "Action",
+                 itemTemplate: function (value, item) {
+                     var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+                     if (item.Status == "Open") {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "Edit", name: "Edit" }, { id: "Print Bill", name: "Print Bill" }, { id: "Submit for approval", name: "Submit for approval" }, { id: "View", name: "View" }]
+                     } else {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "Print Bill", name: "Print Bill" }, { id: "View", name: "View" }]
+                     }
+                     var $customSelect = $("<select>")
+                         .attr("class", "form-control").prop("selectedIndex", "")
+
+                     $.each(statusList, function (index, itemData) {
+                         $customSelect.append($('<option/>', {
+
+                             value: itemData.id,
+                             text: itemData.name
+                         }));
+                     });
+
+                     $customSelect.change(function (e) {
+                         var selVal = $(this).val();
+                         if (selVal == "Delete") {
+                             var choice = confirm("Are you sure, Do you want to delete this bill?");
+                             if (choice === true) {
+                                 $.ajax({
+                                     type: "POST",
+                                     url: '@Url.Action("DeleteTravelAdvanceBill", "CoreAccounts")',
+                                     data: {
+                                         travelBillId: item.TravelBillId
+                                     },
+                                     success: function (result) {
+                                         if (result == true) {
+                                             $('#alertSuccess').html("Advance bill has been deleted successfully.");
+                                             $('#Success').modal('toggle');
+                                             loadDetails();
+                                         } else if (result == false) {
+                                             $('#FailedAlert').html("Something went wrong please contact administrator");
+                                             $('#Failed').modal('toggle');
+                                         }
+                                     },
+                                     error: function (err) {
+                                         console.log("error1 : " + err);
+                                     }
+                                 });
+                             }
+                         } else if (selVal == "Edit") {
+                             var url = '@Url.Action("TravelSettlementPayment", "CoreAccounts")?travelBillId=' + item.TravelBillId;
+                             window.location.href = url;
+                         } else if (selVal == "Print Bill") {
+                             var url = '@Url.Action("TravelBill", "ReportMaster")?Id=' + item.TravelBillId;
+                             window.open(url, '_blank');
+                         } else if (selVal == "Submit for approval") {
+                             var choice = confirm("Are you sure, Do you want to submit this bill for approval process?");
+                             if (choice === true) {
+                                 $.ajax({
+                                     type: "POST",
+                                     url: '@Url.Action("TravelAdvanceBillWFInit", "CoreAccounts")',
+                                     data: {
+                                         travelBillId: item.TravelBillId, transCode: "TST"
+                                     },
+                                     success: function (result) {
+                                         if (result.status == true) {
+                                             $('#alertSuccess').html("Settlement bill has been submitted for approval process successfully.");
+                                             $('#Success').modal('toggle');
+                                             loadDetails();
+                                         } else if (result.status == false) {
+                                             $('#FailedAlert').html(result.msg);
+                                             $('#Failed').modal('toggle');
+                                         }
+                                     },
+                                     error: function (err) {
+                                         console.log("error1 : " + err);
+                                     }
+                                 });
+                             }
+                         }
+                         else if (selVal == "View") {
+                             var url = '@Url.Action("TravelSettlementPaymentView", "CoreAccounts")?travelBillId=' + item.TravelBillId;
+                             window.location.href = url;
+                         }
+                         $(this).val("");
+                         return false;
+                         e.stopPropagation();
+                     });
+
+                     return $result.add($customSelect);
+                 },
+                 _createFilterSwitchButton: function () {
+                     return this._createOnOffSwitchButton("filtering", this.searchModeButtonClass, false);
+                 }
+             }
+
+
+        ],
+
+    });
+    $("#TravelSettlementPaymentList").jsGrid("option", "filtering", false);
+    loadDetails();
+    function loadDetails() {
+        @*$.ajax({
+            type: "GET",
+            url: '@Url.Action("GetTravelBillList", "CoreAccounts")',
+            data: { typeCode: "TST" },
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (result) {
+                    db = result;
+                    $("#TravelSettlementPaymentList").jsGrid({ data: db });
+            },
+            error: function (err) {
+                console.log("error : " + err);
+            }
+
+        });*@
+        var input = [];
+        input = {
+            SearchBillNumber: null,
+            SearchVendor: null,
+            Status: null,
+            OverallExpense:null,
+            typeCode: "TST"
+        },
+        $("#TravelSettlementPaymentList").jsGrid("search", input, pageIndex = 1, pageSize = 5);
+    }
+</script>

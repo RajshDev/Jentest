@@ -1,0 +1,394 @@
+﻿@model IOAS.Models.AnnouncementMasterModel
+@{
+    ViewBag.Title = "Announcement List";
+    ViewBag.Subtitle = "Announcement List";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<div class="row hd-tt-bg">
+    <div class="col-md-4">
+        <h3>Announcement List</h3>
+    </div>
+    <div id="addnewpage" class="col-md-8 flt-nav-links">
+
+        <a href="Javascript:void(0)" id="btnFilter" class="pull-right"> <i class="ion-android-funnel"></i>Filters</a>
+        @*<a href="#" id="btnaddnew" data-toggle="modal" data-target="#AddNewEntryModel"> <i class="ion-plus"></i>Add New</a>*@
+        <a href="@Url.Action("CreateAnnouncement")"> <i class="ion-plus"></i>Add New</a>
+
+    </div>
+</div>
+
+<div class="row mt30">
+    <div class="page-wrapper">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="custom-jsgrid-normal">
+                    <div id="AnnouncementList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@Html.AntiForgeryToken()
+<div id="popup"></div>
+<div id="getReason" class="modal fade" role="dialog" data-backdrop="static" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog wd600">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header brd-bottom">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">Cancel Announcemnt</h4>
+            </div>
+            <div class="modal-body">
+                <div style="padding:10px;">
+                    <label class="required">Remarks</label>
+                    @Html.TextArea("Remarks", new { @id = "Remarks", @class = "form-control", @autocomplete = "off" })
+                    @Html.Hidden("AnnouncementCancelID")
+                </div>
+            </div>
+            <div class="modal-footer brd-top">
+                <button id="btnRemark" type="button" class="btn btn-danger">Yes</button>
+                <button id="btnClose" type="button" class="btn btn-default">No</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="popupFilter" class="filter-popup">
+    <div class="">
+        <div class="filter-content">
+            <div class="white-bg">
+                <div class="form-group custom-form-group">
+                    <h3>Filter by</h3>
+                </div>
+                <div class="form-group custom-form-group">
+                    @Html.TextBoxFor(m => m.SearchField.SearchKeyword, new { @id = "srchKeyword", @placeholder = "keyword", @class = "form-control" })
+                </div>
+                <div class="form-group custom-form-group">
+                    @Html.TextBoxFor(m => m.SearchField.AnnouncementTitle, new { @id = "srchTitle", @placeholder = "Announcement Title", @class = "form-control" })
+                </div>
+                <div class="form-group custom-form-group">
+                    @Html.TextBoxFor(m => m.SearchField.SearchINAdvertisementNo, new { @id = "srchAdvNumber", @placeholder = "Advertisement Number", @class = "form-control" })
+                </div>
+                <div class="form-group custom-form-group">
+                    @Html.TextBoxFor(m => m.SearchField.Status, new { @id = "srchStatus", @placeholder = "Status", @class = "form-control" })
+                </div>
+                <div id="DivCrtdDate" class="form-group custom-form-group">
+                    <label class="full-width">Created Date</label>
+                    <label class="half-form">From Date </label>
+                    @Html.TextBoxFor(m => m.SearchField.FromDate, new { @id = "FromDate", @class = "form-control half-form" })
+                    <label class="half-form">To Date </label>
+                    @Html.TextBoxFor(m => m.SearchField.ToDate, new { @id = "ToDate", @class = "form-control half-form" })
+                </div>
+                <div class="form-group custom-form-group mt30 text-center">
+                    <a id="btnReset" href="javascript:void(0)">Reset</a>
+                </div>
+                <div class="form-group custom-form-group mt30 text-center">
+                    <button id="btnSearch" type="button" class="btn btn-primary mr10">Search</button>
+                    <button name="btnClose" type="button" class="btn btn-default">Close</button>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <a href="javascript:void(0)" name="btnClose" class="close-btn"><i class="ion-android-cancel"></i></a>
+
+</div>
+
+<script type="text/javascript">
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    $("#FromDate, #ToDate").datepicker
+           ({
+               dateFormat: 'dd-MM-yy',
+               showStatus: true,
+               showWeeks: true,
+               changeYear: true,
+               yearRange: '-100:+100',
+               highlightWeek: true,
+               numberOfMonths: 1,
+               showAnim: "scale",
+               showOptions: {
+                   origin: ["top", "left"]
+               }
+           });
+    $(document).ready(function () {
+        debugger
+        if (succMsg != '') {
+            if (succMsg.includes('|')==true) {
+                var Msg = succMsg.split('|');
+                $('#alertSuccess').html(Msg[0]);
+                $('#Success').modal('toggle');
+                var win = window.open('', '_blank');
+                win.location.href = Msg[1];
+            }
+            else {
+                $('#alertSuccess').html(succMsg);
+                $('#Success').modal('toggle');
+            }
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+   
+    });
+    $('a[name="btnClose"],button[name="btnClose"]').click(function () {
+        $('#popupFilter').css("display", "none");
+    });
+    $("#btnFilter").click(function () {
+        $('#popupFilter').css("display", "Block");
+    });
+    function ResetForm() {
+        $('#srchKeyword').val('');
+        $('#srchTitle').val('');
+        $('#srchAdvNumber').val('');
+        $('#srchStatus').val('');
+        $('#FromDate').val('');
+        $('#ToDate').val('');
+    }
+    $('#btnReset').click(function () {
+        ResetForm();
+        getData(1);
+    });
+    $('#btnSearch').on('click', function () {
+        // var token = $("input[name=__RequestVerificationToken]").val();
+        getData(1);
+    });
+    function getData(page) {
+        var input = [];
+        input = {
+            SearchINAdvertisementNo: $('#srchAdvNumber').val(),
+            Status: $('#srchStatus').val(),
+            AnnouncementTitle: $('#srchTitle').val(),
+            SearchKeyword: $('#srchKeyword').val(),
+            FromDate: $('#FromDate').val() || null,
+            ToDate: $('#ToDate').val() || null
+        },
+         $("#AnnouncementList").jsGrid("search", input, pageIndex = 1, pageSize = 5);
+
+    }
+    var DateField = function (config) {
+        jsGrid.Field.call(this, config);
+    };
+
+    DateField.prototype = new jsGrid.Field({
+        sorter: function (date1, date2) {
+            return new Date(date1) - new Date(date2);
+        },
+
+        itemTemplate: function (value) {
+            return new Date(value).toDateString();
+        },
+
+        filterTemplate: function () {
+            var now = new Date();
+            this._fromPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() - 1), changeYear: true });
+            this._toPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() + 1), changeYear: true });
+            return $("<div>").append(this._fromPicker).append(this._toPicker);
+        },
+
+        insertTemplate: function (value) {
+            return this._insertPicker = $("<input>").datepicker({ defaultDate: new Date() });
+        },
+
+        editTemplate: function (value) {
+            return this._editPicker = $("<input>").datepicker().datepicker("setDate", new Date(value));
+        },
+
+        insertValue: function () {
+            return this._insertPicker.datepicker("getDate").toISOString();
+        },
+
+        editValue: function () {
+            return this._editPicker.datepicker("getDate").toISOString();
+        },
+
+        filterValue: function () {
+            return {
+                from: this._fromPicker.datepicker("getDate"),
+                to: this._toPicker.datepicker("getDate")
+            };
+        }
+    });
+    jsGrid.fields.date = DateField;
+    var db;
+    $("#AnnouncementList").jsGrid({
+        paging: true,
+        pageIndex: 1,
+        pageSize: 5,
+        editing: false,
+        filtering: true,
+        pageLoading: true,
+        autoload: true,
+        controller: {
+
+            loadData: function (filter) {
+                var searchData = [];
+                searchData = {
+                    SearchINAdvertisementNo: filter.RefNo || null,
+                    AnnouncementTitle: filter.AnnouncementTitle || null,
+                    Status: filter.Status || null,
+                    SearchKeyword: filter.AnnouncementRequestBy || null,
+                    FromDate: $('#FromDate').val() || null,
+                    ToDate: $('#ToDate').val() || null,
+                    PIName: filter.PIName || null
+                },
+                filter.model = searchData;
+                var deferred = $.Deferred();
+                $.ajax({
+                    type: "post",
+                    url: 'GetAnnoncementList',
+                    data: JSON.stringify(filter),
+                    contentType: "application/json; charset=utf-8",
+                    success: function (result) {
+                        var da = {
+                            data: result.AnnouncementList,
+                            itemsCount: result.TotalRecords
+                        }
+                        deferred.resolve(da);
+                    },
+                    error: function (err) {
+                        console.log("error : " + err);
+                    }
+
+                });
+                return deferred.promise();
+            }
+
+        },
+
+        fields: [
+            { name: "SNo", title: "S.No", editing: false, width: 50 },
+            { type: "number", name: "AnnouncementID", title: "Id", visible: false, width: 110 },
+            { type: "text", name: "RefNo", title: "Advertisement Number", editing: false, width: 180 },
+            { type: "text", name: "AnnouncementTitle", title: "Announcement Title", editing: false,},
+            { type: "text", name: "AnnouncementRequestBy", title: "Type", editing: false, filtering: false },
+            //{ type: "text", name: "AnnouncementCategory", title: "Project / Designation", editing: false, filtering: false },
+            {
+                type: "text", name: "PIName", title: "PI / Department", editing: false,
+                itemTemplate: function (item, name) {
+                    return $("<td>").append(name.PIName + "<br/><span class='fn-s-xs'>(" + name.PIDepartment + ")</span>");
+    }
+            },
+            { type: "number", name: "StatusID", title: "StatusId", visible: false },
+            { name: "strRequestReceiveDate", title: "Request Recive Date", type: "date" },
+            { name: "strAnnouncementClosureDate", title: "Closure date", type: "date" },
+            { type: "text", name: "Status", title: "Status", editing: false },
+
+             {
+                 type: "control", editButton: false, deleteButton: false, width: 120, title: "Action",
+
+                 itemTemplate: function (value, item) {
+                     var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+                     if (item.Status == "Announcement Cancelled") {
+                         statusList = [{ id: "", name: "" }]
+                     }
+                     else if (item.StatusID == 5) {
+                         statusList = [{ id: "", name: "Action" },{ id: "Repost", name: "Repost / Close" }, { id: "Modify", name: "Modify" }, { id: "Cancel", name: "Cancel" }]
+                     }
+                     else {
+                         statusList = [{ id: "", name: "Action" }, { id: "Modify", name: "Modify" }, { id: "Cancel", name: "Cancel" }]
+                     }
+                     var $customSelect;
+                     if (item.Status != "Announcement Cancelled") {
+                         $customSelect = $("<select>")
+                             .attr("class", "form-control").prop("selectedIndex", "")
+                         $.each(statusList, function (index, itemData) {
+                             $customSelect.append($('<option/>', {
+
+                                 value: itemData.id,
+                                 text: itemData.name
+                             }));
+                         });
+                         $customSelect.change(function (e) {
+                             debugger;
+                             var selVal = $(this).val();
+                             if (selVal == "Modify") {
+                                 var url = '@Url.Action("CreateAnnouncement", "Requirement")?AnnouncementID=' + item.AnnouncementID;
+                                 window.location.href = url;
+                             }
+                             else if (selVal == "Repost") {
+                                 var url = '@Url.Action("CreateAnnouncement", "Requirement")?AnnouncementID=' + item.AnnouncementID + "&isRepost="+true;
+                                 window.location.href = url;
+                             }
+                             else if (selVal == "Cancel") {
+                                 $('#AnnouncementCancelID').val(item.AnnouncementID);
+                                 $('#getReason').modal('show');
+                             }
+                             $(this).val("");
+                             return false;
+                             e.stopPropagation();
+                         });
+                         return $result.add($customSelect);
+                     }
+                 },
+                 _createFilterSwitchButton: function () {
+                     return this._createOnOffSwitchButton("filtering", this.searchModeButtonClass, false);
+                 }
+             }
+
+
+        ],
+
+    });
+    $("#AnnouncementList").jsGrid("option", "filtering", false);
+    // loadDetails();
+    function loadDetails() {
+        var input = [];
+        input = {
+            SearchEXReferencenumber: $('#srchnegativebalnumber').val(),
+            SearchEXProjectNumber: $('#srchprojectnumber').val(),
+            SearchPIName: $('#srchPIName').val(),
+            SearchEXStatus: $('#srchStatus').val(),
+            FromDate: $('#FromDate').val() || null,
+            ToDate: $('#ToDate').val() || null
+        },
+         $("#AnnouncementList").jsGrid("search", input, pageIndex = 1, pageSize = 5);
+
+    }
+    $('#btnRemark').click(function () {
+        if ($('#Remarks').val() == "") {
+            messageBox('Please ender remarks', "warning");
+            return;
+        }
+        var AnnouncementID = parseInt($('#AnnouncementCancelID').val());
+        var CancelReason = $('#Remarks').val();
+        var CancelData = { 'AnnouncementID': AnnouncementID, 'CancelReason': CancelReason }
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("AnnoncementCancel", "Requirement")',
+            contentType: "application/json",
+            data: JSON.stringify(CancelData),
+            dataType: "json",
+            success: function (result) {
+                if (result == 1) {
+                    $('#getReason').modal('hide');
+                    $('#AnnouncementCancelID').val('');
+                    $('#Remarks').val('');
+                    getData(1);
+                    $('#alertSuccess').html("Announcement cancelled.");
+                    $('#Success').modal('toggle');
+                }
+                else {
+                    $('#getReason').modal('hide');
+                    $('#AnnouncementCancelID').val('');
+                    $('#Remarks').val('');
+                    getData(1);
+                    $('#FailedAlert').html('Something went to wrong please contact administrator.');
+                    $('#Failed').modal('toggle');
+
+                }
+            },
+            error: function (err) {
+                console.log("error : " + err);
+            }
+
+        });
+    });
+    $('#btnClose,.close').click(function () {
+        $('#AnnouncementCancelID').val('');
+        $('#Remarks').val('');
+        $('#getReason').modal('hide');
+    });
+</script>

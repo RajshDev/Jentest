@@ -1,0 +1,989 @@
+﻿@model IOAS.Models.ClaimBillModel
+@{
+    ViewBag.Title = "Claim Bill";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+<style>
+    .txt-red {
+        color: red;
+    }
+
+    .txt-green {
+        color: green;
+    }
+</style>
+<div class="row hd-tt-bg">
+    <div class="col-md-12">
+        <h4><b>Project Title : </b> @Html.DisplayFor(m => m.Projecttitle, new { @class = "form-control", @id = "prjcttitle", @readonly = true })</h4>
+    </div>
+</div>
+
+<div class="row" id="CreateProjectInvoice">
+   
+        <div class="col-md-12">
+            <div class="row">
+                <div class="white-bg ad-navbar">
+                    @*<div class="col-md-3 ds-spl-bg">
+                            <div class="ds-icn">
+                                <i class="ion-ios-list-outline "></i>
+                            </div>
+                            <div class="ds-tt">
+                                <span>Claim Bill Date</span>
+                                <h4>@Html.DisplayFor(m => m.Invoicedatestrng, new { @class = "form-control", @id = "txtinvoicenumber", @readonly = true })</h4>
+
+                                @Html.Hidden("InvoiceDraftId")
+                            </div>
+                        </div>*@
+                    <div class="col-md-3 ds-spl-bg">
+                        <div class="ds-icn">
+                            <i class="ion-ios-list-outline "></i>
+                        </div>
+                        <div class="ds-tt">
+                            <span>Project No</span>
+                            <h4>@Html.DisplayFor(m => m.ProjectNumber, new { @class = "form-control", @id = "txtprojectnumber", @readonly = true })</h4>
+                            @Html.Hidden("ProjectID")
+                            @Html.Hidden("ProjectType")
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 ds-spl-bg">
+                        <div class="ds-icn">
+                            <i class="ion-ios-calendar-outline"></i>
+                        </div>
+                        <div class="ds-tt">
+                            <span>Department Name:</span>
+                            <h4>@Html.DisplayFor(m => m.PIDepartmentName, new { @class = "form-control", @id = "txtPIdepartment", @readonly = true }) </h4>
+                        </div>
+                    </div>
+
+                    <div class="col-md-2 ds-spl-bg">
+                        <div class="ds-icn">
+                            <i class="ion-android-open"></i>
+                        </div>
+                        <div class="ds-tt">
+                            <span>PI Name:</span>
+                            <h4>@Html.DisplayFor(m => m.NameofPI, new { @class = "form-control",  @id = "txtPIname", @readonly = true })</h4>
+                            @Html.Hidden("PIId")
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="white-bg ad-navbar mt-m-xs">
+                    <div class="col-md-4">
+                        <h4><span>Sanction No : </span><b>@Html.DisplayFor(m => m.SanctionOrderNumber, new { @class = "form-control", @id = "txtsanctionordernumber", @readonly = true })</b></h4>
+                    </div>
+                    <div class="col-md-4">
+                        <h4><span>Sanction Value : </span><b class="fn-lg">@Html.DisplayFor(m => m.Sanctionvalue, new { @class = "form-control", @id = "txtsanctionvalue", @readonly = true })</b></h4>
+                        @Html.Hidden("Sanctionvalue")
+                    </div>
+                    <div class="col-md-4">
+                        <h4><span>Total Receipt Value : </span><b class="fn-lg">@Html.DisplayFor(m => m.TotalReceiptValue, new { @class = "form-control", @id = "txttotalreceiptvalue", @readonly = true })</b></h4>
+                    </div>
+                    <div class="col-md-4">
+                        <h4><span>Total Opening Receipt Value : </span><b class="fn-lg">@Html.DisplayFor(m => m.TotalOpenBalReceiptValue, new { @class = "form-control", @id = "txtopenbalreceiptvalue", @readonly = true })</b></h4>
+                    </div>
+                    <div class="col-md-4">
+                        <h4><span>Total Open Invoice Value : </span><b class="fn-lg">@Html.DisplayFor(m => m.TotalOpenInvoiceValue, new { @class = "form-control", @id = "txttotalopeninvval", @readonly = true })</b></h4>
+                    </div>
+                    <div class="col-md-4">
+                        <h4><span>Current Financial Year : </span><b class="fn-lg">@Html.DisplayFor(m => m.CurrentFinancialYear, new { @class = "form-control", @id = "txtcurrentfinyear", @readonly = true })</b></h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+       <div class="vw-dts-bg">
+           <div class="row">
+               <div class="col-md-6 mt-40">
+                   <table class="table table-bordered">
+                       <thead>
+                           <tr>
+                               <th colspan="2">Claim Bill Details</th>
+                           </tr>
+                       </thead>
+                       <tbody>
+                           <tr>
+                               <td>
+                                   <label>Claim Bill Date</label>
+                                   <h4>@Html.DisplayFor(m=>m.Invoicedatestrng)</h4>
+                                   @Html.Hidden("InvoiceDate")
+                                   @Html.Hidden("InvoiceId")
+                                   @Html.Hidden("InvoiceNumber")
+                                   @Html.Hidden("CurrentFinyearId")
+                               </td>
+                           </tr>
+                           <tr>
+                               <td>
+                                   @*<label>Claim Bill Type</label>
+                                   <h4>@Html.DisplayFor(m => m.InvoiceTypeName)</h4>
+                                   @Html.Hidden("InvoiceType")*@
+                                   @Html.Hidden("ServiceType")
+                                   @Html.Hidden("ProjectType")
+                                  
+                                   @Html.TextBoxFor(m => m.ServiceType, new { @class = "form-control dis-none", @id = "txtservicetype" })
+                                   @Html.TextBoxFor(m => m.SACNumber, new { @class = "form-control dis-none", @id = "txtSACNumber" })
+                                   @Html.Hidden("SACNumber")
+                           </tr>
+                           <tr>
+                               <td>
+                                   <label>Description of Services</label>
+                                   <h4>@Html.DisplayFor(m => m.DescriptionofServices)</h4>
+                               </td>
+                           </tr>
+                           <tr>
+                               <td>
+                                   <label>Taxable Value</label>
+                                   @Html.HiddenFor(m => m.TaxableValue, new { @class = "form-control", @required = "required", @onchange = "calculatetaxamount();", @id = "taxablevalue", @onkeypress = "return isNumberKey(event)" })
+                                   <h4>@Html.DisplayFor(m=>m.TaxableValue)</h4>
+                               </td>
+                           </tr>
+                           @*@if(Model.ProjectClassification==4)
+                           {
+                               <tr>
+                                   <td>
+                                       <label>Account Group</label>
+                                       <h4>@Html.DisplayFor(m=>m.AccountGroupName)</h4>
+                                   </td>
+                                   
+                               </tr>
+                               <tr>
+                                   <td>
+                                       <label>Account Head</label>
+                                       <h4>@Html.DisplayFor(m => m.AccountHeadName)</h4>
+                                   </td>
+                               </tr>
+                           }*@
+                       </tbody>
+                   </table>
+               </div>
+               <div class="col-md-6  mt-40">
+                   <table class="table table-bordered">
+                       <thead>
+                           <tr>
+                               <th colspan="3">Tax Details</th>
+                           </tr>
+                       </thead>
+                       <tbody>
+                           <tr>
+                               <td>
+                                   <label>CGST</label>
+                               </td>
+                               @Html.HiddenFor(m => m.CGST, new { @class = "form-control", @id = "CGSTamount", @onkeypress = "return isNumberKey(event)", @readonly = true })
+                               <td><h4 id="lblCGSTamount"></h4>
+                                  
+                                </td>
+                               @Html.HiddenFor(m => m.CGSTPercentage, new { @class = "form-control", @id = "CGSTpercent", @readonly = true })
+                               @Html.Hidden("CGSTPercentage")
+                               <td><h4 id="lblCGSTpercent"></h4></td>
+                           </tr>
+                           <tr>
+                               <td>
+                                   <label>SGST</label>
+                               </td>
+                               <td>
+                                   @Html.HiddenFor(m => m.SGST, new { @class = "form-control", @id = "SGSTamount", @onkeypress = "return isNumberKey(event)", @readonly = true })
+                               <h4 id="lblSGSTamount"></h4>
+                                  @Html.Hidden("SGSTPercentage")
+                               </td>
+                               <td>
+                               @Html.HiddenFor(m => m.SGSTPercentage, new { @class = "form-control", @id = "SGSTpercent", @readonly = true })
+                               <h4 id="lblSGSTpercent"></h4></td>
+                           </tr>
+                           <tr>
+                               <td>
+                                   <label>IGST</label>
+                               </td>
+                               <td>
+                                   @Html.HiddenFor(m => m.IGST, new { @class = "form-control", @id = "IGSTamount", @onkeypress = "return isNumberKey(event)", @readonly = true })
+                               <h4 id="lblIGSTamount"></h4></td>
+                               <td>
+                                   @Html.HiddenFor(m => m.IGSTPercentage, new { @class = "form-control", @id = "IGSTpercent", @readonly = true })
+                                   @Html.Hidden("IGSTPercentage")
+                               <h4 id="lblIGSTpercent"></h4></td>
+                           </tr>
+                           <tr>
+                               <td>
+                                   <label>Total Tax</label>
+
+                               </td>
+                               <td>
+                                   @Html.HiddenFor(m => m.TotalTaxValue, new { @class = "form-control", @id = "Totaltaxamount", @onkeypress = "return isNumberKey(event)", @readonly = true })
+                                   <h4 id="lblTotaltaxamount"></h4>
+                               </td>
+                               <td>
+                                   @Html.HiddenFor(m => m.TotalTaxpercentage, new { @class = "form-control", @id = "Totaltaxpercent", @readonly = true })
+                                   <h4 id="lblTotaltaxpercent"></h4>
+                               </td>
+                                        @Html.Hidden("TotalTaxValue")
+                                        @Html.Hidden("TotalTaxpercentage")
+                                        @Html.Hidden("TotalTaxpercentageId")
+                           </tr>
+                           <tr>
+                               <td>
+                                   <label>Total Claim Bill Value</label>
+                                   @Html.Hidden("TotalInvoiceValue")
+                                   <h4>@Html.DisplayFor(m => m.TotalInvoiceValue, new { @class = "form-control", @id = "totalinvoicevalue", @readonly = true })</h4>
+                               </td>
+                           </tr>
+                       </tbody>
+                   </table>
+               </div>
+           </div>
+       </div>
+    <div class="row">
+        <div class="page-wrapper">
+
+            <div class="col-md-7 mb-lg">
+
+                <div class="white-bg">
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group custom-form-group">
+                                <label>Name: </label>
+                                <h4 class="sb-dts">@Html.DisplayFor(m => m.SponsoringAgencyName, new { @class = "form-control", @id = "txtAgencyRegname", @readonly = true })</h4>
+                                @Html.Hidden("SponsoringAgency")
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group custom-form-group">
+                                <label>Address  : </label>
+                                <h4 class="sb-dts">@Html.DisplayFor(m => m.Agencyregaddress, new { @class = "form-control", @id = "txtAgencyAddress", @readonly = true })</h4>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group custom-form-group">
+                                <label>District: </label>
+                                <h4 class="sb-dts">@Html.DisplayFor(m => m.Agencydistrict, new { @class = "form-control", @id = "txtAgencyDistrict", @readonly = true })</h4>
+
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group custom-form-group">
+                                <label>Pin Code:</label>
+                                <h4 class="sb-dts">@Html.DisplayFor(m => m.AgencyPincode, new { @class = "form-control", @id = "txtPincode", @readonly = true })</h4>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group custom-form-group">
+                                <label>State: </label>
+                                <h4 class="sb-dts">@Html.DisplayFor(m => m.Agencystate, new { @class = "form-control", @id = "txtState" })</h4>
+
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group custom-form-group">
+                                <label>State Code: </label>
+                                <h4 class="sb-dts">@Html.DisplayFor(m => m.Agencystatecode, new { @class = "form-control", @id = "txtStatecode" })</h4>
+                                @Html.Hidden("Agencystatecode")
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group custom-form-group">
+                                <label>GSTIN: </label>
+                                <h4 class="sb-dts">@Html.DisplayFor(m => m.GSTNumber, new { @class = "form-control", @id = "txtGSTIN" })</h4>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group custom-form-group">
+                                <label>PAN No: </label>
+                                <h4 class="sb-dts">@Html.DisplayFor(m => m.PAN, new { @class = "form-control", @id = "txtPAN" })</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group custom-form-group">
+                                <label>TAN No: </label>
+                                <h4 class="sb-dts">@Html.DisplayFor(m => m.TAN, new { @class = "form-control", @id = "txtTAN" })</h4>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group custom-form-group">
+                                <label>Contact Person: </label>
+                                <h4 class="sb-dts">@Html.DisplayFor(m => m.Agencycontactperson, new { @class = "form-control", @id = "txtAgencycontactperson" })</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group custom-form-group">
+                                <label>Email: </label>
+                                <h4 class="sb-dts">@Html.DisplayFor(m => m.AgencycontactpersonEmail, new { @class = "form-control", @id = "txtAgencypersonemail" })</h4>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group custom-form-group">
+                                <label>Contact No: </label>
+                                <h4 class="sb-dts">@Html.DisplayFor(m => m.Agencycontactpersonmobile, new { @class = "form-control", @id = "txtAgencypersonmobile" })</h4>
+                            </div>
+                        </div>
+                    </div>
+
+                    @*<div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group custom-form-group">
+                                    <label>Bank: </label>
+                                    <h4 class="sb-dts">@Html.DisplayFor(m => m.BankName, new { @class = "form-control", @id = "txtBankname" })</h4>
+                                    @Html.Hidden("Bank")
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group custom-form-group">
+                                    <label>Account Number: </label>
+                                    <h4 class="sb-dts">@Html.DisplayFor(m => m.BankAccountNumber, new { @class = "form-control", @id = "txtBankAccountNumber" })</h4>
+                                    @Html.Hidden("BankAccountId")
+                                    @Html.Hidden("BankAccountNumber")
+                                </div>
+                            </div>
+                        </div>*@
+
+                </div>
+
+            </div>
+
+            <div class="col-md-5">
+
+                <div class="bl-panel-box custom-tab-pills ">
+                    <div class="bl-panel-hd">
+                        <ul class="nav nav-pills">
+                            <li class="active">
+                                <a data-toggle="pill" href="#form1">Previous Claim Bills</a>
+                            </li>
+                            <li class="">
+                                <a data-toggle="pill" href="#form2">Instalment</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="bl-panel-dts tab-content ">
+                        <div id="form1" class="tab-pane fade active in">
+                            <table class="table wht-table">
+                                <thead>
+                                    <tr>
+                                        <th>Claim Bill No.</th>
+                                        <th>Date</th>
+                                        <th>Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{
+                                        if (Model.PreviousInvoiceId != null)
+                                        {
+                                            for (int i = 0; i < Model.PreviousInvoiceNumber.Count(); i++)
+                                            {
+                                                <tr>
+                                                    <td>@Html.DisplayFor(m => m.PreviousInvoiceNumber[i], new { @class = "form-control", @id = "txtPreviousInvoicenumber", @readonly = true })</td>
+                                                    <td>@Html.DisplayFor(m => m.PreviousInvoiceDate[i], new { @class = "form-control", @id = "txtPreviousInvoicedate", @readonly = true })</td>
+                                                    <td>@Html.DisplayFor(m => m.PreviousInvoicevalue[i], new { @class = "form-control", @align = "right", @id = "txtPreviousInvoicevalue", @readonly = true })</td>
+                                                </tr>
+                                            }
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div id="form2" class="tab-pane fade">
+                            <table class="table wht-table">
+                                <thead>
+                                    <tr>
+                                        <th>Instal. No.</th>
+                                        <th>Year</th>
+                                        <th>Value</th>
+                                        <th>Invoiced</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{
+                                        if (Model.InstalmentId != null)
+                                        {
+                                            for (int i = 0; i < Model.InstalmentId.Count(); i++)
+                                            {
+                                                <tr>
+                                                    <td>@Html.DisplayFor(m => m.InstlmntNumber[i], new { @class = "form-control", @id = "txtInstalmentnumber", @readonly = true })</td>
+                                                    <td>@Html.DisplayFor(m => m.Instalmentyear[i], new { @class = "form-control", @id = "txtInstalmentyear", @readonly = true })</td>
+                                                    <td>@Html.DisplayFor(m => m.InstalValue[i], new { @class = "form-control", @align = "right", @id = "txtInstalmentvalue", @readonly = true })</td>
+                                                    <td>@Html.DisplayFor(m => m.Invoiced[i], new { @class = "form-control", @align = "right", @id = "txtIsInvoiced", @readonly = true })</td>
+                                                    <td></td>
+                                                </tr>
+                                            }
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                    <div class="bl-panel-hgt">
+                        <h4><b>Balance Value: @Html.DisplayFor(m => m.AvailableBalance, new { @class = "form-control", @id = "Availablebalanceamount", @readonly = true })</b></h4>
+                        @Html.Hidden("AvailableBalance")
+                    </div>
+
+
+                </div>
+
+                <div class="at-panel-box mb20">
+                    <div class="at-panel-list">
+
+                        <div class="form-group custom-form-group">
+                            <label>Agency Registered Name: </label>
+                            <h4>@Html.DisplayFor(m => m.SponsoringAgencyName)</h4>
+                        </div>
+
+                        <div class="form-group custom-form-group">
+                            <label>Agency Communication Address: </label>
+                            <h4>@Html.DisplayFor(m => m.CommunicationAddress)</h4>
+
+                        </div>
+
+                        <div class="form-group custom-form-group">
+                            <label>Agency State: </label>
+                            <h4>
+                              @Html.DisplayFor(m=>m.AgencyStateName)
+                            </h4>
+                        </div>
+
+                        <div class="form-group custom-form-group">
+                            <label>Agency State Code: </label>
+                            <h4>@Html.DisplayFor(m => m.Agncystatecode)</h4>
+                            @Html.Hidden("RegAgencystatecode")
+                        </div>
+
+                        <div class="form-group custom-form-group">
+                            <label>Agency GSTIN: </label>
+                            <h4>@Html.DisplayFor(m => m.GSTNumber)</h4>
+                        </div>
+
+                        <div class="form-group custom-form-group">
+                            <label>Agency PAN: </label>
+                            <h4>@Html.DisplayFor(m => m.PAN)</h4>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+       
+
+        
+        @*if (Model.InvoiceId == 0 || Model.InvoiceId == null)
+        {
+            <div class="row text-center mb20">
+                <input type="submit" class="btn btn-primary" value="Generate Claim Bill" name="Button" id="btnSave" />
+                <input type="submit" class="btn btn-primary" name="Button" value="Save as Draft" formaction="DraftProjectInvoice" formmethod="post" /> |
+                <a href="@Url.Action("ClaimBillList", "CoreAccounts")" class="btn btn-primary">Close</a>
+            </div>
+        }
+        if (Model.InvoiceId > 0)
+        {
+            <div class="row text-center mb20">
+                <input type="submit" class="btn btn-primary" value="Update Claim Bill" name="Button" id="btnupdate" />                
+               <a href="@Url.Action("ClaimBillList", "CoreAccounts")" class="btn btn-primary">Close</a>
+            </div>
+        }*@
+    
+            </div>
+<div class="row">
+    <div class="col-md-12 text-center pd-tb-30">
+        @if (Model.PFInit != true)
+        {
+            <input type="button" onclick="window.location.href='@Url.Action("ClaimBillList", "CoreAccounts")';" class="btn btn-default" value="Close" id="btnclose" />
+        }
+        else
+        {
+            <input type="button" onclick="window.location.href='@Url.Action("Dashboard", "Home")';" class="btn btn-default" value="Close" id="btnclose" />
+        }
+    </div>
+</div>
+@if (ViewBag.succMsg != null)
+{
+    <div id="myModal" class="modal fade modal-success" role="dialog">
+        <div class="modal-dialog modal-sm">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" onclick="window.location.href='@Url.Action("ClaimBillList", "CoreAccounts")';">&times;</button>
+                    <i class="ion-android-checkmark-circle"></i>
+                    <h3 class="modal-title">Saved successfully</h3>
+                </div>
+                <div class="modal-body">
+
+                    <p>@ViewBag.succMsg</p>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" onclick="window.location.href='@Url.Action("ClaimBillList", "CoreAccounts")';">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+        <script>
+                    $(document).ready(function () {
+                        $('#myModal').modal('show');
+                    });
+
+        </script>
+
+}
+@if (ViewBag.errMsg != null)
+{
+    <div id="myModal1" class="modal fade modal-error" role="dialog">
+        <div class="modal-dialog modal-sm">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" onclick="window.location.href='@Url.Action("ClaimBillList", "CoreAccounts")';">&times;</button>
+                    <i class="ion-android-cancel"></i>
+                    <h3 class="modal-title">Error Message</h3>
+                </div>
+                <div class="modal-body">
+
+                    <p>@ViewBag.errMsg</p>
+
+                </div>
+                <div class="modal-footer">
+                    <a href="@Url.Action("ClaimBillList", "CoreAccounts")" class="btn btn-primary">Close</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+        <script>
+                    $(document).ready(function () {
+                        $('#myModal1').modal('show');
+                    });
+
+        </script>
+}
+    
+
+    <link href="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/css/bootstrap-select.min.css")" rel="stylesheet" />
+    <script src="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/js/bootstrap-select.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>
+    <script>
+        @*var dis = '@ViewBag.disabled';
+        if (dis != "") {
+            $('.form-control').prop('disabled', true);
+            $('.ion-trash-a').removeClass();
+            $("input[type='radio']").prop('disabled', true);
+            $('#btnReset,#btnupdate,#btnSave').hide();
+            $('input[type="checkbox"]').prop('disabled', true);
+            $('input[type="file"],#btnAddAttachment').hide();
+            $('#ProcessStatusContainer .form-control').prop('disabled', false);
+            $('#btnAddExpense').hide();
+            $('.btn-circle').removeClass();
+            $('.ion-close-round').removeClass();
+        }*@
+        $(document).ready(function () {
+            //get the relevant form
+            //  var form = $('#frmSRB');
+            $('.selectpicker').selectpicker({
+                liveSearch: true
+            });
+            $('.selectpicker').selectpicker('refresh');
+        });
+        $(document).ready(function () {
+           
+            $("#FromSODate, #ToSODate, #FromDate, #ToDate, #Invoicedatestrng").datepicker
+               ({
+                   dateFormat: 'dd-MM-yy',
+                   showStatus: true,
+                   showWeeks: true,
+                   changeYear: true,
+                   yearRange: '-100:+0',
+                   highlightWeek: true,
+                   numberOfMonths: 1,
+                   showAnim: "scale",
+                   showOptions: {
+                       origin: ["top", "left"]
+                   }
+               });
+        });
+        $("#FromSODate, #ToSODate, #FromDate, #ToDate, #Invoicedatestrng").datepicker
+                  ({
+                      dateFormat: 'dd-MM-yy',
+                      showStatus: true,
+                      showWeeks: true,
+                      changeYear: true,
+                      yearRange: '-100:+0',
+                      highlightWeek: true,
+                      numberOfMonths: 1,
+                      showAnim: "scale",
+                      showOptions: {
+                          origin: ["top", "left"]
+                      }
+                  });
+        
+        $('#TentativeStartdate').datepicker({ dateFormat: 'dd-MM-yy', changeYear: true, yearRange: '-30:+30' });
+        $('#Startdate').datepicker({ dateFormat: 'dd-MM-yy', changeYear: true, yearRange: '-30:+30' });
+        $('#TentativeClosedate').datepicker({ dateFormat: 'dd-MM-yy', changeYear: true, yearRange: '-30:+30' });
+        $('#Closedate').datepicker({ dateFormat: 'dd-MM-yy', changeYear: true, yearRange: '-30:+30' });
+        $('#Inputdate').datepicker({ maxDate: 0, minDate: 0, dateFormat: 'dd-MM-yy', changeYear: true, yearRange: '-30:+0' });
+
+        $('#department').prop("selectedIndex", 0);
+        $('#PI').prop("selectedIndex", 0);
+        $('#txtPIemail').val("");
+
+        $('#doctype').prop("selectedIndex", 0);
+        $('#docname').val("");
+
+        
+        // $('#gridsearchlist').hide();
+        $('#viewdoc').hide();
+
+        function isNumberKey(evt) {
+            var charCode = (evt.which) ? evt.which : evt.keyCode;
+            if (charCode != 46 && charCode > 31
+              && (charCode < 48 || charCode > 57))
+                return false;
+
+            return true;
+        }
+        function noedit() {
+            return false;
+        }
+
+        $('#btnSave').on('click', function (d) {
+            d.preventDefault();
+            var validator = $("#formPI").validate();
+            for (var i = 0; i < validator.errorList.length; i++) {
+                console.log(validator.errorList[i]);
+            }
+            var isValid = $('#formPI').valid();
+            if (!isValid)
+                return false;
+            // var isValid = $(this).closest("form").valid();
+            if (isValid)
+                $('#formPI').submit();
+
+        });
+        $('#btnupdate').on('click', function (d) {
+            d.preventDefault();
+            var isValid = $('#formPI').valid();
+            if (!isValid)
+                return false;
+            // var isValid = $(this).closest("form").valid();
+            if (isValid)
+                $('#formPI').submit();
+
+        }); 
+        $('#btnDraft').on('click', function (d) {
+            d.preventDefault();
+            var isValid = $('#formPI').valid();
+            if (!isValid)
+                return false;
+            // var isValid = $(this).closest("form").valid();
+
+            if (isValid)
+                $('#formPI').submit();
+
+        });
+        $("#txtRegAgencyState").change(function () {
+            var State = $(this).val();
+            var getstatecode = 'LoadStateCode';
+            $.ajax({
+                type: "POST",
+                url: getstatecode,
+                data: { state: State },
+                //contentType: "application/json; charset=utf-8",
+                //dataType: "json",
+                success: function (result) {
+                    $("#txtAgencyStateCode").val(result.name);
+                    $('input[name="RegAgencystatecode"]').val(result.id)
+                },
+                error: function (err) {
+                    console.log("error1 : " + err);
+                }
+            });
+        });
+        $("#txtservicetype").each(function () {
+            var servicetype = $(this).val();
+            var statecode = $('input[name="Agencystatecode"]').val();
+            var projecttype = $('input[name="ProjectType"]').val();
+            var invoicetype = $('input[name="InvoiceType"]').val();
+           
+            var gettaxpercentage = 'LoadTaxpercentage';
+            $.ajax({
+                type: "POST",
+                url: gettaxpercentage,
+                data: { servicetype: servicetype },
+                //contentType: "application/json; charset=utf-8",
+                //dataType: "json",
+                success: function (result) {
+                    
+                    $("#Totaltaxpercent").val(result.name + "%");
+                    $('input[name="TotalTaxpercentageId"]').val(result.id);
+                    //  $("#txtSACNumber").val(result.code);
+                    $('input[name="SACNumber"]').val(result.code);
+                    if (statecode == 33) {
+                        if (projecttype == 2) {
+                            if (invoicetype == 2) {
+                                $("#CGSTpercent").val(0 + "%");
+                                $("#SGSTpercent").val(0 + "%");
+                                $("#IGSTpercent").val("NA");
+                                $("#Totaltaxpercent").val(0 + "%");
+                            }
+                            else {
+                                var taxrate = 0;
+                                if (result.name != null && result.name != "") {
+                                    var taxrate = result.name;
+                                }
+                                var CGSTpercent = taxrate / 2;
+                                var SGSTpercent = taxrate / 2;
+                                $("#CGSTpercent").val(CGSTpercent + "%");
+                                $("#SGSTpercent").val(SGSTpercent + "%");
+                                $("#IGSTpercent").val("NA");
+                                $("#Totaltaxpercent").val(taxrate + "%");
+                            }
+
+                        }
+                        if (projecttype == 1) {
+                            $("#CGSTpercent").val(0 + "%");
+                            $("#SGSTpercent").val(0 + "%");
+                            $("#IGSTpercent").val("NA");
+                            $("#Totaltaxpercent").val(0 + "%");
+                        }
+                    }
+                    if (statecode != 33) {
+                        if (projecttype == 2) {
+                            if (invoicetype == 2 || invoicetype == 1) {
+                                $("#CGSTpercent").val(0 + "%");
+                                $("#SGSTpercent").val(0 + "%");
+                                $("#IGSTpercent").val("NA");
+                                $("#Totaltaxpercent").val(0 + "%");
+                            }
+                            else {
+                                var IGSTpercent = 0;
+                                if (result.name != null || result.name != "") {
+                                    var IGSTpercent = result.name;
+                                }
+                                $("#CGSTpercent").val("NA");
+                                $("#SGSTpercent").val("NA");
+                                $("#IGSTpercent").val(IGSTpercent + "%");
+                                $("#Totaltaxpercent").val(IGSTpercent + "%");
+                            }
+                        }
+                        if (projecttype == 1) {
+                            $("#CGSTpercent").val("NA");
+                            $("#SGSTpercent").val("NA");
+                            $("#IGSTpercent").val(0 + "%");
+                            $("#Totaltaxpercent").val(0 + "%");
+                        }
+
+                    }
+                    calculatetaxamount();
+                },
+                error: function (err) {
+                    console.log("error1 : " + err);
+                }
+            });
+        });
+        calculatepercetage();
+            function calculatepercetage() {
+                var servicetype = $("#txtservicetype").val();
+                var statecode = '@Model.Agncystatecode';
+                var projecttype = $('input[name="ProjectType"]').val();
+                var invoicetype = $('input[name="InvoiceType"]').val();
+               
+                var gettaxpercentage = 'LoadTaxpercentage';
+                $.ajax({
+                    type: "POST",
+                    url: gettaxpercentage,
+                    data: { servicetype: servicetype },
+                    //contentType: "application/json; charset=utf-8",
+                    //dataType: "json",
+                    success: function (result) {
+                        
+                        $("#Totaltaxpercent").val(result.name + "%");
+                        $('input[name="TotalTaxpercentageId"]').val(result.id);
+                        //  $("#txtSACNumber").val(result.code);
+                        $('input[name="SACNumber"]').val(result.code);
+                        if (statecode == 33) {
+                            if (projecttype == 2)
+                            {
+                                if (invoicetype == 2)
+                                {
+                                    $("#CGSTpercent").val(0 + "%");
+                                    $("#SGSTpercent").val(0 + "%");
+                                    $("#IGSTpercent").val("NA");
+                                    $("#Totaltaxpercent").val(0 + "%");
+                                    $("#lblCGSTpercent").text(0 + "%");
+                                    $("#lblSGSTpercent").text(0 + "%");
+                                    $("#lblIGSTpercent").text("NA");
+                                    $("#lblTotaltaxpercent").text(0 + "%");
+                                }
+                                else
+                                {
+                                    var taxrate = 0;
+                                    if (result.name != null && result.name != "") {
+                                        var taxrate = result.name;
+                                    }
+                                    var CGSTpercent = taxrate / 2;
+                                    var SGSTpercent = taxrate / 2;
+                                    $("#CGSTpercent").val(CGSTpercent + "%");
+                                    $("#SGSTpercent").val(SGSTpercent + "%");
+                                    $("#IGSTpercent").val("NA");
+                                    $("#Totaltaxpercent").val(taxrate + "%");
+                                    $("#lblCGSTpercent").text(CGSTpercent + "%");
+                                    $("#lblSGSTpercent").text(SGSTpercent + "%");
+                                    $("#lblIGSTpercent").text("NA");
+                                    $("#lblTotaltaxpercent").text(taxrate + "%");
+                                }
+                                    
+                            }
+                            if (projecttype == 1)
+                                {
+                                    $("#CGSTpercent").val(0 + "%");
+                                    $("#SGSTpercent").val(0 + "%");
+                                    $("#IGSTpercent").val("NA");
+                                    $("#Totaltaxpercent").val(0 + "%");
+                                    $("#lblCGSTpercent").text(0 + "%");
+                                    $("#lblSGSTpercent").text(0 + "%");
+                                    $("#lblIGSTpercent").text("NA");
+                                    $("#lblTotaltaxpercent").text(0 + "%");
+                                }
+                        }
+                        if (statecode != 33) {
+                            if (projecttype == 2)
+                            {
+                                if (invoicetype == 2) {
+                                    $("#CGSTpercent").val(0 + "%");
+                                    $("#SGSTpercent").val(0 + "%");
+                                    $("#IGSTpercent").val("NA");
+                                    $("#Totaltaxpercent").val(0 + "%");
+                                    $("#lblCGSTpercent").text(0 + "%");
+                                    $("#lblSGSTpercent").text(0 + "%");
+                                    $("#lblIGSTpercent").text("NA");
+                                    $("#lblTotaltaxpercent").text(0 + "%");
+                                }
+                                else {
+                                    var IGSTpercent = 0;
+                                    if (result.name != null || result.name != "") {
+                                        var IGSTpercent = result.name;
+                                    }
+                                    $("#CGSTpercent").val("NA");
+                                    $("#SGSTpercent").val("NA");
+                                    $("#IGSTpercent").val(IGSTpercent + "%");
+                                    $("#Totaltaxpercent").val(IGSTpercent + "%");
+                                    $("#lblCGSTpercent").text("NA");
+                                    $("#lblSGSTpercent").text("NA");
+                                    $("#lblIGSTpercent").text(IGSTpercent + "%");
+                                    $("#lblTotaltaxpercent").text(IGSTpercent + "%");
+                                }
+                            }
+                            if (projecttype == 1)
+                                {
+                                    $("#CGSTpercent").val("NA");
+                                    $("#SGSTpercent").val("NA");
+                                    $("#IGSTpercent").val(0 + "%");
+                                    $("#Totaltaxpercent").val(0 + "%");
+                                    $("#lblCGSTpercent").text(0 + "%");
+                                    $("#lblSGSTpercent").text(0 + "%");
+                                    $("#lblIGSTpercent").text("NA");
+                                    $("#lblTotaltaxpercent").text(0 + "%");
+                                }
+
+                        }
+                        calculatetaxamount();
+                    },
+                    error: function (err) {
+                        console.log("error1 : " + err);
+                    }
+                });
+            };
+      
+        function calculatetaxamount() {
+          
+            var taxablevalue = $('input[name="TaxableValue"]').val();
+            var statecode = $('input[name="Agencystatecode"]').val();
+            var totaltaxpercent = $("#Totaltaxpercent").val();
+            if (taxablevalue != null && taxablevalue != "") {
+                var totaltaxpercentvalue = parseInt(totaltaxpercent, 10);
+                if (statecode == 33) {
+                    var Totalamount = taxablevalue * totaltaxpercentvalue / 100 || 0;
+                    var CGSTamount = Totalamount / 2;
+                    var SGSTamount = Totalamount / 2;
+                    var IGSTamount = 0;
+                    $("#lblCGSTamount").text(CGSTamount);
+                    $("#lblSGSTamount").text(SGSTamount);
+                    $("#lblIGSTamount").text(IGSTamount);
+                    $("#lblTotaltaxamount").text(Totalamount);
+                    $("#CGSTamount").val(CGSTamount);
+                    $("#SGSTamount").val(SGSTamount);
+                    $("#IGSTamount").val(IGSTamount);
+                    $("#Totaltaxamount").val(Totalamount);
+                    var taxamount = parseInt($("#Totaltaxamount").val());
+                    var totalinvoicevalue = parseInt(taxablevalue) + taxamount;
+                    $("#totalinvoicevalue").html(totalinvoicevalue);
+                    $('input[name="TotalInvoiceValue"]').val(totalinvoicevalue);                    
+                }
+                if (statecode != 33) {
+                    var Totalamount = taxablevalue * totaltaxpercentvalue / 100 || 0;
+                    $("#CGSTamount").val(0);
+                    $("#SGSTamount").val(0);
+                    $("#lblIGSTamount").text(Totalamount);
+                    $("#IGSTamount").val(Totalamount);
+                    $("#Totaltaxamount").val(Totalamount);
+                    var taxamount = parseInt($("#Totaltaxamount").val());
+                    var totalinvoicevalue = parseInt(taxablevalue) + taxamount;
+                    $("#totalinvoicevalue").html(totalinvoicevalue);
+                    $('input[name="TotalInvoiceValue"]').val(totalinvoicevalue);
+                }
+            }
+            if (taxablevalue == null || taxablevalue == "")
+            {
+                $("#CGSTamount").val("0");
+                $("#SGSTamount").val("0");
+                $("#IGSTamount").val("0");
+                $("#Totaltaxamount").val("0");
+            }
+        }
+
+        $("#taxablevalue").change(function () {
+            var servicetype = $(this).val();
+            var totalinvoicevalue = $('input[name="TotalInvoiceValue"]').val();
+            var Instalmentvalue = $('input[name="Instalmentvalue"]').val();
+            var AvailableInvoicevalue = $('input[name="AvailableBalance"]').val();
+            var Sanctionvalue = $('input[name="Sanctionvalue"]').val();
+            if (Instalmentvalue != null && Instalmentvalue != "")
+            {
+                var availableinstalmentbalance = Instalmentvalue - totalinvoicevalue
+                if (availableinstalmentbalance <= 0)
+                {
+                    $('#MsgValidation').html("Invoice value cannot exceed the current instalment.");
+                    $('#ValidationModal').modal('toggle');
+                }
+            }
+            if (AvailableInvoicevalue != null && AvailableInvoicevalue != "") {
+                var availableinvoicebalance = AvailableInvoicevalue - totalinvoicevalue
+                if (availableinvoicebalance <= 0) {
+                    $('#MsgValidation').html("Invoice value cannot exceed the available invoice balance.");
+                    $('#ValidationModal').modal('toggle');
+                }
+            }
+           
+        });
+        
+      
+    </script>
+

@@ -1,0 +1,567 @@
+﻿@model IOAS.Models.OtherPaymentDeductionModel
+@{
+    ViewBag.Title = "OtherPaymentDeduction";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<div class="row hd-tt-bg">
+    <div class="col-md-12">
+        <h4><b>Other Payments / Other Deductions</b></h4>
+    </div>
+</div>
+@using (Html.BeginForm("OtherPaymentDeduction", "Requirement", FormMethod.Post, new { @class = "", role = "form", @id = "formOTHJuniorApp", enctype = "multipart/form-data" }))
+{
+<div class="row cts-mn-dts">
+    <div class="page-wrapper mt30">
+        <div>
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-md-6">
+
+
+                        <div class="bl-lg-panel-box pb-null">
+                            <div class="cmn-panel-box">
+                                <div class="row ">
+
+
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group">
+                                            <label class="required">Employee Id</label>
+                                            @Html.TextBoxFor(m=>m.EmployeeNo,new {@class="form-control" })
+                                            @Html.TextBoxFor(m=>m.AppointmentId,new {@class="form-control dis-none" })
+                                            <div>@Html.ValidationMessageFor(m => m.AppointmentId)</div>
+                                            @Html.HiddenFor(m=>m.OrderId)
+                                            @Html.Hidden("OTHPayDeductionId")
+                                            <div>@Html.ValidationMessageFor(m=>m.EmployeeNo)</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group">
+                                            <label>Name </label>
+                                            <h4 id="lblName"></h4>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group">
+                                            <label>Type of appointment </label>
+                                            <h4 id="lblTypeOfAppointment"></h4>
+                                            @Html.HiddenFor(m=>m.AppointmentType)
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group">
+                                            <label>Email ID</label>
+                                            <h4 id="lblEmailId"></h4>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group">
+                                            <label>Contact No</label>
+                                            <h4 id="lblContactNo"></h4>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group">
+                                            <label>Designation</label>
+                                            <h4 id="lblDesignation"></h4>
+                                            @Html.HiddenFor(m=>m.DesignationId)
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group ">
+                                            <label>Date of Birth</label>
+                                            <h4 id="lblDateofBirth"></h4>
+
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group  ">
+                                            <label>Sex</label>
+                                            <h4 id="lblGender"></h4>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group  ">
+                                            <label>Attachment</label>
+                                            @if (!string.IsNullOrEmpty(Model.AttachmentPath))
+                                            {
+                                                <input type="file" class="form-control" name="OTHAttachement" />
+                                                <em style="color:red;font-size:12px;">upload .pdf and file size below 5MB</em>
+                                                <br />
+                                                @Html.ActionLink(Model.AttachmentPath.Split('_').LastOrDefault(), "ShowDocument", new { Controller = "Account", filepath = "Requirement", file = Model.AttachmentPath }, new { @target = "_blank" })
+                                            }
+                                            else
+                                            {
+                                                <input type="file" class="form-control" name="OTHAttachement" />
+                                                <em style="color:red;font-size:12px;">upload .pdf and file size below 5MB</em>
+                                            }
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group mb-sm ">
+                                            <label class="required">Month and year</label>
+                                            @Html.DropDownListFor(m => m.Month, new SelectList(ViewBag.MonthList, "name", "name"), "Select Month and year", new { @class = "form-control",@onchange= "GetSalarymonth();" })
+                                            <div>@Html.ValidationMessageFor(m => m.Month)</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group ">
+                                            <label>From Date</label>
+                                            @Html.TextBoxFor(m=>m.FromDate,new {@class="form-control", @readonly = "readonly" })
+
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group  ">
+                                            <label>To Date</label>
+                                           @Html.TextBoxFor(m => m.ToDate, new { @class = "form-control", @readonly = "readonly" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group">
+                                            <label>Do not book commitment</label> <br>
+                                            @Html.CheckBoxFor(m => m.IsNoCommitment, new { @id = "Is_Comit" })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="bl-lg-panel-box pb-null">
+                            <div class="cmn-panel-box">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group mb-sm">
+                                            <label>Project Number</label>
+                                            <h4 id="lblPrjNo"></h4>
+                                            @Html.HiddenFor(m=>m.ProjectId)
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group mb-sm">
+                                            <label>Project Title</label>
+                                            <h4 id="lblPrjTitle"></h4>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group mb-sm">
+                                            <label>Name of the Client / Sponsoring Agency</label>
+                                            <h4 id="lblAgency"></h4>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group mb-sm">
+                                            <label>Project Type</label>
+                                            <h4 id="lblProjectType"></h4>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group mb-sm">
+                                            <label>PI Name</label>
+                                            <h4 id="lblPIName"></h4>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group mb-sm">
+                                            <label>Project Start Date</label>
+                                            <h4 id="lblPrjStrDate"></h4>
+
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group mb-sm">
+                                            <label>Project Closure Date</label>
+                                            <h4 id="lblPrjClsDate"></h4>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group mb-sm">
+                                            <label>PI Code</label>
+                                            <h4 id="lblPIEmpId"></h4>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group mb-sm">
+                                            <label>PI Email ID</label>
+                                            <h4 id="lblPIEmailId"></h4>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group mb-sm">
+                                            <label>PI Phone No</label>
+                                            <h4 id="lblPhoneNo"></h4>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+
+
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group mb-sm">
+                                            <label>Department code </label>
+                                            <h4 id="lblDepartmentCode"></h4>
+
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group mb-sm">
+                                            <label>Department Name</label>
+                                            <h4 id="lblDepartmentName"></h4>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="col-md-12">
+                        <div class="bl-lg-panel-box pb-null">
+                            <div class="cmn-panel-box">
+                                
+                                <div class="row">
+                                  <table class="table alter-table mb-null">
+                                      <thead>
+                                          <tr>
+                                              <th class="required">Other</th>
+                                              <th class="required">Payment / Deduction</th>
+                                              <th class="required">Amount</th>
+                                              <th>Remarks</th>
+                                              <th></th>
+                                          </tr>
+                                      </thead>
+                                      <tbody id="tblbodyPaydeduction">
+                                          @if (Model.OTHDetail != null)
+                                          {
+                                              var count = 0;
+                                              foreach (var item in Model.OTHDetail)
+                                              {
+                                                  var othdid = "OTHDetail[" + count + "].OTHPayDeductionDetailId";
+                                                  var othtype = "OTHDetail[" + count + "].OtherType";
+                                                  var Paydec = "OTHDetail[" + count + "].PaymentDeductionType";
+                                                  var amt = "OTHDetail[" + count + "].Amount";
+                                                  var rem= "OTHDetail[" + count + "].Remarks";
+                                                  var othdectype = "othdectype_" + count;
+                                                <tr>
+                                                    <td>
+                                                        @Html.DropDownList(@othtype, new SelectList(ViewBag.OtherType, "id", "name", item.OtherType), "Select Other",
+                                                        new { @class = "form-control", @id = @othdectype, @required = "required",@title= "Other type field is required." })
+                                                        @Html.ValidationMessage(@othtype)
+                                                        @Html.Hidden("OTHDetail.Index", @count)
+                                                        @Html.Hidden(@othdid, item.OTHPayDeductionDetailId)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DropDownList(@Paydec, new SelectList(item.PaydecList, "id", "name", item.PaymentDeductionType), "Select",
+                                                 new { @class = "form-control", @id = @Paydec, @required = "required",@title= "Payment / Deduction field is required." })
+                                                    </td>
+                                                    <td>
+                                                        @Html.TextBox(@amt, item.Amount, new { @class = "form-control", @onkeypress = "return isNumberKey(event)", @autocomplete = "off", @required = "required",@title= "Amount field is required." })
+                                                        @Html.ValidationMessage(@amt)
+                                                    </td>
+                                                    <td>
+                                                        @Html.TextBox(@rem, item.Remarks, new { @class = "form-control", @autocomplete = "off"})
+                                                       
+                                                    </td>
+                                                    <td>
+                                                        <a href="javascript:void(0)" class="btn-sm btn btn-danger removeOTHDetail"><i class="ion-android-close"></i></a>
+                                                    </td>
+                                                </tr>
+                                                  count++;
+                                              }
+
+                                          }
+                                          else
+                                          {
+                                              <tr>
+                                                  <td>
+                                                      @Html.DropDownList("OTHDetail[0].OtherType", new SelectList(ViewBag.OtherType, "id", "name"), "Select Other",
+                                                 new { @class = "form-control", @id = "othdectype_0", @required = "required" , @title = "Other type field is required." })
+                                                      @Html.ValidationMessage("OTHDetail[0].OtherType")
+                                                      @Html.Hidden("OTHDetail.Index", 0)
+                                                  </td>
+                                                  <td>
+                                                      @Html.DropDownList("OTHDetail[0].PaymentDeductionType", new SelectList(ViewBag.List, "id", "name"), "Select",
+                                                 new { @class = "form-control", @id = "paydec" , @required = "required", @title = "Payment / Deduction field is required." })
+                                                      @Html.ValidationMessage("OTHDetail[0].PaymentDeductionType")
+                                                  </td>
+                                                  <td>
+                                                      @Html.TextBox("OTHDetail[0].Amount", "", new { @class = "form-control", @onkeypress = "return isNumberKey(event)", @autocomplete = "off", @required = "required", @title = "Amount field is required." })
+                                                      @Html.ValidationMessage("OTHDetail[0].Amount")
+                                                  </td>
+                                                  <td>
+                                                      @Html.TextBox("OTHDetail[0].Remarks", "", new { @class = "form-control", @autocomplete = "off" })
+                                                  </td>
+                                                  <td>
+                                                      <a href="javascript:void(0)" class="btn-sm btn btn-danger removeOTHDetail"><i class="ion-android-close"></i></a>
+                                                  </td>
+                                              </tr>
+                                          }
+                                      </tbody>
+                                     
+                                  </table>
+                                    
+                                </div>
+
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mt-md">
+                                        <a href="javascript:void(0)" id="btnAddPaydec" class="btn btn-primary mb30">Add New</a>
+                                    </div>
+                                </div>
+
+
+
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12 mb-lg text-center">
+        <input type="submit" class="btn btn-primary" value="Submit" name="Button" id="btnOthPayment" />
+        <input type="button" onclick="window.location.href='@Url.Action("OtherPaymentDeductionList", "Requirement")';" class="btn btn-default" value="Close" id="btnclose" />
+    </div>
+</div>
+}
+<div class="loading-bg dis-none">
+</div>
+<script type="text/javascript">
+    $('#btnAddPaydec').click(function () {
+        var cln = $('#tblbodyPaydeduction tr:first').clone().find("input,select").val("").end();
+        $(cln).find('select[name$=".PaymentDeductionType"]').empty().append($('<option/>', { value: "", text: "Select" }));
+        var index = $('#tblbodyPaydeduction tr:last').find("input[name='OTHDetail.Index']").val();
+        index = parseInt(index) + 1;
+        $(cln).find("input[name='OTHDetail.Index']").val(index);
+        $(cln).find("input,select").each(function () {
+
+            $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+            if ($(this).attr("id"))
+                $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+        });
+        $(cln).find("span[data-valmsg-for]").each(function () {
+            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+        });
+        $('#tblbodyPaydeduction').append(cln);
+
+
+    });
+
+    $(document).on('click', 'a.removeOTHDetail', function () {
+        if ($('#tblbodyPaydeduction tr').length != 1) {
+            $(this).closest('tr').remove();
+        }
+    });
+    $(document).on('change', 'select[id^="othdectype_"]', function () {
+        var othId = $(this).val();
+        //var type = 1;
+        var ID = $(this).attr("id");
+        var idx = ID.substr(ID.lastIndexOf("_") + 1);
+        var select = $(this).closest('#tblbodyPaydeduction').find('select[name="OTHDetail[' + idx + '].PaymentDeductionType"]');
+        $(select).empty().append($('<option/>', { value: "", text: "Select" }));
+        $.getJSON("@Url.Action("GetSalaryBreakUpHead", "Requirement")", { groupId: othId },
+                    function (locationdata) {
+                        $.each(locationdata, function (index, itemData) {
+                            $(select).append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name
+                            }));
+                        });
+                    });
+    });
+    $('#btnOthPayment').click(function (d) {
+        d.preventDefault();
+        var isValid = $('#formOTHJuniorApp').valid();
+        if ($('#AppointmentId').val() == null && $('#AppointmentId').val() == "") {
+            $('#alert').html("Please Select Any one Employee number");
+            $('#Validation').modal('toggle');
+            return false;
+        }
+        if (!isValid)
+            return false;
+        if (isValid)
+            $('#formOTHJuniorApp').submit();
+    });
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    var alertMsg = '@TempData["alertMsg"]';
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+        else if (alertMsg != '') {
+            $('#alert').html(alertMsg);
+            $('#Validation').modal('toggle');
+        }
+    });
+    var othids=$('#OTHPayDeductionId').val();
+    applyAutoComplete($('#EmployeeNo'), $('#AppointmentId'), '@Url.Action("LoadEmployeeList", "Requirement")', 'EmployeeDetails', true);
+
+
+    function EmployeeDetails()
+    {
+        var EmpNo = $('#EmployeeNo').val();
+        if(EmpNo != "" || EmpNo != null)
+        {
+            $(".loading-bg").removeClass('dis-none');
+            $.getJSON("@Url.Action("LoadEmployeeDetails", "Requirement")", { EMPNo: EmpNo },
+            function (result) {
+                if (result.EMPData.CondidateName != "") {
+                    $('#lblName').text(result.EMPData.Name);
+                    $('#lblTypeOfAppointment').text(result.EMPData.AppointmentTypeName);
+                    $('#AppointmentType').val(result.EMPData.AppointmentType);
+                    $('#lblEmailId').text(result.EMPData.EmailId);
+                    $('#lblContactNo').text(result.EMPData.ContactNo);
+                    $('#lblDesignation').text(result.EMPData.DesignationName)
+                    $('#DesignationId').val(result.EMPData.DesignationId);
+                    $('#lblDateofBirth').text(result.EMPData.DateOfBirth);
+                    $('#lblGender').text(result.EMPData.Gender);
+                    $('#lblPrjNo').text(result.EMPData.ProjectNumber);
+                    $('#ProjectId').val(result.EMPData.ProjectId);
+                    $('#lblPrjTitle').text(result.EMPData.ProjectTitle);
+                    $('#lblAgency').text(result.EMPData.Agency);
+                    $('#lblProjectType').text(result.EMPData.Projecttype);
+                    $('#lblPIName').text(result.EMPData.PIName);
+                    $('#lblPrjStrDate').text(result.EMPData.ProjectStartDate);
+                    $('#lblPrjClsDate').text(result.EMPData.ProjectCloseDate);
+                    $('#lblPIEmpId').text(result.EMPData.PICode);
+                    $('#lblPIEmailId').text(result.EMPData.PIEmail);
+                    $('#lblPhoneNo').text(result.EMPData.PIContactNo);
+                    $('#lblDepartmentCode').text(result.EMPData.PIDepartmentCode);
+                    $('#lblDepartmentName').text(result.EMPData.PIDepartment);
+                    //var getdatefrm = moment(new Date()).add(-2, 'month').toDate();
+                    //var todat = moment(new Date()).toDate();
+                    //if (othids=="")
+                    //{
+                    //    $("#FromDate").val('');
+                    //    $("#ToDate").val('');
+                    //}
+                    //$('#FromDate').datepicker({
+                    //    dateFormat: 'dd-MM-yy',
+                    //    changeYear: true
+                    //}).datepicker("option", "minDate", getdatefrm).datepicker("option", "maxDate", todat);
+                    //$('#ToDate').datepicker({
+                    //    dateFormat: 'dd-MM-yy',
+                    //    changeYear: true
+                    //}).datepicker("option", "minDate", getdatefrm).datepicker("option", "maxDate", todat);
+                    $(".loading-bg").addClass('dis-none');
+                }
+                else {
+                    $(".loading-bg").addClass('dis-none');
+                }
+            });
+
+        }
+
+    }
+    EmployeeDetails();
+
+
+    function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode != 46 && charCode > 31
+          && (charCode < 48 || charCode > 57))
+            return false;
+
+        return true;
+    }
+    function GetSalarymonth() {
+        var month = $('#Month').val();
+
+        if (month != "") {
+            $.getJSON("@Url.Action("LoadOTHMonthDate", "Requirement")", { MonthAndYear: month},
+        function (result) {
+            if (result.FrmSalDate != null && result.toSalDate != null) {
+                var getdatefrm = moment(result.FrmSalDate).add(-2, 'month').toDate();
+                var todat = moment(result.toSalDate).toDate();
+                $('#FromDate').datepicker({
+                    changeYear: false,
+                    changeMonth: false,
+                    dateFormat: 'dd-MM-yy',
+
+                }).datepicker("option", "minDate", getdatefrm).datepicker("option", "maxDate", todat);
+
+                $('#ToDate').datepicker({
+                    dateFormat: 'dd-MM-yy',
+                    changeYear: false,
+                    changeMonth: false
+
+                }).datepicker("option", "minDate", getdatefrm).datepicker("option", "maxDate", todat);
+
+
+            }
+
+
+        });
+
+        }
+        else {
+            $('#FromDate').datepicker("destroy");
+            $('#ToDate').datepicker("destroy");
+            $('#FromDate').val('');
+            $('#ToDate').val('');
+        }
+
+    }
+    var frmdate=@Html.Raw(Json.Encode(Model.FrmDateEdit));
+    var todate=@Html.Raw(Json.Encode(Model.ToDateEdit));
+    if(frmdate!=null && todate!=null)
+    {
+        var getdatefrm = moment(frmdate).add(-2, 'month').toDate();
+        var todat = moment(todate).toDate();
+        var setfrm=@Html.Raw(Json.Encode(Model.FromDate));
+        var setto=@Html.Raw(Json.Encode(Model.ToDate));
+        var setmofrm=moment(setfrm).toDate();
+        var setmoto=moment(setto).toDate();
+        $('#FromDate').datepicker({
+            dateFormat: 'dd-MM-yy',
+            changeYear: false,
+            changeMonth: false
+        }).datepicker("option", "minDate",getdatefrm).datepicker("option", "maxDate",todat).datepicker("setDate",setmofrm);
+        $('#ToDate').datepicker({
+            dateFormat: 'dd-MM-yy',
+            changeYear: false,
+            changeMonth: false
+
+        }).datepicker("option", "minDate",getdatefrm).datepicker("option", "maxDate", todat).datepicker("setDate",setmoto);
+    }
+</script>
+<script src="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/js/bootstrap-select.min.js")"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>
+

@@ -1,0 +1,214 @@
+﻿@model IOAS.Models.InternalProjectSearchModel 
+@{
+    ViewBag.Title = "InternalProjectList";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<div class="row hd-tt-bg">
+    <div class="col-md-4">
+        <h3>Internal Project Opening List</h3>
+    </div>
+    <div class="col-md-8 flt-nav-links">
+        <a href="@Url.Action("InternalProject")"> <i class="ion-plus"></i>Add New</a>
+
+    </div>
+</div>
+<div class="row mt30">
+    <div class="page-wrapper">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="custom-jsgrid-normal">
+                    <div id="gridInternalProject"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    var alertMsg = '@TempData["alertMsg"]';
+    $('#gridInternalProject').jsGrid({
+        paging: true,
+        pageIndex: 1,
+        pageSize: 10,
+        editing: false,
+        filtering: true,
+        pageLoading: true,
+        autoload: true,
+        controller: {
+
+            loadData: function (filter) {
+                
+                var searchData = [];
+                searchData = {
+                    ProjectNumber: filter.ProjectNumber || null,
+                    PIName: filter.PIName || null,
+                    Sanctionvalue: filter.SanctionValue || null,
+                    Status: filter.Status || null
+                },
+                filter.model = searchData;
+                var deferred = $.Deferred();
+                $.ajax({
+                    type: "post",
+                    url: "SearchInternalProjectList",
+                    data: JSON.stringify(filter),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (result) {
+                      
+                        var da = {
+                            data: result.list,
+                            itemsCount: result.TotalRecords
+                        }
+                        deferred.resolve(da);
+                    },
+                    error: function (err) {
+                        console.log("error : " + err);
+                    }
+
+                });
+                return deferred.promise();
+            }
+
+        },
+        fields: [
+                    { type: "number", name: "SNo", title: "S.No", editing: false, filtering: false, align: "left", width: "70px" },
+                    { name: "Projectid", title: "Project id", editing: false, visible: false },
+                    { type: "text", name: "ProjectNumber", title: "Project Number", editing: false },
+                    { type: "text", name: "PIName", title: "PI Name", editing: false },
+                    { type: "text", name: "SanctionValue", title: "Sanction Value", editing: false },
+                    { type: "text", name: "Status", title: "Status", editing: false },
+
+                    {
+                        type: "control", editButton: false, deleteButton: false, width: 120, title: "Action",
+                        deleteButton: false,
+                        itemTemplate: function (value, item) {
+                            var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+                            if (item.Status == "Open") {
+                                statusList = [{ id: "", name: "Select Action" }, { id: "Submit for approval", name: "Submit for approval" }, { id: "Edit", name: "Edit" },  { id: "View", name: "View" }]
+                            }
+                            else if (item.Status == "Active") {
+                                statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }]
+                            }
+                            else {
+                                statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }]
+                            }
+                            var $customSelect = $("<select>")
+                                .attr("class", "form-control").prop("selectedIndex", "")
+                            $.each(statusList, function (index, itemData) {
+                                $customSelect.append($('<option/>', {
+
+                                    value: itemData.id,
+                                    text: itemData.name
+                                }));
+                            });
+                            $customSelect.change(function (e) {
+                                var selVal = $(this).val();
+                                if (selVal == "Edit") {
+                                    var url = '@Url.Action("InternalProject", "Project")?ProjectId=' + item.Projectid;
+                                    window.location.href = url;
+                                }
+                                else if (selVal == "View") {
+                                    var url = '@Url.Action("InternalProjectView", "Project")?ProjectId=' + item.Projectid;
+                                    window.location.href = url;
+                                } else if (selVal == "Submit for approval") {
+                                    var choice = confirm("Are you sure, Do you want to submit this project for approval process?");
+                                    if (choice === true) {
+                                        $.ajax({
+                                            type: "POST",
+                                            url: 'ProjectWFInit',
+                                            data: {
+                                                projectId: item.Projectid
+                                            },
+                                            success: function (result) {
+                                                if (result == true) {
+                                                    $('#alertSuccess').html("Project has been submitted for approval process successfully.");
+                                                    $('#Success').modal('toggle');
+                                                  
+                                                } else if (result == false) {
+                                                    $('#FailedAlert').html("Something went wrong please contact administrator");
+                                                    $('#Failed').modal('toggle');
+                                                }
+                                            },
+                                            error: function (err) {
+                                                console.log("error1 : " + err);
+                                            }
+                                        });
+                                    }
+                                }
+
+                                else if (selVal == "Activate") {
+                                    var choice = confirm("Are you sure, Do you want to submit this bill for approval process?");
+                                    if (choice === true) {
+                                        $.ajax({
+                                            type: "GET",
+                                            url: '@Url.Action("ApprovalForInternalProject", "Project")',
+                                            data: {
+                                                ProjectId: item.Projectid
+                                            },
+                                            success: function (result) {
+                                                if (result.status == true) {
+                                                    $('#alertSuccess').html("Project Approved Successfully.");
+
+                                                    $('#Success').modal('toggle');
+                                                    loadDetails();
+                                                } else if (result.status == false) {
+
+                                                    $('#FailedAlert').html(result.msg);
+                                                    $('#Failed').modal('toggle');
+                                                }
+                                            },
+                                            error: function (err) {
+                                                console.log("error1 : " + err);
+                                            }
+                                        });
+                                    }
+
+                                }
+                        
+                                $(this).val("");
+                                return false;
+                                e.stopPropagation();
+                            });
+                            return $result.add($customSelect);
+                        },
+                        _createFilterSwitchButton: function () {
+                            return this._createOnOffSwitchButton("filtering", this.searchModeButtonClass, false);
+                        }
+                    }
+
+        ],
+      
+
+
+
+        
+
+    });
+    $("#gridInternalProject").jsGrid("option", "filtering", false);
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+        else if (alertMsg != '') {
+            $('#alert').html(alertMsg);
+            $('#Validation').modal('toggle');
+        }
+    });
+    function loadDetails() {
+        var input = [];
+        input = {
+            ProjectNumber: null,
+            PIName: null,
+            FDNumber: null,
+            Sanctionvalue: null,
+            Status: null
+        },
+        $("#gridInternalProject").jsGrid("search", input, pageIndex = 1, pageSize = 5);
+    }
+</script>

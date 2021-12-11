@@ -1,0 +1,358 @@
+﻿@model IOAS.Models.AnnouncementMasterModel
+@{
+    ViewBag.Title = "Announcement";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<style>
+    .custom-reg-no.reg-no {
+        width: 320px;
+    }
+
+    .reg-no h4 {
+        font-size: 17px;
+    }
+</style>
+<div class="row hd-tt-bg">
+    <div class="col-md-12">
+        <h4><b>Announcement</b> </h4>
+    </div>
+</div>
+<div class="row">
+    <div class="white-bg ad-navbar">
+        <div class="col-md-3 col-md-offset-9">
+            <div class="reg-no custom-reg-no">
+                <div class="form-group custom-form-group">
+                    <label>Ref.No</label>
+                    <h4>@Html.DisplayFor(m => m.RefNo)</h4>
+                    @Html.HiddenFor(m => m.AnnouncementID)
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="vw-dts-bg">
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table table-bordered mb-null">
+                <thead>
+                    <tr>
+                        <th colspan="6">Announcement Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="2">
+                            <label>Announcement Title</label>
+                            <h4>@Model.AnnouncementTitle</h4>
+                        </td>
+                        <td colspan="2">
+                            <label>Announcement Status</label>
+                            <h4>@Model.Status</h4>
+                        </td>
+                        <td colspan="2">
+                            <label>Mode of request</label>
+                            <h4>@Model.ModeOfRequest</h4>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <label>Requested By</label>
+                            <h4>@Model.AnnouncementRequestBy</h4>
+                        </td>
+                        <td colspan="2" class="">
+                            <label>Announcement Category</label>
+                            <h4>@Model.AnnouncementCategory</h4>
+                        </td>
+                        <td colspan="2">
+                            <label>Announcement Platform</label>
+                            <h4>@Model.PortalsPlatform</h4>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <label>PI Name</label>
+                            <h4>@Model.PIName</h4>
+                        </td>
+                        <td colspan="2" class="">
+                            <label>Department</label>
+                            <h4>@Model.PIDepartment</h4>
+                        </td>
+                        <td colspan="2">
+                            <label>PIId</label>
+                            <h4>@Model.PIId</h4>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <label>Request Receive Date</label>
+                            <h4>@Model.strRequestReceiveDate</h4>
+                        </td>
+                        @if (Model.StatusID >= 2)
+                        {
+                            <td colspan="2">
+                                <label>Announcement Closure Date</label>
+                                <h4>@Model.strAnnouncementClosureDate</h4>
+                            </td>
+                        }
+                        @if (Model.StatusID >= 7)
+                        {
+                            <td colspan="2">
+                                <label>Interview schedule date</label>
+                                <h4>@Model.strInterviewDate</h4>
+                            </td>
+                        }
+                        @*@if (Model.StatusID == 10)
+                            {
+                                <td colspan="4">
+                                    <label>Offer letter Generation date</label>
+                                    <h4>@Model.strOfferletterGenerationdate</h4>
+                                </td>
+                            }*@
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="vw-dts-bg">
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table table-bordered mb-null">
+                <thead>
+                    <tr>
+                        <th colspan="4">Documents</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        @if (!string.IsNullOrEmpty(Model.DeanNoteDocPath))
+                        {
+                        <td colspan="4">
+                            
+                            <h4>Attachment: @Html.ActionLink(Model.DeanNoteDocPath.Split('_').LastOrDefault(), "ShowDocument", new { Controller = "Account", filepath = "RCTAnnouncementDocuments", file = Model.DeanNoteDocPath }, new { @target = "_blank" })</h4>
+                        </td>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.ShortlistDeanNoteDocPath))
+                        {
+                        <td colspan="4">
+                            
+                            <h4>Attachment: @Html.ActionLink(Model.ShortlistDeanNoteDocPath.Split('_').LastOrDefault(), "ShowDocument", new { Controller = "Account", filepath = "RCTAnnouncementDocuments", file = Model.ShortlistDeanNoteDocPath }, new { @target = "_blank" })</h4>
+                        </td>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.SelectionlistDeanNoteDocPath))
+
+                        {
+                        <td colspan="4">
+                            
+                            <h4>Attachment: @Html.ActionLink(Model.SelectionlistDeanNoteDocPath.Split('_').LastOrDefault(), "ShowDocument", new { Controller = "Account", filepath = "RCTAnnouncementDocuments", file = Model.SelectionlistDeanNoteDocPath }, new { @target = "_blank" })</h4>
+                        </td>
+                        }
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="vw-dts-bg">
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table table-bordered mb-null">
+                <thead>
+                    <tr>
+                        <th style="width: 165px;">Designation Code</th>
+                        <th style="width: 265px;">Designation</th>
+                        <th style="width: 265px;">Project Number</th>
+                        <th>Vacancies </th>
+                        <th>Qualification / Experience</th>
+                        <th style="width: 150px;">Pay Range</th>
+                        @if (Model.StatusID > 6)
+                        {
+                        <th style="width: 250px;">Total Applicants Number</th>
+                        <th style="width: 250px;">Shortlisted Applicants Number</th>
+                        }
+                        @if (Model.StatusID > 9 || Model.StatusID == 9)
+                        {
+                        <th style="width: 250px;">Selected Applicants</th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.DesignationDetails)
+                    {
+                    <tr>
+                        <td>
+                            <h4>@item.DesignationCode</h4>
+                        </td>
+                        <td>
+                            <h4>@item.Designation</h4>
+                        </td>
+                        <td>
+                            <h4>@item.ProjectNumber</h4>
+                        </td>
+                        <td>
+                            <h4>@item.Vacancies</h4>
+                        </td>
+                        <td>
+                            <h4>@item.Qualification</h4>
+                        </td>
+                        <td>
+                            <h4>Minimum @item.MinSalary Maximum @item.MaxSalary</h4>
+                        </td>
+                        @if (Model.StatusID > 6)
+                            {
+                            <td>
+                                <h4>@item.TotalApplicant</h4>
+								 @if (!string.IsNullOrEmpty(item.TotalApplicantDoc))
+								{
+                                <a href="@Url.Action("ShowDocument", new { Controller = "Account", file = item.TotalApplicantDoc, filepath = "RCTAnnouncementDocuments",target = "_blank"})">@item.TotalApplicantDoc.Split('_').LastOrDefault()</a>
+								}
+                            </td>
+                            <td>
+                                <h4>@item.ShortlistedApplicant</h4>
+								 @if (!string.IsNullOrEmpty(item.ShortlistedApplicantDoc))
+								{
+                                <a href="@Url.Action("ShowDocument", new { Controller = "Account", file = item.ShortlistedApplicantDoc, filepath = "RCTAnnouncementDocuments",target = "_blank"})">@item.ShortlistedApplicantDoc.Split('_').LastOrDefault()</a>
+								}
+                            </td>
+                            }
+                        @if (Model.StatusID > 9 || Model.StatusID == 9)
+                            {
+                            <td>
+                                @if (!string.IsNullOrEmpty(item.SelectedApplicantDoc))
+                                      {
+                                    <h4>@item.SelectedApplicant</h4>
+                                    <a href="@Url.Action("ShowDocument", new { Controller = "Account", file = item.SelectedApplicantDoc, filepath = "RCTAnnouncementDocuments",target = "_blank"})">@item.SelectedApplicantDoc.Split('_').LastOrDefault()</a>
+                                      }
+                            </td>
+                            }
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+@if (Model.StatusID > 6 && Model.CommiteeMemberDetails != null && Model.CommiteeMemberDetails.Count > 0)
+{
+    <div class="vw-dts-bg">
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-bordered mb-null">
+                    <thead>
+                        <tr>
+                            <th colspan="4">Proposed Committee Members</th>
+                        </tr>
+                        <tr>
+                            <th>Name</th>
+                            <th>Designation</th>
+                            <th>Department </th>
+                            <th>Type</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.CommiteeMemberDetails)
+                        {
+                        <tr>
+                            <td>
+                                <h4>@item.PIName</h4>
+                            </td>
+                            <td>
+                                <h4>@item.PIDesignation</h4>
+                            </td>
+                            <td>
+                                <h4>@item.PIDepartment</h4>
+                            </td>
+                            <td>
+                                <h4>@item.PIInstitution</h4>
+                            </td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+<div class="vw-dts-bg">
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table table-bordered mb-null">
+                <thead>
+                    <tr>
+                        <th>DA Comments</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <h4>@Model.DAComments</h4>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="vw-dts-bg">
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table table-bordered mb-null">
+                <thead>
+                    <tr>
+                        <th>Shortlist Remarks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <h4>@Model.Remarks</h4>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="vw-dts-bg">
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table table-bordered mb-null">
+                <thead>
+                    <tr>
+                        <th>Selection Remarks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <h4>@Model.Remarks2</h4>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12 text-center pd-tb-30">
+        <input type="button" onclick="window.location.href='@Url.Action("Dashboard", "Home")';" class="btn btn-default" value="Close" id="btnclose" />
+    </div>
+</div>
+<input type="hidden" id="currentRefId" value="@Model.AnnouncementID" />
+<input type="hidden" id="processGuideLineId" value="@ViewBag.processGuideLineId" />
+<div class="" id="act-now">
+    @Html.Partial("_ProcessStatus")
+</div>
+<script>
+    $('a[name="ShowDoc"]').click(function (p) {
+        p.preventDefault();
+        var ref = $(this).attr('href');
+        var win = window.open('', '_blank');
+        win.location.href = ref;
+    });
+</script>
+
+
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>

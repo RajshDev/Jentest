@@ -1,0 +1,814 @@
+﻿@{
+    string parentAction = ViewBag.ParentAction;
+}
+@model IOAS.Models.LCOpeningModel
+<style>
+    .auto-com-z-index {
+        z-index: 10000;
+    }
+
+    .your_custom_class {
+        z-index: 10000;
+    }
+</style>
+<div class="row mt30">
+    <div id="TABCModal" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" id="btnInvardClose" class="close" data-dismiss="modal">&times;</button>
+                        <h3 class="modal-title">LC Details</h3>
+                    </div>
+                    <div class="modal-body">
+                        <div class="custom-jsgrid-normal">
+
+                            <div class="row" id="addCommitment">
+                                <div class="page-wrapper">
+                                    <div class="col-md-12">
+                                        <div class="white-bg">
+                                            <div class="row mb-md">
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="classic-box col-md-6 mb-md">
+                                                            <div class="tb-tt">
+                                                                <h4 class="required">LC Reference Number</h4>
+                                                                @Html.TextBoxFor(M => M.ReferenceNumber, new { @class = "form-control" })
+                                                                <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.ReferenceNumber)</div>
+                                                                @Html.HiddenFor(m => m.LCOpeningId, new { @id = "txtLCOpeningId" })
+
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                    <div class="col-md-6">
+
+                                                        <div class="bl-lg-panel-box pb-null">
+
+                                                            <div>
+                                                                <div class="form-group custom-form-group mb-s-md mt-md">
+                                                                    <label class="col-md-6">Project Number</label>
+                                                                    <span class="col-md-6" id="spanType">@Model.ProjectNumber</span>
+                                                                </div>
+                                                                <div class="form-group custom-form-group mb-s-md mt-md">
+                                                                    <label class="col-md-6">Issuing Bank</label>
+                                                                    <span class="col-md-6" id="spanType">@Model.IssuingBank</span>
+                                                                </div>
+                                                                <div class="form-group custom-form-group mb-s-md mt-md">
+                                                                    <label class="col-md-6">PO Number</label>
+                                                                    <span class="col-md-6" id="spanType">@Model.PONumber</span>
+                                                                </div>
+                                                                <div class="form-group custom-form-group mb-s-md">
+                                                                    <label class="col-md-6">Requested Date</label>
+                                                                    <span class="col-md-6" id="spanPIName">@Model.RequestDate</span>
+                                                                </div>
+                                                                <div class="form-group custom-form-group mb-s-md">
+                                                                    <label class="col-md-6">LC Draft Amount</label>
+                                                                    <span class="col-md-6 " id="spanOBValue">@Model.LCDraftAmount</span>
+                                                                </div>
+                                                                <div class="form-group custom-form-group mb-s-md">
+                                                                    <label class="col-md-6">LC Draft Number</label>
+                                                                    <span class="col-md-6 " id="spanOBValue">@Model.DraftLCNumber</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-md-6">
+
+                                                        <div class="bl-lg-panel-box pb-null">
+
+                                                            <div>
+                                                                <div class="form-group custom-form-group mb-s-md mt-md">
+                                                                    <label class="col-md-6">Commitment Number</label>
+                                                                    <span class="col-md-6" id="spanType">@Model.CommitmentNumber</span>
+                                                                </div>
+
+                                                                <div class="form-group custom-form-group mb-s-md mt-md">
+                                                                    <label class="col-md-6">Issuing Bank Account Number</label>
+                                                                    <span class="col-md-6" id="spanType">@Model.BankAccountNumber</span>
+                                                                </div>
+                                                                <div class="form-group custom-form-group mb-s-md mt-md">
+                                                                    <label class="col-md-6">LC Type</label>
+                                                                    <span class="col-md-6" id="spanTittle">@Model.LCType</span>
+                                                                </div>
+
+                                                                <div class="form-group custom-form-group mb-s-md">
+                                                                    <label class="col-md-6">Beneficiary Name</label>
+                                                                    <span class="col-md-6 " id="spanSanValue">@Model.Beneficiary</span>
+                                                                </div>
+                                                                <div class="form-group custom-form-group mb-s-md">
+                                                                    <label class="col-md-6">Mode of Despatch</label>
+                                                                    <span class="col-md-6 " id="spanTotReceipt">@Model.DispatchMode</span>
+                                                                </div>
+                                                                <div class="form-group custom-form-group mb-s-md">
+                                                                    <label class="col-md-6">Currency</label>
+                                                                    <span class="col-md-6 " id="spanOBValue">@Model.LCDraftCurrency</span>
+                                                                </div>
+                                                                <div class="form-group custom-form-group mb-s-md">
+                                                                    <label class="col-md-6">Established LC Number</label>
+                                                                    <span class="col-md-6" id="spanOBValue">@Model.EstablishedLCNo</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="button" name="Button" value="Save" class="btn btn-primary" id="btnSave" />
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+
+                    </div>
+
+                </div>
+           
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $("#CloseDate").datepicker
+            ({
+                dateFormat: 'dd-MM-yy',
+                yearRange: '-100:+3'
+            });
+    var requestRunning = false;
+    $(document).ready(function () {
+        applyAutoComplete($('#projectNumber'), $('#SelProjectNumber'), '@Url.Action("LoadProjectList","CoreAccounts")', 'ProjectSummary', true);
+        var errMsg = '@ViewBag.errMsg';
+        if (errMsg) {
+            messageBox(Validation, "error");
+        }
+        var Validation = '@ViewBag.ValidationMsg';
+        if (Validation) {
+            messageBox(Validation, "warning");
+        }
+    });
+
+    $('.selectpicker').selectpicker({
+        liveSearch: true
+    });
+
+    $("#CommitmentType").change(function () {
+        var Value = $("#CommitmentType").val();
+        $("#prjDetails").addClass('menu-hide');
+        $("#divHeadDetails").addClass('menu-hide')
+        ProjectSummary();
+        $('.selectpicker').selectpicker('refresh');
+        //Staff Commitment
+        if (Value == 1) {
+            $("#staffCommit").removeClass('menu-hide'); $("#geneCommit").removeClass('menu-hide');
+            $("#purchaseCommit").addClass('menu-hide'); $("#NegativeCommit").addClass('menu-hide');
+            $("#ForeginCommit").addClass('menu-hide'); $("#isDean").addClass('menu-hide'); $("#divLocalCurr").addClass('menu-hide');
+            $('#AllocationValue').removeAttr('readonly');
+        }
+            //General Commitment
+        else if (Value == 2) {
+            $("#staffCommit").addClass('menu-hide'); $("#geneCommit").removeClass('menu-hide');
+            $("#purchaseCommit").addClass('menu-hide'); $("#NegativeCommit").addClass('menu-hide');
+            $("#ForeginCommit").addClass('menu-hide'); $("#isDean").addClass('menu-hide'); $("#divLocalCurr").addClass('menu-hide');
+            $('#AllocationValue').removeAttr('readonly');
+        }
+            //Purchase Commitment
+        else if (Value == 3) {
+            $("#staffCommit").addClass('menu-hide'); $("#geneCommit").addClass('menu-hide');
+            $("#purchaseCommit").removeClass('menu-hide'); $("#NegativeCommit").removeClass('menu-hide');
+            $("#ForeginCommit").addClass('menu-hide'); $("#isDean").addClass('menu-hide'); $("#divLocalCurr").addClass('menu-hide');
+            $('#AllocationValue').removeAttr('readonly');
+        }
+            //Negative Balance Commitment
+        else if (Value == 4) {
+            $("#staffCommit").addClass('menu-hide'); $("#geneCommit").removeClass('menu-hide');
+            $("#purchaseCommit").addClass('menu-hide'); $("#NegativeCommit").removeClass('menu-hide');
+            $("#ForeginCommit").addClass('menu-hide'); $("#isDean").removeClass('menu-hide'); $("#divLocalCurr").addClass('menu-hide');
+            $('#AllocationValue').removeAttr('readonly');
+        }
+            //Commitment in Foreign Currency with exchange
+        else if (Value == 5) {
+            $("#staffCommit").addClass('menu-hide'); $("#geneCommit").addClass('menu-hide');
+            $("#purchaseCommit").addClass('menu-hide'); $("#NegativeCommit").addClass('menu-hide');
+            $("#ForeginCommit").removeClass('menu-hide'); $("#isDean").addClass('menu-hide'); $("#divLocalCurr").removeClass('menu-hide');
+            $('#AllocationValue').attr('readonly');
+        } else {
+            $("#staffCommit").addClass('menu-hide'); $("#geneCommit").addClass('menu-hide');
+            $("#purchaseCommit").addClass('menu-hide'); $("#NegativeCommit").addClass('menu-hide');
+            $("#ForeginCommit").addClass('menu-hide'); $("#isDean").addClass('menu-hide'); $("#divLocalCurr").addClass('menu-hide');
+            $('#AllocationValue').removeAttr('readonly');
+        }
+    });
+
+    function ProjectSummary() {
+        var projectId = $("#SelProjectNumber").val();
+        if (projectId != "" || projectId != 0) {
+            $.getJSON("@Url.Action("LoadProjectDetails", "Account")", { ProjectId: projectId },
+        function (result) {
+            if (result.projectData.ProjectNo != null) {
+                $("#prjDetails").removeClass('menu-hide');
+                $("#divHeadDetails").addClass('menu-hide')
+                $("#spanType").text(result.projectData.ProjectType);
+                $("#spanTittle").text(result.projectData.ProjectTittle);
+                $("#spanPIName").text(result.projectData.PIname);
+                $("#spanSanValue").text(result.projectData.SanctionedValue);
+                $("#spanTotReceipt").text(result.projectData.TotalReceipt);
+                $("#spanAmtSpt").text(result.projectData.AmountSpent);
+                $("#spanAvailableBal").text(result.projectData.AvailableBalance);
+                $("#spanPrevious").text(result.projectData.PreviousCommitment);
+                $("#spanNetBal").text(result.projectData.NetBalance);
+                $("#spanNegativeBal").text(result.projectData.ApprovedNegativeBalance);
+                $("#commitNo").text(result.CommitNo);
+                $("#hdnCommitNo").val(result.CommitNo);
+                $('#AllocationNR_f').val(result.projectData.AllocationNR_f);
+                $("#hdnProjectType").val(result.PrjTypeId);
+                $("#spanOBValue").text(result.projectData.OpeningBalance);
+                var select = $("#selAllocationHead");
+                select.empty();
+                select.append($('<option/>', {
+                    value: 0,
+                    text: "Select Allocation Head"
+                }));
+                $.each(result.Data, function (index, itemData) {
+
+                    select.append($('<option/>', {
+                        value: itemData.id,
+                        text: itemData.name
+                    }));
+                });
+                select.selectpicker('refresh');
+            }
+            else {
+                $("#prjDetails").addClass('menu-hide');
+            }
+        });
+
+            $.getJSON("@Url.Action("GetFundingBody", "Account")", { ProjectID: projectId },
+        function (result) {
+            var select = $("#selFundingBody");
+            select.empty();
+            $.each(result, function (index, itemData) {
+                select.append($('<option/>', {
+                    value: itemData.id,
+                    text: itemData.name,
+                }));
+            });
+        });
+
+
+        } {
+            $("#prjDetails").addClass('menu-hide');
+            $("#commitNo").text("");
+        }
+    }
+
+    $('select[name^="selAllocationHead"]').change(function () {
+
+        var ProjectId = $("#SelProjectNumber").val();
+        var AllocationId = $(this).val();
+        if (AllocationId != 0) {
+            $.getJSON("@Url.Action("GetAllocationValue", "Account")", { ProjectID: ProjectId, AllocationID: AllocationId },
+                           function (allocData) {
+                               $("#divHeadDetails").removeClass('menu-hide');
+                               $("#hdnIsYearWise").val(allocData.IsYearWise);
+                               $("#hdnIsAllocation").val(allocData.IsAllocation);
+                               if (allocData.IsAllocation == true) {
+                                   if (allocData.IsYearWise == true) {
+                                       $("#divSpanTSV").addClass('menu-hide');
+                                       $("#divSpanTA").addClass('menu-hide');
+                                       $("#divSpanAFCY").removeClass('menu-hide');
+                                       $("#spanAFCY").text(allocData.AllocationForCurrentYear);
+                                   } else {
+                                       $("#divSpanTSV").addClass('menu-hide');
+                                       $("#divSpanAFCY").addClass('menu-hide');
+                                       $("#divSpanTA").removeClass('menu-hide');
+                                       $("#spanTA").text(allocData.TotalAllocation);
+                                   }
+                               } else {
+                                   $("#divSpanTSV").removeClass('menu-hide');
+                                   $("#divSpanTA").addClass('menu-hide');
+                                   $("#divSpanAFCY").addClass('menu-hide');
+                                   $("#spanTSV").text(allocData.SanctionedValue);
+                               }
+                               $("#spanTC").text(allocData.TotalCommitmentTilDate);
+                               $("#spanTCCY").text(allocData.TotalCommitForCurrentYear);
+                           });
+
+        } else {
+            $("#divHeadDetails").addClass('menu-hide');
+        }
+    });
+
+
+    $("#ReqRef").change(function () {
+        //$("#prjDetails").removeAttr('style');
+        var RefName = $("#ReqRef option:selected").text();
+        $("#SourceTapalOrWorkflow").val('False');
+        $("#RefNo,#RefNoStr").val('');
+        if (RefName != "") {
+            if (RefName == "Email") {
+                $("#divComRefEmailDate").removeClass('menu-hide');
+                $("#divComRefNo").addClass('menu-hide');
+            }
+            else if (RefName == "Workflow") {
+                $("#divComRefEmailDate").addClass('menu-hide');
+                $("#divComRefNo").removeClass('menu-hide');
+                $("#SourceTapalOrWorkflow").val('True');
+                applyAutoComplete($('#RefNoStr'), $('#RefNo'), "@Url.Action("GetACWorkflowRefNumber", "Proposal")");
+            } else if (RefName == "HardCopy") {
+                $("#divComRefEmailDate").addClass('menu-hide');
+                $("#divComRefNo").removeClass('menu-hide');
+                $("#SourceTapalOrWorkflow").val('True');
+                 applyAutoComplete($('#RefNoStr'), $('#RefNo'), "@Url.Action("GetACTapalRefNumber", "Proposal")");
+            }
+        }
+    });
+
+    function sumAllocation(evt) {
+
+        var ttlVal = 0;
+        var commitType = $("#CommitmentType").val();
+        $('.calc').each(function () {
+            var parseVal = parseFloat($(this).val());
+            if (!isNaN(parseVal))
+                ttlVal += parseVal;
+        });
+        if (commitType == 5) {
+            var CurrencyRate = $("#currencyRate").val();
+            var CurrencyVal = $("#ForeignCurrencyValue").val();
+            var ForeginValue = CurrencyVal * CurrencyRate;
+            var addCharge = $("#AdditionalCharge").val();
+            var additionalCharge = ((addCharge / 100)) * ForeginValue;
+            var TotForeginValue = ForeginValue + additionalCharge;
+            $("#AllocationValue").val(TotForeginValue);
+            $("#commitmentValue").val(TotForeginValue);
+        } else {
+            $("#commitmentValue").val(ttlVal);
+        }
+    }
+    function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode != 46 && charCode > 31
+          && (charCode < 48 || charCode > 57))
+            return false;
+
+        return true;
+    }
+    $("#btnSave").on('click', function (e) {
+        if (requestRunning) { // don't do anything if an AJAX request is pending
+            return;
+        }
+        e.preventDefault();
+        var isValid = $('#formComitment').valid();
+        var CommitType = $("#CommitmentType").val();
+        var staffPurpose = $("#selPurpose").val();
+        var Remarks = $("#ComRemarks").val();
+        var poNumber = $("#ComPONumber").val();
+        var vendor = $("#selVendor option:selected").text();
+        var currency = $("#Currency").val();
+        var Currate = $("#currencyRate").val();
+        var prjType = $("#ProjectType").val();
+        var prjNumber = $("#SelProjectNumber").val();
+        var reqReference = $("#ReqRef").val();
+        var reqNumber = $("#RefNo").val();
+        var CommitmentNo = $("#commitNo").text();
+        var CommitmentValue = $("#commitmentValue").val();
+        var NetBalance = parseFloat($("#spanNetBal").text()) || 0;
+        var EmailDate = $("#EmailDate").val();
+        var AllocationForCurretYear = $("#spanAFCY").text();
+        var BalCommitForCurYear = $("#spanTCCY").text();
+        var isYearwise = $("#hdnIsYearWise").val();
+        var isHaveAllocation = $("#hdnIsAllocation").val();
+        var AllocatinHead = [];
+        var Amount = [];
+        if (CommitType == "") {
+            isValid = false;
+            messageBox('Commitment type field is required', "warning");
+
+            return false;
+        }
+        if (CommitType == 1) {
+            if (staffPurpose == "") {
+                isValid = false;
+                messageBox('Purpose field is required', "warning");
+
+                return false;
+            }
+            else if (Remarks == "") {
+                isValid = false;
+                messageBox('Remarks field is required', "warning");
+
+                return false;
+            }
+        }
+        else if (CommitType == 2) {
+            if (Remarks == "") {
+                isValid = false;
+                messageBox('Remarks field is required', "warning");
+
+                return false;
+            }
+        }
+        else if (CommitType == 3) {
+            if (poNumber == "") {
+                isValid = false;
+                messageBox('PO number field is required', "warning");
+
+                return false;
+            }
+            else if (vendor == "Select Vendor") {
+                isValid = false;
+                messageBox('Vendor field is required', "warning");
+
+                return false;
+            }
+        }
+        else if (CommitType == 4) {
+            if (Remarks == "") {
+                isValid = false;
+                messageBox('Remarks field is required', "warning");
+
+                return false;
+            }
+        }
+        else if (CommitType == 5) {
+            if (currency == "") {
+                isValid = false;
+                messageBox('Currency field is required', "warning");
+
+                return false;
+            }
+            var commitVal = $("#commitmentValue").val();
+            if (parseFloat(commitVal) > parseFloat(BalCommitForCurYear)) {
+                messageBox("Balance Commitment allowed for this year " + BalCommitForCurYear + "(INR)", "warning");
+                isValid = false;
+                return false;
+            }
+        }
+
+        $('select[name="selAllocationHead"]').each(function (idx, val) { AllocatinHead.push($(val).val()); });
+        $('input[name="AllocationValue"]').each(function (idx, val) { Amount.push($(val).val()); });
+
+        //// Sort it
+        AllocatinHead.sort();
+        Amount.sort();
+
+        for (var k = 0; k < AllocatinHead.length; ++k) {
+
+            if (AllocatinHead[k] = 0 || AllocatinHead[k] == null || AllocatinHead[k] == "") {
+                messageBox('Allocation Head field is required', "warning");
+
+                return false;
+            }
+
+            isValid = true;
+        }
+        for (var k = 0; k < Amount.length; ++k) {
+            if (Amount[k] == 0 || Amount[k] == null || Amount == "") {
+                messageBox('Allocation value field is required', "warning");
+
+                return false;
+            }
+            isValid = true;
+        }
+        // duplicate check
+        var AllowHead = [];
+        $('select[name="selAllocationHead"]').each(function (idx, val) { AllowHead.push($(val).val()); });
+        AllowHead.sort();
+        for (var k = 1; k < AllowHead.length; ++k) {
+            if (AllowHead[k] == AllowHead[k - 1]) {
+                isValid = false;
+                messageBox("Allocation head field does not allow duplicates", "warning");
+                isValid = false;
+                return false;
+            }
+            isValid = true;
+        }
+        var AlloHead = $('select[name="selAllocationHead"]').val();
+        var SanctionValue = $("#spanSanValue").text();
+        var AllocationAmount = parseFloat(Amount[0]);
+        if (AllocationAmount > NetBalance) {
+            messageBox("Total commitment value cannot be above net balance", "warning");
+            isValid = false;
+            return false;
+        }
+        var allowNR_f = $('#AllocationNR_f').val();
+        if (isHaveAllocation == "true" && allowNR_f != "true") {
+            if (isYearwise == "true") {
+                if (AllocationForCurretYear != 0) {
+                    if (AllocationAmount > parseFloat(AllocationForCurretYear)) {
+                        messageBox("Total commitment value cannot be above allocation value for current year", "warning");
+                        isValid = false;
+                        return false;
+                    } else if (AllocationAmount > parseFloat(BalCommitForCurYear)) {
+                        messageBox("Balance commitment allowed for this year " + BalCommitForCurYear + "(INR)", "warning");
+                        isValid = false;
+                        return false;
+                    }
+                }
+            }
+            else {
+                var TotalAllocation = $("#divSpanTA").text();
+                if (TotalAllocation != 0) {
+                    if (AllocationAmount > parseFloat(TotalAllocation)) {
+                        messageBox("Total commitment value cannot be above total allocation value", "warning");
+                        isValid = false;
+                        return false;
+                    } else if (AllocationAmount > parseFloat(BalCommitForCurYear)) {
+                        messageBox("Balance commitment allowed for this year " + BalCommitForCurYear + "(INR)", "warning");
+                        isValid = false;
+                        return false;
+                    }
+                }
+            }
+        }
+        else if(allowNR_f != "true"){
+            if (AllocationAmount > parseFloat(SanctionValue)) {
+                messageBox("Total commitment value cannot be above sanctioned value", "warning");
+                isValid = false;
+                return false;
+            }
+            else if (AllocationAmount > parseFloat(BalCommitForCurYear)) {
+                messageBox("Balance commitment allowed for this year " + BalCommitForCurYear + "(INR)", "warning");
+                isValid = false;
+                return false;
+            }
+        }
+
+        if (prjNumber == "") {
+            isValid = false;
+            messageBox('Project number field is required', "warning");
+
+            return false;
+        }
+        if (reqReference == "") {
+            isValid = false;
+            messageBox('Request refrence field is required', "warning");
+
+            return false;
+        }
+        if (reqReference == 2) {
+            if (EmailDate == "") {
+                isValid = false;
+                messageBox('Email date field is required', "warning");
+
+                return false;
+            }
+        } else {
+            if (reqNumber == "") {
+                isValid = false;
+                messageBox('Refrence number field is required', "warning");
+
+                return false;
+            }
+        }
+
+        if (isValid == true) {
+            var clpbookcommitmentURL = '@Url.Action("_SaveCommitment", "CoreAccounts")';
+            var CommitType = $("#CommitmentType").val();
+            var staffPurpose = $("#selPurpose").val();
+            var Remarks = $("#ComRemarks").val();
+            var poNumber = $("#ComPONumber").val();
+            var agent = $("#selVendor option:selected").text();
+            var agentid = $("#selVendor").val();
+            var allocationhead = $("#selAllocationHead").val();
+            var allocatevalue = $("#AllocationValue").val();
+            var currency = $("#Currency").val();
+            var Currate = $("#currencyRate").val();
+            var prjType = $("#ProjectType").val();
+            var prjNumber = $("#SelProjectNumber").val();
+            var CommitmentNo = $("#commitNo").text();
+            var CommitmentValue = $("#commitmentValue").val();
+            var NetBalance = $("#spanNetBal").val();
+            var EmailDate = $("#EmailDate").val();
+            var AttachName = $("#AttachName").val();
+            var addCharge = $("#AdditionalCharge").val();
+            var StartDate = $("#StartDate").val();
+            var CloseDate = $('#CloseDate').val();
+            var BasicPay = $('#BasicPay').val();
+            var MedicalAllowance = $('#MedicalAllowance').val();
+            var EmployeeId = $('#EmployeeId').val();
+            var Total = $('#Total').val();
+            var IsDeansApproval = $('#IsDeansApproval').is(":checked");
+            var selFundingBody = $('#selFundingBody').val();
+            if (CommitType == "") {
+                CommitType = null;
+            }
+            if (staffPurpose == "") {
+                staffPurpose = null;
+            }
+            if (Remarks == "") {
+                Remarks = null;
+            }
+            if (poNumber == "") {
+                poNumber = null;
+            }
+            if (agent == "") {
+                agent = null;
+            }
+            if (agentid == "") {
+                agentid = null;
+            }
+            if (currency == "") {
+                currency = null;
+            }
+            if (Currate == "") {
+                Currate = null;
+            }
+            if (prjType == "") {
+                prjType = null;
+            }
+            if (prjNumber == "") {
+                prjNumber = null;
+            }
+            if (allocationhead == "") {
+                allocationhead = null;
+            }
+            if (allocatevalue == "") {
+                allocatevalue = null;
+            }
+            if (CommitmentNo == "") {
+                CommitmentNo = null;
+            }
+            if (CommitmentValue == "") {
+                CommitmentValue = null;
+            }
+            if (NetBalance == "") {
+                NetBalance = null;
+            }
+            if (EmailDate == "") {
+                EmailDate = null;
+            }
+            if (addCharge == "") {
+                addCharge = null;
+            }
+            if (StartDate == "") {
+                StartDate = null;
+            }
+            if (CloseDate == "") {
+                CloseDate = null;
+            }
+            if (BasicPay == '')
+                BasicPay = null;
+            if (MedicalAllowance == '')
+                MedicalAllowance = null;
+            if (Total == '')
+                Total = null;
+            //  var searchdata = { "__RequestVerificationToken": token, "ProjectType": Projecttype,"ProposalNumber": Proposalnumber, "PIname": PIName, "Searchby": SearchBy, "FromSOdate": FromSODate, "ToSOdate": ToSODate, "Fromdate": FromDate, "Todate": ToDate };
+            var model = new FormData();
+            model.append("selCommitmentType", CommitType);
+            model.append("file", $('#docfile')[0].files[0]);
+            model.append("selPurpose", staffPurpose);
+            model.append("Remarks", Remarks);
+            model.append("PONumber", poNumber);
+            model.append("VendorName", agent);
+            model.append("selVendor", agentid);
+            model.append("selCurrency", currency);
+            model.append("currencyRate", Currate);
+            model.append("selProjectType", prjType);
+            model.append("SelProjectNumber", prjNumber);
+            model.append("EmailDate", EmailDate);
+            model.append("commitmentValue", CommitmentValue);
+            model.append("CommitmentNo", CommitmentNo);
+            model.append("CommitmentBalance", NetBalance);
+            model.append("AllocationHead", allocationhead);
+            model.append("AllocatedValue", allocatevalue);
+            model.append("selAllocationHead", allocationhead);
+            model.append("AllocationValue", allocatevalue);
+            model.append("AttachName", AttachName);
+            model.append("AdditionalCharge", addCharge);
+            model.append("selRequestRefrence", reqReference);
+            model.append("ReferenceNo", reqNumber);
+            model.append("StartDate", StartDate);
+            model.append("BasicPay", BasicPay);
+            model.append("MedicalAllowance", MedicalAllowance);
+            model.append("EmployeeId", EmployeeId);
+            model.append("Total", Total);
+            model.append("IsDeansApproval", IsDeansApproval);
+            model.append("selFundingBody", selFundingBody)
+            //var searchdata = {
+            //    selCommitmentType: CommitType,
+            //    selPurpose: staffPurpose,
+            //    Remarks: Remarks,
+            //    PONumber: poNumber,
+            //    VendorName: agent,
+            //    selVendor: agentid,
+            //    selCurrency: currency,
+            //    currencyRate: Currate,
+            //    selProjectType: prjType,
+            //    SelProjectNumber: prjNumber,
+            //    EmailDate: EmailDate,
+            //    commitmentValue: CommitmentValue,
+            //    CommitmentNo: CommitmentNo,
+            //    CommitmentBalance: NetBalance,
+            //    AllocationHead: allocationhead,
+            //    AllocatedValue: allocatevalue,
+            //    selAllocationHead: allocationhead,
+            //    AllocationValue: allocatevalue,
+            //    AttachName: AttachName,
+            //    AdditionalCharge :addCharge,
+            //    selRequestRefrence: reqReference,
+            //    ReferenceNo: reqNumber,
+            //    StartDate: StartDate,
+            //    BasicPay: BasicPay,
+            //    MedicalAllowance: MedicalAllowance,
+            //    EmployeeId: EmployeeId,
+            //    Total: Total,
+            //    IsDeansApproval: IsDeansApproval
+            //};
+
+            var ajaxOpts = {
+                type: "POST",
+                url: clpbookcommitmentURL,
+                data: model,
+                //data: { "ProjectType": Projecttype, "ProposalNumber": Proposalnumber, "FromSOdate": FromSODate, "ToSOdate": ToSODate, },
+                contentType: false,//"application/x-www-form-urlencoded",
+                dataType: "json",
+                processData: false,
+                success: function (result) {
+                    // dataProposal = result;
+                    var commitmentid = result
+                    var selCommitment = [];
+                    $('input[name="chkCommitmentId"]:checked').each(function () {
+                        var cmtId = $(this).val();
+                        if (cmtId != '') { selCommitment.push(cmtId); }
+                    });
+                    if (commitmentid != '') { selCommitment.push(commitmentid); }
+                    $('#TABCModal').hide();
+                    $('body').removeClass('modal-open');
+                    $(".modal-backdrop").remove();
+                    //  $('.modal-backdrop').remove();
+                    //  EmptyCommitmentSrchList()
+                    EmptyCommitmentSelList()
+                    $.ajax({
+                        type: "GET",
+                        url: "@Url.Action("LoadCommitmentList", "CoreAccounts")",
+                        data: { "CommitmentId": selCommitment },
+                        traditional: true,
+                        dataType: "json",
+                        success: function (result) {
+                            $.each(result, function (i, item) {
+                                if (i == 0) {
+                                    var trEle = $('#tbodyCommitmentSrchList tr:first').clone();
+                                    $(trEle).find('input[name="chkCommitmentId"]').val(item.CommitmentId).prop("checked", true);
+                                    $(trEle).find('td:nth-child(2)').html(item.CommitmentNumber);
+                                    $(trEle).find('td:nth-child(3)').html(item.ProjectNumber);
+                                    $(trEle).find('td:nth-child(4)').html(item.BookedAmount);
+                                    $(trEle).find('td:nth-child(5)').html(item.AvailableAmount);
+                                    $('#tbodyCommitmentSrchList').append(trEle);
+
+                                } else {
+                                    var trEleNew = $('#tbodyCommitmentSrchList tr:first').clone();
+                                    $(trEleNew).find('input[name="chkCommitmentId"]').val(item.CommitmentId).prop("checked", true);
+                                    $(trEleNew).find('td:nth-child(2)').html(item.CommitmentNumber);
+                                    $(trEleNew).find('td:nth-child(3)').html(item.ProjectNumber);
+                                    $(trEleNew).find('td:nth-child(4)').html(item.BookedAmount);
+                                    $(trEleNew).find('td:nth-child(5)').html(item.AvailableAmount);
+                                    //$('#tbodyCommitmentSrchList').append(trEleNew);
+                                }
+                            });
+                            FillSelCommitments(result);
+
+                        },
+                        error: function (err) {
+                            console.log("error : " + err);
+
+                        }
+                    });
+
+                    requestRunning = false;
+                    //   $('#popupFilter').hide();
+                },
+                error: function (err) {
+                    requestRunning = false;
+                    console.log("error : " + err);
+                }
+            };
+            requestRunning = true;
+            $.ajax(ajaxOpts);
+        }
+    });
+
+
+
+    function duplicatecheck(isValid) {
+        var values = [];
+        $('select[name="selAllocationHead"]').each(function (idx, val) { values.push($(val).val()); });
+        // Sort it
+        values.sort();
+        // Check whether there are two equal values next to each other
+        for (var k = 1; k < values.length; ++k) {
+            if (values[k] == values[k - 1]) {
+                messageBox("Allocation head field does not allow duplicates", "warning");
+                isValid = false;
+                return false;
+            }
+            isValid = true;
+        }
+        return isValid;
+    }
+
+</script>

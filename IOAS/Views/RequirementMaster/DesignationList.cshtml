@@ -1,0 +1,167 @@
+﻿@model IOAS.Models.SearchdesignationModel
+@{
+    ViewBag.Title = "DesignationList";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<div class="row hd-tt-bg">
+    <div class="col-md-12">
+        <h4 class="pull-left"><b>Designation Master List</b></h4>
+        <div class="flt-nav-links pull-right">
+            <a href="@Url.Action("DesignationMaster")"> <i class="ion-plus"></i>Add New</a>
+        </div>
+
+    </div>
+</div>
+<div class="row mt30">
+    <div class="page-wrapper">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="custom-jsgrid-normal">
+                    <div id="gridDesignationList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    var alertMsg = '@TempData["alertMsg"]';
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+        else if (alertMsg != '') {
+            $('#alert').html(alertMsg);
+            $('#Validation').modal('toggle');
+        }
+    });
+ 
+    $("#gridDesignationList").jsGrid({
+        paging: true,
+        pageIndex: 1,
+        pageSize: 10,
+        editing: false,
+        filtering: true,
+        pageLoading: true,
+        autoload: true,
+        controller: {
+
+            loadData: function (filter) {
+                var searchData = [];
+                searchData = {
+                    TypeofAccountName: filter.TypeofAccountName || null,
+                    DesignationCode: filter.DesignationCode || null,
+                    Designation: filter.Designation || null,
+                    PayStructureMinMum: filter.PayStructureMinMum || null,
+                    PayStructureMaximum: filter.PayStructureMaximum || null,
+                    Status: filter.Status || null
+                },
+                filter.model = searchData;
+              
+
+                var deferred = $.Deferred();
+                $.ajax({
+                    type: "post",
+                    url: "GetDesignationList",
+                    data: JSON.stringify(filter),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (result) {
+                        //db = result;
+                        //$("#AdvanceBillPaymentList").jsGrid({ data: db });
+                        var da = {
+                            data: result.Designationlist,
+                            itemsCount: result.TotalRecords
+                        }
+                        deferred.resolve(da);
+                    },
+                    error: function (err) {
+                        console.log("error : " + err);
+                    }
+
+                });
+                return deferred.promise();
+            }
+
+        },
+        
+        fields: [
+    { name: "SNo", title: "S.No", editing: false, width: 50 },
+    { type: "number", name: "DesignationId", title: "Id", visible: false },
+    { type: "text", name: "TypeofAccountName", title: "Type of appointment", editing: false },
+    { type: "text", name: "DesignationCode", title: "Designation code", editing: false },
+    { type: "text", name: "Designation", title: "Designation", editing: false },
+    { type: "text", name: "PayStructureMinMum", title: "Minimum", editing: false },
+    { type: "text", name: "PayStructureMaximum", title: "Maximum", editing: false },
+    { type: "text", name: "HRAType", title: "HRA", editing: false,filtering:false },
+   { type: "text", name: "MedicalType", title: "Medical", editing: false, filtering: false },
+    {
+        name: "Status", type: "select", title: "Status", items: [
+          { Name: "select any", Id: null },
+         { Name: "Active", Id: 1 },
+         { Name: "InActive", Id: 2 },
+        ], valueField: "Id", textField: "Name",
+        filterTemplate: function() {
+        var $select = jsGrid.fields.select.prototype.filterTemplate.call(this);
+        return $select;
+                 
+    }
+    },
+   { type: "text", name: "RecordStatus", title: "RecordStatus", visible: false },
+     {
+         type: "control", editButton: false, deleteButton: false, width: 120, title: "Action",
+
+         itemTemplate: function (value, item) {
+             var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+             if (item.RecordStatus == "Active") {
+                 statusList = [{ id: "", name: "Select Action" }, { id: "Edit", name: "Edit" }]
+             }
+             else {
+                 statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }]
+             }
+             var $customSelect = $("<select>")
+                 .attr("class", "form-control").prop("selectedIndex", "")
+             $.each(statusList, function (index, itemData) {
+                 $customSelect.append($('<option/>', {
+
+                     value: itemData.id,
+                     text: itemData.name
+                 }));
+             });
+             $customSelect.change(function (e) {
+                 var selVal = $(this).val();
+                 if (selVal == "Edit") {
+                     var url = '@Url.Action("DesignationMaster", "RequirementMaster")?designationId=' + item.DesignationId;
+                     window.location.href = url;
+                 }
+                 @*else if (selVal == "View") {
+                     var url = '@Url.Action("FixedDepositView", "RequirementMaster")?Fixeddepositid=' + item.FixedDepositId;
+                     window.location.href = url;
+                 } else if (selVal == "Print Bill") {
+                     var url = '@Url.Action("", "ReportMaster")?Fixeddepositid=' + item.FixedDepositId;
+                     window.open(url, '_blank');
+                 }*@
+                 
+                 
+                 $(this).val("");
+                 return false;
+                 e.stopPropagation();
+             });
+             return $result.add($customSelect);
+         },
+         _createFilterSwitchButton: function () {
+             return this._createOnOffSwitchButton("filtering", this.searchModeButtonClass, false);
+         }
+     }
+
+
+        ],
+    });
+    $("#gridDesignationList").jsGrid("option", "filtering", false);
+</script>

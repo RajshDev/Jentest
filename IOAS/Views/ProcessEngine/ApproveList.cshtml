@@ -1,0 +1,95 @@
+﻿@model IOAS.Models.PagedData<IOAS.Models.ProcessEngineModel>
+@{
+    ViewBag.Title = "Approve";
+    ViewBag.Subtitle = "Approve";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+@Html.AntiForgeryToken()
+<div id="gridData">
+    @Html.Partial("_ApprovalData")
+
+</div>
+
+
+<script type="text/javascript">
+    
+    $(document).ready(function () {
+        var firstpage = 1
+        var lastpage = '@Model.TotalPages';
+        var currentPage = $('#currentPage').text();
+
+        if (parseInt(currentPage, 10) === parseInt(lastpage, 10)) {
+            $('#lastPage').addClass('disabled');
+            $('#nextPage').addClass('disabled');
+        }
+        else if (parseInt(currentPage, 10) === parseInt(firstpage, 10)) {
+            $('#firstPage').addClass('disabled');
+            $('#previousPage').addClass('disabled');
+        }
+        $('a[name="pageButton"]').click(function () {
+            var pageNo = 1;
+            if ($(this).text() === 'First') {
+                pageNo = 1;
+            }
+            else if ($(this).text() === 'Last') {
+                pageNo = lastpage;
+            }
+            else if ($(this).text() === 'Previous') {
+                if (parseInt($('#currentPage').text(), 10) > 1) {
+                    pageNo = parseInt($('#currentPage').text(), 10) - 1;
+                }
+
+            }
+            else if ($(this).text() === 'Next') {
+
+                pageNo = parseInt($('#currentPage').text(), 10) + 1;
+            }
+            else {
+                pageNo = $(this).text();
+            }
+            var papername = $('#txtSearchText').val();
+            var model = papername;
+            getData(pageNo, model);
+        });
+    });
+
+    function getData(page, model) {
+        var token = $("input[name=__RequestVerificationToken]").val();
+        var searchdata = { "__RequestVerificationToken": token, "model": model, "page": page };
+        //alert($("input[name=__RequestVerificationToken]").val());
+
+        $.ajax({
+            url: '@Url.Action("GetApproveList", "ProcessEngine")',
+            type: "POST",
+            contentType: "application/x-www-form-urlencoded",
+            data: searchdata,
+            success: function (data) {
+                $("#gridData").html(data);
+            }
+        });
+
+    }
+   
+    function validateRequired() {
+        $('#errorMsg').html("");
+        var valid = true;
+        $("[id^=flowFile]").each(function (index, item) {
+            var controlId = $(item).attr("id");
+            if ($('#' + controlId).prop('required') && $('#' + controlId).val() === "") {
+                $('#errorMsg').html("Please upload all required documents.");
+                valid = false;
+                return valid;
+            }
+
+        });
+        return valid;
+    }
+
+    function clearUploadText() {
+        $("[id^=flowFile]").each(function (index, item) {
+            var controlId = $(item).attr("id");
+            $('#' + controlId).val("");
+        });
+    }
+</script>

@@ -1,0 +1,221 @@
+﻿
+@{
+    ViewBag.Title = "Commitment Request List";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<div class="row hd-tt-bg">
+    <div class="col-md-4">
+        <h3>Commitment Request List</h3>
+    </div>
+</div>
+<div class="row mt30">
+    <div class="page-wrapper">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="custom-jsgrid-normal">
+                    <div id="gridCommitReqList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    var alertMsg = '@TempData["alertMsg"]';
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+        else if (alertMsg != '') {
+            $('#alert').html(alertMsg);
+            $('#Validation').modal('toggle');
+        }
+    });
+    $("#gridCommitReqList").jsGrid({
+        paging: true,
+        pageIndex: 1,
+        pageSize: 10,
+        editing: false,
+        filtering: true,
+        pageLoading: true,
+        autoload: true,
+        controller: {
+
+            loadData: function (filter) {
+                var searchData = [];
+                searchData = {
+                    ApplNo: filter.ReferenceNumber || null,
+                    AppointType: filter.TypeofAppointment || null,
+                    RequestType: filter.RequestType || null,
+                    CandidateName: filter.CandidateName || null,
+                    CandidateDesignation: filter.CandidateDesignation || null,
+                    ProjectNumber: filter.ProjectNumber || null,
+                    TotalSalaryAmount: filter.TotalSalaryAmount || null,
+                    CommitmentAmount: filter.CommitmentAmount || null,
+                    AllocationHead: filter.AllocationHead || null,
+                    Status: filter.Status || null
+                },
+                filter.model = searchData;
+                var deferred = $.Deferred();
+                $.ajax({
+                    type: "post",
+                    url: "GetCommitReqList",
+                    data: JSON.stringify(filter),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (result) {
+                        //db = result;
+                        //$("#AdvanceBillPaymentList").jsGrid({ data: db });
+                        var da = {
+                            data: result.commitreqList,
+                            itemsCount: result.TotalRecords
+                        }
+                        deferred.resolve(da);
+                    },
+                    error: function (err) {
+                        console.log("error : " + err);
+                    }
+
+                });
+                return deferred.promise();
+            }
+
+        },
+
+        fields: [
+            { name: "SNo", title: "S.No", editing: false, width: 50 },
+            { type: "number", name: "CommitmentRequestId", title: "Id", visible: false },
+            {
+                type: "text", name: "ReferenceNumber", title: "Reference Number & Type of Request", editing: false, width: 160,
+                itemTemplate: function (item, name) {
+                    return $("<td>").append(name.ReferenceNumber + "<br/>"+"<span class='gd-msg-hgt'>" + name.RequestType + "</span>");
+                }
+            },
+            { type: "text", name: "TypeofAppointment", title: "Type", editing: false, width: 150 },
+            { type: "text", name: "RequestType", title: "Type of Request", editing: false, visible: false },
+            {
+                type: "text", name: "CandidateName", title: "Candidate Name & Designation", editing: false,
+                itemTemplate: function (item, name) {
+                    return $("<td>").append("<b>" + name.CandidateName + "</b>" + "<br/>" + "<span>" + name.CandidateDesignation + "</span>");
+             }
+            },
+            { type: "text", name: "ProjectNumber", title: "Project Number", editing: false,width:200 },
+            { type: "text", name: "TotalSalaryAmount", title: "Total Salary", editing: false },
+            { type: "text", name: "CommitmentAmount", title: "Requested Commitment Amount", editing: false },
+            {
+                type: "text", name: "Status", title: "Status", editing: false,
+                cellRenderer: function (item, value) {
+                    if (value.Status == "Awaiting Commitment Booking") {
+                        return $("<td>").addClass("txt-bl").append(value.Status);
+                    }
+                }
+            },
+            {
+                 type: "control", editButton: false, deleteButton: false, width: 120, title: "Action",
+
+                 itemTemplate: function (value, item) {
+                     var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+                     if (item.Status == "Awaiting Commitment Booking" && item.RequestType == "New Appointment") {
+                         statusList = [{ id: "", name: "Action" }, { id: "Book Commitment", name: "Book Commitment" }, { id: "Reject Request", name: "Reject Request" }]
+                     }
+                     //else if (item.Status == "Awaiting Commitment Booking" && item.TypeofAppointment == "Change of Project" && item.RequestType == "New Commitment") {
+                     //    statusList = [{ id: "", name: "Select Action" }, { id: "Book Commitment", name: "Book Commitment" }, { id: "View", name: "View" }]
+                     //}
+                     else if (item.TypeofAppointment != "Change of Project" && item.RequestType == "Withdraw Commitment") {
+                         statusList = [{ id: "", name: "Action" }, { id: "Withdraw Commitment", name: "Withdraw Commitment" }, { id: "View", name: "View" }]
+                     }
+                     else if (item.TypeofAppointment == "HRA" && item.RequestType == "Add Commitment") {
+                         statusList = [{ id: "", name: "Action" }, { id: "Add Commitment", name: "Add Commitment" }, { id: "View", name: "View" }, { id: "Reject Request", name: "Reject Request" }]
+                     }
+                     else if (item.Status == "Commitment Booked") {
+                         statusList = [{ id: "", name: "Action" }, { id: "View", name: "View" }]
+                     }
+                     else if (item.RequestType == "Add Commitment") {
+                         statusList = [{ id: "", name: "Action" }, { id: "Add Commitment", name: "Add Commitment" }, { id: "View", name: "View" }, { id: "Reject Request", name: "Reject Request" }]
+                     }
+                     else if (item.TypeofAppointment == "Change of Project" && item.RequestType == "New Commitment") {
+                         statusList = [{ id: "", name: "Action" }, { id: "New Commitment", name: "Book Commitment" }, { id: "View", name: "View" }, { id: "Reject Request", name: "Reject Request" }]
+                     }
+                     else if (item.TypeofAppointment == "Enhancement" && item.RequestType == "New Commitment") {
+                         statusList = [{ id: "", name: "Action" }, { id: "New Commitment", name: "Book Commitment" }, { id: "View", name: "View" }, { id: "Reject Request", name: "Reject Request" }]
+                     }
+                     else if (item.TypeofAppointment == "Extension" && item.RequestType == "New Commitment") {
+                         statusList = [{ id: "", name: "Action" }, { id: "New Commitment", name: "Book Commitment" }, { id: "View", name: "View" }, { id: "Reject Request", name: "Reject Request" }]
+                     }
+                     else {
+                         statusList = [{ id: "", name: "Action" }, { id: "View", name: "View" }]
+                     }
+                     var $customSelect = $("<select>")
+                         .attr("class", "form-control").prop("selectedIndex", "")
+                     $.each(statusList, function (index, itemData) {
+                         $customSelect.append($('<option/>', {
+
+                             value: itemData.id,
+                             text: itemData.name
+                         }));
+                     });
+                     $customSelect.change(function (e) {
+                         var selVal = $(this).val();
+                         if (selVal == "Book Commitment") {
+                             var choice = confirm("Are you sure that you want to Book Commitment?");
+                             if (choice == true) {
+                                 var url = '@Url.Action("RecruitmentCommitmentBooking", "Requirement")?Id=' + item.CommitmentRequestId;
+                                 window.location.href = url;
+                             }
+                         }
+                         else if (selVal == "View") {
+                             var url = '@Url.Action("RCTCommitmentBookingView", "Requirement")?Id=' + item.CommitmentRequestId;
+                             window.location.href = url;
+                         }
+                         else if (selVal == "Add Commitment") {
+                             var choice = confirm("Are you sure that you want to Add Amount to Commitment?");
+                             if (choice == true) {
+                                 var url = '@Url.Action("RCTAddCommitment", "Requirement")?Id=' + item.CommitmentRequestId;
+                                 window.location.href = url;
+                             }
+                         }
+                         else if (selVal == "Withdraw Commitment") {
+                             var choice = confirm("Are you sure you want to Withdraw Commitment?");
+                             if (choice == true) {
+                                 var url = '@Url.Action("RCTCloseCommitment", "Requirement")?Id=' + item.CommitmentRequestId;
+                                 window.location.href = url;
+                             }
+                         }
+                         else if (selVal == "New Commitment") {
+                             var choice = confirm("Are you sure you want to Book New Commitment?");
+                             if (choice == true) {
+                                 var url = '@Url.Action("RecruitmentCommitmentBooking", "Requirement")?Id=' + item.CommitmentRequestId + '&apptype=' + item.TypeofAppointment;
+                                 window.location.href = url;
+                             }
+                         }
+                         else if (selVal == "Reject Request") {
+                             var choice = confirm("Are you sure you want to Reject this Commitment request?");
+                             if (choice == true) {
+                                 var url = '@Url.Action("RCTRejectCommitRequest", "Requirement")?Id=' + item.CommitmentRequestId;
+                                 window.location.href = url;
+                             }
+                         }
+
+                         $(this).val("");
+                         return false;
+                         e.stopPropagation();
+                     });
+                     return $result.add($customSelect);
+                 },
+                 _createFilterSwitchButton: function () {
+                     return this._createOnOffSwitchButton("filtering", this.searchModeButtonClass, false);
+                 }
+             }
+
+
+        ],
+
+    });
+    $("#gridCommitReqList").jsGrid("option", "filtering", false);
+</script>

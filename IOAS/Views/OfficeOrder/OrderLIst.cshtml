@@ -1,0 +1,191 @@
+﻿@model IOAS.Models.PagedData<IOAS.Models.OfficeOrderModel>
+
+<table class="table table-user-information">
+    <tbody>
+        <tr>
+
+
+            <th>
+                Order Type
+            </th>
+            <th>
+                Order Ref No
+            </th>
+            <th>
+                Order Date
+            </th>
+            <th>
+                Order For
+            </th>
+            <th>
+
+            </th>
+            <th></th>
+        </tr>
+        @{
+            if (Model.Data != null && Model.Data.Any())
+            {
+
+                foreach (var item in Model.Data)
+                {
+
+                    <tr>
+                        <td>
+                            <label>@Html.DisplayFor(modelItem => item.OrderType)</label>
+                        </td>
+                        <td>
+                            <label>@Html.DisplayFor(modelItem => item.OrderNumber)</label>
+                        </td>
+                        <td>
+                            <label>@Html.DisplayFor(modelItem => item.OrderDate)</label>
+                        </td>
+                        <td>
+                            <label>@Html.DisplayFor(modelItem => item.OrderFor)</label>
+                        </td>
+                        <td>
+
+                            <label>
+                                @Html.ActionLink("Edit", "EditReport", new { ReportID = item.OrderId }, new { @role = "button", @class = "btn btn-primary  btn-md" })
+                            </label>
+                        </td>
+                        @*<td>
+                                @{
+                                    var modalid = "confirm-delete_" + item.ReportID;
+                                    <a href="#" class="btn btn-default btn-xs btn-delete glyphicon glyphicon-trash" data-href="DeleteReport?id=@item.ReportID" data-toggle="modal" data-target="#@modalid"></a>
+
+                                    <div class="modal fade" id="@modalid" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    Delete Report
+                                                </div>
+                                                <div class="modal-body">
+                                                    Are you sure you wanna delete this Rport forever? - @Html.DisplayFor(modelItem => item.ReportName)
+                                                </div>
+                                                <div class="modal-footer" style="color:white;">
+                                                    <button type="button" class="btn btn-default btn-sm" data-dismiss="modal">No</button>
+                                                    <a class="btn btn-danger btn-ok btn-sm">Yes</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </td>*@
+                    </tr>
+
+                }
+            }
+
+        }
+
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="6">
+                @{
+                    var maxpage = Model.visiblePages;
+                    var startpage = 1;
+
+                    if (Model.TotalPages < Model.visiblePages)
+                    {
+                        startpage = 1;
+                        maxpage = Model.TotalPages;
+                    }
+                    else if (Model.CurrentPage >= maxpage)
+                    {
+                        startpage = Model.CurrentPage;
+
+                        if (startpage + Model.visiblePages <= Model.TotalPages)
+                        {
+                            maxpage = startpage + Model.visiblePages;
+                        }
+                        else
+                        {
+                            maxpage = Model.TotalPages;
+                        }
+
+                        if (maxpage > Model.TotalPages)
+                        {
+                            maxpage = Model.TotalPages;
+                            startpage = maxpage - (Model.visiblePages - 1);
+                        }
+
+                    }
+
+                    if (Model.TotalPages > Model.visiblePages)
+                    {
+                        <a id='firstPage' name="pageButton" class="btn btn-primary  btn-md" href="#" onclick="return false;">First</a>
+                        <a id='previousPage' name="pageButton" class="btn btn-default  btn-md" href="#" onclick="return false;">Previous</a>
+                    }
+
+                    for (int i = startpage; i <= maxpage; i++)
+                    {
+
+
+                        if (i == Model.CurrentPage)
+                        {
+                            <a id='currentPage' name="pageButton" class="btn btn-primary  btn-md" href="#" onclick="return false;">@i</a>
+                        }
+                        else
+                        {
+                            <a name="pageButton" class=" btn btn-default  btn-md" href="#" onclick="return false;">@i</a>
+                        }
+                    }
+                    if (Model.TotalPages > Model.visiblePages)
+                    {
+                        <a id='nextPage' name="pageButton" class="btn btn-default  btn-md" href="#" onclick="return false;">Next</a>
+                        <a id='lastPage' name="pageButton" class="btn btn-primary  btn-md" href="#" onclick="return false;">Last</a>
+                    }
+                }
+            </td>
+        </tr>
+    </tfoot>
+</table>
+<script type="text/javascript" language="javascript">
+    $(document).ready(function () {
+        var firstpage = 1
+        var lastpage = '@Model.TotalPages';
+        var currentPage = $('#currentPage').text();
+
+        if (parseInt(currentPage, 10) === parseInt(lastpage, 10)) {
+            $('#lastPage').addClass('disabled');
+            $('#nextPage').addClass('disabled');
+        }
+        else if (parseInt(currentPage, 10) === parseInt(firstpage, 10)) {
+            $('#firstPage').addClass('disabled');
+            $('#previousPage').addClass('disabled');
+        }
+        $('a[name="pageButton"]').click(function () {
+            var pageNo = 1;
+            if ($(this).text() === 'First') {
+                pageNo = 1;
+            }
+            else if ($(this).text() === 'Last') {
+                pageNo = lastpage;
+            }
+            else if ($(this).text() === 'Previous') {
+                if (parseInt($('#currentPage').text(), 10) > 1) {
+                    pageNo = parseInt($('#currentPage').text(), 10) - 1;
+                }
+
+            }
+            else if ($(this).text() === 'Next') {
+
+                pageNo = parseInt($('#currentPage').text(), 10) + 1;
+            }
+            else {
+                pageNo = $(this).text();
+            }
+            var membername = $('#MemberName').val();
+            var companyname = $('#CompanyName').val();
+            var model = {};
+            model.membername = membername;
+            model.companyname = companyname;
+
+            getData(pageNo, model);
+        });
+    });
+    $('div[id^="confirm-delete_"]').on('show.bs.modal', function (e) {
+        $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+    });
+</script>

@@ -1,0 +1,2780 @@
+﻿@model IOAS.Models.GSTOffsetModel
+@*@model IOAS.Models.PagedData<IOAS.Models.GSTOffsetModel>*@
+
+@{
+    ViewBag.Title = "GSTOffset";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+
+@using (Html.BeginForm("GSTOffset", "CoreAccounts", FormMethod.Post, new { @class = "", role = "form", @id = "formGST" }))
+{
+    <div class="wrapper">
+    <div class="main-content">       
+        <div class="rgt-cnt">
+            <div class="row hd-tt-bg">
+                <div class="col-md-12">
+                    <h4><b>GST Offset</b></h4>
+                    <input type="hidden" name="RCMCGST" id="rcmcgst" />
+                    <input type="hidden" name="RCMSGST" id="rcmsgst" />
+                    <input type="hidden" name="RCMIGST" id="rcmigst" />
+                    @Html.Hidden("TransactionTypeCode", "GOF")
+                    @Html.Hidden("varBank")
+                    @Html.Hidden("varIGSTOutput")
+                    @Html.Hidden("varCGSTOutput")
+                    @Html.Hidden("varSGSTOutput")
+                    @Html.Hidden("varIGSTInput")
+                    @Html.Hidden("varSGSTInput_Cr")
+                    @Html.Hidden("varCGSTInput_Cr")
+                    @Html.Hidden("varSGSTInput_Dr")
+                    @Html.Hidden("varCGSTInput_Dr")
+                    @Html.Hidden("varIGSTTDSReceivable")
+                    @Html.Hidden("varSGSTTDSReceivable")
+                    @Html.Hidden("varCGSTTDSReceivable")
+                    @Html.Hidden("varRCM")
+                    @Html.Hidden("varRoundoffDebit")
+                    @Html.Hidden("varRoundoffCredit")
+                    <ul class="nav nav-pills custom-nav-pills custom-spl-nav">
+                        <li class="active" id="picDel"><a href="javascript:void(0)" id="firsttab" class="ml-null brd-rd-md firsttab">GST Transaction Details</a></li>
+                        <li id="allOca"><a href="javascript:void(0)" id="secondtab" class="brd-rd-md secondtab"> GST - Payment Summary</a></li>
+                        <li id="allOca1"><a href="javascript:void(0)" id="thirdtab" class="brd-rd-md thirdtab">Posting Details</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="page-wrapper ">
+                    <div class="col-md-12 mt30 ">
+                        <div id="tab-01" style="display: block;">
+                            <div class="col-md-12">
+                                <div class="bl-lg-panel-box">
+                                    <div class="cmn-panel-box">
+                                        <div class="row cmn-panel-box-adj">
+
+                                            <div class="col-md-3 ">
+                                                <div class="form-group custom-form-group mb-md">
+                                                    <label  class="required">From Date: </label>
+                                                    @Html.TextBoxFor(m => m.FromDate, new { @class = "form-control required", @id = "fromdate", @autocomplete = "off" })
+                                                    @Html.HiddenFor(m => m.GSTOffsetId,new { @id= "GSTId" })
+                                                    @Html.ValidationMessageFor(m => m.FromDate)
+                                                </div>
+                                                <div class="form-group custom-form-group mb-null ">
+                                                    <label>Total Input: </label>
+                                                    @Html.TextBoxFor(m => m.TotalInput, new { @class = "form-control", @id = "TotalInput", @readonly = true })
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group mb-md">
+                                                    <label  class="required">To Date: </label>
+                                                    @Html.TextBoxFor(m => m.ToDate, new { @class = "form-control required", @id = "todate", @autocomplete = "off" })
+                                                    @Html.ValidationMessageFor(m => m.ToDate)
+                                                  </div>
+                                                <div class="form-group custom-form-group mb-null ">
+                                                    <label>Total Output: </label>
+                                                    @Html.TextBoxFor(m => m.TotalOutput, new { @class = "form-control", @id = "TotalOutput", @readonly = true })
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group mb-md">
+                                                    <div class="reg-no custom-reg-no">
+                                                            <label>Number</label>
+                                                            <h4>@Html.DisplayFor(m => m.GSTOffsetNumber)</h4>                                                        
+                                                    </div>
+                                                </div>
+                                                <div class="form-group custom-form-group mb-null ">
+                                                    <label>Total TDS Receivable: </label>
+                                                    @Html.TextBoxFor(m => m.TotalTDSReceivable, new { @class = "form-control", @id = "TotalTDSReceivable", @readonly = true })
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group mb-null ">
+                                                    <label>Remarks </label>
+                                                    @Html.TextAreaFor(m => m.Remarks, new { @class = "form-control" })
+
+                                                </div>
+                                            </div>
+
+
+
+
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <h3 class="mt-null">GST Input<a href="javascript:void(0)" class="InputDownBtn"><i class="ion-android-download"></i></a></h3>
+                                                    </div>
+                                                </div>
+                                                <div class="grey-bg-adj bc-td-bg mb-lg">
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <div class="bk-tb-scrl">
+                                                                <table class="table table-bordered mb-null"id="inputtable">
+                                                                   
+                                                                    <tbody>
+                                                                        <tr>
+                                                                            <td>Vendor Name</td>
+                                                                         
+                                                                            <td>InvoiceNumber</td>
+                                                                            <td>GSTIN</td>
+                                                                            <td>Amount</td>
+                                                                            <td>Interstate</td>
+                                                                           
+                                                                        </tr>                                                                     
+                                                                        @if (Model.GSTOffsetInput != null)
+                                                                        {
+                                                                            var count = 0;
+                                                                            foreach (var item in Model.GSTOffsetInput)
+                                                                            {
+                                                                                var DetailId = "GSTOffsetInput[" + count + "].InputId";
+                                                                                var Typecode= "GSTOffsetInput[" + count + "].InputTransactionCode";
+                                                                                var Amt = "GSTOffsetInput[" + count + "].InputAmount";
+                                                                                <tr id="inputrow">
+                                                                                    <td>
+                                                                                        @Html.DisplayFor(m => item.InputHead)
+                                                                                        @Html.Hidden(@DetailId, item.InputId)
+                                                                                        @Html.Hidden(@Amt, item.InputAmount)
+                                                                                        @Html.Hidden(@Typecode, item.InputTransactionCode)
+                                                                                        @Html.Hidden("GSTOffsetInput.SlNo", @count)
+                                                                                    </td>
+                                                                                <td>
+                                                                                    
+                                                                                    @Html.DisplayFor(m=>item.InputNumber)
+                                                                                </td>
+                                                                                <td>
+                                                                                    
+                                                                                    @Html.DisplayFor(m => item.InputTransaction)
+                                                                                </td>
+                                                                                <td>
+                                                                                  
+                                                                                    @Html.DisplayFor(m => item.InputAmount)
+                                                                                </td>
+                                                                                <td>
+                                                                                    @Html.DisplayFor(m => item.ProjNo)
+                                                                                </td>
+                                                                                    
+                                                                        </tr>
+                                                                                count++;
+                                                                            }
+                                                                        }
+                                                                    </tbody>
+                                                                  
+                                                                </table>
+                                                            </div>
+                                                            <div class="col-md-5 pull-right">
+                                                                <div class="reg-no custom-reg-no">
+                                                                    <div class="form-group custom-form-group">
+                                                                        <label>RCM Inward (<a href="javascript:void(0)" class="rcmcredit">View Details</a>.)</label>
+                                                                        @Html.TextBoxFor(m => m.RCMCredit, new { @class = "form-control", @id = "rcmcredit", @readonly = true })
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-5 pull-right">
+                                                                <div class="reg-no custom-reg-no">
+                                                                    <div class="form-group custom-form-group">
+                                                                        <label>Total Debit</label>
+                                                                        @Html.TextBoxFor(m => m.TotalDebit, new { @class = "form-control", @id = "tddebit", @readonly = true })
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <h3 class="mt-null">GST Output<a href="javascript:void(0)" class="OutPutDownBtn"><i class="ion-android-download"></i></a></h3>
+                                                    </div>
+                                                </div>
+                                                <div class="grey-bg bc-td-bg mb-lg">
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <div class="bk-tb-scrl">
+                                                                <table class="table table-bordered mb-null" id="outputtable">
+                                                                    <tbody>
+                                                                        <tr>
+                                                                            <td></td>
+                                                                            <td>Transaction</td>
+                                                                            <td>ProjectNo</td>
+                                                                            <td>No</td>
+                                                                            <td>Head</td>
+                                                                            <td>Credit</td>
+                                                                            <td>Debit</td>
+                                                                        </tr>
+                                                                   @if (Model.GSTOffsetOutput != null)
+                                                                   {
+                                                                       var count = 0;
+                                                                       foreach (var item in Model.GSTOffsetOutput)
+                                                                       {
+                                                                           var headid = "GSTOffsetOutput[" + count + "].OutputHeadId";
+                                                                           var boaid = "GSTOffsetOutput[" + count + "].OutputId";
+                                                                           var typecode = "GSTOffsetOutput[" + count + "].OutputTransactionCode";
+                                                                           var GSTcheckbox = "GSTOffsetOutput[" + count + "].GSTCheckbox";
+                                                                           var transaction = "GSTOffsetOutput[" + count + "].OutputTransaction";
+                                                                           var head = "GSTOffsetOutput[" + count + "].OutputHead";
+                                                                           var credit = "GSTOffsetOutput[" + count + "].OutputCredit";
+                                                                           var debit = "GSTOffsetOutput[" + count + "].OutputDebit";
+                                                                           var number = "GSTOffsetOutput[" + count + "].OutputNumber";
+                                                                        <tr id="outputrow">
+                                                                            <td>
+                                                                                @Html.CheckBox(@GSTcheckbox, item.GSTCheckbox, new { @id = "gstcheckbox" })
+                                                                                @Html.Hidden(@headid, item.OutputHeadId)
+                                                                                @Html.Hidden(@boaid, item.OutputId)
+                                                                                @Html.Hidden(@typecode, item.OutputTransactionCode)
+                                                                                @Html.Hidden(@credit, item.OutputCredit)
+                                                                                @Html.Hidden(@debit, item.OutputDebit)
+                                                                                @Html.Hidden("GSTOffsetOutput.SlNo", @count)
+                                                                            </td>
+                                                                            <td>
+                                                                                @*@Html.Label(@transaction, item.OutputTransaction)*@
+                                                                                @*<label name="@transaction">
+                                                                                    @item.OutputTransaction
+                                                                                </label>*@
+                                                                                @*@Html.Display(@transaction, item.OutputTransaction)*@
+                                                                                @Html.DisplayFor(m => item.OutputTransaction)
+                                                                            </td>
+                                                                            <td>
+                                                                               
+                                                                                @Html.DisplayFor(m => item.ProjNo)
+                                                                            </td>
+                                                                            <td>
+                                                                             
+                                                                               @Html.DisplayFor(m => item.OutputNumber)
+                                                                            </td>
+                                                                            <td>
+                                                                                
+                                                                                @Html.DisplayFor(m => item.OutputHead)
+                                                                            </td>
+                                                                            <td>
+                                                                                
+                                                                                @Html.DisplayFor(m => item.OutputCredit)
+                                                                            </td>
+                                                                            <td>
+
+                                                                                @Html.DisplayFor(m => item.OutputDebit)
+                                                                            </td>
+                                                                        </tr>
+                                                                           count++;
+                                                                       }
+                                                                   }
+                                                                    
+
+
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                            <div class="col-md-5 pull-right">
+                                                                <div class="reg-no custom-reg-no">
+                                                                    <div class="form-group custom-form-group">
+                                                                        <label>RCM Outward (<a href="javascript:void(0)" class="totalrcm">View Details</a>.)</label>
+                                                                        @Html.TextBoxFor(m => m.TotalRCM, new { @class = "form-control", @id = "totalrcm", @readonly = true })
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-5 pull-right">
+                                                                <div class="reg-no custom-reg-no">
+                                                                    <div class="form-group custom-form-group">
+                                                                        <label>Total Credit</label>
+                                                                        @Html.TextBoxFor(m => m.TotalCredit, new { @class = "form-control", @id = "tdcredit", @readonly = true })
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <h3 class="mt-null">TDS Receivable<a href="javascript:void(0)" class="TDStDownBtn"><i class="ion-android-download"></i></a></h3>
+                                                    </div>
+                                                </div>
+                                                <div class="grey-bg-adj bc-td-bg mb-lg">
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <div class="bk-tb-scrl">
+                                                                <table class="table table-bordered mb-null"id="tdstable" >
+                                                                    <tbody>
+                                                                        <tr>
+                                                                            <td></td>
+                                                                            <td>Transaction</td>
+                                                                            <td>ProjectNo</td>
+                                                                            <td>No</td>
+                                                                            <td>Head</td>
+                                                                            <td>Debit</td>
+                                                                            <td>Credit</td>
+                                                                        </tr>
+
+                                                                        @if (Model.GSTOffsetTDS != null)
+                                                                        {
+                                                                            var count = 0;
+                                                                            foreach (var item in Model.GSTOffsetTDS)
+                                                                            {
+                                                                                var headid = "GSTOffsetTDS[" + count + "].TDSHeadId";
+                                                                                var boaid = "GSTOffsetTDS[" + count + "].TDSId";
+                                                                                var typecode = "GSTOffsetTDS[" + count + "].TDSTransactionCode";
+                                                                                var GSTcheckbox = "GSTOffsetTDS[" + count + "].GSTCheckbox";
+                                                                                var transaction = "GSTOffsetTDS[" + count + "].TDSTransaction";
+                                                                                var head = "GSTOffsetTDS[" + count + "].TDSHead";
+                                                                                var debit = "GSTOffsetTDS[" + count + "].TDSDebit";
+                                                                                var credit = "GSTOffsetTDS[" + count + "].TDSCredit";
+                                                                                var number = "GSTOffsetTDS[" + count + "].TDSNumber";
+                                                                                <tr id="tdsrow">
+                                                                                    <td>
+                                                                                        @Html.CheckBox(@GSTcheckbox, item.GSTCheckbox, new { @id = "gstcheckbox" })
+                                                                                        @Html.Hidden(@headid, item.TDSHeadId)
+                                                                                        @Html.Hidden(@boaid, item.TDSId)                                                                                       
+                                                                                        @Html.Hidden(@typecode, item.TDSTransactionCode)
+                                                                                        @Html.Hidden(@debit, item.TDSDebit)
+                                                                                        @Html.Hidden(@credit, item.TDSCredit)
+                                                                                        @Html.Hidden("GSTOffsetOutput.SlNo", @count)
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        @*@Html.Label(@transaction, item.TDSTransaction)
+                                                                                        <label name="@transaction">
+                                                                                            @item.transaction
+                                                                                        </label>*@
+                                                                                        @Html.DisplayFor(m => item.TDSTransaction)
+                                                                                    </td>
+                                                                                    <td>
+                                                                                       
+                                                                                   @Html.DisplayFor(m => item.ProjNo)
+                                                                                    </td>
+                                                                                    <td>
+                                                                                      
+                                                                                        @Html.DisplayFor(m => item.TDSNumber)
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        @Html.DisplayFor(m => item.TDSHead)
+                                                                                    </td>
+                                                                                    <td>                                                                                     
+                                                                                       
+                                                                                        @Html.DisplayFor(m => item.TDSDebit)
+                                                                                    </td>
+                                                                                    <td>
+
+                                                                                        @Html.DisplayFor(m => item.TDSCredit)
+                                                                                    </td>
+                                                                                </tr>
+                                                                                count++;
+                                                                            }
+                                                                        }
+
+
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                            <div class="col-md-5 pull-right">
+                                                                <div class="reg-no custom-reg-no">
+                                                                    <div class="form-group custom-form-group">
+                                                                        <label>Total Receivable</label>
+                                                                        @Html.TextBoxFor(m => m.TotalReceivable, new { @class = "form-control", @id = "tdreceivable", @readonly = true })
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <h3 class="mt-null">Previous Credit Balance</h3>
+                                                        <div class="grey-bg-adj bc-td-bg mb-lg">
+                                                            <div class="row">
+                                                                <div class="col-md-12">
+                                                                    <div class="col-md-5 pull-center">
+                                                                        <div class="reg-no custom-reg-no">
+                                                                            <div class="form-group custom-form-group">
+                                                                                <label>IGST</label>
+                                                                                @Html.TextBoxFor(m => m.PreviousIGST, new { @class = "form-control", @id = "preIGST", @readonly = true })
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row">
+                                                                <div class="col-md-12">
+                                                                    <div class="col-md-5 pull-center">
+                                                                        <div class="reg-no custom-reg-no">
+                                                                            <div class="form-group custom-form-group">
+                                                                                <label>CGST</label>
+                                                                                @Html.TextBoxFor(m => m.PreviousCGST, new { @class = "form-control", @id = "preCGST", @readonly = true })
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                      <div class="row">
+                                                         <div class="col-md-12">
+                                                            <div class="col-md-5 pull-center">
+                                                                <div class="reg-no custom-reg-no">
+                                                                    <div class="form-group custom-form-group">
+                                                                        <label>SGST</label>
+                                                                            @Html.TextBoxFor(m => m.PreviousSGST, new { @class = "form-control", @id = "preSGST", @readonly = true })
+                                                                     </div>
+                                                                 </div>
+                                                           </div>
+                                                        </div>
+                                                        </div>
+                                                        </div>
+                                                    </div>
+                                                   </div>
+                                               </div>
+                                           </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div style="display: none;" id="tab-02">
+                            <div class="col-md-12">
+
+                                <div class="grey-bg-adj bc-td-bg mb-lg">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div>
+                                                <table class="table table-bordered">
+                                                    <tbody>
+                                                        <tr>
+                                                            <td style="width:120px;">
+                                                                IGST Total
+                                                            </td>
+                                                            <td>
+                                                                <span>O/p</span>
+                                                                @Html.TextBoxFor(m => m.TotalIGSTOutput, new { @class = "form-control", @id = "igstout", @readonly = true })
+                                                            </td>
+                                                            <td>
+                                                                <span>I/p</span>
+                                                                @Html.TextBoxFor(m => m.TotalIGSTInput, new { @class = "form-control", @id = "igstinput", @readonly = true })
+                                                            </td>
+                                                            <td class="ad-py-bl-bg">
+                                                                <span>Credit Adj.IGST</span>
+                                                                @Html.TextBoxFor(m => m.CreditAdjIGST, new { @class = "form-control", @id = "creditadjIGST", @readonly = true })
+                                                            </td>
+                                                            <td style="width:180px;">
+                                                                <span class="mb-md ">Balance for Adj.</span>
+                                                                @Html.TextBoxFor(m => m.IGSTBalance, new { @class = "form-control", @id = "IGSTbalance", @readonly = true })
+                                                                @Html.HiddenFor(m => m.HiddenIGSTBalance, new { @id = "HiddenIGSTbalance" })
+                                                            </td>
+
+                                                            <td>
+                                                                <span>Adj.in CGST</span>
+                                                                @Html.TextBoxFor(m => m.IGSTadjInCGST, new { @class = "form-control", @id = "IGSTadjInCGST", @onkeypress = "return ValidateDecimalOnly(event)", @autocomplete = "off" })
+                                                            </td>
+                                                            <td>
+                                                                <span>Adj.in SGST</span>
+                                                                @Html.TextBoxFor(m => m.IGSTadjInSGST, new { @class = "form-control", @id = "IGSTadjInSGST", @onkeypress = "return ValidateDecimalOnly(event)", @autocomplete = "off" })
+                                                            </td>
+                                                            <td class="ad-py-bl-bg">
+                                                                <span>Payable IGST</span>
+                                                                @Html.TextBoxFor(m => m.PayableIGST, new { @class = "form-control", @id = "payableigst", @readonly = true })
+                                                                @Html.HiddenFor(m => m.HiddenPayableIGST, new { @id = "hiddenpayableigst" })
+                                                            </td>
+
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                CGST Total
+                                                            </td>
+                                                            <td>
+                                                                <span>O/p</span>
+                                                                @Html.TextBoxFor(m => m.TotalCGSTOutput, new { @class = "form-control", @id = "cgstout", @readonly = true })
+                                                            </td>
+                                                            <td>
+                                                                <span>I/p</span>
+                                                                @Html.TextBoxFor(m => m.TotalCGSTInput, new { @class = "form-control", @id = "cgstinput", @readonly = true })
+                                                            </td>
+                                                            <td class="ad-py-bl-bg">
+                                                                <span>Credit Adj.CGST</span>
+                                                                @Html.TextBoxFor(m => m.CreditAdjCGST, new { @class = "form-control", @id = "creditadjCGST", @readonly = true })
+                                                            </td>
+                                                            <td>
+                                                                <span class="mb-md">Balance for Adj.</span>
+                                                                @Html.TextBoxFor(m => m.CGSTBalance, new { @class = "form-control", @id = "CGSTbalance", @readonly = true })
+                                                                @Html.HiddenFor(m => m.HiddenCGSTBalance, new { @id = "HiddenCGSTbalance" })
+                                                            </td>
+
+                                                            <td>
+                                                                <span>Adj.in IGST</span>
+                                                                @Html.TextBoxFor(m => m.CGSTadjInIGST, new { @class = "form-control", @id = "CGSTadjInIGST", @onkeypress = "return ValidateDecimalOnly(event)", @autocomplete = "off" })
+                                                            </td>
+                                                            <td></td>
+                                                            <td colspan="2" class="ad-py-bl-bg">
+                                                                <span>Payable CGST</span>
+                                                                @Html.TextBoxFor(m => m.PayableCGST, new { @class = "form-control", @id = "payablecgst", @readonly = true })
+                                                                @Html.HiddenFor(m => m.HiddenPayableCGST, new { @id = "hiddenpayablecgst" })
+                                                            </td>
+
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                SGST Total
+                                                            </td>
+                                                            <td>
+                                                                <span>O/p</span>
+                                                                @Html.TextBoxFor(m => m.TotalSGSTOutput, new { @class = "form-control", @id = "sgstout", @readonly = true })
+                                                            </td>
+                                                            <td>
+                                                                <span>I/p</span>
+                                                                @Html.TextBoxFor(m => m.TotalSGSTInput, new { @class = "form-control", @id = "sgstinput", @readonly = true })
+                                                            </td>
+                                                            <td class="ad-py-bl-bg">
+                                                                <span>Credit Adj.SGST</span>
+                                                                @Html.TextBoxFor(m => m.CreditAdjSGST, new { @class = "form-control", @id = "creditadjSGST", @readonly = true })
+                                                            </td>
+                                                            <td>
+                                                                <span class="mb-md ">Balance for Adj.</span>
+                                                                @Html.TextBoxFor(m => m.SGSTBalance, new { @class = "form-control", @id = "SGSTbalance", @readonly = true })
+                                                                @Html.HiddenFor(m => m.HiddenSGSTBalance, new { @id = "HiddenSGSTbalance" })
+                                                            </td>
+
+                                                            <td>
+                                                                <span>Adj.in IGST</span>
+                                                                @Html.TextBoxFor(m => m.SGSTadjInIGST, new { @class = "form-control", @id = "SGSTadjInIGST", @onkeypress = "return ValidateDecimalOnly(event)", @autocomplete = "off" })
+                                                            </td>
+                                                            <td></td>
+                                                            <td colspan="2" class="ad-py-bl-bg">
+                                                                <span>Payable SGST</span>
+                                                                @Html.TextBoxFor(m => m.PayableSGST, new { @class = "form-control", @id = "payablesgst", @readonly = true })
+                                                                @Html.HiddenFor(m => m.HiddenPayableSGST, new { @id = "hiddenpayablesgst" })
+                                                            </td>
+
+                                                        </tr>
+
+
+
+                                                    </tbody>
+                                                </table>
+
+                                                <h3>GST Cash Ledger</h3>
+                                                <table class="table table-bordered">
+                                                    <tbody>
+                                                        <tr>
+                                                            <td style="width:180px;">
+                                                                TDS IGST
+                                                            </td>
+                                                            <td>
+                                                                <span class="tb-txt-adj"></span>
+                                                                @Html.TextBoxFor(m => m.TDSIGST, new { @class = "form-control", @id = "tdsIGST", @readonly = true })
+                                                            </td>
+                                                            <td>
+                                                                <span>Adj.Payable IGST</span>
+                                                                @Html.TextBoxFor(m => m.AdjPayableIGST, new { @class = "form-control", @id = "adjpayableIGST", @readonly = true })
+                                                            </td>
+                                                            <td class="ad-py-bl-bg">
+                                                                <span>Net Payable</span>
+                                                                @Html.TextBoxFor(m => m.NetPayableIGST, new { @class = "form-control", @id = "netpayableIGST", @readonly = true })
+                                                            </td>
+                                                            <td class="ad-py-bl-bg">
+                                                                <span>Balance TDS</span>
+                                                                @Html.TextBoxFor(m => m.BalanceTDSinIGST, new { @class = "form-control", @id = "balanceTDSinIGST", @readonly = true })
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                TDS CGST
+                                                            </td>
+                                                            <td>
+                                                                <span class="tb-txt-adj"></span>
+                                                                @Html.TextBoxFor(m => m.TDSCGST, new { @class = "form-control", @id = "tdsCGST", @readonly = true })
+                                                            </td>
+                                                            <td>
+                                                                <span>Adj.Payable CGST</span>
+                                                                @Html.TextBoxFor(m => m.AdjPayableCGST, new { @class = "form-control", @id = "adjpayableCGST", @readonly = true })
+                                                            </td>
+                                                            <td class="ad-py-bl-bg">
+                                                                <span>Net Payable</span>
+                                                                @Html.TextBoxFor(m => m.NetPayableCGST, new { @class = "form-control", @id = "netpayableCGST", @readonly = true })
+                                                            </td>
+                                                            <td class="ad-py-bl-bg">
+                                                                <span>Balance TDS</span>
+                                                                @Html.TextBoxFor(m => m.BalanceTDSinCGST, new { @class = "form-control", @id = "balanceTDSinCGST", @readonly = true })
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                TDS SGST
+                                                            </td>
+                                                            <td>
+                                                                <span class="tb-txt-adj"></span>
+                                                                @Html.TextBoxFor(m => m.TDSSGST, new { @class = "form-control", @id = "tdsSGST", @readonly = true })
+                                                            </td>
+                                                            <td>
+                                                                <span>Adj.Payable SGST</span>
+                                                                @Html.TextBoxFor(m => m.AdjPayableSGST, new { @class = "form-control", @id = "adjpayableSGST", @readonly = true })
+                                                            </td>
+                                                            <td class="ad-py-bl-bg">
+                                                                <span>Net Payable</span>
+                                                                @Html.TextBoxFor(m => m.NetPayableSGST, new { @class = "form-control", @id = "netpayableSGST", @readonly = true })
+                                                            </td>
+                                                            <td class="ad-py-bl-bg">
+                                                                <span>Balance TDS</span>
+                                                                @Html.TextBoxFor(m => m.BalanceTDSinSGST, new { @class = "form-control", @id = "balanceTDSinSGST", @readonly = true })
+                                                            </td>
+                                                        </tr>
+
+                                                        <tr>
+                                                            <td></td>
+                                                            <td></td>
+                                                            <td></td>
+                                                            <td class="reg-no custom-reg-no">
+                                                                <span><b>Total GST Payable</b></span>
+                                                                @Html.TextBoxFor(m => m.TotalGSTPayable, new { @class = "form-control", @id = "totalGSTpayable", @readonly = true })
+                                                            </td>
+                                                            <td class="reg-no custom-reg-no">
+                                                                <span><b>Total TDS</b></span>
+                                                                @Html.TextBoxFor(m => m.TotalTDS, new { @class = "form-control", @id = "totalTDS", @readonly = true })
+                                                            </td>
+
+                                                        </tr>
+
+
+
+
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+
+
+                        </div>
+                        <div style="display: none;" id="tab-03">
+                            @Html.Partial("_TransactionDetails", Model)
+                        </div>
+                        <div class="custom-nav-btn text-right dis-none" id="SubmitBtn">
+                            <button type="button" class="btn btn-primary pull-right" onclick="formSave()" >Submit</button>
+                            <button type="button" class="btn btn-default pull-right" id="CloseBtn" onclick="window.location.href='@Url.Action("GSTOffsetList", "CoreAccounts")';">Close</button>
+                        </div>
+                        </div>
+                </div>
+                    </div>
+    </div>
+</div>
+	</div>
+
+    <div id="OutputRCMHistoryModal" class="modal fade modal-pr-vw" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <div class="row hd-tt-bg">
+                        <div class="col-md-12">
+                            <h4><b>RCM Credit </b></h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="bk-tb-scrl">                     
+                        <table class="table table-bordered mb-null" id="OutputRCMHistoryList">
+                            <tbody>
+                                <tr>
+                                    <td>Vendor Name</td>
+                                    <td>Invoice No</td>
+                                    <td>Invoice Date</td>
+                                    <td>Amount</td>
+                                    <td>Interstate</td>
+                                </tr>
+                                @if (Model.RCMOutput != null)
+                                {
+                                    var count = 0;
+                                    foreach (var item in Model.RCMOutput)
+                                    {
+                                        var DetailId = "RCMOutput[" + count + "].RCMId";
+                                        <tr >
+                                            <td>
+                                                @Html.DisplayFor(m => item.VendorName)
+                                                @Html.Hidden(@DetailId, item.RCMId)
+                                                @Html.Hidden("RCMOutput.SlNo", @count)
+                                            </td>
+                                            <td>
+
+                                                @Html.DisplayFor(m => item.InvoiceNo)
+                                            </td>
+                                            <td>
+
+                                                @Html.DisplayFor(m => item.Invoicedate)
+                                            </td>
+                                            <td>
+
+                                                @Html.DisplayFor(m => item.Amount)
+                                            </td>
+                                            <td>
+                                                @Html.DisplayFor(m => item.Interstate)
+                                            </td>
+
+                                        </tr>
+                                        count++;
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="InputRCMHistoryModal" class="modal fade modal-pr-vw" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <div class="row hd-tt-bg">
+                        <div class="col-md-12">
+                            <h4><b>RCM</b></h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="bk-tb-scrl">
+                        <table class="table table-bordered mb-null" id="InputRCMHistoryList">
+                            <tbody>
+                                <tr>
+                                    <td>Vendor Name</td>
+                                    <td>Invoice No</td>
+                                    <td>Invoice Date</td>
+                                    <td>Amount</td>
+                                    <td>Interstate</td>
+                                </tr>
+                                @if (Model.RCMInput != null)
+                                {
+                                    var count = 0;
+                                    foreach (var item in Model.RCMInput)
+                                    {
+                                        var DetailId = "RCMInput[" + count + "].RCMId";
+                                        <tr >
+                                            <td>
+                                                @Html.DisplayFor(m => item.VendorName)
+                                                @Html.Hidden(@DetailId, item.RCMId)
+                                                @Html.Hidden("RCMInput.SlNo", @count)
+                                            </td>
+                                            <td>
+
+                                                @Html.DisplayFor(m => item.InvoiceNo)
+                                            </td>
+                                            <td>
+
+                                                @Html.DisplayFor(m => item.Invoicedate)
+                                            </td>
+                                            <td>
+
+                                                @Html.DisplayFor(m => item.Amount)
+                                            </td>
+                                            <td>
+                                                @Html.DisplayFor(m => item.Interstate)
+                                            </td>
+
+                                        </tr>
+                                        count++;
+                                    }
+                                }
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+<div id="ValidationModal" class="modal fade modal-warning" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-warning"></i>
+                <h3 class="modal-title">Warning</h3>
+            </div>
+            <div class="modal-body">
+
+                <p id="MsgValidation"></p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+@Html.AntiForgeryToken()
+	<script>
+        /*Design Realted Function*/
+        $("input[name='adaccess']:checkbox").click(function () {
+            if ($(this).attr("value") == "adaccess") {
+                $("#staffID").css("display", "none");
+                $("#staffIDText").css("display", "block");
+                $("#dept").css("display", "none");
+                $("#deptText").css("display", "block");
+                $("#staffName").css("display", "none");
+                $("#staffNameText").css("display", "block");
+                $("#desID").css("display", "none");
+                $("#desIDText").css("display", "block");
+                $("#genID").css("display", "none");
+                $("#genIDText").css("display", "block");
+            }
+
+        });
+        var errMsg = '@TempData["errMsg"]';
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        });
+
+        function modRec() {
+            var e = document.getElementById("modRec");
+            var strcomType = e.options[e.selectedIndex].value;
+            if (strcomType == "0") {
+                document.getElementById("cheQue").style.display = "block";
+                document.getElementById("banTra").style.display = "none";
+                document.getElementById("dd").style.display = "none";
+            }
+            else if (strcomType == "1") {
+                document.getElementById("cheQue").style.display = "none";
+                document.getElementById("banTra").style.display = "block";
+                document.getElementById("dd").style.display = "none";
+            }
+            else if (strcomType == "2") {
+                document.getElementById("cheQue").style.display = "none";
+                document.getElementById("banTra").style.display = "none";
+                document.getElementById("dd").style.display = "block";
+            }
+
+            console.log(strcomType);
+        };
+
+        $("#picDel").on("click", function () {
+            $("#tab-01").css("display", "block");
+            $("#tab-02").css("display", "none");
+            $("#tab-03").css("display", "none");
+            $("#tab-04").css("display", "none");
+            $("#tab-05").css("display", "none");
+            $("#picDel").addClass('active');
+            $("#allOca").removeClass('active');
+            $("#modEof").removeClass('active');
+            $("#modEof1").removeClass('active');
+            $("#allOca1").removeClass('active');
+        });
+
+        $("#allOca").on("click", function () {
+            $("#tab-01").css("display", "none");
+            $("#tab-02").css("display", "block");
+            $("#tab-03").css("display", "none");
+            $("#tab-04").css("display", "none");
+            $("#tab-05").css("display", "none");
+            $("#picDel").removeClass('active');
+            $("#allOca").addClass('active');
+            $("#modEof").removeClass('active');
+            $("#modEof1").removeClass('active');
+            $("#allOca1").removeClass('active');
+        });
+
+        $("#modEof").on("click", function () {
+            $("#tab-01").css("display", "none");
+            $("#tab-02").css("display", "none");
+            $("#tab-03").css("display", "block");
+            $("#tab-04").css("display", "none");
+            $("#tab-05").css("display", "none");
+            $("#picDel").removeClass('active');
+            $("#allOca").removeClass('active');
+            $("#modEof").addClass('active');
+            $("#modEof1").removeClass('active');
+            $("#allOca1").removeClass('active');
+        });
+
+        $("#modEof1").on("click", function () {
+            $("#tab-01").css("display", "none");
+            $("#tab-02").css("display", "none");
+            $("#tab-03").css("display", "none");
+            $("#tab-04").css("display", "block");
+            $("#tab-05").css("display", "none");
+            $("#picDel").removeClass('active');
+            $("#allOca").removeClass('active');
+            $("#modEof").removeClass('active');
+            $("#modEof1").addClass('active');
+            $("#allOca1").removeClass('active');
+        });
+
+        $("#allOca1").on("click", function () {
+            $("#tab-01").css("display", "none");
+            $("#tab-02").css("display", "none");
+            $("#tab-03").css("display", "block");
+            $("#tab-04").css("display", "none");
+            $("#tab-05").css("display", "none");
+            $("#picDel").removeClass('active');
+            $("#allOca").removeClass('active');
+            $("#modEof").removeClass('active');
+            $("#modEof1").removeClass('active');
+            $("#allOca1").addClass('active');
+        });
+        /**/
+        $('#todate, #fromdate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
+        var GSTID = $("#GSTId").val();
+        /**/
+        $('#fromdate').change(function () {          
+            $('#todate').val('');
+            if ($(this).val() != "") {             
+                var StartDate = moment($(this).val().split('-').join('/')).toDate();
+                $('#todate').datepicker({
+                    dateFormat: 'dd-MM-yy',
+                    changeYear: true
+                }).datepicker("option", "minDate", StartDate).datepicker("option", "maxDate", 0);
+            }
+
+        });
+        $(document).ready(function () {
+            var GSTOFFSETID = $("#GSTId").val();
+            var fromdate = $("#fromdate").val();
+            var todate = $("#todate").val();
+
+  
+        });
+
+        function LoadGST(fromdate, todate) {
+            var GSTOFFSETID = $("#GSTId").val();
+            $("#inputtable tr:not(:first)").empty();
+            $("#outputtable tr:not(:first)").empty();
+            $("#InputRCMHistoryList tr:not(:first)").empty();
+            $("#OutputRCMHistoryList tr:not(:first)").empty();
+      
+            $('.loading-bg').removeClass('dis-none');
+            $.ajax({
+                type: "POST",
+                data: JSON.stringify({ 'fromdate': fromdate, 'todate': todate, 'GSToffsetid': GSTOFFSETID }),
+                url: '@Url.Action("GetGSTOffsetTotal", "CoreAccounts")',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (result) {
+                    var row;
+                    $.each(result.GSTOffsetInput, function (i, v1) {
+                        row += "<tr><td>" + v1.InputHead
+                             + "<input type='hidden' name='GSTOffsetInput[" + v1.SlNo + "].InputId'  value=" + v1.InputId + "><input type='hidden' name='GSTOffsetInput[" + v1.SlNo + "].InputTransactionCode'  value=" + v1.InputTransactionCode + "><input type='hidden' name='GSTOffsetInput[" + v1.SlNo + "].InputAmount'  value=" + v1.InputAmount + ">"
+                            + "</td><td>" + v1.InputNumber + "</td><td>" + v1.InputTransaction + "</td><td>" +
+                               v1.InputAmount
+                               + "</td><td>" + v1.ProjNo +
+                              "</td></tr>";
+                    });
+                    var row2;
+                    $.each(result.GSTOffsetOutput, function (i, v1) {
+                        row2 += "<tr><td>" +
+                              "<input type='checkbox' name='GSTOffsetOutput[" + v1.SlNo + "].GSTCheckbox'  data-id=" + v1.OutputId + " value='true' class='btn btn-info' checked/><input type='hidden' name='GSTOffsetOutput[" + v1.SlNo + "].OutputId'  value=" + v1.OutputId + "><input type='hidden' name='GSTOffsetOutput[" + v1.SlNo + "].OutputHeadId'  value=" + v1.OutputHeadId + "><input type='hidden' name='GSTOffsetOutput[" + v1.SlNo + "].OutputTransactionCode'  value=" + v1.OutputTransactionCode + "><input type='hidden' name='GSTOffsetOutput[" + v1.SlNo + "].OutputCredit'  value=" + v1.OutputCredit + ">"
+                             + "</td><td>" + v1.OutputTransaction + "</td><td>" + v1.ProjNo + "</td><td>" +
+                               v1.OutputNumber
+                               + "</td><td>" + v1.OutputHead + "</td><td>" + v1.OutputCredit + "</td><td>" + v1.OutputDebit
+                               + "</td></tr>";
+                    });
+                    $("#outputtable").append(row2);
+                    $("#rcmigst").val(0);
+                    $("#rcmcgst").val(result.TotalModel.RCMCGSTop);
+                    $("#rcmsgst").val(result.TotalModel.RCMSGSTop);
+                    var preSGST = parseFloat($("#preSGST").val()) || 0;
+                    var preIGST = parseFloat($("#preIGST").val()) || 0;
+                    var preCGST = parseFloat($("#preCGST").val()) || 0;
+                    $("#igstinput").val(parseFloat(result.TotalModel.IGSTip + preIGST));
+                    $("#cgstinput").val(parseFloat(result.TotalModel.CGSTip + preCGST));
+                    $("#sgstinput").val(parseFloat(result.TotalModel.SGSTip + preSGST));
+                    $("#tddebit,#TotalInput").val(parseFloat(result.TotalModel.Input + preIGST + preCGST + preSGST));
+                    $("#rcmcredit").val(result.TotalModel.RCMip);
+                    $("#totalrcm").val(result.TotalModel.RCMop);
+                    $("#tdcredit,#TotalOutput").val(result.TotalModel.Output);
+                    $("#igstout").val(result.TotalModel.IGSTop);
+                    $("#sgstout").val(result.TotalModel.SGSTop);
+                    $("#cgstout").val(result.TotalModel.CGSTop);
+                    $("#inputtable").append(row);
+                    $('.loading-bg').addClass('dis-none');
+                },
+            });
+            $('.loading-bg').removeClass('dis-none');
+         
+            $.ajax({
+                type: "POST",
+                data: JSON.stringify({ 'fromdate': fromdate, 'todate': todate, 'GSToffsetid': GSTOFFSETID }),
+                url: '@Url.Action("GetRCMOutputList", "CoreAccounts")',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (result) {
+                    var row;
+                    var Amt = 0;
+                    $.each(result, function (i, v1) {
+                        row += "<tr><td>" + v1.VendorName +
+        "<input type='hidden' name='RCMOutput[" + v1.SlNo + "].RCMId'  value=" + v1.RCMId + ">"
+                             + "</td><td>" + v1.InvoiceNo + "</td><td>" + v1.Invoicedate + "</td><td>" +
+                               v1.Amount
+                               + "</td><td>" + v1.Interstate + "</td></tr>";
+                        Amt += v1.Amount;
+                    });
+                    $("#OutputRCMHistoryList").append(row);
+
+                },
+                error: function (err) {
+                    console.log("error : " + err);
+                }
+            });
+            $.ajax({
+                type: "POST",
+                data: JSON.stringify({ 'fromdate': fromdate, 'todate': todate, 'GSToffsetid': GSTOFFSETID }),
+                url: '@Url.Action("GetRCMInputList", "CoreAccounts")',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (result) {
+                    var row;
+                    var Amt = 0;
+                    $.each(result, function (i, v1) {
+                        row += "<tr><td>" + v1.VendorName +
+        "<input type='hidden' name='RCMInput[" + v1.SlNo + "].RCMId'  value=" + v1.RCMId + ">"
+                             + "</td><td>" + v1.InvoiceNo + "</td><td>" + v1.Invoicedate + "</td><td>" +
+                               v1.Amount
+                               + "</td><td>" + v1.Interstate + "</td></tr>";
+                        Amt += v1.Amount;
+                    });
+                    $("#InputRCMHistoryList").append(row);
+
+                },
+                error: function (err) {
+                    console.log("error : " + err);
+                }
+            });
+            $.ajax({
+                type: "POST",
+                data: JSON.stringify({ 'fromdate': fromdate, 'todate': todate, 'GSToffsetid': GSTOFFSETID }),
+                url: '@Url.Action("GetTDSList", "CoreAccounts")',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (result) {
+
+                    var cr = 0;
+                    var deb = 0;
+                    var totalreceivable = 0;
+                    /*IGST*/
+                    var igstdebit = 0;
+                    var igstcredit = 0;
+
+                    /*CGST*/
+                    var cgstdebit = 0;
+                    var cgstcredit = 0;
+
+                    /*SGST*/
+                    var sgstdebit = 0;
+                    var sgstcredit = 0;
+
+                    var row;
+                    $.each(result, function (i, v1) {
+                        row += "<tr><td>" +
+                          "<input type='checkbox' name='GSTOffsetTDS[" + v1.SlNo + "].GSTCheckbox'  data-id=" + v1.TDSId + " value='true' class='btn btn-info' checked/><input type='hidden' name='GSTOffsetTDS[" + v1.SlNo + "].TDSId'  value=" + v1.TDSId + "><input type='hidden' name='GSTOffsetTDS[" + v1.SlNo + "].TDSHeadId'  value=" + v1.TDSHeadId + "><input type='hidden' name='GSTOffsetTDS[" + v1.SlNo + "].TDSTransactionCode'  value=" + v1.TDSTransactionCode + "><input type='hidden' name='GSTOffsetTDS[" + v1.SlNo + "].TDSDebit'  value=" + v1.TDSDebit + ">"
+                         + "</td><td>" + v1.TDSTransaction + "</td><td>" + v1.ProjNo + "</td><td>" +
+                           v1.TDSNumber
+                           + "</td><td>" + v1.TDSHead + "</td><td>" + v1.TDSDebit + "</td><td>" + v1.TDSCredit
+                           + "</td></tr>";
+                        cr += v1.TDSCredit;
+                        deb += v1.TDSDebit;
+                        if (v1.TDSHeadId == 27) {
+                            igstdebit += v1.TDSDebit;
+                            igstcredit += v1.TDSCredit;
+                        }
+                        else if (v1.TDSHeadId == 297) {
+                            sgstdebit += v1.TDSDebit;
+                            sgstcredit += v1.TDSCredit;
+                        }
+                        else if (v1.TDSHeadId == 296) {
+                            cgstdebit += v1.TDSDebit;
+                            cgstcredit += v1.TDSCredit;
+                        }
+                    });
+                    totalreceivable = parseFloat(deb - cr);
+                    $("#tdreceivable").val(totalreceivable.toFixed(2));
+                    $("#TotalTDSReceivable").val(totalreceivable.toFixed(2));
+                    TDStotalIGST = parseFloat(igstdebit - igstcredit);
+                    $("#tdsIGST").val(TDStotalIGST.toFixed(2));
+                    TDStotalSGST = parseFloat(sgstdebit - sgstcredit);
+                    $("#tdsSGST").val(TDStotalSGST.toFixed(2));
+                    TDStotalCGST = parseFloat(cgstdebit - cgstcredit);
+                    $("#tdsCGST").val(TDStotalCGST.toFixed(2));
+                    $("#tdstable").append(row);
+
+                },
+                error: function (err) {
+                    console.log("error : " + err);
+                }
+            });
+        }
+        function LoadPreviousGST() {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetPreviousGST", "CoreAccounts")',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (result) {
+                    $.each(result, function (i, v1) {
+                        $("#preCGST").val((v1.PreviousCGST).toFixed(2));
+                        $("#preSGST").val((v1.PreviousSGST).toFixed(2));
+                        $("#preIGST").val((v1.PreviousIGST).toFixed(2));
+                    })
+                }
+            });
+        }
+        /**/
+
+
+        $(document).on('click', '#inputtable input[type = "checkbox"]', function () {
+            CalculateInput();
+            var GSTID = $("#GSTId").val();
+           
+            OverallCalculation();
+        });
+        function CalculateInput() {
+            var GSTID = $("#GSTId").val();
+            var preSGST = parseFloat($("#preSGST").val()) || 0;
+            var preIGST = parseFloat($("#preIGST").val()) || 0;
+            var preCGST = parseFloat($("#preCGST").val()) || 0;
+            var totalcredit = 0;
+            var totaldebit = 0;
+            var credit = 0;
+            var tdinput = 0;
+            var debit = 0;
+            var head;
+            var headid = 0;
+            /*IGST*/
+            var igstdebit = 0;
+            var igstcredit = 0;
+            var totalIGSTcredit = 0;
+            var totalIGSTdebit = 0;
+            var totalIGST = 0;
+            var IGSTInput = 0;
+            /*CGST*/
+            var cgstdebit = 0;
+            var cgstcredit = 0;
+            var totalCGSTcredit = 0;
+            var totalCGSTdebit = 0;
+            var totalCGST = 0;
+            var CGSTInput = 0;
+            /*SGST*/
+            var sgstdebit = 0;
+            var sgstcredit = 0;
+            var totalSGSTcredit = 0;
+            var totalSGSTdebit = 0;
+            var totalSGST = 0;
+            var SGSTInput = 0;
+            $('#inputtable tr:not(:first)').each(function () {
+
+                if ($(this).find('input[type = "checkbox"]').is(':checked')) {
+                    debit = parseFloat($(this).find('td:nth-child(6)').text()) || 0;
+                    credit = parseFloat($(this).find('td:nth-child(7)').text()) || 0;
+                    //head = $(this).find('td:nth-child(4)').text();
+                    headid = $(this).closest('tr').find('[name$=".InputHeadId"]').val();
+                    //head = head.replace(/^\s+|\s+$/g, '');
+
+                    totalcredit += credit;
+                    totaldebit += debit;
+                    if (headid == 34) {
+                        igstdebit = parseFloat($(this).find('td:nth-child(6)').text()) || 0;
+                        igstcredit = parseFloat($(this).find('td:nth-child(7)').text()) || 0;
+                        totalIGSTcredit += igstcredit;
+                        totalIGSTdebit += igstdebit;
+
+                    }
+                    else if (headid == 33) {
+                        sgstdebit = parseFloat($(this).find('td:nth-child(6)').text()) || 0;
+                        sgstcredit = parseFloat($(this).find('td:nth-child(7)').text()) || 0;
+                        totalSGSTcredit += sgstcredit;
+                        totalSGSTdebit += sgstdebit;
+
+                    }
+                    else if (headid == 32) {
+                        cgstdebit = parseFloat($(this).find('td:nth-child(6)').text()) || 0;
+                        cgstcredit = parseFloat($(this).find('td:nth-child(7)').text()) || 0;
+                        totalCGSTcredit += cgstcredit;
+                        totalCGSTdebit += cgstdebit;
+
+                    }
+                }
+
+            })
+            /* Input = Debit-Credit */
+            IGSTInput = (totalIGSTdebit - totalIGSTcredit) + preIGST;
+            SGSTInput = (totalSGSTdebit - totalSGSTcredit) + preSGST;
+            CGSTInput = (totalCGSTdebit - totalCGSTcredit) + preCGST;
+            tdinput = parseFloat(totaldebit - totalcredit);
+            totalIGST = parseFloat(IGSTInput);
+            totalSGST = parseFloat(SGSTInput);
+            totalCGST = parseFloat(CGSTInput);
+            $("#tddebit").val("");
+            $("#TotalInput").val(tdinput.toFixed(2));
+            $("#tddebit").val(tdinput.toFixed(2));
+            $("#igstinput").val("");
+            $("#igstinput").val(totalIGST.toFixed(2));
+            $("#cgstinput").val("");
+            $("#cgstinput").val(totalCGST.toFixed(2));
+            $("#sgstinput").val("");
+            $("#sgstinput").val(totalSGST.toFixed(2));
+
+        }
+        $(document).on('click', '#outputtable input[type = "checkbox"]', function () {
+            CalculateOutput();
+            var GSTID = $("#GSTId").val();
+         
+            OverallCalculation();
+        });
+        function CalculateOutput() {
+            var GSTID = $("#GSTId").val();
+            var totalcredit = 0;
+            var totaldebit = 0;
+            var credit = 0;
+            var tdoutput = 0;
+            var debit = 0;
+            var head;
+            var headid = 0;
+            /*IGST*/
+            var igstdebit = 0;
+            var igstcredit = 0;
+            var totalIGSTcredit = 0;
+            var totalIGSTdebit = 0;
+            var totalIGST = 0;
+            /*CGST*/
+            var cgstdebit = 0;
+            var cgstcredit = 0;
+            var totalCGSTcredit = 0;
+            var totalCGSTdebit = 0;
+            var totalCGST = 0;
+            /*SGST*/
+            var sgstdebit = 0;
+            var sgstcredit = 0;
+            var totalSGSTcredit = 0;
+            var totalSGSTdebit = 0;
+            var totalSGST = 0;
+            $('#outputtable tr:not(:first)').each(function () {
+
+                if ($(this).find('input[type = "checkbox"]').is(':checked')) {
+                    credit = parseFloat($(this).find('td:nth-child(6)').text()) || 0;
+                    debit = parseFloat($(this).find('td:nth-child(7)').text()) || 0;
+                    
+                    headid = $(this).closest('tr').find('[name$=".OutputHeadId"]').val();
+                    totalcredit += credit;
+                    totaldebit += debit;
+                    if (headid == 38) {
+                        igstcredit = parseFloat($(this).find('td:nth-child(6)').text()) || 0;
+                        igstdebit = parseFloat($(this).find('td:nth-child(7)').text()) || 0;
+                        totalIGSTcredit += igstcredit;
+                        totalIGSTdebit += igstdebit;
+                    }
+                    else if (headid == 37) {
+                        sgstcredit = parseFloat($(this).find('td:nth-child(6)').text()) || 0;
+                        sgstdebit = parseFloat($(this).find('td:nth-child(7)').text()) || 0;
+                        totalSGSTcredit += sgstcredit;
+                        totalSGSTdebit += sgstdebit;
+                    }
+                    else if (headid == 36) {
+                        cgstcredit = parseFloat($(this).find('td:nth-child(6)').text()) || 0;
+                        cgstdebit = parseFloat($(this).find('td:nth-child(7)').text()) || 0;
+                        totalCGSTcredit += cgstcredit;
+                        totalCGSTdebit += cgstdebit;
+                    }
+                }
+
+            })
+            /* Output = Credit-Debit */
+            var rcmigst = parseFloat($("#rcmigst").val()) || 0;
+            var rcmsgst = parseFloat($("#rcmsgst").val()) || 0;
+            var rcmcgst = parseFloat($("#rcmcgst").val()) || 0;
+            tdoutput = parseFloat(totalcredit - totaldebit);
+           // tdoutput = rcmigst + rcmsgst + rcmcgst + tdoutput;
+            totalIGST = parseFloat(totalIGSTcredit - totalIGSTdebit);
+            totalIGST = totalIGST + rcmigst;
+            totalSGST = parseFloat(totalSGSTcredit - totalSGSTdebit);
+            totalSGST = totalSGST + rcmsgst;
+            totalCGST = parseFloat(totalCGSTcredit - totalCGSTdebit);
+            totalCGST = totalCGST + rcmcgst;
+            $("#tdcredit").val("");
+            $("#tdcredit").val(tdoutput.toFixed(2));
+            $("#TotalOutput").val(tdoutput.toFixed(2));
+            $("#igstout").val("");
+            $("#igstout").val(totalIGST.toFixed(2));
+            $("#cgstout").val("");
+            $("#cgstout").val(totalCGST.toFixed(2));
+            $("#sgstout").val("");
+            $("#sgstout").val(totalSGST.toFixed(2));
+
+        }
+        $(document).on('click', '#tdstable input[type = "checkbox"]', function () {
+            CalculateTDS();
+          
+        });
+        function CalculateTDS() {
+            var GSTID = $("#GSTId").val();
+            var totalcredit = 0;
+            var totaldebit = 0;
+            var credit = 0;
+            var tds = 0;
+            var debit = 0;
+            var headid = 0;
+            var head;
+            /*IGST*/
+            var igstdebit = 0;
+            var igstcredit = 0;
+            var totalIGSTcredit = 0;
+            var totalIGSTdebit = 0;
+            var totalIGST = 0;
+            /*CGST*/
+            var cgstdebit = 0;
+            var cgstcredit = 0;
+            var totalCGSTcredit = 0;
+            var totalCGSTdebit = 0;
+            var totalCGST = 0;
+            /*SGST*/
+            var sgstdebit = 0;
+            var sgstcredit = 0;
+            var totalSGSTcredit = 0;
+            var totalSGSTdebit = 0;
+            var totalSGST = 0;
+            $('#tdstable tr:not(:first)').each(function () {
+
+                if ($(this).find('input[type = "checkbox"]').is(':checked')) {
+                    debit = parseFloat($(this).find('td:nth-child(5)').text()) || 0;
+                    credit = parseFloat($(this).find('td:nth-child(6)').text()) || 0;
+                    // head = $(this).find('td:nth-child(4)').text();
+                    //head = head.replace(/^\s+|\s+$/g, '');
+                    headid = $(this).closest('tr').find('[name$=".TDSHeadId"]').val();
+
+                    totalcredit += credit;
+                    totaldebit += debit;
+                    if (headid == 27) {
+                        igstdebit = parseFloat($(this).find('td:nth-child(6)').text()) || 0;
+                        igstcredit = parseFloat($(this).find('td:nth-child(7)').text()) || 0;
+                        totalIGSTcredit += igstcredit;
+                        totalIGSTdebit += igstdebit;
+                    }
+                    else if (headid == 297) {
+                        sgstdebit = parseFloat($(this).find('td:nth-child(6)').text()) || 0;
+                        sgstcredit = parseFloat($(this).find('td:nth-child(7)').text()) || 0;
+                        totalSGSTcredit += sgstcredit;
+                        totalSGSTdebit += sgstdebit;
+                    }
+                    else if (headid == 296) {
+                        cgstdebit = parseFloat($(this).find('td:nth-child(6)').text()) || 0;
+                        cgstcredit = parseFloat($(this).find('td:nth-child(7)').text()) || 0;
+                        totalCGSTcredit += cgstcredit;
+                        totalCGSTdebit += cgstdebit;
+                    }
+                }
+
+            })
+            /* TDS = Debit-Credit */
+            tds = parseFloat(totaldebit - totalcredit);
+            totalIGST = parseFloat(totalIGSTdebit - totalIGSTcredit);
+            totalSGST = parseFloat(totalSGSTdebit - totalSGSTcredit);
+            totalCGST = parseFloat(totalCGSTdebit - totalCGSTcredit);
+            $("#tdreceivable").val("");
+            $("#tdreceivable").val(tds.toFixed(2));
+            $("#TotalTDSReceivable").val(tds.toFixed(2));
+            $("#tdsIGST").val("");
+            $("#tdsIGST").val(totalIGST.toFixed(2));
+            $("#tdsCGST").val("");
+            $("#tdsCGST").val(totalCGST.toFixed(2));
+            $("#tdsSGST").val("");
+            $("#tdsSGST").val(totalSGST.toFixed(2));
+
+        }
+        $(document).on('click', 'a.firsttab', function () {
+            $("#SubmitBtn").addClass('dis-none');
+
+        });
+        $(document).on('click', 'a.secondtab', function () {
+            var GSTID = $("#GSTId").val();
+            $("#SubmitBtn").addClass('dis-none');
+            var SGSTip = parseFloat($("#sgstinput").val());
+            var CGSTip = parseFloat($("#cgstinput").val());
+            var IGSTip = parseFloat($("#igstinput").val());
+            var SGSTop = parseFloat($("#sgstout").val());
+            var IGSTadjInCGST = parseFloat($("#IGSTadjInCGST").val()) || 0;
+            var IGSTadjInSGST = parseFloat($("#IGSTadjInSGST").val()) || 0;
+            var CGSTadjInIGST = parseFloat($("#CGSTadjInIGST").val()) || 0;
+            var SGSTadjInIGST = parseFloat($("#SGSTadjInIGST").val()) || 0;
+            var tdsIGST = parseFloat($("#tdsIGST").val()) || 0;
+            var tdsSGST = parseFloat($("#tdsSGST").val()) || 0;
+            var tdsCGST = parseFloat($("#tdsCGST").val()) || 0;
+            var preSGST = parseFloat($("#preSGST").val()) || 0;
+            var preIGST = parseFloat($("#preIGST").val()) || 0;
+            var preCGST = parseFloat($("#preCGST").val()) || 0;
+
+            var netIGST = 0;
+            var netSGST = 0;
+            var netCGST = 0;
+            var netpayableIGST = 0;
+            var netpayableSGST = 0;
+            var netpayableCGST = 0;
+            var balanceTDSinIGST = 0;
+            var balanceTDSinSGST = 0;
+            var balanceTDSinCGST = 0;
+            var totalGSTpayable = 0;
+            var totalTDS = 0;
+            if (SGSTip > SGSTop) {
+                $("#creditadjSGST").val(parseFloat(SGSTop.toFixed(2)));
+                // $("#SGSTbalance").val("");
+                if (GSTID == 0) {
+                    $("#SGSTbalance").val(parseFloat(SGSTip - SGSTop - SGSTadjInIGST).toFixed(2));
+                    $("#HiddenSGSTbalance").val(parseFloat(SGSTip - SGSTop).toFixed(2));
+                }
+                $("#payablesgst").val(parseFloat(0));
+                $("#hiddenpayablesgst").val(parseFloat(0));
+                $("#adjpayableSGST").val(parseFloat(0));
+                netSGST = parseFloat(0 - tdsSGST);
+                if (netSGST >= 0) {
+                    netpayableSGST = parseFloat(netSGST);
+                    $("#netpayableSGST").val(netpayableSGST.toFixed(2));
+                    balanceTDSinSGST = parseFloat(0);
+                    $("#balanceTDSinSGST").val(balanceTDSinSGST.toFixed(2));
+                }
+                else {
+                    netpayableSGST = parseFloat(0);
+                    $("#netpayableSGST").val(netpayableSGST.toFixed(2));
+                    balanceTDSinSGST = parseFloat(-(netSGST));
+                    $("#balanceTDSinSGST").val(balanceTDSinSGST.toFixed(2));
+                }
+            }
+            else if (SGSTip < SGSTop) {
+                $("#creditadjSGST").val(SGSTip);
+                $("#SGSTbalance").val(0);
+                $("#HiddenSGSTbalance").val(0);
+                var payable = parseFloat(SGSTop - (SGSTip + IGSTadjInSGST));
+                $("#payablesgst").val(parseFloat(payable).toFixed(2));
+                if (GSTID == 0) {
+                    $("#hiddenpayablesgst").val(parseFloat(payable).toFixed(2));
+                }
+                $("#adjpayableSGST").val(parseFloat(payable).toFixed(2));
+                netSGST = parseFloat(payable - tdsSGST);
+                if (netSGST >= 0) {
+                    netpayableSGST = parseFloat(netSGST);
+                    $("#netpayableSGST").val(netpayableSGST.toFixed(2));
+                    balanceTDSinSGST = parseFloat(0);
+                    $("#balanceTDSinSGST").val(balanceTDSinSGST.toFixed(2));
+                }
+                else {
+                    netpayableSGST = parseFloat(0);
+                    $("#netpayableSGST").val(netpayableSGST.toFixed(2));
+                    balanceTDSinSGST = parseFloat(-(netSGST));
+                    $("#balanceTDSinSGST").val(balanceTDSinSGST.toFixed(2));
+                }
+            }
+            else {
+                $("#creditadjSGST").val(SGSTip.toFixed(2));
+                $("#payablesgst").val(parseFloat(0));
+                $("#hiddenpayablesgst").val(parseFloat(0));
+                $("#SGSTbalance").val(0);
+                $("#HiddenSGSTbalance").val(0);
+                $("#adjpayableSGST").val(parseFloat(0));
+                netSGST = parseFloat(0 - tdsSGST);
+                $("#netpayableSGST").val(0);
+                balanceTDSinSGST = parseFloat(-(netSGST));
+                $("#balanceTDSinSGST").val(balanceTDSinSGST.toFixed(2));
+
+            }
+
+            var IGSTip = parseFloat($("#igstinput").val());
+            var IGSTop = parseFloat($("#igstout").val());
+
+            if (IGSTip < IGSTop) {
+                $("#creditadjIGST").val(IGSTip.toFixed(2));
+                $("#IGSTbalance").val(0);
+                $("#HiddenIGSTbalance").val(0);
+                var payable = parseFloat(IGSTop - (IGSTip + CGSTadjInIGST + SGSTadjInIGST));
+                $("#payableigst").val(parseFloat(payable).toFixed(2));
+                if (GSTID == 0) {
+                    $("#hiddenpayableigst").val(parseFloat(payable).toFixed(2));
+                }
+                $("#adjpayableIGST").val(parseFloat(payable).toFixed(2));
+                netIGST = parseFloat(payable - tdsIGST);
+
+                if (netIGST >= 0) {
+                    netpayableIGST = parseFloat(netIGST);
+                    $("#netpayableIGST").val(netpayableIGST.toFixed(2));
+                    balanceTDSinIGST = parseFloat(0);
+                    $("#balanceTDSinIGST").val(balanceTDSinIGST.toFixed(2));
+                }
+                else {
+                    netpayableIGST = parseFloat(0);
+                    $("#netpayableIGST").val(netpayableIGST.toFixed(2));
+                    balanceTDSinIGST = parseFloat(-(netIGST));
+                    $("#balanceTDSinIGST").val(balanceTDSinIGST.toFixed(2));
+                }
+            }
+            else if (IGSTip > IGSTop) {
+                $("#creditadjIGST").val(IGSTop.toFixed(2));
+                // $("#IGSTbalance").val("");
+                if (GSTID == 0) {
+                    $("#IGSTbalance").val(parseFloat(IGSTip - IGSTop - IGSTadjInCGST - IGSTadjInSGST).toFixed(2));
+                    $("#HiddenIGSTbalance").val(parseFloat(IGSTip - IGSTop).toFixed(2));
+                }
+                $("#payableigst").val(parseFloat(0));
+                $("#hiddenpayableigst").val(parseFloat(0));
+                $("#adjpayableIGST").val(parseFloat(0));
+                netIGST = parseFloat(0 - tdsIGST);
+                if (netIGST >= 0) {
+                    netpayableIGST = parseFloat(netIGST);
+                    $("#netpayableIGST").val(netpayableIGST.toFixed(2));
+                    balanceTDSinIGST = parseFloat(0);
+                    $("#balanceTDSinIGST").val(balanceTDSinIGST.toFixed(2));
+                }
+                else {
+                    netpayableIGST = parseFloat(0);
+                    $("#netpayableIGST").val(netpayableIGST.toFixed(2));
+                    balanceTDSinIGST = parseFloat(-(netIGST));
+                    $("#balanceTDSinIGST").val(balanceTDSinIGST.toFixed(2));
+                }
+            }
+            else {
+                $("#creditadjIGST").val(IGSTip.toFixed(2));
+                $("#payableigst").val(parseFloat(0));
+                $("#hiddenpayableigst").val(parseFloat(0));
+                $("#IGSTbalance").val(0);
+                $("#HiddenIGSTbalance").val(0);
+                $("#adjpayableIGST").val(parseFloat(0));
+                netSGST = parseFloat(0 - tdsIGST);
+                $("#netpayableIGST").val(0);
+                balanceTDSinIGST = parseFloat(-(netIGST));
+                $("#balanceTDSinIGST").val(balanceTDSinIGST.toFixed(2));
+            }
+
+            var CGSTip = parseFloat($("#cgstinput").val());
+            var CGSTop = parseFloat($("#cgstout").val());
+
+            if (CGSTip > CGSTop) {
+                $("#creditadjCGST").val(CGSTop.toFixed(2));
+                // $("#CGSTbalance").val("");
+                if (GSTID == 0) {
+                    $("#CGSTbalance").val(parseFloat(CGSTip - CGSTop - CGSTadjInIGST).toFixed(2));
+                    $("#HiddenCGSTbalance").val(parseFloat(CGSTip - CGSTop).toFixed(2));
+                }
+                $("#payablecgst").val(parseFloat(0));
+                $("#hiddenpayablecgst").val(parseFloat(0));
+                $("#adjpayableCGST").val(parseFloat(0));
+                netCGST = parseFloat(0 - tdsCGST);
+                if (netCGST >= 0) {
+                    netpayableCGST = parseFloat(netCGST);
+                    $("#netpayableCGST").val(netpayableCGST.toFixed(2));
+                    balanceTDSinCGST = parseFloat(0);
+                    $("#balanceTDSinCGST").val(balanceTDSinCGST.toFixed(2));
+                }
+                else {
+                    netpayableCGST = parseFloat(0);
+                    $("#netpayableCGST").val(netpayableCGST.toFixed(2));
+                    balanceTDSinCGST = parseFloat(-(netCGST));
+                    $("#balanceTDSinCGST").val(balanceTDSinCGST.toFixed(2));
+                }
+            }
+            else if (CGSTip < CGSTop) {
+                $("#creditadjCGST").val(CGSTip.toFixed(2));
+                $("#CGSTbalance").val(0);
+                $("#HiddenCGSTbalance").val(0);
+                var payable = parseFloat(CGSTop - (CGSTip + IGSTadjInCGST));
+                $("#payablecgst").val(parseFloat(payable).toFixed(2));
+                if (GSTID == 0) {
+                    $("#hiddenpayablecgst").val(parseFloat(payable).toFixed(2));
+                }
+                $("#adjpayableCGST").val(parseFloat(payable).toFixed(2));
+                netCGST = parseFloat(payable - tdsCGST);
+                if (netCGST >= 0) {
+                    netpayableCGST = parseFloat(netCGST);
+                    $("#netpayableCGST").val(netpayableCGST.toFixed(2));
+                    balanceTDSinCGST = parseFloat(0);
+                    $("#balanceTDSinCGST").val(balanceTDSinCGST.toFixed(2));
+                }
+                else {
+                    netpayableCGST = parseFloat(0);
+                    $("#netpayableCGST").val(netpayableCGST.toFixed(2));
+                    balanceTDSinCGST = parseFloat(-(netCGST));
+                    $("#balanceTDSinCGST").val(balanceTDSinCGST.toFixed(2));
+                }
+            }
+            else {
+                $("#creditadjCGST").val(CGSTip.toFixed(2));
+                $("#payablecgst").val(parseFloat(0));
+                $("#hiddenpayablecgst").val(parseFloat(0));
+                $("#CGSTbalance").val(0);
+                $("#HiddenCGSTbalance").val(0);
+                $("#adjpayableCGST").val(parseFloat(0));
+                netSGST = parseFloat(0 - tdsCGST);
+                $("#netpayableCGST").val(0);
+                balanceTDSinCGST = parseFloat(-(netCGST));
+                $("#balanceTDSinCGST").val(balanceTDSinCGST.toFixed(2));
+            }
+            totalGSTpayable = parseFloat(netpayableCGST + netpayableIGST + netpayableSGST);
+            $("#totalGSTpayable").val(totalGSTpayable.toFixed(2));
+            totalTDS = parseFloat(balanceTDSinCGST + balanceTDSinSGST + balanceTDSinIGST);
+            $("#totalTDS").val(totalTDS.toFixed(2));
+        });
+        $(document).on('change', '#IGSTadjInCGST', function () {
+            CalculatePayableCGST();
+        });
+        $(document).on('change', '#IGSTadjInSGST', function () {
+            CalculatePayableSGST();
+        });
+        $(document).on('change', '#CGSTadjInIGST', function () {
+            CalculatePayableCGSTadjInIGST();
+        });
+        $(document).on('change', '#SGSTadjInIGST', function () {
+            CalculatePayableSGSTadjInIGST();
+        });
+        $(document).on('change', '#fromdate', function () {
+            var fromdate = $("#fromdate").val();
+            var todate = $("#todate").val();
+            var GSTID = $("#GSTId").val();
+            if (fromdate != "" && todate != "") {
+                if (GSTID == 0) {
+                    LoadPreviousGST();
+                }
+                LoadGST(fromdate, todate, GSTID);
+
+            }
+
+        });
+        $(document).on('click', 'a.InputDownBtn', function () {
+            var fromdate = $("#fromdate").val();
+            var todate = $("#todate").val();
+            var GSTOFFSETID = $("#GSTId").val();
+            if (todate != "" && fromdate != "") {
+                var url = '@Url.Action("InputInGSToffset", "Reports")?FromDate=' + fromdate + "&ToDate=" + todate + "&GSToffsetid=" + GSTOFFSETID;
+                window.location.href = url;
+            }
+
+        });
+        $(document).on('click', 'a.totalrcm', function () {
+            $("#OutputRCMHistoryModal").modal('toggle');
+        });
+        $(document).on('click', 'a.rcmcredit', function () {
+            $("#InputRCMHistoryModal").modal('toggle');
+        });
+        $(document).on('click', 'a.TDStDownBtn', function () {
+            var fromdate = $("#fromdate").val();
+            var todate = $("#todate").val();
+            var GSTOFFSETID = $("#GSTId").val();
+            if (todate != "" && fromdate != "") {
+                var url = '@Url.Action("TDSReceivableInGSToffset", "Reports")?FromDate=' + fromdate + "&ToDate=" + todate + "&GSToffsetid=" + GSTOFFSETID;
+                window.location.href = url;
+            }
+        });
+        $(document).on('click', 'a.OutPutDownBtn', function () {
+            var fromdate = $("#fromdate").val();
+            var todate = $("#todate").val();
+              var GSTOFFSETID = $("#GSTId").val();
+            if (todate != "" && fromdate != "") {
+                var url = '@Url.Action("OutputInGSToffset", "Reports")?FromDate=' + fromdate + "&ToDate=" + todate + "&GSToffsetid=" + GSTOFFSETID;
+                window.location.href = url;
+            }
+        });
+        $(document).on('change', '#todate', function () {
+            var fromdate = $("#fromdate").val();
+            var todate = $("#todate").val();
+            var GSTID = $("#GSTId").val();
+            if (fromdate != "" && todate != "") {
+                if (GSTID == 0) {
+                    LoadPreviousGST();
+                }
+                LoadGST(fromdate, todate, GSTID);
+
+            }
+
+        });
+        function CalculatePayableCGSTadjInIGST() {
+            var igstip = parseFloat($("#igstinput").val()) || 0;
+            var igstop = parseFloat($("#igstout").val()) || 0;
+            var sgstip = parseFloat($("#sgstinput").val()) || 0;
+            var sgstop = parseFloat($("#sgstout").val()) || 0;
+            var cgstip = parseFloat($("#cgstinput").val()) || 0;
+            var cgstop = parseFloat($("#cgstout").val()) || 0;
+            var cgstbalance = parseFloat($("#CGSTbalance").val());
+            var hiddencgstbalance = parseFloat($("#HiddenCGSTbalance").val());
+            var igstbalance = parseFloat($("#IGSTbalance").val());
+            var hiddenigstbalance = parseFloat($("#HiddenIGSTbalance").val());
+            var sgstbalance = parseFloat($("#SGSTbalance").val());
+            var hiddensgstbalance = parseFloat($("#HiddenSGSTbalance").val());
+            var IGSTadjInCGST = parseFloat($("#IGSTadjInCGST").val()) || 0;
+            var IGSTadjInSGST = parseFloat($("#IGSTadjInSGST").val()) || 0;
+            var CGSTadjInIGST = parseFloat($("#CGSTadjInIGST").val()) || 0;
+            var SGSTadjInIGST = parseFloat($("#SGSTadjInIGST").val()) || 0;
+            var payableCGST = parseFloat($("#payablecgst").val()) || 0;
+            var hiddenpayableCGST = parseFloat($("#hiddenpayablecgst").val()) || 0;
+            var payableIGST = parseFloat($("#payableigst").val()) || 0;
+            var hiddenpayableIGST = parseFloat($("#hiddenpayableigst").val()) || 0;
+            var payableSGST = parseFloat($("#payablesgst").val()) || 0;
+            var hiddenpayableSGST = parseFloat($("#hiddenpayablesgst").val()) || 0;
+            var IGSTpayable = parseFloat(igstop - (igstip + CGSTadjInIGST + SGSTadjInIGST));
+            var CGSTpayable = parseFloat(cgstop - (cgstip + IGSTadjInCGST));
+            var SGSTpayable = parseFloat(sgstop - (sgstip + IGSTadjInSGST));
+            var tdsIGST = parseFloat($("#tdsIGST").val()) || 0;
+            var tdsSGST = parseFloat($("#tdsSGST").val()) || 0;
+            var tdsCGST = parseFloat($("#tdsCGST").val()) || 0;
+            var netIGST = 0;
+            var netSGST = 0;
+            var netCGST = 0;
+            var netpayableIGST = 0;
+            var netpayableSGST = 0;
+            var netpayableCGST = 0;
+            var balanceTDSinIGST = 0;
+            var balanceTDSinSGST = 0;
+            var balanceTDSinCGST = 0;
+            var totalGSTpayable = 0;
+            var IGSTpayable = 0;
+            var totalTDS = 0;
+            if (hiddencgstbalance > 0) {
+                if (hiddenpayableIGST > 0) {
+                    if (hiddencgstbalance == 0 || CGSTadjInIGST > hiddencgstbalance || hiddenpayableIGST < CGSTadjInIGST) {
+                        $('#MsgValidation').html("Adjustment in IGST cannot be more than Balance for adjust");
+                        $('#ValidationModal').modal('toggle');
+                        $("#CGSTadjInIGST").val("");
+                        CGSTadjInIGST = 0;
+                        $("#CGSTbalance").val(parseFloat(hiddencgstbalance.toFixed(2)));
+                        IGSTpayable = parseFloat(hiddenpayableIGST);
+                        $("#payableigst").val(parseFloat(IGSTpayable.toFixed(2)));
+                        $("#adjpayableIGST").val(parseFloat(IGSTpayable.toFixed(2)));
+                        netIGST = parseFloat(IGSTpayable - tdsIGST);
+                        if (netIGST >= 0) {
+                            netpayableIGST = parseFloat(netIGST);
+                            $("#netpayableIGST").val(netpayableIGST.toFixed(2));
+                            balanceTDSinIGST = parseFloat(0);
+                            $("#balanceTDSinIGST").val(balanceTDSinIGST.toFixed(2));
+                        }
+                        else {
+                            netpayableIGST = parseFloat(0);
+                            $("#netpayableIGST").val(netpayableIGST.toFixed(2));
+                            balanceTDSinIGST = parseFloat(-(netIGST));
+                            $("#balanceTDSinIGST").val(balanceTDSinIGST.toFixed(2));
+                        }
+                    }
+                    else {
+                        if (CGSTadjInIGST <= hiddenpayableIGST) {
+                            IGSTpayable = parseFloat(igstop - (igstip + CGSTadjInIGST + SGSTadjInIGST));
+                            $("#CGSTbalance").val(parseFloat(hiddencgstbalance - CGSTadjInIGST).toFixed(2));
+                            $("#payableigst").val(IGSTpayable.toFixed(2));
+                            $("#adjpayableIGST").val(parseFloat(IGSTpayable.toFixed(2)));
+                            netIGST = parseFloat(IGSTpayable - tdsIGST);
+                            if (netIGST >= 0) {
+                                netpayableIGST = parseFloat(netIGST);
+                                $("#netpayableIGST").val(netpayableIGST.toFixed(2));
+                                balanceTDSinIGST = parseFloat(0);
+                                $("#balanceTDSinIGST").val(balanceTDSinIGST.toFixed(2));
+                            }
+                            else {
+                                netpayableIGST = parseFloat(0);
+                                $("#netpayableIGST").val(netpayableIGST.toFixed(2));
+                                balanceTDSinIGST = parseFloat(-(netIGST));
+                                $("#balanceTDSinIGST").val(balanceTDSinIGST.toFixed(2));
+                            }
+                        }
+                        else {
+                            $('#MsgValidation').html("Adjustment in IGST cannot be more than Payable IGST");
+                            $('#ValidationModal').modal('toggle');
+                            $("#CGSTadjInIGST").val("");
+                        }
+                    }
+                }
+                else {
+                    $('#MsgValidation').html("Payable IGST has no Amount");
+                    $('#ValidationModal').modal('toggle');
+                    $("#CGSTadjInIGST").val("");
+                }
+            }
+            else {
+                $('#MsgValidation').html("Adjustment in IGST cannot be more than Balance for adjust");
+                $('#ValidationModal').modal('toggle');
+                $("#CGSTadjInIGST").val("");
+                CGSTadjInIGST = 0;
+                $("#CGSTbalance").val(parseFloat(hiddencgstbalance.toFixed(2)));
+                IGSTpayable = parseFloat(hiddenpayableIGST);
+                $("#payableigst").val(parseFloat(IGSTpayable.toFixed(2)));
+                $("#adjpayableIGST").val(parseFloat(IGSTpayable.toFixed(2)));
+                netIGST = parseFloat(IGSTpayable - tdsIGST);
+                if (netIGST >= 0) {
+                    netpayableIGST = parseFloat(netIGST);
+                    $("#netpayableIGST").val(netpayableIGST.toFixed(2));
+                    balanceTDSinIGST = parseFloat(0);
+                    $("#balanceTDSinIGST").val(balanceTDSinIGST.toFixed(2));
+                }
+                else {
+                    netpayableIGST = parseFloat(0);
+                    $("#netpayableIGST").val(netpayableIGST.toFixed(2));
+                    balanceTDSinIGST = parseFloat(-(netIGST));
+                    $("#balanceTDSinIGST").val(balanceTDSinIGST.toFixed(2));
+                }
+            }
+
+            $("#adjpayableCGST").val(parseFloat(payableCGST.toFixed(2)));
+            netCGST = parseFloat(payableCGST - tdsCGST);
+            if (netCGST >= 0) {
+                netpayableCGST = parseFloat(netCGST);
+                $("#netpayableCGST").val(netpayableCGST.toFixed(2));
+                balanceTDSinCGST = parseFloat(0);
+                $("#balanceTDSinCGST").val(balanceTDSinCGST.toFixed(2));
+            }
+            else {
+                netpayableCGST = parseFloat(0);
+                $("#netpayableCGST").val(netpayableCGST.toFixed(2));
+                balanceTDSinCGST = parseFloat(-(netCGST));
+                $("#balanceTDSinCGST").val(balanceTDSinCGST.toFixed(2));
+            }
+            $("#adjpayableSGST").val(parseFloat(payableSGST.toFixed(2)));
+            netSGST = parseFloat(payableSGST - tdsSGST);
+            if (netSGST >= 0) {
+                netpayableSGST = parseFloat(netSGST);
+                $("#netpayableSGST").val(netpayableSGST.toFixed(2));
+                balanceTDSinSGST = parseFloat(0);
+                $("#balanceTDSinSGST").val(balanceTDSinSGST.toFixed(2));
+            }
+            else {
+                netpayableSGST = parseFloat(0);
+                $("#netpayableSGST").val(netpayableSGST.toFixed(2));
+                balanceTDSinSGST = parseFloat(-(netSGST));
+                $("#balanceTDSinSGST").val(balanceTDSinSGST.toFixed(2));
+            }
+            totalGSTpayable = parseFloat(netpayableIGST + netpayableCGST + netpayableSGST);
+            $("#totalGSTpayable").val(totalGSTpayable.toFixed(2));
+            totalTDS = parseFloat(balanceTDSinIGST + balanceTDSinCGST + balanceTDSinSGST);
+            $("#totalTDS").val(totalTDS.toFixed(2));
+
+        }
+        function CalculatePayableSGSTadjInIGST() {
+            var igstip = parseFloat($("#igstinput").val()) || 0;
+            var igstop = parseFloat($("#igstout").val()) || 0;
+            var sgstip = parseFloat($("#sgstinput").val()) || 0;
+            var sgstop = parseFloat($("#sgstout").val()) || 0;
+            var cgstip = parseFloat($("#cgstinput").val()) || 0;
+            var cgstop = parseFloat($("#cgstout").val()) || 0;
+            var cgstbalance = parseFloat($("#CGSTbalance").val());
+            var hiddencgstbalance = parseFloat($("#HiddenCGSTbalance").val());
+            var igstbalance = parseFloat($("#IGSTbalance").val());
+            var hiddenigstbalance = parseFloat($("#HiddenIGSTbalance").val());
+            var sgstbalance = parseFloat($("#SGSTbalance").val());
+            var hiddensgstbalance = parseFloat($("#HiddenSGSTbalance").val());
+            var IGSTadjInCGST = parseFloat($("#IGSTadjInCGST").val()) || 0;
+            var IGSTadjInSGST = parseFloat($("#IGSTadjInSGST").val()) || 0;
+            var CGSTadjInIGST = parseFloat($("#CGSTadjInIGST").val()) || 0;
+            var SGSTadjInIGST = parseFloat($("#SGSTadjInIGST").val()) || 0;
+            var payableCGST = parseFloat($("#payablecgst").val()) || 0;
+            var hiddenpayableCGST = parseFloat($("#hiddenpayablecgst").val()) || 0;
+            var payableIGST = parseFloat($("#payableigst").val()) || 0;
+            var hiddenpayableIGST = parseFloat($("#hiddenpayableigst").val()) || 0;
+            var payableSGST = parseFloat($("#payablesgst").val()) || 0;
+            var hiddenpayableSGST = parseFloat($("#hiddenpayablesgst").val()) || 0;
+            var tdsIGST = parseFloat($("#tdsIGST").val()) || 0;
+            var tdsSGST = parseFloat($("#tdsSGST").val()) || 0;
+            var tdsCGST = parseFloat($("#tdsCGST").val()) || 0;
+            var netIGST = 0;
+            var netSGST = 0;
+            var netCGST = 0;
+            var netpayableIGST = 0;
+            var netpayableSGST = 0;
+            var netpayableCGST = 0;
+            var balanceTDSinIGST = 0;
+            var balanceTDSinSGST = 0;
+            var balanceTDSinCGST = 0;
+            var totalGSTpayable = 0;
+            var IGSTpayable = 0;
+            var totalTDS = 0;
+            if (cgstbalance == 0) {
+                if (hiddensgstbalance > 0) {
+                    if (hiddenpayableIGST > 0) {
+
+                        if (hiddensgstbalance == 0 || SGSTadjInIGST > hiddensgstbalance || hiddenpayableIGST < SGSTadjInIGST) {
+                            $('#MsgValidation').html("Adjustment in IGST cannot be more than Balance for adjust");
+                            $('#ValidationModal').modal('toggle');
+                            $("#SGSTadjInIGST").val("");
+                            SGSTadjInIGST = 0;
+                            $("#SGSTbalance").val(parseFloat(hiddensgstbalance.toFixed(2)));
+                            IGSTpayable = parseFloat(hiddenpayableIGST);
+                            $("#payableigst").val(parseFloat(IGSTpayable.toFixed(2)));
+                            $("#adjpayableIGST").val(parseFloat(IGSTpayable.toFixed(2)));
+                            netIGST = parseFloat(IGSTpayable - tdsIGST);
+                            if (netIGST >= 0) {
+                                netpayableIGST = parseFloat(netIGST);
+                                $("#netpayableIGST").val(netpayableIGST.toFixed(2));
+                                balanceTDSinIGST = parseFloat(0);
+                                $("#balanceTDSinIGST").val(balanceTDSinIGST.toFixed(2));
+                            }
+                            else {
+                                netpayableIGST = parseFloat(0);
+                                $("#netpayableIGST").val(netpayableIGST.toFixed(2));
+                                balanceTDSinIGST = parseFloat(-(netIGST));
+                                $("#balanceTDSinIGST").val(balanceTDSinIGST.toFixed(2));
+                            }
+                        }
+                        else {
+                            IGSTpayable = parseFloat(igstop - (igstip + CGSTadjInIGST + SGSTadjInIGST));
+                            $("#SGSTbalance").val(parseFloat(hiddensgstbalance - SGSTadjInIGST).toFixed(2));
+                            $("#payableigst").val(IGSTpayable);
+                            $("#adjpayableIGST").val(parseFloat(IGSTpayable).toFixed(2));
+                            netIGST = parseFloat(IGSTpayable - tdsIGST);
+                            if (netIGST >= 0) {
+                                netpayableIGST = parseFloat(netIGST);
+                                $("#netpayableIGST").val(netpayableIGST.toFixed(2));
+                                balanceTDSinIGST = parseFloat(0);
+                                $("#balanceTDSinIGST").val(balanceTDSinIGST.toFixed(2));
+                            }
+                            else {
+                                netpayableIGST = parseFloat(0);
+                                $("#netpayableIGST").val(netpayableIGST.toFixed(2));
+                                balanceTDSinIGST = parseFloat(-(netIGST));
+                                $("#balanceTDSinIGST").val(balanceTDSinIGST.toFixed(2));
+                            }
+                        }
+                    }
+                    else {
+                        $('#MsgValidation').html("Adjustment in IGST cannot be more than Payable IGST");
+                        $('#ValidationModal').modal('toggle');
+                        $("#SGSTadjInIGST").val("");
+                        $("#CGSTadjInIGST").val("");
+                        $("#SGSTbalance").val(parseFloat(hiddensgstbalance.toFixed(2)));
+                        $("#CGSTbalance").val(parseFloat(hiddencgstbalance.toFixed(2)));
+                        $("#payableigst").val(parseFloat(hiddenpayableIGST.toFixed(2)));
+                    }
+                }
+                else {
+                    $('#MsgValidation').html("Adjustment in IGST cannot be more than Balance for adjust");
+                    $('#ValidationModal').modal('toggle');
+                    $("#SGSTadjInIGST").val("");
+                    SGSTadjInIGST = 0;
+                    $("#SGSTbalance").val(parseFloat(hiddensgstbalance.toFixed(2)));
+                    IGSTpayable = parseFloat(hiddenpayableIGST);
+                    $("#payableigst").val(parseFloat(IGSTpayable.toFixed(2)));
+                    $("#adjpayableIGST").val(parseFloat(IGSTpayable.toFixed(2)));
+                    netIGST = parseFloat(IGSTpayable - tdsIGST);
+                    if (netIGST >= 0) {
+                        netpayableIGST = parseFloat(netIGST);
+                        $("#netpayableIGST").val(netpayableIGST.toFixed(2));
+                        balanceTDSinIGST = parseFloat(0);
+                        $("#balanceTDSinIGST").val(balanceTDSinIGST.toFixed(2));
+                    }
+                    else {
+                        netpayableIGST = parseFloat(0);
+                        $("#netpayableIGST").val(netpayableIGST.toFixed(2));
+                        balanceTDSinIGST = parseFloat(-(netIGST));
+                        $("#balanceTDSinIGST").val(balanceTDSinIGST.toFixed(2));
+                    }
+                }
+            }
+            else {
+                $('#MsgValidation').html("CGST balance for adjust has amount");
+                $('#ValidationModal').modal('toggle');
+                $("#SGSTadjInIGST").val("");
+            }
+            $("#adjpayableCGST").val(parseFloat(payableCGST.toFixed(2)));
+            netCGST = parseFloat(payableCGST - tdsCGST);
+            if (netCGST >= 0) {
+                netpayableCGST = parseFloat(netCGST);
+                $("#netpayableCGST").val(netpayableCGST.toFixed(2));
+                balanceTDSinCGST = parseFloat(0);
+                $("#balanceTDSinCGST").val(balanceTDSinCGST.toFixed(2));
+            }
+            else {
+                netpayableCGST = parseFloat(0);
+                $("#netpayableCGST").val(netpayableCGST.toFixed(2));
+                balanceTDSinCGST = parseFloat(-(netCGST));
+                $("#balanceTDSinCGST").val(balanceTDSinCGST.toFixed(2));
+            }
+            $("#adjpayableSGST").val(parseFloat(payableSGST.toFixed(2)));
+            netSGST = parseFloat(payableSGST - tdsSGST);
+            if (netSGST >= 0) {
+                netpayableSGST = parseFloat(netSGST);
+                $("#netpayableSGST").val(netpayableSGST.toFixed(2));
+                balanceTDSinSGST = parseFloat(0);
+                $("#balanceTDSinSGST").val(balanceTDSinSGST.toFixed(2));
+            }
+            else {
+                netpayableSGST = parseFloat(0);
+                $("#netpayableSGST").val(netpayableSGST.toFixed(2));
+                balanceTDSinSGST = parseFloat(-(netSGST));
+                $("#balanceTDSinSGST").val(balanceTDSinSGST.toFixed(2));
+            }
+            totalGSTpayable = parseFloat(netpayableIGST + netpayableCGST + netpayableSGST);
+            $("#totalGSTpayable").val(totalGSTpayable.toFixed(2));
+            totalTDS = parseFloat(balanceTDSinIGST + balanceTDSinCGST + balanceTDSinSGST);
+            $("#totalTDS").val(totalTDS.toFixed(2));
+        }
+        function CalculatePayableSGST() {
+            var igstip = parseFloat($("#igstinput").val()) || 0;
+            var igstop = parseFloat($("#igstout").val()) || 0;
+            var sgstip = parseFloat($("#sgstinput").val()) || 0;
+            var sgstop = parseFloat($("#sgstout").val()) || 0;
+            var cgstip = parseFloat($("#cgstinput").val()) || 0;
+            var cgstop = parseFloat($("#cgstout").val()) || 0;
+            var cgstbalance = parseFloat($("#CGSTbalance").val());
+            var hiddencgstbalance = parseFloat($("#HiddenCGSTbalance").val());
+            var igstbalance = parseFloat($("#IGSTbalance").val());
+            var hiddenigstbalance = parseFloat($("#HiddenIGSTbalance").val());
+            var sgstbalance = parseFloat($("#SGSTbalance").val());
+            var hiddensgstbalance = parseFloat($("#HiddenSGSTbalance").val());
+            var IGSTadjInCGST = parseFloat($("#IGSTadjInCGST").val()) || 0;
+            var IGSTadjInSGST = parseFloat($("#IGSTadjInSGST").val()) || 0;
+            var CGSTadjInIGST = parseFloat($("#CGSTadjInIGST").val()) || 0;
+            var SGSTadjInIGST = parseFloat($("#SGSTadjInIGST").val()) || 0;
+            var payableCGST = parseFloat($("#payablecgst").val()) || 0;
+            var hiddenpayableCGST = parseFloat($("#hiddenpayablecgst").val()) || 0;
+            var payableIGST = parseFloat($("#payableigst").val()) || 0;
+            var hiddenpayableIGST = parseFloat($("#hiddenpayableigst").val()) || 0;
+            var payableSGST = parseFloat($("#payablesgst").val()) || 0;
+            var hiddenpayableSGST = parseFloat($("#hiddenpayablesgst").val()) || 0;
+            var IGSTpayable = parseFloat(igstop - (igstip + CGSTadjInIGST + SGSTadjInIGST));
+            var CGSTpayable = parseFloat(cgstop - (cgstip + IGSTadjInCGST));
+            var SGSTpayable = parseFloat(sgstop - (sgstip + IGSTadjInSGST));
+            var tdsIGST = parseFloat($("#tdsIGST").val()) || 0;
+            var tdsSGST = parseFloat($("#tdsSGST").val()) || 0;
+            var tdsCGST = parseFloat($("#tdsCGST").val()) || 0;
+            var netIGST = 0;
+            var netSGST = 0;
+            var netCGST = 0;
+            var netpayableIGST = 0;
+            var netpayableSGST = 0;
+            var netpayableCGST = 0;
+            var balanceTDSinIGST = 0;
+            var balanceTDSinSGST = 0;
+            var balanceTDSinCGST = 0;
+            var totalGSTpayable = 0;
+            var SGSTpayable = 0;
+            var totalTDS = 0;
+            if (payableCGST == 0) {
+                if (hiddenigstbalance > 0) {
+                    if (hiddenpayableSGST > 0) {
+                        if (IGSTadjInSGST > igstbalance || igstbalance == 0 || hiddenpayableSGST < IGSTadjInSGST) {
+                            $('#MsgValidation').html("Adjustment in SGST cannot be more than Balance for adjust");
+                            $('#ValidationModal').modal('toggle');
+                            $("#IGSTadjInSGST").val("");
+                            $("#IGSTadjInCGST").val("");
+                            IGSTadjInSGST = 0;
+                            $("#payablecgst").val(parseFloat(hiddenpayableCGST.toFixed(2)));
+                            $("#IGSTbalance").val(parseFloat(hiddenigstbalance.toFixed(2)));
+                            SGSTpayable = parseFloat(hiddenpayableSGST);
+                            $("#payablesgst").val(parseFloat(SGSTpayable.toFixed(2)));
+                            $("#adjpayableSGST").val(parseFloat(SGSTpayable.toFixed(2)));
+                            netSGST = parseFloat(SGSTpayable - tdsSGST);
+                            if (netSGST >= 0) {
+                                netpayableSGST = parseFloat(netSGST);
+                                $("#netpayableSGST").val(netpayableSGST.toFixed(2));
+                                balanceTDSinSGST = parseFloat(0);
+                                $("#balanceTDSinSGST").val(balanceTDSinSGST.toFixed(2));
+                            }
+                            else {
+                                netpayableSGST = parseFloat(0);
+                                $("#netpayableSGST").val(netpayableSGST.toFixed(2));
+                                balanceTDSinSGST = parseFloat(-(netSGST));
+                                $("#balanceTDSinSGST").val(balanceTDSinSGST.toFixed(2));
+                            }
+                        }
+                        else {
+                            SGSTpayable = parseFloat(sgstop - (sgstip + IGSTadjInSGST));
+                            $("#IGSTbalance").val(parseFloat(hiddenigstbalance - IGSTadjInSGST).toFixed(2));
+                            $("#payablesgst").val(SGSTpayable.toFixed(2));
+                            $("#adjpayableSGST").val(parseFloat(SGSTpayable.toFixed(2)));
+                            netSGST = parseFloat(SGSTpayable - tdsSGST);
+                            if (netSGST >= 0) {
+                                netpayableSGST = parseFloat(netSGST);
+                                $("#netpayableSGST").val(netpayableSGST.toFixed(2));
+                                balanceTDSinSGST = parseFloat(0);
+                                $("#balanceTDSinSGST").val(balanceTDSinSGST.toFixed(2));
+                            }
+                            else {
+                                netpayableSGST = parseFloat(0);
+                                $("#netpayableSGST").val(netpayableSGST.toFixed(2));
+                                balanceTDSinSGST = parseFloat(-(netSGST));
+                                $("#balanceTDSinSGST").val(balanceTDSinSGST.toFixed(2));
+                            }
+
+                        }
+                    }
+
+                    else {
+
+                        $('#MsgValidation').html("Payable SGST has no Amount");
+                        $('#ValidationModal').modal('toggle');
+                        $("#IGSTadjInSGST").val("");
+
+                    }
+                }
+                else {
+                    $('#MsgValidation').html("Adjustment in IGST cannot be more than Balance for adjust");
+                    $('#ValidationModal').modal('toggle');
+                    $("#IGSTadjInSGST").val("");
+                    IGSTadjInSGST = 0;
+                    $("#IGSTbalance").val(parseFloat(hiddenigstbalance.toFixed(2)));
+                    SGSTpayable = parseFloat(hiddenpayableSGST);
+                    $("#payablesgst").val(parseFloat(SGSTpayable.toFixed(2)));
+                    $("#adjpayableSGST").val(parseFloat(SGSTpayable.toFixed(2)));
+                    netSGST = parseFloat(SGSTpayable - tdsSGST);
+                    if (netSGST >= 0) {
+                        netpayableSGST = parseFloat(netSGST);
+                        $("#netpayableSGST").val(netpayableSGST.toFixed(2));
+                        balanceTDSinSGST = parseFloat(0);
+                        $("#balanceTDSinSGST").val(balanceTDSinSGST.toFixed(2));
+                    }
+                    else {
+                        netpayableSGST = parseFloat(0);
+                        $("#netpayableSGST").val(netpayableSGST.toFixed(2));
+                        balanceTDSinSGST = parseFloat(-(netSGST));
+                        $("#balanceTDSinSGST").val(balanceTDSinSGST.toFixed(2));
+                    }
+                }
+            }
+            else {
+                $('#MsgValidation').html("Payable CGST has amount..");
+                $('#ValidationModal').modal('toggle');
+                $("#IGSTadjInSGST").val("");
+            }
+
+            $("#adjpayableCGST").val(parseFloat(payableCGST.toFixed(2)));
+            netCGST = parseFloat(payableCGST - tdsCGST);
+            if (netCGST >= 0) {
+                netpayableCGST = parseFloat(netCGST);
+                $("#netpayableCGST").val(netpayableCGST.toFixed(2));
+                balanceTDSinCGST = parseFloat(0);
+                $("#balanceTDSinCGST").val(balanceTDSinCGST.toFixed(2));
+            }
+            else {
+                netpayableCGST = parseFloat(0);
+                $("#netpayableCGST").val(netpayableCGST.toFixed(2));
+                balanceTDSinCGST = parseFloat(-(netCGST));
+                $("#balanceTDSinCGST").val(balanceTDSinCGST.toFixed(2));
+            }
+            $("#adjpayableIGST").val(parseFloat(payableIGST.toFixed(2)));
+            netIGST = parseFloat(payableIGST - tdsIGST);
+            if (netIGST >= 0) {
+                netpayableIGST = parseFloat(netIGST);
+                $("#netpayableIGST").val(netpayableIGST.toFixed(2));
+                balanceTDSinIGST = parseFloat(0);
+                $("#balanceTDSinIGST").val(balanceTDSinIGST.toFixed(2));
+            }
+            else {
+                netpayableIGST = parseFloat(0);
+                $("#netpayableIGST").val(netpayableIGST.toFixed(2));
+                balanceTDSinIGST = parseFloat(-(netIGST));
+                $("#balanceTDSinIGST").val(balanceTDSinIGST.toFixed(2));
+            }
+            totalGSTpayable = parseFloat(netpayableIGST + netpayableCGST + netpayableSGST);
+            $("#totalGSTpayable").val(totalGSTpayable.toFixed(2));
+            totalTDS = parseFloat(balanceTDSinIGST + balanceTDSinCGST + balanceTDSinSGST);
+            $("#totalTDS").val(totalTDS.toFixed(2));
+        }
+        function CalculatePayableCGST() {
+            var igstip = parseFloat($("#igstinput").val()) || 0;
+            var igstop = parseFloat($("#igstout").val()) || 0;
+            var sgstip = parseFloat($("#sgstinput").val()) || 0;
+            var sgstop = parseFloat($("#sgstout").val()) || 0;
+            var cgstip = parseFloat($("#cgstinput").val()) || 0;
+            var cgstop = parseFloat($("#cgstout").val()) || 0;
+            var cgstbalance = parseFloat($("#CGSTbalance").val());
+            var hiddencgstbalance = parseFloat($("#HiddenCGSTbalance").val());
+            var igstbalance = parseFloat($("#IGSTbalance").val());
+            var hiddenigstbalance = parseFloat($("#HiddenIGSTbalance").val());
+            var sgstbalance = parseFloat($("#SGSTbalance").val());
+            var hiddensgstbalance = parseFloat($("#HiddenSGSTbalance").val());
+            var IGSTadjInCGST = parseFloat($("#IGSTadjInCGST").val()) || 0;
+            var IGSTadjInSGST = parseFloat($("#IGSTadjInSGST").val()) || 0;
+            var CGSTadjInIGST = parseFloat($("#CGSTadjInIGST").val()) || 0;
+            var SGSTadjInIGST = parseFloat($("#SGSTadjInIGST").val()) || 0;
+            var payableCGST = parseFloat($("#payablecgst").val()) || 0;
+            var hiddenpayableCGST = parseFloat($("#hiddenpayablecgst").val()) || 0;
+            var payableIGST = parseFloat($("#payableigst").val()) || 0;
+            var hiddenpayableIGST = parseFloat($("#hiddenpayableigst").val()) || 0;
+            var payableSGST = parseFloat($("#payablesgst").val()) || 0;
+            var hiddenpayableSGST = parseFloat($("#hiddenpayablesgst").val()) || 0;
+            var IGSTpayable = parseFloat(igstop - (igstip + CGSTadjInIGST + SGSTadjInIGST));
+            var SGSTpayable = parseFloat(sgstop - (sgstip + IGSTadjInSGST));
+            var tdsIGST = parseFloat($("#tdsIGST").val()) || 0;
+            var tdsSGST = parseFloat($("#tdsSGST").val()) || 0;
+            var tdsCGST = parseFloat($("#tdsCGST").val()) || 0;
+            var netIGST = 0;
+            var netSGST = 0;
+            var netCGST = 0;
+            var netpayableIGST = 0;
+            var netpayableSGST = 0;
+            var netpayableCGST = 0;
+            var balanceTDSinIGST = 0;
+            var balanceTDSinSGST = 0;
+            var balanceTDSinCGST = 0;
+            var totalGSTpayable = 0;
+            var CGSTpayable = 0;
+            var totalTDS = 0;
+            if (hiddenigstbalance > 0) {
+                if (hiddenpayableCGST > 0) {
+
+                    if (IGSTadjInCGST > hiddenigstbalance || hiddenigstbalance == 0 || hiddenpayableCGST < IGSTadjInCGST) {
+                        $('#MsgValidation').html("Adjustment in CGST cannot be more than Balance for adjust");
+                        $('#ValidationModal').modal('toggle');
+                        $("#IGSTadjInCGST").val("");
+                        IGSTadjInCGST = 0;
+                        $("#IGSTbalance").val(parseFloat(hiddenigstbalance.toFixed(2)));
+                        CGSTpayable = parseFloat(hiddenpayableCGST);
+                        $("#payablecgst").val(parseFloat(CGSTpayable.toFixed(2)));
+                        $("#adjpayableCGST").val(parseFloat(CGSTpayable.toFixed(2)));
+                        netCGST = parseFloat(CGSTpayable - tdsCGST);
+                        if (netCGST >= 0) {
+                            netpayableCGST = parseFloat(netCGST);
+                            $("#netpayableCGST").val(netpayableCGST.toFixed(2));
+                            balanceTDSinCGST = parseFloat(0);
+                            $("#balanceTDSinCGST").val(balanceTDSinCGST.toFixed(2));
+                        }
+                        else {
+                            netpayableCGST = parseFloat(0);
+                            $("#netpayableCGST").val(netpayableCGST.toFixed(2));
+                            balanceTDSinCGST = parseFloat(-(netCGST));
+                            $("#balanceTDSinCGST").val(balanceTDSinCGST.toFixed(2));
+                        }
+                    }
+                    else {
+                        CGSTpayable = parseFloat(cgstop - (cgstip + IGSTadjInCGST));
+                        $("#IGSTbalance").val(parseFloat(hiddenigstbalance - IGSTadjInCGST).toFixed(2));
+                        $("#payablecgst").val(CGSTpayable.toFixed(2));
+                        $("#adjpayableCGST").val(parseFloat(CGSTpayable.toFixed(2)));
+                        netCGST = parseFloat(CGSTpayable - tdsCGST);
+                        if (netCGST >= 0) {
+                            netpayableCGST = parseFloat(netCGST);
+                            $("#netpayableCGST").val(netpayableCGST.toFixed(2));
+                            balanceTDSinCGST = parseFloat(0);
+                            $("#balanceTDSinCGST").val(balanceTDSinCGST.toFixed(2));
+                        }
+                        else {
+                            netpayableCGST = parseFloat(0);
+                            $("#netpayableCGST").val(netpayableCGST.toFixed(2));
+                            balanceTDSinCGST = parseFloat(-(netCGST));
+                            $("#balanceTDSinCGST").val(balanceTDSinCGST.toFixed(2));
+                        }
+                    }
+                }
+                else {
+
+                    $('#MsgValidation').html(" Payable CGST is Zero");
+                    $('#ValidationModal').modal('toggle');
+                    $("#IGSTadjInCGST").val("");
+
+                }
+            }
+            else {
+                $('#MsgValidation').html("Adjustment in IGST cannot be more than Balance for adjust");
+                $('#ValidationModal').modal('toggle');
+                $("#IGSTadjInCGST").val("");
+                IGSTadjInCGST = 0;
+                $("#IGSTbalance").val(parseFloat(hiddenigstbalance.toFixed(2)));
+                CGSTpayable = parseFloat(hiddenpayableCGST);
+                $("#payablecgst").val(parseFloat(CGSTpayable.toFixed(2)));
+                $("#adjpayableCGST").val(parseFloat(CGSTpayable.toFixed(2)));
+                netCGST = parseFloat(CGSTpayable - tdsCGST);
+                if (netCGST >= 0) {
+                    netpayableCGST = parseFloat(netCGST);
+                    $("#netpayableCGST").val(netpayableCGST.toFixed(2));
+                    balanceTDSinCGST = parseFloat(0);
+                    $("#balanceTDSinCGST").val(balanceTDSinCGST.toFixed(2));
+                }
+                else {
+                    netpayableCGST = parseFloat(0);
+                    $("#netpayableCGST").val(netpayableCGST.toFixed(2));
+                    balanceTDSinCGST = parseFloat(-(netCGST));
+                    $("#balanceTDSinCGST").val(balanceTDSinCGST.toFixed(2));
+                }
+            }
+            $("#adjpayableSGST").val(parseFloat(payableSGST.toFixed(2)));
+            netSGST = parseFloat(payableSGST - tdsSGST);
+            if (netSGST >= 0) {
+                netpayableSGST = parseFloat(netSGST);
+                $("#netpayableSGST").val(netpayableSGST.toFixed(2));
+                balanceTDSinSGST = parseFloat(0);
+                $("#balanceTDSinSGST").val(balanceTDSinSGST.toFixed(2));
+            }
+            else {
+                netpayableSGST = parseFloat(0);
+                $("#netpayableSGST").val(netpayableSGST.toFixed(2));
+                balanceTDSinSGST = parseFloat(-(netSGST));
+                $("#balanceTDSinSGST").val(balanceTDSinSGST.toFixed(2));
+            }
+            $("#adjpayableIGST").val(parseFloat(payableIGST.toFixed(2)));
+            netIGST = parseFloat(payableIGST - tdsIGST);
+            if (netIGST >= 0) {
+                netpayableIGST = parseFloat(netIGST);
+                $("#netpayableIGST").val(netpayableIGST.toFixed(2));
+                balanceTDSinIGST = parseFloat(0);
+                $("#balanceTDSinIGST").val(balanceTDSinIGST.toFixed(2));
+            }
+            else {
+                netpayableIGST = parseFloat(0);
+                $("#netpayableIGST").val(netpayableIGST.toFixed(2));
+                balanceTDSinIGST = parseFloat(-(netIGST));
+                $("#balanceTDSinIGST").val(balanceTDSinIGST.toFixed(2));
+            }
+            totalGSTpayable = parseFloat(netpayableIGST + netpayableCGST + netpayableSGST);
+            $("#totalGSTpayable").val(totalGSTpayable.toFixed(2));
+            totalTDS = parseFloat(balanceTDSinIGST + balanceTDSinCGST + balanceTDSinSGST);
+            $("#totalTDS").val(totalTDS.toFixed(2));
+        }
+        CalculateDeductionTotal();
+        function OverallCalculation() {
+            var GSTID = $("#GSTId").val();
+            $("#SubmitBtn").addClass('dis-none');
+            //CalculateInput();
+            //CalculateOutput();
+            //CalculateTDS();
+
+            parseFloat($("#SGSTadjInIGST").val()) || 0;
+            var SGSTip = parseFloat($("#sgstinput").val());
+            var CGSTip = parseFloat($("#cgstinput").val());
+            var IGSTip = parseFloat($("#igstinput").val());
+            var SGSTop = parseFloat($("#sgstout").val());
+            $("#IGSTadjInCGST").val("");
+            $("#IGSTadjInSGST").val("");
+            $("#CGSTadjInIGST").val("");
+            $("#SGSTadjInIGST").val("");
+
+            var tdsIGST = parseFloat($("#tdsIGST").val()) || 0;
+            var tdsSGST = parseFloat($("#tdsSGST").val()) || 0;
+            var tdsCGST = parseFloat($("#tdsCGST").val()) || 0;
+            var preSGST = parseFloat($("#preSGST").val()) || 0;
+            var preIGST = parseFloat($("#preIGST").val()) || 0;
+            var preCGST = parseFloat($("#preCGST").val()) || 0;
+            var netIGST = 0;
+            var netSGST = 0;
+            var netCGST = 0;
+            var netpayableIGST = 0;
+            var netpayableSGST = 0;
+            var netpayableCGST = 0;
+            var balanceTDSinIGST = 0;
+            var balanceTDSinSGST = 0;
+            var balanceTDSinCGST = 0;
+            var totalGSTpayable = 0;
+            var totalTDS = 0;
+            if (SGSTip > SGSTop) {
+                $("#creditadjSGST").val(SGSTop);
+
+                $("#SGSTbalance").val(parseFloat(SGSTip - SGSTop).toFixed(2));
+                $("#HiddenSGSTbalance").val(parseFloat(SGSTip - SGSTop).toFixed(2));
+
+                $("#payablesgst").val(parseFloat(0));
+                $("#hiddenpayablesgst").val(parseFloat(0));
+                $("#adjpayableSGST").val(parseFloat(0));
+                netSGST = parseFloat(0 - tdsSGST);
+                if (netSGST >= 0) {
+                    netpayableSGST = parseFloat(netSGST);
+                    $("#netpayableSGST").val(netpayableSGST.toFixed(2));
+                    balanceTDSinSGST = parseFloat(0);
+                    $("#balanceTDSinSGST").val(balanceTDSinSGST.toFixed(2));
+                }
+                else {
+                    netpayableSGST = parseFloat(0);
+                    $("#netpayableSGST").val(netpayableSGST.toFixed(2));
+                    balanceTDSinSGST = parseFloat(-(netSGST));
+                    $("#balanceTDSinSGST").val(balanceTDSinSGST.toFixed(2));
+                }
+            }
+            else if (SGSTip < SGSTop) {
+                $("#creditadjSGST").val(SGSTip);
+                $("#SGSTbalance").val(0);
+                $("#HiddenSGSTbalance").val(0);
+                var payable = parseFloat(SGSTop - (SGSTip));
+                $("#payablesgst").val(parseFloat(payable.toFixed(2)));
+
+                $("#hiddenpayablesgst").val(parseFloat(payable.toFixed(2)));
+
+                $("#adjpayableSGST").val(parseFloat(payable.toFixed(2)));
+                netSGST = parseFloat(payable - tdsSGST);
+                if (netSGST >= 0) {
+                    netpayableSGST = parseFloat(netSGST);
+                    $("#netpayableSGST").val(netpayableSGST.toFixed(2));
+                    balanceTDSinSGST = parseFloat(0);
+                    $("#balanceTDSinSGST").val(balanceTDSinSGST.toFixed(2));
+                }
+                else {
+                    netpayableSGST = parseFloat(0);
+                    $("#netpayableSGST").val(netpayableSGST.toFixed(2));
+                    balanceTDSinSGST = parseFloat(-(netSGST));
+                    $("#balanceTDSinSGST").val(balanceTDSinSGST.toFixed(2));
+                }
+            }
+            else {
+                $("#creditadjSGST").val(SGSTip.toFixed(2));
+                $("#payablesgst").val(parseFloat(0));
+                $("#hiddenpayablesgst").val(parseFloat(0));
+                $("#SGSTbalance").val(0);
+                $("#HiddenSGSTbalance").val(0);
+                $("#adjpayableSGST").val(parseFloat(0));
+                netSGST = parseFloat(0 - tdsSGST);
+                $("#netpayableSGST").val(0);
+                balanceTDSinSGST = parseFloat(-(netSGST));
+                $("#balanceTDSinSGST").val(balanceTDSinSGST.toFixed(2));
+
+            }
+
+            var IGSTip = parseFloat($("#igstinput").val());
+            var IGSTop = parseFloat($("#igstout").val());
+
+            if (IGSTip < IGSTop) {
+                $("#creditadjIGST").val(IGSTip);
+                $("#IGSTbalance").val(0);
+                $("#HiddenIGSTbalance").val(0);
+                var payable = parseFloat(IGSTop - (IGSTip));
+                $("#payableigst").val(parseFloat(payable.toFixed(2)));
+
+                $("#hiddenpayableigst").val(parseFloat(payable.toFixed(2)));
+
+                $("#adjpayableIGST").val(parseFloat(payable.toFixed(2)));
+                netIGST = parseFloat(payable - tdsIGST);
+
+                if (netIGST >= 0) {
+                    netpayableIGST = parseFloat(netIGST);
+                    $("#netpayableIGST").val(netpayableIGST.toFixed(2));
+                    balanceTDSinIGST = parseFloat(0);
+                    $("#balanceTDSinIGST").val(balanceTDSinIGST.toFixed(2));
+                }
+                else {
+                    netpayableIGST = parseFloat(0);
+                    $("#netpayableIGST").val(netpayableIGST.toFixed(2));
+                    balanceTDSinIGST = parseFloat(-(netIGST));
+                    $("#balanceTDSinIGST").val(balanceTDSinIGST.toFixed(2));
+                }
+            }
+            else if (IGSTip > IGSTop) {
+                $("#creditadjIGST").val(IGSTop.toFixed(2));
+
+                $("#IGSTbalance").val(parseFloat(IGSTip - IGSTop).toFixed(2));
+                $("#HiddenIGSTbalance").val(parseFloat(IGSTip - IGSTop).toFixed(2));
+
+                $("#payableigst").val(parseFloat(0));
+                $("#hiddenpayableigst").val(parseFloat(0));
+                $("#adjpayableIGST").val(parseFloat(0));
+                netIGST = parseFloat(0 - tdsIGST);
+                if (netIGST >= 0) {
+                    netpayableIGST = parseFloat(netIGST);
+                    $("#netpayableIGST").val(netpayableIGST.toFixed(2));
+                    balanceTDSinIGST = parseFloat(0);
+                    $("#balanceTDSinIGST").val(balanceTDSinIGST.toFixed(2));
+                }
+                else {
+                    netpayableIGST = parseFloat(0);
+                    $("#netpayableIGST").val(netpayableIGST.toFixed(2));
+                    balanceTDSinIGST = parseFloat(-(netIGST));
+                    $("#balanceTDSinIGST").val(balanceTDSinIGST.toFixed(2));
+                }
+            }
+            else {
+                $("#creditadjIGST").val(IGSTip.toFixed(2));
+                $("#payableigst").val(parseFloat(0));
+                $("#hiddenpayableigst").val(parseFloat(0));
+                $("#IGSTbalance").val(0);
+                $("#HiddenIGSTbalance").val(0);
+                $("#adjpayableIGST").val(parseFloat(0));
+                netSGST = parseFloat(0 - tdsIGST);
+                $("#netpayableIGST").val(0);
+                balanceTDSinIGST = parseFloat(-(netIGST));
+                $("#balanceTDSinIGST").val(balanceTDSinIGST.toFixed(2));
+            }
+
+            var CGSTip = parseFloat($("#cgstinput").val());
+            var CGSTop = parseFloat($("#cgstout").val());
+
+            if (CGSTip > CGSTop) {
+                $("#creditadjCGST").val(CGSTop.toFixed(2));
+
+                $("#CGSTbalance").val(parseFloat(CGSTip - CGSTop).toFixed(2));
+                $("#HiddenCGSTbalance").val(parseFloat(CGSTip - CGSTop).toFixed(2));
+
+                $("#payablecgst").val(parseFloat(0));
+                $("#hiddenpayablecgst").val(parseFloat(0));
+                $("#adjpayableCGST").val(parseFloat(0));
+                netCGST = parseFloat(0 - tdsCGST);
+                if (netCGST >= 0) {
+                    netpayableCGST = parseFloat(netCGST);
+                    $("#netpayableCGST").val(netpayableCGST.toFixed(2));
+                    balanceTDSinCGST = parseFloat(0);
+                    $("#balanceTDSinCGST").val(balanceTDSinCGST.toFixed(2));
+                }
+                else {
+                    netpayableCGST = parseFloat(0);
+                    $("#netpayableCGST").val(netpayableCGST.toFixed(2));
+                    balanceTDSinCGST = parseFloat(-(netCGST));
+                    $("#balanceTDSinCGST").val(balanceTDSinCGST.toFixed(2));
+                }
+            }
+            else if (CGSTip < CGSTop) {
+                $("#creditadjCGST").val(CGSTip.toFixed(2));
+                $("#CGSTbalance").val(0);
+                $("#HiddenCGSTbalance").val(0);
+                var payable = parseFloat(CGSTop - (CGSTip));
+                $("#payablecgst").val(parseFloat(payable.toFixed(2)));
+
+                $("#hiddenpayablecgst").val(parseFloat(payable.toFixed(2)));
+
+                $("#adjpayableCGST").val(parseFloat(payable.toFixed(2)));
+                netCGST = parseFloat(payable - tdsCGST);
+                if (netCGST >= 0) {
+                    netpayableCGST = parseFloat(netCGST);
+                    $("#netpayableCGST").val(netpayableCGST.toFixed(2));
+                    balanceTDSinCGST = parseFloat(0);
+                    $("#balanceTDSinCGST").val(balanceTDSinCGST.toFixed(2));
+                }
+                else {
+                    netpayableCGST = parseFloat(0);
+                    $("#netpayableCGST").val(netpayableCGST.toFixed(2));
+                    balanceTDSinCGST = parseFloat(-(netCGST));
+                    $("#balanceTDSinCGST").val(balanceTDSinCGST.toFixed(2));
+                }
+            }
+            else {
+                $("#creditadjCGST").val(CGSTip.toFixed(2));
+                $("#payablecgst").val(parseFloat(0));
+                $("#hiddenpayablecgst").val(parseFloat(0));
+                $("#CGSTbalance").val(0);
+                $("#HiddenCGSTbalance").val(0);
+                $("#adjpayableCGST").val(parseFloat(0));
+                netSGST = parseFloat(0 - tdsCGST);
+                $("#netpayableCGST").val(0);
+                balanceTDSinCGST = parseFloat(-(netCGST));
+                $("#balanceTDSinCGST").val(balanceTDSinCGST.toFixed(2));
+            }
+            totalGSTpayable = parseFloat(netpayableCGST + netpayableIGST + netpayableSGST);
+            $("#totalGSTpayable").val(totalGSTpayable.toFixed(2));
+            totalTDS = parseFloat(balanceTDSinCGST + balanceTDSinSGST + balanceTDSinIGST);
+            $("#totalTDS").val(totalTDS.toFixed(2));
+        }
+        $(document).on('click', 'a.thirdtab', function () {
+            if (GSTID == 0) {
+                GetTransactionDetails();
+            }
+            $("#btnAddExpense").addClass('dis-none');
+            $("#SubmitBtn").removeClass('dis-none');
+
+            $("#subledgeramountlabel").text("Total GST Payable");
+            $("#subledger").hide();
+            $("#CreditorLabel").hide();
+            $("#creditor").hide();
+            var totalgstpayable = parseFloat($("#totalGSTpayable").val()) || 0;
+            $("#CreditorAmount").val(totalgstpayable.toFixed(2));
+        });
+
+        function GetTransactionDetails() {
+            var bank  =parseFloat($("#totalGSTpayable").val()) || 0;
+            $("#varBank").val(bank.toFixed(2));
+
+            //Output Debit
+            var igstout = parseFloat($("#igstout").val()) || 0;
+            $("#varIGSTOutput").val(igstout.toFixed(2));
+            var sgstout = parseFloat($("#sgstout").val()) || 0;
+            var cgstout = parseFloat($("#cgstout").val()) || 0;
+            var RCMop = parseFloat($("#totalrcm").val()) || 0;
+            RCMop = RCMop / 2;
+            //if (RCMop > 0) {
+            //    cgstout = cgstout - RCMop;
+            //    sgstout = sgstout - RCMop;
+            //}
+            
+            $("#varCGSTOutput").val(cgstout.toFixed(2));
+            $("#varSGSTOutput").val(sgstout.toFixed(2));
+
+           
+            //Input Credit
+            var igstinput = parseFloat($("#igstinput").val()) || 0;
+            $("#varIGSTInput").val(igstinput.toFixed(2));
+            var sgstinput = parseFloat($("#sgstinput").val()) || 0;
+            $("#varSGSTInput_Cr").val(sgstinput.toFixed(2));
+            var cgstinput = parseFloat($("#cgstinput").val()) || 0;
+            $("#varCGSTInput_Cr").val(cgstinput.toFixed(2));
+
+            //Input Debit
+            $("#varSGSTInput_Dr").val(RCMop.toFixed(2));
+            $("#varCGSTInput_Dr").val(RCMop.toFixed(2));
+
+            //TDS Credit
+            var tdsIGST = parseFloat($("#tdsIGST").val()) || 0;
+            $("#varIGSTTDSReceivable").val(tdsIGST.toFixed(2));
+            var tdsSGST = parseFloat($("#tdsSGST").val()) || 0;
+            $("#varSGSTTDSReceivable").val(tdsSGST.toFixed(2));
+            var tdsCGST = parseFloat($("#tdsCGST").val()) || 0;
+            $("#varCGSTTDSReceivable").val(tdsCGST.toFixed(2));
+            //RCM
+            $("#varRCM").val((RCMop * 2).toFixed(2));
+            var TotalDebit = 0; var TotalCredit = 0;
+            TotalDebit = igstout + sgstout + cgstout + (RCMop * 2);
+            TotalCredit = bank + igstinput + sgstinput + cgstinput + tdsIGST + tdsSGST + tdsCGST + (RCMop * 2);
+            if (TotalDebit > TotalCredit) {
+                var Diff = parseFloat(TotalDebit - TotalCredit) || 0;
+                $("#varRoundoffDebit").val(Diff.toFixed(2));
+            } else {
+                var Diff = parseFloat(TotalCredit - TotalDebit) || 0;
+                $("#varRoundoffCredit").val(Diff.toFixed(2));
+            }
+            $('#SubCode').val(1);
+            $('#TransactionTypeCode').val("GOF");
+            FillTransactionDetails();
+            @*EmptyExpenseDeductionDetails();
+            $.ajax({
+                type: "GET",
+                url: "@Url.Action("GetTransactionDetails", "CoreAccounts")",
+                data: { "typeCode": "GOF", "tSubCode": "1" },
+                traditional: true,
+                dataType: "json",
+                success: function (result) {
+                    $.each(result.ExpenseDetail, function (i, item) {
+                        if (i == 0) {
+                            var trEle = $('#tbodyExpenseList tr:first');
+                            $(trEle).find('input[name$=".Amount"]').val('');
+                            $(trEle).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                            $(trEle).find('input[name$=".IsJV"]').val(item.IsJV);
+                            $(trEle).find('#lblTransType').text(item.TransactionType);
+                            $(trEle).find("input[name='ExpenseDetail.Index']").val(i);
+
+                            var selectGroup = $(trEle).find('select[name$=".AccountGroupId"]');
+                            selectGroup.empty();
+                            $.each(item.AccountGroupList, function (index, itemData) {
+                                selectGroup.append($('<option/>', {
+                                    value: itemData.id,
+                                    text: itemData.name,
+                                }));
+                            });
+
+                            var selectHead = $(trEle).find('select[name$=".AccountHeadId"]');
+                            selectHead.empty();
+                            $.each(item.AccountHeadList, function (index, itemData) {
+                                selectHead.append($('<option/>', {
+                                    value: itemData.id,
+                                    text: itemData.name,
+                                }));
+                            });
+                        } else {
+                            var trEleNew = $('#tbodyExpenseList tr:first').clone().find('input').val('').end();
+                            $(trEleNew).find('input[name$=".Amount"]').val('');
+                            $(trEleNew).find("input[name='ExpenseDetail.Index']").val(i);
+                            $(trEleNew).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                            $(trEleNew).find('input[name$=".IsJV"]').val(item.IsJV);
+                            $(trEleNew).find('#lblTransType').text(item.TransactionType);
+                            $(trEleNew).find("input,Select").each(function () {
+                                $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                                $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                            });
+                            $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                                $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                            });
+
+                            var selectGroup = $(trEleNew).find('select[name$=".AccountGroupId"]');
+                            selectGroup.empty();
+                            $.each(item.AccountGroupList, function (index, itemData) {
+                                selectGroup.append($('<option/>', {
+                                    value: itemData.id,
+                                    text: itemData.name,
+                                }));
+                            });
+
+                            var selectHead = $(trEleNew).find('select[name$=".AccountHeadId"]');
+                            selectHead.empty();
+                            $.each(item.AccountHeadList, function (index, itemData) {
+                                selectHead.append($('<option/>', {
+                                    value: itemData.id,
+                                    text: itemData.name,
+                                }));
+                            });
+                            $('#tbodyExpenseList').append(trEleNew);
+                        }
+                    });
+                    $.each(result.DeductionDetail, function (i, item) {
+                        if (i == 0) {
+                            var trEle = $('#tbodyDeductionList tr:first');
+                            $(trEle).find('input').val('');
+                            var amtEle = $(trEle).find('input[name$=".Amount"]');
+                            amtEle.removeClass('required');
+                            $(trEle).find('input[name$=".AccountGroupId"]').val(item.AccountGroupId);
+                            $(trEle).find('input[name$=".DeductionHeadId"]').val(item.DeductionHeadId);
+                            $(trEle).find('input[name$=".DeductionHead"]').val(item.DeductionHead);
+                            $(trEle).find('input[name$=".AccountGroup"]').val(item.AccountGroup);
+                            $(trEle).find('td:nth-child(1)').html(item.AccountGroup);
+                            $(trEle).find('td:nth-child(2)').html(item.DeductionHead);
+                        } else {
+                            var trEleNew = $('#tbodyDeductionList tr:first').clone().find('input').val('').end();
+                            $(trEleNew).find("input").each(function () {
+                                $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                                $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                            });
+                            $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                                $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                            });
+                            var amtEle = $(trEleNew).find('input[name$=".Amount"]');
+
+                            amtEle.removeClass('required');
+                            $(trEleNew).find('input[name$=".AccountGroupId"]').val(item.AccountGroupId);
+                            $(trEleNew).find('input[name$=".DeductionHeadId"]').val(item.DeductionHeadId);
+                            $(trEleNew).find('input[name$=".DeductionHead"]').val(item.DeductionHead);
+                            $(trEleNew).find('input[name$=".AccountGroup"]').val(item.AccountGroup);
+                            $(trEleNew).find('td:nth-child(1)').html(item.AccountGroup);
+                            $(trEleNew).find('td:nth-child(2)').html(item.DeductionHead);
+                            $('#tbodyDeductionList').append(trEleNew);
+                        }
+                    });
+                    $('#NeedUpdateTransDetail').val('false');
+                    CalculateDeductionTotal();
+
+                },
+                error: function (err) {
+                    console.log("error : " + err);
+                }
+            });*@
+        }
+        function ValidateDecimalOnly(evt) {
+            var charCode = (evt.which) ? evt.which : evt.keyCode;
+            if (charCode != 46 && charCode > 31
+              && (charCode < 48 || charCode > 57))
+                return false;
+
+            return true;
+        }
+        function formSave() {
+            var isValid = true;
+            var credit = $("#ttlCr").val();
+            var debit = $("#ttlDr").val();
+            var fromdate = $("#fromdate").val();
+            var todate = $("#todate").val();
+            //var creditoramount = $("#CreditorAmount").val();
+            if (credit != debit) {
+                $('#alert').html("Not a valid entry. Credit and Debit value are not equal.");
+                $('#Validation').modal('toggle');
+                isValid = false;
+            }
+            else if (credit == "" || debit == "") {
+                $('#alert').html(" Credit and Debit value  are required.");
+                $('#Validation').modal('toggle');
+                isValid = false;
+            }
+            else if (fromdate == "" || todate == "") {
+                $('#alert').html(" FromDate and ToDate value  are required.");
+                $('#Validation').modal('toggle');
+                isValid = false;
+            }
+            if (isValid == true) {
+                $('#formGST').submit();
+            }
+        }
+
+	</script>
+
+
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>
+
+

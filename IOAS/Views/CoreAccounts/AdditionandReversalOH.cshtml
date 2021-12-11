@@ -1,0 +1,1444 @@
+﻿@model IOAS.Models.AdditionandReversalModel
+
+@{
+    ViewBag.Title = "AdditionandReversalOH";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+@using (Html.BeginForm("AdditionandReversalOH", "CoreAccounts", FormMethod.Post, new { @class = "", role = "form", @id = "formOHRev", enctype = "multipart/form-data" }))
+{
+
+    <div class="row hd-tt-bg">
+        <div class="col-md-6">
+            <h4><b>OH Addition and Reversal</b> </h4>
+            @Html.HiddenFor(m => m.NeedUpdateTransDetail)
+            @Html.HiddenFor(m => m.AdditionandReversalId)
+            @Html.Hidden("TransactionTypeCode", "OHAR")
+            @Html.HiddenFor(m => m.SubCode)
+            @Html.TextBoxFor(m => m.AdditionandReversalId, new { @class = "form-control dis-none", @id = "OHReversalId" })
+        </div>
+        <div class="col-md-3 col-md-offset-3">
+            <div class="reg-no custom-reg-no">
+                <div class="form-group custom-form-group">
+                    <label>Number</label>
+                    <h4>@Html.DisplayFor(m => m.AdditionandReversalNumber)</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="page-wrapper">
+            <div class="col-md-12 mt30">
+                <ul class="nav nav-pills custom-nav-pills">
+                    <li class="active"><a href="javascript:void(0)"><span>01</span>OH Details</a></li>
+                    <li><a href="javascript:void(0)"><span>02</span>Project Details</a></li>
+                    <li id="Commitment"><a href="javascript:void(0)"><span>03</span>Commitment Details</a></li>
+                    <li><a href="javascript:void(0)"><span>04</span>Transaction Details</a></li>
+                    <li><a href="javascript:void(0)"><span>05</span>CheckList Details</a></li>
+                    <li><a href="javascript:void(0)"><span>06</span>Document Details</a></li>
+                </ul>
+                <div class="tab">
+                    <div class="col-md-12 col-sm-12 m-b-sm">
+                        <div class="white-bg ad-navbar">
+                            <div class="row">
+
+                                <div class="col-md-2 ds-spl-bg">
+                                    <div class="ds-icn">
+                                        <i class="ion-ios-list-outline "></i>
+                                    </div>
+                                    <div class="ds-tt">
+                                        <span class="required">Type</span>
+                                        @Html.DropDownListFor(m => m.Type, new SelectList(ViewBag.DropdownType, "id", "name"), "-Select-", new { @class = "form-control required", @id = "type" })
+                                        @Html.ValidationMessageFor(m => m.Type)
+                                    </div>
+                                </div>
+                                <div class="col-md-3 ds-spl-bg">
+                                    <div class="ds-tt" id="divRefNum">
+                                        <span class="required">Project Type</span>
+                                        @Html.DropDownListFor(m => m.ProjectType, new SelectList(ViewBag.Dropdown, "codevalAbbr", "CodeValDetail"), "-Select-", new { @class = "form-control required", @id = "Projtype" })
+                                        @Html.ValidationMessageFor(m => m.ProjectId)
+                                    </div>
+                                </div>
+                                <div class="col-md-3 ds-spl-bg">
+                                    <div class="ds-tt" id="divRefNum">
+                                        <span class="required">Project Number</span>
+                                        @Html.TextBoxFor(m => m.ProjectNo, new { @class = "form-control ", @id = "ProjectNo", @autocomplete = "off" })
+                                        @Html.TextBoxFor(m => m.ProjectId, new { @class = "form-control required dis-none", @id = "ProjectId" })
+                                        @Html.ValidationMessageFor(m => m.ProjectId)
+                                        <h5 class="dis-none" id="add"></h5>
+                                        <h5 class="dis-none" id="rev"></h5>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4 ds-spl-bg">
+                                    <div class="ds-tt" id="divRefNum">
+                                        <div class="ds-tt">
+                                            <input type="button" value="Search" class="btn btn-primary mt-20" id="btnSubmit" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="white-bg ad-navbar">
+
+                            <div class="row">
+                                <div class="col-md-2 ">
+                                    <div class="ds-tt" id="divRefNum">
+                                        <span class="required">Amount</span>
+                                        @Html.TextBoxFor(m => m.TotalAmount, new { @class = "form-control required", @id = "Amount", @autocomplete = "off", @onkeypress = "return ValidateDecimalOnly(event)" })
+                                        @Html.ValidationMessageFor(m => m.TotalAmount)
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="ds-tt" id="divRefNum">
+                                        <span class="required">Date of Posting</span>
+                                        @Html.TextBoxFor(m => m.PostedDate, new { @class = "form-control required", @id = "PostedDate", @autocomplete = "off" })
+                                        @Html.ValidationMessageFor(m => m.PostedDate)
+                                    </div>
+                                </div>
+                                <div class="col-md-3 ">
+                                    <div class="ds-tt" id="divRefNum">
+                                        <span>Remarks</span>
+                                        @Html.TextAreaFor(m => m.Remarks, new { @class = "form-control", @autocomplete = "off" })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="page-wrapper">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="bl-lg-panel-box pb-null">
+                                            <div class="cmn-panel-box">
+                                                <div class="row ">
+                                                    <div class="col-md-4">
+                                                        <div class="form-group custom-form-group mb-sm">
+                                                            <label>Category</label>
+                                                            <h4 class="mt-null" id="Category"></h4>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="form-group custom-form-group mb-sm">
+                                                            <label>Sanction value</label>
+                                                            <h4 class="mt-null" id="Sanction"></h4>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="form-group custom-form-group mb-sm">
+                                                            <label>Total Receipt</label>
+                                                            <h4 class="mt-null" id="Receipt"></h4>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row ">
+                                                    <div class="col-md-4">
+                                                        <div class="form-group custom-form-group mb-sm">
+                                                            <label>Total OH Detected</label>
+                                                            <h4 class="mt-null" id="OH"></h4>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="form-group custom-form-group mb-sm">
+                                                            <label>Project Closure Date</label>
+                                                            <h4 class="mt-null" id="Closure"></h4>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="form-group custom-form-group mb-sm">
+                                                            <label>Available Balance</label>
+                                                            <h4 class="mt-null" id="Balance"></h4>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-4">
+                                                        <div class="form-group custom-form-group mb-sm">
+                                                            <label>Corpus</label>
+                                                            <h4 name="Corpus" id="Corpus">@Html.DisplayFor(m => m.Corpus)</h4>
+                                                            @Html.TextBoxFor(m => m.Corpus, new { @id = "lbCorpus", @class = "dis-none" })
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="form-group custom-form-group mb-sm">
+                                                            <label>PCF</label>
+                                                            <h4 name="PCF" id="PCF">@Html.DisplayFor(m => m.PCF)</h4>
+
+                                                            @Html.TextBoxFor(m => m.PCF, new { @id = "lbPCF", @class = "dis-none" })
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="form-group custom-form-group mb-sm">
+                                                            <label>RMF</label>
+                                                            <h4 name="RMF" id="RMF">@Html.DisplayFor(m => m.RMF)</h4>
+
+                                                            @Html.TextBoxFor(m => m.RMF, new { @id = "lbRMF", @class = "dis-none" })
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row mb-lg">
+                                                    <div class="col-md-4">
+                                                        <div class="form-group custom-form-group ">
+                                                            <label>ICSROH</label>
+                                                            <h4 name="ICSROH" id="ICSROH">@Html.DisplayFor(m => m.ICSROH)</h4>
+
+                                                            @Html.TextBoxFor(m => m.ICSROH, new { @id = "lbICSROH", @class = "dis-none" })
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="form-group custom-form-group ">
+                                                            <label>DDF</label>
+                                                            <h4 name="DDF" id="DDF">@Html.DisplayFor(m => m.DDF)</h4>
+                                                            @Html.TextBoxFor(m => m.DDF, new { @id = "lbDDF", @class = "dis-none" })
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="form-group custom-form-group ">
+                                                            <label>Staff Welfare</label>
+                                                            <h4 name="StaffWelfare" id="StaffWelfare">@Html.DisplayFor(m => m.StaffWelfare)</h4>
+                                                            @Html.TextBoxFor(m => m.StaffWelfare, new { @id = "lbStaffWelfare", @class = "dis-none" })
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="grey-bg-adj">
+                                            <div class="row">
+                                                <div class="col-md-12  pdt-null vw-dts-bg">
+                                                    <div class="rev-frm-scrl">
+                                                        <table class="table alter-table mb-null">
+                                                            <tbody id="ShareList">
+                                                                <tr>
+                                                                    <td><b>Name</b></td>
+                                                                    <td><b>Role</b></td>
+                                                                    <td style="width:80px;"><b>PCF (%)</b> </td>
+                                                                    <td><b>Value</b></td>
+                                                                    <td style="width:80PX;"><b>RMF (%)</b></td>
+                                                                    <td><b>Value</b></td>
+                                                                </tr>
+                                                                @if (Model.ShareList != null)
+                                                                {
+                                                                    var count = 0;
+                                                                    foreach (var item in Model.ShareList)
+                                                                    {
+                                                                        var Name = "ShareList[" + count + "].Name";
+                                                                        var PCFValue = "ShareList[" + count + "].PCFValue";
+                                                                        var RMFValue = "ShareList[" + count + "].RMFValue";
+                                                                        var PCFPer = "ShareList[" + count + "].PCFPer";
+                                                                        var RMFPer = "ShareList[" + count + "].RMFPer";
+                                                                        var PIid = "ShareList[" + count + "].PIid";
+                                                                        var PCFProjId = "ShareList[" + count + "].PCFProjId";
+                                                                        var RMFProjId = "ShareList[" + count + "].RMFProjId";
+                                                                        var Role = "ShareList[" + count + "].Role";
+                                                                        <tr>
+                                                                            <td>
+                                                                                @Html.DisplayFor(m => item.Name)
+                                                                                @Html.Hidden(@PIid, item.PIid)
+                                                                                @Html.Hidden(@PCFProjId, item.PCFProjId)
+                                                                                @Html.Hidden(@RMFProjId, item.RMFProjId)
+                                                                                @Html.Hidden(@PCFValue, item.PCFValue)
+                                                                                @Html.Hidden(@RMFValue, item.RMFValue)
+                                                                                @*@Html.Hidden(@PCFPer, item.PCFPer)
+                                                                                    @Html.Hidden(@RMFPer, item.RMFPer)*@
+                                                                                @Html.Hidden(@Role, item.Role)
+                                                                                @Html.Hidden("ShareList.SlNo", @count)
+                                                                            </td>
+                                                                            <td>
+                                                                                @Html.DisplayFor(m => item.Role)
+                                                                            </td>
+                                                                            <td>
+                                                                                @Html.TextBox(@PCFPer, item.PCFPer, new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)", @autocomplete = "off" })
+
+                                                                            </td>
+                                                                            <td id='lblPCFVal'>
+                                                                                @Html.DisplayFor(m => item.PCFValue)
+                                                                            </td>
+                                                                            <td>
+                                                                                @Html.TextBox(@RMFPer, item.RMFPer, new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)", @autocomplete = "off" })
+                                                                            </td>
+                                                                            <td id='lblRMFVal'>
+                                                                                @Html.DisplayFor(m => item.RMFValue)
+                                                                            </td>
+                                                                        </tr>
+                                                                        count++;
+                                                                    }
+                                                                }
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+                <div class="tab">
+                    <div class="col-md-12 col-sm-12 m-b-sm">
+                        <div class="row">
+                            <div class="page-wrapper">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="grey-bg-adj">
+                                            <div class="row">
+                                                <h3 id="lbHeading">Receipt Details</h3>
+                                                <div class="col-md-12  pdt-null vw-dts-bg">
+                                                    <div class="rev-frm-scrl">
+                                                        <table class="table alter-table mb-null">
+                                                            <tbody id="ReceiptList">
+                                                                <tr>
+                                                                    <td><b>Category</b></td>
+                                                                    <td><b>Project Number</b></td>
+                                                                    <td><b>Amount</b> </td>
+                                                                    <td><b>Reference</b></td>
+                                                                </tr>
+
+                                                                @if (Model.ReceiptList != null)
+                                                                {
+                                                                    var count = 0;
+                                                                    foreach (var item in Model.ReceiptList)
+                                                                    {
+                                                                        var Category = "ReceiptList[" + count + "].Category";
+                                                                        var PIid = "ReceiptList[" + count + "].PIid";
+                                                                        var ProjectId = "ReceiptList[" + count + "].ProjectId";
+                                                                        var Role = "ReceiptList[" + count + "].Role";
+                                                                        var Reference = "ReceiptList[" + count + "].Reference";
+                                                                        var Amount = "ReceiptList[" + count + "].Amount";
+                                                                        var BankHeadId = "ReceiptList[" + count + "].BankHeadId";
+                                                                        var Classification = "ReceiptList[" + count + "].Classification";
+                                                                        var ProjectNumber = "ReceiptList[" + count + "].ProjectNumber";
+                                                                        <tr>
+                                                                            <td>
+                                                                                @Html.DisplayFor(m => item.Category)
+                                                                                @Html.Hidden(@PIid, item.PIid)
+                                                                                @Html.Hidden(@Category, item.Category)
+                                                                                @Html.Hidden(@ProjectId, item.ProjectId)
+                                                                                @Html.Hidden(@Role, item.Role)
+                                                                                @Html.Hidden(@Reference, item.Reference)
+                                                                                @Html.Hidden(@Amount, item.Amount)
+                                                                                @Html.Hidden(@BankHeadId, item.BankHeadId)
+                                                                                @Html.Hidden(@Classification, item.Classification)
+                                                                                @Html.Hidden("ShareList.SlNo", @count)
+                                                                            </td>
+                                                                            <td>
+                                                                                @Html.DisplayFor(m => item.ProjectNumber)
+                                                                            </td>
+
+                                                                            <td class="text-center">
+                                                                                @Html.DisplayFor(m => item.Amount)
+                                                                            </td>
+
+                                                                            <td>
+                                                                                @Html.DisplayFor(m => item.Reference)
+                                                                            </td>
+                                                                        </tr>
+                                                                        count++;
+                                                                    }
+                                                                }
+
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="grey-bg-adj">
+                                            <div class="row">
+                                                <div class="col-md-12  pdt-null vw-dts-bg">
+                                                    @Html.CheckBoxFor(m => m.Checkbox, new { @class = "required", @id = "Checkbox" })
+                                                    <h4 id="lbverify">I acknowledge Receipts to above Projects</h4>
+                                                    @Html.ValidationMessageFor(m => m.Checkbox)
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab" id="CommitmentTab">
+                    @Html.Partial("_CommitmentDetails", Model.CommitmentDetail)
+                </div>
+                <div class="tab">
+                    @Html.Partial("_TransactionDetails", Model)
+                </div>
+                <div class="tab">
+                    <div class="col-md-12 col-sm-12 m-b-sm">
+                        <div class="">
+                            @Html.Partial("_CheckListDetail", Model.CheckListDetail)
+                        </div>
+                        <div>
+                            @Html.HiddenFor(m => m.CheckListVerified_By)
+                            @Html.HiddenFor(m => m.CheckListVerifierName)
+                            <div class="col-md-3 col-md-offset-9">
+                                <div class="form-group custom-form-group">
+                                    <label>Verified by</label>
+                                    <h4 id="Verified_ByName">@Html.DisplayFor(m => m.CheckListVerifierName)</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab">
+                    <div class="col-md-12 col-sm-12 m-b-sm">
+                        <div class="">
+                            @Html.Partial("_DocumentDetail", Model.DocumentDetail)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="custom-nav-btn text-right" id="nexttab">
+                    <button type="button" class="btn btn-default pull-left" id="prevBtn" onclick="nextPrev(-1)">Previous</button>
+                    <button type="button" class="btn btn-primary pull-right" id="nextBtn" onclick="nextPrev(1)">Next</button>
+                    <button type="button" class="btn btn-default pull-right" onclick="window.location.href='@Url.Action("OHReversalList", "CoreAccounts")';">Close</button>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+}
+
+<div id="ValidationModal" class="modal fade modal-warning" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-warning"></i>
+                <h3 class="modal-title">Warning</h3>
+            </div>
+            <div class="modal-body">
+
+                <p id="MsgValidation"></p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@Html.AntiForgeryToken()
+<div id="popup"></div>
+
+<script>
+    var Error_f = false;
+
+    $('input[name$=".InvDate"]').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
+    $('#SourceEmailDate, #srchFromDate, #srchToDate,#InvoiceDate,#PODate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
+    $('#srchToDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true }).datepicker("setDate", "0");
+    var defaultFromDate = moment(new Date()).add(-10, 'days').toDate();
+    $('#srchFromDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true }).datepicker("setDate", defaultFromDate);
+    $('#PostedDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
+    var errMsg = '@TempData["errMsg"]';
+    $(document).ready(function () {
+
+        var ProjType = $('#Projtype').val();
+        if (ProjType != "") {
+            applyAutoComplete($('#ProjectNo'), $('#ProjectId'), '@Url.Action("LoadProjectNumber","CoreAccounts")', 'ProjectSummary', true, ProjType);
+            ProjectSummary();
+        }
+        if ($('#OHReversalId').val() > 0) {
+            $("#rev").text('valid');
+            $("#add").text('valid');
+        }
+        if ($("#type").val() == '1' && $("#Projtype").val() == '1') {
+            $('#SubCode').val('1');
+        }
+        if ($("#type").val() == '2' && $("#Projtype").val() == '1') {
+            $('#SubCode').val('2');
+        }
+        if ($("#type").val() == '1' && $("#Projtype").val() == '2') {
+            $('#SubCode').val('3');
+        }
+        if ($("#type").val() == '2' && $("#Projtype").val() == '2') {
+            $('#SubCode').val('4');
+        }
+        if ($("#type").val() == '2') {
+            //   $('#SubCode').val('2');
+            $("#Commitment").removeClass('active');
+            $("#Commitment").css("display", "none");
+            $("#lbverify").text('');
+            $("#lbverify").text('I acknowledge Expenditure to above Projects');
+            $("#lbHeading").text('');
+            $("#lbHeading").text('Expenditure Details');
+            //$("#CommitmentTab").prop("readonly", true);
+            // $("#nexttab").addClass('')
+        }
+        if ($("#type").val() == '1') {
+            //  $('#SubCode').val('1');
+            $("#lbverify").text('');
+            $("#lbverify").text('I acknowledge Receipts to above Projects');
+            $("#lbHeading").text('');
+            $("#lbHeading").text('Receipts Details');
+            $("#Commitment").addClass();
+        }
+        if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+        $('.selectpicker').selectpicker({
+            liveSearch: true
+        });
+        var credit = parseFloat($('#Amount').val());
+        $("#CreditorAmount").val(credit);
+
+    });
+    $(document).on('change', '#type', function () {
+        if ($("#type").val() == "2") {
+            //  $('#SubCode').val('2');
+            $("#Commitment").removeClass('active');
+            $("#Commitment").css("display", "none");
+            $("#lbverify").text('');
+            $("#lbverify").text('I acknowledge Expenditure to above Projects');
+            $("#lbHeading").text('');
+            $("#lbHeading").text('Expenditure Details');
+        }
+        if ($("#type").val() == "1") {
+            // $('#SubCode').val('1');
+            $("#lbverify").text('');
+            $("#lbverify").text('I acknowledge Receipts to above Projects');
+            $("#lbHeading").text('');
+            $("#lbHeading").text('Receipts Details');
+        }
+        if ($("#type").val() == '1' && $("#Projtype").val() == '1') {
+            $('#SubCode').val('1');
+        }
+        if ($("#type").val() == '2' && $("#Projtype").val() == '1') {
+            $('#SubCode').val('2');
+        }
+        if ($("#type").val() == '1' && $("#Projtype").val() == '2') {
+            $('#SubCode').val('3');
+        }
+        if ($("#type").val() == '2' && $("#Projtype").val() == '2') {
+            $('#SubCode').val('4');
+        }
+        $('#NeedUpdateTransDetail').val('true');
+    })
+    $(document).on('change', '#Projtype', function () {
+        $('#NeedUpdateTransDetail').val('true');
+    });
+    $('#btnSubmit').click(function () {
+        if ($('#Projtype').val() == "2") {
+            CalculateConsOH();
+        } else {
+            CalculateOH();
+        }
+    });
+    CalculateDeductionTotal();
+    function ValidateCheckbox() {
+        var msg = 'valid';
+        var value = $("#Checkbox").is(':checked');
+        if (!($("#Checkbox").is(':checked')))
+            msg = 'Please verify Receipt details';
+        $("#ReceiptList tr").each(function (idx, val) {
+            var ProjectId = parseFloat($(this).closest('tr').find("input[name$='.ProjectId']").val()) || 0;
+            if (ProjectId == 0) {
+                msg = 'Project Number field Required';
+                return msg;
+            }
+        });
+      
+        return msg;
+    }
+    $(document).on('click', '#ProjectNo', function () {
+        var ProjType = $('#Projtype').val();
+        if (ProjType != "") {
+            applyAutoComplete($('#ProjectNo'), $('#ProjectId'), '@Url.Action("LoadProjectNumber","CoreAccounts")', 'ProjectSummary', true, ProjType);
+
+        }
+    });
+    function ProjectSummary() {
+        $('.loading-bg').removeClass('dis-none');
+        var projectId = $("#ProjectId").val();
+        if (projectId != "" || projectId != 0) {
+            $.getJSON("@Url.Action("LoadProjectDetails", "Account")", { ProjectId: projectId },
+        function (result) {
+            if (result.projectData.ProjectNo != null) {
+                $("#Sanction").text(result.projectData.SanctionedValue);
+                $("#Receipt").text(result.projectData.TotalReceipt);
+                $("#Closure").text(result.projectData.CloseDate);
+                $("#OH").text(result.projectData.OH);
+                $("#Balance").text(result.projectData.NetBalance);;
+                $("#Category").text(result.projectData.ProjectType);
+            }
+        });
+        }
+        $('.loading-bg').addClass('dis-none');
+    }
+    function ValidateDecimalOnly(evt) {
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode != 46 && charCode > 31
+          && (charCode < 48 || charCode > 57))
+            return false;
+        return true;
+    }
+    function ValidateTransaction() {
+        var msg = 'valid';
+        var netCrAmt = parseFloat($('#CreditorAmount').val());
+        var commitmentAmt = parseFloat($('#CommitmentAmount').val());
+        var ttlExpAmt = parseFloat($('#ExpenseAmount').val()) || 0;
+        var ttldeductAmt = parseFloat($('#DeductionAmount').val()) || 0;
+        var crAmt = parseFloat($('#ttlCr').val()) || 0;
+        var drAmt = parseFloat($('#ttlDr').val()) || 0;
+        var overallExp = parseFloat($('#OverallExpense').val()) || 0;
+        var netDrAmt = ttlExpAmt + ttldeductAmt;
+        if (isNaN(netCrAmt)) {
+            return 'The Credit value is not a valid entry.';
+        }
+        if ($("#type").val() == '2')
+            {
+        if (crAmt != drAmt) {
+            msg = 'Not a valid entry. Credit and Debit value are not equal.';
+        }
+        }
+        //if (isNaN(netCrAmt) || isNaN(overallExp)) {
+        //    msg = 'The credit value / overall expenses is not a valid entry.';
+        //} else if (netCrAmt != overallExp) {
+        //    msg = 'There is a mismatch between the credit value and overall expenses value. Please update the value to continue.';
+        //}
+
+        var hdList = [];
+        $('#tbodyExpenseList tr').find('select[name$=".AccountHeadId"]').each(function (idx, val) { hdList.push($(val).val()); });
+        hdList.sort();
+        // duplicate check
+        //for (var k = 1; k < hdList.length; ++k) {
+        //    if (hdList[k] == hdList[k - 1]) {
+        //        msg = "Duplicate account head exist in expense details. Please select a different head.";
+        //    }
+        //}
+        return msg;
+    }
+    function ValidateCommitment() {
+        var msg = 'valid';
+        CalculatePaymentValue();
+        var commitmentAmt = parseFloat($('#CommitmentAmount').val());
+        var totalpayable = parseFloat($("#Amount").val());
+        //var eligtax = parseFloat($('#txtEligibleTaxValue').val());
+        // var ttlAdvAmt = netPayAmt - eligtax;
+        // var advPct = parseInt($("#AdvancePercentage").val());
+        //  var offsetValue = $("input[name='GST']:checked").val();
+        $("#tbodyCommitmentSelList tr").each(function () {
+            var elePayment = $(this).find("input[name$='.PaymentAmount']");
+            var eleAvlBal = $(this).find('input[name$=".AvailableAmount"]');
+            var parseVal = parseFloat($(elePayment).val()) || 0;
+            var avlBal = parseFloat($(eleAvlBal).val()) || 0;
+            if (parseVal > avlBal)
+                msg = "Commitment payment value should not be greater than available balance."
+        });
+        if (isNaN(totalpayable) || isNaN(commitmentAmt)) {
+            msg = 'The requested advance value / allocated commitment value is not a valid entry.';
+        } else if (totalpayable != commitmentAmt) {
+            msg = 'There is a mismatch between the payable amount and allocated commitment value. Commitment value should be equal to Net Total. Please update the value to continue.';
+        }
+
+        return msg;
+    }
+    $(document).on('change', '#Amount', function () {
+        var credit = parseFloat($('#Amount').val());
+        $("#CreditorAmount").val(credit);
+        if ($('#Projtype').val() == "2") {
+            if ($("#type").val() == '1' && $("#Projtype").val() == '1') {
+                $('#SubCode').val('1');
+            }
+            if ($("#type").val() == '2' && $("#Projtype").val() == '1') {
+                $('#SubCode').val('2');
+            }
+            if ($("#type").val() == '1' && $("#Projtype").val() == '2') {
+                $('#SubCode').val('3');
+            }
+            if ($("#type").val() == '2' && $("#Projtype").val() == '2') {
+                $('#SubCode').val('4');
+            }
+            CalculateConsOH();
+        } else {
+            if ($("#type").val() == '1' && $("#Projtype").val() == '1') {
+                $('#SubCode').val('1');
+            }
+            if ($("#type").val() == '2' && $("#Projtype").val() == '1') {
+                $('#SubCode').val('2');
+            }
+            if ($("#type").val() == '1' && $("#Projtype").val() == '2') {
+                $('#SubCode').val('3');
+            }
+            if ($("#type").val() == '2' && $("#Projtype").val() == '2') {
+                $('#SubCode').val('4');
+            }
+            CalculateOH();
+        }
+        if ($("#type").val() == "2") {
+            if ($("#type").val() == '1' && $("#Projtype").val() == '1') {
+                $('#SubCode').val('1');
+            }
+            if ($("#type").val() == '2' && $("#Projtype").val() == '1') {
+                $('#SubCode').val('2');
+            }
+            if ($("#type").val() == '1' && $("#Projtype").val() == '2') {
+                $('#SubCode').val('3');
+            }
+            if ($("#type").val() == '2' && $("#Projtype").val() == '2') {
+                $('#SubCode').val('4');
+            }
+            ValidateReversal();
+        }
+        else {
+            if ($("#type").val() == '1' && $("#Projtype").val() == '1') {
+                $('#SubCode').val('1');
+            }
+            if ($("#type").val() == '2' && $("#Projtype").val() == '1') {
+                $('#SubCode').val('2');
+            }
+            if ($("#type").val() == '1' && $("#Projtype").val() == '2') {
+                $('#SubCode').val('3');
+            }
+            if ($("#type").val() == '2' && $("#Projtype").val() == '2') {
+                $('#SubCode').val('4');
+            }
+            ValidateAddition();
+        }
+        $('#NeedUpdateTransDetail').val('true');
+    });
+    function CalculateConsOH() {
+        $("#ReceiptList tr:not(:first)").empty();
+        $("#ShareList tr:not(:first)").empty();
+        var projectid = $("#ProjectId").val();
+        var Amt = 0;
+        Amt = parseFloat($('#Amount').val()) || 0
+        var Corpus = 0;
+        Corpus = (Amt / 2)
+        var ICSR = 0;
+        ICSR = (Amt / 2)
+        var TotalAmt = 0;
+        var RMF = 0;
+        var PCF = 0;
+        var StaffWelfare = 0;
+        var DDF = 0;
+        $("#Corpus").text('');
+        $("#Corpus").text(Corpus.toFixed());
+        $("#lbCorpus").val('');
+        $("#lbCorpus").val(Corpus.toFixed());
+        $("#ICSROH").text('');
+        $("#ICSROH").text(ICSR.toFixed());
+        $("#lbICSROH").val('');
+        $("#lbICSROH").val(ICSR.toFixed());
+        $("#PCF,#StaffWelfare,#DDF,#RMF").text(0);
+        $("#lbStaffWelfare,#lbDDF,#lbRMF,#lbPCF").val(0);
+        TotalAmt = parseFloat(ICSR + Corpus)
+        if (Amt != TotalAmt) {
+            var DiffAmt = 0;
+            DiffAmt = (parseFloat(Amt) - parseFloat(TotalAmt)) || 0;
+            ICSR = parseFloat(ICSR + DiffAmt) || 0;
+            ICSR = ICSR.toFixed();
+            $("#lbICSROH").val(ICSR);
+            $("#ICSROH").text(ICSR);
+        }
+        $('.loading-bg').removeClass('dis-none');
+        $.ajax({
+            type: "POST",
+            data: JSON.stringify({ 'projectid': projectid, 'PCFValue': PCF, 'RMFValue': RMF, 'ICSR': ICSR, 'StaffWelfare': StaffWelfare, 'DDF': DDF }),
+            url: '@Url.Action("LoadPCFandRMFProjDetails", "CoreAccounts")',
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (result) {
+                var row;
+             
+                $.each(result, function (i, v1) {
+                    var ProjectId;
+                    if (v1.ProjectId > 0)
+                        ProjectId = v1.ProjectId;
+                    row += "<tr><td>" + v1.Category +
+                        "<input type='hidden' name='ReceiptList[" + i + "].PIid'  value=" + v1.PIid + "><input type='hidden' name='ReceiptList[" + i + "].ProjectId' required   value=" + v1.ProjectId + "><span class='field-validation-valid' data-valmsg-for='ReceiptList[" + i + "].ProjectId' data-valmsg-replace='true'></span><input type='hidden' name='ReceiptList[" + i + "].Category'  value=" + v1.Category + "><input type='hidden' name='ReceiptList[" + i + "].Role'  value=" + v1.Role + "><input type='hidden' name='ReceiptList[" + i + "].Reference'  value=" + v1.Reference + "><input type='hidden' name='ReceiptList[" + i + "].Amount'  value=" + v1.Amount + "><input type='hidden' name='ReceiptList[" + i + "].BankHeadId'  value=" + v1.BankHeadId + "><input type='hidden' name='ReceiptList[" + i + "].Classification'  value=" + v1.Classification + ">"
+                         + "</td><td>" + v1.ProjectNumber + "</td><td id='lblAmt' class='text-center'>" +
+                           v1.Amount
+                           + "</td><td>" + v1.Reference + "</td></tr>";
+                });
+                $("#ReceiptList").append(row);
+                $('.loading-bg').addClass('dis-none');
+            },
+        })
+    }
+    function CalculateOH() {
+        $("#ReceiptList tr:not(:first)").empty();
+        $("#ShareList tr:not(:first)").empty();
+        var projectid = $("#ProjectId").val();
+        var Amt = 0;
+        Amt = parseFloat($('#Amount').val()) || 0
+        var Corpus = 0;
+        Corpus = (Amt / 15) * 4
+        var RMF = 0;
+        RMF = (Amt / 15) * 4
+        var PCF = 0;
+        PCF = (Amt / 15) * 3
+        var StaffWelfare = 0;
+        StaffWelfare = (Amt / 15) * 1
+        var DDF = 0;
+        DDF = (Amt / 15) * 1.5
+        var ICSR = 0;
+        ICSR = (Amt / 15) * 1.5
+        var TotalAmt = 0;
+        $("#Corpus").text('');
+        $("#Corpus").text(Corpus.toFixed());
+        $("#PCF").text('');
+        $("#PCF").text(PCF.toFixed());
+        $("#RMF").text('');
+        $("#RMF").text(RMF.toFixed());
+        $("#DDF").text('');
+        $("#DDF").text(DDF.toFixed());
+        $("#StaffWelfare").text('');
+        $("#StaffWelfare").text(StaffWelfare.toFixed());
+        $("#lbCorpus").val('');
+        $("#lbCorpus").val(Corpus.toFixed());
+        $("#lbPCF").val('');
+        $("#lbPCF").val(PCF.toFixed());
+        $("#lbRMF").val('');
+        $("#lbRMF").val(RMF.toFixed());
+        $("#lbDDF").val('');
+        $("#lbDDF").val(DDF.toFixed());
+        $("#lbStaffWelfare").val('');
+        $("#lbStaffWelfare").val(StaffWelfare.toFixed());
+        $("#ICSROH").text('');
+        $("#ICSROH").text(ICSR.toFixed());
+        $("#lbICSROH").val('');
+        $("#lbICSROH").val(ICSR.toFixed());
+        TotalAmt = parseFloat($("#lbCorpus").val() || 0) + parseFloat($("#lbPCF").val() || 0) + parseFloat($("#lbRMF").val() || 0) +
+    parseFloat($("#lbDDF").val() || 0) + parseFloat($("#lbStaffWelfare").val() || 0) + parseFloat($("#lbICSROH").val() || 0)
+
+        if (Amt != TotalAmt) {
+            var DiffAmt = 0;
+            DiffAmt = (parseFloat(Amt) - parseFloat(TotalAmt)) || 0;
+            
+            ICSR = parseFloat(ICSR + DiffAmt) || 0;
+            ICSR = ICSR.toFixed();
+            $("#lbICSROH").val(ICSR);
+            $("#ICSROH").text(ICSR);
+        }
+        $('.loading-bg').removeClass('dis-none');
+        $.ajax({
+            type: "POST",
+            data: JSON.stringify({ 'projectid': projectid, 'PCFValue': PCF, 'RMFValue': RMF, 'ICSR': ICSR, 'StaffWelfare': StaffWelfare, 'DDF': DDF }),
+            url: '@Url.Action("LoadPCFandRMFProjDetails", "CoreAccounts")',
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (result) {
+                var row;
+                $.each(result, function (i, v1) {
+                    row += "<tr><td>" + v1.Category +
+                        "<input type='hidden' name='ReceiptList[" + i + "].PIid'  value=" + v1.PIid + "><input type='hidden' name='ReceiptList[" + i + "].ProjectId'  value=" + v1.ProjectId + "><input type='hidden' name='ReceiptList[" + i + "].Category'  value=" + v1.Category + "><input type='hidden' name='ReceiptList[" + i + "].Role'  value=" + v1.Role + "><input type='hidden' name='ReceiptList[" + i + "].Reference'  value=" + v1.Reference + "><input type='hidden' name='ReceiptList[" + i + "].Amount'  value=" + v1.Amount + "><input type='hidden' name='ReceiptList[" + i + "].BankHeadId'  value=" + v1.BankHeadId + "><input type='hidden' name='ReceiptList[" + i + "].Classification'  value=" + v1.Classification + ">"
+                         + "</td><td>" + v1.ProjectNumber + "</td><td id='lblAmt' class='text-center'>" +
+                           v1.Amount
+                           + "</td><td>" + v1.Reference + "</td></tr>";
+                });
+                $("#ReceiptList").append(row);
+            },
+        })
+        $.ajax({
+            type: "POST",
+            data: JSON.stringify({ 'projectid': projectid, 'PCFValue': PCF, 'RMFValue': RMF }),
+            url: '@Url.Action("LoadPCFandRMF", "CoreAccounts")',
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (result) {
+                var row;
+                $.each(result, function (i, v1) {
+                    row += "<tr><td>" + v1.Name +
+                    "<input type='hidden' name='ShareList[" + i + "].PIid'  value=" + v1.PIid + "><input type='hidden' name='ShareList[" + i + "].PCFProjId'  value=" + v1.PCFProjId + "><input type='hidden' name='ShareList[" + i + "].RMFProjId'  value=" + v1.RMFProjId + "><input type='hidden' name='ShareList[" + i + "].PCFValue'  value=" + v1.PCFValue + "><input type='hidden' name='ShareList[" + i + "].RMFValue'  value=" + v1.RMFValue + "><input type='hidden' name='ShareList[" + i + "].Role'  value=" + v1.Role + ">"
+                     + "</td><td>" + v1.Role + "</td><td>" +
+                     "<input type='text' name='ShareList[" + i + "].PCFPer' autocomplete='off' class='form-control' onkeypress='return ValidateDecimalOnly(event)'  value=" + v1.PCFPer + ">"
+                     + "</td><td id='lblPCFVal'>" + v1.PCFValue + "</td><td>" +
+                     "<input type='text' name='ShareList[" + i + "].RMFPer' autocomplete='off' class='form-control' onkeypress='return ValidateDecimalOnly(event)' value=" + v1.RMFPer + ">"
+                     + "</td><td id='lblRMFVal'>" + v1.RMFValue +
+                     "</td></tr>";
+                });
+                $("#ShareList").append(row);
+                $('.loading-bg').addClass('dis-none');
+            },
+        })
+    }
+    $(document).on('change', '#ShareList input[name$=".PCFPer"]', function () {
+        var PCF = parseFloat($("#PCF").text()) || 0;
+        var PCFval = 0;
+        var PCFper = 0;
+        PCFper = parseFloat($(this).closest('tr').find('input[name$=".PCFPer"]').val()) || 0;
+        var PCFPIid = parseFloat($(this).closest('tr').find('input[name$=".PIid"]').val()) || 0;
+        PCFval = parseFloat((PCF / 100) * PCFper) || 0
+        PCFval = PCFval.toFixed();
+        $(this).closest('tr').find('#lblPCFVal').text(PCFval)
+        $(this).closest('tr').find('input[name$=".PCFValue"]').val(PCFval)
+        PCFAmountChangeFunction(PCFval, PCFPIid);
+    });
+
+    function PCFAmountChangeFunction(PCFval, PCFPIid) {
+        $("#ReceiptList tr").each(function (idx, val) {
+            var PIid = parseFloat($(this).closest('tr').find("input[name$='.PIid']").val()) || 0;
+            var Category = $(this).closest('tr').find("input[name$='.Category']").val();
+            if (PCFPIid == PIid && Category == "PCF") {
+                $(this).closest('tr').find('input[name$=".Amount"]').val(PCFval)
+                $(this).closest('tr').find('#lblAmt').text(PCFval)
+            }
+        });
+    }
+    $(document).on('change', '#ShareList input[name$=".RMFPer"]', function () {
+        var RMF = parseFloat($("#RMF").text()) || 0;
+        var RMFval = 0;
+        var RMFper = 0;
+        RMFper = parseFloat($(this).closest('tr').find('input[name$=".RMFPer"]').val()) || 0;
+        var RMFPIid = parseFloat($(this).closest('tr').find('input[name$=".PIid"]').val()) || 0;
+        RMFval = parseFloat((RMF / 100) * RMFper) || 0
+        RMFval = RMFval.toFixed();
+        $(this).closest('tr').find('#lblRMFVal').text(RMFval)
+        $(this).closest('tr').find('input[name$=".RMFValue"]').val(RMFval)
+        RMFAmountChangeFunction(RMFval, RMFPIid);
+    });
+    function RMFAmountChangeFunction(RMFval, RMFPIid) {
+        $("#ReceiptList tr").each(function (idx, val) {
+            var PIid = parseFloat($(this).closest('tr').find("input[name$='.PIid']").val()) || 0;
+            var Category = $(this).closest('tr').find("input[name$='.Category']").val();
+            if (RMFPIid == PIid && Category == "RMF") {
+                $(this).closest('tr').find('input[name$=".Amount"]').val(RMFval)
+                $(this).closest('tr').find('#lblAmt').text(RMFval)
+            }
+        });
+    }
+    function formSave() {
+        var isValid = $('#formOHRev').valid();
+        if (!isValid)
+            return false;
+        var doctypevalues = [];
+        $('select[name$=".DocumentType"]').each(function (idx, val) { doctypevalues.push($(val).val()); });
+        doctypevalues.sort();
+        // duplicate check
+        for (var k = 1; k < doctypevalues.length; ++k) {
+            if (doctypevalues[k] == doctypevalues[k - 1]) {
+                $('#alert').html("Selected attachment type already exist. Please select a different attachment type.");
+                $('#Validation').modal('toggle');
+                return false;
+            }
+            isValid = true;
+        }
+
+        if (isValid)
+            $('#formOHRev').submit();
+
+    }
+    function ValidatePCFandRMF() {
+        var msg = 'valid';
+        var TotalRMFPer = 0;
+        var TotalPCFPer = 0;
+        $("#ShareList tr").each(function (idx, val) {
+            var PCFPer = parseFloat($(this).closest('tr').find("input[name$='.PCFPer']").val()) || 0;
+            var RMFval = parseFloat($(this).closest('tr').find('input[name$=".RMFValue"]').val()) || 0;
+            var PCFval = parseFloat($(this).closest('tr').find('input[name$=".PCFValue"]').val()) || 0;
+            var PI_id = parseFloat($(this).closest('tr').find('input[name$=".PIid"]').val()) || 0;
+            TotalPCFPer += PCFPer;
+            var RMFPer = parseFloat($(this).closest('tr').find("input[name$='.RMFPer']").val()) || 0;
+            TotalRMFPer += RMFPer;
+        });
+        if (!($("#Amount").val() > 0)) {
+            msg = "Amount should be Greater than Zero"
+        }
+        if (TotalPCFPer != 100 || TotalRMFPer != 100) {
+            msg = "The sum of PCF/RMF share is not equal to 100%"
+        }
+        return msg;
+    }
+    function ValidateAddition() {
+        var msg = 'valid';
+        var Amt = $("#Amount").val();
+        var ProjectId = $("#ProjectId").val();
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("ValidateAddition", "CoreAccounts")',
+            data: {
+                Amt: Amt,
+                ProjectId: ProjectId
+            },
+            success: function (result) {
+                if (result.status == false) {
+                    $("#add").text(result.msg);
+                }
+                else {
+                    $("#add").text('valid');
+                }
+            },
+            error: function (err) {
+                console.log("error1 : " + err);
+            }
+        });
+        return msg;
+    }
+    function ValidateReversal() {
+        var msg = 'valid';
+        var Amt = $("#Amount").val();
+        var ProjectId = $("#ProjectId").val();
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("ValidateReversal", "CoreAccounts")',
+            data: {
+                Amt: Amt,
+                ProjectId: ProjectId
+            },
+            success: function (result) {
+                if (result.status == false) {
+                    $("#rev").text(result.msg);
+                }
+                else {
+                    $("#rev").text('valid');
+                }
+            },
+            error: function (err) {
+                console.log("error1 : " + err);
+            }
+        });
+        return msg;
+    }
+    function AddNewExpense() {
+        //var stateCode = $('#lblStateCode').html();
+        //var BillType = $('#BillType').val();
+        //var subcode = $('#type').val();
+        // $('#subcode').text(subcode);
+        var subcode;
+        if ($("#type").val() == '1' && $("#Projtype").val() == '1') {
+            $('#SubCode').val('1');
+            subcode = '1';
+        }
+        if ($("#type").val() == '2' && $("#Projtype").val() == '1') {
+            $('#SubCode').val('2');
+            subcode = '2';
+        }
+        if ($("#type").val() == '1' && $("#Projtype").val() == '2') {
+            $('#SubCode').val('3');
+            subcode = '3';
+        }
+        if ($("#type").val() == '2' && $("#Projtype").val() == '2') {
+            $('#SubCode').val('4');
+            subcode = '4';
+        }
+        $.ajax({
+            type: "GET",
+            url: "@Url.Action("GetAddNewExpenseDetails", "CoreAccounts")",
+            data: { "typeCode": "OHAR", "tSubCode": subcode },
+            traditional: true,
+            dataType: "json",
+            success: function (result) {
+                $.each(result.ExpenseDetail, function (i, item) {
+                    var cln = $('#tbodyExpenseList tr:first').clone().find("select,input").val("").end();
+                    $(cln).find('a.dis-none').removeClass('dis-none');
+                    var index = $('#tbodyExpenseList tr:last').find("input[name='ExpenseDetail.Index']").val();
+                    index = parseInt(index) + 1;
+                    $(cln).find("input[name='ExpenseDetail.Index']").val(index);
+                    $(cln).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                    $(cln).find('#lblTransType').text(item.TransactionType);
+                    $(cln).find('input[name$=".IsJV"]').val(item.IsJV);
+                    $(cln).find("input, select").each(function () {
+                        $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+                        $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+                    });
+                    $(cln).find("span[data-valmsg-for]").each(function () {
+                        $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+                    });
+
+                    var selectGroup = $(cln).find("select[name$='.AccountGroupId']");
+                    selectGroup.empty();
+                    $.each(item.AccountGroupList, function (index, itemData) {
+                        selectGroup.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+
+                    var selectHead = $(cln).find("select[name$='.AccountHeadId']");
+                    selectHead.empty();
+                    $.each(item.AccountHeadList, function (index, itemData) {
+                        selectHead.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+                    $('#tbodyExpenseList').append(cln);
+                });
+            },
+            error: function (err) {
+                console.log("error : " + err);
+            }
+        });
+    }
+
+    function fillMasterDropDown(ele, data, fillDafaultText, valueAsName) {
+        if (fillDafaultText !== undefined) {
+            ele.append($('<option/>', {
+                value: '',
+                text: 'Select any',
+            }));
+        }
+        if (valueAsName !== undefined) {
+            $.each(data, function (index, itemData) {
+                ele.append($('<option/>', {
+                    value: itemData.name,
+                    text: itemData.name,
+                }));
+            });
+        } else {
+            $.each(data, function (index, itemData) {
+                ele.append($('<option/>', {
+                    value: itemData.id,
+                    text: itemData.name,
+                }));
+            });
+        }
+    }
+    function GetTransactionDetails() {
+        EmptyExpenseDeductionDetails();
+        var subcode;
+        if ($("#type").val() == '1' && $("#Projtype").val() == '1') {
+            $('#SubCode').val('1');
+            subcode = '1';
+        }
+        if ($("#type").val() == '2' && $("#Projtype").val() == '1') {
+            $('#SubCode').val('2');
+            subcode = '2';
+        }
+        if ($("#type").val() == '1' && $("#Projtype").val() == '2') {
+            $('#SubCode').val('3');
+            subcode = '3';
+        }
+        if ($("#type").val() == '2' && $("#Projtype").val() == '2') {
+            $('#SubCode').val('4');
+            subcode = '4';
+        }
+        $.ajax({
+            type: "GET",
+            url: "@Url.Action("GetTransactionDetails", "CoreAccounts")",
+            data: { "typeCode": "OHAR", "tSubCode": subcode },
+            traditional: true,
+            dataType: "json",
+            success: function (result) {
+                $.each(result.ExpenseDetail, function (i, item) {
+                    if (i == 0) {
+                        var trEle = $('#tbodyExpenseList tr:first');
+                        $(trEle).find('input[name$=".Amount"]').val('');
+                        $(trEle).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                        $(trEle).find('input[name$=".IsJV"]').val(item.IsJV);
+                        $(trEle).find('#lblTransType').text(item.TransactionType);
+                        $(trEle).find("input[name='ExpenseDetail.Index']").val(i);
+
+                        var selectGroup = $(trEle).find('select[name$=".AccountGroupId"]');
+                        selectGroup.empty();
+                        $.each(item.AccountGroupList, function (index, itemData) {
+                            selectGroup.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name,
+                            }));
+                        });
+
+                        var selectHead = $(trEle).find('select[name$=".AccountHeadId"]');
+                        selectHead.empty();
+                        $.each(item.AccountHeadList, function (index, itemData) {
+                            selectHead.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name,
+                            }));
+                        });
+                    } else {
+                        var trEleNew = $('#tbodyExpenseList tr:first').clone().find('input').val('').end();
+                        $(trEleNew).find('input[name$=".Amount"]').val('');
+                        $(trEleNew).find("input[name='ExpenseDetail.Index']").val(i);
+                        $(trEleNew).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                        $(trEleNew).find('input[name$=".IsJV"]').val(item.IsJV);
+                        $(trEleNew).find('#lblTransType').text(item.TransactionType);
+                        $(trEleNew).find("input,Select").each(function () {
+                            $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                            $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                        });
+                        $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                        });
+
+                        var selectGroup = $(trEleNew).find('select[name$=".AccountGroupId"]');
+                        selectGroup.empty();
+                        $.each(item.AccountGroupList, function (index, itemData) {
+                            selectGroup.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name,
+                            }));
+                        });
+
+                        var selectHead = $(trEleNew).find('select[name$=".AccountHeadId"]');
+                        selectHead.empty();
+                        $.each(item.AccountHeadList, function (index, itemData) {
+                            selectHead.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name,
+                            }));
+                        });
+                        $('#tbodyExpenseList').append(trEleNew);
+                    }
+                });
+                $.each(result.DeductionDetail, function (i, item) {
+                    if (i == 0) {
+                        var trEle = $('#tbodyDeductionList tr:first');
+                        $(trEle).find('input').val('');
+                        var amtEle = $(trEle).find('input[name$=".Amount"]');
+                        amtEle.removeClass('required');
+                        $(trEle).find('input[name$=".AccountGroupId"]').val(item.AccountGroupId);
+                        $(trEle).find('input[name$=".DeductionHeadId"]').val(item.DeductionHeadId);
+                        $(trEle).find('input[name$=".DeductionHead"]').val(item.DeductionHead);
+                        $(trEle).find('input[name$=".AccountGroup"]').val(item.AccountGroup);
+                        $(trEle).find('td:nth-child(1)').html(item.AccountGroup);
+                        $(trEle).find('td:nth-child(2)').html(item.DeductionHead);
+                    } else {
+                        var trEleNew = $('#tbodyDeductionList tr:first').clone().find('input').val('').end();
+                        $(trEleNew).find("input").each(function () {
+                            $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                            $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                        });
+                        $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                        });
+                        var amtEle = $(trEleNew).find('input[name$=".Amount"]');
+
+                        amtEle.removeClass('required');
+                        $(trEleNew).find('input[name$=".AccountGroupId"]').val(item.AccountGroupId);
+                        $(trEleNew).find('input[name$=".DeductionHeadId"]').val(item.DeductionHeadId);
+                        $(trEleNew).find('input[name$=".DeductionHead"]').val(item.DeductionHead);
+                        $(trEleNew).find('input[name$=".AccountGroup"]').val(item.AccountGroup);
+                        $(trEleNew).find('td:nth-child(1)').html(item.AccountGroup);
+                        $(trEleNew).find('td:nth-child(2)').html(item.DeductionHead);
+                        $('#tbodyDeductionList').append(trEleNew);
+                    }
+                });
+                $('#NeedUpdateTransDetail').val('false');
+                CalculateDeductionTotal();
+
+            },
+            error: function (err) {
+                console.log("error : " + err);
+            }
+        });
+    }
+    if ($("#type").val() == 2) {
+        $("#Commitment").removeClass('active');
+        $("#Commitment").css("display", "none");
+        //$("#CommitmentTab").prop("readonly", true);
+        // $("#nexttab").addClass('')
+    }
+    if ($("#type").val() == 1) {
+        $("#Commitment").addClass();
+
+    }
+    /* Tab Sections Start*/
+    var currentTab = 0; // Current tab is set to be the first tab (0)
+    showTab(currentTab); // Display the crurrent tab
+    function showTab(n) {
+        // This function will display the specified tab of the form...
+        var x = document.getElementsByClassName("tab");
+        x[n].style.display = "block";
+        //if ($("#type").val() == 2)
+        //  n=n+1
+        $(".custom-nav-pills li:eq(" + n + ")").addClass("active");
+        //... and fix the Previous/Next buttons:
+        if (n == 0) {
+            document.getElementById("prevBtn").style.display = "none";
+        } else {
+            document.getElementById("prevBtn").style.display = "inline";
+        }
+        if (n == (x.length - 1)) {
+            document.getElementById("nextBtn").innerHTML = "Submit";
+        } else {
+            document.getElementById("nextBtn").innerHTML = "Next";
+        }
+        //... and run a function that will display the correct step indicator:
+        //fixStepIndicator(n)
+    }
+    function nextPrev(n) {
+        if (n == -1 && currentTab == 3 && ($("#type").val() == 2))
+            n = -2
+        // This function will figure out which tab to display
+        var x = document.getElementsByClassName("tab");
+        // Exit the function if any field in the current tab is invalid:
+        if (n > 0 && !validateForm(n)) return false;
+        if (currentTab + n < x.length) {
+            // Hide the current tab:
+            x[currentTab].style.display = "none";
+            $(".custom-nav-pills li:eq(" + currentTab + ")").removeClass("active");
+        } else {
+            // ... the form gets submitted:
+            formSave();
+            return false;
+        }
+        // Increase or decrease the current tab by 1:
+        currentTab = currentTab + n;
+        if (($("#type").val() == 2) && currentTab == 2)
+            currentTab = currentTab + 1
+        // Otherwise, display the correct tab:
+        showTab(currentTab);
+    }
+    function validateForm(n) {
+        // This function deals with validation of the form fields
+        var isValid = false;
+        var hadError = false;
+        var tabs = $(".tab");
+        var currentTabEle = tabs[currentTab];
+        var inputs = $(":input, textarea, select"); // get all the form inputs and selects
+        var stepElements = $(currentTabEle).find(inputs); // get inputs for current step
+        var count = stepElements.length; // check that there are inputs
+        if (count <= 0) {                // if there are not no reason to loop them
+            return true;                 // this can be used to perform other action if there are no steps
+        }
+        else if (currentTab == 0) {
+            var validationMsg;
+            if ($('#Projtype').val() == "2") {
+                validationMsg = 'valid';
+            } else {
+                validationMsg = ValidatePCFandRMF()
+            }
+            if (validationMsg != 'valid') {
+                hadError = true;
+                $("#alert").text(validationMsg);
+                $('#Validation').modal('show');
+            }
+            if ($("#type").val() == "2") {
+                if ($("#rev").text() != 'valid') {
+                    hadError = true;
+                    $("#alert").text($("#rev").text());
+                    $('#Validation').modal('show');
+                }
+            }
+            else {
+                if ($("#add").text() != 'valid') {
+                    hadError = true;
+                    $("#alert").text($("#add").text());
+                    $('#Validation').modal('show');
+                }
+            }
+        }
+        else if (currentTab == 1) {
+            if ($("#type").val() == '1' && $("#Projtype").val() == '1') {
+                $('#SubCode').val('1');
+            }
+            if ($("#type").val() == '2' && $("#Projtype").val() == '1') {
+                $('#SubCode').val('2');
+            }
+            if ($("#type").val() == '1' && $("#Projtype").val() == '2') {
+                $('#SubCode').val('3');
+            }
+            if ($("#type").val() == '2' && $("#Projtype").val() == '2') {
+                $('#SubCode').val('4');
+            }
+            var content = $('#tbodyCommitmentSrchList tr td:last').html();
+            if (content == '') {
+                var Projid = $("#ProjectId").val();
+                searchCommitment()
+            }
+            var validationMsg = ValidateCheckbox()
+            if (validationMsg != 'valid') {
+                hadError = true;
+                $("#alert").text(validationMsg);
+                $('#Validation').modal('show');
+            }
+            if ($('#NeedUpdateTransDetail').val().toLowerCase() == 'true') {
+                GetTransactionDetails();
+            }
+        }
+        else if (currentTab == 2) {
+            var validationMsg = ValidateCommitment()
+            if (validationMsg != 'valid') {
+                hadError = true;
+                $("#alert").text(validationMsg);
+                $('#Validation').modal('show');
+            } else {
+                if ($('#NeedUpdateTransDetail').val().toLowerCase() == 'true') {
+                    GetTransactionDetails();
+                }
+                var credit = parseFloat($('#txtnettotal').val());
+                $("#CreditorAmount").val($("#Amount").val());
+                CalculateDeductionTotal();
+            }
+        }
+        else if (currentTab == 3) {
+            var validationMsg = ValidateTransaction()
+            if (validationMsg != 'valid') {
+                hadError = true;
+                $("#alert").text(validationMsg);
+                $('#Validation').modal('show');
+            }
+        }
+        else if (currentTab == 4) {
+            if ($('#CheckListVerified_By').val() == '') {
+                hadError = true;
+                $("#alert").text('Checklist is not verified.');
+                $('#Validation').modal('show');
+            }
+        }
+        $(stepElements).each(function (idx, ele) {
+
+            if (!$(ele).is(':radio') && !$(ele).is(':checkbox') && !$(ele).is(':password')) {
+                isValid = $(ele).valid();//$(document.forms[0]).validate().element($(this)); // check that the input is valid. This can also be used on a per input basis to perform another action if the field is not valid.
+                if (!isValid) { hadError = true; } // set our flag if there was an error
+            }
+        });
+        return !hadError; // return the valid status
+
+    }
+    var selectPickerApiElement = function (el, choice, options, select) {
+        $(el).find('select').selectpicker({
+            liveSearch: true
+        });
+        $(el).children().eq(2).siblings().remove();
+        if (choice == "add") {
+            $(el).find('.selectpicker').append("<option>" + options + "</option>");
+        } else if (choice == "all" && select != '') {
+            $(el).find('.selectpicker').children().remove();
+            for (var i = 0 ; i < options.length ; i++) {
+                $(el).find('.selectpicker').append("<option value=" + options[i].id + ">" + options[i].name + "</option>");
+            }
+            $(el).find('.selectpicker option[value=' + select + ']').attr('selected', 'selected');
+        } else if (choice == "all" && select == '') {
+            $(el).find('.selectpicker').children().remove();
+            for (var i = 0 ; i < options.length ; i++) {
+                $(el).find('.selectpicker').append("<option value=" + options[i].id + ">" + options[i].name + "</option>");
+            }
+        } else if (choice == "empty") {
+            $(el).find('.selectpicker').children().remove();
+            $(el).find('.selectpicker').append("<option value=''>Select any</option>");
+        } else {
+            var selectOptionsLength = $(el).find('.selectpicker').children().length;
+            for (var i = 1 ; i <= selectOptionsLength ; i++) {
+                if (options == $(el).find('.selectpicker').children().eq(i).val()) {
+                    $(el).find('.selectpicker').children().eq(i).remove();
+                    break;
+                } else {
+                    continue;
+                }
+
+            }
+
+        }
+        $(el).find('select').selectpicker('refresh');
+        return $(el).children().first().unwrap();
+    }
+</script>
+
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>
+

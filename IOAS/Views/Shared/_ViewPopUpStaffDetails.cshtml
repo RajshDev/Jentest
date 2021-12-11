@@ -1,0 +1,154 @@
+﻿@model IOAS.Models.RCTPopupModel
+<style>
+    .modal-dialog {
+        width: 100%;
+        padding: 15px 15px;
+    }
+
+    .modal-body {
+        padding: 15px 15px;
+    }
+
+    /*.scrl-body {
+        height: 500px;
+        overflow: auto;
+    }*/
+</style>
+<div id="popupService" class="modal fade" role="dialog" data-backdrop="static" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header brd-bottom">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">Staff Details</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h4>Name : @Html.DisplayFor(m => m.CandidateName)</h4>
+                        @Html.HiddenFor(m => m.EmployeeID)
+                    </div>
+                    <div class="col-md-6 text-right">
+                        <h4>
+                            Date of birth : @Html.DisplayFor(m => m.DateOfBirth)
+                            <a href="javascript:void(0)" class="PrintBtn">
+                                <span class="glyphicon glyphicon-print"></span> Print
+                            </a>
+                        </h4>
+                    </div>
+                </div>
+                <div class="row mt20">
+                    <h3 class="text-center">Experience</h3>
+                    <div class="col-md-12 scrl-body">
+                        <div class="bl-lg-panel-box pb-null" style="overflow:auto;">
+                            <div class="cmn-panel-box">
+                                <div class="row  mb20">
+                                    <table class="table alter-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Project No</th>
+                                                <th>Appointment Type</th>
+                                                <th>Status</th>
+                                                <th>Designation</th>
+                                                <th>From</th>
+                                                <th>To</th>
+                                                <th>Y</th>
+                                                <th>M</th>
+                                                <th>D</th>
+                                                <th>Basic Pay</th>
+                                                @if (Model.ExperienceList != null && Model.ExperienceList.Select(x => x.AppType).Contains("STE"))
+                                                {
+                                                    <th>HRA</th>
+                                                }
+                                                @if (Model.ExperienceList != null && Model.ExperienceList.Select(x => x.AppType).Contains("OSG"))
+                                                {
+                                                    <th>PF Basic</th>
+                                                }
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tbodyExperience">
+                                            @if (Model.ExperienceList != null)
+                                            {
+                                                foreach (var item in Model.ExperienceList)
+                                                {
+                                                    <tr>
+                                                        <td>@item.ProjectNo</td>
+                                                        <td>@item.TypeofAppointment</td>
+                                                        <td>@item.Status</td>
+                                                        <td>@item.Designation</td>
+                                                        <td>@item.FromDate</td>
+                                                        <td>@item.ToDate</td>
+                                                        <td>@item.Years</td>
+                                                        <td>@item.Months</td>
+                                                        <td>@item.Days</td>
+                                                        <td>@item.Salary</td>
+                                                        @if (item.AppType == "STE")
+                                                        {
+                                                            <td>@item.Hra</td>
+                                                        }
+                                                        @if (item.AppType == "OSG")
+                                                        {
+                                                            <td>@item.PFBasicWages</td>
+                                                        }
+                                                    </tr>
+                                                }
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt20">
+                    <h4 class="text-center">Total Period</h4>
+                    <div class="col-md-12 scrl-body">
+                        <div class="bl-lg-panel-box pb-null" style="overflow:auto;">
+                            <div class="cmn-panel-box">
+                                <div class="row  mb20">
+                                    <table class="table alter-table">
+                                        <thead>
+                                            <tr>
+                                                <th></th>
+                                                <th></th>
+                                                <th>Year</th>
+                                                <th>Month</th>
+                                                <th>Days</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tbodyExperience">
+                                            @if (Model.AppointmenttypeWiseExperience != null)
+                                            {
+                                                foreach (var item in Model.AppointmenttypeWiseExperience)
+                                                {
+                                                    <tr>
+                                                        <td>@item.TypeofAppointment</td>
+                                                        <td> : </td>
+                                                        <td>@item.Years</td>
+                                                        <td>@item.Months</td>
+                                                        <td>@item.Days</td>
+                                                    </tr>
+                                                }
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer brd-top">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).on('click', 'a.PrintBtn', function () {
+        var EmployeeNo = $("#EmployeeID").val();
+        var url = '@Url.Action("PrintStaffDetails", "RCTReportMaster")?EmployeeNo=' + EmployeeNo;
+        window.open(url, '_blank');
+    });
+</script>

@@ -1,0 +1,296 @@
+﻿@model IOAS.Models.RoleModel
+@{
+    ViewBag.Title = "Role";
+    ViewBag.Subtitle = "Add role";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<script src="@Url.Content("~/Scripts/Account/Addrole.js")"></script>
+
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<div id="addnewstatusbar">
+<div class="row hd-tt-bg">
+    <div class="col-md-4">
+        <h3>Role</h3>
+     </div>
+    <div class="col-md-8 flt-nav-links">
+        <a href="#" id="Addnewid"> <i class="ion-plus"></i>Add New</a>
+        <a href="Javascript:void(0)" id="btnFilterRole" class="pull-right"> <i class="ion-android-funnel"></i>Filters</a>
+    </div>
+</div>
+</div>
+<div id="popFilterRole" class="filter-popup">
+    <div class="">
+        <div class="filter-content">
+            <div class="white-bg">
+                <div class="form-group custom-form-group">
+                    <h3>Filter by</h3>
+                </div>
+                <div class="form-group custom-form-group">
+                    <label>Role</label><br>
+                    @Html.TextBoxFor(m =>m.SearchRole, new { @class = "form-control", @id = "txtsrchRole" })
+                </div>
+                <div class="form-group custom-form-group">
+                    <label>Department</label><br>
+                 @Html.DropDownListFor(M => M.SearchDepartment, new SelectList(ViewBag.dept, "Departmentid", "Departmentname"), "Select Department", new { @id = "ddlSeaDept", @class = "form-control" })
+                </div>
+                <div class="form-group custom-form-group mt30 text-center">
+                    <button id="btnSrchRole" type="button" class="btn btn-primary mr10">Search</button>
+                    <button id="btnResetSrchRole" type="button" class="btn btn-default">Reset</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <a href="javascript:void(0)" name="btnCloseRole" class="close-btn"><i class="ion-android-cancel"></i></a>
+
+</div>
+<div class="row">
+@using (Html.BeginForm("Role", "Account", FormMethod.Post, new { @class = "", role = "form", enctype = "multipart/form-data" }))
+
+{
+    <div class="col-md-12">
+        <div class="page-wrapper">
+            <div id="Createrole">
+                <div class="white-bg">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h3 class="spl-title">Role</h3>
+                        </div>
+                    </div>
+                    <div class="row">
+
+                        <div class="col-md-4">
+                            <div class="form-group custom-form-group">
+                                <label class="required">Role Name</label>
+                                @Html.TextBoxFor(m => m.Rolename, new { @id = "txtrolename", @class = "form-control" })
+                                <div> @Html.ValidationMessageFor(m => m.Rolename)</div>
+                                @Html.HiddenFor(m => m.Roleid, new { @id = "txtroleid" })
+                            </div>
+
+
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="form-group custom-form-group">
+                                <label class="required">Department</label>
+                                @Html.DropDownListFor(m => m.Departmentid, new SelectList(ViewBag.dept, "Departmentid", "Departmentname"), "Select Department", new { @id = "ddldepartment", @class = "form-control" })
+                                <div> @Html.ValidationMessageFor(m => m.Departmentid)</div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+               
+                    <div class="row">
+                        <div class="col-md-12 text-center pd-tb-30">
+                            <input type="submit" class="btn btn-primary mr10" value="Save" name="Button" id="btnSave" />
+                            <input type="submit" class="btn btn-primary mr10" value="Update" name="Button" id="btnUpdate" style="display:none" />
+                            <input type="button" onclick="window.location.href='@Url.Action("Role", "Account")';" class="btn btn-default" value="Close" id="btnsaveclose" />
+                        </div>
+                    </div>
+               
+            </div>
+            <div class="txt-error txt-red">@Html.ValidationSummary(true)</div>
+            <div id="Addrolegrid">
+            <div class="row mt30">
+                <div class="col-md-12">
+                    <div class="custom-jsgrid-normal">
+                    <div id="rolelist"></div>
+                    </div>
+                </div>
+            </div>
+            </div>  
+        </div>
+    </div>
+}
+</div>
+<div id="savemodal" class="modal fade modal-success" role="dialog">
+            <div class="modal-dialog modal-sm">
+
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <i class="ion-android-checkmark-circle"></i>
+                        <h3 class="modal-title">Saved successfully</h3>
+                    </div>
+                    <div class="modal-body">
+                        <p>Role add successfully</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+ <div id="roleexistsmodal" class="modal fade modal-warning" role="dialog">
+        <div class="modal-dialog modal-sm">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <i class="ion-android-warning"></i>
+                    <h3 class="modal-title">Role name exists!.</h3>
+                </div>
+                <div class="modal-body">
+
+                    <p>Role name already exists.</p>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+<div id="roleupdate" class="modal fade modal-success" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-checkmark-circle"></i>
+                <h3 class="modal-title">Updated successfully</h3>
+            </div>
+            <div class="modal-body">
+
+                <p>Role updated successfully</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div id="deletedmodal" class="modal fade modal-success" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-checkmark-circle"></i>
+                <h3 class="modal-title">Deleted successfully</h3>
+            </div>
+            <div class="modal-body">
+
+                <p>Role deleted successfully.</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div id="rolewarrning" class="modal fade modal-warning" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-warning"></i>
+                <h3 class="modal-title">Delete is not allowed !.</h3>
+            </div>
+            <div class="modal-body">
+                <p>This role has been assigned one (or) more user please unsigned before deleting role. !</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div id="errormodal" class="modal fade modal-error" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-cancel"></i>
+                <h3 class="modal-title">Error Message</h3>
+            </div>
+            <div class="modal-body">
+
+                <p>"Something went to wrong please contact admin."</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script type="text/javascript">
+    
+    $(document).ready(function () {
+        $('#Createrole').hide();
+        function Reset() {
+            $('#txtroleid').val("");
+            $('#txtrolename').val("");
+            $('#ddldepartment').prop('selectedIndex', 0);
+        };
+        Reset();
+        @*$('#btnUpdate').on('click',function(){
+            var input={
+                Roleid:$('#txtroleid').val(),   
+                Rolename:$('#txtrolename').val(),
+                Departmentid: $('#ddldepartment').val()
+            }
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("Role", "Account")",
+                data: input,
+                success: function (result) {
+                        $('#myModal3').modal('show');
+                        $('#Createrole').show();
+                        $('#saverow,#Addrolegrid').hide();
+                Reset();
+            }
+        });
+        });*@
+        $('#Addnewid').on('click', function () {
+            $('#Createrole,#btnSave').show();
+            $('#Addrolegrid,#btnUpdate,#addnewstatusbar').hide();
+
+        });
+        var add = '@ViewBag.message';
+        if (add != '') {
+            $('#savemodal').modal('show');
+        }
+        var exists = '@ViewBag.Msg';
+        if (exists != '') {
+            $('#roleexistsmodal').modal('show');
+        }
+        var update = '@ViewBag.update';
+        if (update != '') {
+            $('#roleupdate').modal('show');
+        }
+        var error = r = '@ViewBag.error';
+        if (error != '') {
+            $('#errormodal').modal('show');
+        }
+    });
+    $('#btnFilterRole').off("click").on("click", function () {
+        $('#popFilterRole').css("display", "Block");
+    });
+    $('a[name="btnCloseRole"],button[name="btnCloseRole"]').click(function () {
+        $('#popFilterRole').css("display", "none");
+    });
+</script>

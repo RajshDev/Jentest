@@ -1,0 +1,148 @@
+﻿@model IOAS.Models.CreateTapalModel
+<div class="row mt30">
+    <div id="EditOutwardModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+
+                    <h3 class="modal-title">Edit Outward</h3>
+                </div>
+                <div class="modal-body">
+                    <div class="custom-jsgrid-normal">
+                        <div class="row">
+                            <div class="col-md-12 col-sm-12">
+                                <div class="col-md-6">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Action</label>
+                                        @Html.DropDownListFor(m => m.selAction, new SelectList(ViewBag.Action, "id", "name"), "Select Action", new { @class = "form-control", @id = "Action" })
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    @Html.HiddenFor(m => m.TapalId)
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Mark To</label>
+                                        @Html.DropDownListFor(m => m.selDepartment, new SelectList(ViewBag.Department, "id", "name"), "Select Department", new { @class = "form-control", @id = "Department" })
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Role</label>
+                                        @Html.DropDownListFor(m => m.selRole, new SelectList(ViewBag.Role, "id", "name"), "Select Role", new { @class = "form-control", @id = "Role" })
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">User</label>
+                                        @Html.DropDownListFor(m => m.selUser, new SelectList(ViewBag.UserList, "id", "name"), "Select User", new { @class = "form-control", @id = "User" })
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12 col-sm-12">
+                                <div class="col-md-12">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Remarks</label>
+                                        @Html.TextAreaFor(m => m.Remarks, new { @rows = "2", @cols = "50", @class = "form-control", @id = "Remarks" })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+
+                    <input type="submit" name="Button" value="Update" class="btn btn-primary" id="btnEdit" />&nbsp; &nbsp;<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+<script type="text/javascript">
+
+    $('#Department').change(function () {
+        var departmentId = $(this).val();
+        $.getJSON("@Url.Action("LoadRoleList", "Facility")", { ID: departmentId },
+                    function (dataUser) {
+                        var select = $("#Role");
+                        select.empty();
+                        $.each(dataUser, function (index, itemData) {
+                            select.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name
+                            }));
+                        });
+                    });
+    });
+    $('#Role').change(function () {
+        
+        var RoleId = $(this).val();
+        $.getJSON("@Url.Action("LoadUserList", "Facility")", { ID: RoleId },       
+                    function (dataUser) {
+                        
+                        var select = $("#User");
+                        select.empty();
+                        $.each(dataUser, function (index, itemData) {
+                            select.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name
+                            }));
+                        });
+                    });
+    });
+
+    $('#btnEdit').click(function () {
+        var intTapalId = $('#TapalId').val();
+        var intAction = $("#Action").val();
+        var intDepartment = $("#Department").val();
+        var intRole=$("#Role").val();
+        var intUser = $("#User").val();
+        var strRemarks = $("#Remarks").val();
+        if (intDepartment == "") {
+            $("#alert").text("Please select Mark to");
+            $('#Validation').modal('show');
+            return false;
+        } else if (intUser == "" || intUser == null) {
+            $("#alert").text("Please select User");
+            $('#Validation').modal('show');
+            return false;
+        }
+        else if (strRemarks == "") {
+            $("#alert").text("Please write comments");
+            $('#Validation').modal('show');
+            return false;
+        }
+        /*Assigned one variable for editing purpose*/
+        var IsPopUpEdit = true;
+        /*Assigned one variable for editing purpose*/
+        var Data = { "Action": intAction, "Department": intDepartment, "Role": intRole, "ToUser": intUser, "Remarks": strRemarks, "TapalId": intTapalId, 'PopUpEdit': IsPopUpEdit }
+        $.ajax({
+            url: '@Url.Action("SaveInwardEntry", "Facility")',
+            type: 'POST',
+            contentType: 'application/json',
+            dataType: 'json',
+            data: JSON.stringify(Data),
+
+            success: function (data) {
+                $('#EditOutwardModal').modal('toggle');
+                if (data == 1) {
+                    $("#alertSuccess").text('Successfully submited');
+                    $('#Success').modal('show');
+                    reloadOutwart();
+                }
+                else {
+                    $("#FailedAlert").text('Error. Try again!');
+                    $('#Failed').modal('show');
+                }
+            }
+        });
+    });
+
+</script>
+
+

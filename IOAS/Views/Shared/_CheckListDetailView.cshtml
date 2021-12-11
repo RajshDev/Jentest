@@ -1,0 +1,74 @@
+﻿@model IEnumerable<IOAS.Models.CheckListModel>
+
+        <table class="table table-bordered mb-null">
+            <tbody id="tbodyCheckList">
+                @{
+                    if (Model != null)
+                    {
+                        var count = 0;
+                        foreach (var item in Model)
+                        {
+                            var chckName = "CheckListDetail[" + count + "].IsChecked";
+                            var chckIdName = "CheckListDetail[" + count + "].FunctionCheckListId";
+                            var chckListName = "CheckListDetail[" + count + "].CheckList";
+                            count++;
+                            <tr>
+                                <td>
+                                    @Html.Hidden(@chckIdName, item.FunctionCheckListId)
+                                    @Html.CheckBox(@chckName, item.IsChecked,new { @disabled = "disabled" })
+                                    @Html.Hidden(@chckListName, item.CheckList)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(m => item.CheckList)
+                                </td>
+                            </tr>
+                        }
+                    }
+                }
+            </tbody>
+        </table>
+   
+
+
+
+
+<script>
+    $('#tbodyCheckList input[name$=".IsChecked"]').click(function () {
+        if ($('#tbodyCheckList input[name$=".IsChecked"][type="checkbox"]').not(':checked').length > 0) {
+            $('#lnkVerify').addClass("dis-none");
+        } else {
+            $('#lnkVerify').removeClass("dis-none");
+        }
+        $('#CheckListVerified_By').val('');
+        $('#CheckListVerifierName').val('');
+        $('#Verified_ByName').html('');
+    });
+    $('#lnkVerify').click(function () {
+        var count = $('#tbodyCheckList input[name$=".IsChecked"]:checked').length;
+        if (count > 0) {
+            $('#verifyModal').modal('show');
+        } else {
+            $("#alert").text("Please check at least one check list from the list.");
+            $('#Validation').modal('show');
+        }
+    });
+    $('#btnVerify').click(function () {
+        var password = $('#VerifierPassword').val();
+        if(password == ''){
+            $('#errorPass').html('This field is required.');
+        }else{
+            $('#errorPass').html('');
+            $.getJSON("@Url.Action("Verification", "Account")",{Password : password},
+            function (data) {
+                if(data != false){
+                    $('#CheckListVerified_By').val(data.userId);
+                    $('#CheckListVerifierName').val(data.firstName);
+                    $('#Verified_ByName').html(data.firstName);
+                    $('#verifyModal').modal('hide');
+                }else{
+                    $('#errorPass').html('The password you entered is incorrect.');
+                }
+            });
+        }
+    });
+</script>

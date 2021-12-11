@@ -1,0 +1,1192 @@
+﻿@model IOAS.Models.HRAOrderModel
+@{
+    ViewBag.Title = "HRA Cancellation";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+    <link href="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/css/bootstrap-select.min.css")" rel="stylesheet" />
+}
+<style>
+    .modal-dialog {
+        width: 850px;
+    }
+
+    .file-upload {
+        width: 280px;
+    }
+
+    .ui-datepicker {
+        z-index: 1001 !important;
+    }
+</style>
+@using (Html.BeginForm("HRACancellation", "Requirement", FormMethod.Post, new { @class = "", role = "form", @id = "formExtension", enctype = "multipart/form-data" }))
+{
+    <div class="row hd-tt-bg">
+        <div class="col-md-12">
+            <h4><b>HRA Cancellation</b></h4>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="white-bg ad-navbar">
+            <div class="col-md-2 ds-spl-bg">
+
+            </div>
+            <div class="col-md-3 ds-spl-bg">
+                <div class="ds-icn">
+                    <i class="ion-ios-list-outline "></i>
+                </div>
+                <div class="ds-tt">
+                    @Html.HiddenFor(m => m.ApplicationID)
+                    @Html.HiddenFor(m => m.OrderID)
+                    @Html.HiddenFor(m => m.OrderType)
+                    @Html.HiddenFor(m => m.Status)
+                    @Html.HiddenFor(m => m.TypeCode)
+                    @Html.HiddenFor(m => m.staffcategory)
+                    @Html.HiddenFor(m => m.PhysicallyChanged)
+                    @Html.HiddenFor(m => m.ApplicationNo)
+                    <span>Request Reference</span>
+                    @Html.DropDownListFor(m => m.RequestReference, new SelectList(ViewBag.ReferenceType, "id", "name"), "Select", new { @class = "form-control" })
+                    <div>@Html.ValidationMessageFor(m => m.RequestReference)</div>
+                </div>
+            </div>
+            <div class="col-md-3 ds-spl-bg">
+                <div class="ds-icn">
+                    <i class="ion-ios-list-outline "></i>
+                </div>
+                <div class="ds-tt" id="divRefNum">
+                    <span class="required">Ref Number (WF / Tapal)</span>
+                    @Html.TextBoxFor(M => M.ReferenceNo, new { @class = "form-control" })
+                    @*@Html.TextBoxFor(m => m.SourceReferenceNumber, new { @class = "form-control dis-none" })
+                        <div>@Html.ValidationMessageFor(M => M.SourceReferenceNumber)</div>*@
+                    @Html.Hidden("SourceTapalOrWorkflow", "True")
+                </div>
+                <div class="dis-none ds-tt" id="divRefEmailDate">
+                    <span class="required">Email Date</span>
+                    @Html.EditorFor(m => m.SourceEmailDate, new { @class = "form-control" })
+                    <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.SourceEmailDate)</div>
+                </div>
+            </div><div class="col-md-4">
+            </div>
+        </div>
+    </div>
+
+    <div class="row cust-tab">
+        <div class="page-wrapper mt30">
+            <div>
+                <div class="col-md-12">
+
+                    <div class="row">
+                        <div class="col-md-12">
+
+                            <div class="bl-lg-panel-box pb-null">
+                                <div class="cmn-panel-box">
+                                    <div class="row ">
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label>Employee Id</label>
+                                                <h4>@Html.DisplayFor(m => m.EmployeeID)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label>Type of appointment </label>
+                                                <h4>@Html.DisplayFor(m => m.Typeofappointment)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group  ">
+                                                <label>Email ID</label>
+                                                <h4>@Html.DisplayFor(m => m.Email)</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label>Name </label>
+                                                <h4 id="CantidateName">@Html.DisplayFor(m => m.Name)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group mb-sm ">
+                                                <label>Father’s / Husband’s Name</label>
+                                                <h4>@Html.DisplayFor(m => m.Nameoftheguardian)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label>Permanent Address  </label>
+                                                <h4>
+                                                    @Html.DisplayFor(m => m.PermanentAddress)
+                                                </h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label>Temporary Address  </label>
+                                                <h4>
+                                                    @Html.DisplayFor(m => m.PresentAddress)
+                                                </h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row ">
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group mb-sm ">
+                                                <label>Contact No</label>
+                                                <h4>@Html.DisplayFor(m => m.ContactNumber)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group ">
+                                                <label>Date of Birth</label>
+                                                <h4>@Html.DisplayFor(m => m.DateofBirth)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group ">
+                                                <label>Age</label>
+                                                <h4 id="Age">@Html.DisplayFor(m => m.Age)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group  ">
+                                                <label>Sex</label>
+                                                <h4>@Html.DisplayFor(m => m.Sex)</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label class="required"> PI email request</label> <br>
+                                                @if (Model.OrderID > 0 && !string.IsNullOrEmpty(Model.PILetterPath))
+                                                {
+                                                    <input type="file" name="PILetter" class="file-upload pull-left">
+                                                    <div>@Html.ValidationMessage("PILetter")</div>
+                                                    @Html.ActionLink(Model.PILetterFileName, "ShowDocument", new { Controller = "Account", filepath = "Requirement", file = Model.PILetterPath }, new { @name = "DocDownload", @target = "_blank" })
+                                                }
+                                                else
+                                                {
+                                                    <input type="file" name="PILetter" class="file-upload pull-left" required>
+                                                    <div>@Html.ValidationMessage("PILetter")</div>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group ">
+                                                <label>Application ReceiveDate</label>
+                                                @Html.EditorFor(m => m.ApplicationReceiveDate, new { @class = "form-control ", @required = "required" })
+                                                <div>@Html.ValidationMessageFor(m => m.ApplicationReceiveDate)</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="bl-lg-panel-box  pb-null">
+                                <div class="bl-lg-panel-box-hd mb-m-5 pd-null">
+                                    <div class="cmn-panel-box">
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Project Number</label>
+                                                    <h4>@Html.DisplayFor(m => m.Appointmentdetails.ProjectNumber)</h4>
+                                                    @Html.HiddenFor(m => m.Appointmentdetails.ProjectID)
+                                                    @Html.Hidden("ProjectId", Model.Appointmentdetails.ProjectID)
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Project Title</label>
+                                                    <h4>@Html.DisplayFor(m => m.Appointmentdetails.ProjectTitle)</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Name of the Client / Sponsoring Agency</label>
+                                                    <h4>@Html.DisplayFor(m => m.Appointmentdetails.SponsoringAgency)</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Project Type</label>
+                                                    <h4>@Html.DisplayFor(m => m.Appointmentdetails.ProjectType)</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>PI Name</label>
+                                                    <h4>@Html.DisplayFor(m => m.Appointmentdetails.PIName)</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Project Start Date</label>
+                                                    <h4>@Html.DisplayFor(m => m.Appointmentdetails.ProjectStartDate)</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Project Closure Date</label>
+                                                    <h4>@Html.DisplayFor(m => m.Appointmentdetails.ProjectClosureDate)</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>PI Code</label>
+                                                    <h4>@Html.DisplayFor(m => m.Appointmentdetails.PICode)</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>PI Email ID</label>
+                                                    <h4>@Html.DisplayFor(m => m.Appointmentdetails.Email)</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>PI Phone No</label>
+                                                    <h4>@Html.DisplayFor(m => m.Appointmentdetails.Phone)</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Department code </label>
+                                                    <h4>@Html.DisplayFor(m => m.Appointmentdetails.PIDepartmentCode)</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Department Name</label>
+                                                    <h4>@Html.DisplayFor(m => m.Appointmentdetails.PIDepartmentName)</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group custom-form-group">
+                                                            <label>Appointment start date</label>
+                                                            <h4>@Html.DisplayFor(m => m.Appointmentdetails.AppointmentStartDate)</h4>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group custom-form-group">
+                                                            <label>Appointment End date</label>
+                                                            <h4>@Html.DisplayFor(m => m.Appointmentdetails.AppointmentClosureDate)</h4>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Designation</label>
+                                                    <h4>@Html.DisplayFor(m => m.Appointmentdetails.Designation)</h4>
+                                                    @Html.Hidden("DesignationId", Model.Appointmentdetails.DesignationId)
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Designation Code</label>
+                                                    <h4>@Html.DisplayFor(m => m.Appointmentdetails.DesignationCode)</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="">Commitment Amount</label>
+                                                    <h4>@Html.DisplayFor(m => m.Appointmentdetails.CommitmentAmmount)</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Salary</label>
+                                                    <h4>@Html.DisplayFor(m => m.Appointmentdetails.Salary)</h4>
+                                                    @Html.Hidden("Salary", Model.Appointmentdetails.Salary)
+                                                    @Html.Hidden("MinSalary", 0)
+                                                    @Html.Hidden("MaxSalary", 0)
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>HRA</label>
+                                                    @if (Model.OrderID > 0)
+                                                    {
+                                                        @Html.TextBoxFor(m => m.HRA, new { @class = "form-control", @readonly = "readonly", @onkeypress = "return isNumberKey(event)", @autocomplete = "off" })
+                                                        <div>@Html.ValidationMessageFor(m => m.HRA)</div>
+                                                    }
+                                                    else
+                                                    {
+                                                        @Html.TextBox("HRA", Model.Appointmentdetails.HRA, new { @class = "form-control", @readonly = "readonly", @onkeypress = "return isNumberKey(event)", @autocomplete = "off" })
+                                                        <div>@Html.ValidationMessage("HRA")</div>
+                                                    }
+                                                    @Html.Hidden("isHRA", false)
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Project Fund Availability</label><br>
+                                                    <a id="btnViewSummary" style="color:whitesmoke;">Click here</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>HRA From</label>
+                                                    <h4 id="HRAFrom">@Html.DisplayFor(m => m.HRAFromDate)</h4>
+                                                    @Html.HiddenFor(m => m.HRAFromDate)
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>HRA To Date</label>
+                                                    <h4 id="HRATo">@Html.DisplayFor(m => m.HRAToDate)</h4>
+                                                    @Html.HiddenFor(m => m.HRAToDate)
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="required">HRA Cancellation <br>From Date</label>
+                                                    @Html.EditorFor(m => m.FromDate, new { @class = "form-control", @required = "required" })
+                                                    <div>@Html.ValidationMessageFor(m => m.FromDate)</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="required">HRA Cancellation <br>To Date</label>
+                                                    <h4 id="tx-todate"></h4>
+                                                    @Html.HiddenFor(m => m.ToDate, new { @class = "form-control", @required = "required" })
+                                                    <div>@Html.ValidationMessageFor(m => m.ToDate)</div>
+                                                    @Html.Hidden("TotalYear")
+                                                    @Html.Hidden("TotalMonth")
+                                                    @Html.Hidden("TotalDays")
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>HRA deduction till</label>
+                                                    @Html.EditorFor(m => m.ArrearOrDeductionTillDate, new { @class = "form-control" })
+                                                    <div>@Html.ValidationMessageFor(m => m.ArrearOrDeductionTillDate)</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Arrear Amount</label>
+                                                    @Html.TextBoxFor(m => m.ArrearOrDeductionAmount, new { @class = "form-control", @readonly = "readonly" })
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label>Remarks</label>
+                                                    @Html.TextAreaFor(m => m.Remarks, new { @class = "form-control" })
+                                                    <div>@Html.ValidationMessageFor(m => m.Remarks)</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3  reg-no custom-reg-no">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Withdraw  Commitment</label>
+                                                    @Html.TextBoxFor(m => m.WithdrawalAmount, new { @class = "form-control", @onkeypress = "return isNumberKey(event)", @autocomplete = "off", @readonly = "readonly" })
+                                                    <div>@Html.ValidationMessageFor(m => m.WithdrawalAmount)</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        @if (Model.ConsolidatedPay)
+                                        {
+                                            <input id="ConsolidatedPay" name="ClConsolidatedPay" type="checkbox" checked disabled hidden> <span hidden>Consolidated pay </span><br>
+                                        }
+                                        else
+                                        {
+                                            <input id="ConsolidatedPay" name="ClConsolidatedPay" type="checkbox" hidden> <span hidden>Consolidated pay </span><br>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center" style="margin-bottom: 50px;">
+        <button type="button" class="btn btn-default" id="prevBtn" onclick="nextPrev(-1)">Previous</button>
+        <button type="button" class="btn btn-primary" id="nextBtn" onclick="nextPrev(1)">Next</button>
+        @Html.HiddenFor(m => m.List_f)
+        @if (!string.IsNullOrEmpty(Model.List_f))
+        {
+            <button type="button" class="btn btn-default" onclick="window.location.href='@Url.Action(Model.List_f,"Requirement")';">Close</button>
+        }
+        else
+        {
+            <button type="button" class="btn btn-default" onclick="window.location.href='@Url.Action("EmployeeMaster","Requirement")';">Close</button>
+        }
+    </div>
+
+    <div id="dialogConfirm" class="modal fade" role="dialog" data-backdrop="static" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header brd-bottom">
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                    <h4 class="modal-title">Mail Preview</h4>
+                </div>
+                <div class="modal-body">
+                    <div style="padding:10px;overflow:auto" id="ShowDeviation">
+
+                    </div>
+                </div>
+                <div class="modal-footer brd-top">
+                    <button type="button" class="btn btn-danger" id="isbtnConfirm">Confirm</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<div class="loading-bg dis-none">
+
+</div>
+
+<div id="popup">
+
+</div>
+
+<script>
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    var alertMsg = '@TempData["alertMsg"]';
+    var OrderID = @Html.Raw(Json.Encode(Model.OrderID)) || 0;
+
+    $(document).ready(function () {
+
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+        else if (alertMsg != '') {
+            $('#alert').html(alertMsg);
+            $('#Validation').modal('toggle');
+        }
+        $('.selectpicker').selectpicker({
+            liveSearch: true
+        });
+        $('.selectpicker').selectpicker('refresh');
+
+        var currentdate = moment(new Date()).toDate();
+
+        if (OrderID > 0)
+        {
+            var DateRD = "@string.Format("{0:dd/MMMM/yyyy}", Model.ApplicationReceiveDate)";
+            var ApplicationRD = moment(DateRD.split('-').join('/')).toDate();
+            var SourceEmailDate = "@string.Format("{0:dd/MMMM/yyyy}", Model.SourceEmailDate)";
+            var SourceOfEmailDt = moment(SourceEmailDate.split('-').join('/')).toDate();
+            $('#ApplicationReceiveDate').datepicker({
+                dateFormat: 'dd-MM-yy',
+                changeYear: true
+            }).datepicker("option", "maxDate", currentdate).datepicker("option", "minDate", ApplicationRD);
+
+            $('#SourceEmailDate').datepicker({
+                dateFormat: 'dd-MM-yy',
+                changeYear: true
+            }).datepicker("option", "maxDate", currentdate).datepicker("option", "minDate", SourceOfEmailDt);
+
+        }
+        else
+        {
+            $('#ApplicationReceiveDate,#SourceEmailDate').datepicker({
+                dateFormat: 'dd-MM-yy',
+                changeYear: true
+            }).datepicker("option", "maxDate", currentdate).datepicker("option", "minDate", -185);
+        }
+    });
+
+
+    if(OrderID == 0)
+    {
+        var hrato = @Html.Raw(Json.Encode(Model.HRAToDate));
+        $('#ToDate').val(hrato);
+        $('#tx-todate').text(hrato);
+    }
+    else
+    {
+        var hrato = '@string.Format("{0:dd-MMMM-yyyy}", Model.ToDate)';
+        $('#tx-todate').text(hrato);
+        $('#ToDate').val(hrato);
+    }
+
+    var addyear = 0;
+
+    //if ($("#ProjectId").val() > 0)
+    //    ProjectSummary()
+
+    if ($("#DesignationId").val() > 0)
+        LoadFillDesignation()
+
+    function LoadFillDesignation() {
+        var DesignationID = $('#DesignationId').val();
+        if (DesignationID > 0) {
+            $.getJSON("@Url.Action("LoadDesignationDetails", "Requirement")", { DesignationID: DesignationID },
+             function (result) {
+                 if (result.DesignationData.DestinationID > 0) {
+                     $("#MinSalary").val(result.DesignationData.MinSalary);
+                     $("#MaxSalary").val(result.DesignationData.MaxSalary);
+                     if (result.DesignationData.HRA)
+                         $('#isHRA').val(true)
+                     else
+                         $('#isHRA').val(false)
+                 }
+             });
+        }
+    }
+
+    function UpdatedatePicker() {
+
+        if ($('#FromDate').val() != "" || $('#ToDate').val() != "") {
+            //Set FromDate Todate Differance
+            LoadcalcDateDiff();
+        }
+        var setappstrdat = "";
+        var currentdate = moment(new Date()).toDate();
+        var AppointmentStartDate = moment($('#HRAFrom').text().split('-').join('/')).toDate();
+        var AppointmentEndDate = moment($('#HRATo').text().split('-').join('/')).toDate();
+        var defaultappstrToDate = moment(AppointmentEndDate).add(-1, 'days').toDate();
+
+        $('#ArrearOrDeductionTillDate').datepicker({
+            dateFormat: 'dd-MM-yy',
+            changeYear: true
+        }).datepicker("option", "minDate", AppointmentStartDate).datepicker("option", "maxDate", AppointmentEndDate);
+
+        if (OrderID > 0) {
+            var fromdate = @Html.Raw(Json.Encode(Model.FromDate));
+            fromdate = moment(fromdate).toDate();
+            $('#FromDate').datepicker({
+                dateFormat: 'dd-MM-yy',
+                changeYear: true
+            }).datepicker("option", "minDate", fromdate).datepicker("option", "maxDate", defaultappstrToDate);
+        }
+        else {
+            setappstrdat = AppointmentStartDate;
+            if (AppointmentStartDate <= currentdate) {
+                var beginDate = moment(new Date()).add(-currentdate.getDate(), 'days').add(+1, 'days').toDate();
+                if (AppointmentStartDate <= beginDate && beginDate <= AppointmentEndDate) {
+                    setappstrdat = beginDate;
+                }
+            }
+
+            $('#FromDate').datepicker({
+                dateFormat: 'dd-MM-yy',
+                changeYear: true
+            }).datepicker("option", "minDate", setappstrdat).datepicker("option", "maxDate", defaultappstrToDate);
+        }
+    }
+
+    UpdatedatePicker();
+
+    $("#ArrearOrDeductionTillDate").change(function () {
+        var Arrearamount = calculatetaxTotal(true) || 0;
+        $('#ArrearOrDeductionAmount').val(Math.round(Arrearamount));
+    });
+
+
+    function calculatetaxTotal(isarrear) {
+        if ($('#FromDate').val() != "" && $('#ToDate').val() != "") {
+            var startdate = new Date($('#FromDate').val().split('-').join('/'));
+            var enddate = new Date($('#ToDate').val().split('-').join('/'));
+
+            if(isarrear == true)
+                enddate = new Date($('#ArrearOrDeductionTillDate').val().split('-').join('/'));
+
+            var MonthCount = [];
+            MonthCount = dateRange(startdate.getFullYear() + '-' + parseInt(startdate.getMonth() + 1) + '-' + startdate.getDate(), enddate.getFullYear() + '-' + parseInt(enddate.getMonth() + 1) + '-' + enddate.getDate())
+            //define moments for the startdate and enddate
+            var StartDateTotalMonth = parseInt(endOfMonth(startdate).getDate());
+            var EndDateTotalMonth = parseInt(endOfMonth(enddate).getDate());
+            var StartWorkingDays = 0;
+            var EndWorkingDays = 0;
+            if (startdate.getMonth() == enddate.getMonth() && startdate.getFullYear() == enddate.getFullYear()) {
+                StartWorkingDays = parseInt(enddate.getDate()) - parseInt(startdate.getDate()) + 1;
+            }
+            else {
+                StartWorkingDays = StartDateTotalMonth - parseInt(startdate.getDate()) + 1;
+                EndWorkingDays = enddate.getDate();
+            }
+            var startdateMoment = moment(startdate);
+            var enddateMoment = moment(enddate);
+            var count = 0;
+            for (var i = 0; i < MonthCount.length; i++) {
+                var lastCount = MonthCount.length - 1;
+                if (i != 0 && i != lastCount) {
+                    count += 1;
+                }
+            }
+
+            if (startdateMoment.isValid() === true && enddateMoment.isValid() === true) {
+                //getting the difference in years
+                var years = enddateMoment.diff(startdateMoment, 'years');//Don't Care
+                var days = StartWorkingDays + EndWorkingDays;
+                $('#TotalYear').val(years);
+                $('#TotalMonth').val(count);
+                $('#TotalDays').val(days);
+            }
+            var Year = parseInt($('#TotalYear').val()) || 0;
+            var months = parseInt($('#TotalMonth').val()) || 0;
+            var days = parseInt($('#TotalDays').val()) || 0;
+            var HRA = parseFloat(@Json.Encode(Model.Appointmentdetails.HRA)) || 0;
+            var Tot = 0;
+            var StartPerDay = HRA / StartDateTotalMonth;
+            var EndPerDay = HRA / EndDateTotalMonth;
+            var MonthlyAmt = HRA;
+            if (months > 0) {
+                Tot += MonthlyAmt * count;
+            }
+            if (days > 0) {
+                Tot += StartWorkingDays * StartPerDay;
+                Tot += EndWorkingDays * EndPerDay;
+            }
+            if(isarrear == true)
+                return Tot;
+            $('#WithdrawalAmount').val(Math.round(Tot));
+
+        }
+    }
+
+    function dateRange(startDate, endDate) {
+        var start = startDate.split('-');
+        var end = endDate.split('-');
+        var startYear = parseInt(start[0]);
+        var endYear = parseInt(end[0]);
+        var months = [];
+        for (var i = startYear; i <= endYear; i++) {
+            var endMonth = i != endYear ? 11 : parseInt(end[1]) - 1;
+            var startMon = i === startYear ? parseInt(start[1]) - 1 : 0;
+            for (var j = startMon; j <= endMonth; j = j > 12 ? j % 12 || 11 : j + 1) {
+                var month = j + 1;
+                var displayMonth = month < 10 ? '0' + month : month;
+                months.push([displayMonth]);
+            }
+        }
+        return months;
+    }
+
+    function endOfMonth(date) {
+        return new Date(date.getFullYear(), date.getMonth() + 1, 0);
+    }
+
+    $("#FromDate, #ToDate").change(function () {
+        calculatetaxTotal()
+    });
+
+    $('#FromDate').change(function () {
+        var endDate = moment($('#txtAppointmentEndDate').text().split('-').join('/')).toDate();
+        var defaultstartDateDate = moment($('#FromDate').val().split('-').join('/')).add(+1, 'days').toDate();
+        $('#ToDate').datepicker({
+            dateFormat: 'dd-MM-yy',
+            changeYear: true
+        }).datepicker("option", "minDate", defaultstartDateDate).datepicker("option", "maxDate", endDate);
+        var hrato = @Html.Raw(Json.Encode(Model.HRAToDate));
+        hrato = hrato != null ? hrato.split('-').join('/') : hrato;
+        $('#ToDate').val(hrato);
+
+    })
+
+
+    function LoadcalcDateDiff() {
+        if ($('#FromDate').val() != "" && $('#ToDate').val() != "") {
+            var startdate = new Date($('#FromDate').val().split('-').join('/'));
+            var enddate = new Date($('#ToDate').val().split('-').join('/'));
+
+            //Month Differance
+            var MonthCount = [];
+            var strStartDate = startdate.getFullYear() + '-' + parseInt(startdate.getMonth() + 1) + '-' + startdate.getDate();
+            var strToDate = enddate.getFullYear() + '-' + parseInt(enddate.getMonth() + 1) + '-' + enddate.getDate();
+            MonthCount = dateRange(strStartDate, strToDate)
+
+            //Calculate total days of month and calculate working days
+            var StartDateTotalMonth = parseInt(endOfMonth(startdate).getDate());
+            var EndDateTotalMonth = parseInt(endOfMonth(enddate).getDate());
+            var StartWorkingDays = 0;
+            var EndWorkingDays = 0;
+            if (startdate.getMonth() == enddate.getMonth() && startdate.getFullYear() == enddate.getFullYear()) {
+                StartWorkingDays = parseInt(enddate.getDate()) - parseInt(startdate.getDate()) + 1;
+            }
+            else {
+                StartWorkingDays = StartDateTotalMonth - parseInt(startdate.getDate()) + 1;
+                EndWorkingDays = enddate.getDate();
+            }
+            //
+
+            var startdateMoment = moment(startdate);
+            var enddateMoment = moment(enddate);
+            var count = 0;
+            for (var i = 0; i < MonthCount.length; i++) {
+                var lastCount = MonthCount.length - 1;
+                if (i != 0 && i != lastCount) {
+                    count += 1;
+                }
+            }
+            if (startdateMoment.isValid() === true && enddateMoment.isValid() === true) {
+                //getting the difference in years
+                var years = enddateMoment.diff(startdateMoment, 'years');//Don't Care
+                var days = StartWorkingDays + EndWorkingDays;
+                $('#TotalYear').val(years);
+                $('#TotalMonth').val(count);
+                $('#TotalDays').val(days);
+            }
+            var MinSalary = parseFloat($('#MinSalary').val());
+            var MaxSalary = parseFloat($('#MaxSalary').val());
+        }
+
+    }
+
+    function parseDate(s) {
+        var months = {
+            january: 0, february: 1, march: 2, april: 3, may: 4, june: 5,
+            july: 6, august: 7, september: 8, october: 9, november: 10, december: 11
+        };
+        var p = s.split('-');
+        return new Date(p[2], months[p[1].toLowerCase()], p[0]);
+    }
+
+
+    $("#FromDate,#ToDate").datepicker({
+        dateFormat: 'dd-MM-yy',
+        showStatus: true,
+        showWeeks: true,
+        changeYear: true,
+        yearRange: '1950:+30',
+        highlightWeek: true,
+        numberOfMonths: 1,
+        showAnim: "scale",
+        showOptions: {
+            origin: ["top", "left"]
+        }
+    });
+
+    function checkDevation() {
+        var qualifi = [];
+        var descipid = [];
+        var marks = [];
+        addyear = 0;
+        var TotalExp = 0;
+        var Exp = parseFloat($('#Experience').val());
+        var PersonName = $('#CantidateName').text();
+        var InputData = [];
+        InputData = {
+            AppointmentStartDate: $('#FromDate').val(),
+            AppointmentEndDate: $('#ToDate').val(),
+            StaffCatecory: $('#staffcategory').val(),
+            ProjectFund: $('#PrjAviAvailableBalance').val() || 0,
+            CommitmentAmount: $('#CommitmentAmount').val() || 0,
+            PersonName: PersonName,
+        }
+        modelData = InputData;
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("HRACheckDeviation", "Requirement")",
+            data: modelData,
+            contentType: "application/x-www-form-urlencoded",
+            //dataType: "json",
+            beforeSend: function () {
+                $(".loading-bg").removeClass('dis-none');
+            },
+            success: function (result) {
+                $(".loading-bg").addClass('dis-none');
+                $("input[name=FlowofMail]").prop('checked', false);
+                if (result.isRes) {
+                    $("input[name=FlowofMail][value=NP]").prop('checked', true);
+                    document.getElementById("nextBtn").innerHTML = "Send to clarification";
+                }
+                else {
+                    $("input[name=FlowofMail][value=Nd]").prop('checked', true);
+                    document.getElementById("nextBtn").innerHTML = "Send for approval";
+                }
+                //if (Status == "Open" || Status == "" || Status == "Draft" || Status.includes("Note")) {
+                $("#Deviation").html(result.output);
+                $("#ShowDeviation").html(result.template);
+                //}
+                //else {
+                //    $("#Deviation").empty();
+                //    $("input[name=FlowofMail][value=Nd]").prop('checked', true);
+                //}
+            },
+            error: function (err) {
+                $(".loading-bg").addClass('dis-none');
+                console.log("error : " + err);
+            }
+        });
+    }
+
+    function AckowleadgementEmail() {
+        var PersonName = $('#CantidateName').text();
+        var InputData = [];
+        InputData = {
+            DesignationId: $('#DesignationId').val() || null,
+            AppointmentReciveDate: $('#ApplicationReceiveDate').val(),
+            PersonName: PersonName,
+            AppointmentStartDate: $('#FromDate').val(),
+            AppointmentEndDate: $('#ToDate').val(),
+            OrderType: "HRA Cancellation",
+        }
+        modelData = InputData;
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("OrderEmailProcess", "Requirement")",
+            data: modelData,
+            contentType: "application/x-www-form-urlencoded",
+            beforeSend: function () {
+                $(".loading-bg").removeClass('dis-none');
+            },
+            success: function (result) {
+                $(".loading-bg").addClass('dis-none');
+                $("#ShowDeviation").html(result.output.Item2);
+            },
+            error: function (err) {
+                $(".loading-bg").addClass('dis-none');
+                console.log("error : " + err);
+            }
+        });
+    }
+
+
+    /* Tab Sections Start*/
+    var currentTab = 0; // Current tab is set to be the first tab (0)
+    showTab(currentTab); // Display the crurrent tab
+    function showTab(n) {
+        // This function will display the specified tab of the form...
+        var x = document.getElementsByClassName("cust-tab");
+        x[n].style.display = "block";
+
+        $(".custom-nav-pills li:eq(" + n + ")").addClass("active");
+        //... and fix the Previous/Next buttons:
+        if (n == 0) {
+            document.getElementById("prevBtn").style.display = "none";
+        } else {
+            document.getElementById("prevBtn").style.display = "inline";
+        }
+        if (n == (x.length - 1)) {
+            if ($('#Status').val() == "" || $('#Status').val().includes("Open") || $('#Status').val().includes("Note to PI")) {
+                document.getElementById("nextBtn").style.display = "inline";
+                document.getElementById("nextBtn").innerHTML = "Submit";
+            }
+            else {
+                document.getElementById("nextBtn").style.display = "none";
+                document.getElementById("nextBtn").innerHTML = "Submit";
+            }
+
+        } else {
+            document.getElementById("nextBtn").innerHTML = "Next";
+            document.getElementById("nextBtn").style.display = "inline";
+        }
+    }
+
+    function nextPrev(n) {
+        // This function will figure out which tab to display
+        var x = document.getElementsByClassName("cust-tab");
+        // Exit the function if any field in the current tab is invalid:
+        var v = n;
+
+        if (n > 0 && !validateForm(v)) {
+            $.confirm({
+                title: 'Warning!',
+                content: 'Invalid data exist',
+                type: 'red',
+                buttons: {
+                    Ok: function () {
+                        //close
+                    },
+                },
+            });
+            return false;
+        }
+        if (currentTab + n < x.length) {
+            // Hide the current tab:
+            x[currentTab].style.display = "none";
+            $(".custom-nav-pills li:eq(" + currentTab + ")").removeClass("active");
+        }
+        else {
+            // ... the form gets submitted:
+            // ... Update checklist in the deviation
+            //if (parseInt($('#OrderID').val()) == 0) {
+            //    $('#ShowDeviation').empty();
+            //    AckowleadgementEmail()
+            //    PopupConfirm()
+            //}
+            //else
+            formSave();
+            return false;
+        }
+        // Increase or decrease the current tab by 1:
+        currentTab = currentTab + n;
+
+        // Otherwise, display the correct tab:
+        showTab(currentTab);
+    }
+
+
+    function validateForm(n) {
+        // This function deals with validation of the form fields
+        var isValid = false;
+        var hadError = false;
+        var tabs = $("#formExtension");
+        var inputs = $(":input, textarea, select"); // get all the form inputs and selects
+        var stepElements = $(tabs).find(inputs); // get inputs for current step
+        var count = stepElements.length; // check that there are inputs
+        if (count <= 0) {                // if there are not no reason to loop them
+            return true;
+        }
+        $(stepElements).each(function (idx) {
+            if (!$(this).is(':radio') && !$(this).is(':checkbox')) {
+                isValid = $(this).valid();//$(document.forms[0]).validate().element($(this)); // check that the input is valid. This can also be used on a per input basis to perform another action if the field is not valid.
+                if (!isValid) {
+                    hadError = true;
+                } // set our flag if there was an error
+            }
+        });
+        return !hadError; // return the valid status
+    }
+
+    function PopupConfirm() {
+        $('#dialogConfirm').modal('toggle');
+    }
+    $('#isbtnConfirm').click(function () {
+        $(this).attr("disabled", "disabled");
+        $('.loading-bg').removeClass('dis-none');
+        formSave()
+    });
+
+    function formSave() {
+        $('#isDraftbtn').val(false);
+        var isValid = $('#formExtension').valid();
+        if (!isValid)
+            return false;
+        if (isValid)
+            $('#formExtension').submit();
+    }
+
+
+    $(document).on('click', '#btnViewSummary', function () {
+        var projNo = $('#ProjectId').val() || 0;
+        if (projNo > 0) {
+            var searchData = { "ProjectId": projNo };
+            $.ajax({
+                url: "@Url.Action("_ProjectSummary", "CoreAccounts")",
+                type: "POST",
+                data: searchData,
+                contentType: "application/x-www-form-urlencoded",
+                beforeSend: function () {
+                    $(".loading-bg").removeClass('dis-none');
+                },
+                success: function (result) {
+                    $(".loading-bg").addClass('dis-none');
+                    $("#popup").html(result);
+                    $("#projectSummaryModal").modal('toggle');
+                },
+                error: function (err) {
+                    console.log("error : " + err);
+                }
+            });
+        }
+    });
+
+    function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode != 46 && charCode > 31
+          && (charCode < 48 || charCode > 57))
+            return false;
+
+        return true;
+    }
+
+    var isMedical = $('select[name="Medical"]').val();
+    if (isMedical != "") {
+        $('#divMedicalAmmount').removeClass('dis-none');
+        if (isMedical == 1 || isMedical == 2) {
+            $('#MedicalAmmount').val(205);
+        }
+        else if (isMedical == 3) {
+            $('#MedicalAmmount').val(0);
+            $('#divMedicalAmmount').addClass('dis-none');
+        }
+    }
+
+    $(document).on('change', 'input[name$=".IsChecked"]', function () {
+        var isUnchecked = false;
+        $('input[name$=".IsChecked"]').each(function () {
+            if ($(this).is(':checked')) {
+                isUnchecked = true;
+            }
+        });
+        $("input[name=FlowofMail]").prop('checked', false);
+
+        if (!isUnchecked) {
+            $("input[name=FlowofMail][value=Nd]").prop('checked', true);
+            $('#nextBtn').text('Send for approval');
+        }
+        else {
+            $("input[name=FlowofMail][value=NP]").prop('checked', true);
+            $('#nextBtn').text('Send for clarification');
+        }
+    });
+
+    $(document).on('change', 'input[name="FlowofMail"]', function () {
+        var isUnchecked = false;
+        var value = $('input[name="FlowofMail"]:checked').val();
+        if (value == "Nd") {
+            $('input[name$=".IsChecked"]').each(function () {
+                $(this).prop('checked', false);
+            });
+            $('#nextBtn').text('Send for approval');
+        }
+        else {
+            $('input[name$=".IsChecked"]').each(function () {
+                $(this).prop('checked', true);
+            });
+            $('#nextBtn').text('Send to clarification');
+        }
+    });
+
+    $('a[name="DocDownload"]').click(function (p) {
+        p.preventDefault();
+        var ref = $(this).attr('href');
+        var win = window.open('', '_blank');
+        win.location.href = ref;
+    });
+
+    var findtabs = $(".cust-tab");
+    $(findtabs[0]).find('textarea,input[type="text"]').each(function () {
+        var ID = $(this).attr('id');
+        var name = $(this).attr('name').split('.')[1];
+        var NotinID = ["DesignationCode", "ProjectNumber"];
+        var NotinEndName = ["DesignationautoComplete"];
+        if (!NotinID.includes(ID) && !NotinEndName.includes(name)) {
+            $(this).attr('style', 'text-transform:uppercase');
+        }
+    });
+
+    $(document).on('keyup','textarea,input[type="text"]',function(event) {
+        if($(this).attr('id') != "Remarks" && $(this).attr('id') != undefined) {
+            var input = event.target;
+            var start = input.selectionStart;
+            var end = input.selectionEnd;
+            input.value = input.value.toLocaleUpperCase();
+            input.setSelectionRange(start, end);
+        }
+    });
+
+
+    function FormDisabled() {
+        $("#formExtension").find("input, select, textarea").each(function () {
+            var idDisabled = $(this).is(":disabled");
+            var id = $(this).attr('id');
+            if (!idDisabled) {
+                $(this).attr("disabled", "disabled");
+            }
+        });
+    }
+
+    var Status = @Html.Raw(Json.Encode(Model.Status));
+    var isDisabledStatus = ["" , "Open" , "Note to PI" , null];
+    if (!isDisabledStatus.includes(Status)) {
+        FormDisabled();
+        $('#btnViewSummary').removeAttr('disabled');
+        $('#btnViewStaffAllocation').removeAttr('disabled');
+    }
+
+
+
+    $('#RequestReference').change(function () {
+        var selSource = $(this).val();
+        $("#SourceReferenceNumber,#ReferenceNo").val('');
+        $("#divRefNum, #divRefEmailDate").addClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('False');
+        if (selSource == '1') {
+            applyAutoComplete($('#ReferenceNo'), $('#SourceReferenceNumber'), "@Url.Action("GetACWorkflowRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        } else if (selSource == '3') {
+            applyAutoComplete($('#ReferenceNo'), $('#SourceReferenceNumber'), "@Url.Action("GetACTapalRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        }
+        else if (selSource == '2') {
+            $('#divRefEmailDate').removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('False');
+        } else {
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        }
+    });
+
+
+    var selSource = $('#RequestReference').val();
+    $("#divRefNum, #divRefEmailDate").addClass('dis-none');
+    if (selSource == '1') {
+        applyAutoComplete($('#ReferenceNo'), $('#SourceReferenceNumber'), "@Url.Action("GetACWorkflowRefNumber", "Proposal")");
+        $("#divRefNum").removeClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('True');
+    }
+    else if (selSource == '3') {
+        applyAutoComplete($('#ReferenceNo'), $('#SourceReferenceNumber'), "@Url.Action("GetACTapalRefNumber", "Proposal")");
+        $("#divRefNum").removeClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('True');
+    }
+    else if (selSource == '2') {
+        $('#divRefEmailDate').removeClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('False');
+    }
+    else {
+        $("#divRefNum").removeClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('True');
+    }
+
+    $('#SourceEmailDate').change(function () {
+        var value = $(this).val();
+        $('#ApplicationReceiveDate').val(value);
+    });
+
+    $('input[name="HRAForm"],input[name="PILetter"]').change(function (e) {
+        var _size = this.files[0].size;
+        var iSize = (_size / 1024);
+        iSize = (Math.round(iSize * 100) / 100)
+        var fileName = e.target.files[0].name;
+        var allowedExtensionsPdf = [".pdf", ".doc", ".docx"];
+        var extension = fileName.substr((fileName.lastIndexOf('.') + 1)).toLowerCase();
+        var DocFormat = allowedExtensionsPdf.includes('.' + extension);
+        if (DocFormat) {
+            if (iSize > 5120) {
+                $('#alert').html('PDF size should be allow below 5MB');
+                $('#Validation').modal('toggle');
+                $(this).val('');
+                return;
+            }
+        }
+        else {
+            $('#alert').html('PI letter allowed document type [pdf,doc,docx]');
+            $('#Validation').modal('toggle');
+            $(this).val('');
+            return;
+        }
+    });
+
+
+</script>
+<script src="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/js/bootstrap-select.min.js")"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>

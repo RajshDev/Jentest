@@ -1,0 +1,711 @@
+﻿@model IOAS.Models.TransactionAndTaxesModel
+
+@{
+    ViewBag.Title = "TransactionAndTaxes";   
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+<div class="row hd-tt-bg" id="addnewpage">
+    <div class="col-md-4">
+        <h3>Transaction and Taxes</h3>
+    </div>
+    
+</div>
+
+<div class="page-wrapper" id="">
+    <div class="white-bg">
+       
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div class="col-md-4">
+                <div class="form-group custom-form-group">
+                    <label class="required">Transaction</label>
+                    @Html.DropDownListFor(m => m.Transaction, new SelectList(ViewBag.TransType, "TransactionTypeId", "TransactionType"), "Select Transaction", new { @class = "form-control ", @id = "transtype" })
+                   
+                    </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group custom-form-group">
+                    <label class="required">SubCode</label>
+                    @Html.DropDownListFor(m => m.SubCode, new SelectList(ViewBag.subcode, "SubCodeId", "SubCodeId"), "Select SubCode", new { @class = "form-control ", @id = "subcode" })                    
+                </div>
+            </div>
+            <div class="col-md-2"></div>
+        </div>               
+    </div>
+</div>
+          
+<div class="page-wrapper" id="">
+                <div class="white-bg">
+                    <div class="row">
+                        <div class="col-md-10">
+                            <h3 class="spl-title">Transaction</h3>
+                           
+                        </div>
+                        <div class="col-md-2">
+                            <a href="#" id="btnaddnew"> <i class="ion-plus"></i>Add New</a>
+                        </div>
+                    </div>
+                    <table id="table" class="table table-striped">
+                        <thead id="thead">
+                            <tr>
+                                <th>Account Group</th>
+                                <th>Head</th>
+                                <th>Type</th>
+                                <th>ISJV</th>
+                                <th></th>
+
+                            </tr>
+                        </thead>
+                        <tbody id="tbody"></tbody>
+
+                    </table>
+                    </div>
+                </div>
+                         
+<div class="page-wrapper" id="">
+                <div class="white-bg">
+                    <div class="col-md-10">
+                        <h3 class="spl-title">Taxes</h3>
+                    </div>
+                    <div class="col-md-2">
+                        <a href="#" id="btnaddtaxnew"> <i class="ion-plus"></i>Add New</a>
+                    </div>
+                    <table id="taxtable" class="table  table-striped">
+                        <thead id="thead">
+                            <tr>
+                                <th>Account Group</th>
+                                <th>Head</th>
+                                <th>Category</th>
+                                <th>InterState</th>
+                                <th>Deduction Type</th>
+                              
+
+                            </tr>
+                        </thead>
+                        <tbody id="taxtbody"></tbody>
+
+                    </table>
+                </div>
+            </div>
+      
+@*POPUP for ADD Transaction*@
+<div class="modal fade" id="addtransmodel">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="row">
+                    <div class="col-md-4"></div>
+                    <div class="col-md-4 text-center">
+                        <h3>Add Transaction</h3>
+                    </div>
+                    <div class="col-md-4">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-2"></div>
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label class="required">Group</label>
+                            @Html.DropDownListFor(m => m.Group, new SelectList(ViewBag.Group, "GroupId", "Group"), "Select Group", new { @class = "form-control required", @id = "grp" })
+                            <div class="txt-error txt-red">
+                                @Html.ValidationMessageFor(m => m.Group)
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label class="">Head</label>
+                            @Html.DropDownListFor(m => m.Head, new SelectList(ViewBag.Head, "HeadId", "Head"), "Select Head", new { @class = "form-control", @id = "head" })
+                            @Html.ValidationMessageFor(m => m.Head)
+                        </div>
+                    </div>
+                    <div class="col-md-2"></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-2"> </div>
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label class="required">Type</label>
+                            @Html.DropDownListFor(m => m.TransactionType, new List<SelectListItem> { new SelectListItem { Text = "Credit", Value = "Credit" }, new SelectListItem { Text = "Debit", Value = "Debit" } }, "Select Type", new { @class = "form-control required", @id = "type" })
+                            <div class="txt-error txt-red">
+                                @Html.ValidationMessageFor(m => m.TransactionType)
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label class="">ISJV</label>
+                            @Html.DropDownListFor(m => m.ISJV, new List<SelectListItem> { new SelectListItem { Text = "False", Value = "False" }, new SelectListItem { Text = "True", Value = "True" } }, new { @class = "form-control", @id = "isjv" })
+                            @Html.ValidationMessageFor(m => m.ISJV)
+                        </div>
+                    </div>
+                    <div class="col-md-2"></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-2"></div>
+                    <div class="col-md-8 text-center">
+                        <input type="submit" value="Submit" class="btn btn-primary" data-dismiss="modal" id="modelbtnSubmit" />
+                    </div>
+                    <div class="col-md-2"> </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@*POPUP for ADD Taxes*@
+<div class="modal fade" id="addtaxmodel">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="row">
+                    <div class="col-md-4"></div>
+                    <div class="col-md-4 text-center" >
+                        <h3>Add Taxes</h3>
+                    </div>
+                    <div class="col-md-4">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>                    
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-2"></div>
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label class="required">Group</label>
+                            @Html.DropDownListFor(m => m.Group, new List<SelectListItem> { new SelectListItem { Text = "GST Input", Value = "13" }, new SelectListItem { Text = "GST Output", Value = "14" } }, "Select Group", new { @class = "form-control required", @id = "taxgrp" })
+                            <div class="txt-error txt-red">
+                                @Html.ValidationMessageFor(m => m.Group)
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label class="required">Head</label>
+                            @Html.DropDownListFor(m => m.Head, new SelectList(ViewBag.Head, "HeadId", "Head"), "Select Head", new { @class = "form-control", @id = "taxhead" })
+                            @Html.ValidationMessageFor(m => m.Head)
+                        </div>
+                    </div>
+                    <div class="col-md-2"></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-2"></div>
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label class="">Category</label>
+                            @Html.DropDownListFor(m => m.Category, new SelectList(ViewBag.Category, "CategoryId", "Category"), "Select Category", new { @class = "form-control", @id = "category" })
+                            <div class="txt-error txt-red">
+                                @Html.ValidationMessageFor(m => m.TransactionType)
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label class="">InterState</label>
+                            @Html.DropDownListFor(m => m.ISJV, new List<SelectListItem> { new SelectListItem { Text = "False", Value = "False" }, new SelectListItem { Text = "True", Value = "True" } }, new { @class = "form-control", @id = "interstate" })
+                            @Html.ValidationMessageFor(m => m.ISJV)
+                        </div>                          
+                    </div>
+                    <div class="col-md-2"></div>
+                </div>               
+                <div class="row">
+                    <div class="col-md-2"></div>
+                    <div class="col-md-8 text-center">
+                        <input type="submit" value="Submit" class="btn btn-primary" data-dismiss="modal" id="taxmodelbtnSubmit" />
+                    </div>
+                    <div class="col-md-2"> </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@*Delete Confirmation Popup For Transaction*@
+<div class="modal fade" id="DelModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body"> 
+                <div class="text-center">
+                    Are you sure you want to delete this Transaction?
+                    @Html.Hidden("txtHidden")
+                </div>                     
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger Yes" name="YES" data-dismiss="modal" id="conf_yes">Yes</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">NO</button>
+                    </div>
+                </div>
+            </div>
+</div>
+@*Delete Success Popup For Transaction*@
+<div id="delsuccess" class="modal fade modal-success" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-checkmark-circle"></i>
+                <h3 class="modal-title">Deleted Successfully</h3>
+            </div>
+            <div class="modal-body">
+
+                <p> This Transaction has been successfully deleted</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+@*Validation Popup for Taxes and Transaction*@
+<div id="requiremodal" class="modal fade modal-error" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-cancel"></i>
+                <h3 class="modal-title">Error Message</h3>
+            </div>
+            <div class="modal-body">
+
+                <p>"Select all Required Field"</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+@*POPUP for ADD Transaction Validation*@
+<div id="AddRequiremodal" class="modal fade modal-error" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-cancel"></i>
+                <h3 class="modal-title">Error Message</h3>
+            </div>
+            <div class="modal-body">
+
+                <p>"Should be select Transaction and Subcode"</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+@*POPUP for ADD Taxes Validation*@
+<div id="AddTaxRequiremodal" class="modal fade modal-error" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-cancel"></i>
+                <h3 class="modal-title">Error Message</h3>
+            </div>
+            <div class="modal-body">
+
+                <p>"Should be select Transaction"</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+@*Delete Confirmation Popup For Taxes*@
+<div class="modal fade" id="TaxDelModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center">
+                    Are you sure you want to delete this Taxes?
+                    @Html.Hidden("taxidHidden")
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger taxYes" name="YES" data-dismiss="modal" id="conf_yes">Yes</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal">NO</button>
+            </div>
+        </div>
+    </div>
+</div>
+@*Delete Success Popup For Transaction*@
+<div id="taxdelsuccess" class="modal fade modal-success" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-checkmark-circle"></i>
+                <h3 class="modal-title">Deleted Successfully</h3>
+            </div>
+            <div class="modal-body">
+
+                <p>  It has been successfully deleted</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<script>
+
+    /* Transactin ADDNEW Button*/
+    $('#btnaddnew').on('click', function () {
+        var transaction = $("#transtype").val();
+        transaction = transaction.replace(/^\s+|\s+$/g, '');
+        var subcode = $("#subcode").val();
+        if(transaction != "" && subcode!=0)
+        {
+            $("#addtransmodel").modal('toggle');
+        }
+        else {
+            $("#AddRequiremodal").modal('toggle');
+        }
+    });
+
+    /* Taxes ADDNEW Button*/
+    $('#btnaddtaxnew').on('click', function () {
+        var transaction = $("#transtype").val();
+        transaction = transaction.replace(/^\s+|\s+$/g, '');
+        if (transaction != "") {
+            $("#addtaxmodel").modal('toggle');
+        }
+        else {
+            $("#AddTaxRequiremodal").modal('toggle');
+        }
+    });
+
+    /* Change Function For SubCode based on Transaction*/
+    $("#transtype").change(function () {
+        var transtype = $(this).val();
+        transtype = transtype.replace(/^\s+|\s+$/g, '');
+        $.getJSON("@Url.Action("LoadSubCode", "CoreAccounts")", { transtype: transtype },
+                    function (locationdata) {
+                        var select = $("#subcode");
+                        select.empty();
+                        $.each(locationdata, function (index, itemData) {
+                            select.append($('<option/>', {
+                                value: itemData.SubCodeId,
+                                text: itemData.SubCode
+                            }));
+                        });
+                        select.selectpicker('refresh');
+                        var subcode = $("#subcode").val();
+                        if (subcode == "" || subcode == 0) {
+                            $('#tbody').empty()
+                            var row;
+                            row += "<tr class='text-center'><td colspan='5'> Sub Code is Required</td></tr>";
+                            $("#table").append(row);
+                        }
+                    });
+    });
+
+    /* Change Function For head(Transaction) based on Group*/
+    $("#grp").change(function () {
+        var accgrp = $(this).val();
+        $.getJSON("@Url.Action("LoadAccHead", "CoreAccounts")", { accgrp: accgrp },
+                    function (locationdata) {
+                        var select = $("#head");
+                        select.empty();
+                        $.each(locationdata, function (index, itemData) {
+                            select.append($('<option/>', {
+                                value: itemData.HeadId,
+                                text: itemData.Head
+                            }));
+                        });
+                        select.selectpicker('refresh');
+                    });
+    });
+
+    /* Change Function For head(Tax) based on Group*/
+    $("#taxgrp").change(function () {
+        var accgrp = $(this).val();
+        $.getJSON("@Url.Action("LoadAccHead", "CoreAccounts")", { accgrp: accgrp },
+                    function (locationdata) {
+                        var select = $("#taxhead");
+                        select.empty();
+                        $.each(locationdata, function (index, itemData) {
+                            select.append($('<option/>', {
+                                value: itemData.HeadId,
+                                text: itemData.Head
+                            }));
+                        });
+                        select.selectpicker('refresh');
+                    });
+    });
+   
+
+    /* Change Function For TransactionList based on (Transaction and Subcode)*/
+    $("#subcode").change(function () {
+        var subcode = $(this).val();
+        //var transaction = $('select[id="transtype"]').val();
+        var transaction = $("#transtype").val();
+        transaction = transaction.replace(/^\s+|\s+$/g, '');       
+        $.ajax({
+            type: "POST",
+            data: { 'transaction': transaction, 'subcode': subcode },
+            url: '@Url.Action("Transaction", "CoreAccounts")',          
+            contentType: 'application/x-www-form-urlencoded',
+            success: function (result) {
+                $('#tbody').empty()
+                var row;
+                if (result.length == 0) {
+                    row += "<tr class='text-center'><td colspan='5'> No Records Found</td></tr>";
+                }
+                else {
+                    $.each(result, function (i, v1) {
+                        row += "<tr><td>" + v1.Group + "</td><td>"
+                           + v1.Head + "</td><td>"
+                           + v1.TransactionType + "</td><td>" +
+                           v1.ISJV + "</td><td>" +
+                           "<a href='#'class='btndel' data-id=" + v1.TransactionDefID + "> <i class='glyphicon glyphicon-trash'></i></a>"
+                           + "</td></tr>";
+                    })
+                }
+                $("#table").append(row);
+            }
+        })
+    })
+
+    /* Change Function For TaxesList based on (Transaction)*/
+    $("#transtype").change(function () {
+        var transaction = $("#transtype").val();
+        transaction = transaction.replace(/^\s+|\s+$/g, '');
+        $.ajax({
+            type: "POST",
+            data: { 'transaction': transaction},
+            url: '@Url.Action("Taxes", "CoreAccounts")',
+            contentType: 'application/x-www-form-urlencoded',
+            success: function (result) {
+                $('#taxtbody').empty()
+                var row;
+                if (result.length == 0) {
+                    row += "<tr class='text-center'><td colspan='5'> No Records Found</td></tr>";
+                }
+                else {
+                    $.each(result, function (i, v1) {
+                        row += "<tr><td>" + v1.Group + "</td><td>"
+                           + v1.Head + "</td><td>"
+                           + v1.Category + "</td><td>" +
+                           v1.INTERSTATE + "</td><td>" + v1.DeductionType + "</td><td>" +
+                        "<a href='#'class='taxbtndel' data-id=" + v1.DeductionId + "> <i class='glyphicon glyphicon-trash'></i></a>"
+                               + "</td></tr>";
+                    })
+                }
+                $("#taxtable").append(row);
+            }
+        })
+    })
+
+    /*ADD Data For Taxes*/
+    $('#taxmodelbtnSubmit').click(function () {       
+        var taxgroup = $("#taxgrp").val();
+        var taxhead = $("#taxhead").val();
+        var taxcategory = $("#category").val();        
+        var taxinterstate = $("#interstate").val();
+        var transaction = $("#transtype").val();
+        transaction = transaction.replace(/^\s+|\s+$/g, '');    
+        if (taxgroup != "" && taxhead != "" ) {
+            $.ajax({
+                type: "POST",
+                data: { 'taxgroup': taxgroup, 'taxhead': taxhead, 'taxcategory': taxcategory, 'taxinterstate': taxinterstate, 'transaction': transaction},
+                url: '@Url.Action("AddTaxes", "CoreAccounts")',
+                contentType: 'application/x-www-form-urlencoded',
+                success: function (result) {
+                    $('#taxtbody').empty()
+                    var row;
+                    if (result.length == 0) {
+                        row += "<tr class='text-center'><td colspan='5'> No Records Found</td></tr>";
+                    }
+                    else {
+                        $.each(result, function (i, v1) {
+                            row += "<tr><td>" + v1.Group + "</td><td>"
+                               + v1.Head + "</td><td>"
+                               + v1.Category + "</td><td>" +
+                               v1.INTERSTATE + "</td><td>" + v1.DeductionType + "</td><td>" +
+                        "<a href='#'class='taxbtndel' data-id=" + v1.DeductionId + "> <i class='glyphicon glyphicon-trash'></i></a>"
+                               + "</td></tr>";
+                        })
+                    }
+                    $("#taxtable").append(row);
+                }
+            })
+        } else {
+            $("#requiremodal").modal('toggle');
+        }
+    })
+
+    /*ADD Data For Transaction*/
+    $('#modelbtnSubmit').click(function () {
+        var group = $("#grp").val();
+        var head = $("#head").val();
+        var type = $("#type").val();
+        var isjv = $("#isjv").val();
+        var transaction = $("#transtype").val();
+        transaction = transaction.replace(/^\s+|\s+$/g, '');
+        var subcode = $("#subcode").val();
+        if (group != "" && type != "") {
+            $.ajax({
+                type: "POST",
+                data: { 'group': group, 'head': head, 'type': type, 'isjv': isjv, 'transaction': transaction, 'subcode': subcode },
+                url: '@Url.Action("AddTransaction", "CoreAccounts")',
+                contentType: 'application/x-www-form-urlencoded',  
+                success: function (result) {
+                    $('#tbody').empty()
+                    var row;
+                    if (result.length == 0) {
+                        row += "<tr class='text-center'><td colspan='5'> No Records Found</td></tr>";
+                    }
+                    else {
+                        $.each(result, function (i, v1) {
+                            row += "<tr><td>" + v1.Group + "</td><td>"
+                               + v1.Head + "</td><td>"
+                               + v1.TransactionType + "</td><td>" +
+                               v1.ISJV + "</td><td>" +
+                               "<a href='#'class='btndel' data-id=" + v1.TransactionDefID + "> <i class='glyphicon glyphicon-trash'></i></a>"
+                               + "</td></tr>";
+                        })
+                    }
+                    $("#table").append(row);
+                }
+            })
+        } else {
+            $("#requiremodal").modal('toggle');
+        }
+    })
+
+    /*Delete button For Transaction*/
+    $(document).on("click", ".btndel", function () {
+        var id = $(this).data('id')
+        $("#txtHidden").val(id);
+        $("#DelModal").modal('toggle');
+    });
+
+    /*DeleteConfirmation button For Transaction*/
+    $(document).on("click", ".Yes", function () {
+        var transdefid = $("#txtHidden").val();
+        var group = $("#grp").val();
+        var head = $("#head").val();
+        var type = $("#type").val();
+        var isjv = $("#isjv").val();
+        var transaction = $("#transtype").val();
+        transaction = transaction.replace(/^\s+|\s+$/g, '');
+        var subcode = $("#subcode").val();
+        $.ajax({
+            type: "POST",
+            data: {'transdefid': transdefid },
+            url: '@Url.Action("DeleteTransaction", "CoreAccounts")',          
+            contentType: 'application/x-www-form-urlencoded',
+            success: function (result) {
+                $('#tbody').empty()
+                $.ajax({
+                    type: "POST",
+                    data: { 'transaction': transaction, 'subcode': subcode },
+                    url: '@Url.Action("Transaction", "CoreAccounts")',                   
+                    contentType: 'application/x-www-form-urlencoded',
+                    success: function (result) {
+                        var row;
+                        $.each(result, function (i, v1) {
+                            row += "<tr><td>" + v1.Group + "</td><td>"
+                               + v1.Head + "</td><td>"
+                               + v1.TransactionType + "</td><td>" +
+                               v1.ISJV + "</td><td>" +
+                               "<a href='#'class='btndel' data-id=" + v1.TransactionDefID + "> <i class='glyphicon glyphicon-trash'></i></a>"
+                               + "</td></tr>";
+                        })
+                        $("#table").append(row);
+                        $("#delsuccess").modal('toggle');
+                    }
+                })
+            }
+        })
+    });
+
+
+    /*Delete button For Taxes*/
+    $(document).on("click", ".taxbtndel", function () {
+        var id = $(this).data('id')
+        $("#taxidHidden").val(id);
+        $("#TaxDelModal").modal('toggle');
+    });
+
+    /*DeleteConfirmation button For Taxes*/
+    $(document).on("click", ".taxYes", function () {
+        var deheadid = $("#taxidHidden").val();
+        var taxgroup = $("#taxgrp").val();
+        var taxhead = $("#taxhead").val();
+        var taxcategory = $("#category").val();
+        var taxinterstate = $("#interstate").val();
+        var transaction = $("#transtype").val();
+        transaction = transaction.replace(/^\s+|\s+$/g, '');
+        $.ajax({
+            type: "POST",
+            data: { 'deheadid': deheadid },
+            url: '@Url.Action("DeleteTaxes", "CoreAccounts")',         
+            contentType: 'application/x-www-form-urlencoded',
+            success: function (result) {
+                $('#taxtbody').empty()
+                $.ajax({
+                    type: "POST",
+                    data: { 'taxgroup': taxgroup, 'taxhead': taxhead, 'taxcategory': taxcategory, 'taxinterstate': taxinterstate, 'transaction': transaction },
+                    url: '@Url.Action("Taxes", "CoreAccounts")',                
+                    contentType: 'application/x-www-form-urlencoded',
+                    success: function (result) {
+                        var row;
+                        $.each(result, function (i, v1) {
+                            row += "<tr><td>" + v1.Group + "</td><td>"
+                               + v1.Head + "</td><td>"
+                               + v1.Category + "</td><td>" +
+                               v1.INTERSTATE + "</td><td>" + v1.DeductionType + "</td><td>" +
+                        "<a href='#'class='taxbtndel' data-id=" + v1.DeductionId + "> <i class='glyphicon glyphicon-trash'></i></a>"
+                               + "</td></tr>";
+                        })
+                        $("#taxtable").append(row);
+                        $("#taxdelsuccess").modal('toggle');
+                    }
+                })
+            }
+        })
+    });
+
+</script>
+

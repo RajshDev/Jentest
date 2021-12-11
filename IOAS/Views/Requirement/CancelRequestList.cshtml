@@ -1,0 +1,228 @@
+﻿@{
+    ViewBag.Title = "CancelRequestList";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<div class="row hd-tt-bg">
+    <div class="col-md-12">
+        <h3>Cancel request list</h3>
+    </div>
+
+</div>
+<style>
+
+</style>
+<div class="col-md-12">
+    <div class="row mt30">
+        <div class="page-wrapper">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="custom-jsgrid-normal">
+                        <div id="gridAppList"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="dialogConfirm" class="modal fade modal-pr-vw in" role="dialog" data-backdrop="static" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog  modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">Note to dean application</h4>
+            </div>
+            @*<div class="modal-body  pdt-null" id="divPage" style="overflow: auto;">
+
+                </div>*@
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" id="isbtnConfirm">Approve</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Decline</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="loading-bg dis-none">
+</div>
+<script>
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    var alertMsg = '@TempData["alertMsg"]';
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+        else if (alertMsg != '') {
+            $('#alert').html(alertMsg);
+            $('#Validation').modal('toggle');
+        }
+    });
+    $("#gridAppList").jsGrid({
+        paging: true,
+        pageIndex: 1,
+        pageSize: 5,
+        editing: false,
+        filtering: true,
+        pageLoading: true,
+        autoload: true,
+        controller: {
+
+            loadData: function (filter) {
+                var searchData = [];
+                searchData = {
+                    ApplicationNo: filter.ApplicationNumber || null,
+                    Category: filter.Category || null,
+                    PIName: filter.PIName || null,
+                    CondidateName: filter.CondidateName || null,
+                    PIEmail: filter.Email || null,
+                    Status: filter.Status || null,
+                    ApplicationType: filter.ApplicationType || null
+                },
+                filter.model = searchData;
+                var deferred = $.Deferred();
+                $.ajax({
+                    type: "post",
+                    url: "GetCancelRequestList",
+                    data: JSON.stringify(filter),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (result) {
+                        //db = result;
+                        //$("#AdvanceBillPaymentList").jsGrid({ data: db });
+                        var da = {
+                            data: result.ApplicationList,
+                            itemsCount: result.TotalRecords
+                        }
+                        deferred.resolve(da);
+                    },
+                    error: function (err) {
+                        console.log("error : " + err);
+                    }
+
+                });
+                return deferred.promise();
+            }
+
+        },
+
+        fields: [
+            { name: "SNo", title: "S.No", editing: false, width: 50 },
+            { type: "number", name: "ApplicationId", title: "Id", visible: false },
+            { type: "text", name: "ApplicationNumber", title: "Application Number", editing: false },
+            { type: "text", name: "Category", title: "Category", editing: false },
+            { type: "text", name: "CondidateName", title: "Candidate Name", editing: false },
+            { type: "text", name: "PIName", title: "PI Name", editing: false },
+            { type: "text", name: "Email", title: "PI Email", editing: false },
+            { type: "text", name: "ApplicationType", title: "Application Type", editing: false },
+
+             {
+                 type: "control", editButton: false, deleteButton: false, width: 120,
+                 _createFilterSwitchButton: function () {
+                     return this._createOnOffSwitchButton("filtering", this.searchModeButtonClass, false);
+                 },
+                 itemTemplate: function (value, item) {
+                     var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+
+                     var $customButton = $("<button>")
+                         .attr({
+                             "class": "ion-eye btn-success",
+                             "data-toggle": "tooltip",
+                             "title": "Click here to approve !"
+                         })
+                         .click(function (e) {
+                             var url = '@Url.Action("CancelApplicationView", "Requirement")?appid=' + item.ApplicationId + '&apptype=' + item.Category + '&orderid=' + item.OrderId;
+                             window.open(url);
+                         });
+
+                     // return $result.add($customButton);
+                     return $("<div>").append($customButton);
+                 }
+                 ,
+                 @*itemTemplate: function (value, item) {
+                     var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+
+                     if (item.Status == "Cancellation Initiated") {
+
+                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }]
+                     }
+                     var $customSelect = $("<select>")
+                         .attr("class", "form-control").prop("selectedIndex", "")
+                     $.each(statusList, function (index, itemData) {
+                         $customSelect.append($('<option/>', {
+
+                             value: itemData.id,
+                             text: itemData.name
+                         }));
+                     });
+                     $customSelect.change(function (e) {
+                         var selVal = $(this).val();
+                         if (selVal == "View") {
+                             var url = '@Url.Action("CancelApplicationView", "Requirement")?appid=' + item.ApplicationId + '&apptype=' + item.Category + '&orderid=' + item.OrderId;
+                                 window.location.href = url;
+                         }
+                         $(this).val("");
+                         return false;
+                         e.stopPropagation();
+                     });
+                     return $result.add($customSelect);
+                 },*@
+
+             }
+
+
+        ],
+    });
+
+    $("#gridAppList").jsGrid("option", "filtering", false);
+    var DateField = function (config) {
+        jsGrid.Field.call(this, config);
+    };
+    DateField.prototype = new jsGrid.Field({
+        sorter: function (date1, date2) {
+            return new Date(date1) - new Date(date2);
+        },
+
+        itemTemplate: function (value) {
+            if (value != "") {
+                return new Date(value).toDateString();
+            }
+        },
+
+        filterTemplate: function () {
+            var now = new Date();
+            this._fromPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() - 1), changeYear: true });
+            this._toPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() + 1), changeYear: true });
+            return $("<div>").append(this._fromPicker).append(this._toPicker);
+        },
+
+        insertTemplate: function (value) {
+            return this._insertPicker = $("<input>").datepicker({ defaultDate: new Date() });
+        },
+
+        editTemplate: function (value) {
+            return this._editPicker = $("<input>").datepicker().datepicker("setDate", new Date(value));
+        },
+
+        insertValue: function () {
+            return this._insertPicker.datepicker("getDate").toISOString();
+        },
+
+        editValue: function () {
+            return this._editPicker.datepicker("getDate").toISOString();
+        },
+
+        filterValue: function () {
+            return {
+                from: this._fromPicker.datepicker("getDate"),
+                to: this._toPicker.datepicker("getDate")
+            };
+        }
+    });
+    jsGrid.fields.date = DateField;
+</script>

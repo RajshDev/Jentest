@@ -1,0 +1,1047 @@
+﻿@model IOAS.Models.TDSPaymentModel
+
+@{
+    ViewBag.Title = "TDS Payment";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+@using (Html.BeginForm("TDSPayment", "CoreAccounts", FormMethod.Post, new { @class = "", role = "form", @id = "formTDSpayment", @enctype = "multipart/form-data" }))
+{
+
+    <div class="wrapper">
+        <div class="main-content">
+            <div class="rgt-cnt">
+                <div class="row hd-tt-bg">
+                    <div class="col-md-12">
+                        <h4><b>TDS Payment</b></h4>
+                        <ul class="nav nav-pills custom-nav-pills custom-spl-nav">
+                            <li class="active" id="picDel"><a href="javascript:void(0)" id="firsttab" class="ml-null brd-rd-md firsttab">TDS Summary</a></li>
+                            <li id="allOca" ><a href="javascript:void(0)" id="secondtab" class="brd-rd-md secondtab">Transaction Details</a></li>
+                            <li id="allOca1" class="dis-none"><a href="javascript:void(0)" id="thirdtab" class="brd-rd-md thirdtab">Challan Details</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="page-wrapper ">
+                        <div class="col-md-12 mt30 ">
+                            <div id="tab-01" style="display: block;">
+                                <div class="col-md-12">
+                                    <div class="bl-lg-panel-box">
+                                        <div class="cmn-panel-box">
+                                            <div class="row cmn-panel-box-adj">
+
+                                                <div class="col-md-3 ">
+                                                    <div class="form-group custom-form-group mb-md">
+                                                        <label class="required">From Date: </label>
+                                                        @Html.EditorFor(m => m.FromDate, new { @class = "form-control required", @id = "fromdate", @autocomplete = "off" })
+                                                        @*@Html.HiddenFor(m => m.FromDate)*@
+                                                        @Html.HiddenFor(m => m.TDSPaymentId, new { @id = "TDSid" })
+                                                        @Html.HiddenFor(m => m.FinalPayment, new { @id = "finalpayment" })
+                                                        @Html.HiddenFor(m => m.TDSPaymentNumber)
+                                                        @Html.ValidationMessageFor(m => m.FromDate)
+                                                       
+                                                    </div>
+                                                    <div class="form-group custom-form-group mb-null ">
+                                                        <label class="required">Category: </label>
+                                                        @Html.DropDownListFor(m => m.Category, new SelectList(ViewBag.CategoryList, "id", "name"), "Select any", new { @class = "form-control required", @id = "Category" })
+                                                        @Html.ValidationMessageFor(m => m.Category)
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-3">
+                                                    <div class="form-group custom-form-group mb-md">
+                                                        <label class="required">To Date: </label>
+                                                        @Html.EditorFor(m => m.ToDate, new { @class = "form-control required", @id = "todate", @autocomplete = "off" })
+                                                        @Html.HiddenFor(m => m.ToDate)
+                                                         @Html.ValidationMessageFor(m => m.ToDate)
+                                                     
+                                                    </div>
+                                                    <div class="form-group custom-form-group mb-null ">
+                                                        <label>Section: </label>
+                                                        @Html.DropDownListFor(m => m.Section, new SelectList(ViewBag.SectionList, "HeadId", "Head"), "NA", new { @class = "form-control", @id = "Section" })
+                                                        @Html.ValidationMessageFor(m => m.Section)
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-3">
+                                                    <div class="form-group custom-form-group mb-null ">
+                                                        <label class="required">Bank: </label>
+                                                        @Html.DropDownListFor(m => m.BankId, new SelectList(ViewBag.BankList, "id", "name"), "Select Bank", new { @class = "form-control required", @id = "bankid" })
+                                                        @Html.ValidationMessageFor(m => m.BankId)
+                                                    </div>
+                                                    <div class="form-group custom-form-group mb-null ">
+                                                        <label class="required">Credit Bank: </label>
+                                                        @Html.DropDownListFor(m => m.PaymentBank, new SelectList(ViewBag.BankList, "id", "name"), "Select Bank", new { @class = "form-control required", @id = "Creditbankid" })
+                                                        @Html.ValidationMessageFor(m => m.PaymentBank)
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <div class="form-group custom-form-group mb-md">
+                                                        <div class="reg-no custom-reg-no">
+                                                            <label> TDS Payment Ref.No</label>
+                                                            <h4>@Html.DisplayFor(m => m.TDSPaymentNumber)</h4>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+
+
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="row">
+                                                        <div class="col-md-12" id="incometaxheading">
+                                                            <h3 class="mt-null">TDS-Income Tax<a href="javascript:void(0)" class="ITDownBtn"><i class="ion-android-download"></i></a></h3>
+                                                        </div>
+                                                        <div class="col-md-12" id="gstheading">
+                                                            <h3 class="mt-null">TDS-GST<a href="javascript:void(0)" class="GSTDownBtn"><i class="ion-android-download"></i></a></h3>
+                                                        </div>
+                                                    </div>
+                                                    <div class="grey-bg-adj bc-td-bg mb-lg">
+                                                        <div class="row">
+                                                            <div class="col-md-12">
+                                                                <div class="bk-tb-scrl">
+                                                                    <table class="table table-bordered mb-null" id="tdsincometaxtable">
+                                                                        <tbody>
+                                                                            <tr>
+                                                                                <td></td>
+                                                                                <td>Party</td>
+                                                                                <td>PAN</td>
+                                                                                @*<td>Type</td>*@
+                                                                                <td>Reference No</td>
+                                                                                <td>Date Of Transaction</td>
+                                                                                <td>TDS Amount</td>
+                                                                            </tr>
+                                                                            @if (Model.Category == 1)
+                                                                            {
+
+                                                                                if (Model.TDSIncomeTax != null)
+                                                                                {
+                                                                                    var count = 0;
+                                                                                    foreach (var item in Model.TDSIncomeTax)
+                                                                                    {
+                                                                                        var boaid = "TDSIncomeTax[" + count + "].BoaTransId";
+                                                                                        var party = "TDSIncomeTax[" + count + "].Party";
+                                                                                        var checkbox = "TDSIncomeTax[" + count + "].TDSCheckbox";
+                                                                                        var pan = "TDSIncomeTax[" + count + "].PAN";
+                                                                                        //var typenmae = "TDSIncomeTax[" + count + "].TypeName";
+                                                                                        // var type = "TDSIncomeTax[" + count + "].Type";
+                                                                                        var refno = "TDSIncomeTax[" + count + "].ReferenceNo";
+                                                                                        var dateoftrans = "TDSIncomeTax[" + count + "].DateOfTransaction";
+                                                                                        var amount = "TDSIncomeTax[" + count + "].TDSAmount";
+                                                                                        var DetailId = "TDSIncomeTax[" + count + "].DetailId";
+
+                                                                                        <tr id="inputrow">
+                                                                                            <td>
+                                                                                                @Html.CheckBox(@checkbox, item.TDSCheckbox, new { @id = "tdscheckbox" })
+                                                                                                @Html.Hidden(@boaid, item.BoaTransId)
+                                                                                                @*@Html.Hidden(@type, item.Type)*@
+                                                                                                @Html.Hidden(@amount, item.TDSAmount)
+                                                                                                @Html.Hidden(@dateoftrans, item.DateOfTransaction)
+                                                                                                @Html.Hidden(@refno, item.ReferenceNo)
+                                                                                                @Html.Hidden(@pan, item.PAN)
+                                                                                                @Html.Hidden(@party, item.Party)
+                                                                                                @Html.Hidden(@DetailId, item.DetailId)
+                                                                                                @Html.Hidden("TDSIncomeTax.SlNo", @count)
+                                                                                            </td>
+                                                                                            <td>
+                                                                                              
+                                                                                                @Html.DisplayFor(m => item.Party)
+                                                                                                </td>
+                                                                                                <td>
+                                                                                                   
+                                                                                                    @Html.DisplayFor(m => item.PAN)
+                                                                                                </td>
+                                                                                            @*<td>
+
+                                                                                                @Html.DisplayFor(m => item.TypeName)
+                                                                                            </td>*@
+                                                                                            <td>
+
+                                                                                                @Html.DisplayFor(m => item.ReferenceNo)
+                                                                                            </td>
+                                                                                            <td>
+
+                                                                                                @Html.DisplayFor(m => item.DateOfTransaction)
+                                                                                            </td>
+                                                                                            <td>
+
+                                                                                                @Html.DisplayFor(m => item.TDSAmount)
+                                                                                            </td>
+                                                                                        </tr>
+                                                                                        count++;
+
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        </tbody>
+
+                                                                    </table>
+                                                                    <table class="table table-bordered mb-null" id="tdsgsttable">
+                                                                        <tbody>
+                                                                            <tr>
+                                                                                <td></td>
+                                                                                <td>Reference No</td>
+                                                                                <td>Party</td>
+                                                                                <td>GST</td>
+                                                                                <td>Date Of Transaction</td>
+                                                                                <td>TDS Amount</td>
+                                                                            </tr>
+                                                                            @if (Model.Category == 2)
+                                                                            {
+                                                                                if (Model.TDSGST != null)
+                                                                                {
+                                                                                    var count = 0;
+                                                                                    foreach (var item in Model.TDSGST)
+                                                                                    {
+                                                                                        var headid = "TDSGST[" + count + "].GSTHeadId";
+                                                                                        var boaid = "TDSGST[" + count + "].BoaTransId";
+                                                                                        var party = "TDSGST[" + count + "].Party";
+                                                                                        var checkbox = "TDSGST[" + count + "].TDSCheckbox";
+                                                                                        var head = "TDSGST[" + count + "].GSTHead";
+                                                                                        //var typename = "TDSGST[" + count + "].TypeName";
+                                                                                        var refno = "TDSGST[" + count + "].ReferenceNo";
+                                                                                        var dateoftrans = "TDSGST[" + count + "].DateOfTransaction";
+                                                                                        var amount = "TDSGST[" + count + "].GSTAmount";
+                                                                                        var DetailId = "TDSGST[" + count + "].DetailId";
+
+                                                                                        <tr id="inputrow">
+                                                                                            <td>
+                                                                                                @Html.CheckBox(@checkbox, item.TDSCheckbox, new { @id = "tdscheckbox" })
+                                                                                                @Html.Hidden(@boaid, item.BoaTransId)
+                                                                                                @*@Html.Hidden(@type, item.Type)*@
+                                                                                                @Html.Hidden(@amount, item.GSTAmount)
+                                                                                                @Html.Hidden(@dateoftrans, item.DateOfTransaction)
+                                                                                                @Html.Hidden(@refno, item.ReferenceNo)
+                                                                                                @Html.Hidden(@headid, item.GSTHeadId)
+                                                                                                @Html.Hidden(@DetailId, item.DetailId)
+                                                                                                @*@Html.Hidden(@party, item.Party)*@
+                                                                                                @Html.Hidden("TDSIncomeTax.SlNo", @count)
+                                                                                            </td>
+                                                                                            <td>
+
+                                                                                                @Html.DisplayFor(m => item.ReferenceNo)
+                                                                                            </td>
+                                                                                            <td>
+
+                                                                                                @Html.DisplayFor(m => item.Party)
+                                                                                            </td>
+                                                                                            <td>
+
+                                                                                                @Html.DisplayFor(m => item.GSTHead)
+                                                                                            </td>
+                                                                                            <td>
+
+                                                                                                @Html.DisplayFor(m => item.DateOfTransaction)
+                                                                                            </td>
+
+                                                                                            <td>
+
+                                                                                                @Html.DisplayFor(m => item.GSTAmount)
+                                                                                            </td>
+                                                                                        </tr>
+                                                                                        count++;
+
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        </tbody>
+
+                                                                    </table>
+                                                                </div>
+                                                                <div class="col-md-3 pull-right" id="TOTALTDS">
+                                                                    <div class="reg-no custom-reg-no">
+                                                                        <div class="form-group custom-form-group">
+                                                                            <label>Total TDS-IncomeTax</label>
+                                                                            @Html.TextBoxFor(m => m.TotalTDS, new { @class = "form-control", @id = "totaltds", @readonly = true })
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div id="TOTALGST">
+                                                                    <div class="col-md-3 pull-right">
+                                                                        <div class="reg-no custom-reg-no">
+                                                                            <div class="form-group custom-form-group">
+                                                                                <label>Total CGST</label>
+                                                                                @Html.TextBoxFor(m => m.TotalCGST, new { @class = "form-control", @id = "totalcgst", @readonly = true })
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-md-3 pull-right">
+                                                                        <div class="reg-no custom-reg-no">
+                                                                            <div class="form-group custom-form-group">
+                                                                                <label>Total SGST</label>
+                                                                                @Html.TextBoxFor(m => m.TotalSGST, new { @class = "form-control", @id = "totalsgst", @readonly = true })
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-md-3 pull-right">
+                                                                        <div class="reg-no custom-reg-no">
+                                                                            <div class="form-group custom-form-group">
+                                                                                <label>Total IGST</label>
+                                                                                @Html.TextBoxFor(m => m.TotalIGST, new { @class = "form-control", @id = "totaligst", @readonly = true })
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-md-3 pull-right">
+                                                                        <div class="reg-no custom-reg-no">
+                                                                            <div class="form-group custom-form-group">
+                                                                                <label>Total TDS-GST</label>
+                                                                                @Html.TextBoxFor(m => m.TotalGST, new { @class = "form-control", @id = "totalgst", @readonly = true })
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div id="TransactionTDS">
+                                                        <h3 class="mt-null">Transaction TDS-IT</h3>
+                                                        <div class="grey-bg-adj bc-td-bg mb-lg">
+                                                            <div class="row">
+                                                                <div class="col-md-12">
+                                                                    <div class="col-md-3 pull-center">
+                                                                        <div class="reg-no custom-reg-no">
+                                                                            <div class="form-group custom-form-group">
+                                                                                <label>Bank(Cr)</label>
+                                                                                @Html.TextBoxFor(m => m.BankTransaction, new { @class = "form-control", @id = "banktrans", @readonly = true })
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-md-3 pull-center">
+                                                                        <div class="reg-no custom-reg-no">
+                                                                            <div class="form-group custom-form-group">
+                                                                                <label>TDS(Dr)</label>
+                                                                                @Html.TextBoxFor(m => m.TDSTransaction, new { @class = "form-control", @id = "tdstrans", @readonly = true })
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+                                                    <div id="TransactionGST">
+                                                        <h3 class="mt-null">Transaction GST</h3>
+
+                                                        <div class="row">
+
+                                                            <div class="col-md-3 pull-right">
+                                                                <div class="reg-no custom-reg-no">
+                                                                    <div class="form-group custom-form-group">
+                                                                        <label>Bank(Cr)</label>
+                                                                        @Html.TextBoxFor(m => m.BankGST, new { @class = "form-control", @id = "bankgst", @readonly = true })
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-3 pull-right">
+                                                                <div class="reg-no custom-reg-no">
+                                                                    <div class="form-group custom-form-group">
+                                                                        <label>CGST(Dr)</label>
+                                                                        @Html.TextBoxFor(m => m.CGSTTrans, new { @class = "form-control", @id = "cgsttrans", @readonly = true })
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-3 pull-right">
+                                                                <div class="reg-no custom-reg-no">
+                                                                    <div class="form-group custom-form-group">
+                                                                        <label>IGST(Dr)</label>
+                                                                        @Html.TextBoxFor(m => m.IGSTTrans, new { @class = "form-control", @id = "igsttrans", @readonly = true })
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-3 pull-right">
+                                                                <div class="reg-no custom-reg-no">
+                                                                    <div class="form-group custom-form-group">
+                                                                        <label>SGST(Dr)</label>
+                                                                        @Html.TextBoxFor(m => m.SGSTTrans, new { @class = "form-control", @id = "sgsttrans", @readonly = true })
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                            </div>
+
+                            <div style="display: none;" id="tab-02">
+
+                                <div class="col-md-12">
+                                    <div class="bl-lg-panel-box pb-null">
+                                        <div class="cmn-panel-box">
+                                            <div class="row mb-md">
+                                               
+                                                <div class="col-md-12">
+                                                    <table class="table table-bordered">
+                                                        <thead>
+                                                            <tr>
+                                                                <th colspan="4">Transaction Details :</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="tbTransGrid">
+                                                            <tr>
+                                                                
+                                                                <td>
+                                                                    <label>Account Head :</label>
+                                                                    <h4 id="typename"></h4>
+                                                                </td>
+                                                                <td>
+                                                                    <label>Transaction Type :</label>
+                                                                    <h4 id="classifi"></h4>
+                                                                </td>
+                                                                <td>
+                                                                    <label>Amount :</label>
+                                                                    <h4 id="pi"></h4>
+                                                                </td>
+                                                                
+                                                            </tr>
+
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-12">
+                                     
+                                            <div id="">
+                                                <h3 class="mt-null"></h3>
+                                                <div class="row">
+
+                                                    <div class="col-md-3 pull-right">
+                                                        <div class="reg-no custom-reg-no">
+                                                            <div class="form-group custom-form-group">
+                                                                <label >Credit : </label>
+                                                                <label id="Cr"></label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-3 pull-right">
+                                                        <div class="reg-no custom-reg-no">
+                                                            <div class="form-group custom-form-group">
+                                                                <label >Debit : </label>
+                                                                <label id="Dr"></label>
+                                                             </div>
+                                                        </div>
+                                                    </div>
+                                                  
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                            </div>
+                            <div style="display: none;" id="tab-03">
+                                <div class="col-md-3"></div>
+                                <div class="col-md-6">
+                                    <div class="bl-lg-panel-box pb-null">
+                                        <div class="cmn-panel-box">
+                                            <div class="row mb-md">
+                                                <div class="col-md-3"></div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+
+                                                        <label class="required">Date Of Payment: </label>
+                                                        @Html.EditorFor(m => m.DateOfPayment, new { @class = "form-control required", @id = "dateofpayment", @autocomplete = "off" })
+                                                        @Html.ValidationMessageFor(m => m.DateOfPayment)
+                                                        @*@Html.HiddenFor(m => m.ToDate)*@
+                                                    </div>
+                                                    <div class="form-group">
+
+                                                        <label class="required">Challan No: </label>
+                                                        @Html.TextBoxFor(m => m.ChallanNo, new { @class = "form-control required", @id = "challanno", @autocomplete = "off" })
+                                                        @Html.ValidationMessageFor(m => m.ChallanNo)
+                                                    </div>
+                                                    <div class="form-group">
+
+                                                        <label class="required">Bank Reference No: </label>
+                                                        @Html.TextBoxFor(m => m.BankRefNo, new { @class = "form-control required", @id = "bankrefno", @autocomplete = "off" })
+                                                        @Html.ValidationMessageFor(m => m.BankRefNo)
+                                                    </div>
+                                                    <div class="form-group">
+
+                                                        <label>Remarks: </label>
+                                                        @Html.TextAreaFor(m => m.Remark, new { @class = "form-control", @id = "remarks", @autocomplete = "off" })
+                                                    </div>
+                                                    <div class="form-group">
+
+                                                        <label class="required">Attachment: </label>
+                                                        <input type="file" class="required" name="AttachmentFile" />
+                                                        @Html.ValidationMessageFor(m => m.AttachmentFile)
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <a href="@Url.Action("ShowDocument","Project",new { file = Model.AttachmentName, filepath = Model.AttachmentPath })" target="_blank">@Model.AttachmentActualName</a>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3"></div>
+                            </div>
+
+                        </div>
+                        <div class="custom-nav-btn text-right dis-none" id="SubmitBtn">
+                            <button type="button" class="btn btn-primary pull-right" onclick="formSave()">Submit</button>
+                            <button type="button" class="btn btn-default pull-right" id="CloseBtn" onclick="window.location.href='@Url.Action("TDSPaymentList", "CoreAccounts")';">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+}
+<div id="ValidationModal" class="modal fade modal-warning" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-warning"></i>
+                <h3 class="modal-title">Warning</h3>
+            </div>
+            <div class="modal-body">
+
+                <p id="MsgValidation"></p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script>
+    $("#picDel").on("click", function () {
+        $("#tab-01").css("display", "block");
+        $("#tab-02").css("display", "none");
+        $("#tab-03").css("display", "none");
+        $("#tab-04").css("display", "none");
+        $("#tab-05").css("display", "none");
+        $("#picDel").addClass('active');
+        $("#allOca").removeClass('active');
+        $("#modEof").removeClass('active');
+        $("#modEof1").removeClass('active');
+        $("#allOca1").removeClass('active');
+    });
+
+    $("#allOca").on("click", function () {
+        var hadError = false;
+        var tabs = $("#tab-01");
+        var currentTabEle = tabs;
+        var inputs = $(":input, textarea, select"); // get all the form inputs and selects
+        var stepElements = $(currentTabEle).find(inputs);
+        $(stepElements).each(function (idx, ele) {
+
+            if (!$(ele).is(':radio') && !$(ele).is(':checkbox') && !$(ele).is(':password')) {
+                isValid = $(ele).valid();//$(document.forms[0]).validate().element($(this)); // check that the input is valid. This can also be used on a per input basis to perform another action if the field is not valid.
+                if (!isValid) { hadError = true; } // set our flag if there was an error
+            }
+        });
+        if (!hadError) {
+            $("#tab-01").css("display", "none");
+            $("#tab-02").css("display", "block");
+            $("#tab-03").css("display", "none");
+            $("#tab-04").css("display", "none");
+            $("#tab-05").css("display", "none");
+            $("#picDel").removeClass('active');
+            $("#allOca").addClass('active');
+            $("#modEof").removeClass('active');
+            $("#modEof1").removeClass('active');
+            $("#allOca1").removeClass('active');
+        }
+      
+    });
+
+    $("#modEof").on("click", function () {
+        $("#tab-01").css("display", "none");
+        $("#tab-02").css("display", "none");
+        $("#tab-03").css("display", "block");
+        $("#tab-04").css("display", "none");
+        $("#tab-05").css("display", "none");
+        $("#picDel").removeClass('active');
+        $("#allOca").removeClass('active');
+        $("#modEof").addClass('active');
+        $("#modEof1").removeClass('active');
+        $("#allOca1").removeClass('active');
+    });
+
+    $("#modEof1").on("click", function () {
+        $("#tab-01").css("display", "none");
+        $("#tab-02").css("display", "none");
+        $("#tab-03").css("display", "none");
+        $("#tab-04").css("display", "block");
+        $("#tab-05").css("display", "none");
+        $("#picDel").removeClass('active');
+        $("#allOca").removeClass('active');
+        $("#modEof").removeClass('active');
+        $("#modEof1").addClass('active');
+        $("#allOca1").removeClass('active');
+    });
+
+    $("#allOca1").on("click", function () {
+        $("#tab-01").css("display", "none");
+        $("#tab-02").css("display", "none");
+        $("#tab-03").css("display", "block");
+        $("#tab-04").css("display", "none");
+        $("#tab-05").css("display", "none");
+        $("#picDel").removeClass('active');
+        $("#allOca").removeClass('active');
+        $("#modEof").removeClass('active');
+        $("#modEof1").removeClass('active');
+        $("#allOca1").addClass('active');
+    });
+
+
+///////////
+    var TDSid = $("#TDSid").val();
+    var Category = $("#Category").val();
+    var payment = $("#finalpayment").val();
+    $(document).ready(function () {
+
+        if (payment==1)
+        {
+            $("#SubmitBtn").addClass('dis-none')
+            $("#allOca1").removeClass('dis-none');
+            $("#tab-01").find('input[type="checkbox"]', 'input[type="radio"]', '.form-control', 'input[type="text"]').prop('disabled', true);
+            $("#FromDate,#Category,#ToDate,#Section,#bankid").prop("readonly", true);
+            $("#FromDate,#Category,#ToDate,#Section,#bankid").prop("disabled", true);
+            $('.btn-circle').removeClass();
+            $('.ion-close-round').removeClass();
+        }
+
+       if (TDSid == 0)
+       {
+           $("#tdsgsttable,#tdsincometaxtable,#TOTALTDS,#TOTALGST,#TransactionTDS,#TransactionGST,#incometaxheading,#gstheading").hide();
+       }
+       else if (TDSid > 0 && Category == 1)
+       {
+           $("#tdsgsttable,#gstheading,#TOTALGST,#TransactionGST").hide();
+           $("#tdsincometaxtable,#TOTALTDS,#TransactionTDS,#incometaxheading").show();
+       }
+       else if (TDSid > 0 && Category == 2)
+       {
+           $("#tdsgsttable,#gstheading,#TOTALGST,#TransactionGST").show();
+           $("#tdsincometaxtable,#TOTALTDS,#TransactionTDS,#incometaxheading").hide();
+       }
+   });
+
+    $('#ToDate, #FromDate,#DateOfPayment').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
+
+    $("#Category").change(function () {
+        var cate = $(this).val();
+        if (cate == 1) {
+            $.getJSON("@Url.Action("LoadSection", "CoreAccounts")",
+                        function (locationdata) {
+                            var select = $("#Section");
+                            select.empty();
+                            $.each(locationdata, function (index, itemData) {
+                                select.append($('<option/>', {
+                                    value: itemData.HeadId,
+                                    text: itemData.Head
+                                }));
+                            });
+                            select.selectpicker('refresh');
+                        });
+        }
+        else {
+            var select = $("#Section");
+            select.empty();
+            select.append($('<option/>', {
+                value: 0,
+                text: 'NA'
+            }));
+            select.selectpicker('refresh');
+        }
+    });
+   // var headid = $("#Section").val();
+    function LoadTDSIncomeTax(fromdate, todate, headid, bankid, TDSPaymentId) {
+        $("#tdsincometaxtable tr:not(:first)").empty();
+        $('.loading-bg').removeClass('dis-none');
+        $.ajax({
+            type: "POST",
+            data: JSON.stringify({ 'fromdate': fromdate, 'todate': todate, 'headid': headid, 'bankid': bankid, 'TDSPaymentId': TDSPaymentId }),
+            url: '@Url.Action("GetTDSIncomeTaxList", "CoreAccounts")',
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (result) {
+                var row;
+                var totaltds = 0;
+                $.each(result, function (i, v1) {
+                    row += "<tr><td>" +
+                         "<input type='checkbox' name='TDSIncomeTax[" + v1.SlNo + "].TDSCheckbox'  value='true' class='btn btn-info' checked/><input type='hidden' name='TDSIncomeTax[" + v1.SlNo + "].BoaTransId'  value=" + v1.BoaTransId + "><input type='hidden' name='TDSIncomeTax[" + v1.SlNo + "].Type'  value=" + v1.Type + "><input type='hidden' name='TDSIncomeTax[" + v1.SlNo + "].TDSAmount'  value=" + v1.TDSAmount + "><input type='hidden' name='TDSIncomeTax[" + v1.SlNo + "].Party'  value='" + v1.Party + "'><input type='hidden' name='TDSIncomeTax[" + v1.SlNo + "].TDSAmount'  value=" + v1.TDSAmount + "><input type='hidden' name='TDSIncomeTax[" + v1.SlNo + "].PAN'  value=" + v1.PAN + "><input type='hidden' name='TDSIncomeTax[" + v1.SlNo + "].ReferenceNo'  value=" + v1.ReferenceNo + "><input type='hidden' name='TDSIncomeTax[" + v1.SlNo + "].DateOfTransaction'  value=" + v1.DateOfTransaction + "><input type='hidden' name='TDSIncomeTax[" + v1.SlNo + "].DetailId'  value=" + v1.DetailId + ">"
+                           + "</td><td>" + v1.Party + "</td><td>" + v1.PAN + "</td><td>" + v1.ReferenceNo + "</td><td>" + v1.DateOfTransaction +
+                         "</td><td>" + v1.TDSAmount + "</td></tr>";
+
+                    totaltds += v1.TDSAmount;
+                });
+                $("#totaltds").val(parseFloat(totaltds.toFixed(2)));
+                $("#banktrans").val(parseFloat(totaltds.toFixed(2)));
+                $("#tdstrans").val(parseFloat(totaltds.toFixed(2)));
+
+                $("#tdsincometaxtable").append(row);
+                $('.loading-bg').addClass('dis-none');
+            },
+        })
+
+    }
+
+    function LoadGST(fromdate, todate, bankid, TDSPaymentId)
+    {
+        $("#tdsgsttable tr:not(:first)").empty();
+        $('.loading-bg').removeClass('dis-none');
+        $.ajax({
+            type: "POST",
+            data: JSON.stringify({ 'fromdate': fromdate, 'todate': todate, 'bankid': bankid, 'TDSPaymentId': TDSPaymentId }),
+            url: '@Url.Action("GetTDSGSTList", "CoreAccounts")',
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (result) {
+                var row;
+                var totalgst = 0;
+                var headid = 0;
+                var amount = 0;
+                var igst = 0;
+                var cgst = 0;
+                var sgst = 0;
+                var tdcgst = 0;
+                var tdsgst = 0;
+                var tdigst = 0;
+                $.each(result, function (i, v1) {
+                    row += "<tr><td>" +
+                         "<input type='checkbox' name='TDSGST[" + v1.SlNo + "].TDSCheckbox'  value='true' class='btn btn-info' checked/><input type='hidden' name='TDSGST[" + v1.SlNo + "].BoaTransId'  value=" + v1.BoaTransId + "><input type='hidden' name='TDSGST[" + v1.SlNo + "].Type'  value=" + v1.Type + "><input type='hidden' name='TDSGST[" + v1.SlNo + "].GSTAmount'  value=" + v1.GSTAmount + "><input type='hidden' name='TDSGST[" + v1.SlNo + "].GSTHeadId'  value=" + v1.GSTHeadId + "><input type='hidden' name='TDSGST[" + v1.SlNo + "].Party' value='" + v1.Party + "'><input type='hidden' name='TDSGST[" + v1.SlNo + "].ReferenceNo' value=" + v1.ReferenceNo + "><input type='hidden' name='TDSGST[" + v1.SlNo + "].DateOfTransaction' value=" + v1.DateOfTransaction + "><input type='hidden' name='TDSGST[" + v1.SlNo + "].DetailId' value=" + v1.DetailId + ">"
+                           + "</td><td>" + v1.ReferenceNo + "</td><td>" +
+                           v1.Party
+                           + "</td><td>" + v1.GSTHead + "</td><td>" +  v1.DateOfTransaction +
+                         "</td><td>" + v1.GSTAmount + "</td></tr>";
+                    totalgst += v1.GSTAmount;
+                    if(v1.GSTHeadId==44){
+                        tdcgst += v1.GSTAmount;
+                    }
+                    else if(v1.GSTHeadId==45){
+                        tdsgst += v1.GSTAmount;
+                    }
+                    else if (v1.GSTHeadId == 46) {
+                        tdigst += v1.GSTAmount;
+                    }
+                });
+                $("#totalgst").val(parseFloat(totalgst).toFixed(2));
+                $("#bankgst").val(parseFloat(totalgst).toFixed(2));
+                $("#totalcgst").val(parseFloat(tdcgst).toFixed(2));
+                $("#totalsgst").val(parseFloat(tdsgst).toFixed(2));
+                $("#totaligst").val(parseFloat(tdigst).toFixed(2));
+                $("#cgsttrans").val(parseFloat(tdcgst).toFixed(2));
+                $("#igsttrans").val(parseFloat(tdigst).toFixed(2));
+                $("#sgsttrans").val(parseFloat(tdsgst).toFixed(2));
+                $("#tdsgsttable").append(row);
+                $('.loading-bg').addClass('dis-none');
+            },
+        })
+    }
+
+
+    $(document).on('change', '#FromDate', function () {
+        var fromdate = $("#FromDate").val();
+        var todate = $("#ToDate").val();
+        var headid = $("#Section").val();
+        var Category = $("#Category").val();
+        var bankid = $("#bankid").val();
+        var TDSPaymentId = $("#TDSid").val();
+        if (fromdate != "" && todate != "" && headid != "" && bankid !=""&& Category == 1)
+        {
+            $("#tdsgsttable,#gstheading,#TOTALGST,#TransactionGST").hide();
+            $("#tdsincometaxtable,#TOTALTDS,#TransactionTDS,#incometaxheading").show();
+            LoadTDSIncomeTax(fromdate, todate, headid, bankid, TDSPaymentId);
+        }
+        else if (fromdate != "" && todate != "" && bankid != "" && Category == 2) {
+            $("#tdsgsttable,#gstheading,#TOTALGST,#TransactionGST").show();
+            $("#tdsincometaxtable,#TOTALTDS,#TransactionTDS,#incometaxheading").hide();
+            LoadGST(fromdate, todate, bankid, TDSPaymentId);
+        }
+    });
+    $(document).on('change', '#ToDate', function () {
+        var fromdate = $("#FromDate").val();
+        var todate = $("#ToDate").val();
+        var headid = $("#Section").val();
+        var Category = $("#Category").val();
+        var bankid = $("#bankid").val();
+        var TDSPaymentId = $("#TDSid").val();
+        if (fromdate != "" && todate != "" && headid != "" && bankid != "" && Category == 1) {
+            $("#tdsgsttable,#gstheading,#TOTALGST,#TransactionGST").hide();
+            $("#tdsincometaxtable,#TOTALTDS,#TransactionTDS,#incometaxheading").show();
+            LoadTDSIncomeTax(fromdate, todate, headid, bankid, TDSPaymentId);
+        }
+        else if (fromdate != "" && todate != "" && bankid != "" && Category == 2) {
+            $("#tdsgsttable,#gstheading,#TOTALGST,#TransactionGST").show();
+            $("#tdsincometaxtable,#TOTALTDS,#TransactionTDS,#incometaxheading").hide();
+            LoadGST(fromdate, todate, bankid, TDSPaymentId);
+        }
+    });
+    $(document).on('change', '#bankid', function () {
+        var fromdate = $("#FromDate").val();
+        var todate = $("#ToDate").val();
+        var headid = $("#Section").val();
+        var Category = $("#Category").val();
+        var bankid = $("#bankid").val();
+        var TDSPaymentId = $("#TDSid").val();
+        if (fromdate != "" && todate != "" && headid != "" && bankid != "" && Category == 1) {
+            $("#tdsgsttable,#gstheading,#TOTALGST,#TransactionGST").hide();
+            $("#tdsincometaxtable,#TOTALTDS,#TransactionTDS,#incometaxheading").show();
+            LoadTDSIncomeTax(fromdate, todate, headid, bankid, TDSPaymentId);
+        }
+        else if (fromdate != "" && todate != "" && bankid != "" && Category == 2) {
+            $("#tdsgsttable,#gstheading,#TOTALGST,#TransactionGST").show();
+            $("#tdsincometaxtable,#TOTALTDS,#TransactionTDS,#incometaxheading").hide();
+            LoadGST(fromdate, todate, bankid, TDSPaymentId);
+        }
+    });
+    $(document).on('change', '#Section', function () {
+        var fromdate = $("#FromDate").val();
+        var todate = $("#ToDate").val();
+        var headid = $("#Section").val();
+        var Category = $("#Category").val();
+        var bankid = $("#bankid").val();
+        var TDSPaymentId = $("#TDSid").val();
+        if (fromdate != "" && todate != "" && headid != "" && bankid != "" && Category == 1) {
+            $("#tdsgsttable,#gstheading,#TOTALGST,#TransactionGST").hide();
+            $("#tdsincometaxtable,#TOTALTDS,#TransactionTDS,#incometaxheading").show();
+            LoadTDSIncomeTax(fromdate, todate, headid, bankid, TDSPaymentId);
+        }
+        else if (fromdate != "" && todate != "" && bankid != "" && Category == 2) {
+            $("#tdsgsttable,#gstheading,#TOTALGST,#TransactionGST").show();
+            $("#tdsincometaxtable,#TOTALTDS,#TransactionTDS,#incometaxheading").hide();
+            LoadGST(fromdate, todate, bankid, TDSPaymentId);
+        }
+    });
+    $(document).on('change', '#Category',function(){
+        var fromdate = $("#FromDate").val();
+        var todate = $("#ToDate").val();
+        var Category = $("#Category").val();
+        var bankid = $("#bankid").val();
+        var TDSPaymentId = $("#TDSid").val();
+        if (fromdate != "" && todate != "" && bankid != "" && Category == 2) {
+            $("#tdsgsttable,#gstheading,#TOTALGST,#TransactionGST").show();
+            $("#tdsincometaxtable,#TOTALTDS,#TransactionTDS,#incometaxheading").hide();
+            LoadGST(fromdate, todate, bankid, TDSPaymentId);
+        }
+        else if (fromdate != "" && todate != "" && Category == 1) {
+            $("#tdsgsttable,#TransactionGST,#tdsincometaxtable,#TOTALTDS,#TOTALGST,#TransactionTDS,#incometaxheading,#gstheading").hide();
+        }
+    })
+    $(document).on('click', '#tdsincometaxtable input[type = "checkbox"]', function () {
+        CalculateTDSAmount();
+    });
+    $(document).on('click', '#tdsgsttable input[type = "checkbox"]', function () {
+        CalculateGSTAmount();
+    });
+    function CalculateTDSAmount() {
+        var tdsamount = 0;
+        var amount = 0;
+        $('#tdsincometaxtable tr:not(:first)').each(function () {
+
+            if ($(this).find('input[type = "checkbox"]').is(':checked')) {
+                tdsamount = parseFloat($(this).find('td:nth-child(6)').text()) || 0;
+                amount += tdsamount;
+            }
+        })
+        $("#totaltds").val("");
+        $("#totaltds").val(parseFloat(amount).toFixed(2));
+        $("#banktrans").val(parseFloat(amount).toFixed(2));
+        $("#tdstrans").val(parseFloat(amount).toFixed(2));
+    }
+    function CalculateGSTAmount() {
+        var gstamount = 0;
+        var amount = 0;
+        var headid=0;
+        var igst=0;
+        var cgst=0;
+        var sgst=0;
+        var tdcgst=0;
+        var tdsgst=0;
+        var tdigst=0;
+        $('#tdsgsttable tr:not(:first)').each(function () {
+
+            if ($(this).find('input[type = "checkbox"]').is(':checked')) {
+                gstamount = parseFloat($(this).find('td:nth-child(6)').text()) || 0;
+                headid = $(this).closest('tr').find('[name$=".GSTHeadId"]').val();
+                //head = head.replace(/^\s+|\s+$/g, '');
+                amount += gstamount;
+                if (headid ==44 ) {
+                    cgst = parseFloat($(this).find('td:nth-child(6)').text()) || 0;
+                    tdcgst += cgst;
+
+                }
+                else if (headid == 45) {
+                    sgst = parseFloat($(this).find('td:nth-child(6)').text()) || 0;
+                    tdsgst += sgst;
+
+                }
+                else if (headid == 46) {
+                    igst = parseFloat($(this).find('td:nth-child(6)').text()) || 0;
+                    tdigst += igst;
+                }
+            }
+        })
+        $("#totalgst").val(parseFloat(amount.toFixed(2)));
+        $("#totalgst").val(parseFloat(amount.toFixed(2)));
+        $("#bankgst").val(parseFloat(amount.toFixed(2)));
+        $("#totalcgst").val(parseFloat(tdcgst.toFixed(2)));
+        $("#totalsgst").val(parseFloat(tdsgst.toFixed(2)));
+        $("#totaligst").val(parseFloat(tdigst.toFixed(2)));
+        $("#cgsttrans").val(parseFloat(tdcgst.toFixed(2)));
+        $("#igsttrans").val(parseFloat(tdigst.toFixed(2)));
+        $("#sgsttrans").val(parseFloat(tdsgst.toFixed(2)));
+    }
+
+    function formSave()
+    {
+        var Cr=  parseFloat($("#Cr").text())||0;
+        var Dr = parseFloat($("#Dr").text()) || 0;
+        if (Cr != Dr)
+        $('#MsgValidation').html("Not a valid entry. Credit and Debit value are not equal.");
+        $('#ValidationModal').modal('toggle');
+        $('#formTDSpayment').submit();
+    }
+    $(document).on('click', 'a.firsttab', function () {
+            $("#SubmitBtn").addClass('dis-none')
+    });
+    $(document).on('click', 'a.secondtab', function () {
+        if (payment == 1)
+            $("#SubmitBtn").addClass('dis-none')
+         else
+            $("#SubmitBtn").removeClass('dis-none')
+        var Category = $("#Category").val() || 0;
+        if (Category == "2") {
+            
+            var Creditbankid =$("#Creditbankid").val();
+            
+           
+                $("#tbTransGrid tr:not(:first)").empty();
+                $('.loading-bg').removeClass('dis-none');
+                $.ajax({
+                    type: "POST",
+                    data: JSON.stringify({ 'BankHead': Creditbankid, 'ITtds': 0 }),
+                    url: '@Url.Action("GetTXPtransactionDetail", "CoreAccounts")',
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (result) {
+                        var BankTrans = "Credit";
+                        var sgstLedTrans = "Debit";
+                        var cgstLedTrans = "Debit";
+                        var igstLedTrans = "Debit";
+                        var sgst = 0;
+                        sgst=  parseFloat($("#totalsgst").val()) || 0;
+                        var cgst = 0;
+                        cgst = parseFloat($("#totalcgst").val()) || 0;
+                        var igst = 0;
+                        igst = parseFloat($("#totaligst").val()) || 0;
+                        var gst = 0;
+                        gst = parseFloat($("#totalgst").val()) || 0;
+                        if (gst < 0)
+                            BankTrans = "Debit";
+                        if (sgst < 0)
+                            sgstLedTrans = "Credit";
+                        if (cgst < 0)
+                            cgstLedTrans = "Credit";
+                        if (igst < 0)
+                            igstLedTrans = "Credit";
+                        var row="";
+                        row += "<tr><td>IGST - TDS </td><td>" + igstLedTrans + "</td><td>" + igst + "</td></tr>";
+                        row += "<tr><td>CGST - TDS </td><td>" + cgstLedTrans + "</td><td>" + cgst + "</td></tr>";
+                        row += "<tr><td>SGST - TDS </td><td>" + sgstLedTrans + "</td><td>" + sgst + "</td></tr>";
+                        row += "<tr><td>" + result.Item1 + "</td><td>" + BankTrans + "</td><td>" + gst + "</td></tr>";
+                        $("#tbTransGrid").append(row);
+                        $("#Cr,#Dr").text("");
+                        $("#Cr,#Dr").text(gst);
+                        $('.loading-bg').addClass('dis-none');
+                    },
+                })
+            
+        } else {
+             
+           
+            var tdsid = parseFloat($("#Section").val()) || 0;
+            var Creditbankid =$("#Creditbankid").val();                              
+           
+                $("#tbTransGrid tr:not(:first)").empty();
+                $('.loading-bg').removeClass('dis-none');
+                $.ajax({
+                    type: "POST",
+                    data: JSON.stringify({ 'BankHead': Creditbankid, 'ITtds': tdsid }),
+                    url: '@Url.Action("GetTXPtransactionDetail", "CoreAccounts")',
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (result) {
+                        var BankTrans = "Credit";
+                        var LedTrans = "Debit";
+
+                        var tds = parseFloat($("#tdstrans").val()) || 0;
+                        var bank = parseFloat($("#banktrans").val()) || 0;
+                        var row;
+                        if (bank < 0)
+                            BankTrans = "Debit";
+                        if (tds < 0)
+                            LedTrans = "Credit";
+                        row += "<tr><td>" + result.Item2 + "</td><td>" + LedTrans + "</td><td>" + tds + "</td></tr>";
+                        row += "<tr><td>" + result.Item1 + "</td><td>" + BankTrans + "</td><td>" + bank + "</td></tr>";
+                        $("#tbTransGrid").append(row);
+                        $("#Cr,#Dr").text("");
+                        $("#Cr,#Dr").text(bank);
+                        $('.loading-bg').addClass('dis-none');
+                    },
+                })
+            
+        }
+    });
+    $(document).on('click', 'a.thirdtab', function () {
+        $("#SubmitBtn").removeClass('dis-none')
+    });
+    $(document).on('click', 'a.ITDownBtn', function () {
+        var fromdate = $("#FromDate").val();
+        var todate = $("#ToDate").val();
+        var headid = $("#Section").val();
+        var Category = $("#Category").val();
+        var bankid = $("#bankid").val();
+        var TDSPaymentId = $("#TDSid").val();
+        if (fromdate != "" && todate != "" && headid != "" && bankid != "" && Category != "") {
+            var url = '@Url.Action("ITTDSPayment", "Reports")?FromDate=' + fromdate + "&ToDate=" + todate + "&BankId=" + bankid + "&Accid=" + headid;
+            window.location.href = url;
+        }
+    });
+    $(document).on('click', 'a.GSTDownBtn', function () {
+        var fromdate = $("#FromDate").val();
+        var todate = $("#ToDate").val();
+        var headid = $("#Section").val();
+        var Category = $("#Category").val();
+        var bankid = $("#bankid").val();
+        var TDSPaymentId = $("#TDSid").val();
+        if (fromdate != "" && todate != ""  && bankid != "" && Category != "") {
+            var url = '@Url.Action("GSTTDSPayment", "Reports")?FromDate=' + fromdate + "&ToDate=" + todate  + "&BankId=" + bankid;
+            window.location.href = url;
+        }
+    });
+</script>
+
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>

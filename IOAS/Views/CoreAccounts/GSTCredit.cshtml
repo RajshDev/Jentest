@@ -1,0 +1,327 @@
+﻿@model IOAS.Models.GSTCredit
+
+
+@{
+    ViewBag.Title = "GSTCredit";
+    //ViewBag.Subtitle = "Reports";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+<div class="row hd-tt-bg">
+    <div class="col-md-12">
+        <h4><b>GST Credit</b> </h4>
+    </div>
+</div>
+
+
+<style>
+    input[type="checkbox"]{
+  width: 30px; /*Desired width*/
+  height: 30px; /*Desired height*/
+}
+    .vw-dts-bg .hgt-bg {
+        background: #597df0;
+        color: #fff;
+    }
+
+        .vw-dts-bg .hgt-bg label {
+            font-size: 16px !important;
+            color: #fff !important;
+        }
+
+        .vw-dts-bg .hgt-bg h4 {
+            font-size: 18px !important;
+            color: #fff;
+        }
+
+    .vw-dts-bg .hgt-bg-pl {
+        background: #e11eda;
+        color: #fff;
+    }
+
+        .vw-dts-bg .hgt-bg-pl label {
+            font-size: 16px !important;
+            color: #fff !important;
+        }
+
+        .vw-dts-bg .hgt-bg-pl h4 {
+            font-size: 18px !important;
+            color: #fff;
+        }
+</style>
+@using (Html.BeginForm("GSTCredit", "CoreAccounts", FormMethod.Post, new { @class = "", role = "form", @id = "formGSTCredit" }))
+{
+<div class="row">
+    <div class="white-bg ad-navbar">
+        <div class="col-md-3 ds-spl-bg">
+            <div class="ds-icn">
+                <i class="ion-ios-list-outline "></i>
+            </div>
+            <div class="ds-tt">
+                <span>GSTIN</span>
+                @Html.TextBoxFor(m => m.GSTINNo, new { @class = "form-control", @id = "gstinno" })
+                @Html.TextBoxFor(m => m.GSTIN, new { @class = "form-control dis-none", @id = "gstin" })
+            </div>
+        </div>
+
+        <div class="col-md-3 ds-spl-bg">
+            <div class="ds-icn">
+                <i class="ion-ios-calendar-outline"></i>
+            </div>
+            <div class="ds-tt">
+                <span >Invoice Number</span>
+                @Html.TextBoxFor(m => m.InvoiceNo, new { @class = "form-control", @id = "invoiceno" })
+
+            </div>
+        </div>
+        <div class="col-md-3 ds-spl-bg">
+           
+            <div class="ds-tt">
+                <span >Reference No</span>
+                @Html.TextBoxFor(m => m.RefNo, new { @class = "form-control", @id = "refno" })
+
+            </div>
+        </div>
+        <div class="col-md-3 ds-spl-bg">
+            <div class="ds-tt">
+                <input type="button" value="View" class="btn btn-primary mt-20" id="btnSubmit" />
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="row vw-dts-bg">
+    <div class="col-md-12 bk-tb-scrl">
+        <table class="table table-bordered " id="GSTtable">
+            @*<thead>
+                <tr>
+                    <th colspan="11">Invoice Tax Details :</th>
+                </tr>
+            </thead>*@
+            <tbody>
+                <tr>
+                    <td>
+                        <label>Bill Number :</label>
+                    </td>
+                    <td>
+                        <label>Vendor Name :</label>
+                    </td>
+                    <td>
+                        <label>Invoice Number :</label>
+                    </td>
+                    <td>
+                        <label>Invoice Date :</label>
+                    </td>
+                    <td>
+                        <label>Amount :</label>
+                    </td>
+                    <td>
+                        <label>Tax % :</label>
+                    </td>
+                    <td>
+                        <label>Tax Amount:</label>
+                    </td>
+                    <td>
+                        <label>GSTIN:</label>
+                    </td>
+                    <td>
+                        <label>Interstate:</label>
+                    </td>
+                    <td>
+                        <label>GST Credit:</label>
+                    </td>
+                </tr>
+
+                @if (Model.CreditList != null)
+                {
+                    var count = 0;
+                    foreach (var item in Model.CreditList)
+                    {
+                        var GSTcheckbox = "CreditList[" + count + "].CreditCheckBox";
+                        var TransType = "CreditList[" + count + "].TransactionTypeCode";
+                        var date = "CreditList[" + count + "].Posteddate";
+                        var id = "CreditList[" + count + "].Id";
+                        var RefNo = "CreditList[" + count + "].RefNo";
+                        var VendorName = "CreditList[" + count + "].VendorName";
+                        var InvoiceNo = "CreditList[" + count + "].InvoiceNo";
+                        var InvDate = "CreditList[" + count + "].InvoiceDate";
+                        var GSTIN = "CreditList[" + count + "].GSTIN";
+                        <tr id="inputrow">
+                            <td>
+                                @Html.Hidden(@RefNo, item.RefNo)
+                                @Html.Hidden(@VendorName, item.VendorName)
+                                @Html.Hidden(@InvoiceNo, item.InvoiceNo)
+                                @Html.Hidden(@GSTIN, item.GSTIN)
+                                <input type="hidden" name="@InvDate" value="@item.InvoiceDate" />    
+                                @Html.Hidden(@id, item.Id)
+                                @Html.Hidden(@TransType, item.TransactionTypeCode)    
+                                <input type="hidden" name="@date" value="@item.Posteddate" />                                              
+                                @Html.Hidden("CreditList.SlNo", @count)
+                                @Html.DisplayFor(m => item.RefNo)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(m => item.VendorName)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(m => item.InvoiceNo)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(m => item.InvoiceDate)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(m => item.Amount)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(m => item.TaxPer)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(m => item.TaxAmount)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(m => item.GSTIN)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(m => item.Interstate)
+                            </td>
+                            <td>
+                                @Html.CheckBox(@GSTcheckbox, item.CreditCheckBox, new { @id = "gstcheckbox" })
+                            </td>
+
+                        </tr>
+                        count++;
+                    }
+                }
+
+            </tbody>
+        </table>
+    </div>
+
+
+</div>
+
+
+<div class="col-md-5 pull-right">
+    <div class="reg-no custom-reg-no">
+        <div class="form-group custom-form-group">
+            <span>Total Amount</span>
+            @Html.TextBoxFor(m => m.TotalAmt, new { @class = "form-control", @id = "Amt" ,@readonly=true})
+        </div>
+    </div>
+</div>
+<div class="custom-nav-btn text-right " id="SubmitBtn">
+    <button type="button" class="btn btn-primary pull-right"onclick="formSave()">Submit</button>
+    <button type="button" class="btn btn-default pull-right" id="CloseBtn" onclick="window.location.href='@Url.Action("Dashboard", "Home")';">Close</button>
+</div>
+}
+<div id="popup"></div>
+<script>
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    $(document).ready(function () {
+        $('input[type="text"]').val('');
+        $("#GSTtable tr:not(:first)").empty();
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+    //    applyAutoComplete($('#gstinno'), $('#gstin'), "../CoreAccounts/LoadGSTINList", undefined, undefined, undefined);
+    //    aplyAutoCom($('#invoiceno'), "../CoreAccounts/LoadInvoiceNoList");
+    //    applyAutoComplete($('#refno'), $('#refno'), "../CoreAccounts/LoadRefNoList", undefined, undefined, undefined);
+        //
+    });
+    $(document).on('click', '#gstinno', function () {
+
+        applyAutoComplete($('#gstinno'), $('#gstinno'), "../CoreAccounts/LoadGSTINList", undefined, undefined, undefined);
+    });
+    $(document).on('click', '#invoiceno', function () {
+
+        aplyAutoCom($('#invoiceno'), "../CoreAccounts/LoadInvoiceNoList");
+    });
+    $(document).on('click', '#refno', function () {
+
+        applyAutoComplete($('#refno'), $('#refno'), "../CoreAccounts/LoadRefNoList", undefined, undefined, undefined);
+    });
+    function aplyAutoCom(ele, url) {
+        $(ele).autocomplete({
+            select: function (event, ui) {
+                event.preventDefault();
+                $(ele).val(ui.item.label);              
+               $('#invoiceno').val(ui.item.value);
+            },
+            focus: function (event, ui) {
+                event.preventDefault();
+                $(ele).val(ui.item.label);
+            },
+            source: function (request, response) {
+                $.getJSON(url, { term: request.term },
+                 function (locationdata) {
+                     response(locationdata);
+                 });
+            },
+            minLength: 1
+        });
+    }
+    function LoadGST(GSTIN, InvoiceNo, RefNo) {
+        $("#GSTtable tr:not(:first)").empty();
+        $('.loading-bg').removeClass('dis-none');
+        $.ajax({
+            type: "POST",
+            data: JSON.stringify({ 'GSTIN': GSTIN, 'InvoiceNo': InvoiceNo, 'RefNo': RefNo }),
+            url: '@Url.Action("GetGSTCredit", "CoreAccounts")',
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (result) {            
+                var row;
+                var Amt = 0;
+                var TtlAmt = 0;
+                $.each(result, function (i, v1) {
+                    //var txDate = $('<input/>', { type: 'hidden', name: "CreditList[" + v1.SlNo + "].Posteddate" })
+                    //               .datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', autoclose: true });
+                  //  var Date = new window.Date(parseInt(v1.Posteddate.replace(/(^.*\()|([+-].*$)/g, '')));
+                    row += "<tr><td>" + v1.RefNo + "<input type='hidden' name='CreditList[" + v1.SlNo + "].Posteddate'  value=" + v1.Strdate + "><input type='hidden' name='CreditList[" + v1.SlNo + "].Id'  value=" + v1.Id + "><input type='hidden' name='CreditList[" + v1.SlNo + "].TransactionTypeCode'  value=" + v1.TransactionTypeCode + "><input type='hidden' name='CreditList[" + v1.SlNo + "].TaxAmount'  value=" + v1.TaxAmount + "><input type='hidden' name='CreditList[" + v1.SlNo + "].Interstate'  value=" + v1.Interstate + "><input type='hidden' name='CreditList[" + v1.SlNo + "].RefNo'  value='" + v1.RefNo + "'><input type='hidden' name='CreditList[" + v1.SlNo + "].VendorName'  value='" + v1.VendorName + "'><input type='hidden' name='CreditList[" + v1.SlNo + "].InvoiceNo'  value='" + v1.InvoiceNo + "'><input type='hidden' name='CreditList[" + v1.SlNo + "].InvDate'  value=" + v1.InvoiceDate + "><input type='hidden' name='CreditList[" + v1.SlNo + "].GSTIN'  value='" + v1.GSTIN + "'>" + "</td><td>" + v1.VendorName + "</td><td>" + v1.InvoiceNo + "</td><td>" +
+                           v1.InvoiceDate
+                           + "</td><td>" + v1.Amount + "</td><td>" + v1.TaxPer + "</td><td>" + v1.TaxAmount + "</td><td>" + v1.GSTIN +
+      "</td><td>" + v1.Interstate + "</td><td>"
+      + "<input type='checkbox' name='CreditList[" + v1.SlNo + "].CreditCheckBox'  data-id=" + v1.Id + " value='true' class='btn btn-info' />" +
+                          "</td></tr>";
+                   // TtlAmt += v1.TaxAmount;
+                });
+                $("#GSTtable").append(row);
+                $('.loading-bg').addClass('dis-none');
+                //$("#Amt").val("");
+                //$("#Amt").val(TtlAmt.toFixed(2));
+            },
+        });
+    }
+    $(document).on('click', '#GSTtable input[type = "checkbox"]', function () {
+        CalculateAmt();
+    });
+    function CalculateAmt() {
+        var GSTID = $("#GSTId").val();
+        var Amt = 0;
+        var TtlAmt = 0;
+        $('#GSTtable tr:not(:first)').each(function () {
+            if ($(this).find('input[type = "checkbox"]').is(':checked')) {
+                Amt = parseFloat($(this).find('td:nth-child(7)').text()) || 0;
+                headid = $(this).closest('tr').find('[name$=".TDSHeadId"]').val();
+                TtlAmt += Amt;
+            }
+        });
+        $("#Amt").val("");
+        $("#Amt").val(TtlAmt.toFixed(2));
+    }
+    $('#btnSubmit').click(function () {
+        var GSTIN = $('#gstinno').val();
+        var InvoiceNo = $('#invoiceno').val();
+        var RefNo = $('#refno').val();
+        LoadGST(GSTIN, InvoiceNo, RefNo);
+    });
+    function formSave() {
+        $('#formGSTCredit').submit();        
+    }
+</script>

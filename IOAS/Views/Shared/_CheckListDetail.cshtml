@@ -1,0 +1,154 @@
+﻿@model IEnumerable<IOAS.Models.CheckListModel>
+<div class="row">
+    <div class="col-md-10 col-md-offset-1">
+        <table class="table grey-alter-table">
+            <tbody id="tbodyCheckList">
+                @{
+                    if (Model != null)
+                    {
+                        var count = 0;
+                        foreach (var item in Model)
+                        {
+                            var chckName = "CheckListDetail[" + count + "].IsChecked";
+                            var chckIdName = "CheckListDetail[" + count + "].FunctionCheckListId";
+                            var chckListName = "CheckListDetail[" + count + "].CheckList";
+                            count++;
+                            <tr>
+                                <td>
+                                    @Html.Hidden(@chckIdName, item.FunctionCheckListId)
+                                    @Html.CheckBox(@chckName, item.IsChecked)
+                                    @Html.Hidden(@chckListName, item.CheckList)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(m => item.CheckList)
+                                </td>
+                            </tr>
+                        }
+                    }                    
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12 text-center mt30">
+        <a href="javascript:void(0)" id="lnkVerify" class="dis-none mr10">I acknowledge that I have verified the above checklist</a>
+    </div>
+</div>
+
+<div id="verifyModal" class="modal fade modal-pr-vw" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            @*<div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <div class="row hd-tt-bg">
+                        <div class="col-md-12">
+                            <h4><b>Verify :</b></h4>
+                        </div>
+                    </div>
+
+
+                </div>*@
+            <div class="modal-body">
+                <div class="row">
+                    <div class="page-wrapper">
+
+                        <div class="col-md-12">
+                            <div class="row">
+
+                                <div class="col-md-12">
+                                    <div>
+                                        <div>
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="form-group custom-form-group mb-null">
+
+                                                        <div class="row">
+                                                            @*<div class="col-md-6">
+                                                                    <div class="form-group custom-form-group mb-null">
+                                                                        <label class="required">Username</label>
+                                                                        <input class="form-control required" name="VerifierUsername" type="text">
+                                                                    </div>
+                                                                </div>*@
+                                                            <div class="col-md-12">
+                                                                <div class="form-group custom-form-group mb-null">
+                                                                    <label class="required">Password</label>
+                                                                    <input class="form-control required" id="VerifierPassword" type="password">
+                                                                    <span id="errorPass" class="field-validation-error"></span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            @*<div class="row">
+                                                    <div class="form-group custom-form-group text-center">
+                                                        <a id="btnVerify" href="javascript:void(0);" class="btn btn-primary mt-lg">Verify</a>
+                                                    </div>
+                                                </div>*@
+
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="page-wrapper">
+                    <div class="col-md-12">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <a id="btnVerify" href="javascript:void(0);" class="btn btn-primary">Verify</a>
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+    </div>
+
+</div>
+<script>
+    $('#tbodyCheckList input[name$=".IsChecked"]').click(function () {
+        if ($('#tbodyCheckList input[name$=".IsChecked"][type="checkbox"]').not(':checked').length > 0) {
+            $('#lnkVerify').addClass("dis-none");
+        } else {
+            $('#lnkVerify').removeClass("dis-none");
+        }
+        $('#CheckListVerified_By').val('');
+        $('#CheckListVerifierName').val('');
+        $('#Verified_ByName').html('');
+    });
+    $('#lnkVerify').click(function () {
+        var count = $('#tbodyCheckList input[name$=".IsChecked"]:checked').length;
+        if (count > 0) {
+            $('#verifyModal').modal('show');
+        } else {
+            $("#alert").text("Please check at least one check list from the list.");
+            $('#Validation').modal('show');
+        }
+    });
+    $('#btnVerify').click(function () {
+        var password = $('#VerifierPassword').val();
+        if(password == ''){
+            $('#errorPass').html('This field is required.');
+        }else{
+            $('#errorPass').html('');
+            $.getJSON("@Url.Action("Verification", "Account")",{Password : password},
+            function (data) {
+                if(data != false){
+                    $('#CheckListVerified_By').val(data.userId);
+                    $('#CheckListVerifierName').val(data.firstName);
+                    $('#Verified_ByName').html(data.firstName);
+                    $('#verifyModal').modal('hide');
+                }else{
+                    $('#errorPass').html('The password you entered is incorrect.');
+                }
+            });
+        }
+    });
+</script>

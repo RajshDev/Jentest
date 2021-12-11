@@ -1,0 +1,160 @@
+﻿@model IOAS.Models.Form3CModel
+
+@using IOAS.Infrastructure
+@{
+    ViewBag.Title = "Form3C";
+    ViewBag.Subtitle = "Form3C";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+    var UserId = Common.GetUserid(User.Identity.Name);
+    var AccessRole = Common.GetRoleAccess(UserId, 14);
+}
+
+
+<style>
+    .txt-red {
+        color: red;
+    }
+
+    .txt-green {
+        color: green;
+    }
+</style>
+
+<div class="row hd-tt-bg">
+
+    <div class="col-md-4">
+        <h3>Weighted Deduction Forms u/s.35(2AA)</h3>
+    </div>
+    <div class="col-md-8 flt-nav-links">
+
+
+        <a href="@Url.Action("Form3C","CoreAccounts")" id="btnAddNew"> <i class="ion-plus"></i>Add New Entry </a>
+     
+    </div>
+</div>
+
+<div class="row mt30">
+    <div class="page-wrapper">
+        <div class="row">
+
+            <div class="col-md-12">
+                <div class="page-wrapper">
+                    <div class="custom-jsgrid-normal">
+                        <div id="gridProposalList"></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<div id="popup"></div>
+
+<script type="text/javascript">
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+    });
+
+    $("#btnShowFilter").click(function () {
+        $('#popupCommitmentFilter').css("display", "Block");
+    });
+    var getForm3CBillURL = 'GetForm3CBillDetails'
+var db;
+
+$(function () {
+
+    $("#gridProposalList").jsGrid({
+        paging: true,
+        pageIndex: 1,
+        pageSize: 5,
+        editing: false,
+        filtering: true,
+        pageLoading: true,
+        autoload: true,
+        controller: {
+            loadData: function (filter) {
+                var searchData = [];
+                searchData = {
+                    SearchRefNo: filter.VoucherNo,
+                },
+                filter.model = searchData;
+                var deferred = $.Deferred();
+                $.ajax({
+                    type: "post",
+                    url: getForm3CBillURL,
+                    data: JSON.stringify(filter),
+                    contentType: "application/json; charset=utf-8",
+                    success: function (result) {
+
+                        var da = {
+                            data: result.Form3CList,
+                            itemsCount: result.TotalRecords
+                        }
+                        deferred.resolve(da);
+                    },
+                    error: function (err) {
+                        console.log("error : " + err);
+                    }
+
+                });
+                return deferred.promise();
+            }
+
+        },
+        fields: [
+            { name: "SlNo", title: "S.No", editing: false, width: 40 },
+             { name: "FormType", title: "Type", editing: false, filtering: false },
+            { type: "text", name: "VoucherNo", title: "VoucherNo", editing: false, filtering: false },
+            { type: "text", name: "ProjectNo", title: "Project No", editing: false },
+                        {
+                            name: "DocDetail",
+                            title: "Final document", width: 120,
+                            itemTemplate: function (value, item) {
+                                var elementDiv = $("<div>");
+                                elementDiv.attr("class", "ls-dts");
+                                var $link = "";
+                                if (value == null||value=="") {
+                                    $link = $("<label>").attr("value", "Nill").html('-');
+                                } else {
+                                    $link = $("<a>").attr("class", "ion-document icn").attr("href", item.Finalhref).attr("target", "_blank").html('');
+                                }
+
+                                    elementDiv.append($link);
+                                return elementDiv;
+                            }
+                        },
+                                     {
+                                         name: "NewGenerateDoc",
+                                         title: "Generated document", width: 120,
+                                         itemTemplate: function (value, item) {
+                                             var elementDiv1 = $("<div>");
+                                             elementDiv1.attr("class", "ls-dts");
+                                             var $link1 = "";
+                                             if (value == null) {
+                                                 $link1 = $("<label>").attr("value", "Nill").html('-');
+                                             } else {
+                                                 $link1 = $("<a>").attr("class", "ion-document icn").attr("href", item.Newhref).attr("target", "_blank").html('');
+                                             }
+                                             elementDiv1.append($link1);
+                                             return elementDiv1;
+                                         }
+                                     },
+       
+        ],
+    });
+    $("#gridProposalList").jsGrid("option", "filtering", false);
+});
+
+
+
+</script>
+

@@ -1,0 +1,157 @@
+﻿@model IEnumerable<IOAS.Models.AttachmentDetailModel>
+<div class="row">
+    <div class="col-md-12">
+
+        <div id="divAttachContent">
+            <div class="row">
+                <label class="col-md-3 fn-normal">Attachment type</label>
+                <label class="col-md-3 fn-normal">Attachment Name </label>
+                <label class="col-md-3 fn-normal">Attachment </label>
+            </div>
+            @{
+
+                if (Model.Count() > 0)
+                {
+                    var count = 0;
+                    foreach (var item in Model)
+                    {
+                        var docType = "DocumentDetail[" + count + "].DocumentType";
+                        var docId = "DocumentDetail[" + count + "].DocumentDetailId";
+                        var docRemarks = "DocumentDetail[" + count + "].Remarks";
+                        var docFile = "DocumentDetail[" + count + "].DocumentFile";
+                        var docName = "DocumentDetail[" + count + "].DocumentName";
+                        var docPath = "DocumentDetail[" + count + "].DocumentPath";
+                        var docActName = "DocumentDetail[" + count + "].DocumentActualName";
+
+                        <div class="m-b-sm row" id="divAttachPrimary">
+                            <div class="col-md-3">
+                                @Html.DropDownList(@docType, new SelectList(ViewBag.DocmentTypeList, "id", "name", item.DocumentType), "Select any",
+                   new { @class = "form-control required", @id = "docType" })
+                                @Html.Hidden("DocumentDetail.Index", @count)
+                                @Html.Hidden(@docId,item.DocumentDetailId)
+                                @Html.Hidden(@docName, item.DocumentName)
+                                @Html.Hidden(@docPath, item.DocumentPath)
+                                @Html.Hidden(@docActName, item.DocumentActualName)
+                                @Html.ValidationMessage(@docType)
+                            </div>
+                            <div class="col-md-3">
+                                <input class="form-control" name="@docRemarks" value="@item.Remarks" type="text">
+                                @Html.ValidationMessage(@docRemarks)
+                            </div>
+                            <div class="col-md-3">
+                                @if (item.DocumentDetailId == null)
+                                {
+                                    <input type="file" class="required" name="@docFile" />@:&nbsp; &nbsp; &nbsp;
+                                }
+                                else
+                                {
+                                    <input type="file" name="@docFile" />@:&nbsp; &nbsp; &nbsp;
+                                }
+                                
+                                @Html.ValidationMessage(@docFile)
+
+                            </div>
+                            <div class="col-md-2 doclink mt6">
+                                <a href="@Url.Action("ShowDocument","Project",new { file = item.DocumentName, filepath = item.DocumentPath })" target="_blank">@item.DocumentActualName</a>
+                            </div>
+                            @if (count == 0)
+                            {
+                                <div class="col-md-1">
+                                    <button class="dis-none btn-sm btn btn-danger" type="button" name="removeDocButton"><i class="ion-android-close"></i></button>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="col-md-1">
+                                    <button class="btn-sm btn btn-danger" type="button" name="removeDocButton"><i class="ion-android-close"></i></button>
+                                </div>
+                            }
+                        </div>
+                        count++;
+                    }
+                }
+                else
+                {
+                    <div class="m-b-sm row" id="divAttachPrimary">
+                        <div class="col-md-3">
+                            @Html.DropDownList("DocumentDetail[0].DocumentType", new SelectList(ViewBag.DocmentTypeList, "id", "name"), "Select any",
+                   new { @class = "form-control required", @id = "docType" })
+                            @Html.Hidden("DocumentDetail.Index","0")
+                            @Html.ValidationMessage("DocumentDetail[0].DocumentType")
+                        </div>
+                        <div class="col-md-3">
+                            <input class="form-control" name="DocumentDetail[0].Remarks" value="" type="text">
+                            @Html.ValidationMessage("DocumentDetail[0].Remarks")
+                        </div>
+                        <div class="col-md-3">
+                            <input type="file" class="required" name="DocumentDetail[0].DocumentFile"  />&nbsp;&nbsp;&nbsp;
+                            @Html.ValidationMessage("DocumentDetail[0].DocumentFile")
+
+                        </div>
+                        <div class="col-md-2 dis-none mt6">
+                            <a href="" target="_blank"></a>
+                        </div>
+                        <div class="col-md-1">
+                            <button class="dis-none btn-sm btn btn-danger" type="button" name="removeDocButton"><i class="ion-android-close"></i></button>
+                        </div>
+
+                    </div>
+                }
+            }
+            <div class="row p-b-sm">
+                <div class="col-md-12">
+                    <h4 class="text-right">
+                        <button type="button" id="btnAddAttachment" class="btn-primary btn pull-left">Add New</button>
+                    </h4>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $('#btnAddAttachment').click(function () {
+        var cln = $("#divAttachPrimary").clone().find("input").val("").end();
+        $(cln).find('button.dis-none').removeClass('dis-none');
+        $(cln).find('div.doclink').addClass('dis-none');
+        var index = $('#divAttachContent div.m-b-sm').length;//$("#divAttachPrimary").length - 1;
+        $(cln).find("input[name='DocumentDetail.Index']").val(index);
+        $(cln).find("input, select").each(function () {
+            $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+        });
+        $(cln).find("input[name$='.DocumentFile']").addClass('Required');
+        $(cln).insertBefore($('#divAttachContent').find('.p-b-sm'));
+
+    });
+    $(document).on('click', '#divAttachContent button[name="removeDocButton"]', function () {
+        $(this).closest('#divAttachPrimary').remove();
+    });
+    $(document).on('change', 'input[name$=".DocumentFile"]', function () {
+        var file = $(this).val();
+        if (file != "") {
+            var file_size = $(this)[0].files[0].size;
+            var extension = file.substr((file.lastIndexOf('.') + 1)).toLowerCase();
+            switch (extension) {
+                case 'doc':
+                case 'docx':
+                case 'pdf':
+                    isValidExten = true;
+                    break;
+                default:
+                    isValidExten = false;
+            }
+            if (isValidExten == false) {
+                $('#alert').html("Please upload any one of these type file [doc, docx, pdf].");
+                $('#Validation').modal('toggle');
+                $(this).val('');
+                return false;
+            }
+            else if (file_size > 5242880) {
+                $('#alert').html("You can upload the file up to 5 MB.");
+                $('#Validation').modal('toggle');
+                $(this).val('');
+                return false;
+            }
+        }
+    });
+    
+</script>

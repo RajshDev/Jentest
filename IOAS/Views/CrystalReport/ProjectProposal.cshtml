@@ -1,0 +1,73 @@
+﻿@model IOAS.Models.ProposalRepotViewModels
+@{
+    ViewBag.Title = "ProjectProposal";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+<div class="row hd-tt-bg" id="addnewpage">
+    <div class="col-md-4">
+        <h3>Sponsored/Consultancy Project Proposal</h3>
+    </div>
+</div>
+<div class="row">
+@using (Html.BeginForm("ProjectProposal", "CrystalReport", FormMethod.Post, new { @class = "", role = "form", @id = "formReport", enctype = "multipart/form-data" }))
+{
+    <div class="col-md-12">
+        <div class="page-wrapper">
+            <div class="white-bg">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label>From date</label>
+                            @Html.EditorFor(M => M.FromDate, null, "FromDate", new { @class = "form-control", @id = "txtfromdate", @required = "required"})
+                            <div class="txt-error txt-red"> @Html.ValidationMessageFor(M => M.FromDate)</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label>To date</label>
+                            @Html.EditorFor(M => M.ToDate,null, "ToDate", new { @class = "form-control", @id = "txttodate", @required = "required" })
+                            <div class="txt-error txt-red"> @Html.ValidationMessageFor(M => M.ToDate)</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label>Project type</label>
+                            @Html.DropDownListFor(M => M.ProjecttypeId, new SelectList(ViewBag.projecttype, "codevalAbbr", "CodeValDetail"), "Select Project type", new { @id = "ddlprotype", @class = "form-control", @required = "required" })
+                            <div class="txt-error txt-red"> @Html.ValidationMessageFor(M => M.ProjecttypeId)</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label>Key word</label>
+                            @Html.TextBoxFor(M => M.keysearch, new { @class = "form-control", @id = "txtkeysearch",@placeholder= "PI Name /Proposal Title / Department/Proposal Number " })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 text-center pd-tb-30">
+                    <input type="submit" class="btn btn-primary mr10" value="View Report" id="btnreport" />
+                    <a href="@Url.Action("Dashboard", "Home")" class="btn btn-default">Close</a>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+</div>
+<script>
+    $('#btnreport').click(function (e) {
+        e.preventDefault();
+        var isValid = $('#formReport').valid();
+        if (isValid) {
+            var win = window.open('', '_blank');
+            var url = "@Url.RouteUrl(new
+            { Controller = "CrystalReport", Action = "ProposalReport" })?FromDate=" + $('#FromDate').val();
+            win.location.href = url + "&ToDate=" + $('#ToDate').val()+ "&ProjecttypeId=" + $('#ddlprotype').val() + "&keysearch=" + $('#txtkeysearch').val();
+        }
+    });
+</script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>

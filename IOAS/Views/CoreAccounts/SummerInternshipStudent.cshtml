@@ -1,0 +1,966 @@
+﻿ @model IOAS.Models.SummerInternshipModel
+@{
+    ViewBag.Title = "Summer Internship";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+@using (Html.BeginForm("SummerInternshipStudent", "CoreAccounts", FormMethod.Post, new { @class = "", role = "form", @id = "formSI", enctype = "multipart/form-data" }))
+{
+    <div class="row hd-tt-bg">
+        <div class="col-md-12">
+            <h4><b>Summer Internship Student</b> </h4>
+        </div>
+    </div>
+    <div class="row">
+        <div class="white-bg ad-navbar">
+            <div class="col-md-3 ds-spl-bg">
+                <div class="ds-icn">
+                    <i class="ion-ios-list-outline "></i>
+                </div>
+                <div class="ds-tt">
+                    <span class="required">Request Reference</span>
+                    @Html.DropDownListFor(m => m.Source, new SelectList(ViewBag.SourceList, "codevalAbbr", "CodeValDetail"), "Select any",
+                        new { @class = "form-control"})
+                    @Html.ValidationMessageFor(m => m.Source)    
+                    @Html.HiddenFor(m => m.NeedUpdateTransDetail)                
+                    @Html.HiddenFor(m => m.SummrInternStudentId)
+                </div>
+            </div>
+            <div class="col-md-3 ds-spl-bg">
+                <div class="ds-icn">
+                    <i class="ion-ios-calendar-outline"></i>
+                </div>
+                <div class="ds-tt" id="divRefNum">
+                    <span class="required">Ref Number (WF / Tapal)</span>
+                    @Html.TextBoxFor(m => m.ReferenceNumber, new { @class = "form-control" })
+                    @Html.TextBoxFor(m => m.SourceReferenceNumber, new { @class = "form-control dis-none" })
+                    @Html.ValidationMessageFor(m => m.SourceReferenceNumber)
+                    @Html.Hidden("SourceTapalOrWorkflow", "True")
+                    @Html.HiddenFor(m => m.SubCode)
+                    @Html.Hidden("TransactionTypeCode", "SMI")
+                </div>
+                <div class="dis-none ds-tt" id="divRefEmailDate">
+                    <span class="required">Email Date</span>
+                    @Html.EditorFor(m => m.SourceEmailDate, new { @class = "form-control"})
+                    <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.SourceEmailDate)</div>
+                </div>
+            </div>
+            
+            <div class="col-md-3 col-md-offset-3">
+                <div class="reg-no custom-reg-no">
+                    <div class="form-group custom-form-group">
+                        <label>Number</label>
+                        <h4>@Html.DisplayFor(m => m.SummerInternshipNumber)</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="page-wrapper">
+            <div class="col-md-12 mt30">
+                <ul class="nav nav-pills custom-nav-pills">
+                    <li class="active"><a href="javascript:void(0)"><span>01</span>Student Details</a></li>                    
+                    <li><a href="javascript:void(0)"><span>02</span>Commitment Details</a></li>
+                    <li><a href="javascript:void(0)"><span>03</span>Transaction Details</a></li>
+                    <li><a href="javascript:void(0)"><span>04</span>CheckList Details</a></li>
+                    <li><a href="javascript:void(0)"><span>05</span>Document Details</a></li>   
+                </ul>
+
+                <div class="tab">
+                    <div class="col-md-12 col-sm-12 m-b-sm">
+                        <div class="row">
+                            <div class="page-wrapper">
+                                <div class="col-md-12">
+                                    <div class="white-bg">
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="required">PI</label>
+                                                    @Html.DropDownListFor(m => m.PIId, new SelectList(ViewBag.PIName, "id", "name"), "Select any", new { @class = "form-control selectpicker", @id = "txtPI" })
+                                                    @Html.ValidationMessageFor(m => m.PIId)                                                    
+                                                </div>
+                                            </div>
+                                            <div class="col-md-8">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="required">Project</label>
+                                                    @Html.DropDownListFor(m => m.ProjectId, new SelectList(ViewBag.Project, "id", "name"), "Select any", new { @class = "form-control selectpicker", @id = "selectproject" })
+                                                    @Html.ValidationMessageFor(m => m.ProjectId)
+                                                </div>
+                                            </div>                                             
+                                        </div>
+                                        <div class="row">
+                                            
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="required">Name of Student</label>
+                                                    @Html.TextBoxFor(m => m.StudentName, new { @class = "form-control", @id = "txtStudentName" })
+                                                    @Html.ValidationMessageFor(m => m.StudentName)
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="required">College/Institute Name</label>
+                                                    @Html.TextBoxFor(m => m.College, new { @class = "form-control", @id = "txtCollegeName" })
+                                                    @Html.ValidationMessageFor(m => m.College)
+                                                </div>
+                                            </div>   
+                                            <div class="col-md-2">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="required">Roll No.</label>
+                                                    @Html.TextBoxFor(m => m.StudentRollNo, new { @class = "form-control", @id = "txtStudentRollNo" })
+                                                    @Html.ValidationMessageFor(m => m.StudentRollNo)
+                                                </div>
+                                            </div>                                         
+                                        </div>    
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="required">Course of Study</label>
+                                                    @Html.TextBoxFor(m => m.StudentCourse, new { @class = "form-control mt20", @id = "txtcourseofstudent"})
+                                                    @Html.ValidationMessageFor(m => m.StudentCourse)
+                                                </div>
+                                            </div>
+                                            <div class="col-md-1">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="required">Year of Study</label>
+                                                    @Html.TextBoxFor(m => m.StudentYearofStudy, new { @class = "form-control", @id = "txtStudentYearofStudy"})                                                   
+                                                    @Html.ValidationMessageFor(m => m.StudentYearofStudy)
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="required">Address</label>
+                                                    @Html.TextAreaFor(m => m.StudentAddress, new { @class = "form-control mt20", @id = "txtStudentAddress" })                                                    
+                                                    @Html.ValidationMessageFor(m => m.StudentAddress)
+                                                </div>
+                                            </div>  
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="required">Email </label>
+                                                    @Html.TextBoxFor(m => m.StudentEmail, new { @class = "form-control mt20", @id = "txtStudentEmail" })
+                                                    @Html.ValidationMessageFor(m => m.StudentEmail)
+                                                </div>
+                                            </div>                                           
+                                        </div>   
+                                        
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="required">Internship Start Date</label>
+                                                    @Html.EditorFor(m => m.InternshipFromDate, new { @class = "form-control"})
+                                                    <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.InternshipFromDate)</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="required">Internship End Date</label>
+                                                    @Html.EditorFor(m => m.InternshipToDate, new { @class = "form-control"})
+                                                    <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.InternshipToDate)</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="required">Duration of Internship</label>
+                                                    <label id="lblDuration"></label>
+                                                    @*@Html.TextBoxFor(m => m.Duration, new { @class = "form-control", @id = "lblDuration", @readonly = true })
+                                                    @Html.ValidationMessageFor(m => m.Duration)*@
+                                                    @Html.HiddenFor(m => m.Duration)
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="required">Total Stipend Value</label>
+                                                    @Html.TextBoxFor(m => m.TotalStipendValue, new { @class = "form-control", @id = "txtStipendValue", @onkeypress = "return ValidateDecimalOnly(event)" })
+                                                    @Html.ValidationMessageFor(m => m.TotalStipendValue)
+                                                </div>
+                                            </div>
+                                           
+                                        </div>                                         
+                                        <div class="row">
+                                                        <div class="col-md-4">
+                                                            <div class="form-group custom-form-group">
+                                                                <label class="required">Bank Name</label>
+                                                                @Html.TextBoxFor(m => m.BankName, new { @class = "form-control", @id = "txtbankname" })
+                                                                @Html.ValidationMessageFor(m => m.BankName)
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-2">
+                                                            <div class="form-group custom-form-group">
+                                                                <label class="required">Account Number</label>
+                                                                @Html.TextBoxFor(m => m.AccountNumber, new { @class = "form-control", @id = "txtacctno" })
+                                                                @Html.ValidationMessageFor(m => m.AccountNumber)
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <div class="form-group custom-form-group">
+                                                                <label class="required">Branch Name</label>
+                                                                @Html.TextBoxFor(m => m.BranchName, new { @class = "form-control", @id = "txtbranch" })
+                                                                @Html.ValidationMessageFor(m => m.BranchName)
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-2">
+                                                            <div class="form-group custom-form-group">
+                                                                <label class="required">IFSC Code</label>
+                                                                @Html.TextBoxFor(m => m.IFSCCode, new { @class = "form-control", @id = "txtifsccode" })
+                                                                @Html.ValidationMessageFor(m => m.IFSCCode)
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                                        
+                                        <div class="row">                                           
+                                            <div class="col-md-12">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Remarks</label>
+                                                    @Html.TextAreaFor(m => m.Remark, new { @class = "form-control", @id = "txtRemarks" })
+                                                    @Html.ValidationMessageFor(m => m.Remark)
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-3 col-md-offset-2 pull-right">
+                                                <div class="reg-no mt-m-md">
+                                                    <div class="form-group custom-form-group">
+                                                        <label class="required">Total Stipend</label>
+                                                        @Html.TextBoxFor(m => m.TotalStipendValue, new { @class = "form-control required", @id = "txtTotalStipendValue", @readonly = true})
+                                                        @Html.ValidationMessageFor(m => m.TotalStipendValue)
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>                        
+                    </div>
+                </div>
+                <div class="tab">
+                    @Html.Partial("_CommitmentDetails", Model.CommitmentDetail)
+                </div>
+                <div class="tab">
+                    @Html.Partial("_TransactionDetails", Model)
+                </div>
+                <div class="tab">
+                    <div class="col-md-12 col-sm-12 m-b-sm">
+                        <div class="">
+                            @Html.Partial("_CheckListDetail", Model.CheckListDetail)
+                        </div>
+                        <div>
+                            @Html.HiddenFor(m => m.CheckListVerified_By)
+                            @Html.HiddenFor(m => m.CheckListVerifierName)
+                            <div class="col-md-3 col-md-offset-9">
+                                <div class="form-group custom-form-group">
+                                    <label>Verified by</label>
+                                    <h4 id="Verified_ByName">@Html.DisplayFor(m => m.CheckListVerifierName)</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab">
+                    <div class="col-md-12 col-sm-12 m-b-sm">
+                        <div class="">
+                            @Html.Partial("_DocumentDetail", Model.DocumentDetail)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="custom-nav-btn text-right">
+                    <button type="button" class="btn btn-default pull-left" id="prevBtn" onclick="nextPrev(-1)">Previous</button>
+                    <button type="button" class="btn btn-primary pull-right" id="nextBtn" onclick="nextPrev(1)">Next</button>
+                    <button type="button" class="btn btn-default pull-right" onclick="window.location.href='@Url.Action("SummerInternshipStudentList", "CoreAccounts")';">Close</button>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+}
+<div id="ValidationModal" class="modal fade modal-warning" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-warning"></i>
+                <h3 class="modal-title">Warning</h3>
+            </div>
+            <div class="modal-body">
+
+                <p id="MsgValidation"></p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+@Html.AntiForgeryToken()
+<div id="popup"></div>
+<script>
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    $('#TravelToDate, #TravelFromDate').datepicker({ minDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
+    $('#SourceEmailDate, #srchFromDate, #srchToDate,#InvoiceDate,#PODate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
+    $('#srchToDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true }).datepicker("setDate", "0");
+    var defaultFromDate = moment(new Date()).add(-10, 'days').toDate();
+    $('#srchFromDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true }).datepicker("setDate", defaultFromDate);
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+            CalculateDeductionTotal();
+            GetTransactionDetails();
+        }
+        $('.selectpicker').selectpicker({
+            liveSearch: true
+        });
+        var selSource = $('#Source').val();
+        $("#divRefNum, #divRefEmailDate").addClass('dis-none');
+        if (selSource == '1') {
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACWorkflowRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+        } else if (selSource == '3') {
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACTapalRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+        }
+        else if (selSource == '2') {
+            $('#divRefEmailDate').removeClass('dis-none');
+        } else {
+            $("#divRefNum").removeClass('dis-none');
+        }
+        calcDateDiff();
+        var stdntname = $('#txtStudentName').val();
+        $('#lblVendorName').html(stdntname);
+        var stipendAmt = parseFloat($('#txtTotalStipendValue').val());
+        $("#CreditorAmount").val(stipendAmt);
+        CalculatePaymentValue();
+        CalculateDeductionTotal();
+        $('#NeedUpdateTransDetail').val('false');
+    });
+
+    $('#InternshipFromDate, #InternshipToDate').datepicker({ dateFormat: 'dd-MM-yy', changeYear: true, yearRange: '-10:+30' });
+    $('#Source').change(function () {
+        var selSource = $(this).val();
+        $("#SourceReferenceNumber,#ReferenceNumber").val('');
+		$("#divRefNum, #divRefEmailDate").addClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('False');
+		if (selSource == '1') {
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACWorkflowRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        } else if (selSource == '3') {
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACTapalRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        }
+        else if (selSource == '2') {
+            $('#divRefEmailDate').removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('False');
+        } else {
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        }
+    });
+
+    function formSave(){
+        var isValid = $('#formSI').valid();
+        if (!isValid)
+            return false;
+        var doctypevalues = [];
+        $('select[name$=".DocumentType"]').each(function (idx, val) { doctypevalues.push($(val).val()); });
+        doctypevalues.sort();
+        // duplicate check
+        for (var k = 1; k < doctypevalues.length; ++k) {
+            if (doctypevalues[k] == doctypevalues[k - 1]) {
+                $('#alert').html("Selected attachment type already exist. Please select a different attachment type.");
+                $('#Validation').modal('toggle');
+                return false;
+            }
+            isValid = true;
+        }
+        var strDate = $("#InternshipFromDate").val();
+        var clsDate = $("#InternshipToDate").val();
+        if (strDate != '' && clsDate != '') {
+            var startDate = moment(parseDate(strDate));
+            var closeDate = moment(parseDate(clsDate));
+
+            var mins = closeDate.diff(startDate, 'minutes');
+            if (mins <= 0) {
+                $('#MsgValidation').html("Internship End Date cannot be a date prior to Internship Start Date.");
+                $('#ValidationModal').modal('toggle');
+                return false;
+            }
+        }
+        //var totalstipend = $("#txtTotalStipendValue").val();
+        //if (totalstipend > 6500 || total < 6500) {
+        //    var doctypevalues = [];
+        //    $('select[name$=".DocumentType"]').each(function (idx, val) { doctypevalues.push($(val).val()); });
+        //    doctypevalues.sort();
+        //    var count = 0;
+        //    for (var k = 1; k < doctypevalues.length; ++k) {
+        //        if (doctypevalues[k] == 16) {
+        //            count = 1;
+        //        }
+        //    }
+        //    if (count == 0) {
+        //        $('#MsgValidation').html("Email request of PI is mandatory attachment since the total stipend value is different from the fixed level..");
+        //        $('#ValidationModal').modal('toggle');
+        //        return false;
+        //    }
+        //    else
+        //    {
+        //        isValid = true;
+        //    }
+        //}
+        if (isValid)
+            $('#formSI').submit();
+    }
+
+    function parseDate(s) {
+        var months = {
+            january: 0, february: 1, march: 2, april: 3, may: 4, june: 5,
+            july: 6, august: 7, september: 8, october: 9, november: 10, december: 11
+        };
+        var p = s.split('-');
+        return new Date(p[2], months[p[1].toLowerCase()], p[0]);
+    }
+
+
+    $('#StipendValueperMonth, #TotalStipendValue, #NoOfTraveller').on("copy cut paste drop", function () {
+        return false;
+    });
+    $("#InternshipFromDate, #InternshipToDate").change(function () {
+        var strDate = $("#InternshipFromDate").val();
+        var clsDate = $("#InternshipToDate").val();
+        if (strDate != '' && clsDate != '') {
+            var startDate = moment(parseDate(strDate));
+            var closeDate = moment(parseDate(clsDate));
+            var mins = closeDate.diff(startDate, 'minutes');
+            if (mins <= 0) {
+                $('#MsgValidation').html("Internship End Date cannot be a date prior to Internship Start Date.");
+                $('#ValidationModal').modal('toggle');
+                return false;
+            }
+        }
+        calcDateDiff();
+        //calculateamount();
+    });
+    function calcDateDiff() {
+        var strDate = $("#InternshipFromDate").val();
+        var clsDate = $("#InternshipToDate").val();
+        if (strDate != '' && clsDate != '') {
+            var startDate = moment(parseDate(strDate));
+            var closeDate = moment(parseDate(clsDate)).add('days', 1);
+
+            var result = '';
+            var years = closeDate.diff(startDate, 'year');
+            startDate.add(years, 'years');
+
+            var months = closeDate.diff(startDate, 'months');
+            startDate.add(months, 'months');
+
+            var days = closeDate.diff(startDate, 'days');
+            if (years > 1) {
+                result = years + ' years ';
+            } else if (years == 1) {
+                result = years + ' year ';
+            }
+            if (months > 1) {
+                result = result +  months + ' months ';
+            } else if (months == 1) {
+                result = result + months + ' month ';
+            }
+            if (days > 1) {
+                result = result + days + ' days';
+            } else if (days == 1) {
+                result = result + days + ' day';
+            }
+
+            $('#lblDuration').html(result);
+            $('input[name="Duration"]').val(result);
+        }
+    }
+    $('#txtTotalStipendValue').change(function () {
+        //calculateamount();
+        var stipendamount = this.val();
+        if (stipendamount < 6500) {
+            $('#MsgValidation').html("Stipend amount requested is less than the minimum value (Rs 6500). Please Ensure that justification Email for the Stipend amount requested is received from PI");
+            $('#ValidationModal').modal('toggle');
+            // return false;
+        }
+        if (stipendamount > 6500) {
+            $('#MsgValidation').html("Stipend amount requested is more than the fixed value (Rs 6500). Please Ensure that justification Email for the Stipend amount requested is received from PI");
+            $('#ValidationModal').modal('toggle');
+            // return false;
+        }
+    });
+    $('#txtStipendValue').change(function () {
+        //calculateamount();
+        var stipendamount = $(this).val();
+        $('#txtTotalStipendValue').val(stipendamount);
+    });
+    //function calculateamount() {
+    //    var totalstipendamount = 0;
+    //    var stipendpermonth = parseInt($('#txtStipendValueperMonth').val());
+    //    var stipendfordays = 0;
+    //    var duration = 0;
+    //    var result = 0;
+    //    var strDate = $("#InternshipFromDate").val();
+    //    var clsDate = $("#InternshipToDate").val();
+    //    if (strDate != '' && clsDate != '') {
+    //        var startDate = moment(parseDate(strDate));
+    //        var closeDate = moment(parseDate(clsDate));
+
+    //        var mins = closeDate.diff(startDate, 'minutes');
+    //        if (mins <= 0) {
+    //            $('#MsgValidation').html("Internship End Date must be greater than start date.");
+    //            $('#ValidationModal').modal('toggle');
+    //            return false;
+    //        }
+
+    //        var years = closeDate.diff(startDate, 'year');
+    //        startDate.add(years, 'years');
+
+    //        var months = closeDate.diff(startDate, 'months');
+    //        startDate.add(months, 'months');
+
+    //        var days = closeDate.diff(startDate, 'days') + 1;
+    //        if (years > 0) {
+    //            result = (years * 12) + months ;
+    //        } else if (years == 0) {
+    //            result = months;
+    //        }
+    //        var stipendperday = stipendpermonth / 31;
+    //        stipendfordays = parseInt(stipendperday * days);
+    //    }
+    //    duration = result;
+    //    totalstipendamount = (stipendpermonth * duration) + stipendfordays;
+    //    if (!isNaN(totalstipendamount)) {
+    //        $("#txtTotalStipendValue").val(totalstipendamount.toFixed(0));
+    //        $("#CreditorAmount").val(totalstipendamount.toFixed(0));
+    //    }
+    //}
+    $('#txtPI').change(function () {
+        $('#NeedUpdateTransDetail').val('true');
+        var PIID = $(this).val();
+        $.getJSON("@Url.Action("LoadPIProject", "CoreAccounts")", { PIId: PIID },
+                    function (locationdata) {
+                        var select = $("#selectproject");
+                        select.empty();
+
+                        $.each(locationdata, function (index, itemData) {
+                            select.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name
+                            }));
+                        });
+                        select.selectpicker('refresh');
+                    });
+    });
+    function AddNewExpense(){
+        //var stateCode = $('#lblStateCode').html();
+        //var BillType = $('#BillType').val();
+        $.ajax({
+            type: "GET",
+            url: "@Url.Action("GetAddNewExpenseDetails", "CoreAccounts")",
+            data: { "typeCode": "SMI","tSubCode" : "1"},
+        traditional: true,
+        dataType: "json",
+        success: function (result) {
+            $.each(result.ExpenseDetail, function (i, item) {
+                var cln = $('#tbodyExpenseList tr:first').clone().find("select,input").val("").end();
+                $(cln).find('a.dis-none').removeClass('dis-none');
+                var index = $('#tbodyExpenseList tr:last').find("input[name='ExpenseDetail.Index']").val();
+                index = parseInt(index) + 1;
+                $(cln).find("input[name='ExpenseDetail.Index']").val(index);
+                $(cln).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                $(cln).find('#lblTransType').text(item.TransactionType);
+                $(cln).find('input[name$=".IsJV"]').val(item.IsJV);
+                $(cln).find("input, select").each(function () {
+                    $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+                    $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+                });
+                $(cln).find("span[data-valmsg-for]").each(function () {
+                    $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+                });
+
+                var selectGroup = $(cln).find("select[name$='.AccountGroupId']");
+                selectGroup.empty();
+                $.each(item.AccountGroupList, function (index, itemData) {
+                    selectGroup.append($('<option/>', {
+                        value: itemData.id,
+                        text: itemData.name,
+                    }));
+                });
+
+                var selectHead = $(cln).find("select[name$='.AccountHeadId']");
+                selectHead.empty();
+                $.each(item.AccountHeadList, function (index, itemData) {
+                    selectHead.append($('<option/>', {
+                        value: itemData.id,
+                        text: itemData.name,
+                    }));
+                });
+                $('#tbodyExpenseList').append(cln);
+            });
+        },
+        error: function (err) {
+            console.log("error : " + err);
+        }
+    });
+    }
+    function GetTransactionDetails() {
+
+        var interstate_f = false;
+
+        EmptyExpenseDeductionDetails();
+        $.ajax({
+            type: "GET",
+            url: "@Url.Action("GetTransactionDetails", "CoreAccounts")",
+            data: { "typeCode": "SMI","tSubCode" : "1", },
+        traditional: true,
+        dataType: "json",
+        success: function (result) {
+            $.each(result.ExpenseDetail, function (i, item) {
+                //var amt = 0;
+                //$("#tbodyCommitmentSelList [name$='.HeadName'][value='"+item.BudgetHeadName+"']").each(function(){
+                //    var elePayment = $(this).closest('td').find("input[name$='.PaymentAmount']");
+                //    var parseVal = parseFloat($(elePayment).val());
+                //    if (!isNaN(parseVal))
+                //        amt = amt + parseVal;
+                //});
+                if (i == 0) {
+                    var trEle = $('#tbodyExpenseList tr:first');
+                    $(trEle).find('input[name$=".Amount"]').val('');
+                    $(trEle).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                    $(trEle).find('#lblTransType').text(item.TransactionType);
+                    $(trEle).find('input[name$=".IsJV"]').val(item.IsJV);
+                    $(trEle).find("input[name='ExpenseDetail.Index']").val(i);
+
+                    var selectGroup = $(trEle).find('select[name$=".AccountGroupId"]');
+                    selectGroup.empty();
+                    $.each(item.AccountGroupList, function (index, itemData) {
+                        selectGroup.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+
+                    var selectHead = $(trEle).find('select[name$=".AccountHeadId"]');
+                    selectHead.empty();
+                    $.each(item.AccountHeadList, function (index, itemData) {
+                        selectHead.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+                } else {
+                    var trEleNew = $('#tbodyExpenseList tr:first').clone().find('input').val('').end();
+                    $(trEleNew).find('input[name$=".Amount"]').val('');
+                    $(trEleNew).find("input[name='ExpenseDetail.Index']").val(i);
+                    $(trEleNew).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                    $(trEleNew).find('#lblTransType').text(item.TransactionType);
+                    $(trEleNew).find('input[name$=".IsJV"]').val(item.IsJV);
+                    $(trEleNew).find("input,Select").each(function () {
+                        $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                        $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                    });
+                    $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                        $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                    });
+
+                    var selectGroup = $(trEleNew).find('select[name$=".AccountGroupId"]');
+                    selectGroup.empty();
+                    $.each(item.AccountGroupList, function (index, itemData) {
+                        selectGroup.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+
+                    var selectHead = $(trEleNew).find('select[name$=".AccountHeadId"]');
+                    selectHead.empty();
+                    $.each(item.AccountHeadList, function (index, itemData) {
+                        selectHead.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+                    $('#tbodyExpenseList').append(trEleNew);
+                }
+            });
+
+            var SummerInternshipAmt =  $('#txtTotalStipendValue').val();
+            $("#CreditorAmount").val(SummerInternshipAmt);
+            var stdntname = $('#txtStudentName').val();
+            $('#lblVendorName').html(stdntname);
+           // $('#lblPIName').html($('#txtPI option:selected').text())
+            $('#NeedUpdateTransDetail').val('false');
+            CalculateDeductionTotal();
+        },
+        error: function (err) {
+            console.log("error : " + err);
+        }
+    });
+    //}
+    }
+
+    $('#CreditorAmount, #ExpenseAmount, #CreditorAmount, input[name $=".PaymentAmount"], input[name $=".Quantity"], input[name $=".TotalAmount"], input[name $=".Amount"], #ttlCr, #ttlDr').on("copy cut paste drop", function () {
+        return false;
+    });
+
+    function fillMasterDropDown(ele, data, fillDafaultText, valueAsName) {
+        if (fillDafaultText !== undefined) {
+            ele.append($('<option/>', {
+                value: '',
+                text: 'Select any',
+            }));
+        }
+        if (valueAsName !== undefined) {
+            $.each(data, function (index, itemData) {
+                ele.append($('<option/>', {
+                    value: itemData.name,
+                    text: itemData.name,
+                }));
+            });
+        } else {
+            $.each(data, function (index, itemData) {
+                ele.append($('<option/>', {
+                    value: itemData.id,
+                    text: itemData.name,
+                }));
+            });
+        }
+    }
+
+    function ValidateNumberOnly(e) {
+        if (e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)) {
+            return false;
+        }
+    }
+    function ValidateDecimalOnly(evt) {
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode != 46 && charCode > 31
+          && (charCode < 48 || charCode > 57))
+            return false;
+
+        return true;
+    }
+
+    /* Tab Sections Start*/
+    var currentTab = 0; // Current tab is set to be the first tab (0)
+    showTab(currentTab); // Display the crurrent tab
+    function showTab(n) {
+        // This function will display the specified tab of the form...
+        var x = document.getElementsByClassName("tab");
+        x[n].style.display = "block";
+        $(".custom-nav-pills li:eq(" + n + ")").addClass("active");
+        //... and fix the Previous/Next buttons:
+        if (n == 0) {
+            document.getElementById("prevBtn").style.display = "none";
+        } else {
+            document.getElementById("prevBtn").style.display = "inline";
+        }
+        if (n == (x.length - 1)) {
+            document.getElementById("nextBtn").innerHTML = "Submit";
+        } else {
+            document.getElementById("nextBtn").innerHTML = "Next";
+        }
+        //... and run a function that will display the correct step indicator:
+        //fixStepIndicator(n)
+    }
+
+    function nextPrev(n) {
+        // This function will figure out which tab to display
+        var x = document.getElementsByClassName("tab");
+        // Exit the function if any field in the current tab is invalid:
+        if (n > 0 && !validateForm(n)) return false;
+        if (currentTab + n < x.length) {
+            // Hide the current tab:
+            x[currentTab].style.display = "none";
+            $(".custom-nav-pills li:eq(" + currentTab + ")").removeClass("active");
+        } else {
+            // ... the form gets submitted:
+            formSave();
+            return false;
+        }
+        // Increase or decrease the current tab by 1:
+        currentTab = currentTab + n;
+
+        // Otherwise, display the correct tab:
+        showTab(currentTab);
+    }
+    function ValidateCommitment() {
+        var msg = 'valid';
+        var commitmentAmt = parseFloat($('#CommitmentAmount').val());
+        // var netAdvAmt = parseFloat($('#lblAdvNetAmt').html());
+        var ttlAdvAmt = parseFloat($('#txtTotalStipendValue').val());
+        var advPct = parseInt($("#AdvancePercentage").val());
+        var offsetValue = $("input[name='GST']:checked").val();
+        $("#tbodyCommitmentSelList tr").each(function () {
+            var elePayment = $(this).find("input[name$='.PaymentAmount']");
+            var eleAvlBal = $(this).find('input[name$=".AvailableAmount"]');
+            var parseVal = parseFloat($(elePayment).val()) || 0;
+            var avlBal = parseFloat($(eleAvlBal).val()) || 0;
+            if (parseVal > avlBal)
+                msg = "Commitment payment value should not be greater than available balance."
+        });
+        if (isNaN(ttlAdvAmt) || isNaN(commitmentAmt)) {
+            msg = 'The requested advance value / allocated commitment value is not a valid entry.';
+        } else if (ttlAdvAmt != commitmentAmt) {
+            msg = 'There is a mismatch between the requested advance value and allocated commitment value. Please update the value to continue.';
+        }
+
+        return msg;
+    }
+    function ValidateTransaction() {
+        var msg = 'valid';
+        var netCrAmt = parseFloat($('#CreditorAmount').val());
+        var commitmentAmt = parseFloat($('#CommitmentAmount').val());
+        var ttlExpAmt = parseFloat($('#ExpenseAmount').val()) || 0;
+        var ttldeductAmt = parseFloat($('#ttlCr').val()) || 0;
+        var ttlAdvAmt = parseFloat($('#txtTotalStipendValue').val());
+        //var netDrAmt = ttlExpAmt + ttldeductAmt;
+        //var offsetValue = $("input[name='GST']:checked").val();
+        if (isNaN(netCrAmt)) {
+            return 'The Credit value is not a valid entry.';
+        }
+        if (netCrAmt != ttlExpAmt || netCrAmt != ttldeductAmt) {
+            msg = 'Not a valid entry. Credit and Debit value are not equal.';
+        }
+        if (isNaN(ttlExpAmt) || isNaN(commitmentAmt)) {
+            msg = 'The requested advance value / Transaction value is not a valid entry.';
+        } else if (ttlExpAmt != commitmentAmt) {
+            msg = 'There is a mismatch between allocated commitment value and transaction value. Please update the value to continue.';
+        }
+
+        //var groupNames = [];
+        //$('#tbodyCommitmentSelList tr').find('input[name$=".HeadName"]').each(function () {
+        //    var commitmentAmt = 0;
+        //    var groupName = $(this).val();
+        //    if(groupNames.indexOf(groupName) == -1){
+        //        $("#tbodyCommitmentSelList [name$='.HeadName'][value='"+groupName+"']").each(function(){
+        //            var elePayment = $(this).closest('td').find("input[name$='.PaymentAmount']");
+        //            var parseVal = parseFloat($(elePayment).val());
+        //            if (!isNaN(parseVal))
+        //                commitmentAmt = commitmentAmt + parseVal;
+        //        });
+        //        var sumOfAmt = 0;
+        //        if(!isNaN(commitmentAmt)){
+        //            $('#tbodyExpenseList tr select[name$=".AccountGroupId"]').each(function () {
+        //                if($(this).find("option:selected").text() == groupName){
+        //                    var individualVal = $(this).closest('tr').find("input[name$='.Amount']").val();
+        //                    individualVal = parseFloat(individualVal);
+        //                    if(!isNaN(individualVal))
+        //                        sumOfAmt = sumOfAmt + individualVal;
+        //                }
+        //            });
+        //            if(commitmentAmt != sumOfAmt){
+        //                msg = 'The amount enter for ' +groupName+ ' is not equal to commitment value.';
+        //                return false;
+        //            }
+        //            groupNames.push(groupName)
+        //        }else{
+        //            msg = 'Commitment Payment Value is not valid.';
+        //            return false;
+        //        }
+        //    }
+        //});
+        var hdList = [];
+        $('#tbodyExpenseList tr').find('select[name$=".AccountHeadId"]').each(function (idx, val) { hdList.push($(val).val()); });
+        hdList.sort();
+        // duplicate check
+        for (var k = 1; k < hdList.length; ++k) {
+            if (hdList[k] == hdList[k - 1]) {
+                msg = "Duplicate account head exist in expense details. Please select a different head.";
+            }
+        }
+        return msg;
+    }
+    function validateForm(n) {
+        // This function deals with validation of the form fields
+        var isValid = false;
+        var hadError = false;
+        var tabs = $(".tab");
+        var currentTabEle = tabs[currentTab];
+        var inputs = $(":input, textarea, select"); // get all the form inputs and selects
+        var stepElements = $(currentTabEle).find(inputs); // get inputs for current step
+        var count = stepElements.length; // check that there are inputs
+        if (count <= 0) {                // if there are not no reason to loop them
+            return true;                 // this can be used to perform other action if there are no steps
+        } else if (currentTab == 0) {
+            var strDate = $("#InternshipFromDate").val();
+            var clsDate = $("#InternshipToDate").val();
+            if (strDate != '' && clsDate != '') {
+                var startDate = moment(parseDate(strDate));
+                var closeDate = moment(parseDate(clsDate));
+                var mins = closeDate.diff(startDate, 'minutes');
+                if (mins <= 0) {
+                    $('#MsgValidation').html("Internship End Date must be greater than start date.");
+                    $('#ValidationModal').modal('toggle');
+                    return false;
+                }
+                var content = $('#tbodyCommitmentSrchList tr td:last').html();
+                if (content == '') {
+                    searchCommitment()
+                }
+            }
+        }
+        else if (currentTab == 1) {
+            var validationMsg = ValidateCommitment()
+            if (validationMsg != 'valid') {
+                hadError = true;
+                $("#alert").text(validationMsg);
+                $('#Validation').modal('show');
+            } else {
+                if ($('#NeedUpdateTransDetail').val() == 'true') {
+                    GetTransactionDetails();
+                }
+                //if(parseInt($("#AdvancePercentage").val()) == 100){
+                CalculateDeductionTotal();
+                //$("#CreditorAmount, #ttlCr").val($('#lblAdvTtlAmt').text());
+                //}else{
+                //    $("#CreditorAmount, #ttlCr").val($('#lblAdvNetAmt').text());
+                //}
+            }
+        }
+        else if (currentTab == 2) {
+            var validationMsg = ValidateTransaction()
+            if (validationMsg != 'valid') {
+                hadError = true;
+                $("#alert").text(validationMsg);
+                $('#Validation').modal('show');
+            }
+        }
+        else if (currentTab == 3) {
+            if ($('#CheckListVerified_By').val() == '') {
+                hadError = true;
+                $("#alert").text('Checklist is not verified.');
+                $('#Validation').modal('show');
+            }
+        }
+
+        $(stepElements).each(function (idx, ele) {
+
+            if (!$(ele).is(':radio') && !$(ele).is(':checkbox') && !$(ele).is(':password')) {
+                isValid = $(ele).valid();//$(document.forms[0]).validate().element($(this)); // check that the input is valid. This can also be used on a per input basis to perform another action if the field is not valid.
+                if (!isValid) { hadError = true; } // set our flag if there was an error
+            }
+
+        });
+        return !hadError; // return the valid status
+
+    }
+</script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>

@@ -1,0 +1,363 @@
+﻿@model IOAS.Models.OtherPaymentDeductionUploadModel
+@{
+    ViewBag.Title = "OTHPaymentDeductionUpload";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+@using (Html.BeginForm("OTHPaymentDeductionUpload", "Requirement", FormMethod.Post, new { @class = "", role = "form", @id = "formOTHupload", enctype = "multipart/form-data" }))
+{
+    //@Html.AntiForgeryToken()
+
+<div class="row cts-mn-dts">
+    <div class="page-wrapper mt30">
+        
+        <div class="col-md-12">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="bl-lg-panel-box pb-null">
+                        <div class="cmn-panel-box">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Month and year</label>
+                                        @Html.DropDownListFor(m => m.MonthandYear, new SelectList(ViewBag.MonthList, "name", "name"), "Select Month and year", new { @class = "form-control", @onchange = "GetSalarymonth();" })
+                                        <div>@Html.ValidationMessageFor(m => m.MonthandYear)</div>
+                                        @Html.Hidden("UploadId", null, new { @value = @ViewBag.uploadId })
+                                        @Html.HiddenFor(m=>m.OTHUploadMasterId)
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group custom-form-group ">
+                                        <label class="required">From Date</label>
+                                        @Html.EditorFor(m => m.FromDate, new { @class = "form-control"})
+                                        <div>@Html.ValidationMessageFor(m => m.FromDate)</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group custom-form-group  ">
+                                        <label class="required">To Date</label>
+                                        @Html.EditorFor(m => m.ToDate, new { @class = "form-control"})
+                                        <div>@Html.ValidationMessageFor(m => m.ToDate)</div>
+                                     </div>
+                                </div>
+                            </div>
+                            
+                          <div class="row">
+                              <div class="col-md-12 pd-null">
+                                  <div class="gray-bg br-rd">
+                                      <div class="row">
+                                          <div class="col-md-12">
+                                              <div class="row m-b-sm">
+                                                  <div class="col-md-6">
+                                                      <h3 class="mt-xs">Validation Details</h3>
+                                                  </div>
+                                              </div>
+                                              <div class="col-md-12">
+                                                  <div class="col-md-6">
+                                                      <label>Upload </label>
+                                                      <input id="ValidateOthFile" name="template" type="file">
+                                                  </div>
+                                                  <div class="col-md-6">
+                                                      <button type="submit" name="btnOTHValidate" class="btn btn-default" id="btnOTHValidate">Validate</button>
+                                                      @*<button type="button" class="btn btn-default dis-none" id="btnOTHVerifyAll">Init Process</button>*@
+                                                      <a href="javascript:void(0)" id="btnExport">Export to excel</a>
+                                                  </div>
+                                              </div>
+                                              <div class="col-md-12 mt-lg" id="gridValidOTHUploadData">
+
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>                                                                                   
+                         </div>
+                       
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+        <div class="row">
+    <div class="col-md-12 mb-lg text-center">
+@*<button type="submit" id="btnOthPayment" name="Button" class="btn btn-primary dis-none">Submit</button>*@
+        <input type = "submit" class="btn btn-primary dis-none" value="Submit" name="Button" id="btnOthPayment" />
+        <input type = "button" onclick="window.location.href='@Url.Action("OTHPaymentDeductionUploadList", "Requirement")';" class="btn btn-default" value="Close" id="btnclose" />
+    </div>
+</div>
+}
+
+<script>
+    $(document).ready(function () {
+        var upid= $('#UploadId').val();
+        if (upid!="")
+        {
+            $("#gridValidOTHUploadData").jsGrid("search");
+            $("#gridCompleteOTHUploadData").jsGrid("search");
+        }       
+    });
+    var roleid = @Model.RoleId;
+    var requestRunning = false;
+    function GetSalarymonth() {
+        var month = $('#MonthandYear').val();
+        if (month != "") {
+            $.getJSON("@Url.Action("LoadOTHMonthDate", "Requirement")", { MonthAndYear: month},
+                function (result) {
+            if (result.FrmSalDate != null && result.toSalDate != null) {
+                var getdatefrm = moment(result.FrmSalDate).add(-2, 'month').toDate();
+                var todat = moment(result.toSalDate).toDate();
+                $('#FromDate').datepicker({
+                    changeYear: false,
+                    changeMonth: false,
+                    dateFormat: 'dd-MM-yy',
+
+                }).datepicker("option", "minDate", getdatefrm).datepicker("option", "maxDate", todat);
+
+                $('#ToDate').datepicker({
+                    dateFormat: 'dd-MM-yy',
+                    changeYear: false,
+                    changeMonth: false
+
+                }).datepicker("option", "minDate", getdatefrm).datepicker("option", "maxDate", todat);
+
+
+            }
+
+
+        });
+        }
+        else {
+            $('#FromDate').datepicker("destroy");
+            $('#ToDate').datepicker("destroy");
+            $('#FromDate').val('');
+            $('#ToDate').val('');
+        }
+
+    }
+
+    $("#gridValidOTHUploadData").jsGrid({
+        paging: true,
+        pageIndex: 1,
+        pageSize: 5,
+        editing: false,
+        pageLoading: true,
+        controller: {
+            loadData: function (filter) {
+                var deferred = $.Deferred();
+                var uploadId = $('#UploadId').val();
+                filter.uploadId = uploadId;
+                $.ajax({
+                    type: "get",
+                    url: 'GetValidateOTHList',
+                    data: filter,
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (datas) {
+                        var da = {
+                            data: datas.Data,
+                            itemsCount: datas.TotalRecords
+                        }
+                        if (datas.TotalRecords == 0) {
+                            //$('#btnOTHVerifyAll').removeClass('dis-none');
+                            //$('#btnOTHValidate').addClass('dis-none');
+                            if (uploadId > 0) {
+                                $("#gridCompleteOTHUploadData").jsGrid("search");
+                            }
+                        }
+                        else if(datas.TotalRecords > 0)
+                        {
+                            $('#btnOthPayment').removeClass('dis-none');
+                        }                              
+                        deferred.resolve(da);
+                    }
+                });
+                return deferred.promise();
+            }
+        },
+        fields: [
+            { name: "OTHPaymentDeductionUploadDetail", title: "S.No", editing: false, width: 60 },
+            { name: "EmployeeNumber", title: "Employee Number", editing: false },
+            { name: "OtherType", title: "Payment / Deduction", editing: false },
+            { name: "HeadName", title: "Head Name", editing: false },
+            { name: "ProjectNumber", title: "Project Number", editing: false },
+            { name: "Amount", title: "Amount", editing: false },
+            { name: "ValidationMessage", title: "Validation", editing: false },
+        ],
+    });
+
+
+    //$("#gridCompleteOTHUploadData").jsGrid({
+    //    paging: true,
+    //    pageIndex: 1,
+    //    pageSize: 5,
+    //    editing: false,
+    //    filtering: true,
+    //    pageLoading: true,
+
+    //    controller: {
+    //        loadData: function (filter) {
+    //            var deferred = $.Deferred();
+    //            var uploadId = $('#UploadId').val();
+    //            filter.uploadId = uploadId;
+    //            $.ajax({
+    //                type: "get",
+    //                url: 'GetValidateCompleteOTHList',
+    //                data: filter,
+    //                contentType: "application/json; charset=utf-8",
+    //                dataType: "json",
+    //                success: function (datas) {
+    //                    var da = {
+    //                        data: datas.Data,
+    //                        itemsCount: datas.TotalRecords
+    //                    }
+    //                    if (datas.TotalRecords == 0) {
+    //                        $('#btnOthPayment').addClass('dis-none');
+    //                        //$('#btnOTHVerifyAll').addClass('dis-none');
+    //                    }
+    //                    else
+    //                    {
+    //                        $("#isValideList").removeClass('dis-none');
+    //                        if(roleid == 102 || roleid == 107 || roleid == 109 || roleid == 106)
+    //                        {
+    //                            $('#btnOthPayment').removeClass('dis-none');
+    //                            //$('#btnOTHVerifyAll').addClass('dis-none');
+    //                        }
+    //                        else if(roleid == 111)
+    //                        {
+    //                            $('#btnOthPayment').addClass('dis-none');
+    //                            //$('#btnOTHVerifyAll').removeClass('dis-none');
+    //                        }
+    //                    }
+    //                    deferred.resolve(da);
+    //                }
+    //            });
+    //            return deferred.promise();
+
+    //        }
+
+    //    },
+    //    fields: [
+    //        { name: "OTHPaymentDeductionUploadDetail", title: "S.No", editing: false, width: 60 },
+    //        { name: "EmployeeNumber", title: "Employee Number", editing: false },
+    //        { name: "OtherType", title: "Payment / Deduction", editing: false },
+    //        { name: "HeadName", title: "Head Name", editing: false },
+    //        { name: "ProjectNumber", title: "Project Number", editing: false },
+    //        { name: "Amount", title: "Amount", editing: false },
+    //        { name: "ValidationMessage", title: "Validation", editing: false },
+
+
+    //    ],
+    //});
+    //$("#gridCompleteOTHUploadData").jsGrid("option", "filtering", false);
+
+    $('#btnOTHValidate').click(function (e) {
+        e.preventDefault();
+        if (requestRunning) {
+            return;
+        }
+        var file = $('#ValidateOthFile').val();
+        if (file != "") {
+            var extension = file.substr((file.lastIndexOf('.') + 1)).toLowerCase();
+            switch (extension) {
+                case 'xls':
+                case 'xlsx':
+                case 'csv':
+                    isValidExten = true;
+                    break;
+                default:
+                    isValidExten = false;
+            }
+            var PaymentMonthYear = $('#MonthandYear option:selected').val();
+            var fromdate = $('#FromDate').val()||null;
+            var Todate = $('#ToDate').val()||null;
+            if (PaymentMonthYear == '') {
+                $.alert('Month Year field is required.')
+                return false;
+            }
+            if (fromdate ==null) {
+                $.alert('From Date field is required.')
+                return false;
+            }
+            if (Todate == null) {
+                $.alert('To Date field is required.')
+                return false;
+            }
+
+            var model = new FormData();
+            //var token = $("input[name=__RequestVerificationToken]").val();
+            //var searchdata = { "__RequestVerificationToken": token };
+            model.append("template", $('#ValidateOthFile')[0].files[0]);
+            model.append("MonthandYear", PaymentMonthYear);
+            model.append("FromDate", fromdate);
+            model.append("ToDate", Todate);
+            //model.append("__RequestVerificationToken", token);
+            var ajaxOpts = {
+                type: "POST",
+                url: '@Url.Action("ValidateOTHPaymentDeduction", "Requirement")',
+                data: model,
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: function (result) {
+                    if (result.status == "Valid") {
+                        $.alert("Validation has been done successfully.");
+                        $('#UploadId').val(result.uploadId);
+                        $("#gridValidOTHUploadData").jsGrid("search");
+
+                    } else {
+                        messageBox(result.status, "error");
+                    }
+                    $('.loading-bg').addClass('dis-none');
+                    requestRunning = false;
+                },
+                error: function (xhr) {
+                    requestRunning = false;
+                    $('.loading-bg').addClass('dis-none');
+
+                    console.log("error : " + JSON.stringify(xhr));
+                }
+            };
+
+            requestRunning = true;
+            $('.loading-bg').removeClass('dis-none');
+            $.ajax(ajaxOpts);
+        } else {
+            messageBox("please upload Other payment / Deduction template.", "warning");
+        }
+    });
+
+    $('#btnExport').click(function(){
+        var uploadid=$("#UploadId").val();
+        if(uploadid!="")
+        {
+            var url = '@Url.Action("ExportOTHUploadData", "Requirement")?uploadId=' + uploadid;
+            window.open(url, "_blank");
+        }
+    });
+    var frmdate=@Html.Raw(Json.Encode(Model.FromDate));
+    var todate=@Html.Raw(Json.Encode(Model.ToDate));
+    if(frmdate!=null && todate!=null)
+    {
+        var getdatefrm = moment(frmdate).add(-2, 'month').toDate();
+        var todat = moment(todate).toDate();
+        var setfrm=@Html.Raw(Json.Encode(Model.FromDate));
+        var setto=@Html.Raw(Json.Encode(Model.ToDate));
+        var setmofrm=moment(setfrm).toDate();
+        var setmoto=moment(setto).toDate();
+        $('#FromDate').datepicker({
+            dateFormat: 'dd-MM-yy',
+            changeYear: false,
+            changeMonth: false
+        }).datepicker("option", "minDate",getdatefrm).datepicker("option", "maxDate",todat).datepicker("setDate",setmofrm);
+        $('#ToDate').datepicker({
+            dateFormat: 'dd-MM-yy',
+            changeYear: false,
+            changeMonth: false
+
+        }).datepicker("option", "minDate",getdatefrm).datepicker("option", "maxDate", todat).datepicker("setDate",setmoto);
+    }
+</script>
+<script src="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/js/bootstrap-select.min.js")"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>

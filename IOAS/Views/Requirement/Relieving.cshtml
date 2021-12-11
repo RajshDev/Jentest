@@ -1,0 +1,855 @@
+﻿@model IOAS.Models.RelievingModel
+@{
+    ViewBag.Title = "Relieving Order";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<style>
+    .modal-dialog {
+        width: 850px;
+    }
+
+    .wrd-wrap {
+        word-wrap: break-word;
+    }
+</style>
+@using (Html.BeginForm("Relieving", "Requirement", FormMethod.Post, new { @class = "", role = "form", @id = "formRelieving", enctype = "multipart/form-data" }))
+{
+    <div class="row hd-tt-bg">
+        <div class="col-md-12">
+            <h4><b>Relieving Order </b></h4>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="white-bg ad-navbar">
+            <div class="col-md-2 ds-spl-bg">
+            </div>
+            <div class="col-md-3 ds-spl-bg">
+                <div class="ds-icn">
+                    <i class="ion-ios-list-outline "></i>
+                </div>
+                <div class="ds-tt">
+                    @Html.HiddenFor(m => m.ApplicationID)
+                    @Html.HiddenFor(m => m.OrderID)
+                    @Html.HiddenFor(m => m.TypeCode)
+                    @Html.HiddenFor(m => m.Appointmentdetails.AppointmentClosureDate)
+                    @Html.HiddenFor(m => m.Appointmentdetails.CommitmentBalance)
+                    @Html.HiddenFor(m => m.Spcomerelieving_f)
+                    <span>Request Reference</span>
+                    @Html.DropDownListFor(m => m.RequestReference, new SelectList(ViewBag.ReferenceType, "id", "name"), "Select", new { @class = "form-control" })
+                    <div>@Html.ValidationMessageFor(m => m.RequestReference)</div>
+                </div>
+            </div>
+            <div class="col-md-3 ds-spl-bg">
+                <div class="ds-icn">
+                    <i class="ion-ios-list-outline "></i>
+                </div>
+                <div class="ds-tt" id="divRefNum">
+                    <span class="required">Ref Number (WF / Tapal)</span>
+                    @Html.TextBoxFor(M => M.ReferenceNo, new { @class = "form-control" })
+                    <div>@Html.ValidationMessageFor(M => M.ReferenceNo)</div>
+                    @*@Html.TextBoxFor(m => m.SourceReferenceNumber, new { @class = "form-control dis-none" })
+                        <div>@Html.ValidationMessageFor(M => M.SourceReferenceNumber)</div>*@
+                    @Html.Hidden("SourceTapalOrWorkflow", "True")
+                </div>
+                <div class="dis-none ds-tt" id="divRefEmailDate">
+                    <span class="required">Email Date</span>
+                    @Html.EditorFor(m => m.SourceEmailDate, new { @class = "form-control" })
+                    <div>@Html.ValidationMessageFor(m => m.SourceEmailDate)</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+            </div>
+        </div>
+    </div>
+    <div class="row cts-mn-dts">
+        <div class="page-wrapper mt30">
+            <div>
+                <div class="col-md-12">
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="bl-lg-panel-box pb-null">
+                                <div class="cmn-panel-box">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label>Employee Id</label>
+                                                <h4>@Html.DisplayFor(m => m.EmployeeID)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label>Name </label>
+                                                <h4>@Html.DisplayFor(m => m.Name)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label>Type of appointment </label>
+                                                <h4>@Html.DisplayFor(m => m.Typeofappointment)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label>Email ID</label>
+                                                <h4>@Html.DisplayFor(m => m.Appointmentdetails.Email)</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row ">
+                                        <div class="col-md-3 wrd-wrap">
+                                            <div class="form-group custom-form-group  ">
+                                                <label>Permanent Address  </label>
+                                                <h4>@Html.DisplayFor(m => m.PermanentAddress)</h4>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-3 wrd-wrap">
+                                            <div class="form-group custom-form-group ">
+                                                <label>Temporary Address</label>
+                                                <h4>@Html.DisplayFor(m => m.PresentAddress)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group mb-sm ">
+                                                <label>Contact No</label>
+                                                <h4>@Html.DisplayFor(m => m.ContactNumber)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group ">
+                                                <label>Date of Birth</label>
+                                                <h4>@Html.DisplayFor(m => m.DateofBirth)</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row ">
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group ">
+                                                <label>Age</label>
+                                                <h4>@Html.DisplayFor(m => m.Age)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group  ">
+                                                <label>Sex</label>
+                                                <h4>@Html.DisplayFor(m => m.Sex)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label>Application Receive Date</label>
+                                                @Html.EditorFor(m => m.ApplicationReceiveDate, new { @class = "form-control", @required = "required" })
+                                                <div>@Html.ValidationMessageFor(m => m.ApplicationReceiveDate)</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label>PI approval letter</label><br>
+                                                @if (Model.OrderID > 0 && !string.IsNullOrEmpty(Model.PILetterPath))
+                                                {
+                                                    @Html.ActionLink(Model.PILetterFileName, "ShowDocument", new { Controller = "Account", filepath = "Requirement", file = Model.PILetterPath }, new { @target = "_blank" })
+                                                }
+                                                else
+                                                {
+                                                    <input type="file" id="PILetter" name="PILetter" required>
+                                                    <div>@Html.ValidationMessage("PILetter")</div>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row ">
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label class="required">Relieve Mode</label>
+                                                @Html.DropDownListFor(m => m.RelievingMode, new SelectList(ViewBag.RelieveMode, "id", "name", Model.RelievingMode), "Select", new { @class = "form-control" })
+                                                <div>@Html.ValidationMessageFor(m => m.RelievingMode)</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                @Html.RadioButton("ForenoonOrAfternoon", "FN") <label>Forenoon</label><br>
+                                                @Html.RadioButton("ForenoonOrAfternoon", "AN") <label>Afternoon</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label class="required">Date of relieving</label>
+                                                @*@if (Model.RelievingDate != null && Model.Spcomerelieving_f == true)
+                                                {
+                                                    <h4 id="date-relieving">@string.Format("{0:dd-MMMM-yyyy}", Model.RelievingDate)</h4>
+                                                    @Html.EditorFor(m => m.RelievingDate, new { @class = "form-control" })
+                                                }
+                                                else
+                                                {*@
+                                                    <h4 id="date-relieving" style="display:none;"></h4>
+                                                    @Html.EditorFor(m => m.RelievingDate, new { @class = "form-control required" })
+                                                    <div>@Html.ValidationMessageFor(m => m.RelievingDate)</div>
+                                                @*}*@
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group  ">
+                                                <label class="required">Commitment Option</label> <br>
+                                                @Html.DropDownListFor(m => m.CommitmentOption, new SelectList(ViewBag.CommitmentOptions, "id", "name", Model.CommitmentOption), "Select", new { @class = "form-control" })
+                                                <h4 id="cmt-opt" style="display:none;"></h4>
+                                                <div>@Html.ValidationMessageFor(m => m.CommitmentOption)</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3 reg-no">
+                                            <div class="form-group custom-form-group  ">
+                                                <label class="required">Withdraw Commitment Amount</label> <br>
+                                                @Html.TextBoxFor(m => m.WithdrawalAmount, new { @class = "form-control", @readonly = "readonly" })
+                                                <div>@Html.ValidationMessageFor(m => m.WithdrawalAmount)</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group  ">
+                                                <label>NO Dues </label> <br>
+                                                @if (Model.OrderID > 0 && Model.NODuesFilePath != null)
+                                                {
+                                                    int Count = 0;
+                                                    foreach (var item in Model.NODuesFilePath)
+                                                    {
+                                                        if (!string.IsNullOrEmpty(item))
+                                                        {
+                                                            @Html.ActionLink(Model.NODuesFileName[Count], "ShowDocument", new { Controller = "Account", filepath = "Requirement", file = item }, new { @target = "_blank", @style = "color:white;" })
+                                                        }
+                                                        Count++;
+                                                    }
+                                                }
+                                                else if (Model.OrderID > 0 && Model.NODuesFilePath == null)
+                                                {
+                                                    <div id="divNOC_0">
+                                                        <div class="row">
+                                                            <div class="col-md-10">
+                                                                <input class="form-control mb-sm" id="NOCFile_0" type="file" name="NODuesFile[0]" value="" required>
+                                                                <div class="txt-error txt-red">@Html.ValidationMessage("NODuesFile[0]")</div>
+                                                            </div>
+                                                            <div class="col-md-2">
+                                                                <a href="javascript:void(0)" class="btn-sm btn btn-danger mb-sm removeFile"><i class="ion-android-close"></i></a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <a href="javascript:void(0)" id="btnAddFile" class="btn btn-primary mb-md">+</a>
+                                                }
+                                                else
+                                                {
+                                                    <div id="divNOC_0">
+                                                        <div class="row">
+
+                                                            <div class="col-md-10">
+                                                                <input class="form-control mb-sm" id="NOCFile_0" type="file" name="NODuesFile[0]" value="">
+                                                                <div class="txt-error txt-red">@Html.ValidationMessage("NODuesFile[0]")</div>
+                                                            </div>
+                                                            <div class="col-md-2">
+                                                                <a href="javascript:void(0)" class="btn-sm btn btn-danger mb-sm removeFile"><i class="ion-android-close"></i></a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <a href="javascript:void(0)" id="btnAddFile" class="btn btn-primary mb-md">+</a>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group  ">
+                                                <div id="fileAppend" class="alert alert-success dis-none">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="bl-lg-panel-box  pb-null">
+                                <div class="bl-lg-panel-box-hd mb-m-5 pd-null">
+                                    <div class="cmn-panel-box">
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Project Number</label>
+                                                    <h4>@Html.DisplayFor(m => m.Appointmentdetails.ProjectNumber)</h4>
+                                                    @Html.HiddenFor(m => m.ProjectId)
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Project Title</label>
+                                                    <h4>@Html.DisplayFor(m => m.Appointmentdetails.ProjectTitle)</h4>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>PI Name</label>
+                                                    <h4>@Html.DisplayFor(m => m.Appointmentdetails.PIName)</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Project Start Date</label>
+                                                    <h4>@Html.DisplayFor(m => m.Appointmentdetails.ProjectStartDate)</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Project End Date</label>
+                                                    <h4>@Html.DisplayFor(m => m.Appointmentdetails.ProjectClosureDate)</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Appointment start date</label>
+                                                    <h4 id="txtAppointmentStartDate">@Html.DisplayFor(m => m.Appointmentdetails.AppointmentStartDate)</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Appointment End date</label>
+                                                    <h4 id="txtAppointmentEndDate">@Html.DisplayFor(m => m.Appointmentdetails.AppointmentClosureDate)</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Designation</label>
+                                                    <h4>@Html.DisplayFor(m => m.Appointmentdetails.Designation)</h4>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Designation Code</label>
+                                                    <h4>@Html.DisplayFor(m => m.Appointmentdetails.DesignationCode)</h4>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Department Name</label>
+                                                    <h4>@Html.DisplayFor(m => m.Appointmentdetails.PIDepartmentName)</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Commitment Amount</label>
+                                                    <h4>@Html.DisplayFor(m => m.Appointmentdetails.CommitmentAmmount)</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Salary</label>
+                                                    <h4>@Html.DisplayFor(m => m.Appointmentdetails.Salary)</h4>
+                                                </div>
+                                            </div>
+                                            @if (Model.TypeCode == "STE")
+                                            {
+                                                <div class="col-md-3">
+                                                    <div class="form-group custom-form-group">
+                                                        <label>HRA</label>
+                                                        <h4>@Html.DisplayFor(m => m.Appointmentdetails.HRA)</h4>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <div class="form-group custom-form-group">
+                                                        <label>Medical</label>
+                                                        <h4>@Html.DisplayFor(m => m.Appointmentdetails.MedicalAmmount)</h4>
+                                                    </div>
+                                                </div>
+                                            }
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Commitment Number</label>
+                                                    <h4>@Html.DisplayFor(m => m.Appointmentdetails.CommitmentNo)</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Commitment Balance</label>
+                                                    <h4>@Html.DisplayFor(m => m.Appointmentdetails.CommitmentBalance)</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 mb-lg text-center">
+            <button type="button" class="btn btn-primary" id="btnSave">Submit</button>
+            @Html.HiddenFor(m => m.List_f)
+            @if (!string.IsNullOrEmpty(Model.List_f))
+            {
+                <button type="button" class="btn btn-default" onclick="window.location.href='@Url.Action(Model.List_f,"Requirement")';">Close</button>
+            }
+            else
+            {
+                <button type="button" class="btn btn-default" onclick="window.location.href='@Url.Action("EmployeeMaster","Requirement")';">Close</button>
+            }
+        </div>
+    </div>
+}
+
+<div class="loading-bg dis-none">
+</div>
+<div id="popup">
+
+</div>
+
+<script>
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    var alertMsg = '@TempData["alertMsg"]';
+    var OrderID = @Html.Raw(Json.Encode(Model.OrderID)) || 0;
+    var currentdate = moment(new Date()).toDate();
+    var backdateenable = '@ViewBag.BackdatedEnabled';
+    var stoppayement_f = @Html.Raw(Json.Encode(Model.Spcomerelieving_f)) || false; //stop payment come relieving special case
+    var relievingdate = @Html.Raw(Json.Encode(Model.RelievingDate)) || "";
+    if(relievingdate != "") {
+        relievingdate = @Html.Raw(Json.Encode(string.Format("{0:dd-MMMM-yyyy}", Model.RelievingDate))) || "";
+    }
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+        else if (alertMsg != '') {
+            $('#alert').html(alertMsg);
+            $('#Validation').modal('toggle');
+        }
+
+        $('#ApplicationReceiveDate,#SourceEmailDate').datepicker({
+            dateFormat: 'dd-MM-yy',
+            changeYear: true
+        }).datepicker("option", "maxDate", currentdate).datepicker("option", "minDate", -185);
+
+        if($('#txtAppointmentStartDate').text() != "" && $('#txtAppointmentEndDate').text() != "")
+        {
+            var startdate = moment(new Date($('#txtAppointmentStartDate').text().split('-').join('/'))).toDate();
+            var enddate = moment(new Date($('#txtAppointmentEndDate').text().split('-').join('/'))).toDate();
+            if(backdateenable == 'false')
+            {
+                var beginDate = moment(new Date()).add(-currentdate.getDate(), 'days').add(+1, 'days').toDate();
+                beginDate = moment(beginDate).add(-7, 'days').toDate();
+
+                if(relievingdate != "" &&  stoppayement_f == true) {
+                    beginDate = moment(relievingdate.split('-').join('/')).toDate();
+                    //$('#RelievingDate').addClass('dis-none');
+                }
+
+                if (startdate <= beginDate && beginDate <= enddate)
+                    startdate = beginDate;
+                if (enddate >= currentdate)
+                    enddate = currentdate;
+            }
+            $('#RelievingDate').datepicker({
+                dateFormat: 'dd-MM-yy',
+                changeYear: true,
+            }).datepicker("option", "minDate", startdate).datepicker("option", "maxDate", enddate);
+        }
+    });
+    var addyear = 0;
+
+    $('#SourceEmailDate').change(function(){
+        var value = $(this).val();
+        $('#ApplicationReceiveDate').val(value);
+    });
+
+    $("#RelievingDate,#ApplicationReceiveDate,#SourceEmailDate").datepicker
+        ({
+            dateFormat: 'dd-MM-yy',
+            showStatus: true,
+            showWeeks: true,
+            changeYear: true,
+            yearRange: '1950:+30',
+            highlightWeek: true,
+            numberOfMonths: 1,
+            showAnim: "scale",
+            showOptions: {
+                origin: ["top", "left"]
+            }
+        });
+
+
+
+    $('#btnSave').click(function () {
+        var isValid = false;
+        var hadError = false;
+        var tabs = $("#formRelieving");
+        var inputs = $(":input, textarea, select"); // get all the form inputs and selects
+        var stepElements = $(tabs).find(inputs); // get inputs for current step
+        var count = stepElements.length; // check that there are inputs
+        if (count <= 0) // if there are not no reason to loop them
+            return true;
+        $(stepElements).each(function (idx) {
+            if (!$(this).is(':radio') && !$(this).is(':checkbox')) {
+                isValid = $(this).valid();
+                if (!isValid) {
+                    hadError = true;
+                }
+            }
+        });
+        if (!hadError) {
+            formSave();
+        }
+        else
+        {
+            $.confirm({
+                title: 'Warning!',
+                content: 'Invalid data exist',
+                type: 'orange',
+                buttons: {
+                    Ok: function () {
+                    },
+                },
+            });
+            return;
+        }
+
+    });
+
+    function formSave() {
+        $('.loading-bg').removeClass('dis-none');
+        var isValid = $('#formRelieving').valid();
+        if (!isValid){
+            $('.loading-bg').addClass('dis-none');
+            return false;
+        }
+        if (isValid)
+            $('#formRelieving').submit();
+    }
+
+    $('input[name="PILetter"]').change(function (e) {
+        var expformat = [".pdf", ".doc", ".docx"];
+        var _size = this.files[0].size;
+        var iSize = (_size / 1024);
+        iSize = (Math.round(iSize * 100) / 100)
+        var fileName = e.target.files[0].name;
+        var extension = fileName.substr((fileName.lastIndexOf('.') + 1)).toLowerCase();
+        var validFormat = expformat.includes('.' + extension);
+        if (validFormat == true)
+        {
+            if (iSize > 5120)
+            {
+                $('#alert').html('Documents size should be allow below 5MB');
+                $('#Validation').modal('toggle');
+                $(this).val('');
+                return;
+            }
+        }
+        else
+        {
+            $('#alert').html('PI Relieve Order allowed document type [pdf,doc,docx]');
+            $('#Validation').modal('toggle');
+            $(this).val('');
+            return;
+        }
+    });
+
+
+    function formDisabled()
+    {
+        $("#formRelieving").find("input, select, textarea").each(function () {
+            if (!$(this).is(":disabled"))
+                $(this).attr("disabled", "disabled");
+        });
+    }
+
+    var Status =  @Html.Raw(Json.Encode(Model.Status)) || "";
+    if (Status == "Open")
+    {
+        formDisabled();
+        $('#OrderID,#ApplicationID,#TypeCode,#NOCFile_0,#btnAddFile,.removeFile,#WithdrawalAmount,#List_f').removeAttr('disabled');
+    }
+    else if (Status == "Completed")
+    {
+        formDisabled();
+    }
+    $('#List_f').removeAttr('disabled');
+    $('select[name="RelievingMode"]').on('change', function () {
+        if(stoppayement_f == false)
+        {
+            if ($(this).val() == 1)
+            {
+                //$('#WithdrawalAmount').val(0);
+                //$('#WithdrawalAmount').attr('readonly', 'readonly');
+                //$('#CommitmentOption').val(2);
+                //$('#cmt-opt').text($('#CommitmentOption option:selected').text());
+                $('#RelievingDate').val(@Html.Raw(Json.Encode(Model.Appointmentdetails.AppointmentClosureDate)));
+                //$('#RelievingDate,#CommitmentOption').attr('style','display:none');
+                $('#RelievingDate').attr('style','display:none');
+                $('#date-relieving').text(@Html.Raw(Json.Encode(Model.Appointmentdetails.AppointmentClosureDate)));
+                //$('#date-relieving,#cmt-opt').removeAttr('style');
+                $('#date-relieving').removeAttr('style');
+            }
+            else
+            {
+                $('#CommitmentOption').val('').trigger('change');
+                $('#RelievingDate').removeAttr('style');
+                $('#date-relieving').attr('style','display:none');
+            }
+            if($("#RelievingDate").val() != "")
+            {
+                calWithdrawalAmount();
+            }
+        }
+
+    });
+
+    $('select[name="CommitmentOption"]').on('change', function () {
+        if ($(this).val() == 2) {
+            $('#WithdrawalAmount').val(0);
+        }
+        else {
+            $(this).removeAttr('style');
+            $('#cmt-opt').attr('style', 'display:none');
+        }
+        if($("#RelievingDate").val() != "") {
+            calWithdrawalAmount();
+        }
+    });
+
+
+    if ($('select[name="RelievingMode"]').val() == 1) {
+        $('#CommitmentOption').val(2);
+    }
+
+    $('#RequestReference').change(function () {
+        var selSource = $(this).val();
+        $("#SourceReferenceNumber,#ReferenceNo").val('');
+        $("#divRefNum, #divRefEmailDate").addClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('False');
+        if (selSource == '1') {
+            applyAutoComplete($('#ReferenceNo'), $('#SourceReferenceNumber'), "@Url.Action("GetACWorkflowRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        } else if (selSource == '3') {
+            applyAutoComplete($('#ReferenceNo'), $('#SourceReferenceNumber'), "@Url.Action("GetACTapalRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        }
+        else if (selSource == '2') {
+            $('#divRefEmailDate').removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('False');
+        } else {
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        }
+    });
+
+
+    var selSource = $('#RequestReference').val();
+    $("#divRefNum, #divRefEmailDate").addClass('dis-none');
+    if (selSource == '1') {
+        applyAutoComplete($('#ReferenceNo'), $('#SourceReferenceNumber'), "@Url.Action("GetACWorkflowRefNumber", "Proposal")");
+        $("#divRefNum").removeClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('True');
+    }
+    else if (selSource == '3') {
+        applyAutoComplete($('#ReferenceNo'), $('#SourceReferenceNumber'), "@Url.Action("GetACTapalRefNumber", "Proposal")");
+        $("#divRefNum").removeClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('True');
+    }
+    else if (selSource == '2') {
+        $('#divRefEmailDate').removeClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('False');
+    }
+    else {
+        $("#divRefNum").removeClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('True');
+    }
+
+
+    $('#RelievingDate').change(function () {
+        calWithdrawalAmount()
+    });
+
+    function calWithdrawalAmount()
+    {
+        var appid = @Html.Raw(Json.Encode(Model.ApplicationID)) || 0;
+        var apptype = @Html.Raw(Json.Encode(Model.TypeCode)) || "";
+        var commitmentbalance = @Html.Raw(Json.Encode(Model.Appointmentdetails.CommitmentBalance));
+        var selectedrelievedate = $("#RelievingDate").val();
+        if(selectedrelievedate != "" && $('#CommitmentOption').val() == 1)
+        {
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("CalculateWithdrawalAmount", "Requirement")',
+                data: {
+                    appid : appid,
+                    apptype : apptype,
+                    From : $("#RelievingDate").val(),
+                    To : @Html.Raw(Json.Encode(Model.Appointmentdetails.AppointmentClosureDate)),
+                    isIncludedate : false
+                },
+                success: function (result) {
+                    $('#WithdrawalAmount').val(result);
+                },
+                error: function (err) {
+                    console.log("error1 : " + err);
+                }
+            });
+        }
+        else if(selectedrelievedate != "" && $('#CommitmentOption').val() == 2){
+            $('#WithdrawalAmount').val(0);
+        }
+        else if(selectedrelievedate != "" && $('#CommitmentOption').val() == 3){
+            $('#WithdrawalAmount').val(commitmentbalance);
+        }
+        else if(selectedrelievedate == "")
+        {
+            $('#alert').html("Please enter relieving date");
+            $('#Validation').modal('toggle');
+        }
+    }
+
+    $(document).on('change','input[name^="NODuesFile"]', function(event) {
+        var id = $(this).attr('id');
+        id = id.split('_')[1];
+        if($(this).val() != "")
+        {
+            var expformat = [".pdf", ".doc",".docx"];
+            var fileName = document.getElementById('NOCFile_' + id).files[0].name;
+            var extension = fileName.substr((fileName.lastIndexOf('.') + 1)).toLowerCase();
+            var validformat = expformat.includes('.'+extension);
+            if(validformat == true)
+            {
+                var _size = document.getElementById('NOCFile_'+id).files[0].size;
+                var iSize = (_size / 1024);
+                iSize = (Math.round(iSize * 100) / 100)
+                if (iSize > 5120) {
+                    $('#alert').html('Documents size should be allow below 5MB');
+                    $('#Validation').modal('toggle');
+                    $(this).val('');
+                    return;
+                }
+                UpdateUploadedDoc();
+            }
+            else
+            {
+                $('#alert').html('NOC allowed document type [pdf,doc,docx]');
+                $('#Validation').modal('toggle');
+                $(this).val('');
+                return;
+            }
+        }
+        else
+        {
+            UpdateUploadedDoc()
+        }
+
+    });
+
+    var innc = 1;
+    $("#btnAddFile").click(function () {
+        var cln = $('div#divNOC_0:first').clone().find("input").val("").end();
+        $(cln).find('a').removeClass('dis-none');
+        $(cln).find("input, select").each(function () {
+            $(this).attr("name", $(this).attr("name").replace(/\d+/, innc));
+            if ($(this).attr("id"))
+                $(this).attr("id", $(this).attr("id").replace(/\d+/, innc));
+        });
+        $(cln).find('span[data-valmsg-for^="NODuesFile"]').each(function(idx,ele){
+            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, idx));
+        });
+        $(cln).insertAfter("div#divNOC_0:last");
+        innc++;
+    });
+
+
+    $(document).on('click', 'a.removeFile', function () {
+        if ($('div[id^="divNOC"]').length == 1) {
+            $('div[id^="divNOC"]').find("input").val("").end();
+        }
+        else {
+            $(this).parents('div[id^="divNOC"]').remove();
+            $(document).find('input[name^="NODuesFile"]').each(function(idx,ele){
+                $(this).attr("name", $(this).attr("name").replace(/\d+/, idx));
+                if ($(this).attr("id"))
+                    $(this).attr("id", $(this).attr("id").replace(/\d+/, idx));
+            });
+            $(document).find('span[data-valmsg-for^="NODuesFile"]').each(function(idx,ele){
+                $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, idx));
+            });
+            innc--;
+        }
+
+        UpdateUploadedDoc();
+    });
+
+    function UpdateUploadedDoc()
+    {
+        var form_data = new FormData();
+        $('#fileAppend').empty();
+        $(document).find('input[name^="NODuesFile"]').each(function(idx,ele) {
+            var val = $(this).val();
+            var ID = $(this).attr('id');
+            if (val != "") {
+                var tmppath= URL.createObjectURL(document.getElementById(ID).files[0]);
+                var fileN = document.getElementById(ID).files[0].name;
+                var ele = document.createElement('a');
+                var elebr = document.createElement('br');
+                ele.href = tmppath
+                ele.text = fileN;
+                ele.target = "_blanck";
+                document.getElementById('fileAppend').appendChild(ele);
+                document.getElementById('fileAppend').appendChild(elebr);
+            }
+        });
+
+        if($("#fileAppend a").length > 0){
+            $("#fileAppend").removeClass("dis-none");
+        }
+        else{
+            $("#fileAppend").addClass("dis-none");
+        }
+    }
+
+    $("input[name=ForenoonOrAfternoon]").prop('checked', false);
+    var ForenoonOrAfternoon = @Html.Raw(Json.Encode(Model.ForenoonOrAfternoon)) || "";
+    if (ForenoonOrAfternoon != "")
+    {
+        if(@Html.Raw(Json.Encode(Model.ForenoonOrAfternoon)) == "FN")
+        {
+            $("input[name=ForenoonOrAfternoon][value=FN]").prop('checked', true);
+        }
+        else
+        {
+            $("input[name=ForenoonOrAfternoon][value=AN]").prop('checked', true);
+        }
+    }
+    else
+    {
+        $("input[name=ForenoonOrAfternoon][value=AN]").prop('checked', true);
+    }
+
+</script>
+<script src="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/js/bootstrap-select.min.js")"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>
+

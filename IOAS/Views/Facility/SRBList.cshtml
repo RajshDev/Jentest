@@ -1,0 +1,280 @@
+﻿@model IOAS.Models.SRBListModel
+
+@{
+    ViewBag.Title = "SRB List";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+
+}
+<link href="@Url.Content("~/Content/IOASContent/css/ioas-icons.css")" rel="stylesheet" />
+
+<style>
+    .txt-red {
+        color: red;
+    }
+
+    .txt-green {
+        color: green;
+    }
+</style>
+<div class="row hd-tt-bg">
+
+    <div class="col-md-4">
+        <h3>SRB List</h3>
+    </div>
+
+    <div class="col-md-8 flt-nav-links">
+
+        <a href="Javascript:void(0)" id="btnFilter" class="pull-right"> <i class="ion-android-funnel"></i>Filters</a>
+        <a href="Javascript:void(0)" id="btnAddNew" class="pull-right"> <i class="ion-plus"></i>Add New</a>
+
+    </div>
+
+    <div id="popupFilter" class="filter-popup">
+        <div class="">
+            <div class="filter-content">
+                <div class="white-bg">
+                    <div class="form-group custom-form-group">
+                        <h3>Filter by</h3>
+                    </div>
+                    <div class="form-group custom-form-group">
+                        @Html.DropDownListFor(m => m.SearchField.Department, new SelectList(ViewBag.DepartmentList, "id", "name"), "Department", new { @id = "srchDepartment", @class = "form-control" })
+                    </div>
+                    <div class="form-group custom-form-group">
+                        @Html.TextBoxFor(m => m.SearchField.Keyword, new { @id = "srchKeyword", @placeholder = "SRB number, Supplier name, Invoice number", @class = "form-control" })
+                    </div>
+                    
+                    <div class="form-group custom-form-group">
+                        <label>Search by</label><br>
+                        <label class="radio chkbox-adj">
+                            @Html.RadioButtonFor(m => m.SearchField.SearchBy, "PODate", new { @id = "SearchBy_PODate", @checked = "checked" })
+                            <span></span>
+                            Invoice Date
+                        </label>
+                        <label class="radio chkbox-adj">
+                            @Html.RadioButtonFor(m => m.SearchField.SearchBy, "InwardDate", new { @id = "SearchBy_InwardDate" })
+                            <span></span>
+                            Inward Date
+                        </label>
+                        <label class="radio chkbox-adj">
+                            @Html.RadioButtonFor(m => m.SearchField.SearchBy, "SRBDate", new { @id = "SearchBy_SRBDate" })
+                            <span></span>
+                            SRB Date
+                        </label>
+                    </div>
+
+                    <div id="DivPODate" class="form-group custom-form-group">
+                        <label class="half-form">From</label>
+                        <label class="half-form">To</label>
+                        @Html.TextBoxFor(m => m.SearchField.FromPODate , new {@id ="FromPODate", @class = "form-control half-form" })
+                        @Html.TextBoxFor(m => m.SearchField.ToPODate , new {@id = "ToPODate", @class = "form-control half-form" })
+                    </div>
+                    <div id="DivInwardDate" class="form-group custom-form-group">
+                        <label class="half-form">From</label>
+                        <label class="half-form">To</label>
+                        @Html.TextBoxFor(m => m.SearchField.FromInwardDate, new { @id = "FromInwardDate", @class = "form-control half-form" })
+                        @Html.TextBoxFor(m => m.SearchField.ToInwardDate, new { @id = "ToInwardDate", @class = "form-control half-form" })
+                    </div>
+                    <div id="DivSRBDate" class="form-group custom-form-group">
+                        <label class="half-form">From</label>
+                        <label class="half-form">To</label>
+                        @Html.TextBoxFor(m => m.SearchField.FromSRBDate, new {@id = "FromSRBDate", @class = "form-control half-form" })
+                        @Html.TextBoxFor(m => m.SearchField.ToSRBDate, new { @id = "ToSRBDate", @class = "form-control half-form" })
+                    </div>
+                    <div class="form-group custom-form-group mt30 text-center">
+                        <a id="btnReset" href="javascript:void(0)">Reset</a>
+                    </div>
+                    <div class="form-group custom-form-group text-center">
+                        <button id="btnSearch" type="button" class="btn btn-primary mr10">Search</button>
+                        <button name="btnClose" type="button" class="btn btn-default">Close</button>
+                    </div>
+
+
+
+
+
+                </div>
+            </div>
+
+        </div>
+
+        <a href="javascript:void(0)" name="btnClose" class="close-btn"><i class="ion-android-cancel"></i></a>
+
+    </div>
+
+
+</div>
+@Html.AntiForgeryToken()
+<div id="gridData" class="row mt30">
+   @Html.Partial("SearchSRBList")
+</div>
+<div id="SuccModal" class="modal fade modal-success" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-checkmark-circle"></i>
+                <h3 class="modal-title">Saved successfully</h3>
+            </div>
+            <div class="modal-body">
+
+                <p id="MsgSuccess"></p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal" id="btnClose">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div id="ErrorModal" class="modal fade modal-error" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-cancel"></i>
+                <h3 class="modal-title">Error Message</h3>
+            </div>
+            <div class="modal-body">
+
+                <p id="MsgError"></p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div id="PostPopup" class="row mt30"></div>
+<script type="text/javascript">
+    var PostSuccMsg = '@TempData["PostSuccMsg"]';
+    var PostErrMsg = '@TempData["PostErrMsg"]';
+    if (PostSuccMsg) {
+        $('#MsgSuccess').html(PostSuccMsg);
+        $('#SuccModal').modal('toggle');
+    }
+    else if (PostErrMsg) {
+        $('#MsgError').html(PostErrMsg);
+        $('#ErrorModal').modal('toggle');
+    }
+    $(document).ready(function () {
+        var SearchBy = $('input[name^="SearchField.SearchBy"]:checked').val();
+        $('#DivSRBDate').hide();
+        $('#DivInwardDate').hide();
+        $('#DivPODate').hide();
+        if (SearchBy == 'PODate') {
+            $('#DivPODate').show();
+        }else if (SearchBy == 'InwardDate') {
+            $('#DivInwardDate').show();
+        } else {
+            $('#DivSRBDate').show();
+        }
+        $("#FromPODate, #ToPODate, #FromSRBDate, #ToSRBDate, #FromInwardDate, #ToInwardDate").datepicker
+           ({
+               dateFormat: 'dd-MM-yy',
+               showStatus: true,
+               showWeeks: true,
+               changeYear: true,
+               yearRange: '-100:+0',
+               highlightWeek: true,
+               numberOfMonths: 1,
+               showAnim: "scale",
+               showOptions: {
+                   origin: ["top", "left"]
+               }
+           });
+
+    });
+    $('input[id^="SearchBy_"]').change(function () {
+        var value = $(this).val();
+        $('#DivSRBDate').hide();
+        $('#DivInwardDate').hide();
+        $('#DivPODate').hide();
+        if (value == 'PODate') {
+            $('#DivPODate').show();
+        } else if (value == 'InwardDate') {
+            $('#DivInwardDate').show();
+        } else {
+            $('#DivSRBDate').show();
+        }
+        $('#FromPODate').val('');
+        $('#ToPODate').val('');
+        $('#FromSRBDate').val('');
+        $('#ToSRBDate').val('');
+        $('#FromInwardDate').val('');
+        $('#ToInwardDate').val('');
+    });
+   
+    $('a[name="btnClose"],button[name="btnClose"]').click(function () {
+        $('#popupFilter').css("display", "none");
+    });
+    $("#btnFilter").click(function () {
+        $('#popupFilter').css("display", "Block");
+    });
+    $("#btnSearch").click(function () {
+        getData(1);
+    });
+    function ResetForm() {
+        $('#srchKeyword').val('');
+        $('#srchDepartment').val('');
+        $('#FromPODate').val('');
+        $('#ToPODate').val('');
+        $('#FromSRBDate').val('');
+        $('#ToSRBDate').val('');
+        $('#FromInwardDate').val('');
+        $('#ToInwardDate').val('');
+    }
+    $('#btnReset').click(function () {
+        ResetForm();
+        getData(1);
+    });
+    function getData(page) {
+        var token = $("input[name=__RequestVerificationToken]").val();
+        var Keyword = $('#srchKeyword').val();
+        var Department = $('#srchDepartment').val();
+        var SearchBy = $('input[name^="SearchField.SearchBy"]:checked').val();
+        var FromPODate = $('#FromPODate').val();
+        var ToPODate = $('#ToPODate').val();
+        var FromSRBDate = $('#FromSRBDate').val();
+        var ToSRBDate = $('#ToSRBDate').val();
+        var FromInwardDate = $('#FromInwardDate').val();
+        var ToInwardDate = $('#ToInwardDate').val();
+        var searchdata = { "__RequestVerificationToken": token, "Keyword": Keyword, "Department": Department, "SearchBy": SearchBy, "FromPODate": FromPODate, "ToPODate": ToPODate, "FromSRBDate": FromSRBDate, "ToSRBDate": ToSRBDate, "FromInwardDate": FromInwardDate, "ToInwardDate": ToInwardDate, "page": page };
+
+        $.ajax({
+            url: '@Url.Action("SearchSRBList", "Facility")',
+            type: "POST",
+            contentType: "application/x-www-form-urlencoded",
+            data: searchdata,
+            success: function (data) {
+                $("#gridData").html(data);
+                //$('#popupFilter').css("display", "none");
+            }
+        });
+
+    }
+    $('#btnAddNew').click(function () {
+        PostSRB(0);
+    });
+    function PostSRB(srbId) {
+       var searchdata = { "srbId": srbId};
+
+        $.ajax({
+            url: '@Url.Action("SRB", "Facility")',
+            type: "GET",
+            contentType: "application/x-www-form-urlencoded",
+            data: searchdata,
+            success: function (data) {
+                $("#PostPopup").html(data);
+                $('#AddNewSRBModal').modal('toggle');
+            }
+        });
+    }
+
+</script>

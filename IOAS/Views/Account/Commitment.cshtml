@@ -1,0 +1,1247 @@
+﻿@model IOAS.Models.CommitmentModel
+@{
+    ViewBag.Title = "Commitment";
+    ViewBag.Subtitle = "Commitment";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<div class="row hd-tt-bg">
+    <div class="col-md-4 pull-left">
+        <h3>Commitment</h3>
+    </div>
+</div>
+@using (Html.BeginForm("Commitment", "Account", FormMethod.Post, new { role = "form", @id = "formComitment", @enctype = "multipart/form-data" }))
+{
+    <div class="row" id="addCommitment">
+        <div class="page-wrapper">
+            <div class="col-md-8">
+                <div class="white-bg">
+                    <div class="row mb-md">
+                        <div class="col-md-6">
+                            <div class="classic-box  mb-md">
+                                <div class="tb-tt">
+                                    <h4 class="required">Commitment Type</h4>
+                                    @Html.DropDownListFor(M => M.selCommitmentType, new SelectList(ViewBag.CommitmentType, "id", "name"), "Select Commitment Type", new { @class = "form-control", @required = "required", @id = "CommitmentType", })
+                                    <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.selCommitmentType)</div>
+                                    @Html.HiddenFor(m => m.commitmentId, new { @id = "hdnCommitId" })
+                                    @Html.Hidden("Committype")
+                                </div>
+                            </div>
+                            <div class="bl-lg-panel-box   pb-null">
+                                <div class="form-group custom-form-group mb-s-md">
+                                    <div class="col-md-12">
+                                        <label class="required">Project Number</label>
+                                        @Html.TextBox("projectNumber", Model.projectNumber, new { @class = "form-control" })
+                                        @Html.HiddenFor(m => m.SelProjectNumber)
+                                        @Html.ValidationMessage("SelProjectNumber")
+                                        @Html.HiddenFor(m => m.selProjectType, new { @id = "hdnProjectType" })
+                                    </div>
+                                </div>
+                                @if (Model.commitmentId > 0)
+                                { 
+                                    <div id="prjDetails">
+
+                                      <div class="form-group custom-form-group mb-s-md mt-md">
+                                          <label class="col-md-6">Investigators</label>
+                                          <table class="table table-bordered">
+                                              <thead>
+                                                  <tr>
+                                                      <th>Name</th>
+                                                      <th>Role</th>
+                                                      <th>PCF %</th>
+                                                      <th>RMF %</th>
+                                                  </tr>
+                                              </thead>
+                                              <tbody>
+                                                  <tr>
+                                                      <td>@Html.DisplayFor(m => m.ProjectDetail.PIName)</td>
+                                                      <td>PI</td>
+                                                      <td>@(String.Format("{0:N0}", Model.ProjectDetail.PIPCF))</td>
+                                                      <td>@(String.Format("{0:N0}", Model.ProjectDetail.PIRMF))</td>
+                                                  </tr>
+
+                                                  @if (Model != null && Model.ProjectDetail.CoPIs != null)
+                                                  {
+                                                      foreach (var item in Model.ProjectDetail.CoPIs)
+                                                      {
+                                                          <tr>
+                                                              <td>@Html.DisplayFor(m => item.Name)</td>
+                                                              <td>Co-PI</td>
+                                                              <td>@(String.Format("{0:N0}", item.PCF))</td>
+                                                              <td>@(String.Format("{0:N0}", item.RMF))</td>
+                                                          </tr>
+                                                      }
+                                                  }
+
+                                              </tbody>
+                                          </table>
+                                      </div>
+                                    <div class="form-group custom-form-group mb-s-md mt-md">
+                                        <label class="col-md-6">Project Type</label>
+                                        <span class="col-md-6" id="spanType">@Model.prjDetails.ProjectType</span>
+                                    </div>
+
+                                    <div class="form-group custom-form-group mb-s-md mt-md">
+                                        <label class="col-md-6">Title</label>
+                                        <span class="col-md-6" id="spanTittle">@Model.prjDetails.ProjectTittle</span>
+                                    </div>
+
+                                    <div class="form-group custom-form-group mb-s-md">
+                                        <label class="col-md-6">PI Name</label>
+                                        <span class="col-md-6" id="spanPIName">@Model.prjDetails.PIname</span>
+                                    </div>
+                                    <div class="form-group custom-form-group mb-s-md">
+                                        <label class="col-md-6">Start Date</label>
+                                        <span class="col-md-6" id="spanStartDate">@Model.prjDetails.StartDate</span>
+                                    </div>
+                                    <div class="form-group custom-form-group mb-s-md">
+                                        <label class="col-md-6">Close Date</label>
+                                        <span class="col-md-6" id="spanCloseDate">@Model.prjDetails.CloseDate</span>
+                                    </div>
+                                    <div class="form-group custom-form-group mb-s-md">
+                                        <label class="col-md-6">Opening Balance (Inclusive of migrated commitments)</label>
+                                        <span class="col-md-6 " id="spanOBValue">@Model.prjDetails.OpeningBalance</span>
+                                    </div>
+                                    <div class="form-group custom-form-group mb-s-md">
+                                        <label class="col-md-6">Sanctioned Value</label>
+                                        <span class="col-md-6 " id="spanSanValue">@Model.prjDetails.SanctionedValue</span>
+                                    </div>
+                                    <div class="form-group custom-form-group mb-s-md">
+                                        <label class="col-md-6">Total Receipt</label>
+                                        <span class="col-md-6 " id="spanTotReceipt">@Model.prjDetails.TotalReceipt</span>
+                                    </div>
+                                    <div class="form-group custom-form-group mb-s-md">
+                                        <label class="col-md-6">Amount Spent</label>
+                                        <span class="col-md-6 " id="spanAmtSpt">@Model.prjDetails.AmountSpent</span>
+                                    </div>
+                                    <div class="form-group custom-form-group mb-s-md">
+                                        <label class="col-md-6">Available Commitment</label>
+                                        <span class="col-md-6 " id="spanPrevious">@Model.prjDetails.PreviousCommitment</span>
+                                    </div>
+                                    <div class="form-group custom-form-group mb-s-md">
+                                        <label class="col-md-6">Available Balance</label>
+                                        <span class="col-md-6 " id="spanAvailableBal">@Model.prjDetails.AvailableBalance</span>
+                                    </div>
+                                    <div class="form-group custom-form-group mb-s-md">
+                                        <label class="col-md-6">Approved Negative Balance</label>
+                                        <span class="col-md-6 " id="spanNegativeBal">@Model.prjDetails.ApprovedNegativeBalance</span>
+                                    </div>
+                                    <div class="form-group custom-form-group">
+                                        <label class="col-md-6 hgt-txt">Net Balance</label>
+                                        <span class="col-md-6 hgt-txt" id="spanNetBal">@Model.prjDetails.NetBalance</span>
+                                    </div>
+
+                                </div>
+                                }
+                                else
+                                {
+                                    
+                                    <div id="prjDetails" class="menu-hide">
+                                        <div class="form-group custom-form-group mb-s-md mt-md">
+                                            <label class="col-md-6">Investigators</label>
+                                            <table class="table table-bordered">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Name</th>
+                                                        <th>Role</th>
+                                                        <th>PCF %</th>
+                                                        <th>RMF %</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="tbodyCOPI"></tbody>
+                                            </table>
+                                        </div>
+                                        <div class="form-group custom-form-group mb-s-md mt-md">
+                                            <label class="col-md-6">Project Type</label>
+                                            <span class="col-md-6" id="spanType"></span>
+                                        </div>
+                                        <div class="form-group custom-form-group mb-s-md mt-md">
+                                            <label class="col-md-6">Title</label>
+                                            <span class="col-md-6" id="spanTittle"></span>
+                                        </div>
+
+                                        <div class="form-group custom-form-group mb-s-md">
+                                            <label class="col-md-6">PI Name</label>
+                                            <span class="col-md-6" id="spanPIName"></span>
+                                        </div>
+                                        <div class="form-group custom-form-group mb-s-md">
+                                            <label class="col-md-6">Start Date</label>
+                                            <span class="col-md-6" id="spanStartDate"></span>
+                                        </div>
+                                        <div class="form-group custom-form-group mb-s-md">
+                                            <label class="col-md-6">Close Date</label>
+                                            <span class="col-md-6" id="spanCloseDate"></span>
+                                        </div>
+                                        <div class="form-group custom-form-group mb-s-md">
+                                            <label class="col-md-6">Opening Balance (Inclusive of migrated commitments)</label>
+                                            <span class="col-md-6 " id="spanOBValue"></span>
+                                        </div>
+                                        <div class="form-group custom-form-group mb-s-md">
+                                            <label class="col-md-6">Sanctioned Value</label>
+                                            <span class="col-md-6 " id="spanSanValue"></span>
+                                        </div>
+
+                                        <div class="form-group custom-form-group mb-s-md">
+                                            <label class="col-md-6">Total Receipt</label>
+                                            <span class="col-md-6 " id="spanTotReceipt"></span>
+                                        </div>
+
+                                        <div class="form-group custom-form-group mb-s-md">
+                                            <label class="col-md-6">Amount Spent</label>
+                                            <span class="col-md-6 " id="spanAmtSpt"></span>
+                                        </div>
+
+                                        <div class="form-group custom-form-group mb-s-md">
+                                            <label class="col-md-6">Available Commitment</label>
+                                            <span class="col-md-6 " id="spanPrevious"></span>
+                                        </div>
+
+                                        <div class="form-group custom-form-group mb-s-md">
+                                            <label class="col-md-6">Available Balance</label>
+                                            <span class="col-md-6 " id="spanAvailableBal"></span>
+                                        </div>
+
+                                        <div class="form-group custom-form-group mb-s-md">
+                                            <label class="col-md-6">Approved Negative Balance</label>
+                                            <span class="col-md-6 " id="spanNegativeBal"></span>
+                                        </div>
+
+                                        <div class="form-group custom-form-group">
+                                            <label class="col-md-6 hgt-txt">Net Balance</label>
+                                            <span class="col-md-6 hgt-txt" id="spanNetBal"></span>
+                                        </div>
+
+                                    </div>
+                                }
+
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Funding body</label>
+                                        @Html.DropDownListFor(M => M.selFundingBody, new SelectList(ViewBag.FundingBody, "id", "name"), new { @class = "form-control", @required = "required" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.selFundingBody)</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row menu-hide" id="staffCommit">
+                                <div class="col-md-12">
+                                    <div class="form-group custom-form-group">
+                                        <label>Start Date</label>
+                                        @Html.EditorFor(m => m.StartDate, new { @class = "form-control" })
+                                        @*<div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.StartDate)</div>*@
+                                    </div>
+                                    <div class="form-group custom-form-group">
+                                        <label>Close Date</label>
+                                        @Html.EditorFor(m => m.CloseDate, new { @class = "form-control" })
+                                        @*<div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.CloseDate)</div>*@
+                                    </div>
+                                    <div class="form-group custom-form-group">
+                                        <label>Basic Pay</label>
+                                        @Html.TextBoxFor(M => M.BasicPay, new { @class = "form-control" })
+                                        @*<div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.BasicPay)</div>*@
+                                    </div>
+                                    <div class="form-group custom-form-group">
+                                        <label>Medical Allowance</label>
+                                        @Html.TextBoxFor(M => M.MedicalAllowance, new { @class = "form-control" })
+                                        @*<div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.MedicalAllowance)</div>*@
+                                    </div>
+                                    <div class="form-group custom-form-group">
+                                        <label>Employee Name</label>
+                                        @*@Html.DropDownListFor(M => M.EmployeeId, new SelectList(ViewBag.Employee, "code", "name"), "Select Employee Name", new { @class = "form-control selectpicker", @id = "CommitmentType", })*@
+                                        @*<div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.EmployeeId)</div>*@
+                                        @Html.TextBoxFor(m => m.EmployeeId, new { @class = "form-control" })
+                                        @Html.TextBoxFor(m => m.CastEmployeeId, new { @class = "form-control dis-none" })
+                                    </div>
+                                    <div class="form-group custom-form-group">
+                                        <label>Total</label>
+                                        @Html.TextBoxFor(M => M.Total, new { @class = "form-control" })
+                                        @*<div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Total)</div>*@
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <div id="ForeginCommit" class="row menu-hide">
+                                <div class="col-md-12">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Currency</label>
+                                        <div class="col-md-12>">
+                                            <div class="col-md-3 pd-null">
+                                                @Html.DropDownListFor(M => M.selCurrency, new SelectList(ViewBag.Currency, "id", "name"), "Select Currency", new { @id = "Currency", @class = "form-control", @required = "required" })
+                                                <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.selCurrency)</div>
+                                            </div>
+                                            <div class="col-md-9 pd-null">
+                                                @Html.TextBoxFor(m => m.ForeignCurrencyValue, new { @class = "form-control", @onkeypress = "return isNumberKey(event)", @onkeyup = "sumAllocation(this);", @required = "required" })
+                                                <div class="txt-error txt-red"> @Html.ValidationMessageFor(M => M.ForeignCurrencyValue)</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group custom-form-group">
+                                        <label>Conversion Rate: (As on date booked)</label>
+                                        @Html.TextBoxFor(M => M.currencyRate, new { @class = "form-control", @onkeypress = "return isNumberKey(event);", @onkeyup = "sumAllocation(this);" })
+                                    </div>
+
+                                    <div class="form-group custom-form-group">
+                                        <label>Additional charges(%)</label>
+                                        @Html.TextBoxFor(M => M.AdditionalCharge, new { @class = "form-control", @onkeypress = "return isNumberKey(event);", @onkeyup = "sumAllocation(this);" })
+                                    </div>
+
+                                </div>
+                            </div>
+
+
+                            <div id="NegativeCommit" class="row menu-hide">
+                                <div class="col-md-12">
+                                    <div class="form-group custom-form-group" id="isDean">
+                                        @if ((Model != null) && Model.IsDeansApproval == true)
+                                        {
+                                        @Html.CheckBoxFor(M => M.IsDeansApproval, new { @checked = "checked" })
+                                        }
+                                        else
+                                        {
+                                        @Html.CheckBoxFor(M => M.IsDeansApproval)
+                                        }
+                                        <label>Is Dean's Approval?</label>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="row menu-hide" id="commonField">
+                                <div class="col-md-12">
+                                    <div class="form-group custom-form-group">
+                                        <label id="lblPONum">PO number</label>
+                                        @Html.TextBoxFor(M => M.PONumber, new { @class = "form-control" })
+                                        <div class="txt-error txt-red"> @Html.ValidationMessageFor(M => M.PONumber)</div>
+                                    </div>
+                                    <div class="form-group custom-form-group">
+                                        <label>Vendor</label>
+                                        @Html.TextBoxFor(M => M.VendorName, new { @class = "form-control" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.VendorName)</div>
+                                    </div>
+                                    <div class="form-group custom-form-group">
+                                        <label>Item Description</label>
+                                        @Html.TextBoxFor(M => M.ItemDescription, new { @class = "form-control" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.ItemDescription)</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Remarks</label>
+                                        @Html.TextAreaFor(m => m.Remarks, new { @text = "multiline", @class = "form-control", @required = "required" })
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row menu-hide" id="divAttachment">
+                                <div class="col-md-12">
+                                    <div class="form-group custom-form-group">
+                                        <label>Attachment(.pdf, .doc, .docx)</label>
+                                        <input type="file" name="file" id="docfile" />&nbsp;&nbsp;&nbsp;
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.file)</div>
+                                    </div>
+                                    @if ((Model != null) && !String.IsNullOrEmpty(Model.DocName) || !String.IsNullOrEmpty(Model.AttachPath))
+                                    {
+                                    <div class="form-group custom-form-group" id="doclink">
+                                        @Html.ActionLink(Model.DocName, "ShowDocument",
+                                                            new { Controller = "Account", file = Model.AttachPath, filepath = "~/Content/CommitmentDocument/" },
+                                                            new { @target = "_blank" })
+                                    </div>
+                                    }
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div name="divAllocateContent" class="gray-lg-bg-md mb20">
+                                        <div class="row">
+                                            <label class="col-md-6">Allocation Head</label>
+                                            <label class="col-md-6"> Allocation Value </label>
+                                        </div>
+                                        @if (Model.commitmentId > 0)
+                                        {
+                                            <div name="primaryAllocateDiv" class="row m-b-sm">
+                                                <div class="col-md-6 mb20">
+                                                    @Html.DropDownListFor(m => m.selAllocationHead, new SelectList(ViewBag.BudgetHead, "id", "name"), "Select Allocation head", new { @class = "form-control", @required = "required" })
+                                                    <div class="txt-error txt-red"> @Html.ValidationMessageFor(M => M.selAllocationHead)</div>
+                                                </div>
+                                                @if (Model.selCommitmentType == 5)
+                                                {
+                                                    <div class="col-md-6 mb20">
+                                                        @Html.TextBox("AllocationValue", Model.AllocationValue, new { @class = "form-control calc", @onkeypress = "return isNumberKey(event)", @onkeyup = "sumAllocation(this);", @required = "required", @autocomplete = "off" })
+                                                        <div class="txt-error txt-red"> @Html.ValidationMessageFor(M => M.AllocationValue)</div>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <div class="col-md-6 mb20">
+                                                        @Html.TextBox("AllocationValue", Model.AllocationValue, new { @class = "form-control calc", @onkeypress = "return isNumberKey(event)", @onkeyup = "sumAllocation(this);", @required = "required", @autocomplete = "off" })
+                                                        <div class="txt-error txt-red"> @Html.ValidationMessageFor(M => M.AllocationValue)</div>
+                                                    </div>
+                                                }
+
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-12 mb20">
+                                                    @Html.DropDownListFor(m => m.selSubhead, new SelectList(ViewBag.SubheadList, "name", "name"), "Select / Enter subhead", new { @class = "form-control select2-subhead" })
+                                                    <div class="txt-error txt-red"> @Html.ValidationMessageFor(M => M.selSubhead)</div>
+                                                </div>
+                                            </div>
+                                            <div class="row" id="divHeadDetails">
+                                                <input id="hdnIsYearWise" type="hidden" value="@Model.AllocationDtls.IsYearWise" />
+                                                <input id="hdnIsAllocation" type="hidden" value="@Model.AllocationDtls.IsAllocation" />
+                                                @if (@Model.AllocationDtls.IsAllocation == true)
+                                                {
+                                                    if (Model.AllocationDtls.IsYearWise == true)
+                                                    {
+                                                        <div class="form-group custom-form-group mb-s-md mt-md" id="divSpanAFCY">
+                                                            <label class="col-md-9">Allocation for till Year <b>:</b></label>
+                                                            <span class="col-md-3" id="spanAFCY">@Model.AllocationDtls.AllocationForCurrentYear</span>
+                                                        </div>
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="form-group custom-form-group mb-s-md mt-md" id="divSpanTA">
+                                                            <label class="col-md-9">Total Allocation <b>:</b></label>
+                                                            <span class="col-md-3" id="spanTA">@Model.AllocationDtls.TotalAllocation</span>
+                                                        </div>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <div class="form-group custom-form-group mb-s-md mt-md" id="divSpanTSV">
+                                                        <label class="col-md-9">Total Sanctioned Value <b>:</b></label>
+                                                        <span class="col-md-3" id="spanTSV">@Model.AllocationDtls.SanctionedValue</span>
+                                                    </div>
+                                                }
+                                                <div class="form-group custom-form-group mb-s-md mt-md">
+                                                    <label class="col-md-9">Sum of Expenditure and Open Commitments (Till Date) <b>:</b></label>
+                                                    <span class="col-md-3" id="spanTC">@Model.AllocationDtls.TotalCommitmentTilDate</span>
+                                                </div>
+                                                <div class="form-group custom-form-group mb-s-md mt-md">
+                                                    <label class="col-md-9">Maximum commitment allowed to book <b>:</b></label>
+                                                    <span class="col-md-3" id="spanTCCY">@Model.AllocationDtls.TotalCommitForCurrentYear</span>
+                                                </div>
+                                            </div>
+                                            @*<div class="form-group custom-form-group mb-s-md mt-md">
+                                                <label class="col-md-6"><b>Documents</b></label>
+                                                <table class="table table-bordered">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Document Type</th>
+                                                            <th>Document</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+
+                                                        @if (Model != null && Model.doc != null)
+                                                        {
+                                                            foreach (var item in Model.doc)
+                                                            {
+                                                                <tr>
+                                                                    <td>@Html.DisplayFor(m => item.DocumentTypeName)</td>
+                                                                    <td><a href="@Url.Action("ShowDocument","Project",new { file = item.DocumentName, filepath = item.DocumentPath })" target="_blank">@item.DocumentActualName</a></td>
+                                                                </tr>
+                                                            }
+                                                        }
+
+                                                    </tbody>
+                                                </table>
+                                            </div>*@
+                                        }
+                                        else
+                                        {
+                                            <div name="primaryAllocateDiv" class="row m-b-sm">
+                                                <div class="col-md-6 mb20">
+                                                    @Html.DropDownListFor(m => m.selAllocationHead, new SelectList(ViewBag.BudgetHead, "id", "name"), "Select Allocation head", new { @class = "form-control", @required = "required" })
+                                                    <div class="txt-error txt-red"> @Html.ValidationMessageFor(M => M.selAllocationHead)</div>
+                                                </div>
+                                                <div class="col-md-6 mb20">
+                                                    @Html.TextBoxFor(m => m.AllocationValue, new { @class = "form-control calc", @onkeypress = "return isNumberKey(event)", @onkeyup = "sumAllocation(this);", @required = "required", @readonly = "readonly", @autocomplete = "off" })
+                                                    <div class="txt-error txt-red"> @Html.ValidationMessageFor(M => M.AllocationValue)</div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-12 mb20">
+                                                    @Html.DropDownListFor(m => m.selSubhead, new SelectList(ViewBag.SubheadList, "name", "name"), "Select / Enter subhead", new { @class = "form-control select2-subhead" })
+                                                    <div class="txt-error txt-red"> @Html.ValidationMessageFor(M => M.selSubhead)</div>
+                                                </div>
+                                            </div>
+                                            <div class="row menu-hide" id="divHeadDetails">
+                                                <input id="hdnIsYearWise" type="hidden" />
+                                                <input id="hdnIsAllocation" type="hidden" />
+                                                <div class="form-group custom-form-group mb-s-md mt-md" id="divSpanTA">
+                                                    <label class="col-md-9">Total Allocation <b>:</b></label>
+                                                    <span class="col-md-3" id="spanTA"></span>
+                                                </div>
+                                                <div class="form-group custom-form-group mb-s-md mt-md" id="divSpanAFCY">
+                                                    <label class="col-md-9">Allocation for Current Year <b>:</b></label>
+                                                    <span class="col-md-3" id="spanAFCY"></span>
+                                                </div>
+                                                <div class="form-group custom-form-group mb-s-md mt-md" id="divSpanTSV">
+                                                    <label class="col-md-9">Total Sanctioned Value <b>:</b></label>
+                                                    <span class="col-md-3" id="spanTSV"></span>
+                                                </div>
+                                                <div class="form-group custom-form-group mb-s-md mt-md">
+                                                    <label class="col-md-9">Sum of Expenditure and Open Commitments (Till Date)<b>:</b></label>
+                                                    <span class="col-md-3" id="spanTC"></span>
+                                                </div>
+                                                <div class="form-group custom-form-group mb-s-md mt-md">
+                                                    <label class="col-md-9">Maximum commitment allowed to book <b>:</b></label>
+                                                    <span class="col-md-3" id="spanTCCY"></span>
+                                                </div>
+                                            </div>
+                                            @*<div class="form-group custom-form-group mb-s-md mt-md">
+                                                <label class="col-md-6"><b>Documents</b></label>
+                                                <table class="table table-bordered">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Document Type</th>
+                                                            <th>Document</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="tbodyProjDoc"></tbody>
+                                                </table>
+                                            </div>*@
+                                        }
+
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4 mt30">
+                <div class="bl-lg-panel-box">
+                    <div class="bl-lg-panel-box-hd">
+                        <div class="">
+                            <label>Number</label>
+                            <h3>
+                                @if (Model.commitmentId > 0)
+                                {
+                                    <span id="commitNo" name="CommitmentNo">@Model.CommitmentNo</span>
+                                }
+                                else
+                                {
+                                    <span id="commitNo" name="CommitmentNo"></span>
+                                }
+
+                            </h3>
+                            @Html.HiddenFor(m => m.CommitmentNo, new { @id = "hdnCommitNo" })
+
+                        </div>
+                    </div>
+
+                    <div class="form-group custom-form-group">
+                        <label class="col-md-5 required">Request Reference</label>
+                        <div class="col-md-7">
+                            @Html.DropDownListFor(M => M.selRequestRefrence, new SelectList(ViewBag.RequestRef, "CodeValAbbr", "CodeValDetail"), "Select Source", new { @class = "form-control", @id = "ReqRef", @required = "required" })
+                            <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.selRequestRefrence)</div>
+                        </div>
+                    </div>
+
+                    @if (Model.commitmentId > 0)
+                    {
+                        @Html.HiddenFor(m => m.AllocationNR_f)
+                        @*<input type="hidden" name="AllocationNR_f" id="AllocationNR_f" value="@Model.AllocationNR_f" />*@
+                    if (Model.selRequestRefrence == 2)
+                    {
+                        <div class="form-group custom-form-group" id="divRefEmailDate">
+                            <label class="col-md-5 required">Email Date</label>
+                            <div class="col-md-7">
+                                @Html.EditorFor(m => m.EmailDate, new { @id = "EmailDate", @class = "form-control", @required = "required" })
+                                <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.EmailDate)</div>
+                            </div>
+
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="form-group custom-form-group" id="divRefNo">
+                            <label class="col-md-5 required">Ref Number <br>(WF / Tapal)</label>
+                            <div class="col-md-7">
+                                @*@Html.DropDownListFor(M => M.selRefNo, new SelectList(ViewBag.RefNo, "name", "name"), "Select Reference No", new { @class = "form-control", @id = "RefNo", @required = "required" })*@
+                                @Html.TextBoxFor(m => m.RefNo, new { @class = "form-control", @id = "RefNoStr" })
+                                @Html.TextBoxFor(m => m.selRefNo, new { @class = "form-control dis-none", @id = "RefNo" })
+                                <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.selRefNo)</div>
+                                @Html.Hidden("SourceTapalOrWorkflow")
+                            </div>
+                        </div>
+                        }
+                    }
+                    else
+                    {
+                        @Html.HiddenFor(m => m.AllocationNR_f)
+                        <div class="form-group custom-form-group menu-hide" id="divRefNo">
+                            <label class="col-md-5 required">Ref Number <br>(WF / Tapal)</label>
+                            <div class="col-md-7">
+                                @*@Html.DropDownListFor(M => M.selRefNo, new SelectList(ViewBag.RefNo, "name", "name"), "Select Reference No", new { @class = "form-control", @id = "RefNo", @required = "required" })*@
+                                @Html.TextBoxFor(m => m.RefNo, new { @class = "form-control", @id = "RefNoStr" })
+                                @Html.TextBoxFor(m => m.selRefNo, new { @class = "form-control dis-none", @id = "RefNo" })
+                                <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.selRefNo)</div>
+                                @Html.Hidden("SourceTapalOrWorkflow")
+                            </div>
+                        </div>
+
+                        <div class="form-group custom-form-group menu-hide" id="divRefEmailDate">
+                            <label class="col-md-5 required">Email Date</label>
+                            <div class="col-md-7">
+                                @Html.EditorFor(m => m.EmailDate, new { @id = "EmailDate", @class = "form-control", @required = "required" })
+                                <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.EmailDate)</div>
+                            </div>
+
+                        </div>
+                    }
+                    <script type="text/javascript">
+                        $(document).ready(function () {
+                            $("#EmailDate").datepicker
+                                ({
+                                    dateFormat: 'dd-MM-yy',
+                                    showStatus: true,
+                                    showWeeks: true,
+                                    changeYear: true,
+                                    yearRange: '-100:+0',
+                                    highlightWeek: true,
+                                    numberOfMonths: 1,
+                                    showAnim: "scale",
+                                    showOptions: {
+                                        origin: ["top", "left"]
+                                    }
+                                });
+                        });
+                        $('#EmailDate').removeAttr("data-val-date");
+                    </script>
+
+                    <div class="form-group custom-form-group cm-bl-box">
+                        <label class="col-md-12">Commitment Value</label>
+                        <div class="col-md-12 text-right">
+                            @Html.TextBoxFor(M => M.commitmentValue, new { @class = "form-control", @readonly = "readonly" })
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-md-12 mt-md pd-null">
+                    <label class="col-md-6"><b>Documents</b></label>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Source</th>
+                                <th>Document Type</th>
+                                <th>Document</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbodyProjDoc">
+
+                            @if (Model != null && Model.doc != null)
+                            {
+                                foreach (var item in Model.doc)
+                                {
+                                    <tr>
+                                        <td>@Html.DisplayFor(m => item.Remarks)</td>
+                                        <td>@Html.DisplayFor(m => item.DocumentTypeName)</td>
+                                        <td><a href="@Url.Action("ShowDocument","Project",new { file = item.DocumentName, filepath = item.DocumentPath })" target="_blank">@item.DocumentActualName</a></td>
+                                    </tr>
+                                }
+                            }
+
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+            <div class="row">
+                <div class="col-md-12 text-center pd-tb-30">
+                    @if (Model.commitmentId > 0)
+                    {
+                        <a role="button" class="btn btn-primary" id="btnSubmit">Submit</a>
+                        <input type="submit" class="btn btn-primary mr10" value="Update" name="Button" id="btnSave" />
+                    }
+                    else
+                    {
+                        <input type="submit" class="btn btn-primary mr10" value="Save" name="Button" id="btnSave" />
+                    }
+                    <a role="button" class="btn btn-default" href="@Url.Action("CommitmentList")">Close</a>
+
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<script type="text/javascript">
+    var ValSubhead_f = false;
+    $("#CloseDate,#StartDate").datepicker
+            ({
+                dateFormat: 'dd-MM-yy',
+                yearRange: '-100:+3'
+            });
+
+    $(document).ready(function () {
+        applyAutoComplete($('#projectNumber'), $('#SelProjectNumber'), '@Url.Action("LoadProjectList","CoreAccounts")', 'ProjectSummary', true);
+        applyAutoComplete($('#EmployeeId'), $('#CastEmployeeId'), "@Url.Action("LoadFacultyList", "CoreAccounts")");
+        var Validation = '@ViewBag.ValidationMsg';
+        if (Validation) {
+            $('#alert').html(Validation);
+            $('#Validation').modal('toggle');
+        }
+
+        var RefName = $("#ReqRef option:selected").text();
+        if (RefName != "") {
+            if (RefName == "Workflow") {
+                applyAutoComplete($('#RefNoStr'), $('#RefNo'), "@Url.Action("GetACWorkflowRefNumber", "Proposal")");
+            } else if (RefName == "HardCopy") {
+                applyAutoComplete($('#RefNoStr'), $('#RefNo'), "@Url.Action("GetACTapalRefNumber", "Proposal")");
+            }
+        }
+        CommitmentTypeChange();
+
+    });
+
+    $('.selectpicker').selectpicker({
+        liveSearch: true
+    });
+
+
+    function CommitmentTypeChange() {
+        var Value = $("#CommitmentType").val();
+        $('#lblPONum,#PONumber').removeClass('required');
+        if (Value == 1) {
+            $("#staffCommit").removeClass('menu-hide');
+            $("#commonField,#NegativeCommit,#ForeginCommit,#divAttachment").addClass('menu-hide');
+            $('#AllocationValue').removeAttr('readonly');
+        }
+            //General Commitment
+        else if (Value == 2) {
+            $("#commonField").removeClass('menu-hide');
+            $("#divAttachment,#NegativeCommit,#ForeginCommit,#staffCommit").addClass('menu-hide');
+            $('#AllocationValue').removeAttr('readonly');
+        }
+            //Purchase Commitment
+        else if (Value == 3) {
+            $('#lblPONum,#PONumber').addClass('required');
+            $("#divAttachment,#commonField").removeClass('menu-hide');
+            $("#NegativeCommit,#ForeginCommit,#staffCommit").addClass('menu-hide');
+            $('#AllocationValue').removeAttr('readonly');
+        }
+            //Negative Balance Commitment
+        else if (Value == 4) {
+            $("#NegativeCommit,#divAttachment").removeClass('menu-hide');
+            $("#commonField,#ForeginCommit,#staffCommit").addClass('menu-hide');
+            $('#AllocationValue').removeAttr('readonly');
+        }
+            //Commitment in Foreign Currency with exchange
+        else if (Value == 5) {
+            $("#ForeginCommit,#commonField").removeClass('menu-hide');
+            $("#divAttachment,#NegativeCommit,#staffCommit").addClass('menu-hide');
+            $('#AllocationValue').removeAttr('readonly');
+        }
+    }
+    $("#CommitmentType").change(function () {
+        $("#prjDetails").addClass('menu-hide');
+        $("#divHeadDetails").addClass('menu-hide')
+        //ProjectSummary();
+        CommitmentTypeChange();
+    });
+
+    function ProjectSummary() {
+        var projectId = $("#SelProjectNumber").val();
+        if (projectId != "" || projectId != 0) {
+            $.getJSON("@Url.Action("LoadProjectDetails", "Account")", { ProjectId: projectId },
+        function (result) {
+            if (result.projectData.ProjectNo != null) {
+               
+                $("#prjDetails").removeClass('menu-hide');
+                $("#divHeadDetails").addClass('menu-hide')
+                var copi = "<tr><td>" + result.Copi.PIName + "</td><td>PI</td>"
+                          + "<td>" + result.Copi.PIPCF + "</td>"
+                           + "<td>" + result.Copi.PIRMF + "</td></tr>";
+                $.each(result.Copi.CoPIs, function (index, itemData) {
+                  var copis=  "<tr><td>"+itemData.Name+"</td><td>Co-PI</td>"
+                               +"<td>"+itemData.PCF+"</td>"
+                               + "<td>" + itemData.RMF + "</td></tr>";
+                  copi += copis;
+                });
+                $("#tbodyCOPI").empty();
+                $("#tbodyCOPI").append(copi);
+
+                $("#tbodyProjDoc").empty();
+                var docs = "";
+                $.each(result.doc, function (index, itemData) {
+                    var url = '@Url.Action("ShowDocument", "Project")?file=' + itemData.DocumentName + "&filepath=" + itemData.DocumentPath;
+                    var tr = $('<tr>');
+                    $('<td></td>').text(itemData.DocumentTypeName).appendTo(tr);
+                    var aTag = $('<a/>').text(itemData.DocumentActualName).attr({ target: '_blank', href: url, style: "word-wrap: anywhere;" });
+                    $('<td></td>').append(aTag).appendTo(tr);
+                    $("#tbodyProjDoc").append(tr);
+                });
+                $("#spanType").text(result.projectData.ProjectType);
+                $("#spanTittle").text(result.projectData.ProjectTittle);
+                $("#spanPIName").text(result.projectData.PIname);
+                $("#spanSanValue").text(result.projectData.SanctionedValue);
+                $("#spanTotReceipt").text(result.projectData.TotalReceipt);
+                $("#spanCloseDate").text(result.projectData.CloseDate);
+                $("#spanStartDate").text(result.projectData.StartDate);
+                $("#spanAmtSpt").text(result.projectData.AmountSpent);
+                $("#spanAvailableBal").text(result.projectData.AvailableBalance);
+                $("#spanPrevious").text(result.projectData.PreviousCommitment);
+                $("#spanNetBal").text(result.projectData.NetBalance);
+                $("#spanNegativeBal").text(result.projectData.ApprovedNegativeBalance);
+                $("#commitNo").text(result.CommitNo);
+                $("#hdnCommitNo").val(result.CommitNo);
+                $('#AllocationNR_f').val(result.projectData.AllocationNR_f);
+                $("#hdnProjectType").val(result.PrjTypeId);
+                $("#spanOBValue").text(result.projectData.OpeningBalance);
+                $("#selSubhead").val('');
+                var select = $("#selAllocationHead");
+                select.empty();
+                select.append($('<option/>', {
+                    value: 0,
+                    text: "Select Allocation Head"
+                }));
+                $.each(result.Data, function (index, itemData) {
+
+                    select.append($('<option/>', {
+                        value: itemData.id,
+                        text: itemData.name
+                    }));
+                });
+                select.selectpicker('refresh');
+            }
+            else {
+                $("#prjDetails").addClass('menu-hide');
+            }
+        });
+
+            $.getJSON("@Url.Action("GetFundingBody", "Account")", { ProjectID: projectId },
+        function (result) {
+            var select = $("#selFundingBody");
+            select.empty();
+            $.each(result, function (index, itemData) {
+                select.append($('<option/>', {
+                    value: itemData.id,
+                    text: itemData.name,
+                }));
+            });
+        });
+
+
+        } {
+            $("#prjDetails").addClass('menu-hide');
+            $("#commitNo").text("");
+        }
+    }
+    function parseDate(s) {
+        var months = {
+            january: 0, february: 1, march: 2, april: 3, may: 4, june: 5,
+            july: 6, august: 7, september: 8, october: 9, november: 10, december: 11
+        };
+        var p = s.split('-');
+        return new Date(p[2], months[p[1].toLowerCase()], p[0]);
+    }
+    function parseDateThreeCharacter(s) {
+        var months = {
+            jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5,
+            jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11
+        };
+        var p = s.split('-');
+        return new Date(p[2], months[p[1].toLowerCase()], p[0]);
+    }
+    $('select[name^="selAllocationHead"]').change(function () {
+
+        var ProjectId = $("#SelProjectNumber").val();
+        var AllocationId = $(this).val();
+        if (AllocationId != 0) {
+            $.getJSON("@Url.Action("GetAllocationValue", "Account")", { ProjectID: ProjectId, AllocationID: AllocationId },
+                           function (allocData) {
+                               $("#divHeadDetails").removeClass('menu-hide');
+                               $("#hdnIsYearWise").val(allocData.IsYearWise);
+                               $("#hdnIsAllocation").val(allocData.IsAllocation);
+                               if (allocData.IsAllocation == true) {
+                                   if (allocData.IsYearWise == true) {
+                                       $("#divSpanTSV").addClass('menu-hide');
+                                       $("#divSpanTA").addClass('menu-hide');
+                                       $("#divSpanAFCY").removeClass('menu-hide');
+                                       $("#spanAFCY").text(allocData.AllocationForCurrentYear);
+                                   } else {
+                                       $("#divSpanTSV").addClass('menu-hide');
+                                       $("#divSpanAFCY").addClass('menu-hide');
+                                       $("#divSpanTA").removeClass('menu-hide');
+                                       $("#spanTA").text(allocData.TotalAllocation);
+                                   }
+                               } else {
+                                   $("#divSpanTSV").removeClass('menu-hide');
+                                   $("#divSpanTA").addClass('menu-hide');
+                                   $("#divSpanAFCY").addClass('menu-hide');
+                                   $("#spanTSV").text(allocData.SanctionedValue);
+                               }
+                               $("#spanTC").text(allocData.TotalCommitmentTilDate);
+                               $("#spanTCCY").text(allocData.TotalCommitForCurrentYear);
+
+
+                               var select = $("#selSubhead");
+                               select.empty();
+                               select.append($('<option/>', {
+                                   value: 0,
+                                   text: "Select / Enter subhead"
+                               }));
+                               if (allocData.subheadList.length > 0)
+                                   ValSubhead_f = true;
+                               else
+                                   ValSubhead_f = false;
+                               $.each(allocData.subheadList, function (index, itemData) {
+
+                                   select.append($('<option/>', {
+                                       value: itemData.name,
+                                       text: itemData.name
+                                   }));
+                               });
+                               select.trigger('change');
+                           });
+
+        } else {
+            $("#divHeadDetails").addClass('menu-hide');
+        }
+    });
+
+
+    $("#ReqRef").change(function () {
+        //$("#prjDetails").removeAttr('style');
+        var RefName = $("#ReqRef option:selected").text();
+        $("#SourceTapalOrWorkflow").val('False');
+        $("#RefNo,#RefNoStr").val('');
+        if (RefName != "") {
+            if (RefName == "Email") {
+                $("#divRefEmailDate").removeClass('menu-hide');
+                $("#divRefNo").addClass('menu-hide');
+            }
+            else if (RefName == "Workflow") {
+                $("#divRefEmailDate").addClass('menu-hide');
+                $("#divRefNo").removeClass('menu-hide');
+                $("#SourceTapalOrWorkflow").val('True');
+                applyAutoComplete($('#RefNoStr'), $('#RefNo'), "@Url.Action("GetACWorkflowRefNumber", "Proposal")");
+            } else if (RefName == "HardCopy") {
+                $("#divRefEmailDate").addClass('menu-hide');
+                $("#divRefNo").removeClass('menu-hide');
+                $("#SourceTapalOrWorkflow").val('True');
+                applyAutoComplete($('#RefNoStr'), $('#RefNo'), "@Url.Action("GetACTapalRefNumber", "Proposal")");
+            }
+        }
+    });
+
+    @*$("#Currency").change(function () {
+
+        var Currency = $("#Currency option:selected").text();
+        if (Currency != "Select Currency") {
+            $.getJSON("@Url.Action("LoadCurrencyRate", "Account")", { Currency: Currency },
+                        function (locationdata) {
+                            $("#currencyRate").val(locationdata);
+                        });
+        } else {
+            $("#currencyRate").val(0);
+        }
+        sumAllocation();
+    });*@
+
+    function sumAllocation(evt) {
+
+        var ttlVal = 0;
+        var commitType = $("#CommitmentType").val();
+        $('.calc').each(function () {
+            var parseVal = parseFloat($(this).val());
+            if (!isNaN(parseVal))
+                ttlVal += parseVal;
+        });
+        if (commitType == 5) {
+            var CurrencyRate = $("#currencyRate").val();
+            var CurrencyVal = $("#ForeignCurrencyValue").val();
+            var ForeginValue = CurrencyVal * CurrencyRate;
+            var addCharge = $("#AdditionalCharge").val();
+            var additionalCharge = ((addCharge / 100)) * ForeginValue;
+            var TotForeginValue = ForeginValue + additionalCharge;
+            $("#AllocationValue").val(TotForeginValue);
+            $("#commitmentValue").val(TotForeginValue);
+        } else {
+            $("#commitmentValue").val(ttlVal);
+        }
+    }
+    function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode != 46 && charCode > 31
+          && (charCode < 48 || charCode > 57))
+            return false;
+
+        return true;
+    }
+    $("#btnSave").on('click', function (e) {
+        e.preventDefault();
+
+        var isValid = $('#formComitment').valid();
+        var CommitType = $("#CommitmentType").val();
+        //var staffPurpose = $("#selPurpose").val();
+        var Remarks = $("#Remarks").val();
+        var poNumber = $("#PONumber").val();
+        //var vendor = $("#selVendor option:selected").text();
+        var vendorName = $("#VendorName").val();
+        var currency = $("#Currency").val();
+        var Currate = $("#currencyRate").val();
+        var prjNumber = $("#SelProjectNumber").val();
+        var reqReference = $("#ReqRef").val();
+        var reqNumber = $("#RefNo").val();
+        var CommitmentNo = $("#commitNo").text();
+        var CommitmentValue = $("#commitmentValue").val();
+        var NetBalance = parseFloat($("#spanNetBal").text()) || 0;
+        var EmailDate = $("#EmailDate").val();
+        var AllocationForCurretYear = $("#spanAFCY").text() || 0;
+        var BalCommitForCurYear = $("#spanTCCY").text();
+        var isYearwise = $("#hdnIsYearWise").val();
+        var isHaveAllocation = $("#hdnIsAllocation").val();
+        var validAllowcationH = $("#selAllocationHead").val() || 0;
+        var AllocatinHead = [];
+        var Amount = [];
+        if (CommitType == "") {
+            isValid = false;
+            $('#alert').html('Commitment type field is required');
+            $('#Validation').modal('toggle');
+            return false;
+        }
+        if (ValSubhead_f == true && ($("#selSubhead").val() == "" || $("#selSubhead").val() == 0)) {
+            isValid = false;
+            messageBox('Sub Head field is required', "warning");
+
+            return false;
+        }
+        if (validAllowcationH == 0) {
+            isValid = false;
+            messageBox('Allocation Head field is required', "warning");
+
+            return false;
+        }
+        if (CommitType == 1) {
+            //if (staffPurpose == "") {
+            //    isValid = false;
+            //    messageBox('Purpose field is required', "warning");
+
+            //    return false;
+            //}
+            if (Remarks == "") {
+                isValid = false;
+                messageBox('Remarks field is required', "warning");
+
+                return false;
+            }
+        }
+        else if (CommitType == 2) {
+            if (Remarks == "") {
+                isValid = false;
+                messageBox('Remarks field is required', "warning");
+
+                return false;
+            }
+        }
+        else if (CommitType == 3) {
+            if (poNumber == "") {
+                isValid = false;
+                messageBox('PO number field is required', "warning");
+
+                return false;
+            }
+            else if (vendorName == "") {
+                isValid = false;
+                messageBox('Vendor field is required', "warning");
+
+                return false;
+            }
+        }
+        else if (CommitType == 4) {
+            if (Remarks == "") {
+                isValid = false;
+                messageBox('Remarks field is required', "warning");
+
+                return false;
+            }
+        }
+        else if (CommitType == 5) {
+            if (Remarks == "") {
+                isValid = false;
+                messageBox('Remarks field is required', "warning");
+
+                return false;
+            } else if (currency == "") {
+                isValid = false;
+                messageBox('Currency field is required', "warning");
+
+                return false;
+            }
+            var commitVal = $("#commitmentValue").val();
+            if (parseFloat(commitVal) > parseFloat(BalCommitForCurYear)) {
+                messageBox("Balance Commitment allowed for this year " + BalCommitForCurYear + "(INR)", "warning");
+                isValid = false;
+                return false;
+            }
+        }
+
+        $('select[name="selAllocationHead"]').each(function (idx, val) { AllocatinHead.push($(val).val()); });
+        $('input[name="AllocationValue"]').each(function (idx, val) { Amount.push($(val).val()); });
+
+        //// Sort it
+        AllocatinHead.sort();
+        Amount.sort();
+
+        for (var k = 0; k < AllocatinHead.length; ++k) {
+
+            if (AllocatinHead[k] = 0 || AllocatinHead[k] == null || AllocatinHead[k] == "") {
+                $('#alert').html('Allocation Head field is required');
+                $('#Validation').modal('toggle');
+                return false;
+            }
+
+            isValid = true;
+        }
+        for (var k = 0; k < Amount.length; ++k) {
+            if (Amount[k] == 0 || Amount[k] == null || Amount == "") {
+                $('#alert').html('Allocation value field is required');
+                $('#Validation').modal('toggle');
+                return false;
+            }
+            isValid = true;
+        }
+        // duplicate check
+        var AllowHead = [];
+        $('select[name="selAllocationHead"]').each(function (idx, val) { AllowHead.push($(val).val()); });
+        AllowHead.sort();
+        for (var k = 1; k < AllowHead.length; ++k) {
+            if (AllowHead[k] == AllowHead[k - 1]) {
+                isValid = false;
+                $('#alert').html("Allocation head field does not allow duplicates");
+                $('#Validation').modal('toggle'); isValid = false;
+                return false;
+            }
+            isValid = true;
+        }
+        var AlloHead = $('select[name="selAllocationHead"]').val();
+        var SanctionValue = $("#spanSanValue").text();
+        var AllocationAmount = parseFloat(Amount[0]);
+        if (AllocationAmount > NetBalance) {
+            $('#alert').html("Total commitment value cannot be above net balance");
+            $('#Validation').modal('toggle'); isValid = false;
+            return false;
+        }
+        var allowNR_f = $('#AllocationNR_f').val() || 'false';
+        allowNR_f = allowNR_f.toLowerCase();
+        if (allowNR_f != "true") {
+            if (AllocationAmount > parseFloat(BalCommitForCurYear)) {
+                $('#alert').html("Balance commitment allowed for this year " + BalCommitForCurYear + "(INR)");
+                $('#Validation').modal('toggle'); isValid = false;
+                return false;
+            }
+        }
+        if (prjNumber == "") {
+            isValid = false;
+            $('#alert').html('Project number field is required');
+            $('#Validation').modal('toggle');
+            return false;
+        }
+        if (reqReference == "") {
+            isValid = false;
+            $('#alert').html('Request refrence field is required');
+            $('#Validation').modal('toggle');
+            return false;
+        }
+        if (reqReference == 2) {
+            if (EmailDate == "") {
+                isValid = false;
+                $('#alert').html('Email date field is required');
+                $('#Validation').modal('toggle');
+                return false;
+            }
+        } else {
+            if (reqNumber == "") {
+                isValid = false;
+                $('#alert').html('Refrence number field is required');
+                $('#Validation').modal('toggle');
+                return false;
+            }
+        }
+        if (CommitmentValue != 0) {
+            if (NetBalance < CommitmentValue) {
+                isValid = false;
+                $('#alert').html('Commitment amount is not greater then net balance, Please check it');
+                $('#Validation').modal('toggle');
+                return false;
+            }
+        }
+        if (isValid == true) {
+            var closeDate = moment(parseDateThreeCharacter($('#spanCloseDate').text()));
+            if (closeDate < new Date()) {
+                var choice = confirm("Are you sure, Do you want to book commitment for this closed project?");
+                if (!choice) {
+                    return false;
+                }
+            }
+            $("#formComitment").submit();
+        }
+    });
+
+
+
+    function duplicatecheck(isValid) {
+        var values = [];
+        $('select[name="selAllocationHead"]').each(function (idx, val) { values.push($(val).val()); });
+        // Sort it
+        values.sort();
+        // Check whether there are two equal values next to each other
+        for (var k = 1; k < values.length; ++k) {
+            if (values[k] == values[k - 1]) {
+                $('#alert').html("Allocation head field does not allow duplicates");
+                $('#Validation').modal('toggle'); isValid = false;
+                return false;
+            }
+            isValid = true;
+        }
+        return isValid;
+    }
+
+    //Active commitment
+    $("#btnSubmit").click(function () {
+        var commitId = $("#hdnCommitId").val();
+        var commitVal = $("#commitmentValue").val();
+        var BalCommitForCurYear = $("#spanTCCY").text();
+        var NetBalance = parseFloat($("#spanNetBal").text()) || 0;
+        var validAllowcationH = $("#selAllocationHead").val() || 0;
+        if (validAllowcationH == 0) {
+            isValid = false;
+            messageBox('Allocation Head field is required', "warning");
+
+            return false;
+        }
+        if (parseFloat(commitVal) > NetBalance) {
+            $('#alert').html("Total commitment value cannot be above net balance");
+            $('#Validation').modal('toggle'); isValid = false;
+            return false;
+        }
+        //if (parseFloat(commitVal) > parseFloat(BalCommitForCurYear)) {
+        //    $('#alert').html("Balance Commitment allowed for this year " + BalCommitForCurYear + "(INR)");
+        //    $('#Validation').modal('toggle'); isValid = false;
+        //    return false;
+        //}
+        window.location.href = '@Url.Action("SubmitCommitment", "Account")?CommitmentId=' + commitId + '&&commitVal=' + commitVal;
+    });
+    $(".select2-subhead").select2({
+        tags: true,
+        width: '100%',
+        placeholder: "Select / Enter subhead"
+    });
+
+</script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>

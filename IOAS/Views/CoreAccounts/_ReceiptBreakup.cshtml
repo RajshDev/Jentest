@@ -1,0 +1,257 @@
+﻿@model IOAS.Models.ReceiptBreakupModel
+<div class="col-md-12 col-sm-12 m-b-sm">
+    <div class="row">
+        <div class="white-bg ad-navbar">
+
+            <div class="col-md-3 ds-spl-bg">
+                @*<div class="ds-icn">
+                    <i class="ion-ios-list-outline "></i>
+                </div>*@
+                <div class="ds-tt">
+                    <span>Project No</span>
+                    <h4>@Html.DisplayFor(m => m.ProjectNumber)</h4>
+                    @Html.HiddenFor(m => m.ProjectNumber)
+                </div>
+            </div>
+            <div class="col-md-3 ds-spl-bg">
+                @*<div class="ds-icn">
+                    <i class="ion-ios-list-outline "></i>
+                </div>*@
+                <div class="ds-tt">
+                    <span>Taxable Receipt Amount</span>
+                    <h4>@Html.DisplayFor(m => m.TaxableReceiptAmount)</h4>
+                    @Html.HiddenFor(m => m.TaxableReceiptAmount)
+                </div>
+            </div>
+            <div class="col-md-3 ds-spl-bg">
+                @*<div class="ds-icn">
+                    <i class="ion-ios-calendar-outline"></i>
+                </div>*@
+                <div class="ds-tt">
+                    <span>Receipt Date:</span>
+                    <h4>@Html.DisplayFor(m => m.ReceiptDateStr) </h4>
+                    @Html.HiddenFor(m => m.ReceiptDateStr)
+                </div>
+            </div>
+            <div class="col-md-3 ds-spl-bg">
+                @*<div class="ds-icn">
+                <i class="ion-ios-calendar-outline"></i>
+            </div>*@
+                <div class="ds-tt">
+                   
+                    <div class="form-group">
+
+                        <span>Document Name:</span>
+                        <input type="file"  name="AttachmentFile" />
+                        <a href="@Url.Action("ShowDocument","Project",new { file = Model.AttachmentName, filepath = Model.AttachmentPath })" target="_blank">@Model.AttachmentActualName</a>
+
+                    </div>
+                   
+                </div>
+            </div>
+        </div>
+    </div>
+    @if (Model != null && Model.groups != null && Model.groups.Count() > 0)
+    {
+
+        var gCount = 0;
+        foreach (var group in Model.groups)
+        {
+            var grpId = "groups[" + gCount + "].BudgetGroupId";
+            var gAmt = "groups[" + gCount + "].Amount";
+            var map_f = "groups[" + gCount + "].BudgetHeadMapping_f";
+            <div class="col-md-4 divGroup">
+                <div class="row mt-md">
+                    <div class="col-md-6">
+                        <div class="custom-form-group mb-md">
+                            <label>Group Name</label>
+                            <h4>@Html.DisplayFor(m => group.BudgetGroup)</h4>
+                            @Html.Hidden(@grpId, group.BudgetGroupId)
+                            @Html.Hidden("groups.Index", @gCount)
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="custom-form-group mb-md">
+                            <label>Amount</label>
+                            @Html.TextBox(@gAmt, group.Amount, new
+                           {
+                               @class = "form-control required",
+                               @onkeypress = "return ValidateDecimalOnly(event)"@*, @onblur = "CalculatePaymentBUTotal()"*@ })
+                            @Html.ValidationMessage(@gAmt)
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="custom-form-group mb-md">
+                            <label>Is have budget head breakup</label>
+                            @Html.CheckBox(@map_f, group.BudgetHeadMapping_f)
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+                @if (group.heads != null && group.heads.Count() > 0 && group.BudgetHeadMapping_f)
+                    {
+                    <div>
+                        <table class="table alter-table tblHead">
+                            <thead>
+                                <tr>
+                                    <th>Head Name</th>
+                                    <th width="40%">Amount</th>
+                                    <th></th>
+
+                                </tr>
+                            </thead>
+                            <tbody class="tbodyHeadBU">
+                                @{ var hCount = 0;
+                                        foreach (var head in group.heads)
+                                        {
+                                            var hId = "groups[" + gCount + "].heads[" + hCount + "].BudgetHeadId";
+                                            var hAmt = "groups[" + gCount + "].heads[" + hCount + "].Amount";
+
+                                    <tr>
+                                        <td>
+                                            @Html.DropDownList(@hId, new SelectList(group.headList, "id", "name", head.BudgetHeadId), "Select any", new { @class = "form-control required" })
+                                            @Html.Hidden("groups[" + gCount + "].heads.Index", @hCount)
+                                            @Html.ValidationMessage(@hId)
+                                        </td>
+                                        <td>
+                                            @Html.TextBox(@hAmt, head.Amount, new
+                                   {
+                                       @class = "form-control required",
+                                       @onkeypress = "return ValidateDecimalOnly(event)", @onblur = "CalculateBUTotal()" })
+                                            @Html.ValidationMessage(@hAmt)
+                                        </td>
+                                        <td>
+                                            <a href="javascript:void(0)" class="btn-sm btn btn-danger removeHeadBUDetail"><i class="ion-android-close"></i></a>
+                                        </td>
+                                    </tr>
+                                            hCount += 1;
+                                        }
+                                }
+                            </tbody>
+                        </table>
+
+                        <div class="col-md-6 mt-md divAddHead dis-none">
+                            <a href="javascript:void(0)" class="btn btn-primary btnAddHeadBU">Add New</a>
+                        </div>
+                        <div class="col-md-6 mt-md divHeadTtl dis-none">
+                            <h4></h4>
+                            @Html.Hidden("GroupBreakUpTtl")
+                        </div>
+                    </div>
+                                    }
+                                    else
+                                    {
+                                        <div>
+                                            <table class="table alter-table tblHead dis-none">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Head Name</th>
+                                                        <th width="40%">Amount</th>
+                                                        <th></th>
+
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="tbodyHeadBU">
+                                                    <tr>
+                                                        <td>
+                                                            @Html.DropDownList("groups[" + gCount + "].heads[0].BudgetHeadId", new SelectList(group.headList, "id", "name"), "Select any", new { @class = "form-control" })
+                                                            @Html.Hidden("groups[" + gCount + "].heads.Index", 0)
+                                                            @Html.ValidationMessage("groups[" + gCount + "].heads[0].BudgetHeadId")
+                                                        </td>
+                                                        <td>
+                                                            @Html.TextBox("groups[" + gCount + "].heads[0].Amount", "", new
+                                                           {
+                                                               @class = "form-control",
+                                                               @onkeypress = "return ValidateDecimalOnly(event)",
+                                                               @onblur = "CalculateBUTotal()"
+                                                           })
+
+                                                            @Html.ValidationMessage("groups[" + gCount + "].heads[0].Amount")
+                                                        </td>
+                                                        <td>
+                                                            <a href="javascript:void(0)" class="btn-sm btn btn-danger removeHeadBUDetail"><i class="ion-android-close"></i></a>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                            <div class="col-md-6 mt-md divAddHead dis-none">
+                                                <a href="javascript:void(0)" class="btn btn-primary btnAddHeadBU">Add New</a>
+                                            </div>
+                                            <div class="col-md-6 mt-md divHeadTtl dis-none">
+                                                <h4></h4>
+                                                @Html.Hidden("GroupBreakUpTtl")
+                                            </div>
+                                        </div>
+                                    }
+            </div>
+                                            gCount += 1;
+                                        }
+                                    }
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        CalculateBUTotal();
+        $('input[name$=".BudgetHeadMapping_f"][type="checkbox"]').each(function () {
+           if ($(this).prop('checked')) {
+                $(this).closest('.divGroup').find('.tblHead,.divAddHead,.divHeadTtl').removeClass('dis-none');
+                $(this).closest('.divGroup').find('table.tblHead .tbodyHeadBU').find('input[name$="Amount"],select[name$=".BudgetHeadId"]').addClass('required');
+            }
+            else {
+                $(this).closest('.divGroup').find('.tblHead,.divAddHead,.divHeadTtl').addClass('dis-none');
+                $(this).closest('.divGroup').find('table.tblHead .tbodyHeadBU').find('input[name$="Amount"],select[name$=".BudgetHeadId"]').val('').removeClass('required');
+            }
+        });
+    });
+    $(document).on("change", "select", function () {
+        $("option[value=" + this.value + "]", this)
+        .attr("selected", true).siblings()
+        .removeAttr("selected")
+    });
+    $(document).on('click', 'a.removeHeadBUDetail', function () {
+        if ($(this).closest('.tbodyHeadBU').find('tr').length != 1) {
+            $(this).closest('tr').remove();
+            CalculateBUTotal();
+        }      
+    });
+    $('.btnAddHeadBU').click(function () {
+        var cln = $(this).parent().parent().find('table.tblHead .tbodyHeadBU tr:first').clone().find("select,input").val("").end();
+        var index = $(this).parent().parent().find('table.tblHead .tbodyHeadBU tr:last').find("input[name$='.heads.Index']").val();
+        index = parseInt(index) + 1;
+        $(cln).find("input[name$='.heads.Index']").val(index);
+        $(cln).find("input:not([name$='.heads.Index']), select").each(function () {
+            $(this).attr("name", $(this).attr("name").replace(/\d+([^\d+]*)$/, index + '$1'));
+            if ($(this).attr("id"))
+                $(this).attr("id", $(this).attr("id").replace(/\d+([^\d+]*)$/, index + '$1'));
+        });
+        $(cln).find("span[data-valmsg-for]").each(function () {
+            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+([^\d+]*)$/, index + '$1'));
+        });
+        $(this).parent().parent().find('table.tblHead .tbodyHeadBU').append(cln);
+    });
+    $(document).on('click', 'input[name$=".BudgetHeadMapping_f"]', function () {
+        if ($(this).prop('checked')) {
+            $(this).closest('.divGroup').find('.tblHead,.divAddHead,.divHeadTtl').removeClass('dis-none');
+            $(this).closest('.divGroup').find('table.tblHead .tbodyHeadBU').find('input[name$="Amount"],select[name$=".BudgetHeadId"]').addClass('required');
+        }
+        else {
+            $(this).closest('.divGroup').find('.tblHead,.divAddHead,.divHeadTtl').addClass('dis-none');
+            $(this).closest('.divGroup').find('table.tblHead .tbodyHeadBU').find('input[name$="Amount"],select[name$=".BudgetHeadId"]').val('').removeClass('required');
+        }
+    });
+
+    function CalculateBUTotal() {
+        $('.tbodyHeadBU').each(function () {
+            var amt = 0;
+            $(this).find('input[name$="Amount"]').each(function (indx,ele) {
+                amt = amt + (parseFloat($(ele).val()) || 0);
+            });
+            $(this).parent().parent().find('div.divHeadTtl').find("input[name='GroupBreakUpTtl']").val(amt.toFixed(2));
+            $(this).parent().parent().find('div.divHeadTtl').find("h4").text(amt.toFixed(2));
+        });
+    }
+</script>

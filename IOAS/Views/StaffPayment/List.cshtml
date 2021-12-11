@@ -1,0 +1,381 @@
+﻿
+@model IOAS.Models.PagedData<IOAS.Models.SalaryPaymentHead>
+@{
+    ViewBag.Title = "Payment";
+    ViewBag.Subtitle = "Payment";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+@using (Html.BeginForm("List", "StaffPayment", new { page = 1 }, FormMethod.Post, new { @class = "form-horizontal", @id = "frmSalaryPayment", @name = "frmSalaryPayment", role = "form" }))
+{
+    @Html.AntiForgeryToken()
+
+
+    if (!String.IsNullOrEmpty(ViewBag.Errors))
+    {
+        @:
+        <script type="text/javascript">$.alert({ title: 'Validation', content: '@ViewBag.Errors' })</script>
+    }
+    if (!String.IsNullOrEmpty(ViewBag.Message))
+    {
+        @:
+        <script type="text/javascript">$.alert({ title: 'Message', content: '@ViewBag.Message' })</script>
+    }
+    <div class="row hd-tt-bg">
+        <div class="col-md-4">
+            <h4><b>Salary Processing</b></h4>
+        </div>
+        <div id="addnewpage" class="col-md-8 flt-nav-links">
+
+            @*<a href="Javascript:void(0)" id="btnFilter" class="pull-right"> <i class="ion-android-funnel"></i>Filters</a>*@
+            @*<a href="@Url.Action("Salary","StaffPayment")"> <i class="ion-plus"></i>Add New</a>*@
+
+        </div>
+    </div>
+
+    <div class="wrapper">
+
+        @*<input type="hidden" id="currentRefId" value="@ViewBag.currentRefId" />
+            <input type="hidden" id="processGuideLineId" value="@ViewBag.processGuideLineId" />
+            @Html.Partial("_ProcessStatus")*@
+        <div class="row">
+            <div class="page-wrapper">
+                <div class="col-md-12 mt30">
+
+                    <div id="tab-01" style="display: block;">
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="bl-lg-panel-box pb-null">
+
+                                        <div class="cmn-panel-box">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    @*<div class="row">
+                                                            <div class="col-md-4">
+                                                                <div class="form-group custom-form-group">
+                                                                    <label>Type of Paybill</label>
+                                                                    @Html.DropDownList("TypeOfPayBill", new SelectList(ViewBag.PaymentType, "CodeValAbbr", "CodeValDetail", ViewBag.SelectedTypeOfPaybill), "--- Select ---",
+                                                                   new { @class = "required form-control", @onchange = "this.form.submit();" })
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-4">
+                                                                <div class="form-group custom-form-group">
+                                                                    <label>Month Year</label>
+                                                                    @Html.DropDownList("PaymentMonthYear", new SelectList(ViewBag.months, "Key", "Value", ViewBag.selectedMonth), "--- Select ---",
+                                                                   new { @class = "required form-control", @onchange = "this.form.submit();" })
+
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-4">
+                                                                <div class="form-group custom-form-group">
+                                                                    <label>Pay Bill No</label>
+                                                                    @Html.TextBox("PayBillNo", "", new { @class = "required form-control", @onchange = "this.form.submit();" })
+                                                                </div>
+                                                            </div>
+
+
+
+
+                                                        </div>*@
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <div class="grey-bg-adj mb-lg">
+                                                                <div class="row">
+                                                                    <div class="col-md-12">
+                                                                        <div id="gridData">
+                                                                           
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+
+
+
+
+            </div>
+        </div>
+    </div>
+
+
+
+                                                                                        }
+
+
+
+
+
+<script type="text/javascript">
+
+    $("#gridData").jsGrid({
+        paging: true,
+        pageIndex: 1,
+        pageSize: 5,
+        editing: false,
+        filtering: true,
+        pageLoading: true,
+        autoload: true,
+        controller: {
+
+            loadData: function (filter) {
+
+                var deferred = $.Deferred();
+                $.ajax({
+                    type: "post",
+                    url: 'List',
+                    data: filter,
+                    dataType: "json",
+                    success: function (result) {
+                        var da = {
+                            data: result.Data,
+                            itemsCount: result.TotalRecords
+                        }
+                        deferred.resolve(da);
+                    },
+                    error: function (err) {
+                        console.log("error : " + err);
+                    }
+
+                });
+                return deferred.promise();
+            }
+
+        },
+
+        fields: [
+            { name: "SlNo", title: "S.No", editing: false, width: 30 },
+            { type: "number", name: "PaymentHeadId", title: "Id", visible: false, align: "left" },
+            { type: "text", name: "PaymentNo", title: "Payment No", editing: false },
+            { type: "text", name: "TypeOfPayBillText", title: "Type of Paybill", editing: false },
+            { type: "text", name: "PaymentMonthYear", title: "Payment Month", editing: false },
+            { name: "PaidDateText", title: "Paid Date", editing: false },
+            { name: "Amount", title:"Amount",  editing: false},
+             {
+                 type: "control", editButton: false, deleteButton: false, title: "Action", width: 80,
+                 itemTemplate: function (value, item) {
+                     var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+                     if (item.Status == "Open") {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "Edit", name: "Edit" }, { id: "Canara Bank Advice", name: "Canara Bank Advice" }, { id: "Other Bank Advice", name: "Other Bank Advice" }, { id: "Long Bill", name: "Long Bill" }, { id: "Generate pdf", name: "Generate pdf" } ]
+                     } else if (item.Status == "Approval Pending") {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "Canara Bank Advice", name: "Canara Bank Advice" }, { id: "Other Bank Advice", name: "Other Bank Advice" }, { id: "Long Bill", name: "Long Bill" }, { id: "Generate pdf", name: "Generate pdf" }]
+                     } else if (item.Status == "Approved") {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "Print Bill", name: "Print Bill" }, { id: "View", name: "View" }, { id: "Generate pdf", name: "Generate pdf" }]
+                     }
+
+                     var $customSelect = $("<select>")
+                         .attr("class", "form-control").prop("selectedIndex", "")
+
+                     $.each(statusList, function (index, itemData) {
+                         $customSelect.append($('<option/>', {
+
+                             value: itemData.id,
+                             text: itemData.name
+                         }));
+                     });
+
+                     $customSelect.change(function (e) {
+                         var value = $(this).val();
+                         if (value == "Canara Bank Advice") {
+                             var url = '@Url.Action("CanaraBankForSalary", "Reports")?Id=' + item.PaymentHeadId;
+                             window.open(url, '_blank');
+                         } else if (value == "Other Bank Advice") {
+                             var url = '@Url.Action("NonCanaraBankForSalary", "Reports")?Id=' + item.PaymentHeadId;
+                             window.open(url, '_blank');
+                         } else if (value == "Long Bill") {
+                             var url = '@Url.Action("LongBill", "ReportMaster")?Id=' + item.PaymentHeadId;
+                             window.open(url, '_blank');
+                         } else if (value == "Edit") {
+                             var url = '@Url.Action("Salary", "StaffPayment")?PaymentHeadId=' + item.PaymentHeadId;
+                             window.open(url);
+                         }
+                         else if (value == "Generate pdf") {
+                             var url = '@Url.Action("CanaraBankSalary", "ReportMaster")?SalaryId=' + item.PaymentHeadId;
+                             
+                             window.open(url, '_blank');
+                             setTimeout(function () {
+                                 var url1 = '@Url.Action("NonCanaraBankSalary", "ReportMaster")?SalaryId=' + item.PaymentHeadId;
+                                
+                                 window.open(url1, '_blank');
+                             }, 4000);
+                         }
+                         $(this).val("");
+                         return false;
+                         e.stopPropagation();
+                     });
+
+                     return $result.add($customSelect);
+                 },
+                 _createFilterSwitchButton: function () {
+                     return this._createOnOffSwitchButton("filtering", this.searchModeButtonClass, false);
+                 }
+             }
+
+
+        ],
+
+    });
+
+    $("#gridData").jsGrid("option", "filtering", false);
+    function getData(page, model) {
+        var token = $("input[name=__RequestVerificationToken]").val();
+        var searchdata = { "__RequestVerificationToken": token, "model": model, "page": page };
+        //alert($("input[name=__RequestVerificationToken]").val());
+
+        $.ajax({
+            url: '@Url.Action("List", "StaffPayment")',
+            type: "POST",
+            contentType: "application/x-www-form-urlencoded",
+            data: searchdata,
+            success: function (data) {
+                $("#gridData").html(data);
+            }
+        });
+
+    }
+    $(document).on('change', 'select[name^="ddlAction_"]', function () {
+        var ID = $(this).attr("id");
+        var hdId = parseInt(ID.substr(ID.lastIndexOf("_") + 1));
+        var value = $(this).val();
+        if (value == "Canara Bank Advice") {
+            var url = '@Url.Action("CanaraBankForSalary", "Reports")?Id=' + hdId;
+            window.open(url, '_blank');
+        } else if (value == "Other Bank Advice") {
+            var url = '@Url.Action("NonCanaraBankForSalary", "Reports")?Id=' + hdId;
+            window.open(url, '_blank');
+        } else if (value == "Long Bill") {
+            var url = '@Url.Action("LongBill", "ReportMaster")?Id=' + hdId;
+            window.open(url, '_blank');
+        } else if (value == "Edit") {
+            var url = '@Url.Action("Salary", "StaffPayment")?PaymentHeadId=' + hdId;
+            window.open(url);
+        }
+        $(this).val('');
+    });
+    function validateRequired() {
+        $('#errorMsg').html("");
+        var valid = true;
+        $("[id^=flowFile]").each(function (index, item) {
+            var controlId = $(item).attr("id");
+            if ($('#' + controlId).prop('required') && $('#' + controlId).val() === "") {
+                $('#errorMsg').html("Please upload all required documents.");
+                valid = false;
+                return valid;
+            }
+
+        });
+        return valid;
+    }
+
+    function clearUploadText() {
+        $("[id^=flowFile]").each(function (index, item) {
+            var controlId = $(item).attr("id");
+            $('#' + controlId).val("");
+        });
+    }
+
+    $("input[name='adaccess']:checkbox").click(function () {
+        if ($(this).attr("value") == "adaccess") {
+            $("#staffID").css("display", "none");
+            $("#staffIDText").css("display", "block");
+            $("#dept").css("display", "none");
+            $("#deptText").css("display", "block");
+            $("#staffName").css("display", "none");
+            $("#staffNameText").css("display", "block");
+            $("#desID").css("display", "none");
+            $("#desIDText").css("display", "block");
+            $("#genID").css("display", "none");
+            $("#genIDText").css("display", "block");
+        }
+
+    });
+
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+    });
+
+    function modRec() {
+        var e = document.getElementById("modRec");
+        var strcomType = e.options[e.selectedIndex].value;
+        if (strcomType == "0") {
+            document.getElementById("cheQue").style.display = "block";
+            document.getElementById("banTra").style.display = "none";
+            document.getElementById("dd").style.display = "none";
+        }
+        else if (strcomType == "1") {
+            document.getElementById("cheQue").style.display = "none";
+            document.getElementById("banTra").style.display = "block";
+            document.getElementById("dd").style.display = "none";
+        }
+        else if (strcomType == "2") {
+            document.getElementById("cheQue").style.display = "none";
+            document.getElementById("banTra").style.display = "none";
+            document.getElementById("dd").style.display = "block";
+        }
+
+        console.log(strcomType);
+    };
+
+    $("#picDel").on("click", function () {
+        $("#tab-01").css("display", "block");
+        $("#tab-02").css("display", "none");
+        $("#tab-03").css("display", "none");
+        $("#tab-04").css("display", "none");
+        $("#picDel").addClass('active');
+        $("#allOca").removeClass('active');
+        $("#modEof").removeClass('active');
+        $("#modEof1").removeClass('active');
+    });
+
+    $("#allOca").on("click", function () {
+        $("#tab-01").css("display", "none");
+        $("#tab-02").css("display", "block");
+        $("#tab-03").css("display", "none");
+        $("#tab-04").css("display", "none");
+        $("#picDel").removeClass('active');
+        $("#allOca").addClass('active');
+        $("#modEof").removeClass('active');
+        $("#modEof1").removeClass('active');
+    });
+
+    $("#modEof").on("click", function () {
+        $("#tab-01").css("display", "none");
+        $("#tab-02").css("display", "none");
+        $("#tab-03").css("display", "block");
+        $("#tab-04").css("display", "none");
+        $("#picDel").removeClass('active');
+        $("#allOca").removeClass('active');
+        $("#modEof").addClass('active');
+        $("#modEof1").removeClass('active');
+    });
+
+    $("#modEof1").on("click", function () {
+        $("#tab-01").css("display", "none");
+        $("#tab-02").css("display", "none");
+        $("#tab-03").css("display", "none");
+        $("#tab-04").css("display", "block");
+        $("#picDel").removeClass('active');
+        $("#allOca").removeClass('active');
+        $("#modEof").removeClass('active');
+        $("#modEof1").addClass('active');
+    });
+
+</script>

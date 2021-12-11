@@ -1,0 +1,238 @@
+﻿@model IOAS.Models.AnnouncementMasterModel
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    @if (!Model.isNotIncludeHeader)
+    {
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="">
+        <meta name="author" content="">
+    <!-- favicon icon -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <link href="https://fonts.googleapis.com/css?family=Poppins:400,400i,700,700i&display=swap" rel="stylesheet">
+    }
+    <style>
+        .umr-body {
+            /*font-family: 'Poppins', sans-serif;*/
+            font-family: 'Poppins', sans-serif !important;
+            font-size: 16px;
+            color: #2a2a2a;
+        }
+
+            .umr-body li {
+                margin-bottom: 10px;
+            }
+
+        .tp-tt {
+            margin-top: 20px;
+            text-decoration: underline;
+            font-weight: bold;
+        }
+
+        .ct-in h2 em {
+            float: left;
+            font-style: normal;
+            width: calc(100% - 250px);
+            text-align: center;
+            padding-top: 35px;
+            font-size: 20px;
+        }
+
+        .mt-md {
+            margin-top: 30px;
+        }
+
+        .mn-m-tt {
+            font-size: 20px;
+            padding-bottom: 5px;
+        }
+
+        .mn-tt {
+            font-size: 16px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #000;
+        }
+
+        h5 {
+            font-weight: bold;
+        }
+
+        .table > tbody > tr > td, .table > tbody > tr > th, .table > tfoot > tr > td, .table > tfoot > tr > th, .table > thead > tr > td, .table > thead > tr > th {
+            border: 0px;
+        }
+
+        .bg-grey {
+            background: #ccc;
+        }
+
+        .tbl-style > .table > tbody > tr > td {
+            border: inherit;
+        }
+
+        .tbl-style > .table > tbody > tr > th {
+            border: inherit;
+        }
+
+        .tbl-style > .table > thead > tr {
+            border-color: #000;
+        }
+
+            .tbl-style > .table > thead > tr > td {
+                border: 1px solid #000;
+            }
+
+        .tbl-style > .table-bordered > thead > tr > th {
+            border-bottom-width: 0px;
+        }
+
+        .tbl-style > .table.table-bordered > tbody > tr > td {
+            border-color: #000;
+        }
+
+        .tp-tt {
+            font-weight: bold;
+        }
+
+        .tbl-style > .table-bordered > thead > tr > th {
+            border: 1px solid #000;
+        }
+
+        .tbl-style table, .tbl-style tr, .tbl-style td, .tbl-style th {
+            border: 1px solid #000;
+        }
+
+        .tbl-style > .table {
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body class="umr-body">
+    @if (Model.AnnouncementCategory == "Project wise")
+    {
+        <div style="page-break-after:always">
+            <div class="row">
+                <div class="col-md-12">
+                    <center><h4><b><u>CENTRE FOR IC&SR</u></b></h4></center>
+                    <div class="text-right">
+                        <p><b>Project Recruitment</b></p>
+                        <p><b>Date: @string.Format("{0:dd.MM.yyy}", DateTime.Now)</b></p>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <p><b><u>Note to Dean:</u></b></p>
+                    <p style="margin-left:165px;">
+                        <b><u>Sub:</u></b>  Recruitment of Project staff for the Centre and Projects –reg.<br>
+                        <b><u>Ref:</u></b>  &nbsp;Project No: <b>@Model.ProjectNumber</b>
+                    </p>
+                    <br />
+                    <center><b>*****</b></center>
+                    <br />
+                    <p>
+                        Further to the request received from <b>@Model.DraftProjectDetails.PIDesignation @Model.DraftProjectDetails.PIName</b> for the recruitment
+                        of two Project staff under <b>project no: @Model.DraftProjectDetails.ProjectNumber.</b> Title: <b>“@Model.DraftProjectDetails.ProjectTitle”</b>
+                        Project Recruitment team has verified the Manpower provision and funds are yet to be received in the Project.
+                    </p>
+                </div>
+                <div style="height:50px;">
+                </div>
+                <div class="col-md-12 tbl-style">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>S.No</th>
+                                <th>PI Name</th>
+                                <th>Post</th>
+                                <th>Total Positions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.DesignationDetails != null)
+                            {
+                                for (int i = 0; i < Model.DesignationDetails.Count; i++)
+                                {
+                                    <tr>
+                                        <th rowspan="1">1</th>
+                                        @if (i == 0)
+                                        {
+                                            <th rowspan="@Model.DesignationDetails.Count">@Model.DraftProjectDetails.PIName</th>
+                                        }
+                                        <td>@Model.DesignationDetails[i].Designation</td>
+                                        <th>@Model.DesignationDetails[i].Vacancies</th>
+                                    </tr>
+                                }
+                                <tr>
+                                    <th></th>
+                                    <th colspan="2">Total no of project positions proposed to recruit</th>
+                                    <th>@Model.DesignationDetails.Sum(m => m.Vacancies)</th>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                    <p>Dean-ICSR, may approve the enclosed advertisement <b>@Model.RefNo</b> shared by the PI, to place it on the ICSR Recruitment portal.</p>
+                </div>
+                <div style="height:100px;">
+                </div>
+                <div class="col-md-12">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th class="text-center" width="50px">SM-HR</th>
+                                <th class="text-center" width="50px">CM-ADMIN</th>
+                                <th class="text-center" width="50px">DEAN-ICSR</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div style="page-break-after:always">
+            <div class="row">
+                <div class="col-md-12">
+                    <center><h4><b><u>CENTRE FOR IC&SR, IITM</u></b></h4></center>
+                    <div class="text-right">
+                        <p><b>Project Recruitment</b></p>
+                        <p><b>Date: @string.Format("{0:dd.MM.yyy}", DateTime.Now)</b></p>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <p><b><u>Note to Dean( IC& SR):</u></b></p>
+                    <div style="height:100px;">
+                    </div>
+                    <center><b><u>Sub:</u></b>  Recruitment of Project staff for the Centre and Projects –reg.</center>
+                    <center><b>*****</b></center>
+                    <p>
+                        Further to the recruitment for the post of <b>@Model.PrijectTitle</b> has proposed to release the announcement for the said post.
+                    </p>
+                    <br />
+                    <p>
+                        Dean-ICSR may approve the enclosed advertisement <b>@Model.RefNo</b> to place it on the @Model.PortalsPlatform.
+                    </p>
+                </div>
+                <div style="height:100px;">
+                </div>
+                <div class="col-md-12">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th class="text-center" width="50px">SM-HR</th>
+                                <th class="text-center" width="50px">CM-ADMIN</th>
+                                <th class="text-center" width="50px">DEAN-ICSR</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+    <!-- main js files -->
+    <script src="js/plugins/jquery-2.2.4.min.js"></script>
+    <script src="js/bootstrap.js"></script>
+</body>
+</html>

@@ -1,0 +1,493 @@
+﻿@model IOAS.Models.InternalProjectModel
+@{
+    ViewBag.Title = "InternalProject";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<style>
+    /* Hide all steps by default: */
+    .tab {
+        display: none;
+        background: #fff;
+        float: left;
+    }
+
+    .step {
+        height: 15px;
+        width: 15px;
+        margin: 0 2px;
+        background-color: #bbbbbb;
+        border: none;
+        border-radius: 50%;
+        display: inline-block;
+        opacity: 0.5;
+    }
+
+        .step.active {
+            opacity: 1;
+        }
+
+        /* Mark the steps that are finished and valid: */
+        .step.finish {
+            background-color: #fff;
+        }
+
+    .custom-nav-pills.nav-pills > li > a {
+        color: rgba(255,255,255,0.5);
+        cursor: default;
+        background: transparent !important;
+        border-color: transparent;
+        border-top-color: transparent;
+        padding: 10px 15px;
+        margin: 0px 15px;
+    }
+
+        .custom-nav-pills.nav-pills > li > a span {
+            width: 100%;
+            float: left;
+        }
+
+    .custom-nav-pills.nav-pills > li.active > a, .custom-nav-pills.nav-pills > li.active > a:focus, .custom-nav-pills.nav-pills > li.active > a:hover {
+        color: #333333;
+        background-color: #fff !important;
+    }
+
+    .custom-st-fd-box {
+        background: #f5f5f5;
+        padding: 15px 0px;
+        border-radius: 4px;
+        display: inline-block;
+    }
+
+    .custom-st-fd-btn {
+        color: #fff;
+        font-size: 16px;
+        margin-top: 15px;
+        display: inline-block;
+    }
+
+    .custom-st-tb-th.table {
+        border: 0px;
+    }
+
+        .custom-st-tb-th.table > tbody > tr > th {
+            background: #3080e3;
+            color: #fff;
+            border: 0px solid #ccc;
+        }
+
+        .custom-st-tb-th.table > tbody > tr > td {
+            border: 0px;
+        }
+</style>
+<div class="row hd-tt-bg">
+    <div class="col-md-4 pull-left">
+        <h3>Internal Project Opening</h3>
+    </div>
+</div>
+@using (Html.BeginForm("InternalProject", "Project", FormMethod.Post, new { @class = "", role = "form", @id = "formCPR", enctype = "multipart/form-data" }))
+
+{
+    <div class="page-wrapper">
+        <div class="white-bg">
+            <div class="row">
+                <div class="col-sm-offset-8">
+                    <div class="reg-no">
+                        <div class="form-group custom-form-group ">
+                            <label> Project Number </label>
+                            @Html.TextBoxFor(m => m.ProjectNumber, new { @class = "form-control", @id = "projectnum", @onkeypress = "return noedit();", @readonly = true })
+
+                            @Html.ValidationMessageFor(m => m.ProjectNumber)
+
+                            @Html.Hidden("Projectid")
+                            @Html.Hidden("ProjectNumber")
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label class="required">Faculty code</label>
+                            @Html.DropDownListFor(m => m.FacultyCode, new SelectList(ViewBag.FacultyCodeList, "id", "name"), "Select any", new { @class = "form-control" })
+                            @Html.ValidationMessageFor(m => m.FacultyCode)
+                        </div>
+                        </div>
+                    <div id="divCentre" class="col-md-4 dis-none">
+                        <div class="form-group custom-form-group">
+                            <label class="required">Centre</label>
+                            @Html.DropDownListFor(m => m.SelCentre, new SelectList(ViewBag.CentreList, "id", "name"), "Select any", new { @class = "form-control",@onchange= "GetNumberingFormat();" })
+                            @Html.ValidationMessageFor(m => m.SelCentre)
+                        </div>
+                    </div>
+                    <div id="divLab" class="col-md-4 dis-none">
+                        <div class="form-group custom-form-group">
+                            <label class="required">Lab</label>
+                            @Html.DropDownListFor(m => m.SelLab, new SelectList(ViewBag.LabList, "id", "name"), "Select any", new { @class = "form-control", @onchange = "GetNumberingFormat();" })
+                            @Html.ValidationMessageFor(m => m.SelLab)
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label class="required">Financial Year</label>
+                            @Html.DropDownListFor(m => m.FinancialYear, new SelectList(ViewBag.finYearList, "id", "name",ViewBag.refFinYear), "Select Financial Year",
+        new { @class = "form-control", @required = "required", @onchange = "GetNumberingFormat();" })
+                            <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.FinancialYear)</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label class="required">PI Name</label>
+                            @Html.TextBoxFor(m => m.PIName, new { @class = "form-control", @id = "pIName", @autocomplete = "off", @onpaste = "return false" })
+                            @Html.HiddenFor(m => m.PINameId, new { @id = "piNameId", @required = "required", @autocomplete = "off" })
+                            <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.PINameId)</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label class="required">Sanction value</label>
+                            @Html.TextBoxFor(m => m.SanctionValue, new { @class = "form-control", @required = "required", @onkeypress = "return isNumberKey(event)" })
+                            <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.SanctionValue)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label class="required">Agency Name</label>
+                            @Html.TextBoxFor(m => m.AgencyName, new { @class = "form-control", @id = "agencyName", @autocomplete = "off", @onpaste = "return false" })
+                            @Html.HiddenFor(m => m.AgencyNameId, new { @id = "agencyNameId", @required = "required", @autocomplete = "off" })
+                            <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.AgencyNameId)</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label class="required">Start Date</label>
+                            @Html.EditorFor(m => m.StartDate, new { @class = "form-control" })
+                            <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.StartDate)</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label class="required">Close Date</label>
+                            @Html.EditorFor(m => m.ClosingDate, new { @class = "form-control" })
+                            <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.ClosingDate)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label class="required">Type</label>
+                            @Html.DropDownListFor(m => m.SponsoredFundingType, new SelectList(ViewBag.Type, "id", "name"), "Select Type", new { @class = "form-control",@onchange = "GetNumberingFormat();" })
+                            <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.SponsoredFundingType)</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group custom-form-group">
+                            <label class="required">Project Classification</label>
+                            @Html.DropDownListFor(m=>m.ProjectClassification,new SelectList(ViewBag.InternalClassfication,"id","name"),"Select Classification",new {@class="form-control" })
+                            <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.ProjectClassification)</div>
+                        </div> 
+                    </div>
+                    <div class="col-md-5 dis-none" id="lblPrjNoFormat">
+                        <div class="reg-no">
+
+                            <label> Created Project Numbering Format </label>
+                            <h4 id="lblPrjNo"></h4>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+
+
+                    <div id="DocdivContent">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label class="col-md-3 fn-normal">Attachment type</label>
+                                <label class="col-md-3 fn-normal">Attachment Name </label>
+                                <label class="col-md-3 fn-normal">Attachment </label>
+                            </div>
+                        </div>
+
+                        <div class="m-b-sm row" id="DocprimaryDiv">
+                            <div class="col-md-12">
+                                <div class="col-md-3">
+                                    @Html.DropDownList("DocType", new SelectList(ViewBag.Docmenttype, "id", "name"), "Select Document Type",
+                   new { @class = "form-control", @id = "doctype" })
+                                    @Html.Hidden("Docid")
+
+                                </div>
+                                <div class="col-md-3">
+                                    <input class="form-control" name="AttachName" id="docname" value="" type="text">
+
+                                </div>
+                                <div class="col-md-3">
+                                    <input type="file" name="file" id="docfile" />&nbsp;&nbsp;&nbsp;
+                                    @Html.ValidationMessageFor(m => m.DocPath)
+
+                                </div>
+                                <div class="col-md-2 doclink mt6">
+                                    <a href="#" class="link1" target="_blank"></a>
+                                    @Html.Hidden("DocPath", "", new { @class = "HiddenDocPath" })
+                                    @Html.Hidden("DocName", "", new { @class = "HiddenDocName" })
+                                </div>
+
+                                <div class="col-md-1">
+                                    <button class="dis-none btn-sm btn btn-danger" type="button" name="removeButton"><i class="ion-android-close"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-b-sm">
+                            <div class="col-md-12">
+                                <h4 class="text-right">
+                                    <button type="button" id="btnAddDoc" class="btn-primary btn pull-left"><i class="ion-android-add"></i>Add</button>
+                                </h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 text-center pd-tb-30">
+            <input type="submit" class="btn btn-primary mr10" value="Submit" name="Button" id="btnPCFSave" />
+            <button type="button" class="btn btn-default" onclick="window.location.href='@Url.Action("InternalProjectList", "Project")';">Close</button>
+        </div>
+    </div>
+}
+<script type="text/javascript">
+    var faccode=@Html.Raw(Json.Encode(Model.FacultyCode));
+    if(faccode!="")
+    {
+        GetFacalityCode();
+    }
+    $('#ClosingDate').datepicker({ dateFormat: 'dd-MM-yy', changeYear: true, yearRange: '-10:+50' });
+    var errorMsg = '@ViewBag.errMsg';
+    $(document).on('click', '#pIName', function () {
+        applyAutoComplete($('#pIName'), $('#piNameId'), "../CoreAccounts/LoadPIList", undefined, undefined, undefined);
+        GetNumberingFormat();
+    });
+    $(document).on('click', '#agencyName', function () {
+        applyAutoComplete($('#agencyName'), $('#agencyNameId'), "../project/LoadAgencytList", undefined, undefined, undefined);
+        GetNumberingFormat();
+    });
+    if (errorMsg != '') {
+        $('#FailedAlert').html(errorMsg);
+        $('#Failed').modal('toggle');
+    }
+    function parseDate(s) {
+        var months = {
+            january: 0, february: 1, march: 2, april: 3, may: 4, june: 5,
+            july: 6, august: 7, september: 8, october: 9, november: 10, december: 11
+        };
+        var p = s.split('-');
+        return new Date(p[2], months[p[1].toLowerCase()], p[0]);
+    }
+    function GetFacalityCode() {
+        var selVal = $('#FacultyCode').val();
+        $('#divCentre,#divLab').addClass('dis-none');
+        if (selVal == "2") {
+            $('#divCentre').removeClass('dis-none');
+        }
+        else if (selVal == "4") {
+            $('#divLab').removeClass('dis-none');
+        }
+        
+    }
+    $("#FacultyCode").change(function () {
+        var selVal = $(this).val();
+        $('#divCentre,#divLab').addClass('dis-none');
+        if (selVal == "2") {
+            $('#divCentre').removeClass('dis-none');
+        }
+        else if (selVal == "4") {
+            $('#divLab').removeClass('dis-none');
+        }
+        else
+        {
+            $('#SelCentre,#SelLab').prop('selectedIndex',0);
+            GetNumberingFormat();
+        }
+    });
+    $('#btnPCFSave').click(function (d) {
+        d.preventDefault();
+        var isValid = $('#formCPR').valid();
+        var agyId = $('#agencyNameId').val();
+        var piId = $('#piNameId').val();
+        if(piId==0||piId==null||piId=="")
+        {
+            isValid = false;
+            $('#alert').html("Please select PI Name");
+            $('#Validation').modal('toggle');
+            return false;
+        }
+        if(agyId==0||agyId==null||agyId=="")
+        {
+            isValid = false;
+            $('#alert').html("Please select Agency Name");
+            $('#Validation').modal('toggle');
+            return false;
+        }
+        var strDate = $("#StartDate").val();
+        var clsDate = $("#ClosingDate").val();
+        if (strDate != '' && clsDate != '') {
+            var startDate = moment(parseDate(strDate));
+            var closeDate = moment(parseDate(clsDate));
+
+            var mins = closeDate.diff(startDate, 'minutes');
+            if (mins <= 0) {
+                $('#alert').html("Close Date must be greater than start date.");
+                $('#Validation').modal('toggle');
+                return false;
+            }
+        }
+        // to validate if attachment type or attachment name is not left blank when either one of them is filled
+        var doctypevalues = [];
+        var docnamevalues = [];
+        $('select[name="DocType"]').each(function (idx, val) { doctypevalues.push($(val).val()); });
+        $('input[name="AttachName"]').each(function (idx, val) { docnamevalues.push($(val).val()); });
+        //// Sort it
+        doctypevalues.sort();
+        docnamevalues.sort();
+
+        for (var k = 0; k < doctypevalues.length; ++k) {
+            //if ((doctypevalues[k] > 0) && ((docnamevalues[k] == null) || docnamevalues[k] == "")) {
+            //    $('#MsgValidation').html("Please fill Attachment name.");
+            //    $('#ValidationModal').modal('toggle');
+            //    return false;
+            //}
+            if ((docnamevalues[k] != null && docnamevalues[k] != "") && (doctypevalues[k] == null || doctypevalues[k] == 0)) {
+                $('#alert').html("Please select Attachment type.");
+                $('#ValidationModal').modal('toggle');
+                return false;
+            }
+        }
+        // duplicate check
+        for (var k = 1; k < doctypevalues.length; ++k) {
+            if (doctypevalues[k] == doctypevalues[k - 1]) {
+                $('#alert').html("Selected attachment type already exist. Please select a different attachment type.");
+                $('#ValidationModal').modal('toggle');
+                return false;
+            }
+            isValid = true;
+        }
+
+        if (isValid)
+            $('#formCPR').submit();
+    });
+    function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode != 46 && charCode > 31
+          && (charCode < 48 || charCode > 57))
+            return false;
+
+        return true;
+    }
+    function noedit() {
+        return false;
+    }
+    $('#btnAddDoc').click(function () {
+        var cln = $("#DocprimaryDiv").clone().find("input").val("").end();
+        $(cln).find('.dis-none').removeClass('dis-none');
+        $(cln).find('.doclink').addClass('dis-none');
+        $(cln).insertBefore($('#DocdivContent').find('.p-b-sm'));
+
+    });
+    $(document).on('click', '#DocdivContent button[name="removeButton"]', function () {
+        $(this).parent().parent("Div").remove();
+    });
+    //Fill Attachment in Edit Mode
+
+    var Docname = @Html.Raw(Json.Encode(Model.DocName));
+    var Attachname = @Html.Raw(Json.Encode(Model.AttachName));
+    var Doctype =@Html.Raw(Json.Encode(Model.DocType));
+    var Docpath = @Html.Raw(Json.Encode(Model.DocPath));
+    var DocID = @Html.Raw(Json.Encode(Model.Docid));
+    //var proj = result.MainProjectList;
+    $.each(Docname, function (i, val) {
+
+        if (i == 0) {
+            document.getElementsByName('DocType')[0].value = Doctype[0];
+            document.getElementsByName('AttachName')[0].value = Attachname[0];
+            document.getElementsByName('Docid')[0].value = DocID[0];
+            document.getElementsByClassName('link1')[0].text = Docname[0];
+            document.getElementsByClassName('HiddenDocName')[0].value = Docname[0];
+            document.getElementsByClassName('HiddenDocPath')[0].value = Docpath[0];
+            document.getElementsByClassName('link1')[i].href = "ShowDocument?file=" + Docpath[0] + "&filepath=~%2FContent%2FSupportDocuments%2F";
+
+        } else {
+            var cln = $("#DocprimaryDiv").clone().find("input").val("").end();
+            $(cln).find('.dis-none').removeClass('dis-none');
+            $(cln).insertBefore($('#DocdivContent').find('.p-b-sm'));
+            document.getElementsByName('DocType')[i].value = Doctype[i];
+            document.getElementsByName('AttachName')[i].value = Attachname[i];
+            document.getElementsByName('Docid')[i].value = DocID[i];
+            document.getElementsByClassName('link1')[i].text = Docname[i];
+            document.getElementsByClassName('HiddenDocName')[i].value = Docname[i];
+            document.getElementsByClassName('HiddenDocPath')[i].value = Docpath[i];
+            document.getElementsByClassName('link1')[i].href = "ShowDocument?file=" + Docpath[i] + "&filepath=~%2FContent%2FSupportDocuments%2F";
+        }
+    });
+    
+    function GetNumberingFormat()
+    {
+        var InputData = [];
+        InputData = {
+            Prjcttype:null,
+            FacultyCode: $('#FacultyCode').val() || null,
+            SelCentre: $('#SelCentre').val() || null,
+            SelLab: $('#SelLab').val() || null,
+            SelCor: $('#SelCor').val() || null,
+            Department: $('#department').val() || null,
+            PIname: $('#piNameId').val() || null,
+            Agencyid: $('#agencyNameId').val() || null,
+            ConsFundingCategory: null,
+            SponsoredProjectTypeCode: $('#SponsoredFundingType').val() || null,
+            FinancialYear: $('#FinancialYear').val()||null
+        }
+        modelData = InputData;
+        $.ajax({
+            type: "Post",
+            url: 'GetInternalProjectNumbering',
+            data: JSON.stringify(modelData),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (result) {
+                console.log(result);
+                if (result != "")
+                {
+                    if($('#projectnum').val()==null||$('#projectnum').val()=="")
+                    {
+                        $('#lblPrjNoFormat').removeClass('dis-none');
+                        $('#lblPrjNo').text(result);
+                        
+                    }
+                    else
+                    {
+                        $('#lblPrjNoFormat').addClass('dis-none');
+                    }
+                }
+
+            },
+            error: function (err) {
+                console.log("error : " + err);
+            }
+        });
+    }
+</script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>
+

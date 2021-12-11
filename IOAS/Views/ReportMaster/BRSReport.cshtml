@@ -1,0 +1,101 @@
+﻿
+@{
+    ViewBag.Title = "Report";
+    ViewBag.Subtitle = "Reports";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+<div class="row hd-tt-bg ">
+    <div class="col-md-12">
+        <h4><b>BRS Report</b></h4>
+    </div>
+</div>
+
+<div class="row">
+    <div class="page-wrapper">
+        <div class="col-md-12 mt30">
+
+
+
+            <div class="row">
+
+                <div class="col-md-12">
+
+                    <div class="vh-tt-bg vh-tt-bg-adj mt-null">
+                        <div class="vh-frm-bg bl-lg-panel-box pb-null br-adj-null">
+                            <div class="row">
+
+                                <div class="">
+                                    <div class="col-md-12">
+                                        <div class="grey-bg-adj mb-lg">
+                                            <div class="row">
+                                                <div class="col-md-12">
+
+
+                                                    <div class="row mt-md">
+
+                                                       
+                                                        <div class="col-md-3">
+                                                            <div class="form-group custom-form-group ">
+                                                                <label>To: <label style="color:red">*</label> </label><br />
+                                                                @Html.Editor("ToDate",null, "ToDate", new { @class = "form-control" })
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-md-3">
+                                                            <div class="form-group custom-form-group ">
+                                                                <label class="required">Bank</label><br />
+                                                                @Html.DropDownList("BankId", new SelectList(ViewBag.Bank, "id", "name"), "Select Bank", new { @class = "form-control", @id = "Bankid" })
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div class="col-md-12 mt-md mb-lg text-center">
+                <input type="submit" value="Generate Report" class="btn btn-primary" id="btnSubmit" />
+                @*<input type="submit" value="Generate Report to Excel" class="btn btn-primary" id="btnSubmit1" />*@
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<script>
+
+
+    $('#ToDate').datepicker({ dateFormat: 'dd-MM-yy', changeYear: true });
+    
+    $('#btnSubmit').click(function () {
+        var tdate = $('#ToDate').val() || '';
+        var BankId = $("#Bankid").val() || '';
+        if (tdate == '')
+        {
+            $('#alert').html('As on date field is required');
+            $('#Validation').modal('toggle');
+            return false;
+        }
+        else if (BankId == '') {
+            $('#alert').html('Bank field is required');
+            $('#Validation').modal('toggle');
+            return false;
+        }
+        var url = "@Url.Action("GetBRSReport", "CoreAccounts")?asOn=" + tdate + "&bankId=" + BankId;
+        window.location.href = url;
+    });
+</script>

@@ -1,0 +1,237 @@
+﻿@{
+    ViewBag.Title = "Approve";
+    ViewBag.Subtitle = "Approve";
+}
+<div id="ApproveListModal" class="modal fade modal-success" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                @*<button type="button" class="close" data-dismiss="modal">&times;</button>*@
+                <i class="ion-android-arrow-up"></i>
+                <h3 class="modal-title">Upload</h3>
+            </div>
+            <div class="modal-body">
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="fileGuid" />
+                <div class="row">
+                    <div class="navbar navbar-hd-bg ">
+
+                        <div class="navbar-header">
+                            <a class="" href="#">Process Guideline ... Dashboard 1.0</a>
+                        </div>
+
+                        <ul class="nav navbar-right">
+                            <li class="dropdown pull-right">
+                                <a class="circle-btn-wht" href="#">
+                                    <i class="ion-log-in"></i>
+                                </a>
+                            </li>
+
+                            <li class="dropdown pull-right">
+                                <a class="circle-btn-wht" href="#">
+                                    <i class="ion-ios-email-outline"></i>
+                                </a>
+                            </li>
+
+                            <li class="dropdown pull-right">
+                                <a class="circle-btn-wht" href="#">
+
+                                    <i class="ion-ios-bell-outline"></i>
+                                </a>
+                            </li>
+
+                        </ul>
+
+
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="closemodal" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="successModal" class="modal fade modal-warning" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-checkmark-circle"></i>
+                <h3 class="modal-title">File Upload.</h3>
+            </div>
+            <div class="modal-body">
+                <label id="uploadMsg"></label>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    GetApproveList();
+
+    function GetApproveList() {
+        var token = $("input[name=__RequestVerificationToken]").val();
+        var headers = {
+            contentType: 'application/x-www-form-urlencoded'
+        }
+        headers['__RequestVerificationToken'] = token;
+        var processGuideLineId = $("#processGuideLineId").val() || -1;
+        $.ajax({
+            url: '@Url.Action("GetApproveList", "ApproveList")?processGuideLineId=' + processGuideLineId,
+            type: "GET",
+            headers: headers,
+            data: "",
+            success: function (response) {
+                $("#fileList").empty();
+
+                var submitButton = '<div class="row">' +
+                    '<div class="col-lg-12">' +
+                    '<input type="submit" id="uploadFile" value="Upload" />' +
+                    '</div>' +
+                    '</div>';
+
+                $.each(response, function (index, itemData) {
+                    //var fileId = 'flowFile' + (index + 1);
+                    var fileId = 'flowFile_' + itemData.ProcessGuidelineWorkflowDocumentId;
+                    var fileDialog = '<div class="row">' +
+                        '<div class="col-md-4">' +
+                        '<label for="file">' + (itemData.IsRequired === true ? '** ' : '') + itemData.DocumentName  + ':</label>' +
+                        '</div>' +
+                        '<div class="col-md-8">' +
+                        '<input type="hidden" name="workFlowDocId" value="' + fileId + '_' + itemData.ProcessGuidelineWorkflowDocumentId + '" id="workFlowDocId_' + itemData.ProcessGuidelineWorkflowDocumentId + '" />' +
+                        //'<span class="btn green fileinput-button">'+
+                        '<input type="file" name="' + fileId + '" id="' + fileId + '" ' + (itemData.IsRequired === true ? 'required' : '') + '/>' +
+                        //'</span>' +
+                         '</div>' +
+                        '</div>';
+                    $("#fileList").append(fileDialog);
+
+                });
+
+                $("#fileList").append(submitButton);
+                $("#uploadFile").on("click", function () {
+                    //e.preventDefault();
+                    if (validateRequired()) {
+                        submitForm();
+                    }
+                });
+            },
+            error: function (err) {
+                $("#uploadMsg").html(err.toSting());
+            }
+        });
+    }
+    $("#closemodal").on("click", function () {
+        clearUploadText();
+    });
+    function submitForm() {
+        var token = $("input[name=__RequestVerificationToken]").val();
+        var headers = {
+            contentType: 'application/x-www-form-urlencoded'
+        }
+        headers['__RequestVerificationToken'] = token;
+
+        var msg_error = 'An error has occured. Please try again later.';
+        var msg_timeout = 'The server is not responding';
+        var message = '';
+        var processGuideLineId = $("#processGuideLineId").val() || -1;
+        // Checking whether FormData is available in browser
+        if (window.FormData !== undefined) {
+            // Create FormData object
+            var fileData = new FormData();
+            var fileInfo = [];
+
+            var fileName;
+            $("[id^=flowFile]").each(function (index, item) {
+                var id = $(item).attr("id");
+                var name = $(item).attr("name");
+                var temp = id.split('_');
+                var flowDocId = (temp.length > 0) ? temp[1] : "";
+                var fileUpload = $('#' + id).get(0);
+                var files = fileUpload.files;
+                // Looping over all files and add it to FormData object
+                for (var j = 0; j < files.length; j++) {
+                    fileName = files[j].name;
+                    fileData.append(fileName, files[j]);
+                }
+
+                fileInfo.push({
+                    ProcessGuidelineWorkflowDocumentId: flowDocId,
+                    DocumentName: fileName,
+                    DocumentPath: $(item).val()
+                });
+
+            });
+
+            fileData.append('fileInfo', JSON.stringify(fileInfo));
+
+
+            // Adding one more key to FormData object
+            fileData.append('processGuideLineId', processGuideLineId);
+
+            $.ajax({
+                url: '@Url.Action("upload", "FileUpload")',
+                type: "POST",
+                contentType: false, // Not to set any content header
+                processData: false, // Not to process data
+                headers: headers,
+                data: fileData,
+                success: function (result) {
+                    if (result && result.uuid) {
+                        $("#fileGuid").val(result.uuid);
+                    } else if (result && result.message) {
+                        $("#uploadMsg").html(result.message);
+                    } else {
+                        $("#uploadMsg").html(msg_error);
+                    }
+                    $('#uploadModal').modal('hide');
+                    $('#successModal').modal('show');
+
+                    clearUploadText();
+                },
+                error: function (err) {
+                    $("#uploadMsg").html(err.statusText);
+                    $('#uploadModal').modal('hide');
+                    $('#successModal').modal('show');
+                }
+            });
+        } else {
+            $("#uploadMsg").html(msg_error);
+        }
+    }
+
+    function validateRequired() {
+        $('#errorMsg').html("");
+        var valid = true;
+        $("[id^=flowFile]").each(function (index, item) {
+            var controlId = $(item).attr("id");
+            if ($('#' + controlId).prop('required') && $('#' + controlId).val() === "") {
+                $('#errorMsg').html("Please upload all required documents.");
+                valid = false;
+                return valid;
+            }
+
+        });
+        return valid;
+    }
+
+    function clearUploadText() {
+        $("[id^=flowFile]").each(function (index, item) {
+            var controlId = $(item).attr("id");
+            $('#' + controlId).val("");
+        });
+    }
+</script>

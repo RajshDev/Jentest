@@ -1,0 +1,218 @@
+﻿@model IOAS.Models.PagedData<IOAS.Models.SqlReportModel>
+@using System.Data;
+@{
+    ViewBag.Title = "Report Viewer";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+
+<aside class="right-side sidebar-offcanvas">
+
+    @using (Html.BeginForm("List", "Reports", new { page = 1 }, FormMethod.Get, new { @class = "form-horizontal", role = "form" }))
+    {
+        @Html.ValidationSummary(true, "Please correct the errors and try again.", new { @class = "alert alert-block alert-error" })
+        @*@Html.AntiForgeryToken()*@
+        <fieldset>
+            <section class="content">
+                <div class="white-bg">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h3><b>Builder List</b></h3>
+                        </div>
+                        <div class="col-md-8">
+
+                            <div class="form-actions pull-right">
+                                <a href='@Url.Action("ReportBuilder", "Reports")' role="button" class="btn btn-primary  btn-md">ADD</a>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="page-wrapper">
+
+                                @*@Html.Partial("ReportList")*@
+                                <div id="reportGrid"></div>
+
+                            </div>
+                        </div>
+                    </div>
+                   
+                </div>
+            </section>
+
+        </fieldset>
+
+
+    }
+
+
+</aside> <!-- right pane -->
+
+
+<script type="text/javascript" language="javascript">
+
+    $("#ReportId").change(function () {
+        SelectedTablesChanged();
+    });
+   
+    var DateField = function (config) {
+        jsGrid.Field.call(this, config);
+    };
+    DateField.prototype = new jsGrid.Field({
+        sorter: function (date1, date2) {
+            return new Date(date1) - new Date(date2);
+        },
+
+        itemTemplate: function (value) {
+            return new Date(value).toDateString();
+        },
+
+        filterTemplate: function () {
+            var now = new Date();
+            this._fromPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() - 1), changeYear: true });
+            this._toPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() + 1), changeYear: true });
+            return $("<div>").append(this._fromPicker).append(this._toPicker);
+        },
+
+        insertTemplate: function (value) {
+            return this._insertPicker = $("<input>").datepicker({ defaultDate: new Date() });
+        },
+
+        editTemplate: function (value) {
+            return this._editPicker = $("<input>").datepicker().datepicker("setDate", new Date(value));
+        },
+
+        insertValue: function () {
+            return this._insertPicker.datepicker("getDate").toISOString();
+        },
+
+        editValue: function () {
+            return this._editPicker.datepicker("getDate").toISOString();
+        },
+
+        filterValue: function () {
+            return {
+                from: this._fromPicker.datepicker("getDate"),
+                to: this._toPicker.datepicker("getDate")
+            };
+        }
+    });
+    jsGrid.fields.date = DateField;
+   
+    var db;
+    $("#reportGrid").jsGrid({
+        paging: true,
+        pageIndex: 1,
+        pageSize: 10,
+        editing: false,
+        filtering: true,      
+        controller: {
+
+            //loadData: function (filter) {
+               
+            //    var SearchData = [];
+            //    SearchData = {
+            //        ReportName: filter.ReportName || null,
+            //        TableName: filter.TableName || null,
+                   
+            //    },
+            //     filter.model = SearchData;
+            //    var deferred = $.Deferred();
+            //    $.ajax({
+                    
+            //        type: "post",
+            //        url: 'GetList',
+            //        data: JSON.stringify(filter),
+            //        contentType: "application/json; charset=utf-8",
+            //        dataType: "json",
+            //        success: function (results) {
+            //            var da = {
+            //                data: results.model,
+            //                itemsCount: results.Count
+            //            }
+            //            deferred.resolve(da);
+            //        },
+            //        error: function (err) {
+            //            alert(err);
+            //        }
+            //    });
+            //    return deferred.promise();
+            //}
+            loadData: function (filter) {
+                return $.grep(db, function (ow) {
+                    return (!filter.ReportName || ow.ReportName.toLowerCase().indexOf(filter.ReportName.toLowerCase()) > -1)
+                   && (!filter.TableName || ow.TableName.toLowerCase().indexOf(filter.TableName.toLowerCase()) > -1)
+                  
+                });
+            }
+        },
+
+        fields: [
+            { name: "ReportName", type: "text", width: 150 },
+                { name: "TableName", type: "text", width: 100 },
+                //{ name: "CRTD_TS", type: "text", width: 50 },
+             {
+                 type: "control", editButton: false, deleteButton: false, title: "Action", width: 80,
+                 itemTemplate: function (value, item) {
+                     var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+                     //var $customEditButton = $("<button>").attr({
+                     //    class: "btn btn-primary", value: "Edit", text: "Edit"
+                     //});
+                     var $customSelect = $("<select>")
+                                .attr("class", "form-control").prop("selectedIndex", "")
+                     $customSelect.append($('<option/>', {
+
+                         value: "--Select--",
+                         text: "--Select--"
+                     }));
+
+                         $customSelect.append($('<option/>', {
+
+                             value: "Edit",
+                             text: "Edit"
+                         }));
+                    
+                     $customSelect.change(function (e) {
+                         var selVal = $(this).val();
+                         if (selVal == "Edit") 
+                             var url = '@Url.Action("EditReport", "Reports")?ReportID=' + item.ReportID;
+                             window.location.href = url;
+                         })
+                  //   var $customEditButton = "<button class='btn btn-primary' id='btnEdit' >Edit</button>";
+                     @*$customEditButton.click(function (e) {
+                         var url = '@Url.Action("EditReport", "Reports")?ReportID=' + item.ReportID;
+                         window.location.href = url;
+                     });*@
+                     
+                     return $result.add($customSelect);
+                 },
+                 _createFilterSwitchButton: function () {
+                     return this._createOnOffSwitchButton("filtering", this.searchModeButtonClass, false);
+                 }
+             }
+
+
+        ],
+
+    });
+    $("#reportGrid").jsGrid("option", "filtering", false);
+
+    loadDetails();
+    function loadDetails() {
+        $.ajax({
+            type: "post",
+            url: '@Url.Action("GetList", "Reports")',
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (result) {
+                db = result;
+                $("#reportGrid").jsGrid({ data: db });
+            },
+            error: function (err) {
+                console.log("error : " + err);
+            }
+
+        });
+    }
+</script>

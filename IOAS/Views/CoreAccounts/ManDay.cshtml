@@ -1,0 +1,1065 @@
+﻿@model IOAS.Models.ManDayModel
+
+@{
+    ViewBag.Title = "Mandays";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+@using (Html.BeginForm("ManDay", "CoreAccounts", FormMethod.Post, new { @class = "", role = "form", @id = "formMan", enctype = "multipart/form-data" }))
+{
+
+    <div class="row hd-tt-bg">
+        <div class="col-md-12">
+            <h4><b>Mandays</b> </h4>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="white-bg ad-navbar">
+            <div class="col-md-3 ds-spl-bg">
+                <div class="ds-icn">
+                    <i class="ion-ios-list-outline "></i>
+                </div>
+                <div class="ds-tt">
+                    <span class="required">Request Reference</span>
+                    @Html.DropDownListFor(m => m.Source, new SelectList(ViewBag.SourceList, "codevalAbbr", "CodeValDetail"), "Select any",
+         new { @class = "form-control" })
+                    @Html.ValidationMessageFor(m => m.Source)
+                    @Html.HiddenFor(m => m.NeedUpdateTransDetail)
+                    @Html.TextBoxFor(m => m.ManDayId,new { @id="manid",@class= "dis-none" })
+                    @Html.Hidden("TransactionTypeCode", "MDY")
+                </div>
+            </div>
+            <div class="col-md-3 ds-spl-bg">
+                <div class="ds-icn">
+                    <i class="ion-ios-calendar-outline"></i>
+                </div>
+                <div class="ds-tt" id="divRefNum">
+                    <span class="required">Ref Number (WF / Tapal)</span>
+                    @Html.TextBoxFor(m => m.ReferenceNumber, new { @class = "form-control" })
+                    @Html.TextBoxFor(m => m.SourceReferenceNumber, new { @class = "form-control dis-none" })
+                    @Html.ValidationMessageFor(m => m.SourceReferenceNumber)
+                    @Html.Hidden("SourceTapalOrWorkflow", "True")
+
+                </div>
+                <div class="dis-none ds-tt" id="divRefEmailDate">
+                    <span class="required">Email Date</span>
+                    @Html.EditorFor(m => m.SourceEmailDate, new { @class = "form-control" })
+                    <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.SourceEmailDate)</div>
+                </div>
+            </div>
+
+            <div class="col-md-3 col-md-offset-3">
+                <div class="reg-no custom-reg-no">
+                    <div class="form-group custom-form-group">
+                        <label>Number</label>
+                        <h4>@Html.DisplayFor(m => m.ManDayNumber)</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="page-wrapper">
+            <div class="col-md-12 mt30">
+                <ul class="nav nav-pills custom-nav-pills">
+                    <li class="active"><a href="javascript:void(0)"><span>01</span>Beneficiary Details</a></li>
+                    <li><a href="javascript:void(0)"><span>02</span>Commitment Details</a></li>
+                    <li><a href="javascript:void(0)"><span>03</span>Transaction Details</a></li>
+                    <li><a href="javascript:void(0)"><span>04</span>CheckList Details</a></li>
+                    <li><a href="javascript:void(0)"><span>05</span>Document Details</a></li>
+                </ul>
+
+                <div class="tab">
+                    <div class="col-md-12 col-sm-12 m-b-sm">
+                        <div class="row">
+                            <div class="page-wrapper">
+                                <div class="col-md-12">
+                                    <div class="white-bg">
+                                        <div class="row mb30">
+                                            <div class="col-md-2">
+                                                <label class="required">Req Date</label>
+                                                @Html.EditorFor(m => m.ReqDate, new { @class = "form-control required", @id = "reqdate", @autocomplete = "off" })
+                                                <div class="txt-error txt-red">
+                                                    @Html.ValidationMessageFor(m => m.ReqDate)
+                                                </div>
+                                                </div>
+                                            <div class="col-md-2">
+                                                <label class="required">Month & Year</label>
+                                                @Html.EditorFor(m => m.MonthYear, new { @class = "form-control required", @id = "year", @autocomplete = "off" })
+                                                <div class="txt-error txt-red">
+                                                    @Html.ValidationMessageFor(m => m.MonthYear)
+                                                </div>
+                                                </div>
+                                            <div class="col-md-4">
+                                                <label>Remarks :</label>
+                                                @Html.TextAreaFor(m => m.Remark, new { @class = "form-control", @id = "remark", @autocomplete = "off" })
+                                            </div>
+                                            <div class="col-md-4">
+                                            </div>
+                                        </div>
+                                        <div class="gray-bg br-rd">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="row m-b-sm">
+                                                        <div class="col-md-6">
+                                                            <h3 class="mt-xs">Mandays Details</h3>
+                                                        </div>
+                                                        <div class="col-md-6 text-right">
+                                                            <a href="javascript:void(0)" id="btnAddMan" class="btn btn-primary btnAddManDay">Add New</a>
+                                                        </div>
+                                                    </div>
+                                                    <div class="m-b-sm scrl-table scrl-table-po-bl">
+                                                        <table class="table table-bordered" style="width: 1280px;">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th colspan="10"></th>
+
+
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="tbodyMan">
+                                                                <tr>
+                                                                    @*<td style="width: 350px;">Project No</td>*@
+                                                                    <td style="width: 650px;">Staff Name</td>
+                                                                    <td style="width: 650px;">Dept</td>
+                                                                    <td style="width: 150px;">No Of Days</td>
+                                                                    <td style="width: 200px;">Grade Pay</td>
+                                                                    <td style="width: 300px;">Total Mandays Value</td>
+                                                                    <td style="width: 300px;" id="tdbank">Mode Of Payment</td>
+                                                                    <td style="width: 300px;" id="tdbank">Bank Name</td>
+                                                                    <td style="width: 250px;" id="tdbranch">Branch</td>
+                                                                    <td style="width: 300px;" id="tdacc">Account Number</td>
+                                                                    <td style="width: 300px;" id="tdifsc">IFSC</td>
+                                                                </tr>
+                                                                @if (Model.MDY != null)
+                                                                {
+                                                                    var count = 0;
+                                                                    foreach (var item in Model.MDY)
+                                                                    {
+                                                                        //var projno = "MDY[" + count + "].ProjectNumber";
+                                                                        //var projid = "MDY[" + count + "].ProjectId";
+                                                                        var staffid = "MDY[" + count + "].StaffId";
+                                                                        var staffname = "MDY[" + count + "].StaffName";
+                                                                        var dept = "MDY[" + count + "].Department";
+                                                                        var depcode = "MDY[" + count + "].DeptCode";
+                                                                        var days = "MDY[" + count + "].NoOfDays";
+                                                                        var amtprday = "MDY[" + count + "].AmountPerDay";
+                                                                        var amount = "MDY[" + count + "].Amount";
+                                                                        var modeofpayment = "MDY[" + count + "].PaymentMode";
+                                                                        var bankname = "MDY[" + count + "].BankName";
+                                                                        var branch = "MDY[" + count + "].Branch";
+                                                                        var accno = "MDY[" + count + "].AccountNo";
+                                                                        var ifsc = "MDY[" + count + "].IFSC";
+                                                                        <tr id="trdetails" class="p-b-sm">
+                                                                            @*<td>
+                                                                                @Html.TextBox(@projno, item.ProjectNumber, new { @class = "form-control ", @id = "projno", @autocomplete = "off" })
+                                                                                @Html.TextBox(@projid, item.ProjectId, new { @class = "form-control dis-none required", @id = "projid" })
+                                                                                @Html.ValidationMessage(@projid)
+                                                                                
+
+                                                                            </td>*@
+                                                                            <td >
+                                                                                @Html.TextBox(@staffname, item.StaffName, new { @class = "form-control ", @id = "staffname", @autocomplete = "off" })
+                                                                                @Html.TextBox(@staffid, item.StaffId, new { @class = "form-control dis-none required" })
+                                                                                @Html.ValidationMessage(@staffid)
+                                                                                @Html.Hidden("MDY.Index", @count)
+                                                                            </td>
+                                                                            <td>
+                                                                                @Html.TextBox(@dept, item.Department, new { @class = "form-control",  @autocomplete = "off" })
+                                                                                @Html.TextBox(@depcode, item.DeptCode, new { @class = "form-control dis-none required" })
+                                                                                @Html.ValidationMessage(@depcode)
+                                                                            </td>
+                                                                            <td>
+                                                                                @Html.TextBox(@days, item.NoOfDays, new { @class = "form-control required", @onkeypress = "return ValidateNumberOnly(event)", @autocomplete = "off" })
+                                                                                @Html.ValidationMessage(@days)
+                                                                            </td>
+                                                                            <td>
+                                                                                @Html.TextBox(@amtprday, item.AmountPerDay, new { @class = "form-control required", @id = "amtperday", @autocomplete = "off", @onkeypress = "return ValidateDecimalOnly(event)" })                                                                                
+                                                                                @Html.ValidationMessage(@amtprday)
+                                                                            </td>
+                                                                            <td>
+                                                                                @Html.TextBox(@amount, item.Amount, new { @class = "form-control required", @readonly = true, @id = "amt" })
+                                                                                @Html.ValidationMessage(@amtprday)
+                                                                            </td>
+                                                                            <td>
+                                                                                @Html.DropDownList(@modeofpayment, new SelectList(ViewBag.PaymtMode, "id", "name", item.PaymentMode), "Select PaymentMode", new { @class = "form-control required", @id = "modeofpayment" })
+                                                                                @Html.ValidationMessage(@modeofpayment)
+                                                                            </td>
+                                                                            <td id="bankname">
+                                                                                @Html.TextBox(@bankname, item.BankName, new { @class = "form-control", @readonly = true, @autocomplete = "off" })
+                                                                                @Html.ValidationMessage(@bankname)
+                                                                            </td>
+                                                                            <td id="branch">
+                                                                                @Html.TextBox(@branch, item.Branch, new { @class = "form-control", @readonly = true, @autocomplete = "off" })
+                                                                                @Html.ValidationMessage(@branch)
+                                                                            </td>
+                                                                            <td id="accno">
+                                                                                @Html.TextBox(@accno, item.AccountNo, new { @class = "form-control", @readonly = true, @autocomplete = "off" })
+                                                                                @Html.ValidationMessage(@accno)
+                                                                            </td>
+                                                                            <td id="ifsc">
+                                                                                @Html.TextBox(@ifsc, item.IFSC, new { @class = "form-control", @readonly = true, @autocomplete = "off" })
+                                                                                @Html.ValidationMessage(@ifsc)
+                                                                            </td>
+                                                                            <td>
+                                                                                @if (count == 0)
+                                                                                {
+                                                                                    <a href="javascript:void(0)" class="btn-circle dis-none removeHOItem"><i class="ion-trash-a"></i></a>
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <a href="javascript:void(0)" class="btn-circle  removeHOItem"><i class="ion-trash-a"></i></a>
+                                                                                }
+                                                                            </td>
+                                                                        </tr>
+                                                                        count++;
+                                                                    }
+
+                                                                }
+
+                                                                else
+                                                                {
+                                                                    <tr>
+                                                                        @*<td>
+                                                                            @Html.TextBox("MDY[0].ProjectNumber", "",  new { @class = "form-control", @id = "projno", @autocomplete = "off" })
+                                                                            @Html.TextBox("MDY[0].ProjectId", "", new { @class = "form-control dis-none required", @id = "projid" })                                                                       
+                                                                            @Html.ValidationMessage("MDY[0].ProjectId")
+                                                                           
+                                                                        </td>*@
+                                                                        <td >
+                                                                            @Html.TextBox("MDY[0].StaffName", "", new { @class = "form-control", @id = "staffname", @autocomplete = "off" })
+                                                                            @Html.TextBox("MDY[0].StaffId", "", new { @class = "form-control dis-none required" })
+                                                                            @Html.ValidationMessage("MDY[0].staffid")
+                                                                            @Html.Hidden("MDY.Index", "0")
+                                                                        </td>
+                                                                        <td>
+                                                                            @Html.TextBox("MDY[0].Department", "", new { @class = "form-control", @id = "department", @autocomplete = "off" })
+                                                                            @Html.TextBox("MDY[0].DeptCode", "", new { @class = "form-control dis-none required" })
+                                                                            @Html.ValidationMessage("MDY[0].DeptCode")
+                                                                        </td>
+                                                                        <td>
+                                                                            @Html.TextBox("MDY[0].NoOfDays", "", new { @class = "form-control required", @onkeypress = "return ValidateNumberOnly(event)", @autocomplete = "off" })
+                                                                            @Html.ValidationMessage("MDY[0].NoOfDays")
+                                                                        </td>
+                                                                        <td>
+                                                                          @Html.TextBox("MDY[0].AmountPerDay", "", new { @class = "form-control required", @autocomplete = "off", @onkeypress = "return ValidateDecimalOnly(event)" })
+                                                                          @Html.ValidationMessage("MDY[0].AmountPerDay")
+                                                                        </td>
+                                                                        <td>
+                                                                            @Html.TextBox("MDY[0].Amount", "", new { @class = "form-control required", @readonly = true ,@id="amount" })
+                                                                            @Html.ValidationMessage("MDY[0].Amount")
+                                                                        </td>
+                                                                        <td>
+                                                                            @Html.DropDownList("MDY[0].PaymentMode", new SelectList(ViewBag.PaymtMode, "id", "name"), "Select PaymentMode", new { @class = "form-control required", @id = "modeofpayment" })
+                                                                        @Html.ValidationMessage("MDY[0].PaymentMode")
+                                                                        </td>
+                                                                        <td id="bankname">
+                                                                            @Html.TextBox("MDY[0].BankName", "", new { @class = "form-control", @readonly = true, @autocomplete = "off" })
+                                                                            @Html.ValidationMessage("MDY[0].BankName")
+                                                                        </td>
+                                                                        <td id="branch">
+                                                                            @Html.TextBox("MDY[0].Branch", "", new { @class = "form-control", @readonly = true, @autocomplete = "off" })
+                                                                            @Html.ValidationMessage("MDY[0].Branch")
+                                                                        </td>
+                                                                        <td id="accno">
+                                                                            @Html.TextBox("MDY[0].AccountNo", "", new { @class = "form-control", @readonly = true, @autocomplete = "off" })
+                                                                            @Html.ValidationMessage("MDY[0].AccountNo")
+                                                                        </td>
+                                                                        <td id="ifsc">
+                                                                            @Html.TextBox("MDY[0].IFSC", "", new { @class = "form-control", @readonly = true, @autocomplete = "off" })
+                                                                            @Html.ValidationMessage("MDY[0].IFSC")
+                                                                        </td>
+                                                                        
+                                                                        <td>
+                                                                            <a href="javascript:void(0)" class="btn-circle dis-none removeHOItem"><i class="ion-trash-a"></i></a>
+                                                                        </td>
+                                                                    </tr>
+                                                                }
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">                                                                                  
+                                            <div class="col-md-3 pull-right">
+                                                <div class="reg-no custom-reg-no">
+                                                    <div class="form-group custom-form-group">
+                                                        <label>Total Amount</label>
+                                                        @Html.TextBoxFor(m => m.TotalAmount, new { @class = "form-control tdAmt", @id = "totalamount", @readonly = true })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                     
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab">
+                    @Html.Partial("_CommitmentDetails", Model.CommitmentDetail)
+                </div>
+                <div class="tab">
+                    @Html.Partial("_TransactionDetails", Model)
+                </div>
+                <div class="tab">
+                    <div class="col-md-12 col-sm-12 m-b-sm">
+                        <div class="">
+                            @Html.Partial("_CheckListDetail", Model.CheckListDetail)
+                        </div>
+                        <div>
+                            @Html.HiddenFor(m => m.CheckListVerified_By)
+                            @Html.HiddenFor(m => m.CheckListVerifierName)
+                            <div class="col-md-3 col-md-offset-9">
+                                <div class="form-group custom-form-group">
+                                    <label>Verified by</label>
+                                    <h4 id="Verified_ByName">@Html.DisplayFor(m => m.CheckListVerifierName)</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab">
+                    <div class="col-md-12 col-sm-12 m-b-sm">
+                        <div class="">
+                            @Html.Partial("_DocumentDetail", Model.DocumentDetail)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="custom-nav-btn text-right">
+                    <button type="button" class="btn btn-default pull-left" id="prevBtn" onclick="nextPrev(-1)">Previous</button>
+                    <button type="button" class="btn btn-primary pull-right" id="nextBtn" onclick="nextPrev(1)">Next</button>
+                    <button type="button" class="btn btn-default pull-right" onclick="window.location.href='@Url.Action("ManDayList", "CoreAccounts")';">Close</button>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+}
+
+<div id="ValidationModal" class="modal fade modal-warning" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-warning"></i>
+                <h3 class="modal-title">Warning</h3>
+            </div>
+            <div class="modal-body">
+
+                <p id="MsgValidation"></p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@Html.AntiForgeryToken()
+<div id="popup"></div>
+<script>
+
+    $('input[name$=".InvDate"]').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
+    $('#SourceEmailDate, #srchFromDate, #srchToDate,#InvoiceDate,#PODate,#ReqDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
+    $('#srchToDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true }).datepicker("setDate", "0");
+    var defaultFromDate = moment(new Date()).add(-10, 'days').toDate();
+    $('#srchFromDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true }).datepicker("setDate", defaultFromDate);
+    $('#MonthYear').datepicker({ dateFormat: 'mm/yy' });
+    var errMsg = '@TempData["errMsg"]';
+    $(document).on('change', '#MonthYear', function ()
+    {
+        $('input[name$=".NoOfDays"]').val("");
+    });
+    $(document).ready(function ()
+    {
+        if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+        CalculatePaymentValue();
+        $('.selectpicker').selectpicker({
+            liveSearch: true
+        });
+        var selSource = $('#Source').val();
+        $("#divRefNum, #divRefEmailDate").addClass('dis-none');
+        if (selSource == '1') {
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACWorkflowRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+        } else if (selSource == '3') {
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACTapalRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+        }
+        else if (selSource == '2') {
+            $('#divRefEmailDate').removeClass('dis-none');
+        } else {
+            $("#divRefNum").removeClass('dis-none');
+        }
+        $('#Source').change(function () {
+            var selSource = $(this).val();
+            var select = $("#SourceReferenceNumber");
+            select.empty();
+            $("#divRefNum, #divRefEmailDate").addClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('False');
+            if (selSource == '1') {
+                $.getJSON("@Url.Action("GetWorkflowRefNumber","Proposal")",
+                 function (locationdata) {
+                     $.each(locationdata, function (index, itemData) {
+                         select.append($('<option/>', {
+                             value: itemData.id,
+                             text: itemData.name,
+                         }));
+                     });
+                 });
+                $("#divRefNum").removeClass('dis-none');
+                $("#SourceTapalOrWorkflow").val('True');
+            } else if (selSource == '3') {
+                $.getJSON("@Url.Action("GetTapalRefNumber","Proposal")",
+                function (locationdata) {
+                    $.each(locationdata, function (index, itemData) {
+                        select.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+                });
+                $("#divRefNum").removeClass('dis-none');
+                $("#SourceTapalOrWorkflow").val('True');
+            }
+            else if (selSource == '2') {
+                $('#divRefEmailDate').removeClass('dis-none');
+                $("#SourceTapalOrWorkflow").val('False');
+            } else {
+                $("#divRefNum").removeClass('dis-none');
+                $("#SourceTapalOrWorkflow").val('True');
+            }
+        });
+
+        $('select[name$=".PaymentMode"]').each(function () {
+            var id = $(this).closest('tr').find('select[name$=".PaymentMode"]').val();
+            if (id == 2) {
+                $(this).closest('tr').find('input[name$=".BankName"],input[name$=".Branch"],input[name$=".AccountNo"],input[name$=".IFSC"]').addClass('required');
+            }
+            else {
+                $(this).closest('tr').find('input[name$=".BankName"],input[name$=".Branch"],input[name$=".AccountNo"],input[name$=".IFSC"]').removeClass('required');
+            }
+        });
+        $('#tbodyMan').find(' input[name$=".StaffName"]').each(function () {
+            $(this).closest('tr').find('input[name$=".StaffId"]').addClass('required');
+            var ele = $(this).closest('tr').find('input[name$=".StaffName"]');
+            aplyAutoComplete(ele, "../CoreAccounts/GetStaffname");
+
+        });
+
+    });
+
+    $(document).on('click', 'input[name$=".StaffName"]', function ()
+    {
+        var ele = $(this).closest('tr').find('input[name$=".StaffName"]').val();
+        var projid = $(this).closest('tr').find('input[name$=".StaffId"]').val();
+        aplyAutoComplete($(this).closest('tr').find('input[name$=".StaffName"]'), "../CoreAccounts/GetStaffname");
+       // applyAutoComplete(projno, projid, "../CoreAccounts/LoadProjectNumber", undefined, undefined, undefined);
+    });
+    function aplyAutoComplete(ele, url) {
+        $(ele).autocomplete({
+            select: function (event, ui) {
+                event.preventDefault();
+                $(ele).val(ui.item.label);
+                $(ele).closest('tr').find('input[name$=".StaffId"]').val(ui.item.value);
+                $(ele).closest('tr').find('input[name$=".StaffName"]').val(ui.item.label);
+                $(ele).closest('tr').find('input[name$=".Department"]').val(ui.item.desc);
+                $(ele).closest('tr').find('input[name$=".DeptCode"]').val(ui.item.icon);
+            },
+            focus: function (event, ui) {
+                event.preventDefault();
+                $(ele).val(ui.item.label);
+            },
+            source: function (request, response) {
+                $.getJSON(url, { term: request.term },
+                 function (locationdata) {
+                     response(locationdata);
+                 });
+            },
+            minLength: 3
+        }).autocomplete("widget").addClass("your_custom_class");
+        //.autocomplete("widget").addClass("your_custom_class");
+    }
+    @*$(document).on('change', 'input[name$=".ProjectNumber"]', function ()
+    {
+        var projid = $(this).closest('tr').find('input[name$=".ProjectId"]').val();
+        $(this).closest('tr').find('input[name$=".NoOfDays"]').val("");
+        var eleTr = $(this).closest('tr');
+        $.getJSON("@Url.Action("GetStaffname", "CoreAccounts")", { projid: projid },
+                   function (locationdata)
+                   {
+                       eleTr.find('input[name$=".StaffName"]').val(locationdata.StaffName);
+                       eleTr.find('input[name$=".StaffId"]').val(locationdata.StaffId);
+                       eleTr.find('input[name$=".Department"]').val(locationdata.Department);
+                       eleTr.find('input[name$=".DeptCode"]').val(locationdata.DeptCode);
+                    });
+
+    });*@
+    /* Man-DayDetails PaymentMode Realted Function */
+    $(document).on('change', 'select[name$=".PaymentMode"]', function () {
+        var id = $(this).closest('tr').find('select[name$=".PaymentMode"]').val();
+        if (id == 2) {
+            $(this).closest('tr').find('input[name$=".BankName"]').prop("readonly", false).addClass('required');
+            $(this).closest('tr').find('input[name$=".Branch"]').prop("readonly", false).addClass('required');
+            $(this).closest('tr').find('input[name$=".AccountNo"]').prop("readonly", false).addClass('required');
+            $(this).closest('tr').find('input[name$=".IFSC"]').prop("readonly", false).addClass('required');
+
+        }
+        else {
+            $(this).closest('tr').find('input[name$=".BankName"]').prop("readonly", true).val("").removeClass('required');
+            $(this).closest('tr').find('input[name$=".Branch"]').prop("readonly", true).val("").removeClass('required');
+            $(this).closest('tr').find('input[name$=".AccountNo"]').prop("readonly", true).val("").removeClass('required');
+            $(this).closest('tr').find('input[name$=".IFSC"]').prop("readonly", true).val("").removeClass('required');
+
+
+        }
+    });
+
+    /* Man-DayDetails Related ADDNew Function */
+    $('#btnAddMan').click(function () {
+        var cln = $('#tbodyMan tr:nth-child(2)').clone().find("input[type!='checkbox']").val("").end();
+        $(cln).find('select[type="hidden"][name$=".PaymentMode"],select[type="hidden"][name$=".PaymentMode"]').val("").end();
+        $(cln).find('select[name$=".PaymentMode"],select[select=".PaymentMode"]').val("").end();
+        $(cln).find('.tdAmt').text('');
+        $(cln).find('a.dis-none').removeClass('dis-none');
+        var index = $('#tbodyMan tr:last').find("input[name='MDY.Index']").val();
+        index = parseInt(index) + 1;
+        $(cln).find("input[name='MDY.Index']").val(index);
+        $(cln).find("input, select").each(function () {
+            $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+            if ($(this).attr("id"))
+                $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+        });
+        $(cln).find("span[data-valmsg-for]").each(function () {
+            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+        });
+
+        $('#tbodyMan').append(cln);
+    });
+
+    $(document).on('keyup', 'input[name$=".StaffName"]', function () {
+        if ($(this).val() == '') {
+            $(this).closest('tr').find('input[name$=".StaffId"]').val("");
+        }
+    });
+    //$(document).on('keyup', 'input[name$=".ProjectNumber"]', function () {
+    //    if ($(this).val() == '') {
+    //        $(this).closest('tr').find('input[name$=".ProjectId"]').val("");
+    //    }
+    //});
+    $(document).on('click', 'a.removeHOItem', function () {
+        $(this).closest('tr').remove();
+        calculateamount();
+    });
+    $(document).on('change', 'input[name$=".NoOfDays"]', function () {
+        var days = parseFloat($(this).val());
+        var noofday = $(this);
+        var projid = $(this).closest('tr').find('input[name$=".StaffId"]').val();
+        var monyr = $("#MonthYear").val();
+        var mandayid = $("#manid").val();
+        if (monyr == "")
+        {
+            $('#alert').html("First Select month and Year For Mandays");
+            $('#Validation').modal('toggle');
+            noofday.val("");
+        }
+        else {
+            $.getJSON("@Url.Action("ValidateManDay", "CoreAccounts")", { projid: projid, days: days, monyr: monyr, mandayid: mandayid },
+                       function (locationdata)
+                       {
+                           var day = 0;
+                           var tldday = 0;
+                           var avldate = 0;
+                           var errmsg=0;
+                           $.each(locationdata, function (index, itemData) {
+                               errmsg += itemData.errmsgid;
+                           });
+                           if (errmsg != 0)
+                           {
+                               var isValid = true;
+                               if (days > 7) {
+                                   $('#alert').html("No of Days should not be greater than 7");
+                                   $('#Validation').modal('toggle');
+                                   noofday.val("");
+                                   isValid = false;
+                               }
+                               if (isValid) {
+                                   calculateamount();
+                               }
+                           }
+                           else
+                           {
+                           $.each(locationdata, function (index, itemData) {
+                               day += itemData.NoOfDays;
+                           });
+                           tldday = days + day;
+                           avldate = 7 - day;
+                            if (tldday > 7)
+                            {
+                                $('#alert').html("Mandays exceeded entitled limit of 7 days for the current month. Availed days : "+day+" . Remaining days that can be availed for this month : "+avldate );
+                                $('#Validation').modal('toggle');
+                                noofday.val("");
+                            }
+
+                            else {
+                                calculateamount();
+                            }
+                           }
+                           });
+
+
+        }
+    });
+    $(document).on('change', 'input[name$=".AmountPerDay"]', function () {
+        var isValid = true;
+        if (($(this).val() > 500) || ($(this).val() < 300))
+        {
+            $('#alert').html("Grand Pay max is 500 and min is 300");
+            $('#Validation').modal('toggle');
+            $(this).val("");
+            isValid = false;
+        }
+        if (isValid) {
+            calculateamount();
+        }
+    });
+    function calculateamount() {
+        var nettotal = 0;
+        $('#tbodyMan tr').each(function (idx, val) {
+            var day = parseFloat($(this).closest('tr').find('input[name$=".NoOfDays"]').val());
+            var amtperday = parseFloat($(this).closest('tr').find('input[name$=".AmountPerDay"]').val());
+            var amount = parseFloat($(this).closest('tr').find('input[name$=".Amount"]').val());
+            var amt = parseFloat((day * amtperday));
+            if (!isNaN(amt)) {
+                $(this).find('input[name$=".Amount"]').val(amt);
+                nettotal += amt;
+            }
+        });
+        if (!isNaN(nettotal)) {
+            $("#totalamount").val(nettotal.toFixed(0));
+            var credit = parseFloat($('#totalamount').val());
+            $("#CreditorAmount").val(credit);
+        }
+    }
+
+    function ValidateTransaction() {
+        var msg = 'valid';
+        var netCrAmt = parseFloat($('#CreditorAmount').val());
+        var commitmentAmt = parseFloat($('#CommitmentAmount').val());
+        var ttlExpAmt = parseFloat($('#ExpenseAmount').val()) || 0;
+        var ttldeductAmt = parseFloat($('#DeductionAmount').val()) || 0;
+        var crAmt = parseFloat($('#ttlCr').val()) || 0;
+        var overallExp = parseFloat($('#OverallExpense').val()) || 0;
+        var netDrAmt = ttlExpAmt + ttldeductAmt;
+        if (isNaN(netCrAmt)) {
+            return 'The Credit value is not a valid entry.';
+        }
+        if (netDrAmt != crAmt || netCrAmt != crAmt) {
+            msg = 'Not a valid entry. Credit and Debit value are not equal.';
+        }
+        //if (isNaN(netCrAmt) || isNaN(overallExp)) {
+        //    msg = 'The credit value / overall expenses is not a valid entry.';
+        //} else if (netCrAmt != overallExp) {
+        //    msg = 'There is a mismatch between the credit value and overall expenses value. Please update the value to continue.';
+        //}
+
+        var hdList = [];
+        $('#tbodyExpenseList tr').find('select[name$=".AccountHeadId"]').each(function (idx, val) { hdList.push($(val).val()); });
+        hdList.sort();
+        // duplicate check
+        for (var k = 1; k < hdList.length; ++k) {
+            if (hdList[k] == hdList[k - 1]) {
+                msg = "Duplicate account head exist in expense details. Please select a different head.";
+            }
+        }
+        return msg;
+    }
+    function ValidateCommitment() {
+        var msg = 'valid';
+        CalculatePaymentValue();
+        var commitmentAmt = parseFloat($('#CommitmentAmount').val());
+        var totalpayable = parseFloat($('#totalamount').val());
+        //var eligtax = parseFloat($('#txtEligibleTaxValue').val());
+        // var ttlAdvAmt = netPayAmt - eligtax;
+        // var advPct = parseInt($("#AdvancePercentage").val());
+        //  var offsetValue = $("input[name='GST']:checked").val();
+        $("#tbodyCommitmentSelList tr").each(function () {
+            var elePayment = $(this).find("input[name$='.PaymentAmount']");
+            var eleAvlBal = $(this).find('input[name$=".AvailableAmount"]');
+            var parseVal = parseFloat($(elePayment).val()) || 0;
+            var avlBal = parseFloat($(eleAvlBal).val()) || 0;
+            if (parseVal > avlBal)
+                msg = "Commitment payment value should not be greater than available balance."
+        });
+        if (isNaN(totalpayable) || isNaN(commitmentAmt)) {
+            msg = 'The requested advance value / allocated commitment value is not a valid entry.';
+        } else if (totalpayable != commitmentAmt) {
+            msg = 'There is a mismatch between the payable amount and allocated commitment value. Commitment value should be equal to Net Total. Please update the value to continue.';
+        }
+
+        return msg;
+    }
+    $('#Source').change(function () {
+        var selSource = $(this).val();
+        $("#SourceReferenceNumber,#ReferenceNumber").val('');
+		$("#divRefNum, #divRefEmailDate").addClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('False');
+		if (selSource == '1') {
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACWorkflowRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        } else if (selSource == '3') {
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACTapalRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        }
+        else if (selSource == '2') {
+            $('#divRefEmailDate').removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('False');
+        } else {
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        }
+    });
+    function formSave() {
+        var isValid = $('#formMan').valid();
+        if (!isValid)
+            return false;
+        var doctypevalues = [];
+        $('select[name$=".DocumentType"]').each(function (idx, val) { doctypevalues.push($(val).val()); });
+        doctypevalues.sort();
+        // duplicate check
+        for (var k = 1; k < doctypevalues.length; ++k) {
+            if (doctypevalues[k] == doctypevalues[k - 1]) {
+                $('#alert').html("Selected attachment type already exist. Please select a different attachment type.");
+                $('#Validation').modal('toggle');
+                return false;
+            }
+            isValid = true;
+        }
+
+
+        $('#formMan').submit();
+
+    }
+
+    function AddNewExpense() {
+        //var stateCode = $('#lblStateCode').html();
+        //var BillType = $('#BillType').val();
+        $.ajax({
+            type: "GET",
+            url: "@Url.Action("GetAddNewExpenseDetails", "CoreAccounts")",
+            data: { "typeCode": "MDY", "tSubCode": "1" },
+        traditional: true,
+        dataType: "json",
+        success: function (result) {
+            $.each(result.ExpenseDetail, function (i, item) {
+                var cln = $('#tbodyExpenseList tr:first').clone().find("select,input").val("").end();
+                $(cln).find('a.dis-none').removeClass('dis-none');
+                var index = $('#tbodyExpenseList tr:last').find("input[name='ExpenseDetail.Index']").val();
+                index = parseInt(index) + 1;
+                $(cln).find("input[name='ExpenseDetail.Index']").val(index);
+                $(cln).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                $(cln).find('#lblTransType').text(item.TransactionType);
+                $(cln).find('input[name$=".IsJV"]').val(item.IsJV);
+                $(cln).find("input, select").each(function () {
+                    $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+                    $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+                });
+                $(cln).find("span[data-valmsg-for]").each(function () {
+                    $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+                });
+
+                var selectGroup = $(cln).find("select[name$='.AccountGroupId']");
+                selectGroup.empty();
+                $.each(item.AccountGroupList, function (index, itemData) {
+                    selectGroup.append($('<option/>', {
+                        value: itemData.id,
+                        text: itemData.name,
+                    }));
+                });
+
+                var selectHead = $(cln).find("select[name$='.AccountHeadId']");
+                selectHead.empty();
+                $.each(item.AccountHeadList, function (index, itemData) {
+                    selectHead.append($('<option/>', {
+                        value: itemData.id,
+                        text: itemData.name,
+                    }));
+                });
+                $('#tbodyExpenseList').append(cln);
+            });
+        },
+        error: function (err) {
+            console.log("error : " + err);
+        }
+    });
+    }
+
+    function fillMasterDropDown(ele, data, fillDafaultText, valueAsName) {
+        if (fillDafaultText !== undefined) {
+            ele.append($('<option/>', {
+                value: '',
+                text: 'Select any',
+            }));
+        }
+        if (valueAsName !== undefined) {
+            $.each(data, function (index, itemData) {
+                ele.append($('<option/>', {
+                    value: itemData.name,
+                    text: itemData.name,
+                }));
+            });
+        } else {
+            $.each(data, function (index, itemData) {
+                ele.append($('<option/>', {
+                    value: itemData.id,
+                    text: itemData.name,
+                }));
+            });
+        }
+    }
+    function GetTransactionDetails() {
+        EmptyExpenseDeductionDetails();
+        $.ajax({
+            type: "GET",
+            url: "@Url.Action("GetTransactionDetails", "CoreAccounts")",
+            data: { "typeCode": "MDY", "tSubCode": "1" },
+        traditional: true,
+        dataType: "json",
+        success: function (result) {
+            $.each(result.ExpenseDetail, function (i, item) {
+                if (i == 0) {
+                    var trEle = $('#tbodyExpenseList tr:first');
+                    $(trEle).find('input[name$=".Amount"]').val('');
+                    $(trEle).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                    $(trEle).find('input[name$=".IsJV"]').val(item.IsJV);
+                    $(trEle).find('#lblTransType').text(item.TransactionType);
+                    $(trEle).find("input[name='ExpenseDetail.Index']").val(i);
+
+                    var selectGroup = $(trEle).find('select[name$=".AccountGroupId"]');
+                    selectGroup.empty();
+                    $.each(item.AccountGroupList, function (index, itemData) {
+                        selectGroup.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+
+                    var selectHead = $(trEle).find('select[name$=".AccountHeadId"]');
+                    selectHead.empty();
+                    $.each(item.AccountHeadList, function (index, itemData) {
+                        selectHead.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+                } else {
+                    var trEleNew = $('#tbodyExpenseList tr:first').clone().find('input').val('').end();
+                    $(trEleNew).find('input[name$=".Amount"]').val('');
+                    $(trEleNew).find("input[name='ExpenseDetail.Index']").val(i);
+                    $(trEleNew).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                    $(trEleNew).find('input[name$=".IsJV"]').val(item.IsJV);
+                    $(trEleNew).find('#lblTransType').text(item.TransactionType);
+                    $(trEleNew).find("input,Select").each(function () {
+                        $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                        $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                    });
+                    $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                        $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                    });
+
+                    var selectGroup = $(trEleNew).find('select[name$=".AccountGroupId"]');
+                    selectGroup.empty();
+                    $.each(item.AccountGroupList, function (index, itemData) {
+                        selectGroup.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+
+                    var selectHead = $(trEleNew).find('select[name$=".AccountHeadId"]');
+                    selectHead.empty();
+                    $.each(item.AccountHeadList, function (index, itemData) {
+                        selectHead.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+                    $('#tbodyExpenseList').append(trEleNew);
+                }
+            });
+            $.each(result.DeductionDetail, function (i, item) {
+                if (i == 0) {
+                    var trEle = $('#tbodyDeductionList tr:first');
+                    $(trEle).find('input').val('');
+                    var amtEle = $(trEle).find('input[name$=".Amount"]');
+                    amtEle.removeClass('required');
+                    $(trEle).find('input[name$=".AccountGroupId"]').val(item.AccountGroupId);
+                    $(trEle).find('input[name$=".DeductionHeadId"]').val(item.DeductionHeadId);
+                    $(trEle).find('input[name$=".DeductionHead"]').val(item.DeductionHead);
+                    $(trEle).find('input[name$=".AccountGroup"]').val(item.AccountGroup);
+                    $(trEle).find('td:nth-child(1)').html(item.AccountGroup);
+                    $(trEle).find('td:nth-child(2)').html(item.DeductionHead);
+                } else {
+                    var trEleNew = $('#tbodyDeductionList tr:first').clone().find('input').val('').end();
+                    $(trEleNew).find("input").each(function () {
+                        $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                        $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                    });
+                    $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                        $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                    });
+                    var amtEle = $(trEleNew).find('input[name$=".Amount"]');
+
+                    amtEle.removeClass('required');
+                    $(trEleNew).find('input[name$=".AccountGroupId"]').val(item.AccountGroupId);
+                    $(trEleNew).find('input[name$=".DeductionHeadId"]').val(item.DeductionHeadId);
+                    $(trEleNew).find('input[name$=".DeductionHead"]').val(item.DeductionHead);
+                    $(trEleNew).find('input[name$=".AccountGroup"]').val(item.AccountGroup);
+                    $(trEleNew).find('td:nth-child(1)').html(item.AccountGroup);
+                    $(trEleNew).find('td:nth-child(2)').html(item.DeductionHead);
+                    $('#tbodyDeductionList').append(trEleNew);
+                }
+            });
+            $('#NeedUpdateTransDetail').val('false');
+            CalculateDeductionTotal();
+
+        },
+        error: function (err) {
+            console.log("error : " + err);
+        }
+    });
+    }
+    /* Tab Sections Start*/
+    var currentTab = 0; // Current tab is set to be the first tab (0)
+    showTab(currentTab); // Display the crurrent tab
+    function showTab(n) {
+        // This function will display the specified tab of the form...
+        var x = document.getElementsByClassName("tab");
+        x[n].style.display = "block";
+        $(".custom-nav-pills li:eq(" + n + ")").addClass("active");
+        //... and fix the Previous/Next buttons:
+        if (n == 0) {
+            document.getElementById("prevBtn").style.display = "none";
+        } else {
+            document.getElementById("prevBtn").style.display = "inline";
+        }
+        if (n == (x.length - 1)) {
+            document.getElementById("nextBtn").innerHTML = "Submit";
+        } else {
+            document.getElementById("nextBtn").innerHTML = "Next";
+        }
+        //... and run a function that will display the correct step indicator:
+        //fixStepIndicator(n)
+    }
+
+    function nextPrev(n) {
+        // This function will figure out which tab to display
+        var x = document.getElementsByClassName("tab");
+        // Exit the function if any field in the current tab is invalid:
+        if (n > 0 && !validateForm(n)) return false;
+        if (currentTab + n < x.length) {
+            // Hide the current tab:
+            x[currentTab].style.display = "none";
+            $(".custom-nav-pills li:eq(" + currentTab + ")").removeClass("active");
+        } else {
+            // ... the form gets submitted:
+            formSave();
+            return false;
+        }
+        // Increase or decrease the current tab by 1:
+        currentTab = currentTab + n;
+
+        // Otherwise, display the correct tab:
+        showTab(currentTab);
+    }
+
+    function validateForm(n) {
+        // This function deals with validation of the form fields
+        var isValid = false;
+        var hadError = false;
+        var tabs = $(".tab");
+        var currentTabEle = tabs[currentTab];
+        var inputs = $(":input, textarea, select"); // get all the form inputs and selects
+        var stepElements = $(currentTabEle).find(inputs); // get inputs for current step
+        var count = stepElements.length; // check that there are inputs
+        if (count <= 0) {                // if there are not no reason to loop them
+            return true;                 // this can be used to perform other action if there are no steps
+        } else if (currentTab == 0) {
+            var content = $('#tbodyCommitmentSrchList tr td:last').html();
+            if (content == '') {
+                searchCommitment()
+            }
+        }
+        else if (currentTab == 1) {
+            var validationMsg = ValidateCommitment()
+            if (validationMsg != 'valid') {
+                hadError = true;
+                $("#alert").text(validationMsg);
+                $('#Validation').modal('show');
+            } else {
+                if ($('#NeedUpdateTransDetail').val().toLowerCase() == 'true') {
+                    GetTransactionDetails();
+                }
+
+                var credit = parseFloat($('#totalamount').val());
+                $("#CreditorAmount").val(credit);
+                //if(parseInt($("#AdvancePercentage").val()) == 100){
+                CalculateDeductionTotal();
+                //$("#CreditorAmount, #ttlCr").val($('#lblAdvTtlAmt').text());
+                //}else{
+                //    $("#CreditorAmount, #ttlCr").val($('#lblAdvNetAmt').text());
+                //}
+            }
+        }
+        else if (currentTab == 2) {
+            var validationMsg = ValidateTransaction()
+            if (validationMsg != 'valid') {
+                hadError = true;
+                $("#alert").text(validationMsg);
+                $('#Validation').modal('show');
+            }
+        }
+        else if (currentTab == 3) {
+            if ($('#CheckListVerified_By').val() == '') {
+                hadError = true;
+                $("#alert").text('Checklist is not verified.');
+                $('#Validation').modal('show');
+            }
+        }
+
+        $(stepElements).each(function (idx, ele) {
+
+            if (!$(ele).is(':radio') && !$(ele).is(':checkbox') && !$(ele).is(':password')) {
+                isValid = $(ele).valid();//$(document.forms[0]).validate().element($(this)); // check that the input is valid. This can also be used on a per input basis to perform another action if the field is not valid.
+                if (!isValid) { hadError = true; } // set our flag if there was an error
+            }
+
+        });
+        return !hadError; // return the valid status
+
+    }
+
+
+</script>
+
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>
+

@@ -1,0 +1,295 @@
+﻿@model IOAS.Models.FixedDepositModel
+@{
+    ViewBag.Title = "FixedDepositView";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<div class="row hd-tt-bg">
+    <div class="col-md-12">
+        <h4><b>Fixed Deposit View</b> </h4>
+    </div>
+</div>
+<div class="row">
+    <div class="white-bg ad-navbar">
+
+        <div class="col-md-3 col-md-offset-9">
+            <div class="reg-no custom-reg-no">
+                <div class="form-group custom-form-group">
+                    <label>Number</label>
+                    <h4>@Html.DisplayFor(m => m.FixedDepositNumber)</h4>
+                   @Html.HiddenFor(m => m.NeedUpdateTransDetail)
+                @Html.Hidden("TransactionTypeCode", "FDT")
+                @Html.HiddenFor(m => m.FixedDepositId)
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="vw-dts-bg">
+    <div class="row">
+        <div class="col-md-12">
+            <h3>Fixed Deposit Detail</h3>
+            <table class="table table-bordered mb-null">
+               <tbody>
+                   <tr>
+                       <td>
+                           <label>Account Type</label>
+                           <h4>@Model.AccounttypeName</h4>
+                       </td>
+                       <td colspan="2">
+                           <label>Account Number</label>
+                           <h4>@Model.AccountNumber</h4>
+                       </td>
+                   </tr>
+                   <tr>
+                        <td>
+                           <label>Deposit Amount</label>
+                            <h4>@Model.DepositAmount</h4>
+                        </td>
+                       <td>
+                           <label>From Date</label>
+                           <h4>@Model.FromDatetime</h4>
+                          
+                       </td>
+                       <td>
+                           <label>To Date</label>
+                           <h4>@Model.TofromDate</h4>
+                         
+                       </td>
+                      
+                   </tr>
+                   <tr>
+                       <td>
+                           <label>Rate of Interest</label>
+                           <h4>@Model.RateofInterest</h4>
+                       </td>
+                       <td>
+                           <label>Total Interest</label>
+                           <h4>@Model.TotalInterest</h4>
+                       </td>
+                       <td>
+                           <label>Maturity Amount</label>
+                           <h4>@Model.MaturityAmount</h4>
+                       </td>
+                   </tr>
+                   <tr>
+                       <td>
+                           <label>Period</label>
+                           <h4>@Model.Period</h4>
+                       </td>
+                       <td>
+                           <label>FD Number</label>
+                           <h4>@Model.FDNumber</h4>
+                       </td>
+                       <td>
+                           <label>Term Deposit</label>
+                           <h4 id="lbltermDuration"></h4>
+                       </td>
+                   </tr>
+                   <tr>
+                       <td>
+                           <label>Remarks</label>
+                           <h4>@Model.Remarks</h4>
+                       </td>
+                   </tr>
+               </tbody>
+            </table>
+    </div>
+    </div>
+</div>
+<div class="vw-dts-bg">
+    <div class="row">
+        <div class="col-md-12">
+         @Html.Partial("_TransactionDetailsView", Model)
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            @Html.Partial("_DocumentDetailView", Model.DocumentDetail)
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12 text-center pd-tb-30">
+        @if (Model.PF != true)
+        {
+            <input type="button" onclick="window.location.href='@Url.Action("FixedDepositList", "CoreAccounts")';" class="btn btn-default" value="Close" id="btnclose" />
+        }
+        else
+        {
+            <input type="button" onclick="window.location.href='@Url.Action("Dashboard", "Home")';" class="btn btn-default" value="Close" id="btnclose" />
+        }
+    </div>
+</div>
+<script>
+    Calculdatediff();
+    function Calculdatediff() {
+        var msg = 'valid';
+        var strDate = '@Model.FromDatetime';
+        var clsDate = '@Model.TofromDate';
+        if (strDate != '' && clsDate != '') {
+            var startDate = moment(parseDate(strDate));
+            var closeDate = moment(parseDate(clsDate));
+
+            var mins = closeDate.diff(startDate, 'minutes');
+            if (mins <= 0) {
+                $('#alert').html("To date must be greater then from date");
+                $('#Validation').modal('toggle');
+                msg = "To date must be greater then from date";
+            }
+            var result = '';
+            var resultD = '';
+            var years = closeDate.diff(startDate, 'year');
+            startDate.add(years, 'years');
+
+            var months = closeDate.diff(startDate, 'months');
+            startDate.add(months, 'months');
+
+            var days = closeDate.diff(startDate, 'days');
+            if (years > 1) {
+                result = years + ' years ';
+                resultD = "LONG TERM";
+            } else if (years == 1) {
+                result = years + ' year ';
+                resultD = "LONG TERM";
+            }
+            else if (years < 1)
+                resultD = "SHORT TERM";
+            if (months > 1) {
+                result = result + months + ' months ';
+            } else if (months == 1) {
+                result = result + months + ' month ';
+            }
+            if (days > 1) {
+                result = result + days + ' days';
+            } else if (days == 1) {
+                result = result + days + ' day';
+            }
+            $('#lbltermDuration').html(resultD);
+           // $("#Period").val(result);
+            return msg;
+        }
+
+    }
+    function parseDate(s) {
+        var months = {
+            january: 0, february: 1, march: 2, april: 3, may: 4, june: 5,
+            july: 6, august: 7, september: 8, october: 9, november: 10, december: 11
+        };
+        var p = s.split('-');
+        return new Date(p[2], months[p[1].toLowerCase()], p[0]);
+    }
+    $('#NeedUpdateTransDetail').val('false');
+    CalculateDeductionTotal();
+    function GetTransactionDetails() {
+        EmptyExpenseDeductionDetails();
+        $.ajax({
+            type: "GET",
+            url: "@Url.Action("GetTransactionDetails", "CoreAccounts")",
+            data: { "typeCode": "FDT", "tSubCode": "1" },
+        traditional: true,
+        dataType: "json",
+        success: function (result) {
+            $.each(result.ExpenseDetail, function (i, item) {
+                if (i == 0) {
+                    var trEle = $('#tbodyExpenseList tr:first');
+                    $(trEle).find('input[name$=".Amount"]').val('');
+                    $(trEle).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                    $(trEle).find('input[name$=".IsJV"]').val(item.IsJV);
+                    $(trEle).find('#lblTransType').text(item.TransactionType);
+                    $(trEle).find("input[name='ExpenseDetail.Index']").val(i);
+
+                    var selectGroup = $(trEle).find('select[name$=".AccountGroupId"]');
+                    selectGroup.empty();
+                    $.each(item.AccountGroupList, function (index, itemData) {
+                        selectGroup.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+
+                    var selectHead = $(trEle).find('select[name$=".AccountHeadId"]');
+                    selectHead.empty();
+                    $.each(item.AccountHeadList, function (index, itemData) {
+                        selectHead.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+                } else {
+                    var trEleNew = $('#tbodyExpenseList tr:first').clone().find('input').val('').end();
+                    $(trEleNew).find('input[name$=".Amount"]').val('');
+                    $(trEleNew).find("input[name='ExpenseDetail.Index']").val(i);
+                    $(trEleNew).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                    $(trEleNew).find('input[name$=".IsJV"]').val(item.IsJV);
+                    $(trEleNew).find('#lblTransType').text(item.TransactionType);
+                    $(trEleNew).find("input,Select").each(function () {
+                        $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                        $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                    });
+                    $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                        $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                    });
+
+                    var selectGroup = $(trEleNew).find('select[name$=".AccountGroupId"]');
+                    selectGroup.empty();
+                    $.each(item.AccountGroupList, function (index, itemData) {
+                        selectGroup.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+
+                    var selectHead = $(trEleNew).find('select[name$=".AccountHeadId"]');
+                    selectHead.empty();
+                    $.each(item.AccountHeadList, function (index, itemData) {
+                        selectHead.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+                    $('#tbodyExpenseList').append(trEleNew);
+                }
+            });
+            $.each(result.DeductionDetail, function (i, item) {
+                if (i == 0) {
+                    var trEle = $('#tbodyDeductionList tr:first');
+                    $(trEle).find('input').val('');
+                    var amtEle = $(trEle).find('input[name$=".Amount"]');
+                    amtEle.removeClass('required');
+                    $(trEle).find('input[name$=".AccountGroupId"]').val(item.AccountGroupId);
+                    $(trEle).find('input[name$=".DeductionHeadId"]').val(item.DeductionHeadId);
+                    $(trEle).find('input[name$=".DeductionHead"]').val(item.DeductionHead);
+                    $(trEle).find('input[name$=".AccountGroup"]').val(item.AccountGroup);
+                    $(trEle).find('td:nth-child(1)').html(item.AccountGroup);
+                    $(trEle).find('td:nth-child(2)').html(item.DeductionHead);
+                } else {
+                    var trEleNew = $('#tbodyDeductionList tr:first').clone().find('input').val('').end();
+                    $(trEleNew).find("input").each(function () {
+                        $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                        $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                    });
+                    $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                        $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                    });
+                    var amtEle = $(trEleNew).find('input[name$=".Amount"]');
+
+                    amtEle.removeClass('required');
+                    $(trEleNew).find('input[name$=".AccountGroupId"]').val(item.AccountGroupId);
+                    $(trEleNew).find('input[name$=".DeductionHeadId"]').val(item.DeductionHeadId);
+                    $(trEleNew).find('input[name$=".DeductionHead"]').val(item.DeductionHead);
+                    $(trEleNew).find('input[name$=".AccountGroup"]').val(item.AccountGroup);
+                    $(trEleNew).find('td:nth-child(1)').html(item.AccountGroup);
+                    $(trEleNew).find('td:nth-child(2)').html(item.DeductionHead);
+                    $('#tbodyDeductionList').append(trEleNew);
+                }
+            });
+            $('#NeedUpdateTransDetail').val('false');
+            CalculateDeductionTotal();
+
+        },
+        error: function (err) {
+            console.log("error : " + err);
+        }
+    });
+    }
+</script>

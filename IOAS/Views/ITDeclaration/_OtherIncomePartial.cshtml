@@ -1,0 +1,122 @@
+﻿@model IOAS.Models.EmpITDeductionModel
+
+<div class="white-bg br-rd">
+    <h3 class="mt-null">Other Income</h3>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="m-b-sm">
+                <div class="col-md-12 text-right">
+                    <a href="javascript:void(0)" id="btnAdd" class="btn btn-primary btnAdd">Add New</a>
+                </div>
+                <table class="table table-bordered" style="width: 500px;">
+                    <tbody id="tbodyHo">
+                        <tr>                                                 
+                            <td>Particulars</td>
+                            <td>Amount</td>
+                            <td>Remarks</td>
+                            <td></td>
+                        </tr>                     
+                                @if (Model.ItOtherIncome.Count() > 0)
+                                {
+                                    var count = 0;
+                                    foreach (var item in Model.ItOtherIncome)
+                                    {
+                                        var Amount = "ItOtherIncome[" + count + "].Amount";
+                                        var Particulars = "ItOtherIncome[" + count + "].Particulars";
+                                        var Remarks = "ItOtherIncome[" + count + "].Remarks";
+                                    <tr>                                             
+                                        @*<td>
+                                            <label>@Html.DisplayFor(modelItem => item.EligibleAmount)</label>
+                                        </td>*@
+                                        
+                                        <td>
+                                            @Html.TextBox(@Particulars, item.Amount, new { @class = "form-control", @autocomplete = "off" })                                 
+                                        </td>                                      
+                                        <td>
+                                            @Html.TextBox(@Amount, item.Amount, new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)", @autocomplete = "off" })                                           
+                                        </td>
+                                        <td>
+                                            @Html.TextBox(@Remarks, item.Remarks, new { @class = "form-control", @autocomplete = "off" })
+                                        </td>
+                                        <td>
+                                            @if (count == 0)
+                                            {
+                                                <a href="javascript:void(0)" class="btn-circle dis-none removeHOItem"><i class="ion-trash-a"></i></a>
+                                            }
+                                            else
+                                            {
+                                                <a href="javascript:void(0)" class="btn-circle  removeHOItem"><i class="ion-trash-a"></i></a>
+                                            }
+                                        </td>
+                                    </tr>
+                                        count++;
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>                                                                   
+                                        <td>
+                                            @Html.TextBox("ItOtherIncome[0].Particulars", "", new { @class = "form-control", @autocomplete = "off" })                                          
+                                        </td>
+                                        <td >
+                                            @Html.TextBox("ItOtherIncome[0].Amount", "", new { @class = "form-control", @autocomplete = "off", @onkeypress = "return ValidateDecimalOnly(event)" })                                       
+                                        </td>
+                                        <td >
+                                            @Html.TextBox("ItOtherIncome[0].Remarks", "", new { @class = "form-control", @autocomplete = "off" })                                         
+                                        </td>
+                                        <td>              
+                                            <a href="javascript:void(0)" class="btn-sm btn dis-none btn-danger removeHOItem"><i class="ion-android-close"></i></a>
+                                        </td>
+                                    </tr>
+                                }
+                            
+                       
+                    </tbody>
+               
+                </table>
+    
+
+
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    $('#btnAdd').click(function () {
+        var cln = $('#tbodyHo tr:nth-child(2)').clone().find("input[type!='checkbox']").val("").end();      
+        $(cln).find('a.dis-none').removeClass('dis-none');
+        var index = $('#tbodyHo tr:last').find("input[name='ItOtherIncome.Index']").val();
+        index = parseInt(index) + 1;
+        $(cln).find("input[name='ItOtherIncome.Index']").val(index);
+        $(cln).find("input, select").each(function () {
+            $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+            if ($(this).attr("id"))
+                $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+        });
+        $(cln).find("span[data-valmsg-for]").each(function () {
+            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+        });
+        $('#tbodyHo').append(cln);
+    });
+    $(document).on('click', 'a.removeHOItem', function () {
+        $(this).closest('tr').remove();
+        calculateamount();
+    });
+    function ValidateDecimalOnly(evt) {
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode != 46 && charCode > 31
+          && (charCode < 48 || charCode > 57))
+            return false;
+
+        return true;
+    }
+    function ValidateNumberOnly(e) {
+        if (e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)) {
+            return false;
+        }
+    }
+</script>

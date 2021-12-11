@@ -1,0 +1,145 @@
+﻿@model IOAS.Models.SRBItemDetailsModel
+
+<div class="row mt30">
+    <div id="BuybackModal" class="modal fade" role="dialog">
+        @using (Html.BeginForm("PopupDeactivation", "Facility", FormMethod.Post, new { @id = "frmDeactivate", role = "form", enctype = "multipart/form-data" }))
+        {
+            <div class="modal-dialog">
+
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                           <h3 class="modal-title">Item Details</h3>
+                       
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="col-md-6">
+                                    <div class="ls-dts">
+                                        <p>
+                                            <span>Item Category</span>
+                                            <b>@Html.DisplayFor(m => m.ItemName)</b>
+                                        </p>
+                                    </div>
+                                    <div class="ls-dts">
+                                        <p>
+                                            <span>Item Number</span>
+                                            <b>@Html.DisplayFor(m => m.ItemNumber)</b>
+                                        </p>
+                                    </div>
+                                    <div class="ls-dts">
+                                        <p>
+                                            <span>Item Value</span>
+                                            <b>@Html.DisplayFor(m => m.ItemValue)</b>
+                                            @Html.HiddenFor(m=>m.SRBDetailId)
+                                        </p>
+                                    </div>
+
+
+                                </div>
+                                <div class="col-md-6">
+                                    
+                                    <div class="ls-dts">
+                                        <p>
+                                            <span>Item Name</span>
+                                            <b>@Html.DisplayFor(m => m.ItemName)</b>
+                                        </p>
+                                    </div>
+                                    <div class="ls-dts">
+                                        <p>
+                                            <span>Quantity</span>
+                                            <b>@Html.DisplayFor(m => m.Quantity)</b>
+                                        </p>
+                                    </div>
+
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="col-md-6 pd-null">
+                                        <div class="form-group custom-form-group">
+                                            <label>Buyback Value</label>
+                                            @Html.TextBoxFor(model => model.BuybackValue, new { @class = "form-control", @onkeypress = "return isDecimalKey(event)", @autocomplete = "off" })
+                                            <div class="txt-error txt-red">@Html.ValidationMessageFor(model => model.BuybackValue)</div>
+
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>Document</label>
+                                            @Html.TextBoxFor(model => model.Attachment, new {@id= "Attachment", type = "file", @class = "txt-wrap" })
+                                            <div class="txt-error txt-red">@Html.ValidationMessageFor(model => model.Attachment)</div>
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group custom-form-group">
+                                        <label>Remarks</label>
+                                        @Html.TextAreaFor(M => M.Comments, new { @class = "form-control" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Comments)</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        
+                            <input type="submit" name="Button" value="Save" class="btn btn-primary" id="btnSave" />&nbsp; &nbsp;<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                       
+                    </div>
+                </div>
+
+            </div>
+        }
+    </div>
+
+</div>
+
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script type="text/javascript">
+    function isDecimalKey(evt) {
+        var charCode = (evt.which) ? evt.which : event.keyCode
+        if (charCode > 31 && (charCode != 46 && (charCode < 48 || charCode > 57)))
+            return false;
+        return true;
+    }
+    $("#btnSubmit").click(function (e) {
+        e.preventDefault();
+        var isValid = $('#frmDeactivate').valid();
+        if (!isValid)
+            return false;
+        var file = $('#Attachment').val();
+        var isValidExten = false;
+        if (file != "") {
+            var file_size = $('#Attachment')[0].files[0].size;
+            var extension = file.substr((file.lastIndexOf('.') + 1)).toLowerCase();
+            switch (extension) {
+                case 'doc':
+                case 'docx':
+                case 'pdf':
+                    isValidExten = true;
+                    break;
+                default:
+                    isValidExten = false;
+            }
+            if (isValidExten == false) {
+                $('#alert').html("Please upload any one of these type file [doc, docx, pdf].");
+                $('#Validation').modal('toggle');
+                return false;
+            }
+            else if (file_size > 5242880) {
+                $('#alert').html("You can upload the file up to 5 MB.");
+                $('#Validation').modal('toggle');
+                return false;
+            }
+        }
+        if (isValid)
+            $('#frmDeactivate').submit();
+
+    });
+</script>
+
+

@@ -1,0 +1,557 @@
+﻿
+@model IOAS.Models.TravelSettlementModel
+@{
+    ViewBag.Title = "Travel Settlement";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<style>
+    /* Hide all steps by default: */
+    .tab {
+        display: none;
+    }
+</style>
+
+<div class="row hd-tt-bg">
+    <div class="col-md-12">
+        <h4><b>Travel Settlement</b> </h4>
+    </div>
+</div>
+<div class="row">
+    <div class="white-bg ad-navbar">
+        <div class="col-md-3 ds-spl-bg">
+            <div class="ds-icn">
+                <i class="ion-ios-list-outline "></i>
+            </div>
+            <div class="ds-tt">
+                <span class="required">Request Reference</span><br />
+
+                @Html.HiddenFor(m=>m.Source,new {@id= "Source" })
+                @Html.HiddenFor(m => m.NeedUpdateTransDetail)
+                @Html.HiddenFor(m => m.TravelBillId)
+                <h4>@Html.DisplayFor(m => m.SourceName)</h4>
+            </div>
+        </div>
+        <div class="col-md-3 ds-spl-bg">
+            <div class="ds-icn">
+                <i class="ion-ios-calendar-outline"></i>
+            </div>
+            @if (Model.ReferenceNumber != null)
+            {
+                <div class="ds-tt">
+                    <span>Ref Number (WF / Tapal)</span>
+                    @Html.TextBoxFor(m => m.ReferenceNumber, new { @class = "form-control dis-none" })
+                    @Html.TextBoxFor(m => m.SourceReferenceNumber, new { @class = "form-control dis-none" })
+                    <span>@Html.DisplayFor(m => m.ReferenceNumber)</span>
+                </div>
+            }
+            @if (Model.SourceEmail != null)
+            {
+                <div class="ds-tt">
+                    <span>Email Date</span>
+                    <span>@Html.DisplayFor(m => m.SourceEmail)</span>
+                </div>
+            }
+        </div>
+        <div class="col-md-3 col-md-offset-3">
+            <div class="reg-no custom-reg-no vw-reg-no">
+                <div class="form-group custom-form-group">
+                    <label>Number</label>
+                    <h4>@Html.DisplayFor(m => m.BillNumber)</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="vw-dts-bg">
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table table-bordered" id="divMasterPaymentDet">
+                <tbody>
+                    <tr>
+                        <td>
+                            <label>PI</label>
+                            <h4>@Html.DisplayFor(m => m.PIName)</h4>
+
+                        </td>
+                        <td>
+
+                            @Html.CheckBox("ADVSettlement_f", new { @disabled = "disabled" }) Advance Paid<br />
+
+                            <label>Settlement for</label>
+                            <h4>@ViewBag.TravelAdvBillNoList</h4>
+                            @Html.HiddenFor(m => m.selADVBillNumber)
+                            @Html.HiddenFor(m => m.PayableValue)
+                            @Html.HiddenFor(m => m.OverallExpense)
+                            @Html.HiddenFor(m => m.AdvanceAmount)
+                            @Html.HiddenFor(m => m.AdvanceValueWOClearanceAgent)
+                        </td>
+                        <td>
+                            <label>Overall Expense</label>
+                            @if (Model.OverallExpense != null)
+            {
+                                <h4 id="lblOverallExp" class="fn-s-lg">@Model.OverallExpense</h4>
+                            }
+                            else
+                            {
+                                <h4 id="lblOverallExp" class="fn-s-lg"></h4>
+                            }
+                        </td>
+                        <td class="dis-none">
+
+                            <label>Bill Amount(Inc. Advance)</label>
+                            @if (Model.PayableValue != null)
+            {
+                                <h4 id="lblPayableValue" class="fn-s-lg">@Model.PayableValue</h4>
+                            }
+                            else
+                            {
+                                <h4 id="lblPayableValue" class="fn-s-lg"></h4>
+                            }
+
+                        </td>
+                        <td>
+                            <label id="lblPayRecHd"></label>
+                            <h4 id="lblPayRecValue" class="fn-s-lg"></h4>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label>Estimated Value</label>
+                            <h4 id="lblAdvEstimatedVal">0.00</h4>
+                        </td>
+                        <td>
+                            <label>Advance Paid</label>
+                            <h4 id="lblAdvPaid">0.00</h4>
+                        </td>
+                        <td>
+                            <label>Advance Paid to PI</label>
+                            <h4 id="lblAdvPaidPI">0.00</h4>
+                        </td>
+                        <td>
+                            <label>Advance Date</label>
+                            <h4 id="lblAdvDate"></h4>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label id="lblPayRecHd"></label>
+                            <h4 id="lblPayRecValue" class="fn-s-lg"></h4>
+                        </td>
+                        <td>
+                            <label>Remarks</label>
+                            <h4>@Html.DisplayFor(m => m.Remarks)</h4>
+                        </td>
+
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            @Html.Partial("_TravelDetailsView", Model.TravelDetail)
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            @Html.Partial("_InvoiceBreakUpView", Model.InvoiceBreakDetail)
+            @Html.Partial("_PaymentBreakUpView", Model.PaymentBreakDetail)
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            @Html.Partial("_CommitmentDetailsView", Model.CommitmentDetail)
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            @Html.Partial("_TransactionDetailsView", Model)
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            @Html.Partial("_CheckListDetailView", Model.CheckListDetail)
+        </div>
+        <div>
+            @Html.HiddenFor(m => m.CheckListVerified_By)
+            @Html.HiddenFor(m => m.CheckListVerifierName)
+            <div class="col-md-3 col-md-offset-9">
+                <div class="form-group custom-form-group">
+                    <label>Verified by</label>
+                    <h4 id="Verified_ByName">@Html.DisplayFor(m => m.CheckListVerifierName)</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            @Html.Partial("_DocumentDetailView", Model.DocumentDetail)
+        </div>
+    </div>
+</div>
+<div class="row mb20">
+    @if (Model.PFInit != true)
+    {
+        <div class="col-md-12 text-center pd-tb-30">
+
+            <input type="button" onclick="window.location.href='@Url.Action("TravelSettlementPaymentList", "CoreAccounts")';" class="btn btn-default" value="Close" id="btnclose" />
+        </div>
+    }
+    else
+    {
+        <div class="col-md-12 text-center pd-tb-30">
+
+            <input type="button" onclick="window.location.href='@Url.Action("Dashboard", "Home")';" class="btn btn-default" value="Close" id="btnclose" />
+        </div>
+    }
+</div>
+
+@Html.AntiForgeryToken()
+<div id="popup"></div>
+<input type="hidden" id="currentRefId" value="@Model.TravelBillId" />
+<input type="hidden" id="processGuideLineId" value="@ViewBag.processGuideLineId" />
+@Html.Partial("_ProcessStatus")
+<script>
+    $('#divTDetail').hide();
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    $('#srchFromDate, #srchToDate,#TravelToDate, #TravelFromDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true }).attr('readonly', 'readonly');
+    $('#srchToDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true }).datepicker("setDate", "0");
+    var defaultFromDate = moment(new Date()).add(-10, 'days').toDate();
+    $('#srchFromDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true }).datepicker("setDate", defaultFromDate);
+    $(document).ready(function () {
+        resetTravelDetails();
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+        $('.selectpicker').selectpicker({
+            liveSearch: true
+        });
+        var selSource = $('#Source').val();
+
+        //if ($('#ADVSettlement_f').is(':checked')) {
+        //    $('#selADVBillNumber').prop("disabled", false);
+        //} else {
+            $('#selADVBillNumber').prop("disabled", true);
+        //}
+        $('#selADVBillNumber').selectpicker('refresh');
+
+        $("#divRefNum, #divRefEmailDate").addClass('dis-none');
+        if (selSource == '1') {
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACWorkflowRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+        } else if (selSource == '3') {
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACTapalRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+        }
+        else if (selSource == '2') {
+            $('#divRefEmailDate').removeClass('dis-none');
+        } else {
+            $("#divRefNum").removeClass('dis-none');
+        }
+
+        resetAdvDetails();
+        var id = $('#selADVBillNumber').val();
+        if (id != '') {
+            $.ajax({
+                type: "GET",
+                url: "@Url.Action("GetTravelAdvanceDetails", "CoreAccounts")",
+                data: { "travelBillId": id },
+                dataType: "json",
+                success: function (result) {
+                    $('#lblAdvEstimatedVal').text(result.EstimatedValue);
+                    $('#lblAdvPaid').text(result.AdvanceValue);
+                    $('#lblAdvPaidPI').text(result.AdvanceValueWOClearanceAgent);
+                    $('#lblAdvDate').text(result.RequestedDate);
+                    $('#AdvanceValueWOClearanceAgent').val(result.AdvanceValueWOClearanceAgent);
+                    calcOverallExpense();
+                },
+                error: function (err) {
+                    console.log("error : " + err);
+                }
+            });
+        } else {
+            calcOverallExpense();
+        }
+        CalculatePaymentBUTotal();
+        CalculatePaymentValue();
+        CalculateDeductionTotal();
+        $("#CreditorAmount").val($('#OverallExpense').val());
+        $('#NeedUpdateTransDetail').val('false');
+    });
+
+    function fillMasterDropDown(ele, data, fillDafaultText) {
+        if (fillDafaultText !== undefined) {
+            ele.append($('<option/>', {
+                value: '',
+                text: 'Select any',
+            }));
+        }
+        $.each(data, function (index, itemData) {
+            ele.append($('<option/>', {
+                value: itemData.id,
+                text: itemData.name,
+            }));
+        });
+    }
+    $('#lnkBillHistory').click(function () {
+        var vendorId = $('#VendorId').val();
+        if (vendorId != '') {
+            var token = $("input[name=__RequestVerificationToken]").val();
+            var searchData = { "__RequestVerificationToken": token, "vendorId": vendorId };
+            $.ajax({
+                url: "@Url.Action("_PreviousBillHistory", "CoreAccounts")",
+                type: "POST",
+                data: searchData,
+                contentType: "application/x-www-form-urlencoded",
+                success: function (data) {
+                    $("#popup").html(data);
+                    $("#preBillHistoryModal").modal('toggle');
+                },
+                error: function (err) {
+                    console.log("error : " + err);
+                }
+            });
+        }
+    });
+    $('#ADVSettlement_f').change(function () {
+        if ($(this).is(':checked')) {
+            $('#selADVBillNumber').prop("disabled", false);
+        } else {
+            $('#selADVBillNumber').prop("disabled", true);
+        }
+        $('#selADVBillNumber').selectpicker('refresh');
+    });
+    $('#Source').change(function () {
+        var selSource = $(this).val();
+        $("#SourceReferenceNumber,#ReferenceNumber").val('');
+		$("#divRefNum, #divRefEmailDate").addClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('False');
+		if (selSource == '1') {
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACWorkflowRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        } else if (selSource == '3') {
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACTapalRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        }
+        else if (selSource == '2') {
+            $('#divRefEmailDate').removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('False');
+        } else {
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        }
+    });
+    function resetAdvDetails() {
+        $('#lblAdvEstimatedVal, #lblAdvPaid, #lblAdvDate,#lblAdvPaid').text('');
+    }
+
+    function parseDate(s) {
+        var months = {
+            january: 0, february: 1, march: 2, april: 3, may: 4, june: 5,
+            july: 6, august: 7, september: 8, october: 9, november: 10, december: 11
+        };
+        var p = s.split('-');
+        return new Date(p[2], months[p[1].toLowerCase()], p[0]);
+    }
+    $('#selADVBillNumber').change(function () {
+        resetAdvDetails();
+        var id = $(this).val();
+        if (id != '') {
+            $.ajax({
+                type: "GET",
+                url: "@Url.Action("GetTravelAdvanceDetails", "CoreAccounts")",
+                data: { "travelBillId": id },
+                dataType: "json",
+                success: function (result) {
+                    $('#lblAdvEstimatedVal').text(result.EstimatedValue);
+                    $('#lblAdvPaid').text(result.AdvanceValue);
+                    $('#lblAdvPaidPI').text(result.AdvanceValueWOClearanceAgent);
+                    $('#lblAdvDate').text(result.RequestedDate);
+                    $('#AdvanceValueWOClearanceAgent').val(result.AdvanceValueWOClearanceAgent);
+                },
+                error: function (err) {
+                    console.log("error : " + err);
+                }
+            });
+        }
+    });
+
+
+    function AddNewExpense() {
+        $.ajax({
+            type: "GET",
+            url: "@Url.Action("GetAddNewExpenseDetails", "CoreAccounts")",
+            data: { "typeCode": "TST", "tSubCode": "1" },
+            traditional: true,
+            dataType: "json",
+            success: function (result) {
+                $.each(result.ExpenseDetail, function (i, item) {
+                    var cln = $('#tbodyExpenseList tr:first').clone().find("select,input").val("").end();
+                    $(cln).find('a.dis-none').removeClass('dis-none');
+                    var index = $('#tbodyExpenseList tr:last').find("input[name='ExpenseDetail.Index']").val();
+                    index = parseInt(index) + 1;
+                    $(cln).find("input[name='ExpenseDetail.Index']").val(index);
+                    $(cln).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                    $(cln).find("input[name='ExpenseDetail.Index']").val(index);
+                    $(cln).find("input, select").each(function () {
+                        $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+                        $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+                    });
+                    $(cln).find("span[data-valmsg-for]").each(function () {
+                        $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+                    });
+
+                    var selectGroup = $(cln).find("select[name$='.AccountGroupId']");
+                    selectGroup.empty();
+                    $.each(item.AccountGroupList, function (index, itemData) {
+                        selectGroup.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+
+                    var selectHead = $(cln).find("select[name$='.AccountHeadId']");
+                    selectHead.empty();
+                    $.each(item.AccountHeadList, function (index, itemData) {
+                        selectHead.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+                    $('#tbodyExpenseList').append(cln);
+                });
+            },
+            error: function (err) {
+                console.log("error : " + err);
+            }
+        });
+    }
+    function GetTransactionDetails() {
+        EmptyExpenseDeductionDetails();
+        $.ajax({
+            type: "GET",
+            url: "@Url.Action("GetTransactionDetails", "CoreAccounts")",
+            data: { "typeCode": "TST", "tSubCode": "1" },
+            traditional: true,
+            dataType: "json",
+            success: function (result) {
+                $.each(result.ExpenseDetail, function (i, item) {
+                    if (i == 0) {
+                        var trEle = $('#tbodyExpenseList tr:first');
+                        $(trEle).find('input[name$=".Amount"]').val('');
+                        $(trEle).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                        $(trEle).find('#lblTransType').text(item.TransactionType);
+                        $(trEle).find("input[name='ExpenseDetail.Index']").val(i);
+
+                        var selectGroup = $(trEle).find('select[name$=".AccountGroupId"]');
+                        selectGroup.empty();
+                        $.each(item.AccountGroupList, function (index, itemData) {
+                            selectGroup.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name,
+                            }));
+                        });
+
+                        var selectHead = $(trEle).find('select[name$=".AccountHeadId"]');
+                        selectHead.empty();
+                        $.each(item.AccountHeadList, function (index, itemData) {
+                            selectHead.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name,
+                            }));
+                        });
+                    } else {
+                        var trEleNew = $('#tbodyExpenseList tr:first').clone().find('input').val('').end();
+                        $(trEleNew).find('input[name$=".Amount"]').val('');
+                        $(trEleNew).find("input[name='ExpenseDetail.Index']").val(i);
+                        $(trEleNew).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                        $(trEleNew).find('#lblTransType').text(item.TransactionType);
+                        $(trEleNew).find("input,Select").each(function () {
+                            $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                            $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                        });
+                        $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                        });
+
+                        var selectGroup = $(trEleNew).find('select[name$=".AccountGroupId"]');
+                        selectGroup.empty();
+                        $.each(item.AccountGroupList, function (index, itemData) {
+                            selectGroup.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name,
+                            }));
+                        });
+
+                        var selectHead = $(trEleNew).find('select[name$=".AccountHeadId"]');
+                        selectHead.empty();
+                        $.each(item.AccountHeadList, function (index, itemData) {
+                            selectHead.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name,
+                            }));
+                        });
+                        $('#tbodyExpenseList').append(trEleNew);
+                    }
+                });
+                $.each(result.DeductionDetail, function (i, item) {
+                    if (i == 0) {
+                        var trEle = $('#tbodyDeductionList tr:first');
+                        $(trEle).find('input').val('');
+                        var amtEle = $(trEle).find('input[name$=".Amount"]');
+                        amtEle.removeClass('required');
+                        $(trEle).find('input[name$=".AccountGroupId"]').val(item.AccountGroupId);
+                        $(trEle).find('input[name$=".DeductionHeadId"]').val(item.DeductionHeadId);
+                        $(trEle).find('input[name$=".DeductionHead"]').val(item.DeductionHead);
+                        $(trEle).find('input[name$=".AccountGroup"]').val(item.AccountGroup);
+                        $(trEle).find('td:nth-child(1)').html(item.AccountGroup);
+                        $(trEle).find('td:nth-child(2)').html(item.DeductionHead);
+                    } else {
+                        var trEleNew = $('#tbodyDeductionList tr:first').clone().find('input').val('').end();
+                        $(trEleNew).find("input").each(function () {
+                            $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                            $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                        });
+                        $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                        });
+                        var amtEle = $(trEleNew).find('input[name$=".Amount"]');
+
+                        amtEle.removeClass('required');
+                        $(trEleNew).find('input[name$=".AccountGroupId"]').val(item.AccountGroupId);
+                        $(trEleNew).find('input[name$=".DeductionHeadId"]').val(item.DeductionHeadId);
+                        $(trEleNew).find('input[name$=".DeductionHead"]').val(item.DeductionHead);
+                        $(trEleNew).find('input[name$=".AccountGroup"]').val(item.AccountGroup);
+                        $(trEleNew).find('td:nth-child(1)').html(item.AccountGroup);
+                        $(trEleNew).find('td:nth-child(2)').html(item.DeductionHead);
+                        $('#tbodyDeductionList').append(trEleNew);
+                    }
+                });
+                $('#NeedUpdateTransDetail').val('false');
+                CalculateDeductionTotal();
+            },
+            error: function (err) {
+                console.log("error : " + err);
+            }
+        });
+    }
+
+    $('#CommitmentAmount, #CreditorAmount, #ExpenseAmount, #CreditorAmount, input[name="ClaimedForexAmt"], input[name="ClaimedConvRate"], input[name="ProcessedForexAmt"],input[name="ProcessedConvRate"], #ttlCr, #ttlDr').on("copy cut paste drop", function () {
+        return false;
+    });
+
+
+
+
+</script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>

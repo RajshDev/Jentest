@@ -1,0 +1,205 @@
+﻿@model IOAS.Models.BillStatusModel
+
+@{
+    ViewBag.Title = "BillStatusChange";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+
+<div class="row hd-tt-bg">
+    <div class="col-md-12">
+        <h4><b>Head Credit Date Changer</b> </h4>
+    </div>
+</div>
+<style>
+    .vw-dts-bg .hgt-bg {
+        background: #597df0;
+        color: #fff;
+    }
+
+        .vw-dts-bg .hgt-bg label {
+            font-size: 16px !important;
+            color: #fff !important;
+        }
+
+        .vw-dts-bg .hgt-bg h4 {
+            font-size: 18px !important;
+            color: #fff;
+        }
+
+    .vw-dts-bg .hgt-bg-pl {
+        background: #e11eda;
+        color: #fff;
+    }
+
+        .vw-dts-bg .hgt-bg-pl label {
+            font-size: 16px !important;
+            color: #fff !important;
+        }
+
+        .vw-dts-bg .hgt-bg-pl h4 {
+            font-size: 18px !important;
+            color: #fff;
+        }
+</style>
+
+@using (Html.BeginForm("HCRBillDateChange", "CoreAccounts", FormMethod.Post, new { @class = "", role = "form", @id = "formHCRDate", enctype = "multipart/form-data" }))
+{
+    <div class="row">
+        <div class="white-bg ad-navbar">
+
+            <div class="col-md-3 ds-spl-bg">
+                <div class="ds-icn">
+                    <i class="ion-ios-list-outline "></i>
+                </div>
+                <div class="ds-tt">
+                    <span>Reference Number</span>
+                    @Html.TextBoxFor(m => m.RefNumber, new { @class = "form-control", @id = "RefNo", @autocomplete = "off" })
+                    <input type="text" class="form-control dis-none" autocomplete="off" name="RefId" id="RefId" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row vw-dts-bg">
+        <div class="col-md-offset-4">
+            <div class="col-md-6">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th colspan="2"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <label>Bill Created Date (Tax):</label>
+                                <h4 id="billdate"></h4>
+                            </td>
+                            <td>
+                                <label>to be updated as :</label>
+                                @Html.TextBoxFor(m => m.BillDate, new { @class = "form-control", @id = "BillDate", @autocomplete = "off", @readonly = true })
+                            </td>
+                        </tr>
+                        @*<tr>
+                            <td>
+                                <label>Expenditure Date:</label>
+                                <h4 id="expendituredate"></h4>
+                            </td>
+                            <td>
+                                <label>to be updated as :</label>
+                                @Html.TextBoxFor(m => m.ExpDate, new { @class = "form-control", @id = "ExpDate", @autocomplete = "off" , @readonly = true})
+                            </td>
+
+                        </tr>*@
+                        <tr>
+                            <td>
+                                <label>Cash Book Date :</label>
+                                <h4 id="cashbookdate"></h4>
+                            </td>
+                            <td>
+                                <label>to be updated as :</label>
+                                @Html.TextBoxFor(m => m.CashDate, new { @class = "form-control", @id = "CashDate", @autocomplete = "off", @readonly = true })
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label>Remarks:</label>
+                                @Html.TextAreaFor(m => m.Remarks, new { @class = "form-control", @id = "Remarks", @autocomplete = "off" })
+                            </td>
+                            <td>
+                                <input type="button" value="Update" class="btn btn-primary mt-20" id="btnSubmit" />
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+<script>
+    var errMsg = '@TempData["errMsg"]';
+    $(document).ready(function () {
+        if (errMsg == 'Failed') {
+            $("#RefId,#RefNo,#BillDate,#ExpDate,#CashDate,#Remarks").val('');
+            $("#CurrDate,#expendituredate,#cashbookdate,#Remarks").text('');
+            $('#FailedAlert').html("Something went wrong please contact administrator");
+            $('#BillDate,#ExpDate,#CashDate').removeClass('hasDatepicker');
+
+            $('#Failed').modal('toggle');
+        } if (errMsg == 'Success') {
+            $("#RefId,#RefNo,#BillDate,#ExpDate,#CashDate,#Remarks").val('');
+            $("#CurrDate,#expendituredate,#cashbookdate,#Remarks").text('');
+            $('#alertSuccess').html("It has been updated successfully.");
+            $('#BillDate,#ExpDate,#CashDate').removeClass('hasDatepicker');
+            $('#Success').modal('toggle');
+        }
+    });
+    $(document).on('change', '#RefNo', function () {
+        DateModificationRange();
+    });
+    function DateModificationRange() {
+        var RefNo = $("#RefId").val();
+        $('#BillDate,#ExpDate,#CashDate').removeClass('hasDatepicker');
+        $("#BillDate").val('');
+        $("#ExpDate").val('');
+        $("#CashDate").val('');
+        $.ajax({
+            type: "POST",
+            data: JSON.stringify({ 'RefNo': RefNo }),
+            url: '@Url.Action("DateModificationRange", "CoreAccounts")',
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (Result) {
+                var Item1 = Result.Item1.split('-');
+                var Item2 = Result.Item2.split('-');
+                var Date1 = new Date(parseInt(Item1[2]), parseInt(Item1[1]) - 1, parseInt(Item1[0]))
+                var Date2 = new Date(parseInt(Item2[2]), parseInt(Item2[1]) - 1, parseInt(Item2[0]))
+                $('#BillDate,#ExpDate,#CashDate').datepicker({ dateFormat: 'dd-MM-yy', minDate: Date1, maxDate: Date2 });
+
+            },
+        })
+    }
+    $('#BillDate,#ExpDate,#CashDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
+    $(document).on('click', '#RefNo', function () {
+        applyAutoComplete($('#RefNo'), $('#RefId'), '@Url.Action("LoadHCRRefernceNumber", "CoreAccounts")', 'BillDate', undefined, undefined);
+       BillDate();
+    });
+    $('#btnSubmit').click(function () {
+        var RefNumber = $("#RefId").val();
+        var BillDate = $("#BillDate").val();
+        var ExpDate = $("#ExpDate").val();
+        var CashDate = $("#CashDate").val();
+        if (RefNumber != "") {
+            $('#formHCRDate').submit();
+            @*$.getJSON("@Url.Action("UpdateBillDate", "CoreAccounts")", { RefNumber: RefNumber, BillDate: BillDate, ExpDate: ExpDate, CashDate: CashDate },
+        function (result) {
+            if (result.Message == "Success") {
+                $('#alertSuccess').html("It has been updated successfully.");
+                $('#Success').modal('toggle');
+                $("#RefId,,#RefNo,#BillDate,#ExpDate,#CashDate").val('');
+                $("#CurrDate,#expendituredate,#cashbookdate").text('');
+            } else {
+                $('#FailedAlert').html("Something went wrong please contact administrator");
+                $('#Failed').modal('toggle');
+                $("#RefId,,#RefNo,#BillDate,#ExpDate,#CashDate").val('');
+                $("#CurrDate,#expendituredate,#cashbookdate").text('');
+            }
+        });*@
+    }
+    });
+    function BillDate()
+    {
+        var RefNumber = $("#RefId").val();
+        if (RefNumber != "") {
+            $.getJSON("@Url.Action("GetHCRBillDate", "CoreAccounts")", { RefNumber: RefNumber },
+        function (result) {
+            $("#cashbookdate").text(result.Item1);
+            $("#billdate").text(result.Item2);
+            $("#expendituredate").text(result.Item3);
+        });
+    }
+    }
+</script>
+
+

@@ -1,0 +1,227 @@
+﻿@model IOAS.Models.ProcessGuideLineReportModel
+
+@{
+    ViewBag.Title = "Report";
+    ViewBag.Subtitle = "Reports";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<style>
+    .vw-dts-bg .hgt-bg {
+        background: #597df0;
+        color: #fff;
+    }
+
+        .vw-dts-bg .hgt-bg label {
+            font-size: 16px !important;
+            color: #fff !important;
+        }
+
+        .vw-dts-bg .hgt-bg h4 {
+            font-size: 18px !important;
+            color: #fff;
+        }
+
+    .vw-dts-bg .hgt-bg-pl {
+        background: #e11eda;
+        color: #fff;
+    }
+
+        .vw-dts-bg .hgt-bg-pl label {
+            font-size: 16px !important;
+            color: #fff !important;
+        }
+
+        .vw-dts-bg .hgt-bg-pl h4 {
+            font-size: 18px !important;
+            color: #fff;
+        }
+</style>
+
+<div class="row hd-tt-bg ">
+    <div class="col-md-12">
+        <h4><b>InitiatorWise Pending Files</b></h4>
+    </div>
+</div>
+
+
+
+@using (Html.BeginForm("ApprovalStatusReport", "ReportMaster", FormMethod.Post, new { @class = "", role = "form", @id = "formHon", enctype = "multipart/form-data" }))
+{
+
+
+    <div class="row dis-none" id="admin">
+        <div class="white-bg ad-navbar">
+            <div class="col-md-3 ds-spl-bg">
+                <div class="ds-icn">
+                    <i class="ion-ios-list-outline "></i>
+                </div>
+                <div class="ds-tt">
+                    <span>Initiator</span>
+                    @Html.TextBoxFor(m => m.UserName, new { @class = "form-control", @id = "UserName", @autocomplete = "off" })
+                    @Html.TextBoxFor(m => m.UserId, new { @class = "form-control dis-none", @id = "userid", @autocomplete = "off" })
+                    @Html.HiddenFor(m => m.Id, new { @id = "id" })
+                    @Html.HiddenFor(m => m.User, new { @id = "user" })
+                </div>
+            </div>
+
+            <div class="col-md-3 ds-spl-bg">
+                <div class="ds-tt">
+                    <input type="submit" value="View Report" class="btn btn-primary mt-20" id="btnSubmit" />
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="col-md-12">
+
+        <div class="col-md-offset-2 col-md-9">
+            <table>
+                <tbody>
+                    @if (Model.Id > 0)
+                    {
+
+
+
+                        <tr>
+                            <td>
+                                <table class="table table-bordered mt-md ct-tr-tb" id="table" style="margin-bottom:0px;">
+                                    <thead>
+
+
+                                    </thead>
+                                    <tbody>
+                                        @if (Model.Flow != null)
+                                        {
+                                            if (Model.Flow.Count > 0)
+                                            {
+
+                                                for (int i = 0; i < Model.Flow.Count; i++)
+                                                {
+                                                    if (i == 0)
+                                                    {
+                                                    @*<tr>
+                                                        <td colspan="3" style="background-color:#c0ccef">&nbsp;</td>
+                                                    </tr>*@
+                                                    <tr>
+                                                        <td class="text-center reg-no custom-reg-no"><b>Function Name : @Html.DisplayFor(m => Model.Flow[i].FunctionName)</b></td>
+                                                        <td class="text-center  reg-no custom-reg-no"><b>Ref Number : @Html.DisplayFor(m => Model.Flow[i].RefNo)</b></td>
+                                                        <td class="text-center  reg-no custom-reg-no"><b>Initiated Date : @Html.DisplayFor(m => Model.Flow[i].Date)</b></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="color:#597df0;" class="text-center"><b>Date</b></td>
+                                                        <td style="color:#597df0;" class="text-center"><b>File Movement track</b></td>
+                                                        <td style="color:#597df0;" class="text-center"><b>Action</b></td>
+                                                    </tr>
+                                                    }
+                                                    if (i != 0)
+                                                    {
+                                                        if (Model.Flow.Count > i + 1)
+                                                        {
+                                                            if (Model.Flow[i - 1].RefNo != Model.Flow[i].RefNo)
+                                                            {
+                                                            <tr>
+                                                                <td colspan="3" style="background-color:#c0ccef">&nbsp;</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="text-center reg-no custom-reg-no"><b>Function Name : @Html.DisplayFor(m => Model.Flow[i].FunctionName)</b></td>
+                                                                <td class="text-center reg-no custom-reg-no"><b>Ref Number : @Html.DisplayFor(m => Model.Flow[i].RefNo)</b></td>
+                                                                <td class="text-center  reg-no custom-reg-no"><b>Initiated Date : @Html.DisplayFor(m => Model.Flow[i].Date)</b></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td style="color:#597df0;" class="text-center"><b>Date</b></td>
+                                                                <td style="color:#597df0;" class="text-center"><b>File Movement track</b></td>
+                                                                <td style="color:#597df0;" class="text-center"><b>Action</b></td>
+                                                            </tr>
+                                                            }
+                                                        }
+                                                    }
+                                                <tr>
+                                                    <td class="text-center">@Html.DisplayFor(m => Model.Flow[i].Date) </td>
+                                                    <td class="text-center">
+                                                        @Html.DisplayFor(m => Model.Flow[i].Name)
+                                                    </td>
+                                                   @if (Model.Flow[i].Action != "Pending")
+                                                   {
+                                                    <td class="text-center" style="color:green">
+                                                        @Html.DisplayFor(m => Model.Flow[i].Action)
+                                                    </td>
+                                                   }
+                                                @if (Model.Flow[i].Action == "Pending")
+                                                {
+                                                    <td class="text-center" style="color:red">
+                                                        @Html.DisplayFor(m => Model.Flow[i].Action)
+                                                    </td>
+                                                }
+
+                                                </tr>
+                                                    if (Model.Flow.Count < i + 2)
+                                                    {
+                                                    <tr>
+                                                        <td colspan="3" style="background-color:#c0ccef">&nbsp;</td>
+                                                    </tr>
+                                                    }
+                                                }
+
+                                            }
+                                            else
+                                            {
+                                                <tr>
+                                                    <td colspan="3">No record found</td>
+                                                </tr>
+                                            }
+                                        }
+                                        
+                                    </tbody>
+
+                                </table>
+                            </td>
+                        </tr>
+                    }
+
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+
+
+
+<script>
+
+    $(document).on('click', '#UserName', function () {
+
+        applyAutoComplete($('#UserName'), $('#userid'), "../ReportMaster/LoadUserName", undefined, undefined, undefined);
+    });
+
+    //$('#btnSubmit').click(function () {
+    @*var win = window.open('', '_blank');
+        var id = $("#id").val();
+        var url = '@Url.Action("BillReportPdf", "ReportMaster")?Id=' + Id;
+        win.location.href = url;*@
+    @*var id = $("#userid").val();
+        var url = '@Url.Action("ApprovalStatusReport", "ReportMaster")?id=' + id;
+        window.location.href = url;*@
+
+    //  $("#myModal").modal('toggle');
+    //  });
+
+    $(document).ready(function () {
+        var id = $("#id").val();
+        var user = $("#user").val();
+        if (user == 1) {
+            $("#admin").removeClass("dis-none");
+        }
+        // $("#table").hide();
+        if (id > 0) {
+            $("#table").show();
+        }
+        $('#UserName').each(function () {
+            applyAutoComplete($('#UserName'), $('#userid'), "../ReportMaster/LoadUserName", undefined, undefined, undefined);
+        });
+    });
+
+</script>

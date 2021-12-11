@@ -1,0 +1,959 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="IOASExternalModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="tblCodeControl">
+          <Key>
+            <PropertyRef Name="CodeID" />
+          </Key>
+          <Property Name="CodeID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="CodeName" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="CodeValAbbr" Type="int" Nullable="false" />
+          <Property Name="CodeValDetail" Type="varchar" MaxLength="150" Nullable="false" />
+          <Property Name="CodeDescription" Type="varchar" MaxLength="50" />
+          <Property Name="UPDT_UserID" Type="int" />
+          <Property Name="CRTE_TS" Type="datetime" />
+          <Property Name="UPDT_TS" Type="datetime" />
+        </EntityType>
+        <EntityType Name="tblCountries">
+          <Key>
+            <PropertyRef Name="countryID" />
+          </Key>
+          <Property Name="countryID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="countryName" Type="varchar" MaxLength="150" Nullable="false" />
+          <Property Name="countryCode" Type="varchar" MaxLength="50" />
+          <Property Name="currencyCode" Type="varchar" MaxLength="50" />
+        </EntityType>
+        <EntityType Name="tblCurrency">
+          <Key>
+            <PropertyRef Name="CurrencyID" />
+          </Key>
+          <Property Name="CurrencyID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="CurrencyUnit" Type="varchar" MaxLength="250" />
+          <Property Name="Symbol" Type="varchar" MaxLength="50" />
+          <Property Name="ISOCode" Type="varchar" MaxLength="10" />
+          <Property Name="HTMLDecimalCode" Type="varchar" MaxLength="50" />
+          <Property Name="HTMLHexCode" Type="varchar" MaxLength="50" />
+          <Property Name="DecimalUnicode" Type="varchar" MaxLength="50" />
+          <Property Name="HexUnicode" Type="varchar" MaxLength="50" />
+          <Property Name="Country" Type="int" />
+        </EntityType>
+        <EntityType Name="tblInvoiceTaxDetails">
+          <Key>
+            <PropertyRef Name="InvoiceTaxId" />
+          </Key>
+          <Property Name="InvoiceTaxId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="InvoiceId" Type="int" />
+          <Property Name="CGSTRate" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="CGSTAmount" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="SGSTRate" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="SGSTAmount" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="IGSTRate" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="IGSTAmount" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="CrtdTS" Type="datetime" />
+          <Property Name="CrtdUserId" Type="int" />
+          <Property Name="UpdtTS" Type="datetime" />
+          <Property Name="UpdtUserId" Type="int" />
+          <Property Name="IsDeleted" Type="bit" />
+          <Property Name="TotalTaxValue" Type="decimal" Precision="18" Scale="2" />
+        </EntityType>
+        <EntityType Name="tblOldExpenditure">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="RefNbr" Type="varchar" MaxLength="50" />
+          <Property Name="ProjectNumber" Type="varchar" MaxLength="50" />
+          <Property Name="CommitmentNumber" Type="varchar" MaxLength="50" />
+          <Property Name="Head" Type="varchar" MaxLength="50" />
+          <Property Name="TotalAmount" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="TaxAmount" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="TDS" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="NetPayment" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="PayeeName" Type="varchar(max)" />
+          <Property Name="PIInstituteID" Type="int" />
+          <Property Name="Headid" Type="int" />
+          <Property Name="ProjectId" Type="int" />
+          <Property Name="ExpenditureDate" Type="datetime" />
+          <Property Name="Finyear" Type="int" />
+        </EntityType>
+        <EntityType Name="tblOldreceipts">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Year" Type="int" />
+          <Property Name="Type" Type="varchar(max)" />
+          <Property Name="Projectnumber" Type="varchar(max)" />
+          <Property Name="Receiptnumber" Type="varchar(max)" />
+          <Property Name="Date" Type="datetime" />
+          <Property Name="AgencyName" Type="varchar(max)" />
+          <Property Name="Amountreceived" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="Taxvalue" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="OH" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="FinYearId" Type="int" />
+          <Property Name="ProjectId" Type="int" />
+          <Property Name="Description" Type="varchar(max)" />
+          <Property Name="Coordname" Type="varchar(max)" />
+        </EntityType>
+        <EntityType Name="tblPayinSlip">
+          <Key>
+            <PropertyRef Name="PayinslipId" />
+          </Key>
+          <Property Name="PayinslipId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="PayinslipReferenceNumber" Type="nvarchar(max)" />
+          <Property Name="InvoiceId" Type="int" />
+          <Property Name="ProjectId" Type="int" />
+          <Property Name="PIId" Type="int" />
+          <Property Name="Sequencenumber" Type="int" />
+          <Property Name="AmountReceived" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="ITTdsReceived" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="GSTTdsReceived" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="ModeofPayment" Type="nvarchar(max)" />
+          <Property Name="ReferenceNumber" Type="nvarchar(max)" />
+          <Property Name="Remarks" Type="nvarchar(max)" />
+          <Property Name="OutstandingAmount" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="Status" Type="nvarchar" MaxLength="200" />
+          <Property Name="CrtdTS" Type="datetime" />
+          <Property Name="CrtdUserId" Type="int" />
+          <Property Name="UpdtTS" Type="datetime" />
+          <Property Name="UpdtUserId" Type="int" />
+          <Property Name="InstrumentsDate" Type="datetime" />
+          <Property Name="IsSend_f" Type="bit" />
+        </EntityType>
+        <EntityType Name="tblPaySlipMonth">
+          <Key>
+            <PropertyRef Name="PaySlipMonthId" />
+          </Key>
+          <Property Name="PaySlipMonthId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="PaySlipMonth" Type="varchar(max)" />
+          <Property Name="IsMonth" Type="bit" />
+        </EntityType>
+        <EntityType Name="tblProformaInvoice">
+          <Key>
+            <PropertyRef Name="InvoiceId" />
+          </Key>
+          <Property Name="InvoiceId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="InvoiceNumber" Type="nvarchar" MaxLength="50" />
+          <Property Name="InvoiceDate" Type="datetime" />
+          <Property Name="InvoiceType" Type="int" />
+          <Property Name="ProjectId" Type="int" />
+          <Property Name="PIId" Type="int" />
+          <Property Name="TaxCode" Type="nvarchar" MaxLength="200" />
+          <Property Name="AgencyId" Type="int" />
+          <Property Name="ServiceType" Type="int" />
+          <Property Name="DescriptionofServices" Type="nvarchar(max)" />
+          <Property Name="TaxableValue" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="CurrencyCode" Type="nvarchar" MaxLength="50" />
+          <Property Name="TotalInvoiceValue" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="TotalInvoiceValueinWords" Type="nvarchar(max)" />
+          <Property Name="Bank" Type="int" />
+          <Property Name="BankAccountNumber" Type="nvarchar" MaxLength="200" />
+          <Property Name="Status" Type="nvarchar" MaxLength="200" />
+          <Property Name="IsCancelled" Type="bit" />
+          <Property Name="CrtdTS" Type="datetime" />
+          <Property Name="CrtdUserId" Type="int" />
+          <Property Name="UpdtTS" Type="datetime" />
+          <Property Name="UpdtUserId" Type="int" />
+          <Property Name="InstalmentYear" Type="int" />
+          <Property Name="InstalmentNumber" Type="int" />
+          <Property Name="PONumber" Type="nvarchar(max)" />
+          <Property Name="CommunicationAddress" Type="nvarchar(max)" />
+          <Property Name="SequenceNumber" Type="int" />
+          <Property Name="FinancialYear" Type="int" />
+          <Property Name="ProjectType" Type="int" />
+          <Property Name="AgencyRegName" Type="nvarchar(max)" />
+          <Property Name="AgencyRegState" Type="int" />
+          <Property Name="AgencyRegStateCode" Type="int" />
+          <Property Name="AgencyRegGSTIN" Type="nvarchar" MaxLength="200" />
+          <Property Name="AgencyRegPAN" Type="nvarchar" MaxLength="200" />
+          <Property Name="ProjectNumber" Type="nvarchar(max)" />
+          <Property Name="CurrencyId" Type="int" />
+          <Property Name="ForeignCurrencyValue" Type="decimal" Precision="18" Scale="2" />
+        </EntityType>
+        <EntityType Name="tblProformaInvoiceTaxDetails">
+          <Key>
+            <PropertyRef Name="InvoiceTaxId" />
+          </Key>
+          <Property Name="InvoiceTaxId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="InvoiceId" Type="int" />
+          <Property Name="CGSTRate" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="CGSTAmount" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="SGSTRate" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="SGSTAmount" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="IGSTRate" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="IGSTAmount" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="TotalTaxValue" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="CrtdTS" Type="datetime" />
+          <Property Name="CrtdUserId" Type="int" />
+          <Property Name="UpdtTS" Type="datetime" />
+          <Property Name="UpdtUserId" Type="int" />
+          <Property Name="IsDeleted" Type="bit" />
+        </EntityType>
+        <EntityType Name="tblProjectInvoice">
+          <Key>
+            <PropertyRef Name="InvoiceId" />
+          </Key>
+          <Property Name="InvoiceId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="InvoiceNumber" Type="nvarchar" MaxLength="50" />
+          <Property Name="InvoiceDate" Type="datetime" />
+          <Property Name="InvoiceType" Type="int" />
+          <Property Name="ProjectId" Type="int" />
+          <Property Name="PIId" Type="int" />
+          <Property Name="TaxCode" Type="nvarchar" MaxLength="200" />
+          <Property Name="AgencyId" Type="int" />
+          <Property Name="ServiceType" Type="int" />
+          <Property Name="DescriptionofServices" Type="nvarchar(max)" />
+          <Property Name="TaxableValue" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="CurrencyCode" Type="nvarchar" MaxLength="50" />
+          <Property Name="TotalInvoiceValue" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="TotalInvoiceValueinWords" Type="nvarchar(max)" />
+          <Property Name="Bank" Type="int" />
+          <Property Name="BankAccountNumber" Type="nvarchar" MaxLength="200" />
+          <Property Name="Status" Type="nvarchar" MaxLength="200" />
+          <Property Name="IsCancelled" Type="bit" />
+          <Property Name="CrtdTS" Type="datetime" />
+          <Property Name="CrtdUserId" Type="int" />
+          <Property Name="UpdtTS" Type="datetime" />
+          <Property Name="UpdtUserId" Type="int" />
+          <Property Name="InstalmentYear" Type="int" />
+          <Property Name="InstalmentNumber" Type="int" />
+          <Property Name="PONumber" Type="nvarchar(max)" />
+          <Property Name="CommunicationAddress" Type="nvarchar(max)" />
+          <Property Name="SequenceNumber" Type="int" />
+          <Property Name="FinancialYear" Type="int" />
+          <Property Name="ProjectType" Type="int" />
+          <Property Name="AgencyRegName" Type="nvarchar(max)" />
+          <Property Name="AgencyRegState" Type="int" />
+          <Property Name="AgencyRegStateCode" Type="int" />
+          <Property Name="AgencyRegGSTIN" Type="nvarchar" MaxLength="200" />
+          <Property Name="AgencyRegPAN" Type="nvarchar" MaxLength="200" />
+          <Property Name="CurrencyId" Type="int" />
+          <Property Name="InvoiceValueinForeignCurrency" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="ProjectNumber" Type="nvarchar(max)" />
+          <Property Name="AgencyDistrict" Type="varchar(max)" />
+          <Property Name="AgencyRegTAN" Type="varchar(max)" />
+          <Property Name="AgencyPincode" Type="int" />
+          <Property Name="AgencyContactPersonName" Type="varchar(max)" />
+          <Property Name="AgencyContactPersonEmail" Type="varchar(max)" />
+          <Property Name="AgencyContactPersonNumber" Type="varchar(max)" />
+          <Property Name="AgencyCountry" Type="int" />
+          <Property Name="IndianSEZTaxCategory" Type="int" />
+          <Property Name="ForeignAgencyPlace" Type="varchar(max)" />
+          <Property Name="ReverseCharge" Type="bit" />
+        </EntityType>
+        <EntityType Name="tblStateMaster">
+          <Key>
+            <PropertyRef Name="StateId" />
+          </Key>
+          <Property Name="StateId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="StateName" Type="nvarchar(max)" />
+          <Property Name="StateCode" Type="nvarchar(max)" />
+        </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'IOASExternal.dbo.vwFacultyStaffDetails' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="vwFacultyStaffDetails">
+          <Key>
+            <PropertyRef Name="FacultyDetailsId" />
+          </Key>
+          <Property Name="EmployeeId" Type="nvarchar" MaxLength="50" />
+          <Property Name="UserId" Type="int" />
+          <Property Name="FirstName" Type="nvarchar" MaxLength="150" />
+          <Property Name="Designation" Type="nvarchar" MaxLength="150" />
+          <Property Name="DepartmentCode" Type="nchar" MaxLength="10" />
+          <Property Name="DepartmentName" Type="nvarchar" MaxLength="150" />
+          <Property Name="Email" Type="nvarchar" MaxLength="161" />
+          <Property Name="ContactNumber" Type="nvarchar" MaxLength="50" />
+          <Property Name="FacultyDetailsId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+        </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'IOASExternal.dbo.VwUserAD' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="VwUserAD">
+          <Key>
+            <PropertyRef Name="Pkey" />
+            <PropertyRef Name="Category" />
+            <PropertyRef Name="Adhocf" />
+          </Key>
+          <Property Name="Pkey" Type="bigint" Nullable="false" />
+          <Property Name="ID" Type="nvarchar" MaxLength="50" />
+          <Property Name="Category" Type="varchar" MaxLength="9" Nullable="false" />
+          <Property Name="Name" Type="nvarchar" MaxLength="150" />
+          <Property Name="DepartmentCode" Type="nchar" MaxLength="10" />
+          <Property Name="DepartmentName" Type="nvarchar" MaxLength="150" />
+          <Property Name="Email" Type="nvarchar" MaxLength="161" />
+          <Property Name="loginid" Type="nvarchar" MaxLength="150" />
+          <Property Name="CONNumber" Type="nvarchar" MaxLength="50" />
+          <Property Name="Adhocf" Type="int" Nullable="false" />
+          <Property Name="UserId" Type="int" />
+          <Property Name="InvoicePIId" Type="varchar(max)" />
+        </EntityType>
+        <EntityContainer Name="IOASExternalModelStoreContainer">
+          <EntitySet Name="tblCodeControl" EntityType="Self.tblCodeControl" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tblCountries" EntityType="Self.tblCountries" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tblCurrency" EntityType="Self.tblCurrency" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tblInvoiceTaxDetails" EntityType="Self.tblInvoiceTaxDetails" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tblOldExpenditure" EntityType="Self.tblOldExpenditure" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tblOldreceipts" EntityType="Self.tblOldreceipts" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tblPayinSlip" EntityType="Self.tblPayinSlip" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tblPaySlipMonth" EntityType="Self.tblPaySlipMonth" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tblProformaInvoice" EntityType="Self.tblProformaInvoice" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tblProformaInvoiceTaxDetails" EntityType="Self.tblProformaInvoiceTaxDetails" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tblProjectInvoice" EntityType="Self.tblProjectInvoice" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tblStateMaster" EntityType="Self.tblStateMaster" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="vwFacultyStaffDetails" EntityType="Self.vwFacultyStaffDetails" store:Type="Views" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [vwFacultyStaffDetails].[EmployeeId] AS [EmployeeId], 
+    [vwFacultyStaffDetails].[UserId] AS [UserId], 
+    [vwFacultyStaffDetails].[FirstName] AS [FirstName], 
+    [vwFacultyStaffDetails].[Designation] AS [Designation], 
+    [vwFacultyStaffDetails].[DepartmentCode] AS [DepartmentCode], 
+    [vwFacultyStaffDetails].[DepartmentName] AS [DepartmentName], 
+    [vwFacultyStaffDetails].[Email] AS [Email], 
+    [vwFacultyStaffDetails].[ContactNumber] AS [ContactNumber], 
+    [vwFacultyStaffDetails].[FacultyDetailsId] AS [FacultyDetailsId]
+    FROM [dbo].[vwFacultyStaffDetails] AS [vwFacultyStaffDetails]</DefiningQuery>
+          </EntitySet>
+          <EntitySet Name="VwUserAD" EntityType="Self.VwUserAD" store:Type="Views" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [VwUserAD].[Pkey] AS [Pkey], 
+    [VwUserAD].[ID] AS [ID], 
+    [VwUserAD].[Category] AS [Category], 
+    [VwUserAD].[Name] AS [Name], 
+    [VwUserAD].[DepartmentCode] AS [DepartmentCode], 
+    [VwUserAD].[DepartmentName] AS [DepartmentName], 
+    [VwUserAD].[Email] AS [Email], 
+    [VwUserAD].[loginid] AS [loginid], 
+    [VwUserAD].[CONNumber] AS [CONNumber], 
+    [VwUserAD].[Adhocf] AS [Adhocf], 
+    [VwUserAD].[UserId] AS [UserId], 
+    [VwUserAD].[InvoicePIId] AS [InvoicePIId]
+    FROM [dbo].[VwUserAD] AS [VwUserAD]</DefiningQuery>
+          </EntitySet>
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="IOASExternalModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityContainer Name="IOASExternalEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="tblInvoiceTaxDetails" EntityType="IOASExternalModel.tblInvoiceTaxDetails" />
+          <EntitySet Name="tblProformaInvoiceTaxDetails" EntityType="IOASExternalModel.tblProformaInvoiceTaxDetails" />
+          <EntitySet Name="tblProformaInvoice" EntityType="IOASExternalModel.tblProformaInvoice" />
+          <EntitySet Name="tblProjectInvoice" EntityType="IOASExternalModel.tblProjectInvoice" />
+          <EntitySet Name="tblOldExpenditure" EntityType="IOASExternalModel.tblOldExpenditure" />
+          <EntitySet Name="tblOldreceipts" EntityType="IOASExternalModel.tblOldreceipts" />
+          <EntitySet Name="tblCodeControl" EntityType="IOASExternalModel.tblCodeControl" />
+          <EntitySet Name="tblCountries" EntityType="IOASExternalModel.tblCountries" />
+          <EntitySet Name="tblCurrency" EntityType="IOASExternalModel.tblCurrency" />
+          <EntitySet Name="tblPayinSlip" EntityType="IOASExternalModel.tblPayinSlip" />
+          <EntitySet Name="tblPaySlipMonth" EntityType="IOASExternalModel.tblPaySlipMonth" />
+          <EntitySet Name="tblStateMaster" EntityType="IOASExternalModel.tblStateMaster" />
+          <EntitySet Name="vwFacultyStaffDetails" EntityType="IOASExternalModel.vwFacultyStaffDetails" />
+          <EntitySet Name="VwUserAD" EntityType="IOASExternalModel.VwUserAD" />
+        </EntityContainer>
+        <EntityType Name="tblInvoiceTaxDetails">
+          <Key>
+            <PropertyRef Name="InvoiceTaxId" />
+          </Key>
+          <Property Name="InvoiceTaxId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="InvoiceId" Type="Int32" />
+          <Property Name="CGSTRate" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="CGSTAmount" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="SGSTRate" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+          <Property Name="SGSTAmount" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="IGSTRate" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="IGSTAmount" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="CrtdTS" Type="DateTime" Precision="3" />
+          <Property Name="CrtdUserId" Type="Int32" />
+          <Property Name="UpdtTS" Type="DateTime" Precision="3" />
+          <Property Name="UpdtUserId" Type="Int32" />
+          <Property Name="IsDeleted" Type="Boolean" />
+          <Property Name="TotalTaxValue" Type="Decimal" Precision="18" Scale="2" />
+        </EntityType>
+        <EntityType Name="tblProformaInvoiceTaxDetails">
+          <Key>
+            <PropertyRef Name="InvoiceTaxId" />
+          </Key>
+          <Property Name="InvoiceTaxId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="InvoiceId" Type="Int32" />
+          <Property Name="CGSTRate" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="CGSTAmount" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="SGSTRate" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+          <Property Name="SGSTAmount" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="IGSTRate" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="IGSTAmount" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="TotalTaxValue" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="CrtdTS" Type="DateTime" Precision="3" />
+          <Property Name="CrtdUserId" Type="Int32" />
+          <Property Name="UpdtTS" Type="DateTime" Precision="3" />
+          <Property Name="UpdtUserId" Type="Int32" />
+          <Property Name="IsDeleted" Type="Boolean" />
+        </EntityType>
+        <EntityType Name="tblProformaInvoice">
+          <Key>
+            <PropertyRef Name="InvoiceId" />
+          </Key>
+          <Property Name="InvoiceId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="InvoiceNumber" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="InvoiceDate" Type="DateTime" Precision="3" />
+          <Property Name="InvoiceType" Type="Int32" />
+          <Property Name="ProjectId" Type="Int32" />
+          <Property Name="PIId" Type="Int32" />
+          <Property Name="TaxCode" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="AgencyId" Type="Int32" />
+          <Property Name="ServiceType" Type="Int32" />
+          <Property Name="DescriptionofServices" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="TaxableValue" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="CurrencyCode" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="TotalInvoiceValue" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="TotalInvoiceValueinWords" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Bank" Type="Int32" />
+          <Property Name="BankAccountNumber" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="Status" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="IsCancelled" Type="Boolean" />
+          <Property Name="CrtdTS" Type="DateTime" Precision="3" />
+          <Property Name="CrtdUserId" Type="Int32" />
+          <Property Name="UpdtTS" Type="DateTime" Precision="3" />
+          <Property Name="UpdtUserId" Type="Int32" />
+          <Property Name="InstalmentYear" Type="Int32" />
+          <Property Name="InstalmentNumber" Type="Int32" />
+          <Property Name="PONumber" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="CommunicationAddress" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="SequenceNumber" Type="Int32" />
+          <Property Name="FinancialYear" Type="Int32" />
+          <Property Name="ProjectType" Type="Int32" />
+          <Property Name="AgencyRegName" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="AgencyRegState" Type="Int32" />
+          <Property Name="AgencyRegStateCode" Type="Int32" />
+          <Property Name="AgencyRegGSTIN" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="AgencyRegPAN" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="ProjectNumber" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="CurrencyId" Type="Int32" />
+          <Property Name="ForeignCurrencyValue" Type="Decimal" Precision="18" Scale="2" />
+        </EntityType>
+        <EntityType Name="tblProjectInvoice">
+          <Key>
+            <PropertyRef Name="InvoiceId" />
+          </Key>
+          <Property Name="InvoiceId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="InvoiceNumber" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="InvoiceDate" Type="DateTime" Precision="3" />
+          <Property Name="InvoiceType" Type="Int32" />
+          <Property Name="ProjectId" Type="Int32" />
+          <Property Name="PIId" Type="Int32" />
+          <Property Name="TaxCode" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="AgencyId" Type="Int32" />
+          <Property Name="ServiceType" Type="Int32" />
+          <Property Name="DescriptionofServices" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="TaxableValue" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="CurrencyCode" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="TotalInvoiceValue" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="TotalInvoiceValueinWords" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Bank" Type="Int32" />
+          <Property Name="BankAccountNumber" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="Status" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="IsCancelled" Type="Boolean" />
+          <Property Name="CrtdTS" Type="DateTime" Precision="3" />
+          <Property Name="CrtdUserId" Type="Int32" />
+          <Property Name="UpdtTS" Type="DateTime" Precision="3" />
+          <Property Name="UpdtUserId" Type="Int32" />
+          <Property Name="InstalmentYear" Type="Int32" />
+          <Property Name="InstalmentNumber" Type="Int32" />
+          <Property Name="PONumber" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="CommunicationAddress" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="SequenceNumber" Type="Int32" />
+          <Property Name="FinancialYear" Type="Int32" />
+          <Property Name="ProjectType" Type="Int32" />
+          <Property Name="AgencyRegName" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="AgencyRegState" Type="Int32" />
+          <Property Name="AgencyRegStateCode" Type="Int32" />
+          <Property Name="AgencyRegGSTIN" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="AgencyRegPAN" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="CurrencyId" Type="Int32" />
+          <Property Name="InvoiceValueinForeignCurrency" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="ProjectNumber" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="AgencyDistrict" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="AgencyRegTAN" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="AgencyPincode" Type="Int32" />
+          <Property Name="AgencyContactPersonName" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="AgencyContactPersonEmail" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="AgencyContactPersonNumber" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="AgencyCountry" Type="Int32" />
+          <Property Name="IndianSEZTaxCategory" Type="Int32" />
+          <Property Name="ForeignAgencyPlace" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="ReverseCharge" Type="Boolean" />
+        </EntityType>
+        <EntityType Name="tblOldExpenditure">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="RefNbr" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ProjectNumber" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="CommitmentNumber" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Head" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="TotalAmount" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="TaxAmount" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="TDS" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="NetPayment" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="PayeeName" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="PIInstituteID" Type="Int32" />
+          <Property Name="Headid" Type="Int32" />
+          <Property Name="ProjectId" Type="Int32" />
+          <Property Name="ExpenditureDate" Type="DateTime" Precision="3" />
+          <Property Name="Finyear" Type="Int32" />
+        </EntityType>
+        <EntityType Name="tblOldreceipts">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Year" Type="Int32" />
+          <Property Name="Type" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="Projectnumber" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="Receiptnumber" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="Date" Type="DateTime" Precision="3" />
+          <Property Name="AgencyName" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="Amountreceived" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="Taxvalue" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="OH" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="FinYearId" Type="Int32" />
+          <Property Name="ProjectId" Type="Int32" />
+          <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="Coordname" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="tblCodeControl">
+          <Key>
+            <PropertyRef Name="CodeID" />
+          </Key>
+          <Property Name="CodeID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="CodeName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="CodeValAbbr" Type="Int32" Nullable="false" />
+          <Property Name="CodeValDetail" Type="String" Nullable="false" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="CodeDescription" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="UPDT_UserID" Type="Int32" />
+          <Property Name="CRTE_TS" Type="DateTime" Precision="3" />
+          <Property Name="UPDT_TS" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="tblCountries">
+          <Key>
+            <PropertyRef Name="countryID" />
+          </Key>
+          <Property Name="countryID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="countryName" Type="String" Nullable="false" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="countryCode" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="currencyCode" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="tblCurrency">
+          <Key>
+            <PropertyRef Name="CurrencyID" />
+          </Key>
+          <Property Name="CurrencyID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="CurrencyUnit" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="Symbol" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ISOCode" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="HTMLDecimalCode" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="HTMLHexCode" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="DecimalUnicode" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="HexUnicode" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Country" Type="Int32" />
+        </EntityType>
+        <EntityType Name="tblPayinSlip">
+          <Key>
+            <PropertyRef Name="PayinslipId" />
+          </Key>
+          <Property Name="PayinslipId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="PayinslipReferenceNumber" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="InvoiceId" Type="Int32" />
+          <Property Name="ProjectId" Type="Int32" />
+          <Property Name="PIId" Type="Int32" />
+          <Property Name="Sequencenumber" Type="Int32" />
+          <Property Name="AmountReceived" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="ITTdsReceived" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="GSTTdsReceived" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="ModeofPayment" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="ReferenceNumber" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Remarks" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="OutstandingAmount" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="Status" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="CrtdTS" Type="DateTime" Precision="3" />
+          <Property Name="CrtdUserId" Type="Int32" />
+          <Property Name="UpdtTS" Type="DateTime" Precision="3" />
+          <Property Name="UpdtUserId" Type="Int32" />
+          <Property Name="InstrumentsDate" Type="DateTime" Precision="3" />
+          <Property Name="IsSend_f" Type="Boolean" />
+        </EntityType>
+        <EntityType Name="tblPaySlipMonth">
+          <Key>
+            <PropertyRef Name="PaySlipMonthId" />
+          </Key>
+          <Property Name="PaySlipMonthId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="PaySlipMonth" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="IsMonth" Type="Boolean" />
+        </EntityType>
+        <EntityType Name="tblStateMaster">
+          <Key>
+            <PropertyRef Name="StateId" />
+          </Key>
+          <Property Name="StateId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="StateName" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="StateCode" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="vwFacultyStaffDetails">
+          <Key>
+            <PropertyRef Name="FacultyDetailsId" />
+          </Key>
+          <Property Name="EmployeeId" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="UserId" Type="Int32" />
+          <Property Name="FirstName" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="Designation" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="DepartmentCode" Type="String" MaxLength="10" FixedLength="true" Unicode="true" />
+          <Property Name="DepartmentName" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="Email" Type="String" MaxLength="161" FixedLength="false" Unicode="true" />
+          <Property Name="ContactNumber" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="FacultyDetailsId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+        </EntityType>
+        <EntityType Name="VwUserAD">
+          <Key>
+            <PropertyRef Name="Pkey" />
+            <PropertyRef Name="Category" />
+            <PropertyRef Name="Adhocf" />
+          </Key>
+          <Property Name="Pkey" Type="Int64" Nullable="false" />
+          <Property Name="ID" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Category" Type="String" Nullable="false" MaxLength="9" FixedLength="false" Unicode="false" />
+          <Property Name="Name" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="DepartmentCode" Type="String" MaxLength="10" FixedLength="true" Unicode="true" />
+          <Property Name="DepartmentName" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="Email" Type="String" MaxLength="161" FixedLength="false" Unicode="true" />
+          <Property Name="loginid" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="CONNumber" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Adhocf" Type="Int32" Nullable="false" />
+          <Property Name="UserId" Type="Int32" />
+          <Property Name="InvoicePIId" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+        </EntityType>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="IOASExternalModelStoreContainer" CdmEntityContainer="IOASExternalEntities">
+          <EntitySetMapping Name="tblInvoiceTaxDetails">
+            <EntityTypeMapping TypeName="IOASExternalModel.tblInvoiceTaxDetails">
+              <MappingFragment StoreEntitySet="tblInvoiceTaxDetails">
+                <ScalarProperty Name="TotalTaxValue" ColumnName="TotalTaxValue" />
+                <ScalarProperty Name="IsDeleted" ColumnName="IsDeleted" />
+                <ScalarProperty Name="UpdtUserId" ColumnName="UpdtUserId" />
+                <ScalarProperty Name="UpdtTS" ColumnName="UpdtTS" />
+                <ScalarProperty Name="CrtdUserId" ColumnName="CrtdUserId" />
+                <ScalarProperty Name="CrtdTS" ColumnName="CrtdTS" />
+                <ScalarProperty Name="IGSTAmount" ColumnName="IGSTAmount" />
+                <ScalarProperty Name="IGSTRate" ColumnName="IGSTRate" />
+                <ScalarProperty Name="SGSTAmount" ColumnName="SGSTAmount" />
+                <ScalarProperty Name="SGSTRate" ColumnName="SGSTRate" />
+                <ScalarProperty Name="CGSTAmount" ColumnName="CGSTAmount" />
+                <ScalarProperty Name="CGSTRate" ColumnName="CGSTRate" />
+                <ScalarProperty Name="InvoiceId" ColumnName="InvoiceId" />
+                <ScalarProperty Name="InvoiceTaxId" ColumnName="InvoiceTaxId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tblProformaInvoiceTaxDetails">
+            <EntityTypeMapping TypeName="IOASExternalModel.tblProformaInvoiceTaxDetails">
+              <MappingFragment StoreEntitySet="tblProformaInvoiceTaxDetails">
+                <ScalarProperty Name="IsDeleted" ColumnName="IsDeleted" />
+                <ScalarProperty Name="UpdtUserId" ColumnName="UpdtUserId" />
+                <ScalarProperty Name="UpdtTS" ColumnName="UpdtTS" />
+                <ScalarProperty Name="CrtdUserId" ColumnName="CrtdUserId" />
+                <ScalarProperty Name="CrtdTS" ColumnName="CrtdTS" />
+                <ScalarProperty Name="TotalTaxValue" ColumnName="TotalTaxValue" />
+                <ScalarProperty Name="IGSTAmount" ColumnName="IGSTAmount" />
+                <ScalarProperty Name="IGSTRate" ColumnName="IGSTRate" />
+                <ScalarProperty Name="SGSTAmount" ColumnName="SGSTAmount" />
+                <ScalarProperty Name="SGSTRate" ColumnName="SGSTRate" />
+                <ScalarProperty Name="CGSTAmount" ColumnName="CGSTAmount" />
+                <ScalarProperty Name="CGSTRate" ColumnName="CGSTRate" />
+                <ScalarProperty Name="InvoiceId" ColumnName="InvoiceId" />
+                <ScalarProperty Name="InvoiceTaxId" ColumnName="InvoiceTaxId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tblProformaInvoice">
+            <EntityTypeMapping TypeName="IOASExternalModel.tblProformaInvoice">
+              <MappingFragment StoreEntitySet="tblProformaInvoice">
+                <ScalarProperty Name="ForeignCurrencyValue" ColumnName="ForeignCurrencyValue" />
+                <ScalarProperty Name="CurrencyId" ColumnName="CurrencyId" />
+                <ScalarProperty Name="ProjectNumber" ColumnName="ProjectNumber" />
+                <ScalarProperty Name="AgencyRegPAN" ColumnName="AgencyRegPAN" />
+                <ScalarProperty Name="AgencyRegGSTIN" ColumnName="AgencyRegGSTIN" />
+                <ScalarProperty Name="AgencyRegStateCode" ColumnName="AgencyRegStateCode" />
+                <ScalarProperty Name="AgencyRegState" ColumnName="AgencyRegState" />
+                <ScalarProperty Name="AgencyRegName" ColumnName="AgencyRegName" />
+                <ScalarProperty Name="ProjectType" ColumnName="ProjectType" />
+                <ScalarProperty Name="FinancialYear" ColumnName="FinancialYear" />
+                <ScalarProperty Name="SequenceNumber" ColumnName="SequenceNumber" />
+                <ScalarProperty Name="CommunicationAddress" ColumnName="CommunicationAddress" />
+                <ScalarProperty Name="PONumber" ColumnName="PONumber" />
+                <ScalarProperty Name="InstalmentNumber" ColumnName="InstalmentNumber" />
+                <ScalarProperty Name="InstalmentYear" ColumnName="InstalmentYear" />
+                <ScalarProperty Name="UpdtUserId" ColumnName="UpdtUserId" />
+                <ScalarProperty Name="UpdtTS" ColumnName="UpdtTS" />
+                <ScalarProperty Name="CrtdUserId" ColumnName="CrtdUserId" />
+                <ScalarProperty Name="CrtdTS" ColumnName="CrtdTS" />
+                <ScalarProperty Name="IsCancelled" ColumnName="IsCancelled" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="BankAccountNumber" ColumnName="BankAccountNumber" />
+                <ScalarProperty Name="Bank" ColumnName="Bank" />
+                <ScalarProperty Name="TotalInvoiceValueinWords" ColumnName="TotalInvoiceValueinWords" />
+                <ScalarProperty Name="TotalInvoiceValue" ColumnName="TotalInvoiceValue" />
+                <ScalarProperty Name="CurrencyCode" ColumnName="CurrencyCode" />
+                <ScalarProperty Name="TaxableValue" ColumnName="TaxableValue" />
+                <ScalarProperty Name="DescriptionofServices" ColumnName="DescriptionofServices" />
+                <ScalarProperty Name="ServiceType" ColumnName="ServiceType" />
+                <ScalarProperty Name="AgencyId" ColumnName="AgencyId" />
+                <ScalarProperty Name="TaxCode" ColumnName="TaxCode" />
+                <ScalarProperty Name="PIId" ColumnName="PIId" />
+                <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
+                <ScalarProperty Name="InvoiceType" ColumnName="InvoiceType" />
+                <ScalarProperty Name="InvoiceDate" ColumnName="InvoiceDate" />
+                <ScalarProperty Name="InvoiceNumber" ColumnName="InvoiceNumber" />
+                <ScalarProperty Name="InvoiceId" ColumnName="InvoiceId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tblProjectInvoice">
+            <EntityTypeMapping TypeName="IOASExternalModel.tblProjectInvoice">
+              <MappingFragment StoreEntitySet="tblProjectInvoice">
+                <ScalarProperty Name="ReverseCharge" ColumnName="ReverseCharge" />
+                <ScalarProperty Name="ForeignAgencyPlace" ColumnName="ForeignAgencyPlace" />
+                <ScalarProperty Name="IndianSEZTaxCategory" ColumnName="IndianSEZTaxCategory" />
+                <ScalarProperty Name="AgencyCountry" ColumnName="AgencyCountry" />
+                <ScalarProperty Name="AgencyContactPersonNumber" ColumnName="AgencyContactPersonNumber" />
+                <ScalarProperty Name="AgencyContactPersonEmail" ColumnName="AgencyContactPersonEmail" />
+                <ScalarProperty Name="AgencyContactPersonName" ColumnName="AgencyContactPersonName" />
+                <ScalarProperty Name="AgencyPincode" ColumnName="AgencyPincode" />
+                <ScalarProperty Name="AgencyRegTAN" ColumnName="AgencyRegTAN" />
+                <ScalarProperty Name="AgencyDistrict" ColumnName="AgencyDistrict" />
+                <ScalarProperty Name="ProjectNumber" ColumnName="ProjectNumber" />
+                <ScalarProperty Name="InvoiceValueinForeignCurrency" ColumnName="InvoiceValueinForeignCurrency" />
+                <ScalarProperty Name="CurrencyId" ColumnName="CurrencyId" />
+                <ScalarProperty Name="AgencyRegPAN" ColumnName="AgencyRegPAN" />
+                <ScalarProperty Name="AgencyRegGSTIN" ColumnName="AgencyRegGSTIN" />
+                <ScalarProperty Name="AgencyRegStateCode" ColumnName="AgencyRegStateCode" />
+                <ScalarProperty Name="AgencyRegState" ColumnName="AgencyRegState" />
+                <ScalarProperty Name="AgencyRegName" ColumnName="AgencyRegName" />
+                <ScalarProperty Name="ProjectType" ColumnName="ProjectType" />
+                <ScalarProperty Name="FinancialYear" ColumnName="FinancialYear" />
+                <ScalarProperty Name="SequenceNumber" ColumnName="SequenceNumber" />
+                <ScalarProperty Name="CommunicationAddress" ColumnName="CommunicationAddress" />
+                <ScalarProperty Name="PONumber" ColumnName="PONumber" />
+                <ScalarProperty Name="InstalmentNumber" ColumnName="InstalmentNumber" />
+                <ScalarProperty Name="InstalmentYear" ColumnName="InstalmentYear" />
+                <ScalarProperty Name="UpdtUserId" ColumnName="UpdtUserId" />
+                <ScalarProperty Name="UpdtTS" ColumnName="UpdtTS" />
+                <ScalarProperty Name="CrtdUserId" ColumnName="CrtdUserId" />
+                <ScalarProperty Name="CrtdTS" ColumnName="CrtdTS" />
+                <ScalarProperty Name="IsCancelled" ColumnName="IsCancelled" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="BankAccountNumber" ColumnName="BankAccountNumber" />
+                <ScalarProperty Name="Bank" ColumnName="Bank" />
+                <ScalarProperty Name="TotalInvoiceValueinWords" ColumnName="TotalInvoiceValueinWords" />
+                <ScalarProperty Name="TotalInvoiceValue" ColumnName="TotalInvoiceValue" />
+                <ScalarProperty Name="CurrencyCode" ColumnName="CurrencyCode" />
+                <ScalarProperty Name="TaxableValue" ColumnName="TaxableValue" />
+                <ScalarProperty Name="DescriptionofServices" ColumnName="DescriptionofServices" />
+                <ScalarProperty Name="ServiceType" ColumnName="ServiceType" />
+                <ScalarProperty Name="AgencyId" ColumnName="AgencyId" />
+                <ScalarProperty Name="TaxCode" ColumnName="TaxCode" />
+                <ScalarProperty Name="PIId" ColumnName="PIId" />
+                <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
+                <ScalarProperty Name="InvoiceType" ColumnName="InvoiceType" />
+                <ScalarProperty Name="InvoiceDate" ColumnName="InvoiceDate" />
+                <ScalarProperty Name="InvoiceNumber" ColumnName="InvoiceNumber" />
+                <ScalarProperty Name="InvoiceId" ColumnName="InvoiceId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tblOldExpenditure">
+            <EntityTypeMapping TypeName="IOASExternalModel.tblOldExpenditure">
+              <MappingFragment StoreEntitySet="tblOldExpenditure">
+                <ScalarProperty Name="Finyear" ColumnName="Finyear" />
+                <ScalarProperty Name="ExpenditureDate" ColumnName="ExpenditureDate" />
+                <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
+                <ScalarProperty Name="Headid" ColumnName="Headid" />
+                <ScalarProperty Name="PIInstituteID" ColumnName="PIInstituteID" />
+                <ScalarProperty Name="PayeeName" ColumnName="PayeeName" />
+                <ScalarProperty Name="NetPayment" ColumnName="NetPayment" />
+                <ScalarProperty Name="TDS" ColumnName="TDS" />
+                <ScalarProperty Name="TaxAmount" ColumnName="TaxAmount" />
+                <ScalarProperty Name="TotalAmount" ColumnName="TotalAmount" />
+                <ScalarProperty Name="Head" ColumnName="Head" />
+                <ScalarProperty Name="CommitmentNumber" ColumnName="CommitmentNumber" />
+                <ScalarProperty Name="ProjectNumber" ColumnName="ProjectNumber" />
+                <ScalarProperty Name="RefNbr" ColumnName="RefNbr" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tblOldreceipts">
+            <EntityTypeMapping TypeName="IOASExternalModel.tblOldreceipts">
+              <MappingFragment StoreEntitySet="tblOldreceipts">
+                <ScalarProperty Name="Coordname" ColumnName="Coordname" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
+                <ScalarProperty Name="FinYearId" ColumnName="FinYearId" />
+                <ScalarProperty Name="OH" ColumnName="OH" />
+                <ScalarProperty Name="Taxvalue" ColumnName="Taxvalue" />
+                <ScalarProperty Name="Amountreceived" ColumnName="Amountreceived" />
+                <ScalarProperty Name="AgencyName" ColumnName="AgencyName" />
+                <ScalarProperty Name="Date" ColumnName="Date" />
+                <ScalarProperty Name="Receiptnumber" ColumnName="Receiptnumber" />
+                <ScalarProperty Name="Projectnumber" ColumnName="Projectnumber" />
+                <ScalarProperty Name="Type" ColumnName="Type" />
+                <ScalarProperty Name="Year" ColumnName="Year" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tblCodeControl">
+            <EntityTypeMapping TypeName="IOASExternalModel.tblCodeControl">
+              <MappingFragment StoreEntitySet="tblCodeControl">
+                <ScalarProperty Name="UPDT_TS" ColumnName="UPDT_TS" />
+                <ScalarProperty Name="CRTE_TS" ColumnName="CRTE_TS" />
+                <ScalarProperty Name="UPDT_UserID" ColumnName="UPDT_UserID" />
+                <ScalarProperty Name="CodeDescription" ColumnName="CodeDescription" />
+                <ScalarProperty Name="CodeValDetail" ColumnName="CodeValDetail" />
+                <ScalarProperty Name="CodeValAbbr" ColumnName="CodeValAbbr" />
+                <ScalarProperty Name="CodeName" ColumnName="CodeName" />
+                <ScalarProperty Name="CodeID" ColumnName="CodeID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tblCountries">
+            <EntityTypeMapping TypeName="IOASExternalModel.tblCountries">
+              <MappingFragment StoreEntitySet="tblCountries">
+                <ScalarProperty Name="currencyCode" ColumnName="currencyCode" />
+                <ScalarProperty Name="countryCode" ColumnName="countryCode" />
+                <ScalarProperty Name="countryName" ColumnName="countryName" />
+                <ScalarProperty Name="countryID" ColumnName="countryID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tblCurrency">
+            <EntityTypeMapping TypeName="IOASExternalModel.tblCurrency">
+              <MappingFragment StoreEntitySet="tblCurrency">
+                <ScalarProperty Name="Country" ColumnName="Country" />
+                <ScalarProperty Name="HexUnicode" ColumnName="HexUnicode" />
+                <ScalarProperty Name="DecimalUnicode" ColumnName="DecimalUnicode" />
+                <ScalarProperty Name="HTMLHexCode" ColumnName="HTMLHexCode" />
+                <ScalarProperty Name="HTMLDecimalCode" ColumnName="HTMLDecimalCode" />
+                <ScalarProperty Name="ISOCode" ColumnName="ISOCode" />
+                <ScalarProperty Name="Symbol" ColumnName="Symbol" />
+                <ScalarProperty Name="CurrencyUnit" ColumnName="CurrencyUnit" />
+                <ScalarProperty Name="CurrencyID" ColumnName="CurrencyID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tblPayinSlip">
+            <EntityTypeMapping TypeName="IOASExternalModel.tblPayinSlip">
+              <MappingFragment StoreEntitySet="tblPayinSlip">
+                <ScalarProperty Name="IsSend_f" ColumnName="IsSend_f" />
+                <ScalarProperty Name="InstrumentsDate" ColumnName="InstrumentsDate" />
+                <ScalarProperty Name="UpdtUserId" ColumnName="UpdtUserId" />
+                <ScalarProperty Name="UpdtTS" ColumnName="UpdtTS" />
+                <ScalarProperty Name="CrtdUserId" ColumnName="CrtdUserId" />
+                <ScalarProperty Name="CrtdTS" ColumnName="CrtdTS" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="OutstandingAmount" ColumnName="OutstandingAmount" />
+                <ScalarProperty Name="Remarks" ColumnName="Remarks" />
+                <ScalarProperty Name="ReferenceNumber" ColumnName="ReferenceNumber" />
+                <ScalarProperty Name="ModeofPayment" ColumnName="ModeofPayment" />
+                <ScalarProperty Name="GSTTdsReceived" ColumnName="GSTTdsReceived" />
+                <ScalarProperty Name="ITTdsReceived" ColumnName="ITTdsReceived" />
+                <ScalarProperty Name="AmountReceived" ColumnName="AmountReceived" />
+                <ScalarProperty Name="Sequencenumber" ColumnName="Sequencenumber" />
+                <ScalarProperty Name="PIId" ColumnName="PIId" />
+                <ScalarProperty Name="ProjectId" ColumnName="ProjectId" />
+                <ScalarProperty Name="InvoiceId" ColumnName="InvoiceId" />
+                <ScalarProperty Name="PayinslipReferenceNumber" ColumnName="PayinslipReferenceNumber" />
+                <ScalarProperty Name="PayinslipId" ColumnName="PayinslipId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tblPaySlipMonth">
+            <EntityTypeMapping TypeName="IOASExternalModel.tblPaySlipMonth">
+              <MappingFragment StoreEntitySet="tblPaySlipMonth">
+                <ScalarProperty Name="IsMonth" ColumnName="IsMonth" />
+                <ScalarProperty Name="PaySlipMonth" ColumnName="PaySlipMonth" />
+                <ScalarProperty Name="PaySlipMonthId" ColumnName="PaySlipMonthId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tblStateMaster">
+            <EntityTypeMapping TypeName="IOASExternalModel.tblStateMaster">
+              <MappingFragment StoreEntitySet="tblStateMaster">
+                <ScalarProperty Name="StateCode" ColumnName="StateCode" />
+                <ScalarProperty Name="StateName" ColumnName="StateName" />
+                <ScalarProperty Name="StateId" ColumnName="StateId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="vwFacultyStaffDetails">
+            <EntityTypeMapping TypeName="IOASExternalModel.vwFacultyStaffDetails">
+              <MappingFragment StoreEntitySet="vwFacultyStaffDetails">
+                <ScalarProperty Name="FacultyDetailsId" ColumnName="FacultyDetailsId" />
+                <ScalarProperty Name="ContactNumber" ColumnName="ContactNumber" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="DepartmentName" ColumnName="DepartmentName" />
+                <ScalarProperty Name="DepartmentCode" ColumnName="DepartmentCode" />
+                <ScalarProperty Name="Designation" ColumnName="Designation" />
+                <ScalarProperty Name="FirstName" ColumnName="FirstName" />
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+                <ScalarProperty Name="EmployeeId" ColumnName="EmployeeId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="VwUserAD">
+            <EntityTypeMapping TypeName="IOASExternalModel.VwUserAD">
+              <MappingFragment StoreEntitySet="VwUserAD">
+                <ScalarProperty Name="InvoicePIId" ColumnName="InvoicePIId" />
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+                <ScalarProperty Name="Adhocf" ColumnName="Adhocf" />
+                <ScalarProperty Name="CONNumber" ColumnName="CONNumber" />
+                <ScalarProperty Name="loginid" ColumnName="loginid" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="DepartmentName" ColumnName="DepartmentName" />
+                <ScalarProperty Name="DepartmentCode" ColumnName="DepartmentCode" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Category" ColumnName="Category" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Pkey" ColumnName="Pkey" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="false" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="false" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

@@ -1,0 +1,143 @@
+﻿
+@{
+    ViewBag.Title = "HeadCenterLabList";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<div class="row hd-tt-bg">
+    <div class="col-md-4">
+        <h3>Center and Lab Code List</h3>
+    </div>
+    <div class="col-md-8 flt-nav-links">
+        <a href="@Url.Action("HeadCenterLab")"> <i class="ion-plus"></i>Add New</a>
+    </div>
+</div>
+<div class="row mt30">
+    <div class="page-wrapper">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="custom-jsgrid-normal">
+                    <div id="gridCenterLab"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    var alertMsg = '@TempData["alertMsg"]';
+    $('#gridCenterLab').jsGrid({
+        paging: true,
+        pageIndex: 1,
+        pageSize: 10,
+        editing: false,
+        filtering: true,
+        pageLoading: true,
+        autoload: true,
+        controller: {
+
+            loadData: function (filter) {
+
+                var searchData = [];
+                searchData = {
+                    FacultyCodeName: filter.FacultyCodeName || null,
+                    HeadName: filter.HeadName || null,
+                    Code: filter.Code || null,
+                    
+                },
+                filter.model = searchData;
+                var deferred = $.Deferred();
+                $.ajax({
+                    type: "post",
+                    url: "SearchHeadenterList",
+                    data: JSON.stringify(filter),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (result) {
+                        
+                        var da = {
+                            data: result.list,
+                            itemsCount: result.TotalRecords
+                        }
+                        deferred.resolve(da);
+                    },
+                    error: function (err) {
+                        console.log("error : " + err);
+                    }
+
+                });
+                return deferred.promise();
+            }
+
+        },
+        fields: [
+                    { type: "number", name: "SNo", title: "S.No", editing: false, filtering: false, align: "left", width: "70px" },
+                    { name: "HeadId", title: "Head Id", editing: false, visible: false },
+                    { type: "text", name: "FacultyCodeName", title: "Faculty Code Name", editing: false },
+                    { type: "text", name: "HeadName", title: "Head Name", editing: false },
+                    { type: "text", name: "Code", title: "Code", editing: false },
+                    
+
+                    {
+                        type: "control", editButton: false, deleteButton: false, width: 120, title: "Action",
+                        deleteButton: false,
+                        itemTemplate: function (value, item) {
+                            var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+                           
+                            statusList = [{ id: "", name: "Select Action" }, { id: "Edit", name: "Edit" }]
+                            
+                            var $customSelect = $("<select>")
+                                .attr("class", "form-control").prop("selectedIndex", "")
+                            $.each(statusList, function (index, itemData) {
+                                $customSelect.append($('<option/>', {
+
+                                    value: itemData.id,
+                                    text: itemData.name
+                                }));
+                            });
+                            $customSelect.change(function (e) {
+                                var selVal = $(this).val();
+                                if (selVal == "Edit") {
+                                    var url = '@Url.Action("HeadCenterLab", "Project")?headId=' + item.HeadId;
+                                    window.location.href = url;
+                                }
+                               
+                        
+
+                                $(this).val("");
+                                return false;
+                                e.stopPropagation();
+                            });
+                            return $result.add($customSelect);
+                        },
+                        _createFilterSwitchButton: function () {
+                            return this._createOnOffSwitchButton("filtering", this.searchModeButtonClass, false);
+                        }
+                    }
+
+        ],
+
+
+
+
+
+
+    });
+    $("#gridCenterLab").jsGrid("option", "filtering", false);
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+        else if (alertMsg != '') {
+            $('#alert').html(alertMsg);
+            $('#Validation').modal('toggle');
+        }
+    });
+    
+</script>
+

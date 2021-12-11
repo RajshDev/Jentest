@@ -1,0 +1,307 @@
+﻿
+@{
+    ViewBag.Title = "Commitment List";
+    ViewBag.Subtitle = "Commitment List";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<div class="row hd-tt-bg">
+    <div class="col-md-4">
+        <h3>Commitment List</h3>
+    </div>
+    <div id="addnewpage" class="col-md-8 flt-nav-links">
+
+        @*<a href="Javascript:void(0)" id="btnFilter" class="pull-right"> <i class="ion-android-funnel"></i>Filters</a>*@
+        <a href="@Url.Action("Commitment")"> <i class="ion-plus"></i>Add New</a>
+
+    </div>
+</div>
+<div class="row mt30" id="gridCommitment">
+    <div class="page-wrapper">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="custom-jsgrid-normal">
+                    <div id="CommitmentList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@*<div id="popupCommitmentFilter" class="filter-popup">
+    <div class="">
+        <div class="filter-content">
+            <div class="white-bg">
+                <div class="form-group custom-form-group">
+                    <h3>Filter by</h3>
+                </div>
+                @*<div class="form-group custom-form-group">
+                        @Html.DropDownListFor(m => m.SearchField.ProjectType, new SelectList(ViewBag.projecttype, "codevalAbbr", "CodeValDetail"), "Project type", new { @id = "intPrjType", @class = "form-control" })
+                    </div>
+                <div class="form-group custom-form-group">
+                    @Html.TextBoxFor(m => m.SearchField.Keyword, new { @id = "Keyword", @placeholder = "Project Number/Commitment No/Status", @class = "form-control" })
+                </div>
+                @*<div class="form-group custom-form-group">
+                        @Html.TextBoxFor(m => m.ProjectNumber, new { @id = "projectnumber", @placeholder = "Project Number", @class = "form-control" })
+                    </div>
+                <div class="form-group custom-form-group">
+                    @Html.DropDownListFor(m => m.PIname, new SelectList(ViewBag.PI, "id", "name"), "PI Name", new { @id = "srchPIName", @class = "form-control" })
+                </div>
+
+
+                <div class="form-group custom-form-group">
+                    <label class="full-width">Created Date</label>
+                </div>
+                <div id="DivSRBDate" class="form-group custom-form-group">
+                    <label class="half-form">From</label>
+                    <label class="half-form">To</label>
+                    @Html.TextBoxFor(m => m.SearchField.FromCreatedDate, new { @id = "FromCreatedDate", @class = "form-control half-form" })
+                    @Html.TextBoxFor(m => m.SearchField.ToCreatedDate, new { @id = "ToCreatedDate", @class = "form-control half-form" })
+                </div>
+                <div class="form-group custom-form-group mt30 text-center">
+                    <button id="btnSearch" type="button" class="btn btn-primary mr10">Search</button>
+                    <button name="btnClose" type="button" class="btn btn-default">Close</button>
+                </div>
+
+
+            </div>
+        </div>
+
+    </div>
+
+    <a href="javascript:void(0)" name="btnClose" class="close-btn"><i class="ion-android-cancel"></i></a>
+
+</div>*@
+<script type="text/javascript">
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+    });
+
+    $("#btnShowFilter").click(function () {
+        $('#popupCommitmentFilter').css("display", "Block");
+    });
+  var getCommitmentURL = 'GetCommitmentDetails'
+var getPrjDetails = "LoadProjectDetails";
+var db;
+var DateField = function (config) {
+    jsGrid.Field.call(this, config);
+};
+
+DateField.prototype = new jsGrid.Field({
+    sorter: function (date1, date2) {
+        return new Date(date1) - new Date(date2);
+    },
+
+    itemTemplate: function (value) {
+        return new Date(value).toDateString();
+    },
+
+    filterTemplate: function () {
+        var now = new Date();
+        this._fromPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() - 1), changeYear: true });
+        this._toPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() + 1), changeYear: true });
+        return $("<div>").append(this._fromPicker).append(this._toPicker);
+    },
+
+    insertTemplate: function (value) {
+        return this._insertPicker = $("<input>").datepicker({ defaultDate: new Date() });
+    },
+
+    editTemplate: function (value) {
+        return this._editPicker = $("<input>").datepicker().datepicker("setDate", new Date(value));
+    },
+
+    insertValue: function () {
+        return this._insertPicker.datepicker("getDate").toISOString();
+    },
+
+    editValue: function () {
+        return this._editPicker.datepicker("getDate").toISOString();
+    },
+
+    filterValue: function () {
+        return {
+            from: this._fromPicker.datepicker("getDate"),
+            to: this._toPicker.datepicker("getDate")
+        };
+    }
+});
+
+jsGrid.fields.date = DateField;
+$(function () {
+    //var tapalDetails = 'PopupTapalDetails';
+    var getEditCommitment = 'getEditCommitmentDetails';
+    $("#CommitmentList").jsGrid({
+        paging: true,
+        pageIndex: 1,
+        pageSize: 5,
+        editing: false,
+        filtering: true,
+        pageLoading: true,
+        autoload: true,
+        controller: {
+            loadData: function (filter) {
+                //return $.grep(db, function (ow) {
+                //    return (!filter.CommitmentType || ow.CommitmentType.toLowerCase().indexOf(filter.CommitmentType.toLowerCase()) > -1)
+                //    && (!filter.CommitmentNo || ow.CommitmentNo.toLowerCase().indexOf(filter.CommitmentNo.toLowerCase()) > -1)
+                //    && (!filter.projectNumber || ow.projectNumber.toLowerCase().indexOf(filter.projectNumber.toLowerCase()) > -1)
+                //    && (!filter.CreatedDate.from || new Date(ow.CreatedDate) >= filter.CreatedDate.from)
+                //    && (!filter.CreatedDate.to || new Date(ow.CreatedDate) <= filter.CreatedDate.to)
+                //    && (!filter.Status || ow.Status.toLowerCase().indexOf(filter.Status.toLowerCase()) > -1);
+                //});
+                var searchData = [];
+                searchData = {
+                    SearchProjectNumber: filter.projectNumber,
+                    SearchCommitmentNumber: filter.CommitmentNo,
+                    CommitmentAmount: filter.CommitmentAmount,
+                    AvilableAmount: filter.AmountSpent,
+                    Status:filter.Status
+                },
+                filter.model = searchData;
+                var deferred = $.Deferred();
+                $.ajax({
+                    type: "post",
+                    url: getCommitmentURL,
+                    data: JSON.stringify(filter),
+                    contentType: "application/json; charset=utf-8",
+                    success: function (result) {
+
+                        var da = {
+                            data: result.CommitmentList,
+                            itemsCount: result.TotalRecords
+                        }
+                        deferred.resolve(da);
+                    },
+                    error: function (err) {
+                        console.log("error : " + err);
+                    }
+
+                });
+                return deferred.promise();
+            }
+
+        },
+        fields: [
+            { name: "SlNo", title: "S.No", editing: false, width: 40 },
+            { type: "text", name: "CommitmentType", title: "Type", editing: false, width: 150, filtering: false },
+              { type: "text", name: "projectNumber", title: "Project No", editing: false },
+            { type: "text", name: "CommitmentNo", title: "Commitment No", editing: false },
+            { type: "text", name: "VendorName", title: "Vendor Name", editing: false, visible: false },
+            { type:"text",name: "CommitmentAmount", title: "Commitment Amount", editing: false },
+            { type:"text",name: "AmountSpent", title: "Available Balance", editing: false },
+            { name: "AmountSpent", title: "Amount spent", editing: false, visible: false },
+            { type: "date", name: "CreatedDate", title: "CreatedDate", editing: false },
+            { type: "text", name: "Status", title: "Status", editing: false }, {
+                name: "NewGenerateDoc",
+                title: "Document", width: 120,
+                itemTemplate: function (value, item) {
+                    var elementDiv1 = $("<div>");
+                    elementDiv1.attr("class", "ls-dts");
+                    var $link1 = "";
+                    if (item.NewGenerateDoc == null || item.NewGenerateDoc=="") {
+                        $link1 = $("<label>").attr("value", "Nill").html('-');
+                    } else {
+                        $link1 = $("<a>").attr("class", "ion-document icn").attr("href", item.Newhref).attr("target", "_blank").html('');
+                    }
+                    elementDiv1.append($link1);
+                    return elementDiv1;
+                }
+            }
+            ,
+            {
+                type: "control", width: 100,
+                _createFilterSwitchButton: function () {
+                    return this._createOnOffSwitchButton("filtering", this.searchModeButtonClass, false)
+                },
+                itemTemplate: function (value, item) {
+                    var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+
+                    var $customButton = $("<button>")
+                        .attr("class", "ion-eye")
+                        .click(function (e) {
+                            var url = '@Url.Action("CommitmentBill", "ReportMaster")?Id=' + item.ComitmentId;
+                             window.open(url, '_blank');
+                        });
+
+                    //$customButton.hide();
+
+                    var $customButtonEdit = $("<button>")
+
+                   .attr("class", "ion-edit")
+                   .click(function (e) { //data: { "CommitmentId": item.ComitmentId },
+                       var url = '@Url.Action("Commitment", "Account")?CommitmentId=' + item.ComitmentId;
+                       window.location.href = url;
+                   });
+                    if (item.Status != "Open") {
+                        //.attr("disabled", "disabled")
+                        //$customButtonEdit.("data-toggle"="tooltip" title="Hooray!"
+                        $customButtonEdit.attr({
+                            "data-toggle": "tooltip",
+                            "title": "This commitment cannot be modified!!!",
+                            "disabled": "disabled"
+                        });
+                    }
+                    // return $result.add($customButton);
+                    return $("<div>").append($customButton).append($customButtonEdit);
+                }
+            }
+        ],
+    });
+    $("#CommitmentList").jsGrid("option", "filtering", false);
+    //loadDetails();
+});
+var loadDetails = function loadDetails() {
+    //$.ajax({
+    //    type: "GET",
+    //    url: getCommitmentURL,
+    //    data: param = "",
+    //    contentType: "application/json; charset=utf-8",
+    //    dataType: "json",
+    //    success: function (result) {
+    //        db = result;
+    //        $("#CommitmentList").jsGrid({ data: db });
+    //    },
+    //    error: function (err) {
+    //        console.log("error : " + err);
+    //    }
+
+    //});
+};
+
+//function LoadPrjDetails(ProjectId) {
+//    $.ajax({
+//        type: "GET",
+//        url: getPrjDetails,
+//        data: param = ProjectId,
+//        contentType: "application/json; charset=utf-8",
+//        dataType: "json",
+//        success: function (result) {
+//            if (result.ProjectTittle != null) {
+//                $("#prjDetails").show();
+//                $("#spanTittle").text(result.ProjectTittle);
+//                $("#spanPIName").text(result.PIname);
+//                $("#spanSanValue").text(result.SanctionedValue);
+//                $("#spanTotReceipt").text(result.TotalReceipt);
+//                $("#spanAmtSpt").text(result.AmountSpent);
+//                $("#spanAvailableBal").text(result.AvailableBalance);
+//                $("#spanPrevious").text(result.PreviousCommitment);
+//                $("#spanNetBal").text(result.NetBalance);
+//            }
+//            else {
+//                $("#prjDetails").hide();
+//            }
+//        },
+//        error: function (err) {
+//            console.log("error : " + err);
+//        }
+
+//    });
+//}
+</script>

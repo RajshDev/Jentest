@@ -1,0 +1,568 @@
+﻿@model IOAS.Models.LCOpeningModel
+@{
+    ViewBag.Title = "LC Retirement";
+    ViewBag.Subtitle = "LC Retirement List";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<style>
+    .auto-com-z-index {
+        z-index: 10000;
+    }
+
+    .your_custom_class {
+        z-index: 10000;
+    }
+</style>
+
+<div class="row hd-tt-bg">
+    <div class="col-md-4">
+        <h3>LC Retirement List</h3>
+    </div>
+    <div id="addnewpage" class="col-md-8 flt-nav-links">
+
+        <a href="Javascript:void(0)" id="btnFilter" class="pull-right"> <i class="ion-android-funnel"></i>Filters</a>
+        <a href="#" id="btnaddnew" data-toggle="modal" data-target="#AddNewEntryModel"> <i class="ion-plus"></i>Retire LC</a>
+        @*<a href="@Url.Action("LCAmmendment")"> <i class="ion-plus"></i>Add New</a>*@
+
+    </div>
+</div>
+<div class="row mt30" id="gridlist">
+    <div class="page-wrapper">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="custom-jsgrid-normal">
+                    <div id="LCRetirementList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="popup"></div>
+<div id="popupFilter" class="filter-popup">
+    <div class="">
+        <div class="filter-content">
+            <div class="white-bg">
+                <div class="form-group custom-form-group">
+                    <h3>Filter by</h3>
+                </div>
+
+                <div class="form-group custom-form-group">
+                    @Html.TextBoxFor(m => m.SearchField.ProjectNumber, new { @id = "srchprojectnumber", @placeholder = "Project Number", @class = "form-control" })
+                </div>
+
+                <div class="form-group custom-form-group">
+                    @Html.TextBoxFor(m => m.SearchField.LCReferenceNumber, new { @id = "srchLCReferencenumber", @placeholder = "LC Reference Number", @class = "form-control" })
+                </div>
+                <div class="form-group custom-form-group">
+                    @Html.TextBoxFor(m => m.SearchField.PONumber, new { @id = "srchPONumber", @placeholder = "PO Number", @class = "form-control" })
+                </div>
+                @*<div class="form-group custom-form-group">
+                    @Html.TextBoxFor(m => m.SearchField.BeneficiaryName, new { @id = "srchBeneficiaryName", @placeholder = "Beneficiary Name", @class = "form-control" })
+                </div>*@
+                <div id="DivCrtdDate" class="form-group custom-form-group">
+                    <label class="full-width">Requested Date</label>
+                    <label class="half-form">From Date </label>
+                    @Html.TextBoxFor(m => m.SearchField.FromDate, new { @id = "FromDate", @class = "form-control half-form" })
+                    <label class="half-form">To Date </label>
+                    @Html.TextBoxFor(m => m.SearchField.ToDate, new { @id = "ToDate", @class = "form-control half-form" })
+                </div>
+                <div class="form-group custom-form-group mt30 text-center">
+                    <a id="btnReset" href="javascript:void(0)">Reset</a>
+                </div>
+                <div class="form-group custom-form-group mt30 text-center">
+                    <button id="btnSearch" type="button" class="btn btn-primary mr10">Search</button>
+                    <button name="btnClose" type="button" class="btn btn-default">Close</button>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <a href="javascript:void(0)" name="btnClose" class="close-btn"><i class="ion-android-cancel"></i></a>
+
+</div>
+<div class="row mt30" id="gridproject">
+    <div id="AddNewEntryModel" class="modal fade" role="dialog">
+        <div class="modal-dialog wdth40">
+
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" onclick="window.location.href='@Url.Action("LCRetirementList", "CoreAccounts")';">&times;</button>
+                    <h3 class="modal-title">Select LC</h3>
+                </div>
+                <div class="modal-body">
+
+                    <!-- Modal content-->
+                    <div class="col-md-12">
+                       
+                        <div class="col-md-8">
+                            <div class="form-group custom-form-group">
+                                <label class="required">LC Number / PO Number</label>
+                                @Html.TextBoxFor(m => m.SelectLCNumber, new { @class = "form-control", @id = "txtSelectLCNumber" })
+                                @Html.TextBoxFor(m => m.SelLCId, new { @class = "form-control dis-none" })
+                                @Html.ValidationMessageFor(m => m.SelectLCNumber)
+                                
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+                <div class="modal-footer">
+
+                    <button type="button" class="btn btn-primary mt10" data-dismiss="modal" id="btnselectlc">Ok</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    $(document).ready(function () {
+
+        $("#FromDate, #ToDate").datepicker
+           ({
+               dateFormat: 'dd-MM-yy',
+               showStatus: true,
+               showWeeks: true,
+               changeYear: true,
+               yearRange: '-100:+100',
+               highlightWeek: true,
+               numberOfMonths: 1,
+               showAnim: "scale",
+               showOptions: {
+                   origin: ["top", "left"]
+               }
+           });
+        $("input[name='SelectLCNumber']").each(function () {
+            projectChange($(this), 'U');
+        });
+    });
+    function aplyProjectAutoComplete(ele, url, setId) {
+        $(ele).autocomplete({
+            select: function (event, ui) {
+                event.preventDefault();
+                $(ele).val(ui.item.label);
+                //$(ele).closest('tr').find(".lblSelId").text(ui.item.label);
+                if (setId == true) {
+                    $("input[name='SelLCId']").val(ui.item.value);
+                    $("input[name='SelectLCNumber']").val(ui.item.label);
+                } else {
+                    $(ele).closest('tr').find("input[name='SelLCId']").val('');
+                    $(ele).closest('tr').find("input[name='SelectLCNumber']").val('');
+                }
+            },
+            focus: function (event, ui) {
+                event.preventDefault();
+                $(ele).val(ui.item.label);
+            },
+            source: function (request, response) {
+                $.getJSON(url, { term: request.term },
+                 function (locationdata) {
+                     response(locationdata);
+                 });
+            },
+            minLength: 3
+        }).autocomplete("widget").addClass("auto-com-z-index");
+    }
+    function projectChange(el, mode) {
+        var selProj = $("input[name='SelectLCNumber']");
+        if (mode != 'U') {
+            $("input[name='SelLCId'], input[name='SelectLCNumber']").val('');
+            //$(el).closest('tr').find("input[name='autoComplete'],input[name='UserId'],input[name='Name']").val('');
+        }
+        $("input[name='SelLCId']").addClass('required');
+        $("input[name='SelectLCNumber']").addClass('required');
+        aplyProjectAutoComplete(selProj, "../CoreAccounts/LoadRetireLCNumberList", true)
+
+    }
+    $("#btnaddnew").click(function () {
+        $("input[name='SelectLCNumber']").each(function () {
+            projectChange($(this), 'U');
+        });
+    });
+    $("#btnselectlc").click(function () {
+        var lclid = $("input[name='SelLCId']").val();
+
+        var IsValid = true;
+        if (!IsValid)
+            return
+        if (lclid == "") {
+            IsValid = false;
+            $("#alert").text("Please select any LC");
+            $('#Validation').modal('show');
+            $("#SelectPI").focus();
+            return false;
+        }
+
+        if (IsValid == true)
+            // var searchdata = { "pId": projectid };
+            var url = '@Url.Action("LCRetirement", "CoreAccounts")?LCdraftId=' + lclid;
+        window.location.href = url;
+
+    });
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+    });
+    var DateField = function (config) {
+        jsGrid.Field.call(this, config);
+    };
+    function ResetForm() {
+        $('#FromDate').val('');
+        $('#ToDate').val('');
+        $('#srchLCReferencenumber').val('');
+        $('#srchprojectnumber').val('');
+        $('#srchPONumber').val('');
+    }
+    $('#btnReset').click(function () {
+        ResetForm();
+        getData(1);
+    });
+    $('#btnSearch').on('click', function () {
+        // var token = $("input[name=__RequestVerificationToken]").val();
+        getData(1);
+    });
+    var searchURL = 'GetLCRetirementList';
+    function getData(page) {
+        var input = [];
+        input = {
+            SearchEXLCReferencenumber: $('#srchLCReferencenumber').val(),
+            SearchEXProjectNumber: $('#srchprojectnumber').val(),
+            SearchEXPONumber: $('#srchPONumber').val(),
+            //SearchEXBeneficiaryName: $('#srchBeneficiaryName').val(),
+            FromDate: $('#FromDate').val() || null,
+            ToDate: $('#ToDate').val() || null
+        },
+         $("#LCRetirementList").jsGrid("search", input, pageIndex = 1, pageSize = 5);
+
+
+    }
+    DateField.prototype = new jsGrid.Field({
+        sorter: function (date1, date2) {
+            return new Date(date1) - new Date(date2);
+        },
+
+        itemTemplate: function (value) {
+            return new Date(value).toDateString();
+        },
+
+        filterTemplate: function () {
+            var now = new Date();
+            this._fromPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() - 1), changeYear: true });
+            this._toPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() + 1), changeYear: true });
+            return $("<div>").append(this._fromPicker).append(this._toPicker);
+        },
+
+        insertTemplate: function (value) {
+            return this._insertPicker = $("<input>").datepicker({ defaultDate: new Date() });
+        },
+
+        editTemplate: function (value) {
+            return this._editPicker = $("<input>").datepicker().datepicker("setDate", new Date(value));
+        },
+
+        insertValue: function () {
+            return this._insertPicker.datepicker("getDate").toISOString();
+        },
+
+        editValue: function () {
+            return this._editPicker.datepicker("getDate").toISOString();
+        },
+
+        filterValue: function () {
+            return {
+                from: this._fromPicker.datepicker("getDate"),
+                to: this._toPicker.datepicker("getDate")
+            };
+        }
+    });
+    jsGrid.fields.date = DateField;
+    var db;
+    $("#LCRetirementList").jsGrid({
+        paging: true,
+        pageIndex: 1,
+        pageSize: 5,
+        editing: false,
+        filtering: true,
+        pageLoading: true,
+        autoload: true,
+        controller: {
+
+            loadData: function (filter) {
+                //return $.grep(db, function (ow) {
+                //    return (!filter.BillNumber || ow.BillNumber.toLowerCase().indexOf(filter.BillNumber.toLowerCase()) > -1)
+                //            && (!filter.ProjectNumber || ow.ProjectNumber.toLowerCase().indexOf(filter.ProjectNumber.toLowerCase()) > -1)
+                //            && (!filter.LCReferenceNumber || ow.LCReferenceNumber.toLowerCase().indexOf(filter.LCReferenceNumber.toLowerCase()) > -1)
+                //            && (!filter.BeneficiaryName || ow.BeneficiaryName.toLowerCase().indexOf(filter.BeneficiaryName.toLowerCase()) > -1)
+                //            && (!filter.RequestedDate.from || new Date(ow.RequestedDate) >= filter.RequestedDate.from)
+                //            && (!filter.RequestedDate.to || new Date(ow.RequestedDate) <= filter.RequestedDate.to);
+                //});
+                var searchData = [];
+                searchData = {
+
+                    SearchINLCReferencenumber: filter.ReferenceNumber,
+                    SearchINProjectNumber: filter.ProjectNumber,
+                    SearchINPONumber: filter.PONumber,
+                    SearchINStatus: filter.Status,
+                    SearchEXLCReferencenumber: $('#srchLCReferencenumber').val(),
+                    SearchEXProjectNumber: $('#srchprojectnumber').val(),
+                    SearchEXPONumber: $('#srchPONumber').val(),
+                    //SearchEXBeneficiaryName: $('#srchBeneficiaryName').val(),
+                    FromDate: $('#FromDate').val() || null,
+                    ToDate: $('#ToDate').val() || null
+                },
+                filter.model = searchData;
+                var deferred = $.Deferred();
+                $.ajax({
+                    type: "POST",
+                    url: 'GetLCRetirementList',
+                    data: JSON.stringify(filter),
+                    contentType: "application/json; charset=utf-8",
+                    success: function (result) {
+                        // dataProposal = result;
+                        //$("#gridProposalList").jsGrid({ data: result });
+                        //$('#projectopening').hide();
+                        //$('#gridproposal').show();
+                        //dbProposal = result;
+                        var da = {
+                            data: result.LCList,
+                            itemsCount: result.TotalRecords
+                        }
+                        deferred.resolve(da);
+                    },
+                    error: function (err) {
+                        console.log("error : " + err);
+                    }
+
+                });
+                return deferred.promise();
+            }
+
+        },
+
+        fields: [
+            { name: "SlNo", title: "S.No", editing: false, width: 10 },
+            { type: "number", name: "LCOpeningId", title: "Id", visible: false, align: "left" },
+            { type: "number", name: "LCRetirementId", title: "RetirementId", visible: false, align: "left" },
+           // { type: "number", name: "Projectid", title: "Project Id", visible: false, align: "left" },
+            { type: "text", name: "ProjectNumber", title: "Project Number", align: "left", width: 70 },
+            { type: "text", name: "ReferenceNumber", title: "Reference Number", editing: false, align: "left", width: 70 },
+
+            { type: "text", name: "PONumber", title: "PO Number", editing: false, align: "left", width: 70 },
+            { name: "LCDraftAmt", title: "LC Draft Amount", editing: false, align: "left", width: 70 },
+            { name: "LCRetireAmt", title: "LC Retirement Amount", editing: false, align: "left", width: 70 },
+            { name: "RequestDate", title: "Date", editing: false, align: "left", width: 70 },
+            { type: "text", name: "Status", title: "Status", editing: false, align: "left", width: 60 },
+             {
+                 type: "control", editButton: false, deleteButton: false, title: "Action", width: 80,
+                 itemTemplate: function (value, item) {
+                     var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+                     if (item.Status == "Retirement Open") {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "Edit", name: "Edit" } , { id: "LCRetirement", name: "Final LC Retirement" }, { id: "View", name: "View" }, { id: "Print", name: "Print" }]
+                     }
+                     else if (item.Status == "Final Retirement Open") {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "EditRetirement", name: "Edit LC Retirement" }, { id: "Submit for Approval", name: "Submit for Approval" }, { id: "ViewRetirement", name: "View LC Retirement" }, { id: "Print", name: "Print" }]
+                     }
+                     else if (item.Status == "Retirement Approval Pending") {
+                         
+                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }, { id: "Approve", name: "Approve" }, { id: "Print", name: "Print" }]
+                     }
+                     else {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }, { id: "Print", name: "Print" }]
+                     }
+                     var $customSelect = $("<select>")
+                         .attr("class", "form-control").prop("selectedIndex", "")
+
+                     $.each(statusList, function (index, itemData) {
+                         $customSelect.append($('<option/>', {
+
+                             value: itemData.id,
+                             text: itemData.name
+                         }));
+                     });
+
+                     $customSelect.change(function (e) {
+                         var selVal = $(this).val();
+                         @*if (selVal == "Delete") {
+                             var choice = confirm("Are you sure, Do you want to delete this bill?");
+                             if (choice === true) {
+                                 $.ajax({
+                                     type: "POST",
+                                     url: '@Url.Action("DeleteSummerInternship", "CoreAccounts")',
+                                     data: {
+                                         travelBillId: item.TravelBillId
+                                     },
+                                     success: function (result) {
+                                         if (result == true) {
+                                             $('#alertSuccess').html("Advance bill has been deleted successfully.");
+                                             $('#Success').modal('toggle');
+                                             loadDetails();
+                                         } else if (result == false) {
+                                             $('#FailedAlert').html("Something went wrong please contact administrator");
+                                             $('#Failed').modal('toggle');
+                                         }
+                                     },
+                                     error: function (err) {
+                                         console.log("error1 : " + err);
+                                     }
+                                 });
+                             }
+                         } else*@
+                         if (selVal == "Edit") {
+                             var url = '@Url.Action("LCRetirement", "CoreAccounts")?LCRetirementId=' + item.LCRetirementId;
+                             window.location.href = url;
+                         }
+                         else if (selVal == "EditRetirement") {
+                             var url = '@Url.Action("FinalRetirementofLC", "CoreAccounts")?LCRetirementId=' + item.LCRetirementId;
+                             window.location.href = url;
+                         }
+                         else if (selVal == "LCRetirement") {
+                             var url = '@Url.Action("FinalRetirementofLC", "CoreAccounts")?LCRetirementId=' + item.LCRetirementId + '&LCDraftId=' + item.LCOpeningId;
+                             window.location.href = url;
+                         }
+                         else if (selVal == "Print") {
+                             var url = '@Url.Action("LCRetiredownload", "ReportMaster")?LCRetirementId=' + item.LCRetirementId;
+                             window.open(url, '_blank');
+                         }
+                         else if (selVal == "Submit for Approval") {
+
+                             var approveurl = 'LCRetirementSubmitforApproval';
+                             var choice = confirm("Are you sure, Do you want to submit this LC Retirement for approval process?");
+                             if (choice === true) {
+
+                                 $.ajax({
+                                     type: "GET",
+                                     url: approveurl,
+                                     data: { LCRetirementId: item.LCRetirementId },
+                                     contentType: "application/json; charset=utf-8",
+                                     success: function (result) {
+
+                                         if (result.status == true) {
+                                             $('#alertSuccess').html("LC Retirement has been approved successfully.");
+                                             $('#Success').modal('toggle');
+                                             loadDetails();
+                                         } else if (result.status == false) {
+                                             $('#FailedAlert').html("Something went wrong please contact administrator");
+                                             $('#Failed').modal('toggle');
+                                         }
+                                     },
+                                     error: function (err) {
+                                         console.log("error1 : " + err);
+                                     }
+                                 });
+                                 loadDetails();
+
+                             }
+                         }
+                         else if (selVal == "Approve") {
+
+                             var approveurl = 'LCRetirementApprove';
+                             var choice = confirm("Are you sure, Do you want to approve this LC Retirement?");
+                             if (choice === true) {
+
+                                 $.ajax({
+                                     type: "GET",
+                                     url: approveurl,
+                                     data: { LCRetirementId: item.LCRetirementId },
+                                     contentType: "application/json; charset=utf-8",
+                                     success: function (result) {
+
+                                         if (result.status == true) {
+                                             $('#alertSuccess').html("LC has been approved successfully.");
+                                             $('#Success').modal('toggle');
+                                             loadDetails();
+                                         } else if (result.status == false) {
+                                             $('#FailedAlert').html("Something went wrong please contact administrator");
+                                             $('#Failed').modal('toggle');
+                                         }
+                                     },
+                                     error: function (err) {
+                                         console.log("error1 : " + err);
+                                     }
+                                 });
+                                 loadDetails();
+                                 //var getList = 'GetLCRetirementList'
+                                 //$.ajax({
+                                 //    type: "GET",
+                                 //    url: getList,
+                                 //    data: param = "",
+                                 //    contentType: "application/json; charset=utf-8",
+                                 //    success: function (result) {
+                                 //        // dataProposal = result;
+                                 //        $("#LCRetirementList").jsGrid({ data: result });
+                                 //        $('#gridlist').show();
+                                 //        $('#addnewpage').show();
+                                 //    },
+                                 //    error: function (err) {
+                                 //        console.log("error : " + err);
+                                 //    }
+                                 //});
+                             }
+                         }
+                         else if (selVal == "View") {
+                             var url = '@Url.Action("LCRetirementView", "CoreAccounts")?LCRetirementId=' + item.LCRetirementId;
+                             window.location.href = url;
+                         }
+                         $(this).val("");
+                         return false;
+                         e.stopPropagation();
+                     });
+
+                     return $result.add($customSelect);
+                 },
+                 _createFilterSwitchButton: function () {
+                     return this._createOnOffSwitchButton("filtering", this.searchModeButtonClass, false);
+                 }
+             }
+
+
+        ],
+
+    });
+    $("#LCRetirementList").jsGrid("option", "filtering", false);
+    loadDetails();
+    function loadDetails() {
+        var input = [];
+        input = {
+            SearchEXLCReferencenumber: $('#srchLCReferencenumber').val(),
+            SearchEXProjectNumber: $('#srchprojectnumber').val(),
+            SearchEXPONumber: $('#srchPONumber').val(),
+            //SearchEXBeneficiaryName: $('#srchBeneficiaryName').val(),
+            FromDate: $('#FromDate').val() || null,
+            ToDate: $('#ToDate').val() || null
+        },
+         $("#LCRetirementList").jsGrid("search", input, pageIndex = 1, pageSize = 5);
+    }
+    //$('input[id^="SearchBy_"]').change(function () {
+    //    var value = $(this).val();
+    //    if (value == 'InternshipDate') {
+    //        $('#DivSIDate').show();
+    //        $('#DivCrtdDate').hide();
+    //    }
+    //    else {
+    //        $('#DivCrtdDate').show();
+    //        $('#DivSIDate').hide();
+    //    }
+    //    $('#FromSIDate').val('');
+    //    $('#ToSIDatex ').val('');
+    //    $('#FromDate').val('');
+    //    $('#ToDate').val('');
+    //});
+    $('a[name="btnClose"],button[name="btnClose"]').click(function () {
+        $('#popupFilter').css("display", "none");
+    });
+    $("#btnFilter").click(function () {
+        $('#popupFilter').css("display", "Block");
+    });
+
+
+</script>

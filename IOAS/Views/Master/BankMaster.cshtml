@@ -1,0 +1,109 @@
+﻿@model IOAS.Models.BankAccountMaster
+@{
+    ViewBag.Title = "BankMaster";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+<div class="row">
+@using (Html.BeginForm("BankMaster", "Master", FormMethod.Post, new { @class = "", role = "form", @id = "formCU", enctype = "multipart/form-data" }))
+{
+    <div class="col-md-12">
+        <div class="page-wrapper">
+            <div class="white-bg">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label class="required">Staff Category</label>
+                            @Html.DropDownListFor(m => m.Category, new SelectList(ViewBag.bankcategory, "id", "name"), "Select Category", new { @id = "ddlCategory", @class = "form-control", @required = "required" })
+                            <div class="txt-error txt-red"> @Html.ValidationMessageFor(M => M.Category)</div>
+                            @Html.HiddenFor(m=>m.StaffBankId,new {@id="hdnStaffBankid" })
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="form-group custom-form-group">
+                            <label class="required">Account Holder Name</label>
+                            @Html.TextBoxFor(m => m.AccountantName, new { @class = "form-control", @id = "txtAcctName" , @required = "required" })
+                            @Html.HiddenFor(m => m.Userid, new { @id = "hdnuserid" })
+                            <div class="txt-error txt-red"> @Html.ValidationMessageFor(M => M.AccountantName)</div>
+                        </div>
+                        </div>
+                </div>
+                <div class="row">
+                    
+                        <div class="col-md-4">
+                            <div class="form-group custom-form-group">
+                                <label class="required">Bank Type</label>
+                                @Html.DropDownListFor(m => m.BankType, new SelectList(ViewBag.bankname, "id", "name"), "Select Bank", new { @id = "ddlBank", @class = "form-control", @required = "required" })
+                                <div class="txt-error txt-red"> @Html.ValidationMessageFor(M => M.BankType)</div>
+                            </div>
+                    </div>
+                   
+                        <div class="col-md-4">
+                            <div class="form-group custom-form-group">
+                                <label class="required">Account Number</label>
+                                @Html.TextBoxFor(m => m.AccountNumber, new { @class = "form-control", @id = "txtAcctNumber", @required = "required" })
+                                <div class="txt-error txt-red"> @Html.ValidationMessageFor(M => M.AccountNumber)</div>
+                            </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label class="required">IFSC code</label>
+                            @Html.TextBoxFor(m => m.IFSCCode, new { @class = "form-control", @id = "txtIfscCode" ,@required = "required" })
+                            <div class="txt-error txt-red"> @Html.ValidationMessageFor(M => M.IFSCCode)</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label class="required">Branch</label>
+                            @Html.TextBoxFor(m => m.Branch, new { @class = "form-control", @id = "txtIfscCode", @required = "required" })
+                            <div class="txt-error txt-red"> @Html.ValidationMessageFor(M => M.Branch)</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label class="required">Bank Name</label>
+                            @Html.TextBoxFor(m => m.BankName, new { @class = "form-control", @id = "txtBankName", @required = "required" })
+                            <div class="txt-error txt-red"> @Html.ValidationMessageFor(M => M.BankName)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 text-center pd-tb-30">
+                    <input type="submit" class="btn btn-primary mr10" value="Submit" name="Button" id="btnSave" />
+                    <input type="button" onclick="window.location.href='@Url.Action("BankMasterList", "Master")';" class="btn btn-default" value="Close" id="btnclose" />
+                </div>
+            </div>
+        </div>
+    </div>
+}
+</div>
+<script>
+    $("#document").ready(function () {
+        $('#txtAcctName').click(function () {
+            var cate = $("#ddlCategory").val();
+            if (cate == 1) {
+                applyAutoComplete($('#txtAcctName'), $('#hdnuserid'), "../CoreAccounts/LoadPIList", undefined, undefined, undefined);
+            }
+            else if(cate==2)
+            {
+                applyAutoComplete($('#txtAcctName'), $('#hdnuserid'), "../CoreAccounts/LoadStudentList", undefined, undefined, undefined);
+            }
+            else if(cate==3)
+            {
+                applyAutoComplete($('#txtAcctName'), $('#hdnuserid'), "../CoreAccounts/LoadTandMList", undefined, undefined, undefined);
+            }
+            else if (cate == 4) {
+                applyAutoComplete($('#txtAcctName'), $('#hdnuserid'), "../CoreAccounts/LoadInstituteStaffList", undefined, undefined, undefined);
+            }
+            else if (cate == 5) {
+                applyAutoComplete($('#txtAcctName'), $('#hdnuserid'), "../CoreAccounts/LoadAdhocStaffList", undefined, undefined, undefined);
+            }
+        });
+
+    });
+</script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>

@@ -1,0 +1,158 @@
+﻿@model IOAS.Models.SOEmodel
+
+@{
+    ViewBag.Title = "SOE";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+<div class="row hd-tt-bg">
+    <div class="col-md-12">
+        <h4><b>SOE</b> </h4>
+    </div>
+</div>
+<style>
+    .vw-dts-bg .hgt-bg {
+        background: #597df0;
+        color: #fff;
+    }
+
+        .vw-dts-bg .hgt-bg label {
+            font-size: 16px !important;
+            color: #fff !important;
+        }
+
+        .vw-dts-bg .hgt-bg h4 {
+            font-size: 18px !important;
+            color: #fff;
+        }
+
+    .vw-dts-bg .hgt-bg-pl {
+        background: #e11eda;
+        color: #fff;
+    }
+
+        .vw-dts-bg .hgt-bg-pl label {
+            font-size: 16px !important;
+            color: #fff !important;
+        }
+
+        .vw-dts-bg .hgt-bg-pl h4 {
+            font-size: 18px !important;
+            color: #fff;
+        }
+</style>
+<div class="row">
+    <div class="white-bg ad-navbar">
+        <div class="col-md-3 ds-spl-bg">
+            <div class="ds-icn">
+                <i class="ion-ios-list-outline "></i>
+            </div>
+            <div class="ds-tt">
+                <span class="required">Project Number</span>
+                <input type="text" class="form-control" autocomplete="off" name="ProjNo" id="ProjNo" />
+                <input type="text" class="form-control dis-none" autocomplete="off" name="ProjId" id="ProjId" />
+            </div>
+        </div>
+        <div class="col-md-3 ds-spl-bg">
+            <div class="ds-tt">
+                <span class="required">From Date</span>
+                <input type="text" class="form-control" autocomplete="off" name="FromDate" id="FromDate" />
+            </div>
+        </div>
+        <div class="col-md-3 ds-spl-bg">
+            <div class="ds-tt">
+                <span class="required">To Date</span>
+                <input type="text" class="form-control" autocomplete="off" name="ToDate" id="ToDate" />
+            </div>
+        </div>
+
+        <div class="col-md-3 ds-spl-bg">
+            <div class="ds-tt">
+                <input type="submit" value="Download" class="btn btn-primary mt-20" id="btnSubmit" />
+            </div>
+        </div>
+
+    </div>
+</div>
+<script>
+    $(document).on('click', '#ProjNo', function () {
+        applyAutoComplete($('#ProjNo'), $('#ProjId'), "../CoreAccounts/LoadProjectNumber", undefined, undefined, undefined);
+    });
+    //var enableDays = ["17-08-2020", "20-08-2020"];
+    @*function enableAlltheseDays(date) {
+        //$.datepicker.noWeekends
+        var sdate=$.datepicker.formatDate("dd-mm-yy",date)
+        if($.inArray( sdate,enableDays )!=-1){
+            return [true];
+        }
+        return [false];
+    }
+
+    var ProjectId = $("#ProjId").val();
+    $.ajax({
+        type: "POST",
+        data: JSON.stringify({ 'ProjectId': ProjectId}),
+        url: '@Url.Action("GetDateList", "ReportMaster")',
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function (result) {
+            var row;
+            var Amt = 0;
+            var enableDays;
+            enableDays = result;
+            
+         
+        },
+        error: function (err) {
+            console.log("error : " + err);
+        }
+    });*@
+
+    @*$(document).on('change', '#ProjNo', function () {
+        $.ajax({
+            type: "POST",
+            data: JSON.stringify({ 'ProjectId': ProjectId }),
+            url: '@Url.Action("GetDateList", "ReportMaster")',
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (result) {
+                var row;
+                var Amt = 0;
+                var enableDays;
+                enableDays = result;
+            },
+            error: function (err) {
+                console.log("error : " + err);
+            }
+        });
+    });*@
+    $('#FromDate,#ToDate').datepicker({ dateFormat: 'dd-MM-yy', changeYear: true, changeMonth: true })
+
+    $('#FromDate').change(function () {
+        $('#ToDate').val('');
+        if ($(this).val() != "") {
+            var StartDate = moment($(this).val().split('-').join('/')).toDate();
+            $('#ToDate').datepicker({
+                dateFormat: 'dd-MM-yy',
+                changeYear: true
+            }).datepicker("option", "minDate", StartDate).datepicker("option", "maxDate", 0);
+        }
+
+    });
+
+    $('#btnSubmit').click(function () {
+        var FromDate = $("#FromDate").val();
+        var ToDate = $("#ToDate").val();
+        var ProjectId = $("#ProjId").val();
+       
+        if (FromDate != "" && ToDate != "" && ProjectId != "") {
+            var url = '@Url.Action("SOE", "Reports")?fdate=' + FromDate + "&tdate=" + ToDate + "&ProjectId=" + ProjectId;
+            window.location.href = url;
+    }else{
+            $('#FailedAlert').html("Project Number,From Date,To Date field required");
+    $('#Failed').modal('toggle');
+    }
+       
+        });
+</script>
+

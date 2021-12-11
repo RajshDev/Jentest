@@ -1,0 +1,357 @@
+﻿@model IOAS.Models.Functionviewmodel
+
+@{
+    ViewBag.Title = "Access Rights";
+    ViewBag.Subtitle = "Add Role wise Function";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<div id="addnewstatusbar">
+    <div class="row hd-tt-bg">
+        <div class="col-md-4">
+            <h3>Access rights</h3>
+      
+        </div>
+        
+    </div>
+</div>
+
+
+<div class="row">
+   
+        <div class="col-md-12">
+            <div class="page-wrapper">
+                <div class="white-bg">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group custom-form-group">
+                                <label class="required">Function Name</label>
+                                @Html.DropDownListFor(M => M.Functionid, new SelectList(ViewBag.Function, "Functionid", "Functionname"), "Select Function", new { @id = "ddlfunction", @class = "form-control" })
+                                <div> @Html.ValidationMessageFor(M => M.Functionid)</div>
+                             </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="form-group custom-form-group">
+                                <label class="required">Department</label>
+                                @Html.DropDownListFor(M => M.Departmentid, new SelectList(ViewBag.dept, "Departmentid", "Departmentname"), "Select department", new { @id = "ddldepartment", @class = "form-control" })
+                                <div> @Html.ValidationMessageFor(M => M.Departmentid)</div>
+                            </div>
+                        </div>
+
+                      
+                    </div>
+            </div>  
+                <div class="row mt30">
+                    <div class="col-md-12">
+
+                        <table class="table" id="tbllist">
+                            <thead>
+                                <tr>
+                                    
+                                    <th scope="col">Role</th>
+                                    <th scope="col">Read / Write</th>
+                                    @*<th scope="col">Add</th>*@
+                                    @*<th scope="col">Delete</th>*@
+                                    <th scope="col">Approve</th>
+                                    @*<th scope="col">Update</th>*@
+                                </tr>
+                            </thead>
+                            <tbody>
+                               
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>   
+                <div class="row">
+                    <div class="col-md-12 text-center pd-tb-30">
+                         <input type="submit" class="btn btn-primary mr10" value="Save" id="btnSave" />
+                        <input type="button" onclick="window.location.href='@Url.Action("Dashboard", "Home")';" class="btn btn-default" value="Close" id = "btnReset" />
+                       
+                    </div>
+                </div>
+                <div class="txt-error txt-red">@Html.ValidationSummary(true)</div>
+            </div>
+        </div>
+    
+</div>
+<div id="addmodal" class="modal fade modal-success" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-checkmark-circle"></i>
+                <h3 class="modal-title">Saved successfully</h3>
+            </div>
+            <div class="modal-body">
+
+                <p> Saved successfully</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div id="functionmodal" class="modal fade modal-error" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-cancel"></i>
+                <h3 class="modal-title">Message</h3>
+            </div>
+            <div class="modal-body">
+
+                <p>"Please select any one Function name !"</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div id="departmentmodal" class="modal fade modal-error" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-cancel"></i>
+                <h3 class="modal-title">Message</h3>
+            </div>
+            <div class="modal-body">
+
+                <p>"Please select any one Department name !"</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script type="text/javascript">
+
+
+    $('#ddlfunction').on('change', function () {
+        $("#tbllist tbody").html("");
+        $("#ddldepartment").prop("selectedIndex", 0);
+    });
+    $('#ddldepartment').on('change', function () {
+            var deptid = $('#ddldepartment').val();
+
+            $.ajax({
+                type: "Post",
+                url: '@Url.Action("AccessRights", "Account")',
+                data: { Depertmentid: deptid },
+                dataType: "json",
+                success: function (jsonData) {
+                   
+                    $("#tbllist tbody").html("");
+                    $("#tbllist tbody").append();
+                    for (var i = 0; i < jsonData.result.length; i++) {
+                        var index = i + 1;
+                        {
+                            var table = '<tr>' + '<td id="Roleid_' + index + '" style="display:none">' + jsonData.result[i].Roleid + '</td>' +
+                                                 '<td id="Rolename_' + index + '">' + jsonData.result[i].Rolename + '</td>' +
+                                                 '<td><input type="checkbox" class="checkbox" id="Read_' + index + '" name="readchkbox" onclick="handleClick(' + index + ',\'readchkbox\');"></td>' +
+                                                 //'<td><input type="checkbox" class="checkbox" id="Add_' + index + '" name="addchkbox" onclick="handleClick('+index+',\'\');" ></td>' +
+                                                 //'<td><input type="checkbox" class="checkbox" id="delete_' + index + '" name="deletechkbox" onclick="handleClick(' + index + ',\'\');"></td>' +
+                                                  '<td><input type="checkbox" class="checkbox" id="Approve_' + index + '" name="approvechkbox" onclick="handleClick(' + index + ',\'\');" ></td>' + '</tr>'
+                                                  //'<td><input type="checkbox" class="checkbox" id="Update_' + index + '" name="updatedchkbox" onclick="handleClick(' + index + ',\'\');" ></td>' + '</tr>'
+                            $("#tbllist tbody").append(table);
+                        }
+                    }
+                }
+            });
+        setTimeout(function () {
+            Fillroleaccess();
+        }, 200);
+    });
+   
+    function Fillroleaccess() {
+        var depetid = $('#ddldepartment').val();
+        var funcid = $('#ddlfunction').val();
+        var getData = { "functionid": funcid, "Departmentid": depetid };
+        $.ajax({
+            type: "Post",
+            url: '@Url.Action("AccessRightsFill", "Account")',
+            data: getData,
+            contentType: "application/x-www-form-urlencoded",
+            success: function (jsonData) {
+                var rowCount = $('#tbllist tr').length;
+                for (var i = 0; i < jsonData.list.length; i++) {
+                        for (var j = 0; j < rowCount; j++) {
+                        var indx = j+1;
+                        if ($('#Roleid_' + indx + '').html() == jsonData.list[i].Roleid) {
+                            if (jsonData.list[i].Read == false) {
+                                $('#Read_' + indx + '').prop('checked', false);
+                            }
+                            else {
+                                $('#Read_' + indx + '').prop('checked', true);
+                            }
+                            //if (jsonData.list[i].Add == false) {
+                            //    $('#Add_' + indx + '').prop('checked', false);
+                            //}
+                            //else {
+                            //    $('#Add_' + indx + '').prop('checked', true);
+                            //}
+                            //if (jsonData.list[i].Delete == false) {
+                            //    $('#delete_' + indx + '').prop('checked', false);
+                            //}
+                            //else {
+                            //    $('#delete_' + indx + '').prop('checked', true);
+                            //}
+                            if (jsonData.list[i].Approve == false) {
+                                $('#Approve_' + indx + '').prop('checked', false);
+                            }
+                            else {
+                                $('#Approve_' + indx + '').prop('checked', true);
+                            }
+                            //if (jsonData.list[i].Update == false) {
+                            //    $('#Update_' + indx + '').prop('checked', false);
+                            //}
+                            //else {
+                            //    $('#Update_' + indx + '').prop('checked', true);
+                            //}
+                        }
+                    }
+                }
+            }
+        });
+
+    }
+    function handleClick(chk, ctrlname) {
+
+        if (ctrlname != "readchkbox") {
+            if ($('#Approve_' + chk + '').prop("checked") == true) {
+
+                $('#Read_' + chk + '').prop('checked', true);
+            }
+            else if ($('#Approve_' + chk + '').prop("checked") == false) {
+                $('#Read_' + chk + '').prop('checked', false);
+                //$('#Add_' + chk + '').prop('checked', false);
+                //$('#delete_' + chk + '').prop('checked', false);
+                $('#Approve_' + chk + '').prop('checked', false);
+                //$('#Update_' + chk + '').prop('checked', false);
+            }
+            else if ($('#Read_' + chk + '').prop("checked") == false) {
+                //$('#Add_' + chk + '').prop('checked', false);
+                //$('#delete_' + chk + '').prop('checked', false);
+                $('#Approve_' + chk + '').prop('checked', false);
+                //$('#Update_' + chk + '').prop('checked', false);
+            }
+        }
+        else {
+            if ($('#Read_' + chk + '').prop("checked") == false) {
+                //$('#Add_' + chk + '').prop('checked', false);
+               // $('#delete_' + chk + '').prop('checked', false);
+                $('#Approve_' + chk + '').prop('checked', false);
+                //$('#Update_' + chk + '').prop('checked', false);
+            }
+        }
+    }
+    //function handleClick(chk,ctrlname) {
+        
+    //    if (ctrlname != "readchkbox") {
+    //        if ($('#Add_' + chk + '').prop("checked") == true || $('#delete_' + chk + '').prop("checked") == true || $('#Approve_' + chk + '').prop("checked") == true || $('#Update_' + chk + '').prop("checked") == true) {
+
+    //            $('#Read_' + chk + '').prop('checked', true);
+    //        }
+    //        else if ($('#Add_' + chk + '').prop("checked") == false && $('#delete_' + chk + '').prop("checked") == false && $('#Approve_' + chk + '').prop("checked") == false && $('#Update_' + chk + '').prop("checked") == false) {
+    //            $('#Read_' + chk + '').prop('checked', false);
+    //            $('#Add_' + chk + '').prop('checked', false);
+    //            $('#delete_' + chk + '').prop('checked', false);
+    //            $('#Approve_' + chk + '').prop('checked', false);
+    //            $('#Update_' + chk + '').prop('checked', false);
+    //        }
+    //        else if ($('#Read_' + chk + '').prop("checked") == false) {
+    //            $('#Add_' + chk + '').prop('checked', false);
+    //            $('#delete_' + chk + '').prop('checked', false);
+    //            $('#Approve_' + chk + '').prop('checked', false);
+    //            $('#Update_' + chk + '').prop('checked', false);
+    //        }
+    //    }
+    //    else {
+    //        if($('#Read_' + chk + '').prop("checked") == false)
+    //        {
+    //            $('#Add_' + chk + '').prop('checked', false);
+    //            $('#delete_' + chk + '').prop('checked', false);
+    //            $('#Approve_' + chk + '').prop('checked', false);
+    //            $('#Update_' + chk + '').prop('checked', false);
+    //        }
+    //    }
+    //}
+    $('#btnSave').on('click', function () {
+       
+        if (Validation()==true){
+           var input = [];
+            //var read = null;
+            //var write = null;
+            //var deletes = null;
+            //var approve = null;
+            var table = $("table tbody");
+            funid = $('#ddlfunction').val();
+            deptid = $('#ddldepartment').val();
+            table.find('tr').each(function () {
+                var roleid = $(this).find("td:eq(0)").text();
+                var readchk = $(this).find('input[name="readchkbox"]').is(':checked');
+                //var addchk = $(this).find('input[name="addchkbox"]').is(':checked');
+                //var deletechk = $(this).find('input[name="deletechkbox"]').is(':checked');
+                var approvechk = $(this).find('input[name="approvechkbox"]').is(':checked');
+                //var updatedchk = $(this).find('input[name="updatedchkbox"]').is(':checked');
+                input.push({
+                    Functionid: funid,
+                    Departmentid: deptid,
+                    Roleid: roleid,
+                    Read: readchk,
+                    //Add: addchk,
+                    //Delete: deletechk,
+                    Approve: approvechk,
+                    //Update: updatedchk
+                });
+            });
+            $.ajax({
+                type: "Post",
+                url: '@Url.Action("AccessRightsadd", "Account")',
+                data: { model: input },
+                dataType: "json",
+                success: function (data) {
+                    $('#addmodal').modal('show');
+                }
+            });
+        }
+    });
+    //$('#btnReset').on('click', function () {
+    //    $('#ddlfunction,#ddldepartment').prop("selectedIndex", 0);
+    //    $("#tbllist tbody").html("");
+    //});
+    //$('#ddlfunction,#ddldepartment').prop("selectedIndex", 0);
+    function Validation(){
+        if($('#ddlfunction').val()=='')
+        {
+           $('#functionmodal').modal('show');
+            return false;
+        }
+        else if($('#ddldepartment').val()=='')
+        {
+            $('#departmentmodal').modal('show');
+            return false;
+        }
+        else{
+            return true;
+        }
+    }
+</script>
+

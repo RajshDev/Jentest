@@ -1,0 +1,2614 @@
+﻿@model IOAS.Models.CreateReceiptModel
+@{
+    ViewBag.Title = "ProjectReceiptView";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<style>
+    /* Hide all steps by default: */
+    .tab {
+        display: none;
+        background: #fff;
+        float: left;
+    }
+
+    .step {
+        height: 15px;
+        width: 15px;
+        margin: 0 2px;
+        background-color: #bbbbbb;
+        border: none;
+        border-radius: 50%;
+        display: inline-block;
+        opacity: 0.5;
+    }
+
+        .step.active {
+            opacity: 1;
+        }
+
+        /* Mark the steps that are finished and valid: */
+        .step.finish {
+            background-color: #fff;
+        }
+
+    .custom-nav-pills.nav-pills > li > a {
+        color: rgba(255,255,255,0.5);
+        cursor: default;
+        background: transparent !important;
+        border-color: transparent;
+        border-top-color: transparent;
+        padding: 10px 15px;
+        margin: 0px 15px;
+    }
+
+        .custom-nav-pills.nav-pills > li > a span {
+            width: 100%;
+            float: left;
+        }
+
+    .custom-nav-pills.nav-pills > li.active > a, .custom-nav-pills.nav-pills > li.active > a:focus, .custom-nav-pills.nav-pills > li.active > a:hover {
+        color: #333333;
+        background-color: #fff !important;
+    }
+
+    .custom-st-fd-box {
+        background: #f5f5f5;
+        padding: 15px 0px;
+        border-radius: 4px;
+        display: inline-block;
+    }
+
+    .custom-st-fd-btn {
+        color: #fff;
+        font-size: 16px;
+        margin-top: 15px;
+        display: inline-block;
+    }
+
+    .custom-st-tb-th.table {
+        border: 0px;
+    }
+
+        .custom-st-tb-th.table > tbody > tr > th {
+            background: #3080e3;
+            color: #fff;
+            border: 0px solid #ccc;
+        }
+
+        .custom-st-tb-th.table > tbody > tr > td {
+            border: 0px;
+        }
+</style>
+<div class="row hd-tt-bg">
+    <div class="col-md-4">
+        <h3>Receipt View</h3>
+    </div>
+    <div class="col-md-3 ds-spl-bg">
+        
+        <div class="ds-tt">
+            <span>Request Reference</span><br />
+            <span>@Html.DisplayFor(m => m.SourceName)</span>
+            @Html.HiddenFor(m => m.Source, new { @id = "Source" })
+           
+        </div>
+    </div>
+    <div class="col-md-3 ds-spl-bg">
+      
+        @if (Model.ReferenceNumber != null)
+        {
+            <div class="ds-tt">
+                <span>Ref Number (WF / Tapal)</span>
+                <span>@Html.DisplayFor(m => m.ReferenceNumber)</span>
+                @Html.TextBoxFor(m => m.ReferenceNumber, new { @class = "form-control dis-none" })
+                @Html.TextBoxFor(m => m.SourceReferenceNumber, new { @class = "form-control dis-none" })
+                @Html.Hidden("SourceTapalOrWorkflow", "True")
+            </div>
+        }
+        else
+        {
+            <div class="ds-tt">
+                <span>Email Date</span><br />
+                <span>@Html.DisplayFor(m => m.SourceEmail)</span>
+            </div>
+        }
+
+
+    </div>
+
+    @*<div class="col-md-4">
+                <div class="search-btn">
+                    <input type="text" value="" placeholder="Search" class="form-control">
+                    <a href="#" id="btnsearch" class="btn"> <i class="ion-search"></i></a>
+                </div>
+
+            </div>
+        <div id="addnewpage" class="col-md-8 flt-nav-links">
+
+            <a href="Javascript:void(0)" id="btnFilter" class="pull-right"> <i class="ion-android-funnel"></i>Filters</a>
+            <a href="#" id="btnaddnew" data-toggle="modal" data-target="#AddNewEntryModel"> <i class="ion-plus"></i>Add New</a>
+
+        </div>*@
+</div>
+<div class="vw-dts-bg">
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table table-bordered mb-null">
+                <thead>
+                    <tr>
+                        <th colspan="5">Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <label>Receipt Date</label>
+                            <h4>@Model.ReceiptDateString</h4>
+                        </td>
+                        <td>
+                            <label>Receipt Number</label>
+                            <h4>@Model.ReceiptNumber</h4>
+                        </td>
+                        <td>
+                            <label>Project Type</label>
+                            <h4>@Model.ProjectTypeName</h4>
+                        </td>
+                        <td>
+                            <label>Project Number</label>
+                            <h4>@Model.ProjectNumber</h4>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label>Title</label>
+                            <h4>@Model.Projecttitle</h4>
+                        </td>
+                        <td>
+                            <label>PI Name</label>
+                            <h4>@Model.NameofPI</h4>
+                        </td>
+                        <td>
+                            <label>Sanctioned Value</label>
+                            <h4>@Model.SanctionedValue</h4>
+                        </td>
+                        <td>
+                            <label>Total Received</label>
+                            <h4>@Model.TotalReceivedValue</h4>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label>Total Credit Note Amount</label>
+                            <h4>TotalCreditNoteAmount</h4>
+                        </td>
+                        <td>
+                            <label>Project Sub Type</label>
+                            <h4>@Model.ProjectCategory</h4>
+                        </td>
+                        <td>
+                            <label>Is budgethead posting</label>
+                            @if (Model.IsBudgetHeadPosting)
+                            {
+
+                                <h4>Yes</h4>
+                            }
+                            else
+                            {
+
+                                <h4>No</h4>
+                            }
+                        </td>
+
+                        <td>
+                            <label>Sanction Order No</label>
+                            <h4>@Model.SanctionOrderNo</h4>
+                        </td>
+                    </tr>
+
+                    @if (Model.SanctionOrderDate != null)
+                    {
+                        var dt = String.Format("{0:dd}", (DateTime)Model.SanctionOrderDate) + "-" + String.Format("{0:MMMM}", (DateTime)Model.SanctionOrderDate) + "-" + String.Format("{0:yyyy}", (DateTime)Model.SanctionOrderDate);
+
+                        <tr>
+                            <td>
+                                <label>Sanction Order Date</label>
+                                <h4>
+                                    @dt
+                                </h4>
+                            </td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    }
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="vw-dts-bg">
+    <div class="row">
+        <div class="col-md-5">
+            <table class="table table-bordered mb-null">
+               <tr>
+                   <td>
+                       <label>Invoice No</label>
+                       <h4>@Model.InvoiceNumber</h4>
+                   </td>
+                   <td>
+                       <label>Invoice Date</label>
+                       <h4>@Model.Invoicedatestrng</h4>
+                   </td>
+               </tr>
+                <tr>
+                   
+                    <td>
+                        <label>Invoice Val. (incl. of Tax)</label>
+                        <h4>@Model.InvoiceValue</h4>
+                    </td>
+                    <td>
+                        <label>Previous Receipts Total for this Invoice</label>
+                        <h4>@Model.PreviousReceiptTotal</h4>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <label>Pending Amount in this Invoice</label>
+                        <h4>@Model.BalanceinCurrentInvoice</h4>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <label>Description</label>
+                        <h4>@Model.InvoiceDetails</h4>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="col-md-3">
+            <table class="table table-bordered mb-null">
+                <thead>
+                    <tr>
+                        <th colspan="2">Invoice Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <label>
+                                Taxable Value
+                            </label>
+                            <h4>@Model.InvoiceValueWithoutTax</h4>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label>
+                                CGST
+                            </label>
+                            <h4>@Model.CGSTAmount</h4>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label>
+                                SGST
+                            </label>
+                            <h4>@Model.SGSTAmount</h4>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label>
+                                IGST
+                            </label>
+                            <h4>@Model.IGSTAmount</h4>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <label>
+                                Total Tax
+                            </label>
+                            <h4>@Model.TotalTaxAmount</h4>
+                        </td>
+                    </tr>
+                </tbody>
+             </table>
+        </div>
+        <div class="col-md-4">
+            <h3>Receipt History</h3>
+            <table class="table alter-table">
+                <thead>
+                    <tr>
+                        <th>Receipt No</th>
+                        <th>Date</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        if (Model.PreviousReceiptId != null)
+                        {
+                            for (int i = 0; i < Model.PreviousReceiptNumber.Count(); i++)
+                            {
+                                <tr>
+                                    <td>@Html.DisplayFor(m => m.PreviousReceiptNumber[i], new { @class = "form-control", @id = "txtPreviousReceiptnumber", @readonly = true })</td>
+                                    <td>@Html.DisplayFor(m => m.PreviousReceiptDate[i], new { @class = "form-control", @id = "txtPreviousReceiptdate", @readonly = true })</td>
+                                    <td>@Html.DisplayFor(m => m.PreviousReceiptvalue[i], new { @class = "form-control", @align = "right", @id = "txtPreviousReceiptvalue", @readonly = true })</td>
+                                </tr>
+                            }
+                        }
+                    }
+                </tbody>
+            </table>
+
+        </div>
+      </div>
+</div>
+<div class="vw-dts-bg">
+    <h3>Allocation and Entries</h3>
+    <div class="row">
+        
+        <div class="col-md-2">
+            <table class="table table-bordered mb-null">
+                
+                <tbody>
+                    <tr>
+                        <td class="reg-no">
+                            <label class="lblval">Receipt Amount in (INR)</label>
+                            <h4 class="tatval">@Model.ReceiptAmount</h4>
+                            @Html.HiddenFor(m => m.TotalPrevReceiptVal, new { @id = "txtTotalPrevReceiptValue" })
+                            @Html.HiddenFor(m => m.CurrRCVAmount, new { @id = "txtCurrReceiptValue" })
+                        </td>
+                       
+                    </tr>
+            </tbody>
+            </table>
+        </div>
+@if (Model.InvoiceType == 1)
+{
+        <div class="col-md-3">
+            <table class="table table-bordered mb-null">
+                <tr>
+                    <td>
+                        <label>Receipt Amount in Foreign Currency</label>
+                        <h4>@Model.ForeignCurrencyCode</h4>
+                        <h4>@Model.ReceiptForeignCurrencyAmount</h4>
+                        @Html.HiddenFor(m => m.BalanceinINVFornCurrAmt, new { @id = "txtBalinInvForncurramt" })
+                        @Html.HiddenFor(m => m.ForeignCurrencyId, new { @id = "txtForignCurrencyId" })
+                        @Html.HiddenFor(m => m.ForeignCurrencyCode, new { @id = "txtForeignCurrencyCode" })
+                    </td>
+                </tr>
+            </table>
+        </div>
+}
+<div class="col-md-6">
+    <table class="table table-bordered mb-null">
+        <thead>
+            <tr>
+                <th>
+                    <label>Agency</label>
+                </th>
+                <th>
+                    <label>Amount</label>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.AgencyId != null)
+            {
+                for (int i = 0; i < Model.AgencyId.Count(); i++)
+                {
+                    <tr>
+                        <td>
+                           
+                            @Html.HiddenFor(m => m.AgencyId[i])
+                            <h4>@Model.Agencyname[i]</h4>
+                        </td>
+                        <td>
+                          <h4>@Model.AgencyShareAmount[i]</h4>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+
+    </table>
+</div>
+    </div>
+</div>
+<div class="vw-dts-bg">
+    <h3>Entries</h3>
+    <div class="row">
+        <div class="col-md-5">
+            <table class="table table-bordered mb-null">
+                <tbody>
+                    <tr colspan="5">
+                        <td>
+                            <lable>Received From (Cr)</lable>
+                        </td>
+                        <td>
+                            <h4>@Model.ReceivedFromAgencyName</h4>
+                            @Html.HiddenFor(m => m.ReceivedFromCr)
+                        </td>
+                        <td><h4>@Model.ReceivedAmountCr</h4></td>
+                    </tr>
+                    <tr colspan="5">
+                        <td>
+                            <lable>Bank (Dr)</lable>
+                        </td>
+                        <td>
+                            <h4>@Model.BankACHeadDrName</h4>
+                        </td>
+                        <td><h4>@Model.BankAmountDr</h4></td>
+                    </tr>
+                    <tr>
+                        <td colspan="5">
+                            <label>Narration</label>
+                            <h4>@Model.Narration</h4>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="col-md-7">
+            <h3>Receivables (Dr)</h3>
+            <table class="table table-bordered mb-null">
+                <thead>
+                    <tr>
+                        <th>
+                            <label>Head</label>
+                        </th>
+                        <th>
+                            <label>Amount</label>
+                        </th>
+                     
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @if (Model.ReceivablesHeadId != null)
+                    {
+                        for (int i = 0; i < Model.ReceivablesHeadId.Count(); i++)
+                        {
+                            <tr>
+                                <td>
+                                   
+                                    <h4>@Model.Receivablesheadname[i]</h4>
+                                   
+
+                                    @Html.HiddenFor(m => m.ReceivablesHeadId[i])
+                                </td>
+                                <td >
+                                    <h4>@Model.ReceivablesAmount[i]</h4>
+                                   
+                                </td>
+                               
+                            </tr>
+                        }
+                    }
+                    <tr>
+                        <td class="reg-no">
+                            <label class="lblval">Receivables Total (Dr)</label>
+                          <h4 class="tatval">@Model.ReceivablesTotal</h4>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
+        </div>
+</div>
+<div class="vw-dts-bg">
+    <div class="row">
+        <div class="col-md-9">
+           <table class="table table-bordered mb-null">
+               <tbody>
+                   <tr>
+                       <td>
+                           <label>Overheads Amount</label>
+                           <h4>@Model.CurrentReceiptOverheads</h4>
+                           @Html.HiddenFor(m => m.CurrentReceiptOverheads, new { @class = "form-control", @required = "required", @id = "txtcurrentreceiptoverheads", @onchange = "calcllocbreakup()", @onkeypress = "return isNumberKey(event)" })
+                           @Html.HiddenFor(m => m.ProjectTotalValue, new { @id = "txtProjectValue" })
+                           @Html.HiddenFor(m => m.PrevReceiptsOverheads, new { @id = "txtPrevReceiptOH" })
+                           @Html.HiddenFor(m => m.ProjectTotalOverheadsvalue, new { @id = "txtProjecttotalOH" })
+                           @Html.HiddenFor(m => m.TotalOverheadPercentage, new { @id = "txtOHpercenttotal" })
+                       </td>
+
+                       @if (Model.ProjectType == 1)
+                       {
+                           <td>
+                               <label>RMF</label>
+                               @if (Model.RMForCMF == "RMF")
+                               {
+                               <h4>Yes</h4>
+                               }
+                               else
+                               {
+                                 <h4>No</h4>
+                               }
+
+                           </td>
+                           <td>
+                               <label>CMF</label>
+                               @if (Model.RMForCMF == "CMF")
+                               {
+                                   <h4>Yes</h4>
+                               }
+                               else
+                               {
+                                   <h4>No</h4>
+                               }
+                           </td>
+                       }
+
+                   </tr>
+                   @if (Model.ReceiptOverheads != null)
+                   {
+                       var count = 0;
+                       foreach (var item in Model.ReceiptOverheads)
+                       {
+                           var overheadtypeid = "ReceiptOverheads[" + count + "].OverheadtypeId";
+                           var overheadtype = "ReceiptOverheads[" + count + "].Overheadtypename";
+                           var overheadpercent = "ReceiptOverheads[" + count + "].OverheadPercentage";
+                           var overheadamount = "ReceiptOverheads[" + count + "].OverheadAmount";
+                           <tr>
+                               <td>
+                                   <span class="tdOHtype">
+                                       @Html.DisplayFor(m => item.Overheadtypename, new { @class = "form-control", @id = "txtPIProjectnumber", @readonly = true })
+                                   </span>
+                                   @Html.Hidden("ReceiptOverheads.Index", @count)
+                                   @Html.Hidden(@overheadtypeid, item.OverheadtypeId)
+                                   @Html.Hidden(@overheadtype, item.Overheadtypename)
+                                   @Html.Hidden(@overheadpercent, item.OverheadPercentage)
+                               </td>
+                               <td>
+                                   <h4>@item.OverheadAmount</h4>
+                               </td>
+
+                           </tr>
+                           count++;
+                       }
+                   }
+               </tbody>
+           </table>
+           
+               
+
+           
+        </div>
+        <div class="col-md-3">
+            <table class="table table-bordered mb-null">
+                <tbody>
+                    <tr>
+                        <td>
+                            @if (Model.ReceiptCount > 0)
+                            {
+                                <h3 class="mt-null">Taxes: (Taxes has been recovered in the first receipt of this invoice)</h3>
+                            }
+                            @if (Model.ReceiptCount == 0)
+                            {
+                                <h3 class="mt-null">Taxes:</h3>
+                            }
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label>CGST</label>
+                            <h4>@Model.ReceiptCGST</h4>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label>SGST</label>
+                            <h4>@Model.ReceiptSGST</h4>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label>IGST</label>
+                            <h4>@Model.ReceiptIGST</h4>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="vw-dts-bg">
+    <h3>Mode of Receipt</h3>
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table table-bordered mb-null">
+                <tbody>
+                    <tr>
+                        <td>
+                            <label>Mode of Receipt</label>
+                            <h4>@Model.ModeofReceiptName</h4>
+                        </td>
+                        
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="vw-dts-bg">
+   
+    <div class="row">
+        <div class="col-md-12">
+            @if (Model.ModeofReceipt == 1)
+            {
+                <h3>Cheque</h3>
+            <table class="table table-bordered mb-null">
+
+                <thead>
+                    <tr>
+                        <th>
+                            <label>Cheque Number</label>
+                        </th>
+                        <th>
+                            <label> Cheque Date</label>
+                        </th>
+                        <th>
+                            <label>Bank Name</label>
+                        </th>
+                        <th>
+                            <label>Bank Branch</label>
+                        </th>
+                        <th>
+                            <label> Cheque Clearance Date</label>
+                        </th>
+                        <th>
+                            <label> Cheque Value</label>
+                        </th>
+                       
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @if (Model.ChequeNumber != null)
+                    {
+                        for (int i = 0; i < Model.ChequeNumber.Count(); i++)
+                        {
+                    <tr>
+
+                        <td>
+                           
+                          <h4>@Model.ChequeNumber[i]</h4>
+                        </td>
+
+                        <td>
+                            <h4>@Model.ChequeDate[i]</h4>
+                        </td>
+
+                        <td>
+                           
+                         
+                            <h4>@Model.ChequeBankName[i]</h4>
+                        </td>
+                        <td>
+                        
+                            <h4>@Model.ChequeBankBranch[i]</h4>
+                        </td>
+                        <td>
+                            <h4>@Model.ChequeClearanceDate[i]</h4>
+                          
+                        </td>
+                        <td>
+                         
+                           <h4>@Model.ChequeValue[i]</h4>
+                        </td>
+                       
+                    </tr>
+                        }
+                        <tr>
+                            <td class="reg-no">
+                                <label class="lblval">Net Transaction Value</label>
+                                <h4 class="tatval">@Model.TotalChequeValue</h4>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            }
+            else if (Model.ModeofReceipt == 2)
+            {
+                <h3>DD</h3>
+                <table class="table table-bordered mb-null">
+                    <thead>
+                        <tr>
+                            <th>
+                                <label>DD Number</label>
+                            </th>
+                            <th>
+                                <label> DD Date</label>
+                            </th>
+                            <th>
+                                <label>DD Bank Name </label>
+                            </th>
+                            <th>
+                                <label>DD Bank Branch </label>
+                            </th>
+                            <th>
+                                <label>DD Value </label>
+                            </th>
+                            <th>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.DDNumber != null)
+                        {
+                            for (int i = 0; i < Model.DDNumber.Count(); i++)
+                            {
+                        <tr>
+                            <td>
+                             <h4>@Model.DDNumber[i]</h4>
+                            </td>
+                            <td>
+                              <h4>@Model.Dddte[i]</h4>
+                            </td>
+                            <td>
+                            <h4>@Model.DDBankName[i]</h4>
+                            </td>
+                            <td>
+                              <h4>@Model.DDBankBranch[i]</h4>
+                            </td>
+                            <td>
+                              <h4>@Model.DDValue[i]</h4>
+                            </td>
+                        </tr>
+                            }
+                            <tr>
+                                <td class="reg-no">
+                                    <label class="lblval">Net Transaction Value</label>
+                                    <h4 class="tatval">@Model.TotalDDValue</h4>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else if (Model.ModeofReceipt == 3)
+            {
+                <h3>Bank Transfer Details</h3>
+                <table class="table table-bordered mb-null">
+                    <thead>
+                        <tr>
+                            <th>
+                                <label>Transaction Type:</label>
+                            </th>
+                            <th>
+                                <label> Bank Name</label>
+                            </th>
+                            <th>
+                                <label>Bank Branch</label>
+                            </th>
+                            <th>
+                                <label> Transaction Ref No</label>
+                            </th>
+
+                            <th>
+                                <label>Transaction Date</label>
+                            </th>
+                            <th>
+                                <label> Transaction Amount</label>
+                            </th>
+                            
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.BankTransactiontype != null)
+                        {
+                            for (int i = 0; i < Model.BankTransactiontype.Count(); i++)
+                            {
+                        <tr>
+                            <td>
+                              <h4>@Model.TransactionTypeName[i]</h4>
+                            </td>
+                            <td>
+                                <h4>@Model.BankTransferBankName[i]</h4>
+                               
+                            </td>
+                            <td>
+                                <h4>@Model.BankTransferBankBranch[i]</h4>
+                                
+                            </td>
+                            <td>
+                                <h4>@Model.BankTransactionrefno[i]</h4>
+                              
+                            </td>
+
+                            <td>
+                                <h4>@Model.Banktransdate[i]</h4>
+                              
+                            </td>
+
+                            <td>
+                                <h4>@Model.BankTransferAmount[i]</h4>
+                               
+                            </td>
+                           
+                        </tr>
+
+                            }
+                            <tr>
+                                <td class="reg-no">
+                                    <label class="lblval">Net Transaction Value</label>
+                                    <h4 class="tatval">@Model.TotalBankTransactionAmount</h4>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else if(Model.ModeofReceipt==4)
+            {
+                <h3>Foreign Remitance / Transfer</h3>
+                <table class="table table-bordered mb-null">
+                    <thead>
+                        <tr>
+                            <th>
+                                <label>Country from which transfer is initiated</label>
+                            </th>
+                            <th>
+                                <label>Currency</label>
+                            </th>
+                            <th>
+                                <label>Forex Amount </label>
+                            </th>
+                            <th>
+                                <label>Conversion Rate </label>
+                            </th>
+                            <th>
+                                <label>Amount (in ₹) </label>
+                            </th>
+                            <th>
+                                <label>Transaction Bank</label>
+                            </th>
+                            <th>
+                                <label>Transaction Bank Branch</label>
+                            </th>
+                            <th>
+                                <label>Transaction Ref. No.</label>
+                            </th>
+                            <th>
+                                <label>Transaction Date</label>
+                            </th>
+                          
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Foreigntransfercountry != null)
+                        {
+                            for (int i = 0; i < Model.Foreigntransfercountry.Count(); i++)
+                            {
+                        <tr>
+                            <td>
+                               
+                                <h4>@Model.ForeigntransfercountryName[i]</h4>
+                            </td>
+                            <td>
+                               
+                                <h4>@Model.ForeigntransfercurrencyName[i]</h4>
+                            </td>
+                            <td>
+                                <h4>@Model.Foreigncurrencyamount[i]</h4>
+                               
+                            </td>
+                            <td>
+                                <h4>@Model.Conversionrate[i]</h4>
+                               
+                            </td>
+                            <td>
+                                <h4>@Model.INRValue[i]</h4>
+                               
+                            </td>
+                            <td>
+                                <h4>@Model.Foreignremitbankname[i]</h4>
+                              
+                            </td>
+                            <td>
+                                <h4>@Model.Foreignremitbankbranch[i]</h4>
+                            </td>
+                            <td>
+                                <h4>@Model.Foreignremittransrefno[i]</h4>
+                            </td>
+                            <td>
+                                <h4>@Model.Forgnremitdate[i]</h4>
+                               
+                            </td>
+                            
+                        </tr>
+                            }
+                            <tr>
+                                <td>
+                                    <label>Net Transaction Value</label>
+                                    <h4>@Model.Foreignremittotalamount</h4>
+                                </td>
+                            </tr>
+                        }
+
+                    </tbody>
+                </table>
+            }
+            else if (Model.ModeofReceipt == 5)
+            {
+                <h3>TDS Certificate</h3>
+                <table class="table table-bordered mb-null">
+
+                    <thead>
+                        <tr>
+                            <th>
+                                <label>TDS Certificate Number</label>
+                            </th>
+                            <th>
+                                <label> Attachment (pdf, doc, docx)</label>
+                            </th>
+
+                            <th>
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @if (Model.TDSCertificateNumber != null)
+                        {
+                            for (int i = 0; i < Model.TDSCertificateNumber.Count(); i++)
+                            {
+                        <tr>
+
+                            <td>
+                               <h4>@Model.TDSCertificateNumber[i]</h4>
+                            </td>
+                    <td><a href="ShowDocument?file='+@Model.TDSDocPath[i]+'&filepath=~%2FContent%2FOtherDocuments%2F" target="_blank">@Model.TDSDocName[i]</a></td>
+                        </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            @Html.Partial("_DocumentDetailView", Model.DocumentDetail)
+        </div>
+    </div>
+</div>
+<div class="row mt-20 text-center">
+    @if (Model.ProjectType == 1)
+    {
+        if (Model.PFInit != true)
+        {
+            <button type="button" class="btn btn-default" onclick="window.location.href='@Url.Action("SponReceiptList", "CoreAccounts")';">Close</button>
+        }
+        else
+        {
+            <button type="button" class="btn btn-default" onclick="window.location.href='@Url.Action("Dashboard", "Home")';">Close</button>
+        }
+    }
+    @if (Model.ProjectType == 2)
+    {
+        if (Model.PFInit != true)
+        {
+            <button type="button" class="btn btn-default" onclick="window.location.href='@Url.Action("ConsReceiptList", "CoreAccounts")';">Close</button>
+        }
+        else
+        {
+            <button type="button" class="btn btn-default" onclick="window.location.href='@Url.Action("Dashboard", "Home")';">Close</button>
+        }
+    }
+</div>
+
+
+
+@if (ViewBag.succMsg != null)
+{
+    <div id="myModal" class="modal fade modal-success" role="dialog">
+        <div class="modal-dialog modal-sm">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                @if (Model.ProjectType == 1)
+                {
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" onclick="window.location.href='@Url.Action("SponReceiptList", "CoreAccounts")';">&times;</button>
+                        <i class="ion-android-checkmark-circle"></i>
+                        <h3 class="modal-title">Saved successfully</h3>
+                    </div>
+                }
+                @if (Model.ProjectType == 2)
+                {
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" onclick="window.location.href='@Url.Action("ConsReceiptList", "CoreAccounts")';">&times;</button>
+                        <i class="ion-android-checkmark-circle"></i>
+                        <h3 class="modal-title">Saved successfully</h3>
+                    </div>
+                }
+                <div class="modal-body">
+
+                    <p>@ViewBag.succMsg</p>
+
+                </div>
+                @if (Model.ProjectType == 1)
+                {
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal" onclick="window.location.href='@Url.Action("SponReceiptList", "CoreAccounts")';">Close</button>
+                    </div>
+                }
+                @if (Model.ProjectType == 2)
+                {
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal" onclick="window.location.href='@Url.Action("ConsReceiptList", "CoreAccounts")';">Close</button>
+                    </div>
+                }
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            $('#myModal').modal('show');
+        });
+
+    </script>
+
+}
+
+<div id="myModal2" class="modal fade modal-success" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-checkmark-circle"></i>
+                <h3 class="modal-title">Deleted successfully</h3>
+            </div>
+            <div class="modal-body">
+
+                <p>The Proposal has been Deleted successfully.</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div id="ValidationModal" class="modal fade modal-warning" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-warning"></i>
+                <h3 class="modal-title">Warning</h3>
+            </div>
+            <div class="modal-body">
+
+                <p id="MsgValidation"></p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    var errMsg = '@ViewBag.errMsg';
+    var piList = '@Html.Raw(Json.Encode(ViewBag.PI))';
+    var allocationHeads = '@Html.Raw(Json.Encode(ViewBag.allocatehead))'
+    var modelData = '@Html.Raw(Json.Encode(Model))'
+    $(document).ready(function () {
+        //get the relevant form
+        //  var form = $('#frmSRB');
+        $('.selectpicker').selectpicker({
+            liveSearch: true
+        });
+        $('.selectpicker').selectpicker('refresh');
+        if (errMsg) {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+            var jsonData = JSON.parse(modelData);
+            $('#addnewpage').hide();
+            $('#projectopening').show();
+            $('#gridlist').hide();
+            $('#viewdoc').hide();
+            fillData(jsonData);
+            calcllocbreakup()
+        } else {
+            $('#projectopening').hide();
+            $('#viewdoc').hide();
+        }
+
+    });
+
+    //$("#ProposalApprovedDate").datepicker({ minDate: -1, maxDate: -2 }).attr('readonly', 'readonly');
+    $(document).ready(function () {
+        var SearchBy = $('input[name^="SearchField.SearchBy"]:checked').val();
+        if (SearchBy == 'SODate') {
+            $('#DivSODate').show();
+            $('#DivCrtdDate').hide();
+        }
+        else {
+            $('#DivCrtdDate').show();
+            $('#DivSODate').hide();
+        }
+        $("#FromSODate, #ToSODate, #FromDate, #ToDate, #BankTransactionDate, #Chqdate, #Chqclrdate, #Dddte, #Forgnremitdate, #Receiptdate").datepicker
+           ({
+               dateFormat: 'dd-MM-yy',
+               showStatus: true,
+               showWeeks: true,
+               changeYear: true,
+               yearRange: '-100:+0',
+               highlightWeek: true,
+               numberOfMonths: 1,
+               showAnim: "scale",
+               showOptions: {
+                   origin: ["top", "left"]
+               }
+           });
+
+    });
+
+    $('#btnAddAllocationhead').click(function () {
+        var cln = $("#primaryAllocateDiv").clone().find("input").val("").end();
+        $(cln).find('.dis-none').removeClass('dis-none');
+        $('#divAllocateContent').append(cln)
+
+    });
+
+    $(document).on('click', '#primaryAllocateDiv button[name="removeButton"]', function () {
+        $(this).closest('#primaryAllocateDiv').remove();
+        sumAllocation();
+    });
+
+    $('#btnAddReceivables').click(function () {
+        var cln = $("#primaryReceivablesDiv").clone().find("input").val("").end();
+        $(cln).find('.dis-none').removeClass('dis-none');
+        $(cln).find('.dis-block').addClass('dis-none');
+        $('#divReceivablesContent').append(cln)
+
+    });
+
+    $(document).on('click', '#primaryReceivablesDiv button[name="removeButton"]', function () {
+        $(this).closest('#primaryReceivablesDiv').remove();
+        sumReceivables();
+    });
+
+    $('#btnAddChequedtls').click(function () {
+
+        var cln = $("#primaryChequeDiv").clone().find("input").val("").end();
+        $(cln).find('.dis-none').removeClass('dis-none');
+        $(cln).find('.dis-block').addClass('dis-none');
+        // $('.cloned-input').removeClass('hasDatepicker').datepicker();
+        // $('input[id^=Chqdate]').removeClass('hasDatepicker');
+        $(cln).find('.hasDatepicker').attr("id", "").removeClass('hasDatepicker').removeData('datepicker').unbind().datepicker({
+            dateFormat: 'dd-MM-yy', changeYear: true
+        })
+
+        $('#divChequeContent').append(cln)
+    });
+
+    $(document).on('click', '#primaryChequeDiv button[name="removeButton"]', function () {
+        $(this).closest('#primaryChequeDiv').remove();
+        calculatechequeSum();
+    });
+
+    $('#btnAddBanktransdtls').click(function () {
+        var cln = $("#primaryBankDiv").clone().find("input").val("").end();
+        $(cln).find('.dis-none').removeClass('dis-none');
+        $(cln).find('.dis-block').addClass('dis-none');
+        $(cln).find('.hasDatepicker').attr("id", "").removeClass('hasDatepicker').removeData('datepicker').unbind().datepicker({
+            dateFormat: 'dd-MM-yy', changeYear: true
+        })
+        $('#divBankContent').append(cln)
+
+    });
+
+    $(document).on('click', '#primaryBankDiv button[name="removeButton"]', function () {
+        $(this).closest('#primaryBankDiv').remove();
+        calculateBanktransferSum();
+    });
+
+    $('#btnAddDDdtls').click(function () {
+        var cln = $("#primaryDDDiv").clone().find("input").val("").end();
+        $(cln).find('.dis-none').removeClass('dis-none');
+        $(cln).find('.dis-block').addClass('dis-none');
+        $(cln).find('.hasDatepicker').attr("id", "").removeClass('hasDatepicker').removeData('datepicker').unbind().datepicker({
+            dateFormat: 'dd-MM-yy', changeYear: true
+        })
+        $('#divDDContent').append(cln)
+
+    });
+
+    $(document).on('click', '#primaryDDDiv button[name="removeButton"]', function () {
+        $(this).closest('#primaryDDDiv').remove();
+        calculateDDSum();
+    });
+    $('#btnAddForgnremitdtls').click(function () {
+        var cln = $("#primaryForgnRemitDiv").clone().find("input").val("").end();
+        $(cln).find('.dis-none').removeClass('dis-none');
+        $(cln).find('.dis-block').addClass('dis-none');
+        $(cln).find('.hasDatepicker').attr("id", "").removeClass('hasDatepicker').removeData('datepicker').unbind().datepicker({
+            dateFormat: 'dd-MM-yy', changeYear: true
+        })
+        $('#divForgnRemitContent').append(cln)
+
+    });
+
+    $(document).on('click', '#primaryForgnRemitDiv button[name="removeButton"]', function () {
+        $(this).closest('#primaryForgnRemitDiv').remove();
+        calculateForgnremitSum();
+    });
+    $('input[id^="SearchBy_"]').change(function () {
+        var value = $(this).val();
+        if (value == 'SODate') {
+            $('#DivSODate').show();
+            $('#DivCrtdDate').hide();
+        }
+        else {
+            $('#DivCrtdDate').show();
+            $('#DivSODate').hide();
+        }
+        $('#FromSODate').val('');
+        $('#ToSODate').val('');
+        $('#FromDate').val('');
+        $('#ToDate').val('');
+    });
+
+    $('a[name="btnClose"],button[name="btnClose"]').click(function () {
+        $('#popupFilter').css("display", "none");
+    });
+    $("#btnFilter").click(function () {
+        $('#popupFilter').css("display", "Block");
+    });
+
+
+    $('#Prjcttype').prop("selectedIndex", 0);
+    $('#datepickerid').val("");
+    $('#txtprpslsrc').val("");
+    $('#txtprjcttitle').val("");
+    $('#Agncy').prop("selectedIndex", 0);
+    $('#txtprpslval').val("");
+    $('#txtprjctduratn').val("");
+    $('#txtpersonapplied').val("");
+    $('#schemename').prop("selectedIndex", 0);
+    $('#txtremarks').val("");
+    $('#tentstartdatepickerid').val("");
+    //$('#startdatepickerid').val("");
+    $('#tentclosedatepickerid').val("");
+    $('#closedatepickerid').val("");
+    $('#ProposalApprovedDate').val("");
+    $('#SOdatepickerid').val("");
+    //$('#inputdatepickerid').val("");
+
+    $('#SanctionOrderDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true, yearRange: '-30:+0' });
+    //$('#ProposalApprovedDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true, yearRange: '-30:+0' });
+
+    $('#TentativeStartdate').datepicker({ dateFormat: 'dd-MM-yy', changeYear: true, yearRange: '-30:+30' });
+    //$('#Startdate').datepicker({ dateFormat: 'dd-MM-yy', changeYear: true, yearRange: '-30:+30' });
+    $('#TentativeClosedate').datepicker({ dateFormat: 'dd-MM-yy', changeYear: true, yearRange: '-30:+30' });
+    $('#Closedate').datepicker({ dateFormat: 'dd-MM-yy', changeYear: true, yearRange: '-30:+30' });
+    //$('#Inputdate').datepicker({ maxDate: 0, minDate: 0, dateFormat: 'dd-MM-yy', changeYear: true, yearRange: '-30:+0' });
+
+    $('#department').prop("selectedIndex", 0);
+    $('#PI').prop("selectedIndex", 0);
+    $('#txtPIemail').val("");
+
+    $('#copidepartment').prop("selectedIndex", 0);
+    $('#CoPI').prop("selectedIndex", 0);
+    $('#txtcopiemail').val("");
+
+    $('#doctype').prop("selectedIndex", 0);
+    $('#docname').val("");
+
+    $('input[type=radio][name=RMForCMF]').change(function () {
+        var value = this.value;
+        if (value == 'RMF') {
+            var trEle = $('#ProjectList tr:nth-child(2)');
+            $('input[name="ReceiptOverheads[1].Overheadtypename"]').val('Expenses Payable RMF (4.00 %)');
+            trEle.find('.tdOHtype').html('Expenses Payable RMF (4.00 %)')
+        }
+        else if (value == 'CMF'){
+            var trEle = $('#ProjectList tr:nth-child(2)');
+            $('input[name="ReceiptOverheads[1].Overheadtypename"]').val('Expenses Payable CMF (4.00 %)');
+            trEle.find('.tdOHtype').html('Expenses Payable CMF (4.00 %)')
+        }
+    });
+    $('#btnSearch').on('click', function () {
+        // var token = $("input[name=__RequestVerificationToken]").val();
+        getData();
+    });
+    var searchProjectURL = 'SearchProjectList';
+    function getData() {
+        var Projecttype = $('#srchPrjcttype').val();
+        var Proposalnumber = $('#proposalnumber').val();
+        var Projectnumber = $('#projectnumber').val();
+        var PIName = $('#srchPIName').val();
+        //  var SearchBy = $('input[name^="SearchField.SearchBy"]:checked').val();
+        var FromSODate = $('#FromSODate').val();
+        var ToSODate = $('#ToSODate').val();
+        var FromDate = $('#FromDate').val();
+        var ToDate = $('#ToDate').val();
+
+        if (Projecttype == "") {
+            Projecttype = 0;
+        }
+        if (FromSODate == "") {
+            FromSODate = null;
+        }
+        if (ToSODate == "") {
+            ToSODate = null;
+        }
+        //  var searchdata = { "__RequestVerificationToken": token, "ProjectType": Projecttype,"ProposalNumber": Proposalnumber, "PIname": PIName, "Searchby": SearchBy, "FromSOdate": FromSODate, "ToSOdate": ToSODate, "Fromdate": FromDate, "Todate": ToDate };
+        var searchdata = {
+            ProjectType: Projecttype,
+            ProposalNumber: Proposalnumber,
+            FromSODate: FromSODate,
+            ToSODate: ToSODate
+        };
+
+        $.ajax({
+            type: "GET",
+            url: searchProjectURL,
+            data: searchdata,
+            //data: { "ProjectType": Projecttype, "ProposalNumber": Proposalnumber, "FromSOdate": FromSODate, "ToSOdate": ToSODate, },
+            //contentType: "application/x-www-form-urlencoded",
+            dataType: "json",
+            success: function (result) {
+                // dataProposal = result;
+                $("#gridProjectList").jsGrid({ data: result });
+                $('#projectopening').hide();
+                $('#gridlist').show();
+                $('#popupFilter').hide();
+            },
+            error: function (err) {
+                console.log("error : " + err);
+            }
+        });
+    }
+
+    function formSave() {
+        //d.preventDefault();
+
+        var isValid = $('#formPO').valid();
+        if (!isValid)
+            return false;
+        // var isValid = $(this).closest("form").valid();
+        var bankvalue = parseInt($('#txtbankDramount').val());
+       // var receiptvalue = parseInt($('#txtreceiptamount').val());
+
+        var modeofreceipt = $('#selectmodeofreceipt').val();
+        if (modeofreceipt == 1) {
+            var nettransactionvalue = parseInt($('#TotalChequeValue').val());
+        }
+        if (modeofreceipt == 2) {
+            var nettransactionvalue = parseInt($('#TotalDDValue').val());
+        }
+        if (modeofreceipt == 3) {
+            var nettransactionvalue = parseInt($('#TotalBankTransactionAmount').val());
+        }
+        if (modeofreceipt == 4) {
+            var nettransactionvalue = parseInt($('#Foreignremittotalamount').val());
+        }
+        if (modeofreceipt == 5) {
+            var nettransactionvalue = 0;
+        }
+
+        if (nettransactionvalue != bankvalue) {
+            $('#MsgValidation').html("Net Transaction Value is not equal to Bank Debit Amount");
+            $('#ValidationModal').modal('toggle');
+            return false;
+        }
+        // to validate if copi department or copiname is left unselected when either one of them is selected
+        var receivablesvalues = [];
+
+        $('select[name="ReceivablesHeadId"]').each(function (idx, val) { receivablesvalues.push($(val).val()); });
+
+        //// Sort it
+        receivablesvalues.sort();
+
+        // duplicate check
+        for (var k = 1; k < receivablesvalues.length; ++k) {
+            if (receivablesvalues[k] == receivablesvalues[k - 1]) {
+                $('#MsgValidation').html("Receivables head already selected. Please select a different head.");
+                $('#ValidationModal').modal('toggle');
+                return false;
+            }
+        }
+        var validationMsg = validateCrandDrtotal()
+        if (validationMsg != 'valid') {
+            $('#MsgValidation').html(validationMsg);;
+            $('#ValidationModal').modal('toggle');
+            return false;
+        }
+        //else if (validationMsg == 'valid') {
+        //    var alloctotalvalidationMsg = validatealloctotal()
+        //    if (alloctotalvalidationMsg != 'valid') {
+        //        $('#MsgValidation').html(alloctotalvalidationMsg);
+        //        $('#ValidationModal').modal('toggle');
+        //        return false;
+        //    }
+        //    else if (alloctotalvalidationMsg == 'valid') {
+        //        var allocheadvalidationMsg = validateAllocation()
+        //        if (allocheadvalidationMsg != 'valid') {
+        //            hadError = true;
+        //            $('#MsgValidation').html(allocheadvalidationMsg);
+        //            $('#ValidationModal').modal('toggle');
+        //        }
+        //    }
+        //}
+        var receiptid = $('input[name="ReceiptID"]').val();
+
+        // duplicate check allocation head
+
+            var allocateheads = [];
+            $('select[name="Allocationhead"]').each(function (idx, val) { allocateheads.push($(val).val()); });
+            allocateheads.sort();
+            for (var k = 1; k < allocateheads.length; ++k) {
+
+                if (allocateheads[k] == 1) {
+                    if (allocateheads[k] == allocateheads[k - 1]) {
+                        $('#MsgValidation').html("Allocation head already exist. Please select a different allocation.");
+                        $('#ValidationModal').modal('toggle');
+                        return false;
+                    }
+                }
+                isValid = true;
+            }
+            var rcvamount = $("#txtreceiptamount").val();
+            var InvType = $('input[name="InvoiceType"]').val();
+            var receiptid = $('input[name="ReceiptID"]').val() || 0;
+            var invoiceval = parseFloat($("#txtinvoicevalue").val()) || 0;
+            var prevreceipttotl = parseFloat($("#txtTotalPrevReceiptValue").val()) || 0;
+            var currreceiptval = parseFloat($('input[name="CurrRCVAmount"]').val()) || 0;
+            var balreceiptval = 0;
+            if(receiptid > 0)
+            {
+                balreceiptval = invoiceval - prevreceipttotl + currreceiptval;
+            }
+            else if (receiptid == 0)
+            {
+                balreceiptval = invoiceval - prevreceipttotl
+            }
+
+            if(InvType != 1)
+            {
+                if(rcvamount > balreceiptval)
+                {
+                    $('#MsgValidation').html("The Receipt value cannot exceed the Invoice value");
+                    $('#ValidationModal').modal('toggle');
+                    return false;
+                }
+            }
+
+        if (isValid)
+            $('#formPO').submit();
+
+    }
+    function receivableheadValidation() {
+        // to validate if copi department or copiname is left unselected when either one of them is selected
+        var receivablesvalues = [];
+
+        $('select[name="ReceivablesHeadId"]').each(function (idx, val) { receivablesvalues.push($(val).val()); });
+
+        //// Sort it
+        receivablesvalues.sort();
+
+        // duplicate check
+        for (var k = 1; k < receivablesvalues.length; ++k) {
+            if (receivablesvalues[k] == receivablesvalues[k - 1]) {
+                $('#MsgValidation').html("Receivable head already selected. Please select a different head.");
+                $('#ValidationModal').modal('toggle');
+                return false;
+            }
+        }
+    }
+    function allocationheadValidation() {
+        // duplicate check allocation head
+
+            var allocateheads = [];
+            $('select[name="BudgetHead"]').each(function (idx, val) { allocateheads.push($(val).val()); });
+            allocateheads.sort();
+            for (var k = 1; k < allocateheads.length; ++k) {
+
+                if (allocateheads[k] == allocateheads[k - 1]) {
+                    $('#MsgValidation').html("Allocation head already exist. Please select a different allocation.");
+                    $('#ValidationModal').modal('toggle');
+                    return false;
+                }
+
+                isValid = true;
+            }
+    }
+
+    function parseDate(s) {
+        var months = {
+            january: 0, february: 1, march: 2, april: 3, may: 4, june: 5,
+            july: 6, august: 7, september: 8, october: 9, november: 10, december: 11
+        };
+        var p = s.split('-');
+        return new Date(p[2], months[p[1].toLowerCase()], p[0]);
+    }
+
+    $('#approvBtn').hide();
+    /* Tab Sections Start*/
+    var currentTab = 0; // Current tab is set to be the first tab (0)
+    @*showTab(currentTab); // Display the crurrent tab
+    function showTab(n) {
+        // This function will display the specified tab of the form...
+        var x = document.getElementsByClassName("tab");
+
+        x[n].style.display = "block";
+        $(".custom-nav-pills li:eq(" + n + ")").addClass("active");
+        //... and fix the Previous/Next buttons:
+        if (n == 0) {
+            document.getElementById("prevBtn").style.display = "none";
+        } else {
+            document.getElementById("prevBtn").style.display = "inline";
+        }
+        if (n == (x.length - 1)) {
+
+            document.getElementById("nextBtn").innerHTML = "Save";
+            document.getElementById("nextBtn").name = "Buttonvalue";
+            document.getElementById("nextBtn").value = "Save";
+            $('#approvBtn').show();
+            var status = '@Model.ReceiptStatus';
+            if (status == "Completed") {
+                $('#nextBtn').hide();
+            }
+
+        } else {
+            document.getElementById("nextBtn").innerHTML = "Next";
+            $('#approvBtn').hide();
+            $('#nextBtn').show();
+        }
+        //... and run a function that will display the correct step indicator:
+        //fixStepIndicator(n)
+    }
+
+    function nextPrev(n) {
+
+        // This function will figure out which tab to display
+        var x = document.getElementsByClassName("tab");
+
+        var allocateheads = [];
+
+        $('select[name="BudgetHead"]').each(function (idx, val) { allocateheads.push($(val).val()); });
+        allocateheads.sort();
+        for (var k = 1; k < allocateheads.length; ++k) {
+            if (allocateheads[k] == allocateheads[k - 1]) {
+                $('#MsgValidation').html("Allocation head already exist. Please select a different allocation.");
+                $('#ValidationModal').modal('toggle');
+                return false;
+            }
+            isValid = true;
+        }
+
+        // Exit the function if any field in the current tab is invalid:
+        if (n > 0 && !validateForm(n)) return false;
+        if (currentTab + n < x.length) {
+            // Hide the current tab:
+            x[currentTab].style.display = "none";
+            $(".custom-nav-pills li:eq(" + currentTab + ")").removeClass("active");
+        } else {
+            // ... the form gets submitted:
+            formSave();
+            return false;
+        }
+        // Increase or decrease the current tab by 1:
+        currentTab = currentTab + n;
+
+        // Otherwise, display the correct tab:
+        showTab(currentTab);
+    }*@
+
+    function validateForm(n) {
+        // This function deals with validation of the form fields
+        var isValid = false;
+        var hadError = false;
+        var tabs = $(".tab");
+        var currentTabEle = tabs[currentTab];
+        var inputs = $(":input, textarea, select"); // get all the form inputs and selects
+        var stepElements = $(currentTabEle).find(inputs); // get inputs for current step
+        var count = stepElements.length; // check that there are inputs
+        if (count <= 0) {                // if there are not no reason to loop them
+            return true;                 // this can be used to perform other action if there are no steps
+        } else if (currentTab == 1) {
+            var validationMsg = validateCrandDrtotal()
+            if (validationMsg != 'valid') {
+                hadError = true;
+                $('#MsgValidation').html(validationMsg);
+                $('#ValidationModal').modal('toggle');
+            }
+            var pendingamtinthisinvoice = parseFloat($("#BalanceinCurrentInvoice").val()) || 0;
+            if (pendingamtinthisinvoice < 0) {
+                $('#MsgValidation').html('Pending amount in this invoice cannot be negative.');
+                $('#ValidationModal').modal('toggle');
+            }
+            var currreceiptOHvalue = parseFloat($("#txtcurrentreceiptoverheads").val());
+            var totaloverheads = parseFloat($("#txtProjecttotalOH").val());
+            var totalprevrcvoverheads = parseFloat($("#txtPrevReceiptOH").val());
+            var receiptid = $('input[name="ReceiptID"]').val();
+            var projecttype = parseFloat($('input[name="ProjectType"]').val());
+
+            var totalrcvOH = 0;
+            if (receiptid > 0)
+            {
+                totalrcvOH = totalprevrcvoverheads
+            }
+            else
+            {
+                totalrcvOH = currreceiptOHvalue + totalprevrcvoverheads;
+            }
+
+            if(projecttype == 1 && totalrcvOH > totaloverheads)
+            {
+                hadError = true;
+                $('#MsgValidation').html("The total Receipt Overhead value cannot exceed the total Overheads allocated for the current project");
+                $('#ValidationModal').modal('toggle');
+            }
+
+            var InvType = $('input[name="InvoiceType"]').val();
+            if(InvType == 1)
+            {
+                var receiptforncurrvalue = parseFloat($('input[name="ReceiptForeignCurrencyAmount"]').val()) || 0;
+                var balanceavailable = parseFloat($('input[name="BalanceinINVFornCurrAmt"]').val()) || 0;
+
+                if (receiptforncurrvalue > balanceavailable) {
+                    $('#MsgValidation').html("Foreign currency receipt amount cannot exceed the available foreign currency value.");
+                    $('#ValidationModal').modal('toggle');
+                    hadError = true;
+                }
+            }
+
+            var rcvamount = $("#txtreceiptamount").val();
+            var InvType = $('input[name="InvoiceType"]').val();
+            var receiptid = $('input[name="ReceiptID"]').val() || 0;
+            var invoiceval = parseFloat($("#txtinvoicevalue").val()) || 0;
+            var prevreceipttotl = parseFloat($("#txtTotalPrevReceiptValue").val()) || 0;
+            var currreceiptval = parseFloat($('input[name="CurrRCVAmount"]').val()) || 0;
+            var balreceiptval = 0;
+            if(receiptid > 0)
+            {
+                balreceiptval = invoiceval - prevreceipttotl + currreceiptval;
+            }
+            else if (receiptid == 0)
+            {
+                balreceiptval = invoiceval - prevreceipttotl
+            }
+
+            if(InvType != 1)
+            {
+                if(rcvamount > balreceiptval)
+                {
+                    $('#MsgValidation').html("The Receipt value cannot exceed the Invoice value");
+                    $('#ValidationModal').modal('toggle');
+                    return false;
+                }
+            }
+            //else if (validationMsg == 'valid') {
+            //    var alloctotalvalidationMsg = validatealloctotal()
+            //    if (alloctotalvalidationMsg != 'valid') {
+            //        hadError = true;
+            //        $('#MsgValidation').html(alloctotalvalidationMsg);
+            //        $('#ValidationModal').modal('toggle');
+            //    }
+            //    else {
+            //        var allocheadvalidationMsg = validateAllocation()
+            //        if (allocheadvalidationMsg != 'valid') {
+            //            hadError = true;
+            //            $('#MsgValidation').html(allocheadvalidationMsg);
+            //            $('#ValidationModal').modal('toggle');
+            //        }
+            //    }
+            //}
+
+
+        } else if (currentTab == 2) {
+
+        }
+        //else if (currentTab == 3) {
+        //    if ($('#IsYearWiseAllocation').is(":checked")) {
+        //        var validationMsg = validateYWAllocation()
+        //        if (validationMsg != 'valid') {
+        //            hadError = true;
+        //            $('#MsgValidation').html(validationMsg);
+        //            $('#ValidationModal').modal('toggle');
+        //        }
+        //    } else {
+        //        var validationMsg = validateAllocation();
+        //        if (validationMsg != 'valid') {
+        //            hadError = true;
+        //            $('#MsgValidation').html(validationMsg);
+        //            $('#ValidationModal').modal('toggle');
+        //        }
+        //    }
+        //} else if (currentTab == 4) {
+        //    var validationMsg = validateStaffSalary();
+        //    if (validationMsg != 'valid') {
+        //        hadError = true;
+        //        $('#MsgValidation').html(validationMsg);
+        //        $('#ValidationModal').modal('toggle');
+        //    }
+        //}//else if (currentTab == 5) {
+        //    var tentativestartdate = $("#TentativeStartdate").val();
+        //    var tentativeclosedate = $("#TentativeClosedate").val();
+        //    if (tentativestartdate != '' && tentativeclosedate != '') {
+        //        hadError = !projectDurationValidation();
+        //    }
+        //}
+        $(stepElements).each(function (idx) {
+            if (!$(this).is(':radio') && !$(this).is(':checkbox')) {
+                isValid = $(this).valid();//$(document.forms[0]).validate().element($(this)); // check that the input is valid. This can also be used on a per input basis to perform another action if the field is not valid.
+                if (!isValid) { hadError = true; } // set our flag if there was an error
+            }
+
+        });
+        return !hadError; // return the valid status
+    }
+
+    function fixStepIndicator(n) {
+        // This function removes the "active" class of all steps...
+        var i, x = document.getElementsByClassName("step");
+        for (i = 0; i < x.length; i++) {
+            x[i].className = x[i].className.replace(" active", "");
+        }
+        //... and adds the "active" class on the current step:
+        x[n].className += " active";
+    }
+    // To calculate the Receivables Total
+    function calculatereceivablesSum() {
+
+        var item = document.getElementsByClassName("receivableamt");
+        var itemcount = item.length;
+        var totalreceivables = 0;
+
+        for (var i = 0; i < itemcount; i++) {
+            if (item[i].value != 'NaN' && item[i].value != '') {
+                totalreceivables = totalreceivables + parseFloat(item[i].value);;
+            }
+            else {
+                totalreceivables;;
+            }
+        }
+        $("#txtreceivablestotal").val(totalreceivables.toFixed(0));;
+
+    }
+    function validateforeigncurr() {
+        var receiptforncurrvalue = parseFloat($('input[name="ReceiptForeignCurrencyAmount"]').val()) || 0;
+        var balanceavailable = parseFloat($('input[name="BalanceinINVFornCurrAmt"]').val()) || 0;
+
+        if (receiptforncurrvalue > balanceavailable) {
+            $('#MsgValidation').html("Foreign currency receipt amount cannot exceed the available foreign currency value.");
+            $('#ValidationModal').modal('toggle');
+            return false;
+        }
+    }
+
+    function validateCrandDrtotal() {
+        var msg = 'valid';
+        var receiptamount = parseInt($('#txtreceiptamount').val());
+        var creditamount = parseInt($('#txtreceivedfromamount').val());
+        var debitamount = parseInt($('#txtbankDramount').val());
+
+        var item = document.getElementsByClassName("receivableamt");
+        var itemcount = item.length;
+        var totalreceivables = 0;
+
+        for (var i = 0; i < itemcount; i++) {
+            if (item[i].value != 'NaN' && item[i].value != '') {
+                totalreceivables = totalreceivables + parseFloat(item[i].value);;
+            }
+            else {
+                totalreceivables;;
+            }
+        }
+
+        var debittotal = totalreceivables + debitamount;
+        if (debittotal != creditamount) {
+            msg = "The Credit and Debit total should be equal. Please check.";
+        }
+        if (debittotal != receiptamount) {
+            msg = "The Debit total should be equal to the receipt amount. Please check.";
+        }
+        if (creditamount != receiptamount) {
+            msg = "The Credit amount should be equal to the receipt amount. Please check.";
+        }
+        return msg;
+    }
+    function calculatechequeSum() {
+
+        var chequevalue = [];
+
+        $('input[name="ChequeValue"]').each(function (idx, val) { chequevalue.push($(val).val()); });
+        chequevalue.sort();
+        var totalvalue = 0;
+        $.each(chequevalue, function (i, val) {
+            if (i == 0) {
+                var ChequeValue = document.getElementsByName('ChequeValue')[0].value;
+                totalvalue += parseFloat(ChequeValue);
+                if (!isNaN(totalvalue)) {
+                    $("#txttotalchequevalue").html(totalvalue.toFixed(0));
+                    $("#txttotalchequevalue").val(totalvalue.toFixed(0));
+                    $('input[name="TotalChequeValue"]').val(totalvalue.toFixed(0));
+                    // document.getElementsByName('TotalEnhancedAllocationvalue')[0].value = result;
+                }
+
+            } else {
+
+                var ChequeValue = document.getElementsByName('ChequeValue')[i].value;
+                totalvalue += parseFloat(ChequeValue);
+
+                if (!isNaN(totalvalue)) {
+                    $("#txttotalchequevalue").html(totalvalue.toFixed(0));
+                    $("#txttotalchequevalue").val(totalvalue.toFixed(0));
+                    $('input[name="TotalChequeValue"]').val(totalvalue.toFixed(0));
+                    // document.getElementsByName('TotalEnhancedAllocationvalue')[0].value = result;
+                }
+            }
+        });
+    }
+    function calculateDDSum() {
+
+        var ddvalue = [];
+
+        $('input[name="DDValue"]').each(function (idx, val) { ddvalue.push($(val).val()); });
+        ddvalue.sort();
+        var totalvalue = 0;
+        $.each(ddvalue, function (i, val) {
+            if (i == 0) {
+                var DDValue = document.getElementsByName('DDValue')[0].value;
+                totalvalue += parseFloat(DDValue);
+                if (!isNaN(totalvalue)) {
+                    $("#txttotalddamount").html(totalvalue.toFixed(0));
+                    $("#txttotalddamount").val(totalvalue.toFixed(0));
+                    $('input[name="TotalDDValue"]').val(totalvalue.toFixed(0));
+                    // document.getElementsByName('TotalEnhancedAllocationvalue')[0].value = result;
+                }
+
+            } else {
+
+                var DDValue = document.getElementsByName('DDValue')[i].value;
+                totalvalue += parseFloat(DDValue);
+                if (!isNaN(totalvalue)) {
+                    $("#txttotalddamount").html(totalvalue.toFixed(0));
+                    $("#txttotalddamount").val(totalvalue.toFixed(0));
+                    $('input[name="TotalDDValue"]').val(totalvalue.toFixed(0));
+                    // document.getElementsByName('TotalEnhancedAllocationvalue')[0].value = result;
+                }
+            }
+        });
+    }
+    function calculateBanktransferSum() {
+
+        var banktransfervalue = [];
+
+        $('input[name="BankTransferAmount"]').each(function (idx, val) { banktransfervalue.push($(val).val()); });
+        banktransfervalue.sort();
+        var totalvalue = 0;
+        $.each(banktransfervalue, function (i, val) {
+            if (i == 0) {
+                var BankTransferValue = document.getElementsByName('BankTransferAmount')[0].value;
+                totalvalue += parseFloat(BankTransferValue);
+                if (!isNaN(totalvalue)) {
+                    $("#txttotalbanktransferamount").html(totalvalue.toFixed(0));
+                    $("#txttotalbanktransferamount").val(totalvalue.toFixed(0));
+                    $('input[name="TotalBankTransactionAmount"]').val(totalvalue.toFixed(0));
+                    // document.getElementsByName('TotalEnhancedAllocationvalue')[0].value = result;
+                }
+
+            } else {
+
+                var BankTransferValue = document.getElementsByName('BankTransferAmount')[i].value;
+                totalvalue += parseFloat(BankTransferValue);
+                if (!isNaN(totalvalue)) {
+                    $("#txttotalbanktransferamount").html(totalvalue.toFixed(0));
+                    $("#txttotalbanktransferamount").val(totalvalue.toFixed(0));
+                    $('input[name="TotalBankTransactionAmount"]').val(totalvalue.toFixed(0));
+                    // document.getElementsByName('TotalEnhancedAllocationvalue')[0].value = result;
+                }
+            }
+        });
+    }
+    function calculateForgnremitSum() {
+
+        var forgnremitvalue = [];
+
+        $('input[name="INRValue"]').each(function (idx, val) { forgnremitvalue.push($(val).val()); });
+        forgnremitvalue.sort();
+        var totalvalue = 0;
+        $.each(forgnremitvalue, function (i, val) {
+            if (i == 0) {
+                var ForgnRemitValue = document.getElementsByName('INRValue')[0].value;
+                totalvalue += parseFloat(ForgnRemitValue);
+                if (!isNaN(totalvalue)) {
+                    $("#txtforgnremittotal").html(totalvalue.toFixed(0));
+                    $("#txtforgnremittotal").val(totalvalue.toFixed(0));
+                    $('input[name="Foreignremittotalamount"]').val(totalvalue.toFixed(0));
+                    // document.getElementsByName('TotalEnhancedAllocationvalue')[0].value = result;
+                }
+
+            } else {
+
+                var ForgnRemitValue = document.getElementsByName('INRValue')[i].value;
+                totalvalue += parseFloat(ForgnRemitValue);
+                if (!isNaN(totalvalue)) {
+                    $("#txtforgnremittotal").html(totalvalue.toFixed(0));
+                    $("#txtforgnremittotal").val(totalvalue.toFixed(0));
+                    $('input[name="Foreignremittotalamount"]').val(totalvalue.toFixed(0));
+                    // document.getElementsByName('TotalEnhancedAllocationvalue')[0].value = result;
+                }
+            }
+        });
+    }
+    $('#cheQue').hide();
+    $('#bankTrans').hide();
+    $('#dd').hide();
+    $('#foreignremit').hide();
+    $("#selectmodeofreceipt").change(function () {
+
+        var modeofreceipt = $(this).val();
+        if (modeofreceipt == 0) {
+            $('#cheQue').hide();
+            $('#bankTrans').hide();
+            $('#dd').hide();
+            $('#foreignremit').hide();
+            $('#tdscertificate').hide();
+        }
+        if (modeofreceipt == 1) {
+            $('#cheQue').show();
+            $('#bankTrans').hide();
+            $('#dd').hide();
+            $('#foreignremit').hide();
+            $('#tdscertificate').hide();
+        }
+        if (modeofreceipt == 2) {
+            $('#cheQue').hide();
+            $('#bankTrans').hide();
+            $('#dd').show();
+            $('#foreignremit').hide();
+            $('#tdscertificate').hide();
+        }
+        if (modeofreceipt == 3) {
+            $('#cheQue').hide();
+            $('#bankTrans').show();
+            $('#dd').hide();
+            $('#foreignremit').hide();
+            $('#tdscertificate').hide();
+        }
+        if (modeofreceipt == 4) {
+            $('#cheQue').hide();
+            $('#bankTrans').hide();
+            $('#dd').hide();
+            $('#foreignremit').show();
+            $('#tdscertificate').hide();
+        }
+        if (modeofreceipt == 5) {
+            $('#cheQue').hide();
+            $('#bankTrans').hide();
+            $('#dd').hide();
+            $('#foreignremit').hide();
+            $('#tdscertificate').show();
+        }
+
+        $('#txtchequenumber').val('');
+        $('input[name="ChequeDate"]').val('');
+        $('#txtchequebank').val('');
+        $('#txtchequebankbranch').val('');
+        $('#txtchequevalue').val('');
+        $('#txttotalchequevalue').val('');
+
+        $('#txtDDvalue').val('');
+        $('input[name="DDDate"]').val('');
+        $('#txtDDBank').val('');
+        $('#txtDDamount').val('');
+        $('#txttotalddamount').val('');
+
+        $('#selectbanktransfertype').val('');
+        $('input[name="BankTransactionDate"]').val('');
+        $('#txtbanktransferbank').val('');
+        $('#txtbanktransferrefno').val('');
+        $('#txtbanktransamount').val('');
+        $('#txttotalbanktransferamount').val('');
+
+        $('#selecttransfercountry').val('');
+        $('#selecttransfercurrency').val('');
+        $('#txtforgncurrencyamt').val('');
+        $('#txtforgncurncyconversionrate').val('');
+        $('#txtIndianvalueamount').val('');
+        $('#txtforgntransactrefno').val('');
+        $('input[name="ForeignremittransDate"]').val('');
+        $('#txtforgnremittotal').val('');
+
+    });
+
+    $(document).on('change', 'select[name="Foreigntransfercurrency"]', function () {
+
+        var currencyid = $(this).val();
+        var txtbox = $(this).closest('#primaryForgnRemitDiv').find('input[name="Conversionrate"]');
+        var getexchangerate = 'Loadexchangerate';
+        $.ajax({
+            type: "POST",
+            url: getexchangerate,
+            data: { Currencyid: currencyid },
+            //contentType: "application/json; charset=utf-8",
+            //dataType: "json",
+            success: function (result) {
+                $(txtbox).val(result.value);
+            }
+        });
+    });
+
+ window.onload = function () {
+
+        $("#selectmodeofreceipt").each(function () {
+
+            var modeofreceipt = $(this).val();
+            if (modeofreceipt == 0) {
+                $('#cheQue').hide();
+                $('#bankTrans').hide();
+                $('#dd').hide();
+                $('#foreignremit').hide();
+                $('#tdscertificate').hide();
+            }
+            if (modeofreceipt == 1) {
+                $('#cheQue').show();
+                $('#bankTrans').hide();
+                $('#dd').hide();
+                $('#foreignremit').hide();
+                $('#tdscertificate').hide();
+            }
+            if (modeofreceipt == 2) {
+                $('#cheQue').hide();
+                $('#bankTrans').hide();
+                $('#dd').show();
+                $('#foreignremit').hide();
+                $('#tdscertificate').hide();
+            }
+            if (modeofreceipt == 3) {
+                $('#cheQue').hide();
+                $('#bankTrans').show();
+                $('#dd').hide();
+                $('#foreignremit').hide();
+                $('#tdscertificate').hide();
+            }
+            if (modeofreceipt == 4) {
+                $('#cheQue').hide();
+                $('#bankTrans').hide();
+                $('#dd').hide();
+                $('#foreignremit').show();
+                $('#tdscertificate').hide();
+            }
+            if (modeofreceipt == 5) {
+                $('#cheQue').hide();
+                $('#bankTrans').hide();
+                $('#dd').hide();
+                $('#foreignremit').hide();
+                $('#tdscertificate').show();
+            }
+        });
+
+
+        var Budgethead = @Html.Raw(Json.Encode(Model.BudgetHead));
+        var Allocvalue = @Html.Raw(Json.Encode(Model.Allocationvalue));
+
+        $.each(Budgethead, function (i, val) {
+
+            if (i == 0) {
+                document.getElementsByName('BudgetHead')[0].value = Budgethead[0];
+                document.getElementsByName('Allocationvalue')[0].value = Allocvalue[0];
+
+            } else {
+                var cln = $("#primaryAllocateDiv").clone().find("input").val("").end();
+                $(cln).find('.dis-none').removeClass('dis-none');
+                $('#divAllocateContent').append(cln)
+                document.getElementsByName('BudgetHead')[i].value = Budgethead[i];
+                document.getElementsByName('Allocationvalue')[i].value = Allocvalue[i];
+            }
+        });
+        var modeofreceipt =  $("#selectmodeofreceipt").val();
+        if(modeofreceipt == 1)
+        {
+            var Chequenumber = @Html.Raw(Json.Encode(Model.ChequeNumber));
+            var Chequedate = @Html.Raw(Json.Encode(Model.ChequeDate));
+            var Cheqdte = @Html.Raw(Json.Encode(Model.Chqdate));
+            var Cheqclrdte = @Html.Raw(Json.Encode(Model.Chqclrdate));
+            var Chequevalue = @Html.Raw(Json.Encode(Model.ChequeValue));
+            var Chequevaluebank = @Html.Raw(Json.Encode(Model.ChequeBankName));
+            var Chequebankbranch = @Html.Raw(Json.Encode(Model.ChequeBankBranch));
+            $.each(Chequenumber, function (i, val) {
+
+                if (i == 0) {
+                    document.getElementsByName('ChequeNumber')[0].value = Chequenumber[0];
+                    document.getElementsByName('ChequeDate')[0].value = Chequedate[0];
+                    document.getElementsByName('Chqdate')[0].value = Cheqdte[0];
+                    if(Cheqclrdte != null)
+                    {
+                        document.getElementsByName('Chqclrdate')[0].value = Cheqclrdte[0];
+                    }
+                    document.getElementsByName('ChequeValue')[0].value = Chequevalue[0];
+                    document.getElementsByName('ChequeBankName')[0].value = Chequevaluebank[0];
+                    document.getElementsByName('ChequeBankBranch')[0].value = Chequebankbranch[0];
+
+                } else {
+                    var cln = $("#primaryChequeDiv").clone().find("input").val("").end();
+                    $(cln).find('.dis-none').removeClass('dis-none');
+                    $(cln).find('.dis-block').addClass('dis-none');
+                    $('#divChequeContent').append(cln)
+                    document.getElementsByName('ChequeNumber')[i].value = Chequenumber[i];
+                    document.getElementsByName('ChequeDate')[i].value = Chequedate[i];
+                    document.getElementsByName('Chqdate')[i].value = Cheqdte[i];
+                    if(Cheqclrdte != null)
+                    {
+                        document.getElementsByName('Chqclrdate')[i].value = Cheqclrdte[i];
+                    }
+                    document.getElementsByName('ChequeValue')[i].value = Chequevalue[i];
+                    document.getElementsByName('ChequeBankName')[i].value = Chequevaluebank[i];
+                    document.getElementsByName('ChequeBankBranch')[i].value = Chequebankbranch[i];
+                }
+            });
+        }
+
+        if(modeofreceipt == 2)
+        {
+            var DDnumber = @Html.Raw(Json.Encode(Model.DDNumber));
+            var DDdate = @Html.Raw(Json.Encode(Model.DDDate));
+            var Dddte = @Html.Raw(Json.Encode(Model.Dddte));
+            var DDvalue = @Html.Raw(Json.Encode(Model.DDValue));
+            var DDbank = @Html.Raw(Json.Encode(Model.DDBankName));
+            var DDbankbranch = @Html.Raw(Json.Encode(Model.DDBankBranch));
+            $.each(DDnumber, function (i, val) {
+
+                if (i == 0) {
+                    document.getElementsByName('DDNumber')[0].value = DDnumber[0];
+                    document.getElementsByName('DDDate')[0].value = DDdate[0];
+                    document.getElementsByName('Dddte')[0].value = Dddte[0];
+                    document.getElementsByName('DDValue')[0].value = DDvalue[0];
+                    document.getElementsByName('DDBankName')[0].value = DDbank[0];
+                    document.getElementsByName('DDBankBranch')[0].value = DDbankbranch[0];
+                } else {
+                    var cln = $("#primaryDDDiv").clone().find("input").val("").end();
+                    $(cln).find('.dis-none').removeClass('dis-none');
+                    $(cln).find('.dis-block').addClass('dis-none');
+                    $('#divDDContent').append(cln)
+                    document.getElementsByName('DDNumber')[i].value = DDnumber[i];
+                    document.getElementsByName('DDDate')[i].value = DDdate[i];
+                    document.getElementsByName('Dddte')[i].value = Dddte[i];
+                    document.getElementsByName('DDValue')[i].value = DDvalue[i];
+                    document.getElementsByName('DDBankName')[i].value = DDbank[i];
+                    document.getElementsByName('DDBankBranch')[i].value = DDbankbranch[i];
+                }
+            });
+        }
+        if(modeofreceipt == 3)
+        {
+            var Banktransnumber = @Html.Raw(Json.Encode(Model.BankTransactionrefno));
+            var Banktransdate = @Html.Raw(Json.Encode(Model.BankTransactionDate));
+            var Banktransdte = @Html.Raw(Json.Encode(Model.Banktransdate));
+            var Banktransamount = @Html.Raw(Json.Encode(Model.BankTransferAmount));
+            var Banktransbank = @Html.Raw(Json.Encode(Model.BankTransferBankName));
+            var Banktransbankbranch = @Html.Raw(Json.Encode(Model.BankTransferBankBranch));
+            var Banktranstype = @Html.Raw(Json.Encode(Model.BankTransactiontype));
+            $.each(Banktransnumber, function (i, val) {
+
+                if (i == 0) {
+                    document.getElementsByName('BankTransactionrefno')[0].value = Banktransnumber[0];
+                    document.getElementsByName('BankTransactionDate')[0].value = Banktransdate[0];
+                    document.getElementsByName('Banktransdate')[0].value = Banktransdte[0];
+                    document.getElementsByName('BankTransferAmount')[0].value = Banktransamount[0];
+                    document.getElementsByName('BankTransferBankName')[0].value = Banktransbank[0];
+                    document.getElementsByName('BankTransactiontype')[0].value = Banktranstype[0];
+                    document.getElementsByName('BankTransferBankBranch')[0].value = Banktransbankbranch[0];
+
+                } else {
+                    var cln = $("#primaryBankDiv").clone().find("input").val("").end();
+                    $(cln).find('.dis-none').removeClass('dis-none');
+                    $(cln).find('.dis-block').addClass('dis-none');
+                    $('#divBankContent').append(cln)
+                    document.getElementsByName('BankTransactionrefno')[i].value = Banktransnumber[i];
+                    document.getElementsByName('BankTransactionDate')[i].value = Banktransdate[i];
+                    document.getElementsByName('Banktransdate')[i].value = Banktransdte[i];
+                    document.getElementsByName('BankTransferAmount')[i].value = Banktransamount[i];
+                    document.getElementsByName('BankTransferBankName')[i].value = Banktransbank[i];
+                    document.getElementsByName('BankTransactiontype')[i].value = Banktranstype[i];
+                    document.getElementsByName('BankTransferBankBranch')[i].value = Banktransbankbranch[i];
+                }
+            });
+        }
+        if(modeofreceipt == 4)
+        {
+            var Forgnremitrefnumber = @Html.Raw(Json.Encode(Model.Foreignremittransrefno));
+            var Forgnremitdate = @Html.Raw(Json.Encode(Model.ForeignremittransDate));
+            var Forgnremtdte = @Html.Raw(Json.Encode(Model.Forgnremitdate));
+            var ForgnCurramount = @Html.Raw(Json.Encode(Model.Foreigncurrencyamount));
+            var ForgnCurrency = @Html.Raw(Json.Encode(Model.Foreigntransfercurrency));
+            var Forgncurrconversnrate = @Html.Raw(Json.Encode(Model.Conversionrate));
+            var ForgnremitINR = @Html.Raw(Json.Encode(Model.INRValue));
+            var Forgnremitbank = @Html.Raw(Json.Encode(Model.Foreignremitbankname));
+            var Forgnremitbankbranch = @Html.Raw(Json.Encode(Model.Foreignremitbankbranch));
+            var Forgnremitcountry = @Html.Raw(Json.Encode(Model.Foreigntransfercountry));
+
+            $.each(Forgnremitrefnumber, function (i, val) {
+
+                if (i == 0) {
+                    document.getElementsByName('Foreignremittransrefno')[0].value = Forgnremitrefnumber[0];
+                    document.getElementsByName('ForeignremittransDate')[0].value = Forgnremitdate[0];
+                    document.getElementsByName('Forgnremitdate')[0].value = Forgnremtdte[0];
+                    document.getElementsByName('Foreigncurrencyamount')[0].value = ForgnCurramount[0];
+                    document.getElementsByName('Foreigntransfercurrency')[0].value = ForgnCurrency[0];
+                    document.getElementsByName('Conversionrate')[0].value = Forgncurrconversnrate[0];
+                    document.getElementsByName('INRValue')[0].value = ForgnremitINR[0];
+                    document.getElementsByName('Foreignremitbankname')[0].value = Forgnremitbank[0];
+                    document.getElementsByName('Foreignremitbankbranch')[0].value = Forgnremitbankbranch[0];
+                    document.getElementsByName('Foreigntransfercountry')[0].value = Forgnremitcountry[0];
+
+                } else {
+                    var cln = $("#primaryForgnRemitDiv").clone().find("input").val("").end();
+                    $(cln).find('.dis-none').removeClass('dis-none');
+                    $(cln).find('.dis-block').addClass('dis-none');
+                    $('#divForgnRemitContent').append(cln)
+                    document.getElementsByName('Foreignremittransrefno')[i].value = Forgnremitrefnumber[i];
+                    document.getElementsByName('ForeignremittransDate')[i].value = Forgnremitdate[i];
+                    document.getElementsByName('Forgnremitdate')[i].value = Forgnremtdte[i];
+                    document.getElementsByName('Foreigncurrencyamount')[i].value = ForgnCurramount[i];
+                    document.getElementsByName('Foreigntransfercurrency')[i].value = ForgnCurrency[i];
+                    document.getElementsByName('Conversionrate')[i].value = Forgncurrconversnrate[i];
+                    document.getElementsByName('INRValue')[i].value = ForgnremitINR[i];
+                    document.getElementsByName('Foreignremitbankname')[i].value = Forgnremitbank[i];
+                    document.getElementsByName('Foreignremitbankbranch')[i].value = Forgnremitbankbranch[i];
+                    document.getElementsByName('Foreigntransfercountry')[i].value = Forgnremitcountry[i];
+                }
+            });
+        }
+        if(modeofreceipt == 5)
+        {
+            var TDSCertificateno = @Html.Raw(Json.Encode(Model.TDSCertificateNumber));
+            var TDSDocNme = @Html.Raw(Json.Encode(Model.TDSDocName));
+            var TDSDocmntpath = @Html.Raw(Json.Encode(Model.TDSDocPath));
+            $.each(TDSCertificateno, function (i, val) {
+
+                if (i == 0) {
+                    document.getElementsByName('TDSCertificateNumber')[0].value = TDSCertificateno[0];
+
+                    document.getElementsByClassName('link1')[0].text = TDSDocNme[0];
+                    document.getElementsByClassName('HiddenDocName')[i].value = TDSDocNme[i];
+                    document.getElementsByClassName('HiddenDocPath')[i].value = TDSDocmntpath[i];
+                    document.getElementsByClassName('link1')[0].href = "ShowDocument?file=" + TDSDocmntpath[0] + "&filepath=~%2FContent%2FOtherDocuments%2F";
+                } else {
+                    var cln = $("#primaryTDSDiv").clone().find("input").val("").end();
+                    $(cln).find('.dis-none').removeClass('dis-none');
+                    $(cln).find('.dis-block').addClass('dis-none');
+                    $('#divTDSContent').append(cln)
+                    document.getElementsByName('TDSCertificateNumber')[i].value = TDSCertificateno[i];
+
+                    document.getElementsByClassName('link1')[i].text = TDSDocNme[i];
+                    document.getElementsByClassName('HiddenDocName')[i].value = TDSDocNme[i];
+                    document.getElementsByClassName('HiddenDocPath')[i].value = TDSDocmntpath[i];
+                    document.getElementsByClassName('link1')[i].href = "ShowDocument?file=" + TDSDocmntpath[i] + "&filepath=~%2FContent%2FOtherDocuments%2F";
+                }
+            });
+        }
+    }
+
+    $("#selecttransfercountry").change(function () {
+            var CountryID = $(this).val();
+            $.getJSON("@Url.Action("LoadCurrency", "CoreAccounts")", { CountryId: CountryID },
+                        function (locationdata) {
+                            var select = $("#selecttransfercurrency");
+                            //select.empty();
+
+                            $.each(locationdata, function (index, itemData) {
+                                $("#selecttransfercurrency").val(itemData.id) ; ;
+                                //select.append($('<option/>', {
+                                //    value: itemData.id,
+                                //    text: itemData.name
+                                //}));
+                            });
+                        });
+
+
+                var currencyid = $("#selecttransfercurrency").val();
+                var txtbox = $(this).closest('#primaryForgnRemitDiv').find('input[name="Conversionrate"]');
+                var getexchangerate = 'Loadexchangerate';
+                $.ajax({
+                    type: "POST",
+                    url: getexchangerate,
+                    data: { Currencyid: currencyid },
+                    //contentType: "application/json; charset=utf-8",
+                    //dataType: "json",
+                    success: function (result) {
+                        $(txtbox).val(result.value);
+                    }
+                });
+
+
+    });
+
+    $("#txtforgncurrencyamt").change(function () {
+
+        var amount = $(this).val();
+        var conversionrate = $("#txtforgncurncyconversionrate").val();
+
+        var convertedamount = amount * conversionrate;
+
+        $("#txtIndianvalueamount").val(convertedamount.toFixed(0));
+
+
+    });
+    $("#txtreceiptamount").change(function () {
+        var rcvamount = $(this).val();
+        var InvType = $('input[name="InvoiceType"]').val();
+        var receiptid = $('input[name="ReceiptID"]').val() || 0;
+        var invoiceval = parseFloat($("#txtinvoicevalue").val()) || 0;
+        var prevreceipttotl = parseFloat($("#txtTotalPrevReceiptValue").val()) || 0;
+        var currreceiptval = parseFloat($('input[name="CurrRCVAmount"]').val()) || 0;
+        var balreceiptval = 0;
+        if(receiptid > 0)
+        {
+            balreceiptval = invoiceval - prevreceipttotl + currreceiptval;
+        }
+        else if (receiptid == 0)
+        {
+            balreceiptval = invoiceval - prevreceipttotl
+        }
+
+        if(InvType != 1)
+        {
+            if(rcvamount > balreceiptval)
+            {
+                $('#MsgValidation').html("The Receipt value cannot exceed the Invoice value");
+                $('#ValidationModal').modal('toggle');
+                return false;
+            }
+        }
+        var curroverheadamt = $("#txtcurrentreceiptoverheads").val();
+        var sancvalue = $("#txtProjectValue").val();
+        var totalpjctoh = $("#txtProjecttotalOH").val();
+        var currohamount = 0
+        if(sancvalue > 0)
+        {
+            currohamount  = (rcvamount / sancvalue) * totalpjctoh;
+        }
+
+        $("#txtcurrentreceiptoverheads").val(currohamount.toFixed(0));
+        calcllocbreakup();
+        calctaxamount();
+    });
+    function calcllocbreakup() {
+        // var amount = parseFloat($("#txtcurrentreceiptoverheads").val());
+        var sanctionval = parseFloat($("#txtProjectValue").val());
+        var receiptvalue = parseFloat($("#txtreceiptamount").val());
+        var currreceiptOHvalue = parseFloat($("#txtcurrentreceiptoverheads").val());
+        var totaloverheads = parseFloat($("#txtProjecttotalOH").val());
+        var totalprevrcvoverheads = parseFloat($("#txtPrevReceiptOH").val());
+        var totaloverheadpercentage = parseFloat($("#txtOHpercenttotal").val());
+        var projecttype = parseFloat($('input[name="ProjectType"').val());
+        //var newcurrrcvOH = (receiptvalue / sanctionval) * totaloverheads;
+        //document.getElementsByName('CurrentReceiptOverheads')[0].value = newcurrrcvOH;
+        var totalrcvOH = currreceiptOHvalue + totalprevrcvoverheads;
+
+        if (projecttype == 1 && totalrcvOH > totaloverheads)
+        {
+            $('#MsgValidation').html("The total Receipt Overhead value cannot exceed the total Overheads allocated for the current project");
+            $('#ValidationModal').modal('toggle');
+            return false;
+        }
+        var totalbreakup = 0;
+        $('#ProjectList tr').each(function (idx, val) {
+            var percentage = $(this).find('input[name$=".OverheadPercentage"]').val();
+            var txtpercent = parseFloat(percentage);
+            //  var result = parseFloat((currreceiptOHvalue * txtpercent) / 100);
+            var result = ((txtpercent / totaloverheadpercentage) * currreceiptOHvalue).toFixed(0);
+            if (!isNaN(result)) {
+                $(this).find('input[name$=".OverheadAmount"]').val(result);
+            }
+            totalbreakup += parseFloat(result);
+        });
+        if(totalbreakup > currreceiptOHvalue)
+        {
+            var roundoffdiff = parseFloat(totalbreakup - currreceiptOHvalue).toFixed(0);
+        }
+        if(totalbreakup < currreceiptOHvalue)
+        {
+            var roundoffdiff = parseFloat(currreceiptOHvalue - totalbreakup).toFixed(0);
+        }
+        if(parseFloat(totalbreakup) > currreceiptOHvalue && roundoffdiff > 0 && roundoffdiff < 5)
+        {
+            $('#ProjectList tr').each(function (idx, val) {
+                var percentage = $(this).find('input[name$=".OverheadPercentage"]').val();
+                var overheadsid = $(this).find('input[name$=".OverheadtypeId"]').val();
+                var txtpercent = parseFloat(percentage);
+                //  var result = parseFloat((currreceiptOHvalue * txtpercent) / 100);
+                var result = ((txtpercent / totaloverheadpercentage) * currreceiptOHvalue).toFixed(0);
+                if (overheadsid == 5 || overheadsid == 8 || overheadsid == 10 || overheadsid == 12 || overheadsid == 14 || overheadsid == 16 || overheadsid == 18 || overheadsid == 20 || overheadsid == 22)
+                {
+                    result = (((txtpercent / totaloverheadpercentage) * currreceiptOHvalue) - roundoffdiff).toFixed(0);
+                }
+                if (!isNaN(result)) {
+                    $(this).find('input[name$=".OverheadAmount"]').val(result);
+                }
+                totalbreakup += parseFloat(result);
+            });
+        }
+        if(parseFloat(totalbreakup) < currreceiptOHvalue && roundoffdiff > 0 && roundoffdiff < 5)
+        {
+            $('#ProjectList tr').each(function (idx, val) {
+                var percentage = $(this).find('input[name$=".OverheadPercentage"]').val();
+                var overheadsid = $(this).find('input[name$=".OverheadtypeId"]').val();
+                var txtpercent = parseFloat(percentage);
+                //  var result = parseFloat((currreceiptOHvalue * txtpercent) / 100);
+                var result = ((txtpercent / totaloverheadpercentage) * currreceiptOHvalue).toFixed(0);
+                if (overheadsid == 5 || overheadsid == 8 || overheadsid == 10 || overheadsid == 12 || overheadsid == 14 || overheadsid == 16 || overheadsid == 18 || overheadsid == 20 || overheadsid == 22)
+                {
+                    result = (((txtpercent / totaloverheadpercentage) * currreceiptOHvalue) - roundoffdiff).toFixed(0);
+                }
+                if (!isNaN(result)) {
+                    $(this).find('input[name$=".OverheadAmount"]').val(result);
+                }
+                totalbreakup += parseFloat(result);
+            });
+        }
+        else if((parseFloat(totalbreakup) > currreceiptOHvalue && roundoffdiff > 5))
+        {
+            $('#MsgValidation').html("The total breakup and Overhead value din't match. Please check");
+            $('#ValidationModal').modal('toggle');
+            return false;
+        }
+
+    };
+
+    function calctaxamount() {
+
+        var cgstpercent = parseFloat($('input[name="CGSTPercentage"]').val());
+        var sgstpercent = parseFloat($('input[name="SGSTPercentage"]').val());
+        var igstpercent = parseFloat($('input[name="IGSTPercentage"]').val());
+        //var receiptamount = $("#txtreceiptamount").val();
+        var invamount = $('input[name="InvoiceValueWithoutTax"]').val();
+        var receiptcount = $('input[name="ReceiptCount"]').val();
+        if (receiptcount == 0)
+        {
+            var cgstamt = Math.round((invamount * cgstpercent) / 100).toFixed(0);
+            var sgstamt = Math.round((invamount * sgstpercent) / 100).toFixed(0)
+            var igstamt = Math.round((invamount * igstpercent) / 100).toFixed(0)
+
+            $("#txtreceiptCGST").val(cgstamt);
+            $("#txtreceiptSGST").val(sgstamt);
+            $("#txtreceiptIGST").val(igstamt);
+        }
+        else
+        {
+            $("#txtreceiptCGST").val(0);
+            $("#txtreceiptSGST").val(0);
+            $("#txtreceiptIGST").val(0);
+        }
+
+    };
+    //$("#txtcurrentreceiptoverheads").change(function () {
+
+    //    var amount = $(this).val();
+    //    var sanctionval = parseFloat($("#txtProjectValue").val());
+    //    var receiptvalue = parseFloat($("#txtreceiptamount").val());
+    //    var totaloverheads = parseFloat($("#txtProjecttotalOH").val());
+    //    var totalprevrcvoverheads = parseFloat($("#txtPrevReceiptOH").val());
+
+    //    var newcurrrcvOH = (receiptvalue / sanctionval) * totaloverheads;
+    //    document.getElementsByName('CurrentReceiptOverheads')[i].value = newcurrrcvOH;
+
+    //    var amt = [];
+    //    var percent = [];
+    //    //var headwisetotalvalue = [];
+
+    //    $('input[name="item.OverheadAmount"]').each(function (idx, val) { amt.push($(val).val()); });
+    //    $('input[name="item.OverheadPercentage"]').each(function (idx, val) { percent.push($(val).val()); });
+    //    amt.sort();
+    //    percent.sort();
+    //    $.each(amt, function (i, val) {
+    //        var txtamt = parseFloat(document.getElementsByName('item.OverheadAmount')[i].value);
+    //        var txtpercent = parseFloat(document.getElementsByName('item.OverheadPercentage')[i].value);
+    //        var result = (newcurrrcvOH * txtpercent) / 100;
+    //        if (!isNaN(result)) {
+    //            document.getElementsByName('item.OverheadAmount')[i].value = result;
+    //        }
+    //    });
+
+
+    //});
+
+    // To calculate net total
+    //function calculatenettotal() {
+
+    //    var nettotalvalue = 0;
+    //    var allocationtotalvalue = [];
+    //    var receivablestotalvalue = [];
+    //  //  var receivablestotal = parseint($('#txtreceivablestotal').val());
+    //    var totaltax = parseInt($('#txttotaltaxamount').val());
+    //    var receiptamount = $('#txtreceiptamount').val();
+    //    $('input[name="AllocationAmount"]').each(function (idx, val) { allocationtotalvalue.push($(val).val()); });
+    //    $('input[name="ReceivablesAmount"]').each(function (idx, val) { receivablestotalvalue.push($(val).val()); });
+
+    //    allocationtotalvalue.sort();
+    //    receivablestotalvalue.sort();
+    //    var totalallocation = 0;
+    //    var receivablestotal = 0;
+
+    //    $.each(allocationtotalvalue, function (i, val) {
+
+    //        if (i == 0) {
+
+    //            var txtallocationValue = document.getElementsByName('AllocationAmount')[0].value;
+    //            totalallocation += parseFloat(txtallocationValue);
+
+    //        } else {
+    //            var txtallocationValue = document.getElementsByName('AllocationAmount')[i].value;
+    //            totalallocation += parseFloat(txtallocationValue);
+
+    //        }
+    //    });
+    //    $.each(receivablestotalvalue, function (i, val) {
+
+    //        if (i == 0) {
+
+    //            var txtreceivablesValue = document.getElementsByName('ReceivablesAmount')[0].value;
+    //            receivablestotal += parseFloat(txtreceivablesValue);
+
+    //        } else {
+    //            var txtreceivablesValue = document.getElementsByName('ReceivablesAmount')[i].value;
+    //            receivablestotal += parseFloat(txtreceivablesValue);
+    //        }
+    //    });
+
+    //    nettotalvalue = (totalallocation + totaltax) - receivablestotal;
+    //    if (!isNaN(nettotalvalue)) {
+    //        $("#txtnettotal").val(nettotalvalue.toFixed(0));
+    //        // document.getElementsByName('TotalEnhancedAllocationvalue')[0].value = result;
+    //    }
+    //}
+    /* Tab Sections End */
+
+    /* Invoice number change */
+    //$("#selectinvoicenumber").change(function () {
+
+    //    var invoiceno = $(this).val();
+    //    var getinvoicedetails = 'Loadinvoicedetails';
+    //    $.ajax({
+    //        type: "POST",
+    //        url: getinvoicedetails,
+    //        data: { invoiceid: invoiceno },
+    //        //contentType: "application/json; charset=utf-8",
+    //        //dataType: "json",
+    //        success: function (result) {
+    //            $("#txtinvoicedate").val(result.Invoicedatestrng);
+    //            $("#txtinvoicevalue").val(result.InvoiceValue);
+    //            $("#txtinvoicedetails").val(result.InvoiceDetails);
+    //            $("#txtcgstamount").val(result.CGSTAmount);
+    //            $("#txtsgstamount").val(result.SGSTAmount);
+    //            $("#txtigstamount").val(result.IGSTAmount);
+    //            $("#txttotaltaxamount").val(result.TotalTaxAmount);
+
+    //        },
+    //        error: function (err) {
+    //            console.log("error1 : " + err);
+    //        }
+    //    });
+    //});
+    /* Invoice number change */
+</script>
+<link href="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/css/bootstrap-select.min.css")" rel="stylesheet" />
+<script src="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/js/bootstrap-select.min.js")"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>
+
+

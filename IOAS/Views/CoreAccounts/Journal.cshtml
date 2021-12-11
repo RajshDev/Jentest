@@ -1,0 +1,368 @@
+﻿@model IOAS.Models.JournalModel
+@{
+    ViewBag.Title = "Journal";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+@using (Html.BeginForm("Journal", "CoreAccounts", FormMethod.Post, new { @class = "", role = "form", @id = "formJV", enctype = "multipart/form-data" }))
+{
+    <div class="row hd-tt-bg">
+        <div class="col-md-12">
+            <h4><b>Journal</b> </h4>
+        </div>
+    </div>
+    <div class="row">
+        <div class="white-bg ad-navbar">
+
+            <div class="col-md-3 col-md-offset-9">
+                <div class="reg-no custom-reg-no">
+                    <div class="form-group custom-form-group">
+                        <label>Number</label>
+                        <h4>@Html.DisplayFor(m => m.JournalNumber)</h4>
+                        @Html.HiddenFor(m => m.JournalId)
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="page-wrapper">
+            <div class="col-md-12 mt30">
+                <ul class="nav nav-pills custom-nav-pills">
+                    <li class="active"><a href="javascript:void(0)"><span>01</span>Payment Details</a></li>
+                    <li><a href="javascript:void(0)"><span>02</span>Document Details</a></li>
+                </ul>
+
+                <div class="tab">
+                    <div class="col-md-12 col-sm-12 m-b-sm">
+                        <div class="row">
+                            <div class="page-wrapper">
+                                <div class="col-md-12">
+                                    <div class="white-bg">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="required">Reason for JV</label>
+                                                    @Html.DropDownListFor(m => m.Reason, new SelectList(ViewBag.ReasonList, "id", "name"), "Select any", new { @class = "form-control" })
+                                                    @Html.ValidationMessageFor(m => m.Reason)
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="required">Narration</label>
+                                                    @Html.TextAreaFor(m => m.Narration, new { @class = "form-control", @rows = "3" })
+                                                    @Html.ValidationMessageFor(m => m.Narration)
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="gray-bg br-rd">
+                                            <h3 class="mt-null col-md-6"></h3>
+                                            <div class="col-md-6 text-right mb-md">
+                                                <a href="javascript:void(0)" id="btnAddExpense" class="btn btn-primary">Add New</a>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="m-b-sm">
+                                                        <table class="table table-bordered">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>Account Group</th>
+                                                                    <th>Account Head</th>
+                                                                    <th>Transaction Type</th>
+                                                                    <th style="width:200px;">Amount</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="tbodyExpenseList">
+                                                                @if (Model.ExpenseDetail != null && Model.ExpenseDetail.Count() > 0)
+                                                                {
+                                                                    var count = 0;
+                                                                    foreach (var item in Model.ExpenseDetail)
+                                                                    {
+                                                                        var accountGroup = "ExpenseDetail[" + count + "].AccountGroupId";
+                                                                        var accountHead = "ExpenseDetail[" + count + "].AccountHeadId";
+                                                                        var expDetailId = "ExpenseDetail[" + count + "].BillExpenseDetailId";
+                                                                        var transType = "ExpenseDetail[" + count + "].TransactionType";
+                                                                        var amt = "ExpenseDetail[" + count + "].Amount";
+                                                                        <tr>
+                                                                            <td>
+                                                                                @Html.DropDownList(@accountGroup, new SelectList(ViewBag.AccountGroupList, "id", "name", item.AccountGroupId), new { @class = "form-control required" })
+                                                                                @Html.ValidationMessage(@accountGroup)
+                                                                                @Html.Hidden("ExpenseDetail.Index", @count)
+                                                                                @Html.Hidden(@expDetailId, item.BillExpenseDetailId)
+                                                                            </td>
+                                                                            <td>
+                                                                                @Html.DropDownList(@accountHead, new SelectList(item.AccountHeadList, "id", "name", item.AccountHeadId), new { @class = "form-control required" })
+                                                                                @Html.ValidationMessage(@accountHead)
+                                                                            </td>
+                                                                            <td>
+                                                                                @Html.DropDownList(@transType, new SelectList(ViewBag.TransactionTypeList, "name", "name", item.TransactionType), new { @class = "form-control required", @onchange = "CalculateDeductionTotal()" })
+                                                                                @Html.ValidationMessage(@transType)
+                                                                            </td>
+                                                                            <td>
+                                                                                @Html.TextBox(@amt, item.Amount, new { @class = "form-control required", @onkeypress = "return ValidateDecimalOnly(event)", @onblur = "CalculateDeductionTotal()", @autocomplete = "off" })
+                                                                                @Html.ValidationMessage(@amt)
+                                                                            </td>
+                                                                            <td>
+                                                                                <a href="javascript:void(0)" class="removeExpense btn-circle"><i class="ion-close-round"></i></a>
+                                                                            </td>
+                                                                        </tr>
+                                                                        count++;
+
+                                                                    }
+                                                                }
+                                                                else
+                                                                {
+                                                                    <tr>
+                                                                        <td>
+                                                                            @Html.DropDownList("ExpenseDetail[0].AccountGroupId", new SelectList(ViewBag.AccountGroupList, "id", "name"), "Select any", new { @class = "form-control required" })
+                                                                            @Html.ValidationMessage("ExpenseDetail[0].AccountGroupId")
+                                                                            @Html.Hidden("ExpenseDetail.Index", "0")
+                                                                            @Html.Hidden("ExpenseDetail[0].BillExpenseDetailId")
+                                                                        </td>
+                                                                        <td>
+                                                                            @Html.DropDownList("ExpenseDetail[0].AccountHeadId", new SelectList(ViewBag.AccountHeadList, "id", "name"), "Select any", new { @class = "form-control required" })
+                                                                            @Html.ValidationMessage("ExpenseDetail[0].AccountHeadId")
+                                                                        </td>
+                                                                        <td>
+                                                                            @Html.DropDownList("ExpenseDetail[0].TransactionType", new SelectList(ViewBag.TransactionTypeList, "name", "name"), "Select any", new { @class = "form-control required", @onchange = "CalculateDeductionTotal()" })
+                                                                            @Html.ValidationMessage("ExpenseDetail[0].TransactionType")
+                                                                        </td>
+                                                                        <td>
+                                                                            @Html.TextBox("ExpenseDetail[0].Amount", "", new { @class = "form-control required", @onkeypress = "return ValidateDecimalOnly(event)", @onblur = "CalculateDeductionTotal()", @autocomplete = "off" })
+                                                                            @Html.ValidationMessage("ExpenseDetail[0].Amount")
+                                                                        </td>
+                                                                        <td>
+                                                                            <a href="javascript:void(0)" class="removeExpense btn-circle"><i class="ion-close-round"></i></a>
+                                                                        </td>
+                                                                    </tr>
+                                                                }
+
+
+                                                            </tbody>
+                                                        </table>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-3  col-md-offset-6">
+                                                    <div class="form-group custom-form-group ">
+                                                        <label>Total Credit <span class="cr">(Cr)</span> :</label>
+                                                        @Html.TextBoxFor(m => m.CreditAmount, new { @class = "form-control", @readonly = "readonly", @autocomplete = "off" })
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3 ">
+                                                    <div class="form-group custom-form-group ">
+                                                        <label>Total Debit <span class="dr">(Dr)</span> :</label>
+                                                        @Html.TextBoxFor(m => m.DebitAmount, new { @class = "form-control", @readonly = "readonly", @autocomplete = "off" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab">
+                    <div class="col-md-12 col-sm-12 m-b-sm">
+                        <div class="">
+                            @Html.Partial("_DocumentDetail", Model.DocumentDetail)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="custom-nav-btn text-right">
+                    <button type="button" class="btn btn-default pull-left" id="prevBtn" onclick="nextPrev(-1)">Previous</button>
+                    <button type="button" class="btn btn-primary pull-right" id="nextBtn" onclick="nextPrev(1)">Next</button>
+                    <button type="button" class="btn btn-default pull-right" onclick="window.location.href='@Url.Action("JournalList", "CoreAccounts")';">Close</button>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+}
+
+<script>
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+        CalculateDeductionTotal()
+    });
+    function CalculateDeductionTotal() {
+        var ttlExpVal = 0, ttlDrVal = 0;
+        $('#tbodyExpenseList select[name$=".TransactionType"]').each(function (i, rowEle) {
+            if ($(this).val() == 'Credit') {
+                var parseVal = parseFloat($(this).closest('tr').find("input[name$='.Amount']").val());
+                if (!isNaN(parseVal)) {
+                    ttlExpVal = ttlExpVal + parseVal;
+                }
+            } else if ($(this).val() == 'Debit') {
+                var parseVal = parseFloat($(this).closest('tr').find("input[name$='.Amount']").val());
+                if (!isNaN(parseVal)) {
+                    ttlDrVal = ttlDrVal + parseVal;
+                }
+            }
+        });
+        $('#DebitAmount').val(ttlDrVal);
+        $('#CreditAmount').val(ttlExpVal);
+    }
+    function formSave() {
+        var isValid = $('#formJV').valid();
+        if (!isValid)
+            return false;
+
+        $('#formJV').submit();
+    }
+
+    $('input[name$=".Amount"]').on("copy cut paste drop", function () {
+        return false;
+    });
+
+    $(document).on('change', 'select[name$=".AccountGroupId"]', function () {
+        var groupId = $(this).val();
+        var ele = $(this).closest('tr');
+        var select = ele.find("select[name$='.AccountHeadId']");
+        select.empty();
+        select.append($('<option/>', {
+            value: "",
+            text: "Select any",
+        }));
+        if (groupId != '') {
+            $.getJSON("@Url.Action("GetAccountHead", "CoreAccounts")", { "accountGroupId": groupId, "isBank": false },
+             function (locationdata) {
+                 $.each(locationdata, function (index, itemData) {
+                     select.append($('<option/>', {
+                         value: itemData.id,
+                         text: itemData.name,
+                     }));
+                 });
+             });
+        }
+    });
+    $('#btnAddExpense').click(function () {
+        var cln = $('#tbodyExpenseList tr:first').clone().find("select,input").val("").end();
+        var index = $('#tbodyExpenseList tr:last').find("input[name='ExpenseDetail.Index']").val();
+        index = parseInt(index) + 1;
+        $(cln).find("input[name='ExpenseDetail.Index']").val(index);
+        $(cln).find("input, select").each(function () {
+            $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+            $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+        });
+        $(cln).find("span[data-valmsg-for]").each(function () {
+            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+        });
+
+        var selectHead = $(cln).find("select[name$='.AccountHeadId']");
+        selectHead.empty();
+        selectHead.append($('<option/>', {
+            value: "",
+            text: "Select any",
+        }));
+        $('#tbodyExpenseList').append(cln);
+    });
+    $(document).on('click', 'a.removeExpense', function () {
+        if ($('#tbodyExpenseList tr').length != 1) {
+            $(this).closest('tr').remove();
+            CalculateDeductionTotal();
+        }
+    });
+    /* Tab Sections Start*/
+    var currentTab = 0; // Current tab is set to be the first tab (0)
+    showTab(currentTab); // Display the crurrent tab
+    function showTab(n) {
+        // This function will display the specified tab of the form...
+        var x = document.getElementsByClassName("tab");
+        x[n].style.display = "block";
+        $(".custom-nav-pills li:eq(" + n + ")").addClass("active");
+        //... and fix the Previous/Next buttons:
+        if (n == 0) {
+            document.getElementById("prevBtn").style.display = "none";
+        } else {
+            document.getElementById("prevBtn").style.display = "inline";
+        }
+        if (n == (x.length - 1)) {
+            document.getElementById("nextBtn").innerHTML = "Submit";
+        } else {
+            document.getElementById("nextBtn").innerHTML = "Next";
+        }
+        //... and run a function that will display the correct step indicator:
+        //fixStepIndicator(n)
+    }
+
+    function nextPrev(n) {
+        // This function will figure out which tab to display
+        var x = document.getElementsByClassName("tab");
+        // Exit the function if any field in the current tab is invalid:
+        if (n > 0 && !validateForm(n)) return false;
+        if (currentTab + n < x.length) {
+            // Hide the current tab:
+            x[currentTab].style.display = "none";
+            $(".custom-nav-pills li:eq(" + currentTab + ")").removeClass("active");
+        } else {
+            // ... the form gets submitted:
+            formSave();
+            return false;
+        }
+        // Increase or decrease the current tab by 1:
+        currentTab = currentTab + n;
+
+        // Otherwise, display the correct tab:
+        showTab(currentTab);
+    }
+
+    function validateForm(n) {
+        // This function deals with validation of the form fields
+        var isValid = false;
+        var hadError = false;
+        var tabs = $(".tab");
+        var currentTabEle = tabs[currentTab];
+        var inputs = $(":input, textarea, select"); // get all the form inputs and selects
+        var stepElements = $(currentTabEle).find(inputs); // get inputs for current step
+        var count = stepElements.length; // check that there are inputs
+        if (count <= 0) {                // if there are not no reason to loop them
+            return true;                 // this can be used to perform other action if there are no steps
+        } else if (currentTab == 0) {
+            var ttlDr = parseFloat($('#DebitAmount').val()) || 0;
+            var ttlCr = parseFloat($('#CreditAmount').val()) || 0;
+            if (ttlCr == 0) {
+                $('#alert').html("Please enter the valid credit and debit value.");
+                $('#Validation').modal('toggle');
+                return false;
+            } else if (ttlCr != ttlDr) {
+                $('#alert').html("Not a valid entry. Credit and Debit value are not equal.");
+                $('#Validation').modal('toggle');
+                return false;
+            }
+
+        }
+        $(stepElements).each(function (idx, ele) {
+
+            if (!$(ele).is(':radio') && !$(ele).is(':checkbox') && !$(ele).is(':password')) {
+                isValid = $(ele).valid();//$(document.forms[0]).validate().element($(this)); // check that the input is valid. This can also be used on a per input basis to perform another action if the field is not valid.
+                if (!isValid) { hadError = true; } // set our flag if there was an error
+            }
+
+        });
+        return !hadError; // return the valid status
+
+    }
+</script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>

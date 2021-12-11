@@ -1,0 +1,457 @@
+﻿@model IOAS.Models.PaymentProcessVoucherModel
+@{
+    ViewBag.Title = "Payment Process View";
+    ViewBag.Subtitle = "Payment Process List";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<div class="vw-dts-bg">
+    <div class="row">
+        <div class="col-md-12">
+            
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th colspan="4">Payment Process List</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="4">
+                            <label>Bank</label>
+                            <h4>@Html.DisplayFor(m=>m.BankHeadName)</h4>
+                            @Html.HiddenFor(m => m.BankHead,new { @Id = "SelBankHead" })
+                            @Html.ValidationMessageFor(m => m.BankHead)
+                            @Html.HiddenFor(m => m.BOADraftId)
+                            @Html.HiddenFor(m => m.Mode)
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="custom-jsgrid-normal">
+                <div id="PaymentProcessList"></div>
+            </div>
+        </div>
+        
+    </div>
+    <div class="row">
+<div class="col-md-12">
+    <table class="table table-bordered">
+        <tr>
+            <td class="reg-no">
+                <label class="lblval">Total </label>
+                <h4 id="lbltatAmount" class="tatval"></h4>
+                @Html.TextBoxFor(m => m.TotalAmount, new { @class = "form-control dis-none", @readonly = "readonly" })
+            </td>
+            
+            <td class="reg-no">
+                <label class="lblval">Total Bank Transfer </label>
+                <h4 id="lblBankTransferTotal"class="tatval"></h4>
+                @Html.TextBoxFor(m => m.BankTransferTotal, new { @class = "form-control dis-none", @readonly = "readonly" })
+                <a id="btnBankTransferDetail" href="javascript:void(0)" class="btn btn-primary pull-left mt-md">View Details</a>
+            </td>
+            <td class="reg-no">
+                <label class="lblval">Total Cheque Payment</label>
+                <h4 id="lblChequeTotal" class="tatval"></h4>
+                @Html.TextBoxFor(m => m.ChequeTotal, new { @class = "form-control dis-none", @readonly = "readonly" })
+                <a id="btnChequeDetail" href="javascript:void(0)" class="btn btn-primary  mt-md">View Details</a>
+            </td>
+        </tr>
+        <tr>
+            <td class="reg-no">
+                @Html.HiddenFor(m => m.VoucherDate)
+                @Html.HiddenFor(m => m.VoucherNumber)
+                <label class="lblval">Date: @Html.DisplayFor(m => m.VoucherDate) </label><br>
+                <label class="lblval">Payment Voucher Number </label>
+                <h4 class="tatval">@Html.DisplayFor(m => m.VoucherNumber)</h4>
+            </td>
+        </tr>
+    </table>
+</div>
+    </div>
+</div>
+<div class="row">
+    @if (Model.PFInit != true)
+    {
+        <div class="col-md-12 text-center pd-tb-30">
+
+            <input type="button" onclick="window.location.href='@Url.Action("PaymentProcessInitList", "CoreAccounts")';" class="btn btn-default" value="Close" id="btnclose" />
+        </div>
+    }
+    else
+    {
+        <div class="col-md-12 text-center pd-tb-30">
+
+            <input type="button" onclick="window.location.href='@Url.Action("Dashboard", "Home")';" class="btn btn-default" value="Close" id="btnclose" />
+        </div>
+    }
+</div>
+
+@Html.AntiForgeryToken()
+<div id="popup"></div>
+<input type="hidden" id="currentRefId" value="@Model.BOADraftId" />
+<input type="hidden" id="processGuideLineId" value="@ViewBag.processGuideLineId" />
+@Html.Partial("_ProcessStatus")
+<script type="text/javascript">
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    var modeOfPaymentList = @Html.Raw(Json.Encode(ViewBag.ModeOfPaymentList));
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+    });
+    var DateField = function (config) {
+        jsGrid.Field.call(this, config);
+    };
+
+    DateField.prototype = new jsGrid.Field({
+        sorter: function (date1, date2) {
+            return new Date(date1) - new Date(date2);
+        },
+
+        itemTemplate: function (value) {
+            return new Date(value).toDateString();
+        },
+
+        filterTemplate: function () {
+            var now = new Date();
+            this._fromPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() - 1), changeYear: true });
+            this._toPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() + 1), changeYear: true });
+            return $("<div>").append(this._fromPicker).append(this._toPicker);
+        },
+
+        insertTemplate: function (value) {
+            return this._insertPicker = $("<input>").datepicker({ defaultDate: new Date() });
+        },
+
+        editTemplate: function (value) {
+            return this._editPicker = $("<input>").datepicker().datepicker("setDate", new Date(value));
+        },
+
+        insertValue: function () {
+            return this._insertPicker.datepicker("getDate").toISOString();
+        },
+
+        editValue: function () {
+            return this._editPicker.datepicker("getDate").toISOString();
+        },
+
+        filterValue: function () {
+            return {
+                from: this._fromPicker.datepicker("getDate"),
+                to: this._toPicker.datepicker("getDate")
+            };
+        }
+    });
+    jsGrid.fields.date = DateField;
+    var db;
+    $("#PaymentProcessList").jsGrid({
+        //paging: true,
+        //pageIndex: 1,
+        //pageSize: 5,
+        editing: false,
+        filtering: true,
+        controller: {
+
+            loadData: function (filter) {
+                return $.grep(db, function (ow) {
+                    return (!filter.PaymentType || ow.PaymentType.toLowerCase().indexOf(filter.PaymentType.toLowerCase()) > -1)
+                    && (!filter.Status || ow.Status.toLowerCase().indexOf(filter.Status.toLowerCase()) > -1)
+                    && (!filter.ReferenceNumber || ow.ReferenceNumber.toLowerCase().indexOf(filter.ReferenceNumber.toLowerCase()) > -1)
+                   && (!filter.PayeeName || ow.PayeeName.toLowerCase().indexOf(filter.PayeeName.toLowerCase()) > -1);
+
+                });
+            }
+
+        },
+
+        fields: [
+            { name: "SlNo", title: "S.No", editing: false, width: 50 },
+            { type: "number", name: "PaymentPayeeId", title: "Id", visible: false },
+            { type: "text", name: "ReferenceNumber", title: "Ref. Number", editing: false },
+            { type: "text", name: "PaymentType", title: "Payment Type", editing: false },
+            { type: "text", name: "PayeeName", title: "Payee Name", editing: false },
+            { name: "PayableAmount", title: "Payable Amount", editing: false },
+            {
+                editButton: false, deleteButton: false, width: 120, title: "Mode of Payment",
+
+                itemTemplate: function (value, item) {
+                    var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+                    if (item.Status == "Open") {
+                        var $customSelect = $("<select name='ModeOfPayment'>")
+                        .attr("class", "form-control").prop("selectedIndex", "")
+                        $.each(modeOfPaymentList, function (index, itemData) {
+                            $customSelect.append($('<option/>', {
+
+                                value: itemData.id,
+                                text: itemData.name
+                            }));
+                        });
+                        if (item.SelModeOfPayment == null || item.SelModeOfPayment == 0)
+                            $customSelect.val('2');
+                        else
+                            $customSelect.val(item.SelModeOfPayment);
+                        return $result.add($customSelect);
+                    }
+                    else {
+                        var $customLabel = $("<label>").html(item.ModeOfPayment)
+                        return $result.add($customLabel);
+                    }
+
+                }
+            },
+            {type: "text", name: "Status", title: "Status", editing: false },
+             {
+                 type: "control", editButton: false, deleteButton: false, width: 120, title: "Action",
+
+                 itemTemplate: function (value, item) {
+                     var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+                     if (item.Status == "Open") {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "Verify", name: "Verify" }, { id: "View", name: "View" }]
+
+                     }
+                     else {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }]
+                     }
+                     var $customSelect = $("<select>")
+                         .attr("class", "form-control").prop("selectedIndex", "")
+                     $.each(statusList, function (index, itemData) {
+                         $customSelect.append($('<option/>', {
+
+                             value: itemData.id,
+                             text: itemData.name
+                         }));
+                     });
+                     $customSelect.change(function (e) {
+                         var selVal = $(this).val();
+                         if (selVal == "View") {
+                             viewPaymentDetails("Single",$('#BOADraftId').val() || null,item.PaymentPayeeId,false,null)
+                         }
+                         else if (selVal == "Verify") {
+                             var modeOfPayment = $(this).closest('tr').find('select[name="ModeOfPayment"]').val();
+                             viewPaymentDetails("Verify",$('#BOADraftId').val() || null,item.PaymentPayeeId,false,modeOfPayment)
+                         }
+                         $(this).val("");
+                         return false;
+                         e.stopPropagation();
+                     });
+                     return $result.add($customSelect);
+                 },
+                 _createFilterSwitchButton: function () {
+                     return this._createOnOffSwitchButton("filtering", this.searchModeButtonClass, false);
+                 }
+             }
+
+
+        ],
+
+    });
+    $("#PaymentProcessList").jsGrid("option", "filtering", false);
+    loadDetails();
+    function loadDetails() {
+        var boaDraftId = $('#BOADraftId').val() || null;
+        var bankHead = $('#SelBankHead').val() || 0;
+        var mode = $('#Mode').val();
+        var isViewMode = false;
+        if(mode == "V")
+            isViewMode = true;
+        if(bankHead != 0){
+            $('.loading-bg').removeClass('dis-none');
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetPaymentProcessList", "CoreAccounts")',
+                data: {"bankHeadID" : bankHead,"boaDraftId" : boaDraftId,"isViewMode" : isViewMode},
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (result) {
+                    db = result;
+                    $("#PaymentProcessList").jsGrid({ data: db });
+                    calculateAmt();
+                    $('.loading-bg').addClass('dis-none');
+                },
+                error: function (err) {
+                    $('.loading-bg').addClass('dis-none');
+                    console.log("error : " + err);
+                }
+            });
+        }
+    }
+    function calculateAmt(){
+        var ttlCheque = 0, ttlBT = 0,ttlAmt = 0;
+        $.each(db, function(index, data ) {
+            if(data.Status != "Open" && data.SelModeOfPayment == 1)
+                ttlCheque += parseFloat(data.PayableAmount) || 0;
+            else if(data.Status != "Open" && data.SelModeOfPayment == 2)
+                ttlBT += parseFloat(data.PayableAmount) || 0;
+        });
+        ttlAmt = ttlCheque + ttlBT;
+        $('#TotalAmount').val(ttlAmt);
+        $('#lbltatAmount').text(ttlAmt);
+        $('#BankTransferTotal').val(ttlBT);
+        $('#lblBankTransferTotal').text(ttlBT);
+        $('#ChequeTotal').val(ttlCheque);
+        $('#lblChequeTotal').text(ttlCheque);
+    }
+    $('#btnExecSP').click(function(){
+        var boaDraftId = $('#BOADraftId').val() || null;
+        var bankHead = $('#SelBankHead').val() || 0;
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("ExecutePaymentSP", "CoreAccounts")',
+            data: {bankHeadID : bankHead,boaDraftId : boaDraftId},
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (result) {
+                db = result;
+                $("#PaymentProcessList").jsGrid({ data: db });
+                calculateAmt();
+            },
+            error: function (err) {
+                console.log("error : " + err);
+            }
+        });
+    });
+    $('#SelBankHead').change(function(){
+        loadDetails();
+    });
+    $('#btnChequeDetail').click(function(){
+        var draftId = $('#BOADraftId').val() || null;
+        var mode = $('#Mode').val();
+        var isEditMode = false;
+        if(draftId != null && mode != "V")
+            isEditMode = true;
+        viewPaymentDetails("Cheque Payment",draftId,null,isEditMode,null)
+    });
+    $('#btnBankTransferDetail').click(function(){
+        var draftId = $('#BOADraftId').val() || null;
+        var mode = $('#Mode').val();
+        var isEditMode = false;
+        if(draftId != null && mode != "V")
+            isEditMode = true;
+        viewPaymentDetails("Bank Transfer",draftId,null,isEditMode,null)
+    });
+    function viewPaymentDetails(viewType,boaDraftId,payeeId,isEditMode,modeOfPayment){
+        var token = $("input[name=__RequestVerificationToken]").val();
+        var bankHead = $('#SelBankHead').val() || 0;
+        var searchData = { "__RequestVerificationToken": token, "viewType": viewType,"bankHeadId" : bankHead,"boaDraftId" : boaDraftId,"payeeId" :payeeId,"modeOfPayment": modeOfPayment,"isEditMode" : isEditMode};
+        $.ajax({
+            url: "@Url.Action("_PaymentDetailsViewMode", "CoreAccounts")",
+            type: "POST",
+            data: searchData,
+            contentType: "application/x-www-form-urlencoded",
+            success: function (data) {
+                $("#popup").html(data);
+                $("#paymentDetailModal").modal('toggle');
+            },
+            error: function (err) {
+                console.log("error : " + err);
+            }
+        });
+    }
+
+    /* Tab Sections Start*/
+    //var currentTab = 0; // Current tab is set to be the first tab (0)
+    //showTab(currentTab); // Display the crurrent tab
+    //function showTab(n) {
+    //    // This function will display the specified tab of the form...
+    //    var x = document.getElementsByClassName("tab");
+    //    x[n].style.display = "block";
+    //    $(".custom-nav-pills li:eq(" + n + ")").addClass("active");
+    //    //... and fix the Previous/Next buttons:
+    //    if (n == 0) {
+    //        document.getElementById("prevBtn").style.display = "none";
+    //    } else {
+    //        document.getElementById("prevBtn").style.display = "inline";
+    //    }
+    //    var mode = $('#Mode').val();
+    //    if(mode != "V"){
+    //        if (n == (x.length - 1)) {
+    //            document.getElementById("nextBtn").innerHTML = "Submit";
+    //        } else {
+    //            document.getElementById("nextBtn").innerHTML = "Next";
+    //        }
+    //    }else{
+    //        if (n == (x.length - 1)) {
+    //            document.getElementById("nextBtn").innerHTML = "Submit";
+    //            $('#nextBtn').hide();
+    //        } else {
+    //            document.getElementById("nextBtn").innerHTML = "Next";
+    //            $('#nextBtn').show();
+    //        }
+    //    }
+    //    //... and run a function that will display the correct step indicator:
+    //    //fixStepIndicator(n)
+    //}
+
+    //function nextPrev(n) {
+    //    // This function will figure out which tab to display
+    //    var x = document.getElementsByClassName("tab");
+    //    // Exit the function if any field in the current tab is invalid:
+    //    if (n > 0 && !validateForm(n)) return false;
+    //    if (currentTab + n < x.length) {
+    //        // Hide the current tab:
+    //        x[currentTab].style.display = "none";
+    //        $(".custom-nav-pills li:eq(" + currentTab + ")").removeClass("active");
+    //    } else {
+    //        // ... the form gets submitted:
+    //        formSave();
+    //        return false;
+    //    }
+    //    // Increase or decrease the current tab by 1:
+    //    currentTab = currentTab + n;
+
+    //    // Otherwise, display the correct tab:
+    //    showTab(currentTab);
+    //}
+    //function formSave() {
+    //    var isValid = $('#formPP').valid();
+    //    if (!isValid)
+    //        return false;
+    //    if (isValid)
+    //        $('#formPP').submit();
+    //}
+    //function validateForm(n) {
+    //    // This function deals with validation of the form fields
+    //    var isValid = false;
+    //    var hadError = false;
+    //    var tabs = $(".tab");
+    //    var currentTabEle = tabs[currentTab];
+    //    var inputs = $(":input, textarea, select"); // get all the form inputs and selects
+    //    var stepElements = $(currentTabEle).find(inputs); // get inputs for current step
+    //    var count = stepElements.length; // check that there are inputs
+    //    if (count <= 0) {                // if there are not no reason to loop them
+    //        return true;                 // this can be used to perform other action if there are no steps
+    //    } else if (currentTab == 0) {
+    //        var ttlVal = parseFloat($('#TotalAmount').val()) || 0;
+    //        if(ttlVal == 0){
+    //            $("#alert").text("Please verify at least one payment from the list.");
+    //            $('#Validation').modal('show');
+    //            hadError = true;
+    //        }
+    //    }
+    //    $(stepElements).each(function (idx, ele) {
+
+    //        if (!$(ele).is(':radio') && !$(ele).is(':checkbox') && !$(ele).is(':password')) {
+    //            isValid = $(ele).valid();//$(document.forms[0]).validate().element($(this)); // check that the input is valid. This can also be used on a per input basis to perform another action if the field is not valid.
+    //            if (!isValid) { hadError = true; } // set our flag if there was an error
+    //        }
+
+    //    });
+    //    return !hadError; // return the valid status
+
+    //}
+</script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>
+
+

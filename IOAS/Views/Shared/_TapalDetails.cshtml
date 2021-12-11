@@ -1,0 +1,83 @@
+﻿@model IOAS.Models.CreateTapalModel
+
+<div class="owner-pr-bg">
+    <a id="btnTapalViw" href="javascript:void(0)">View Tapal Details</a>
+</div>
+<div class="tp-sd-pl menu-hide">
+    <a href="javascript:void(0)" class="tp-sd-pl-cl" id="btnCloseTapalView" ><i class="ion-close-circled"></i></a>
+    <div class="row mt-md">
+        <div class="col-md-6 ">
+            <div class="form-group custom-form-group ">
+                <label>Tapal Receipt Date: </label>
+                <p class="def-cl">@Html.DisplayFor(m => m.ReceiptDateStr)</p>
+                @Html.HiddenFor(m => m.TapalId)
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group custom-form-group ">
+                <label>Tapal Category : </label>
+                <p class="def-cl"> @Html.DisplayFor(m => m.TapalCategory)</p>
+            </div>
+        </div>
+    </div>
+    <div class="row mt-md">
+        <div class="col-md-6 ">
+            <div class="form-group custom-form-group ">
+                <label>Project No:  </label>
+                <p class="def-cl"> @Html.DisplayFor(M => M.ProjectNoStr)</p>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group custom-form-group ">
+                <label>PI Name:</label>
+                <p class="def-cl">@Html.DisplayFor(M => M.PINameStr)</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-md">
+        <div class="col-md-6 ">
+            <div class="form-group custom-form-group ">
+                <label>Notes: </label>
+                <p class="def-cl">@Html.DisplayFor(m => m.Notes)</p>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group custom-form-group ">
+                <label>Documents: </label>
+                @if (Model.DocDetail != null && Model.DocDetail.Count > 0)
+                {
+                    foreach (var item in Model.DocDetail)
+                    {
+                       
+                            
+                               <a href="@Url.Action("ShowDocument", "Project", new { file = item.DocName, filepath = Model.FilePath })" target="_blank" class="trn-tp-sd-pl"> @item.FileName</a>
+                          
+                       
+                    }
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-md">
+        <div class="col-md-12 ">
+                @*<button type="button" id="btnCloseTapalView" class="btn btn-primary">Close</button>*@
+        </div>
+    </div>
+</div>
+<script>
+    $('#btnTapalViw').click(function () {
+        if ($('.tp-sd-pl').hasClass('menu-hide')) {
+            $('.tp-sd-pl').fadeIn('slow');//.removeClass('dis-none');
+            $('.owner-pr-bg').addClass('active');
+            //$('#ProcessStatusContainer').addClass('dis-none');
+        } 
+    });
+    $('#btnCloseTapalView').click(function () {
+        $('.tp-sd-pl').fadeOut('slow');//.addClass('dis-none');
+        //$('#ProcessStatusContainer').removeClass('dis-none');
+        $('.owner-pr-bg').removeClass('active').end().show();
+    });
+</script>
+

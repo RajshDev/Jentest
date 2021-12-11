@@ -1,0 +1,1330 @@
+﻿@model IOAS.Models.STEViewModel
+@{
+    ViewBag.Title = "Recruitment Commitment Booking";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+    <link href="@Url.Content(" ~/Content/IOASContent/assets/bootstrap-select/css/bootstrap-select.min.css")" rel="stylesheet" />
+    bool isView = Convert.ToBoolean(Request.Params["isView"]);
+}
+@{
+    System.Globalization.CultureInfo Indian = new System.Globalization.CultureInfo("hi-IN");
+}
+<style>
+    .gd-wht-bg {
+        background: #fff;
+        padding: 15px;
+        border-radius: 4px;
+        box-shadow: 4px 4px 4px rgba(0,0,0,0.2);
+    }
+</style>
+@using (Html.BeginForm("RCTCloseCommitment", "Requirement", FormMethod.Post, new { @class = "", role = "form", @id = "formCommitbooking", enctype = "multipart/form-data" }))
+{
+<div class="row hd-tt-bg">
+    <div class="col-md-12">
+        <h4><b>@Model.CommitReqModel.TypeofAppointment  @Model.CommitReqModel.RequestType @*Recruitment Close Commitment*@</b></h4>
+        <ul class="nav nav-pills custom-nav-pills custom-spl-nav">            
+            <li class="active"><a href="javascript:void(0)"><span>01</span>Application Details</a></li>
+            <li><a href="javascript:void(0)"><span>02</span>Close Commitment</a></li>
+        </ul>        
+    </div>
+</div>
+<div class="row cust-tab">
+    <div class="page-wrapper mt30">
+        <div>
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="bl-lg-panel-box pb-null">
+                            <div class="cmn-panel-box">
+                                <div class="row ">
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            @Html.HiddenFor(m => m.ProjectId)
+                                            @Html.HiddenFor(m => m.STEId)
+                                            @Html.HiddenFor(m => m.Status)
+                                            @Html.HiddenFor(M => M.DesignationId)
+                                            @Html.HiddenFor(M => M.CommitReqModel.CommitmentRequestId)
+                                            @Html.HiddenFor(M => M.CommitReqModel.CommitmentBookedId)
+                                            @Html.HiddenFor(M => M.CommitReqModel.ReferenceNumber)
+                                            @Html.HiddenFor(M => M.CommitReqModel.AppointmentTypeCode)
+                                            @*<label>Application No: </label>
+                                            <h4 id="ClApplicationNo">@Model.ApplicationNo</h4>*@
+                                            @if (Model.EmployeeID != null)
+                                            {
+                                                <label>Employee No: </label>
+                                                <h4 id="ClApplicationNo">@Model.EmployeeID</h4>
+                                            }
+                                            else
+                                            {
+                                                <label>Application No: </label>
+                                                <h4 id="ClApplicationNo">@Model.ApplicationNo</h4>
+                                            }
+                                            
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>Candidate Name: </label>
+                                            <h4 id="ClCandidate">@Model.Name</h4>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>PI Name:</label> <br>
+                                            <h4 id="ClPIName">@Model.ProjectDetailsModel.PIName</h4>
+
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>Department name:</label> <br>
+                                            <h4 id="ClDepartname">@Model.ProjectDetailsModel.PIDepartmentName</h4>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>MS/Phd:</label> <br>
+                                            <h4 id="ClMSPhd">@Model.PhdDetail</h4>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>Designation: </label>
+                                            <h4 id="ClDesignation"></h4>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>Qualification: </label>
+                                            <h4 id="ClQualification">@Html.Raw(Model.Qualification)</h4>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>Experience: </label>
+                                            <h4 id="ClExperience">@Model.Experience</h4>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>Basic Pay: </label>
+                                            <h4 id="ClPay">@Model.CommitReqModel.BasicPayAmount</h4>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>Medical:</label> <br>
+                                            <h4 id="ClMedical">@Model.MedicalAmmount</h4>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row ">
+
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>DOB </label>
+                                            <input type="text" value="@Model.DateofBirth" class="form-control" id="ClDOB" disabled>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group  ">
+                                            <label>Application Received Date</label>
+                                            <input type="text" value="@Model.ApplicationReceiveDate" class="form-control" id="ClReceivedDate" disabled>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row ">
+
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            @Html.CheckBoxFor(m => m.ConsolidatedPay, new { @id = "ConsolidatedPay", @disabled = "disabled" }) <label>Consolidated pay </label> <br>
+                                            @Html.CheckBoxFor(m => m.Fellowship, new { @id = "FellowshipPay", @disabled = "disabled" }) <label>Fellowship </label> <br>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6" id="CldivCSIR">
+                                        <div class="form-group custom-form-group ">
+                                            <label>IITM Pensioner / CSIR Staff :</label>
+                                            @Html.DropDownList("IITMPensionerCSIRStaff", new SelectList(ViewBag.IITMPensionerOrCSIRStaff, "id", "name", Model.IITMPensionerCSIRStaff), "Select", new { @class = "form-control", @disabled = "disabled" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group  mb-sm">
+                                            @if (Model.EmployeeType == "ICSR Staff")
+                                            {
+                                                @Html.RadioButton("ClStaffCategory", "ICSR Staff", new { @id = "ClIsICSR_yes", @disabled = "disabled", @checked = "checked" })<span></span> @:&nbsp; ICSR Staff <br />
+                                                @Html.RadioButton("ClStaffCategory", "Project Staff", new { @id = "ClIsICSR_no", @disabled = "disabled" })<span></span> @:&nbsp;Project Staff
+                                            }
+                                            else
+                                            {
+                                                @Html.RadioButton("ClStaffCategory", "ICSR Staff", new { @id = "ClIsICSR_yes", @disabled = "disabled" })<span></span> @:&nbsp; ICSR Staff<br />
+                                                @Html.RadioButton("ClStaffCategory", "Project Staff", new { @id = "ClIsICSR_no", @disabled = "disabled", @checked = "checked" })<span></span> @:&nbsp;Project Staff
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>PI Justification Document</label> <br>
+                                            @if (Model.STEId > 0 && Model.Attachments != null)
+                                            {
+                                                foreach (var item in Model.Attachments)
+                                                {
+                                                    <b>@Html.ActionLink(">>" + item.FileName, "ShowDocument", new { Controller = "Account", filepath = "Requirement", file = item.FilePath }, new { @name = "DocDownload", @target = "_blank" })</b>
+                                                }
+                                            }
+                                            <div id="fileAppend">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group ">
+                                            @if (Model.Notes != null)
+                                            {
+                                                if (Model.Notes.Count > 0)
+                                                {
+                                                    <label>DA Comments</label>
+                                                    foreach (var Note in Model.Notes)
+                                                    {
+                                                        <h4>@Note.PICommends</h4>
+                                                    }
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group ">
+                                            @if (Model.PIJustificationCommands != null)
+                                            {
+                                                if (Model.PIJustificationCommands.Count > 0)
+                                                {
+                                                    <label>PI Comments</label>             foreach (var Note in Model.PIJustificationCommands)
+                                                    {
+                                                        <h4>@Note</h4>           }
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+
+                                    @*<div class="col-md-6">
+                                        <div class="form-group custom-form-group  ">
+                                            <label>HR Note </label>
+                                            @Html.TextArea("HRNote", "", new { @class = "form-control" })
+                                        </div>
+                                    </div>*@
+
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="bl-lg-panel-box  pb-null">
+                            <div class="bl-lg-panel-box-hd mb-m-5 pd-null">
+                                <div class="cmn-panel-box">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>Project Number</label>
+                                                @if (Model.STEId > 0)
+                                                {
+                                                    <input type="text" class="form-control" name="ProjectNumber" value="@Model.ProjectNumber" id="txtProjectNumber" readonly="readonly">
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>Project Title</label>
+                                                <h4 id="txtProjectTitle1">@Model.ProjectDetailsModel.ProjectTitle</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>Name of the Client / Sponsoring Agency</label>
+                                                <h4 id="txtClietAgency1">@Model.ProjectDetailsModel.SponsoringAgency</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>Project Type</label>
+                                                <h4 id="txtProjectType1">@Model.ProjectDetailsModel.ProjectType</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>PI Name</label>
+                                                <h4 id="txtPIName1">@Model.ProjectDetailsModel.PIName</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>Project Start Date</label>
+                                                <h4 id="txtProjectStartDate1">@Model.ProjectDetailsModel.ProjectStartDate</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>Project Closure Date</label>
+                                                <h4 id="txtProjectClosureDate1">@Model.ProjectDetailsModel.ProjectClosureDate</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>PI Code</label>
+                                                <h4 id="txtPICode1">@Model.ProjectDetailsModel.PICode</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>PI Email ID</label>
+                                                <h4 id="txtPIEmailID1">@Model.ProjectDetailsModel.Email</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>PI Phone No</label>
+                                                <h4 id="txtPIPhone1">@Model.ProjectDetailsModel.Phone</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>Department code </label>
+                                                <h4 id="txtDepartmentCode1">@Model.ProjectDetailsModel.PIDepartmentCode</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>Department Name</label>
+                                                <h4 id="txtDepartmentName1">@Model.ProjectDetailsModel.PIDepartmentName</h4>
+                                            </div>
+                                        </div>
+                                        @if (Model.CommitReqModel.AppointmentTypeCode != "CON")
+                                        {
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Medical</label> <br>
+                                                    @Html.DropDownListFor(m => m.Medical, new SelectList(ViewBag.Medical, "id", "name"), "Select Medical", new { @class = "form-control", @disabled = "disabled" })
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                    <div class="row">
+
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label>Designation Code</label>
+                                                <h4 id="lblDesignationCode1"></h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label class="required">Designation</label>
+                                                <h4 id="lblDesignationName1"></h4>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    @if (Model.CommitReqModel.TypeofAppointment == "OtherPayment" || Model.CommitReqModel.TypeofAppointment == "OtherDeduction")
+                                    {
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Other Deduction Mth and Yr</label>
+                                                    <input type="text" value="@Model.CommitReqModel.ActionStartDate" class="form-control" id="" disabled>
+                                                </div>
+                                            </div>
+                                            @*<div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Appointment End date</label>
+                                                    <input type="text" value="@Model.AppointmentEndDate" class="form-control" id="" disabled>
+                                                </div>
+                                            </div>*@
+
+
+                                        </div>
+                                    }
+                                    else if (Model.CommitReqModel.TypeofAppointment != "Verfication")
+                                    {
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Appointment start date</label>
+                                                    <input type="text" value="@Model.Appointmentstartdate" class="form-control" id="" disabled>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Appointment End date</label>
+                                                    <input type="text" value="@Model.AppointmentEndDate" class="form-control" id="" disabled>
+                                                </div>
+                                            </div>
+
+
+                                        </div>
+                                    }
+                                    else if (Model.CommitReqModel.TypeofAppointment == "Verfication" && (Model.CommitReqModel.OrderTypeId == 1 && Model.CommitReqModel.OrderTypeId == 2))
+                                    {
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Date of appointment</label>
+                                                    <input type="text" value="@Model.CommitReqModel.ActionStartDate" class="form-control" id="" disabled>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Date of joining</label>
+                                                    <input type="text" value="@Model.CommitReqModel.ActionEndDate" class="form-control" id="" disabled>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                    else if (Model.CommitReqModel.TypeofAppointment == "Verfication")
+                                    {
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Date of appointment</label>
+                                                    <input type="text" value="@Model.CommitReqModel.ActionStartDate" class="form-control" id="" disabled>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Date of joining</label>
+                                                    <input type="text" value="@Model.CommitReqModel.ActionEndDate" class="form-control" id="" disabled>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                    
+                                    <div class="row">
+                                        @if (Model.CommitReqModel.TypeofAppointment != "Verfication" && Model.CommitReqModel.TypeofAppointment != "Relieving" @*&& Model.CommitReqModel.TypeofAppointment != "Cancel"*@ && Model.CommitReqModel.TypeofAppointment != "OtherPayment" && Model.CommitReqModel.TypeofAppointment != "OtherDeduction")
+                                        {
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label>@Model.CommitReqModel.TypeofAppointment Start Date</label>
+                                                    @Html.TextBoxFor(m => m.CommitReqModel.ActionStartDate, new { @class = "form-control", @readonly = true })
+                                                    @Html.HiddenFor(m => m.CommitReqModel.ActionStartDate)
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label>@Model.CommitReqModel.TypeofAppointment End Date</label>
+                                                    @Html.TextBoxFor(m => m.CommitReqModel.ActionEndDate, new { @class = "form-control", @readonly = true })
+                                                    @Html.HiddenFor(m => m.CommitReqModel.ActionEndDate)
+                                                </div>
+                                            </div>
+                                        }
+                                        @if (Model.CommitReqModel.TypeofAppointment == "Relieving")
+                                        {
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label>@Model.CommitReqModel.TypeofAppointment Date</label>
+                                                    @Html.TextBoxFor(m => m.CommitReqModel.ActionStartDate, new { @class = "form-control", @readonly = true })
+                                                    @Html.HiddenFor(m => m.CommitReqModel.ActionStartDate)
+                                                </div>
+                                            </div>
+                                        }
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label>Commitment Amount</label>
+                                                <input type="text" value="@Model.CommitReqModel.AddCommitmentAmount" class="form-control" id="" disabled>
+                                            </div>
+                                        </div>
+                                            @*<div class="col-md-4">
+                                                    <div class="form-group custom-form-group">
+                                                        <label> Chairperson name</label>
+                                                        @Html.TextBoxFor(m => m.ChairpersonName, new { @class = "form-control", @readonly = true })
+                                                        @Html.HiddenFor(m => m.ChairpersonNameId)
+                                                    </div>
+                                                </div>*@
+
+                                     </div>
+
+                                    @*<div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label>Committee member</label>
+                                                @Html.TextBoxFor(m => m.CommiteeMember1, new { @class = "form-control", @readonly = true })
+                                                @Html.HiddenFor(m => m.CommiteeMemberId1)
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label>Committee members</label>
+                                                @Html.TextBoxFor(m => m.CommiteeMember2, new { @class = "form-control", @readonly = true })
+                                                @Html.HiddenFor(m => m.CommiteeMemberId2)
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label> Chairperson name</label>
+                                                @Html.TextBoxFor(m => m.ChairpersonName, new { @class = "form-control", @readonly = true })
+                                                @Html.HiddenFor(m => m.ChairpersonNameId)
+                                            </div>
+                                        </div>
+
+                                    </div>*@
+
+                                </div>
+                            </div>
+                        </div>
+                        @*<div class="row">
+        <div class="col-md-12">
+            @if (!isView)
+            {
+                if (Model.Status == "Sent for approval")
+                {
+                    <p class="gd-wht-bg"><input type="checkbox" value="" class="mr-sm" id="ReqCommitment"><b>Recommend Commitment Booking</b></p>
+                }
+                else
+                {
+                    <p class="gd-wht-bg"><input type="checkbox" value="" class="mr-sm" id="ReqCommitment" checked disabled><b>Recommend Commitment Booking</b></p>
+                }
+            }
+            else
+            {
+                <p class="gd-wht-bg dis-none"><input type="checkbox" value="" class="mr-sm" id="ReqCommitment" checked><b>Recommend Commitment Booking</b></p>
+            }
+        </div>
+    </div>*@
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row cust-tab" style="display:none;">
+    <div class="page-wrapper mt30">
+        <div>
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="bl-lg-panel-box pb-null">
+                            <div class="cmn-panel-box">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>Project Number:</label>
+                                            @Html.HiddenFor(m => m.ProjectId)
+                                            @if (Model.STEId > 0)
+                                            {
+                                                    <input type="text" class="form-control" name="ProjectNumber" value="@Model.ProjectNumber" id="ProjectNumber" readonly="readonly">
+                                                    <div>@Html.ValidationMessageFor(m => m.ProjectNumber)</div>
+                                                    <a href="#" id="projectsummary">View Project Summary</a>
+                                            }
+                                            else
+                                            {
+                                                    <input type="text" class="form-control" name="ProjectNumber" value="" id="ProjectNumber" readonly="readonly">
+                                                    <div>@Html.ValidationMessageFor(m => m.ProjectNumber)</div>
+                                                    <a href="#" id="projectsummary">View Project Summary</a>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>Project Balance: </label>
+                                            @Html.DisplayFor(m => m.Projsummary.Summary.AvailableBalanceinProject)
+                                           
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                                <div class="row"> 
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>Head</label>
+                                            
+                                            @*@if (Model.STEId > 0)
+                                            {*@
+                                                @Html.DropDownListFor(m => m.CommitReqModel.AllocationHeadId, new SelectList(ViewBag.AllocationHead, "id", "name", Model.CommitReqModel.AllocationHeadId), "Select Allocation Head", new { @class = "form-control", @data_val = "false", @disabled = true})
+                                                @Html.HiddenFor(m => m.CommitReqModel.AllocationHeadId)
+                                            @*}
+                                            else
+                                            {
+                                                @Html.DropDownListFor(m => m.CommitReqModel.AllocationHeadId, new SelectList(ViewBag.AllocationHead, "id", "name"), "Select Allocation Head", new { @class = "form-control", @data_val = "false"})
+                                                @Html.HiddenFor(m => m.CommitReqModel.AllocationHead)
+                                            }*@
+                                            <div>@Html.ValidationMessageFor(m => m.CommitReqModel.AllocationHeadId)</div>
+                                        </div>
+                                    </div>                                   
+                                    @*<div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>Requested Amount</label>
+                                            @Html.TextBoxFor(m => m.CommitReqModel.RequestedAmount, new { @class = "form-control", @autocomplete = "off", @readonly = true })
+                                            <div>@Html.ValidationMessageFor(m => m.CommitReqModel.RequestedAmount)</div>
+                                        </div>
+                                    </div>*@          
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>Allowed Amount</label>
+                                            @Html.HiddenFor(m => m.CommitReqModel.RequestedAmount)
+                                            @Html.TextBoxFor(m => m.CommitReqModel.AllowedAmount, new { @class = "form-control", @readonly = "readonly" })
+                                            <div>@Html.ValidationMessageFor(m => m.CommitReqModel.AllowedAmount)</div>
+                                        </div>
+                                    </div>                       
+                                </div>
+                                <div class="row">
+                                      
+                                    @*<div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>Previously Booked Amount</label>
+                                            @Html.TextBoxFor(m => m.CommitReqModel.PrevBookedCommitAmount, new { @class = "form-control", @autocomplete = "off", @readonly = "readonly" })
+                                            <div>@Html.ValidationMessageFor(m => m.CommitReqModel.PrevBookedCommitAmount)</div>
+                                        </div>
+                                    </div>*@
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>Commitment Number</label>
+                                            @Html.TextBoxFor(m => m.CommitReqModel.CommitmentNumber, new { @class = "form-control", @autocomplete = "off", @readonly = true })
+                                            @Html.HiddenFor(m => m.CommitReqModel.CommitmentId)
+                                            <div>@Html.ValidationMessageFor(m => m.CommitReqModel.CommitmentNumber)</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>Booked Commitment Amount</label>
+                                            @Html.TextBoxFor(m => m.CommitReqModel.CommitmentAmount, new { @class = "form-control", @autocomplete = "off" })
+                                            <div>@Html.ValidationMessageFor(m => m.CommitReqModel.CommitmentAmount)</div>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>Commitment Balance</label>
+                                            @Html.TextBoxFor(m => m.CommitReqModel.CommitmentBalanceAmount, new { @class = "form-control", @autocomplete = "off" })
+                                            <div>@Html.ValidationMessageFor(m => m.CommitReqModel.CommitmentBalanceAmount)</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>Withdraw Commitment Amount</label>
+                                            @Html.TextBoxFor(m => m.CommitReqModel.AddCommitmentAmount, new { @class = "form-control", @autocomplete = "off" })
+                                            <div>@Html.ValidationMessageFor(m => m.CommitReqModel.AddCommitmentAmount)</div>
+                                        </div>
+                                    </div>                                      
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>Reason</label>
+                                            @Html.DropDownListFor(m => m.CommitReqModel.Reason, new SelectList(ViewBag.Reason, "id", "name", Model.CommitReqModel.Reason), "Select Reason", new { @class = "form-control", @data_val = "false" })
+
+                                            @*@Html.TextBoxFor(m => m.CommitReqModel.Reason, new { @class = "form-control" })*@
+                                            <div>@Html.ValidationMessageFor(m => m.CommitReqModel.Reason)</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>Remarks</label>
+                                            @Html.TextBoxFor(m => m.CommitReqModel.Remarks, new { @class = "form-control" })
+                                            <div>@Html.ValidationMessageFor(m => m.CommitReqModel.Remarks)</div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                                    @*<div class="row">
+                <div class="text-right" style="margin-bottom: 50px;">
+
+                    <input type="submit" class="btn btn-primary" value="Submit"/>
+
+                    <button type="button" class="btn btn-default pull-left" id="prevBtn" onclick="nextPrev(-1)">Previous</button>
+                    <button type="button" class="btn btn-primary pull-right" id="nextBtn" onclick="nextPrev(1)">Next</button>
+                    <button type="button" class="btn btn-default" onclick="window.location.href='@Url.Action("RecruitmentCommitmentRequestList","Requirement")';">Close</button>
+                </div>
+            </div>*@
+                                </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="myModal" class="modal fade modal-pr-vw" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                @*<button type="button" class="close" data-dismiss="modal" onclick="window.location.href='@Url.Action("ProjectSummary", "CoreAccounts")';">&times;</button>*@
+                <div class="row hd-tt-bg">
+                    <div class="col-md-12">
+                        <h4><b>Reports </b></h4>
+                        <h5>Name of Coordinator: @Html.DisplayFor(m => m.Projsummary.Summary.PIname)</h5>
+                        @Html.HiddenFor(m => m.Projsummary.ProjId, new { @id = "id" })
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="white-bg ad-navbar">
+                        <div class="col-md-2 ds-spl-bg">
+                            <div class="ds-tt">
+                                <span>Title of project</span>
+                                <h4>@Html.DisplayFor(m => m.Projsummary.Summary.ProjectTittle)</h4>
+                            </div>
+                        </div>
+                        <div class="col-md-2 ds-spl-bg">
+                            <div class="ds-tt">
+                                <span>Project number</span>
+                                <h4 id="prno">@Html.DisplayFor(m => m.Projsummary.Summary.ProjectNo)</h4>
+                            </div>
+                        </div>
+                        <div class="col-md-2 ds-spl-bg">
+                            <div class="ds-tt">
+                                <span>Account Type</span>
+                                <h4>@Html.DisplayFor(m => m.Projsummary.Summary.ProjectType)</h4>
+                            </div>
+                        </div>
+                        <div class="col-md-2 ds-spl-bg">
+                            <div class="ds-tt">
+                                <span>Total Sanctioned Value</span>
+                                <h4>@Html.DisplayFor(m => m.Projsummary.Summary.SanctionedValue)</h4>
+                            </div>
+                        </div>
+                        <div class="col-md-2 ds-spl-bg">
+                            <div class="ds-tt">
+                                <span>Start date</span>
+                                <h4>@Html.DisplayFor(m => m.Projsummary.ProjectStartDate)</h4>
+                            </div>
+                        </div>
+                        <div class="col-md-2 ds-spl-bg p-tn">
+                            <div class="ds-tt">
+                                <span>Close date</span>
+                                <h4>@Html.DisplayFor(m => m.Projsummary.ProjectCloseDate)</h4>
+                            </div>
+                        </div>
+                        <div class="col-md-2 ds-spl-bg">
+                            <div class="ds-tt">
+                                <span>Agency</span>
+                                <h4>@Html.DisplayFor(m => m.Projsummary.Summary.AgencyName)</h4>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-offset-10">
+                                <a href="javascript:void(0)" class="PrintBtn">
+                                    <span class="glyphicon glyphicon-print"></span> Print
+                                </a>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-body pdt-null">
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="cmn-panel-box">
+
+                            <div>
+                                <div class="row">
+                                    <div class="col-md-12 vw-dts-bg mb-tb">
+                                        <h3 class="mt-null">Project Summary</h3>
+                                        <table class="table table-bordered mb-null">
+                                            <thead>
+                                                <tr>
+                                                    <th>Head</th>
+                                                    <th class="text-right">Allocation</th>
+                                                    <th class="text-right">Commitment (X)</th>
+                                                    <th class="text-right">Expenditure (Y)</th>
+                                                    <th class="text-right">Total (X+Y)</th>
+                                                    @if (Model.Projsummary.Common != null && Model.Projsummary.Common.ProjectClassification != 2 && Model.Projsummary.Common.ProjectClassification != 3)
+                                                    {
+                                                        <th class="text-right">Head Wise Available Balance</th>
+                                                    }
+                                                </tr>
+                                            </thead>
+                                            <tbody id="allocbal">
+                                                @if (Model.Projsummary.ProjId > 0)
+                                                {
+                                                    if (Model.Projsummary.Detail.HeadWise != null)
+                                                    {
+                                                        if (Model.Projsummary.Detail.HeadWise.Count() > 0)
+                                                        {
+                                                            var count = 0;
+                                                            foreach (var item in Model.Projsummary.Detail.HeadWise)
+                                                            {
+                                                                <tr>
+                                                                    <td>
+                                                                        @Html.DisplayFor(m => item.AllocationHeadName)
+                                                                        @Html.HiddenFor(m => item.AllocationHeadName)
+                                                                        @Html.HiddenFor(m => item.AllocationId)                                                                                                                                               
+                                                                    </td>
+                                                                    <td class="text-right">
+                                                                        @(String.Format(Indian, "{0:N0}", item.Amount))
+                                                                    </td>
+                                                                    <td class="text-right">
+                                                                        @(String.Format(Indian, "{0:N0}", item.BalanceAmount))
+                                                                    </td>
+                                                                    <td class="text-right">
+                                                                        @(String.Format(Indian, "{0:N0}", item.Expenditure))
+                                                                    </td>
+                                                                    <td class="text-right">
+                                                                        @(String.Format(Indian, "{0:N0}", item.Total))
+                                                                    </td>
+                                                                    @if (Model.Projsummary.Common.ProjectClassification != 2 && Model.Projsummary.Common.ProjectClassification != 3)
+                                                                    {
+                                                                        <td class="text-right">
+                                                                            @(String.Format(Indian, "{0:N0}", item.Available))
+                                                                            @Html.HiddenFor(m => item.Available)
+                                                                        </td>
+                                                                    }
+                                                                </tr>
+                                                                count++;
+                                                            }
+                                                            <tr class="bg-gray">
+                                                                <td>
+                                                                    <b>  Total</b>
+                                                                </td>
+                                                                <td class="text-right">
+                                                                    <b> @(String.Format(Indian, "{0:N0}", Model.Projsummary.Detail.HeadWise.Sum(m => m.Amount)))</b>
+                                                                </td>
+                                                                <td class="text-right">
+                                                                    <b> @(String.Format(Indian, "{0:N0}", Model.Projsummary.Detail.HeadWise.Sum(m => m.BalanceAmount)))</b>
+                                                                </td>
+                                                                <td class="text-right">
+                                                                    <b>@(String.Format(Indian, "{0:N0}", Model.Projsummary.Detail.HeadWise.Sum(m => m.Expenditure)))</b>
+                                                                </td>
+                                                                <td class="text-right">
+                                                                    <b> @(String.Format(Indian, "{0:N0}", Model.Projsummary.Detail.HeadWise.Sum(m => m.Total)))</b>
+                                                                </td>
+                                                                @if (Model.Projsummary.Common.ProjectClassification != 2 && Model.Projsummary.Common.ProjectClassification != 3)
+                                                                {
+                                                                    <td class="text-right">
+                                                                        <b> @(String.Format(Indian, "{0:N0}", Model.Projsummary.Detail.HeadWise.Sum(m => m.Available)))</b>
+                                                                    </td>
+                                                                }
+                                                            </tr>
+                                                        }
+                                                        else
+                                                        {
+                                                            <tr>
+                                                                <td colspan="5" class="text-center">
+                                                                    No Records Found !
+                                                                </td>
+                                                            </tr>
+                                                        }
+                                                    }
+
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                          
+                            <div class="row ">
+
+                                <div class="col-md-12 vw-dts-bg mb-tb pr-dts-grd">
+                                    <table class="table table-bordered">
+                                        <tbody>
+                                            <tr>
+                                                <td class="bg-gray">
+                                                    <label>Receipt upto 31-03-2019</label>
+                                                </td>
+                                                <td class="text-right">
+                                                    <h4>@(String.Format(Indian, "{0:N0}", Model.Projsummary.Summary.PrevRec))</h4>
+                                                </td>
+                                                <td class="bg-gray">
+                                                    <label>Receipt after 01-04-2019 <a href="javascript:void(0)" class="DownBtn"><i class="ion-android-download"></i></a></label>
+                                                </td>
+                                                <td class="text-right">
+                                                    <h4>@(String.Format(Indian, "{0:N0}", Model.Projsummary.Summary.TotalReceipt)) </h4>
+                                                </td>
+
+                                                <td class="bg-gray"><label>Total Grant Received till date (A)</label></td>
+                                                <td class="text-right"><h4><b>@(String.Format(Indian, "{0:N0}", Model.Projsummary.Summary.TotalGrantReceived))</b></h4></td>
+
+
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-gray">
+                                                    <label>Interest upto 31-03-2019</label>
+                                                </td>
+                                                <td class="text-right">
+                                                    <h4>@(String.Format(Indian, "{0:N0}", Model.Projsummary.Summary.PrevInterest))</h4>
+                                                </td>
+                                                <td class="bg-gray">
+                                                    <label>Interest after 01-04-2019 </label>
+                                                </td>
+                                                <td class="text-right">
+                                                    <h4>@(String.Format(Indian, "{0:N0}", Model.Projsummary.Summary.AfterInterest)) </h4>
+                                                </td>
+
+                                                <td class="bg-gray"><label>Total Interest Earned (B)</label></td>
+                                                <td class="text-right"><h4><b>@(String.Format(Indian, "{0:N0}", Model.Projsummary.Summary.TotalInterest))</b></h4></td>
+
+
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-gray">
+                                                    <label>Expenditure upto 31-03-2019</label>
+                                                </td>
+                                                <td class="text-right">
+                                                    <h4>@(String.Format(Indian, "{0:N0}", Model.Projsummary.Summary.PrevExp)) </h4>
+                                                </td>
+
+
+                                                <td class="bg-gray">
+                                                    <label>Expenditure after 01-04-2019</label>
+                                                </td>
+                                                <td class="text-right">
+                                                    <h4>@(String.Format(Indian, "{0:N0}", Model.Projsummary.Summary.ExpAmt)) </h4>
+                                                </td>
+                                                <td class="bg-gray">
+                                                    <label>Total expenditure till date (C)</label>
+                                                </td>
+                                                <td class="text-right">
+                                                    <h4><b>@(String.Format(Indian, "{0:N0}", Model.Projsummary.Summary.TotalExpenditure))</b></h4>
+                                                </td>
+                                            </tr>
+
+                                            <tr>
+                                                <td class="bg-gray">
+                                                    <label>Opening Balance<br />(As on 01-04-2019)</label>
+                                                </td>
+                                                <td class="text-right">
+                                                    <h4>@(String.Format(Indian, "{0:N0}", Model.Projsummary.Summary.OpeningBalance)) </h4>
+                                                </td>
+                                                <td class="bg-gray"></td>
+                                                <td></td>
+                                                <td class="bg-gray">
+                                                    <label>Commitment (D)</label>
+                                                </td>
+                                                <td class="text-right"><h4><b>@(String.Format(Indian, "{0:N0}", Model.Projsummary.Summary.PreviousCommitment)) </b></h4></td>
+                                            </tr>
+                                            <tr>
+                                                <td></td>
+                                                <td></td>
+                                                <td class="bg-gray"><label>Negative Approval Available</label></td>
+                                                <td class="text-right txt-red"><h4><b>@(String.Format(Indian, "{0:N0}", Model.Projsummary.Summary.ApprovedNegativeBalance)) </b></h4></td>
+                                                <td class="bg-green">
+                                                    <label class="txt-wht">Available balance in the project <br />(A+B)-(C+D)</label>
+                                                </td>
+                                                <td class="text-right bg-green">
+                                                    <h4 class="txt-wht fn20"><b>@(String.Format(Indian, "{0:N0}", Model.Projsummary.Summary.AvailableBalanceinProject)) </b></h4>
+                                                </td>
+                                            </tr>
+
+                                        </tbody>
+                                    </table>
+
+                                </div>
+
+                            </div>
+                           
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+    </div>
+
+</div>
+<div class="text-center" style="margin-bottom: 50px;">
+    
+    <button type="button" class="btn btn-default" id="prevBtn" onclick="nextPrev(-1)">Previous</button>
+    <button type="button" class="btn btn-primary" id="nextBtn" onclick="nextPrev(1)">Next</button>
+    <button type="button" class="btn btn-default" onclick="window.location.href='@Url.Action("RecruitmentCommitmentRequestList","Requirement")';">Close</button>
+</div>
+<div id="ValidationModal" class="modal fade modal-warning" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-warning"></i>
+                <h3 class="modal-title">Warning</h3>
+            </div>
+            <div class="modal-body">
+
+                <p id="MsgValidation"></p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+@*<input type="hidden" id="currentRefId" value="@Model.STEId" />
+    <input type="hidden" id="processGuideLineId" value="@ViewBag.processGuideLineId" />
+    @{
+                var disNoneCls = "";
+                if (isView)
+                {
+                    disNoneCls = "";
+                }
+                else
+                {
+                    disNoneCls = "dis-none";
+                }
+    }*@
+
+@*<div class="@disNoneCls" id="act-now">
+        @Html.Partial("_ProcessStatus")
+    </div>*@
+}
+<script>
+
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+
+    $(document).ready(function () {
+        if(@Model.STEId>0){
+            $('#Medical').val(@Model.Medical);
+        }
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+        var list = @Html.Raw(Json.Encode(Model.Projsummary.Detail.HeadWise));
+        $.each(list, function (i, item) {
+            var allocheadid = @Model.CommitReqModel.AllocationHeadId;
+            if(item.AllocationId == allocheadid){
+                $('input[name="CommitReqModel.AllowedAmount"]').val(item.Available);
+            }
+        });
+
+    });
+    if ($("#DesignationId").val() != 0) {
+        LoadFillDesignation()
+    }
+    //$('#ReqCommitment').click(function(){
+    //    if($(this).is(':checked')){
+    //        $('#act-now').removeClass('dis-none');
+    //    }
+    //    else{
+    //        $('#act-now').addClass('dis-none');
+    //    }
+    //});
+    //if($('#ReqCommitment').is(':checked')){
+    //    $('#act-now').removeClass('dis-none');
+    //}
+    //else{
+    //    $('#act-now').addClass('dis-none');
+    //}
+
+    function LoadFillDesignation() {
+        var DesignationID = $('#DesignationId').val();
+        if (DesignationID > 0) {
+            $.getJSON("@Url.Action("LoadDesignationDetails", "Requirement")", { DesignationID: DesignationID },
+        function (result) {
+            if (result.DesignationData.DestinationID > 0) {
+                $('#lblDesignationCode1').text(result.DesignationData.DesignationCode);
+                $('#lblDesignationName1').text(result.DesignationData.Designation);
+                $('#ClDesignation').text(result.DesignationData.Designation);
+            }
+        });
+        }
+    }
+    $('a[name="DocDownload"]').click(function (p) {
+        p.preventDefault();
+        var ref = $(this).attr('href');
+        var win = window.open('', '_blank');
+        win.location.href = ref;
+    });
+    $('#projectsummary').click(function () {
+         $("#myModal").modal('toggle');
+    });
+    $(document).on('click','#btnProcessStatusSubmit',function(){
+        UpdateHRNote();
+    });
+
+    /* Tab Sections Start*/
+    var currentTab = 0; // Current tab is set to be the first tab (0)
+    showTab(currentTab); // Display the crurrent tab
+    function showTab(n) {
+        // This function will display the specified tab of the form...
+        var x = document.getElementsByClassName("cust-tab");
+        x[n].style.display = "block";
+
+        $(".custom-nav-pills li:eq(" + n + ")").addClass("active");
+        //... and fix the Previous/Next buttons:
+        if (n == 0) {
+            document.getElementById("prevBtn").style.display = "none";
+        } else {
+            document.getElementById("prevBtn").style.display = "inline";
+        }
+        if (n == (x.length - 1)) {
+            @*var Status='@Model.Status';
+            //|| Status.includes('Awaiting')
+            if(Status=="Open"||Status==""||Status=="Draft"||Status.includes("Note"))
+            {
+                document.getElementById("nextBtn").style.display = "inline";
+                document.getElementById("nextBtn").innerHTML = "Submit";
+            }
+            else{
+                document.getElementById("nextBtn").style.display = "none";
+                document.getElementById("nextBtn").innerHTML = "Submit";
+            }*@
+                document.getElementById("nextBtn").style.display = "inline";
+                document.getElementById("nextBtn").innerHTML = "Submit";
+        } else {
+            document.getElementById("nextBtn").innerHTML = "Next";
+            document.getElementById("nextBtn").style.display = "inline";
+        }
+    }
+
+    function nextPrev(n) {
+        // This function will figure out which tab to display
+        var x = document.getElementsByClassName("cust-tab");
+        // Exit the function if any field in the current tab is invalid:
+        var v=n;
+        if($('#nextBtn').text()=="Submit"){
+            v=1;
+        }
+        if (n > 0 && !validateForm(v)) {
+            return false;
+        }
+        if (currentTab + n < x.length) {
+            // Hide the current tab:
+            x[currentTab].style.display = "none";
+            $(".custom-nav-pills li:eq(" + currentTab + ")").removeClass("active");
+        }
+    else
+    {
+            formSave();
+    }
+        // Increase or decrease the current tab by 1:
+        currentTab = currentTab + n;
+
+    // Otherwise, display the correct tab:
+    showTab(currentTab);
+    }
+    function validateForm(n) {
+        //EnableDisableReqClass(true);
+        // This function deals with validation of the form fields
+        var isValid = false;
+        var hadError = false;
+        var tabs = $(".cust-tab");
+        var currentTabEle = tabs[currentTab];
+        var inputs = $(":input, textarea, select"); // get all the form inputs and selects
+        var stepElements = $(currentTabEle).find(inputs); // get inputs for current step
+        var count = stepElements.length; // check that there are inputs
+        if (count <= 0) {                // if there are not no reason to loop them
+            return true;
+        }
+        if(currentTab == 1)
+        {
+            var allowedamount = parseFloat($('input[name="CommitReqModel.AllowedAmount"]').val()) || 0;
+            var bookedamount = parseFloat($('input[name="CommitReqModel.AddCommitmentAmount"]').val()) || 0;
+            //var prevbookedamount = parseFloat($('input[name="CommitReqModel.PrevBookedCommitAmount"]').val()) || 0;
+            var requestedamount = parseFloat($('input[name="CommitReqModel.RequestedAmount"]').val()) || 0;
+            var balincommitamount = parseFloat($('input[name="CommitReqModel.CommitmentBalanceAmount"]').val()) || 0;
+            //var totalbookedamt = (prevbookedamount + bookedamount).toFixed(2);
+            //if(bookedamount > allowedamount)
+            //{
+            //    $('#MsgValidation').html("The Commitment withdraw amount cannot be greater than the Allowed amount.");
+            //    $('#ValidationModal').modal('toggle');
+            //    return false;
+            //}
+            if(bookedamount > requestedamount)
+            {
+                $('#MsgValidation').html("The Commitment withdraw amount cannot be greater than the Requested amount.");
+                $('#ValidationModal').modal('toggle');
+                return false;
+            }
+            if(bookedamount < requestedamount)
+            {
+                $('#MsgValidation').html("The Commitment withdraw amount cannot be less than the Requested amount.");
+                $('#ValidationModal').modal('toggle');
+                return false;
+            }
+            if(bookedamount > balincommitamount)
+            {
+                $('#MsgValidation').html("The Commitment withdraw amount cannot be greater than the available balance in Commitment.");
+                $('#ValidationModal').modal('toggle');
+                return false;
+            }
+        }
+        //if($("input[name='isHaveGateScore']:checked").val()=="Yes"){
+        //    if($('#Score').val()==""){
+        //        $.alert("Please enter gate score");
+        //        return
+        //    }
+        //}
+
+
+        //$(stepElements).each(function (idx) {
+        //    if (!$(this).is(':radio') && !$(this).is(':checkbox')) {
+        //        isValid = $(this).valid();//$(document.forms[0]).validate().element($(this)); // check that the input is valid. This can also be used on a per input basis to perform another action if the field is not valid.
+        //        if (!isValid) {
+        //            hadError = true;
+        //        } // set our flag if there was an error
+        //    }
+        //});
+
+
+        //if(!hadError&&n!=2){
+        //    if ($('#DesignationId').val() != null || $('#DesignationId').val() != "") {
+        //        checkDevation();
+        //    }
+        //    if ($('#ProjectId').val() != null || $('#ProjectId').val() != "") {
+        //        FillData();
+        //    }
+        //}
+        return !hadError; // return the valid status
+    }
+   
+    $('input[name="CommitReqModel.AddCommitmentAmount"]').change(function () {
+        var allowedamount = parseFloat($('input[name="CommitReqModel.AllowedAmount"]').val()) || 0;
+        var bookedamount = parseFloat($('input[name="CommitReqModel.AddCommitmentAmount"]').val()) || 0;
+        var balincommitamount = parseFloat($('input[name="CommitReqModel.CommitmentBalanceAmount"]').val()) || 0;
+        //var prevbookedamount = parseFloat($('input[name="CommitReqModel.PrevBookedCommitAmount"]').val()) || 0;
+        var requestedamount = parseFloat($('input[name="CommitReqModel.RequestedAmount"]').val()) || 0;
+        //var totalbookedamt = (prevbookedamount + bookedamount).toFixed(2);
+        //if(bookedamount > allowedamount)
+        //{
+        //    $('#MsgValidation').html("The Commitment withdraw amount cannot be greater than the Allowed amount.");
+        //    $('#ValidationModal').modal('toggle');
+        //    return false;
+        //}
+        if(bookedamount > balincommitamount)
+        {
+            $('#MsgValidation').html("The Commitment withdraw amount cannot be greater than the available balance in Commitment.");
+            $('#ValidationModal').modal('toggle');
+            return false;
+        }
+        
+        if(bookedamount > requestedamount)
+        {
+            $('#MsgValidation').html("The Commitment withdraw amount cannot be greater than the Requested amount.");
+            $('#ValidationModal').modal('toggle');
+            return false;
+        }
+        if(bookedamount < requestedamount)
+        {
+            $('#MsgValidation').html("The Commitment withdraw amount cannot be less than the Requested amount.");
+            $('#ValidationModal').modal('toggle');
+            return false;
+        }
+                
+    });
+    function formSave(){
+    var isValid = $('#formCommitbooking').valid();
+    if (!isValid)
+        return false;
+   
+    var allowedamount = parseFloat($('input[name="CommitReqModel.AllowedAmount"]').val()) || 0;
+    var bookedamount = parseFloat($('input[name="CommitReqModel.AddCommitmentAmount"]').val()) || 0;
+    var balincommitamount = parseFloat($('input[name="CommitReqModel.CommitmentBalanceAmount"]').val()) || 0;
+        //var prevbookedamount = parseFloat($('input[name="CommitReqModel.PrevBookedCommitAmount"]').val()) || 0;
+    var requestedamount = parseFloat($('input[name="CommitReqModel.RequestedAmount"]').val()) || 0;
+        //var totalbookedamt = (prevbookedamount + bookedamount).toFixed(2);
+    if(bookedamount > balincommitamount)
+    {
+        $('#MsgValidation').html("The Commitment withdraw amount cannot be greater than the available balance in Commitment.");
+        $('#ValidationModal').modal('toggle');
+        return false;
+    }
+    //if(bookedamount > allowedamount)
+    //{
+    //    $('#MsgValidation').html("The Commitment withdraw amount cannot be greater than the Allowed amount.");
+    //    $('#ValidationModal').modal('toggle');
+    //    return false;
+    //}
+    if(bookedamount > requestedamount)
+    {
+        $('#MsgValidation').html("The Commitment withdraw amount cannot be greater than the Requested amount.");
+        $('#ValidationModal').modal('toggle');
+        return false;
+    }
+    if(bookedamount < requestedamount)
+    {
+        $('#MsgValidation').html("The Commitment withdraw amount cannot be less than the Requested amount.");
+        $('#ValidationModal').modal('toggle');
+        return false;
+    }
+    if (isValid)
+        $('#formCommitbooking').submit();
+    }
+    $('#formCommitbooking').submit(function () {
+        var id = $(this).attr('Id');
+
+        $('button[type="submit"],#nextBtn,#btnSave').attr('disabled', 'true');
+    });
+    $('select[name$=".AllocationHeadId"]').change(function () {
+        var selallocheadid = $(this).val();
+        var availvalue = 0;
+        $('input[name="CommitReqModel.AllowedAmount"]').val('')
+        $('#allocbal tr').each(function () {
+            var prjalocheadid = $(this).find('input[name$=".AllocationId"]').val();
+            if(selallocheadid == prjalocheadid)
+            {
+                availvalue = $(this).find('input[name$=".Available"]').val();
+                $('input[name="CommitReqModel.AllowedAmount"]').val(availvalue)
+            }
+        });
+    });
+
+    function UpdateHRNote(){
+        var Notes=$('#HRNote').val();
+        if(Notes==""){
+            Notes=$('#txtProcessComment').val();
+        }
+        $.ajax({
+            type: "Post",
+            url: '@Url.Action("STEHRNote", "Requirement")',
+            data: {
+                STEID:parseInt($('#STEId').val()),
+                Note:Notes
+            },
+            success: function (result) {
+                if (result == 1) {
+                }
+            },
+            error: function (err) {
+                console.log("error1 : " + err);
+            }
+        });
+    }
+
+</script>
+<script src="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/js/bootstrap-select.min.js")"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>

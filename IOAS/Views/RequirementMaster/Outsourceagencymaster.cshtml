@@ -1,0 +1,605 @@
+﻿@model IOAS.Models.AgencySalaryMasterModel
+@{
+    ViewBag.Title = "Outsourceagencymaster";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<div class="row hd-tt-bg">
+    <div class="col-md-12">
+        <h4><b>OutSource Agency Master </b></h4>
+
+    </div>
+</div>
+<style>
+    .form-control {
+        text-transform: uppercase;
+    }
+</style>
+@using (Html.BeginForm("Outsourceagencymaster", "RequirementMaster", FormMethod.Post, new { @class = "", role = "form", @id = "formOSGAgy", enctype = "multipart/form-data" }))
+
+{
+<div class="row cts-mn-dts">
+    <div class="page-wrapper mt30">
+        <div class="col-md-12">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="bl-lg-panel-box pb-null">
+                        <div class="cmn-panel-box">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Agency Name:</label>
+                                        @Html.TextBoxFor(m => m.AgencyName, new { @class = "form-control" })
+                                        <div>@Html.ValidationMessageFor(m => m.AgencyName)</div>
+                                        @Html.HiddenFor(m=>m.SalaryAgencyId)
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Contact Person:</label>
+                                        @Html.TextBoxFor(m => m.ContactPerson, new { @class = "form-control" })
+                                        <div>@Html.ValidationMessageFor(m => m.ContactPerson)</div>
+                                    </div>
+                                </div> 
+                                <div class="col-md-3">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Contact Number:</label>
+                                        @Html.TextBoxFor(m => m.ContactNumber, new { @class = "form-control", @onkeypress = "return isNumberKey(event)" })
+                                        <div>@Html.ValidationMessageFor(m => m.ContactNumber)</div>
+                                    </div>
+                                </div>   
+                                <div class="col-md-3">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Contact Email:</label>
+                                        @Html.TextBoxFor(m => m.ContactEmail, new { @class = "form-control" })
+                                        <div>@Html.ValidationMessageFor(m => m.ContactEmail)</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Address:</label> <br>
+                                        @Html.TextAreaFor(m => m.Address, new { @class = "form-control", @rows = "6" })
+                                        <div>@Html.ValidationMessageFor(m => m.Address)</div>
+                                    </div>
+                                </div>
+                               
+                                <div class="col-md-3">
+                                     <div class="form-group custom-form-group">
+                                        <label class="required">State :</label> <br>
+                                       @Html.DropDownListFor(m => m.StateId, new SelectList(ViewBag.State, "id", "name"), "Select State", new { @class = "form-control" })
+                                       <div>@Html.ValidationMessageFor(m => m.StateId)</div>
+                                         @Html.Hidden("StateCode")
+                                    </div>
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">GSTIN :</label> <br>
+                                        @Html.TextBoxFor(m => m.GSTIN, new { @class = "form-control",@onblur= "ValidateGSTNumber();" })
+                                        <div>@Html.ValidationMessageFor(m => m.GSTIN)</div>
+                                    </div>
+                                   
+                                   
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">GSTIN % :</label> <br>
+                                        @Html.TextBoxFor(m => m.GSTPercentage, new { @class = "form-control", @onkeypress = "return isNumberKey(event)" })
+                                        <div>@Html.ValidationMessageFor(m => m.GSTPercentage)</div>
+                                    </div>
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">PAN :</label> <br>
+                                        @Html.TextBoxFor(m => m.PAN, new { @class = "form-control" })
+                                        <div>@Html.ValidationMessageFor(m => m.PAN)</div>
+                                    </div>
+                                   
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Agency fee :</label> <br>
+                                        @Html.TextBoxFor(m => m.Agencyfee, new { @class = "form-control", @onkeypress = "return isNumberKey(event)" })
+                                        <div>@Html.ValidationMessageFor(m => m.Agencyfee)</div>
+                                    </div>
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Insurance :</label> <br>
+                                        @Html.TextBoxFor(m => m.Insurance, new { @class = "form-control" })
+                                        <div>@Html.ValidationMessageFor(m => m.Insurance)</div>
+                                    </div>   
+                                </div>
+                              
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Bank Name :</label> <br>
+                                        @Html.TextBoxFor(m => m.BankName, new { @class = "form-control", @onpaste = "return false" })
+                                        <div>@Html.ValidationMessageFor(m => m.BankName)</div>
+                                        @Html.Hidden("BankId")
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Branch Name :</label> <br>
+                                        @Html.TextBoxFor(m => m.BranchName, new { @class = "form-control" })
+                                        <div>@Html.ValidationMessageFor(m => m.BranchName)</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Account Number :</label> <br>
+                                        @Html.TextBoxFor(m => m.AccountNumber, new { @class = "form-control", @onkeypress = "return isNumberKey(event)" })
+                                        <div>@Html.ValidationMessageFor(m => m.AccountNumber)</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">IFSC Code :</label> <br>
+                                        @Html.TextBoxFor(m => m.IFSCCode, new { @class = "form-control" })
+                                        <div>@Html.ValidationMessageFor(m => m.IFSCCode)</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="form-group custom-form-group">
+                                        <label>GST Exempted </label> <br>
+                                        @Html.CheckBoxFor(m => m.GSTExcepted,new { @id = "gst_Excp" })
+                                    </div>
+                                    </div>
+                                <div class="dis-none" id="IsGSTExcep">
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group">
+                                            <label>GST Certificate No </label> <br>
+                                            @Html.TextBoxFor(m => m.GSTCertificateNo, new { @class = "form-control" })
+                                            <div>@Html.ValidationMessageFor(m => m.GSTCertificateNo)</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group">
+                                            <label>GST Validity </label> <br>
+                                            @Html.TextBoxFor(m => m.GSTValidity, new { @class = "form-control", @readonly = "readonly" })
+                                            <div>@Html.ValidationMessageFor(m => m.GSTValidity)</div>
+                                        </div>
+                                    </div>
+                                 
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group custom-form-group">
+                                        <label>CC Mail:</label>
+                                        @Html.TextBoxFor(m => m.CCMail, new { @class = "form-control" })
+                                        <div>@Html.ValidationMessageFor(m => m.CCMail)</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="form-group custom-form-group">
+                                        <label>TDS Exempted </label> <br>
+                                        @Html.CheckBoxFor(m => m.TDSExcepted, new { @id = "TDS_Excp" })
+                                    </div>
+                                </div>
+                                <div class="dis-none" id="IsTDSExcep">
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group">
+                                            <label>TDS Certificate No </label> <br>
+                                            @Html.TextBoxFor(m => m.TDSCertificateNo, new { @class = "form-control" })
+                                            <div>@Html.ValidationMessageFor(m => m.TDSCertificateNo)</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group">
+                                            <label>TDS Validity </label> <br>
+                                            @Html.TextBoxFor(m => m.TDSValidity, new { @class = "form-control", @readonly = "readonly" })
+                                            <div>@Html.ValidationMessageFor(m => m.TDSValidity)</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="form-group custom-form-group">
+                                        <label>District :</label> <br>
+                                        @Html.TextBoxFor(m => m.District, new { @class = "form-control" })
+                                        <div>@Html.ValidationMessageFor(m => m.District)</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group custom-form-group">
+                                        <label>PinCode :</label> <br>
+                                        @Html.TextBoxFor(m => m.PinCode, new { @class = "form-control", @onkeypress = "return isNumberKey(event)" })
+                                        <div>@Html.ValidationMessageFor(m => m.PinCode)</div>
+                                    </div>
+                                </div>
+                             
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <h4>Other Documents:</h4>
+                                    <div class="">
+                                        <table class="table alter-table mb-null">
+                                            <thead>
+                                                <tr>
+                                                    <th style="width:30%;">Document Name</th>
+                                                    <th style="width:70%;">Attachment</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="OtherDoc">
+                                                @{
+                                                    if (Model.AgencyDocList.Count > 0)
+                                                    {
+                                                        var count = 0;
+                                                        foreach (var item in Model.AgencyDocList)
+                                                        {
+                                                            var docName = "AgencyDocList[" + count + "].DocumentName";
+                                                            var doc = "AgencyDocList[" + count + "].Document";
+                                                            var docId = "AgencyDocList[" + count + "].DocumentId";
+                                                            <tr>
+                                                                <td>
+                                                                    @Html.TextBox(@docName,item.DocumentName, new { @class = "form-control" })
+                                                                    @Html.ValidationMessage(@docName)
+                                                                    @Html.Hidden(@docId,item.DocumentId)
+                                                                    @Html.Hidden("AgencyDocList.Index", @count)
+                                                                </td>
+                                                                <td>
+                                                                    <input type="file" class="" name="@doc" />&nbsp; &nbsp; &nbsp;
+                                                                    @Html.ValidationMessage(@doc)
+                                                                    @if (!string.IsNullOrEmpty(item.DocumentPath))
+                                                                    {
+                                                                    <a href="@Url.Action("ShowFile", new { Controller="Requirement", filepath="~/Content/Requirement",file=item.DocumentPath})" class="doclink" target="_blank"> <b> @item.DocumentPath.Split('_').LastOrDefault() </b></a>
+                                                                    }
+                                                                </td>
+                                                                <td>
+                                                                    <a href="javascript:void(0)" class="btn-sm btn btn-danger removeOtherDoc"><i class="ion-android-close"></i></a>
+                                                                </td>
+                                                            </tr>
+                                                            count++;
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        <tr>
+                                                            <td>
+                                                                @Html.TextBox("AgencyDocList[0].DocumentName", null, new { @class = "form-control" })
+                                                                @Html.ValidationMessage("AgencyDocList[0].DocumentName")
+                                                                @Html.Hidden("AgencyDocList[0].DocumentId")
+                                                                @Html.Hidden("AgencyDocList.Index", 0)
+                                                            </td>
+                                                            <td>
+                                                                <input type="file" class="" name="AgencyDocList[0].Document" />&nbsp; &nbsp; &nbsp;
+                                                                @Html.ValidationMessage("AgencyDocList[0].Document")
+                                                            </td>
+                                                            <td>
+                                                                <a href="javascript:void(0)" class="btn-sm btn btn-danger removeOtherDoc"><i class="ion-android-close"></i></a>
+                                                            </td>
+                                                        </tr>
+                                                    }
+
+
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="col-md-6 mb20">
+                                        <a href="javascript:void(0)" id="btnAddOtherDoc" class="btn btn-primary">Add New</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12 mb-lg text-center">
+        <input type="submit" class="btn btn-primary" value="Submit" name="Button" id="btnOutSource" />
+        <input type="button" onclick="window.location.href='@Url.Action("OutsourceAgencyMasterList", "RequirementMaster")';" class="btn btn-default" value="Close" id="btnclose" />
+    </div>
+</div>
+}
+<div class="loading-bg dis-none">
+</div>
+<script>
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    var alertMsg = '@TempData["alertMsg"]';
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertTitle').html("Success");
+            $('#alertSuccessContent').html(succMsg);
+            $('#SuccessAll').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+        else if (alertMsg != '') {
+            $('#alert').html(alertMsg);
+            $('#Validation').modal('toggle');
+        }
+
+
+        if ($('#gst_Excp').is(':checked')) {
+            $('#IsGSTExcep').removeClass('dis-none');
+
+        }
+        if ($('#TDS_Excp').is(':checked')) {
+            $('#IsTDSExcep').removeClass('dis-none');
+
+        }
+    });
+    $('#btnOutSource').click(function (d) {
+        d.preventDefault();
+        var isValid = $('#formOSGAgy').valid();
+        if (!isValid)
+            return false;
+        if (isValid) {
+            $('.loading-bg').removeClass('dis-none');
+            $('#formOSGAgy').submit();
+        }
+    });
+    $('#StateId').change(function () {
+        var stid = $(this).val();
+        if (stid > 0) {
+            $.getJSON("@Url.Action("LoadSatecode", "RequirementMaster")", { StateId: stid },
+                 function (result) {
+                     if (result.Statecode != "")
+                     {
+                         $('#StateCode').val(result.Statecode);
+                     }
+                     else
+                     {
+                         $('#StateCode').val('');
+                     }
+                     ValidateGSTNumber();
+                 });
+        }
+        $('#StateCode').val('');
+    });
+    function ValidateGSTNumber()
+    {
+        var gstno = $('#GSTIN').val();
+        var Statecode = $('#StateCode').val();
+        if(gstno!=""&&Statecode!="")
+        {
+            var gstprefix = gstno.substring(0,2);
+            if(Statecode!=gstprefix)
+            {
+                $('#GSTIN').val('');
+                $('#alert').html("The GST number and State not match");
+                $('#Validation').modal('toggle');
+            }
+        }
+    }
+    function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode != 46 && charCode > 31
+          && (charCode < 48 || charCode > 57))
+            return false;
+
+        return true;
+    }
+    //$('#Agencyfee,#GSTPercentage').keypress(function (e) {
+
+    //    var $this = $(this);
+    //    if ((event.which != 46 || $this.val().indexOf('.') != -1) &&
+    //       ((event.which < 48 || event.which > 57) &&
+    //       (event.which != 0 && event.which != 8))) {
+    //        event.preventDefault();
+    //    }
+    //    //$('#Insurance').keypress(function () {
+    //    //    this.value = this.value.replace(/[^0-9\.]/g, '');
+    //    //});
+    //});
+    $("#btnAddOtherDoc").click(function () {
+        var cln = $('#OtherDoc tr:first').clone().find("input").val("").end();
+        var index = $('#OtherDoc tr:last').find("input[name='AgencyDocList.Index']").val();
+        index = parseInt(index) + 1;
+        idx = index;
+        $(cln).find("input[name='AgencyDocList.Index']").val(index);
+        $(cln).find("input").each(function () {
+            if ($(this).attr("name") != undefined)
+                $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+            if ($(this).attr("id") != undefined)
+                $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+        });
+
+        $(cln).find("span[data-valmsg-for]").each(function () {
+            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+        });
+        $('#OtherDoc').append(cln);
+    });
+    $(document).on('click', 'a.removeOtherDoc', function () {
+        if ($('#OtherDoc tr').length != 1) {
+            $(this).closest('tr').remove();
+
+        }
+    });
+    $('#Agencyfee').keyup(function (e) {
+
+        var val = $(this).val();
+        var re = /^([0-9]+[\.]?[0-9]?[0-9]?|[0-9]+)$/g;
+        var re1 = /^([0-9]+[\.]?[0-9]?[0-9]?|[0-9]+)/g;
+        if (re.test(val)) {
+            //do something here
+
+        } else {
+            val = re1.exec(val);
+            if (val) {
+                this.value = val[0];
+            } else {
+                this.value = "";
+            }
+        }
+
+    });
+    $('#GSTPercentage').keyup(function (e) {
+        var val = $(this).val();
+        var re = /^([0-9]+[\.]?[0-9]?[0-9]?|[0-9]+)$/g;
+        var re1 = /^([0-9]+[\.]?[0-9]?[0-9]?|[0-9]+)/g;
+        if (re.test(val)) {
+            //do something here
+
+        } else {
+            val = re1.exec(val);
+            if (val) {
+                this.value = val[0];
+            } else {
+                this.value = "";
+            }
+        }
+        if(val > 100)
+        {
+            $.alert({
+                icon: 'ion-close-circled',
+                title: 'Error Alert!',
+                content: 'GST percentage should be between 0 and 100',
+                type: 'red'
+            });
+            $(this).val('')
+            return false;
+        }
+    
+    });
+    $(document).on('change', 'input[name$=".Document"]', function () {
+        var file = $(this).val();
+        if (file != "") {
+            var file_size = $(this)[0].files[0].size;
+            var extension = file.substr((file.lastIndexOf('.') + 1)).toLowerCase();
+            switch (extension) {
+                case 'pdf':
+                case 'docx':
+                case 'doc':
+                    isValidExten = true;
+                    break;
+                default:
+                    isValidExten = false;
+            }
+            if (isValidExten == false) {
+                $('#alert').html("Please upload any one of these type file [doc, docx, pdf].");
+                $('#Validation').modal('toggle');
+                $(this).val('');
+                return false;
+            }
+            else if (file_size > 5242880) {
+                $('#alert').html("You can upload the file up to 5 MB.");
+                $('#Validation').modal('toggle');
+                $(this).val('');
+                return false;
+            }
+        }
+    });
+    $('#IFSCCode').keypress(function (e) {
+        var tval = $('#IFSCCode').val(),
+            tlength = tval.length,
+            set = 11,
+            remain = parseInt(set - tlength);
+        //$('p').text(remain);
+        if (remain <= 0 && e.which !== 0 && e.charCode !== 0) {
+            $('#IFSCCode').val((tval).substring(0, tlength - 1))
+        }
+    })
+    $('#Insurance').keypress(function (e) {
+        var tval = $('#Insurance').val(),
+            tlength = tval.length,
+            set = 4,
+            remain = parseInt(set - tlength);
+        //$('p').text(remain);
+        if (remain <= 0 && e.which !== 0 && e.charCode !== 0) {
+            $('#Insurance').val((tval).substring(0, tlength - 1))
+        }
+    })
+    
+    $('#PinCode').keypress(function (e) {
+        var tval = $('#PinCode').val(),
+            tlength = tval.length,
+            set = 6,
+            remain = parseInt(set - tlength);
+        //$('p').text(remain);
+        if (remain <= 0 && e.which !== 0 && e.charCode !== 0) {
+            $('#PinCode').val((tval).substring(0, tlength - 1))
+        }
+    })
+    $('#Insurance').keydown(function (event) {
+
+        if (event.shiftKey && ((event.keyCode >= 48 && event.keyCode <= 57)
+                || (event.keyCode >= 186 && event.keyCode <= 222))) {
+            // Ensure that it is a number and stop the Special chars
+            event.preventDefault();
+        }
+        else if ((event.shiftKey || event.ctrlKey) && (event.keyCode > 34 && event.keyCode < 40)) {
+            // let it happen, don't do anything
+        }
+        else {
+            // Allow only backspace , delete, numbers
+            if (event.keyCode == 9 || event.keyCode == 46 || event.keyCode == 8 || event.keyCode == 39 || event.keyCode == 37
+                    || (event.keyCode >= 48 && event.keyCode <= 57)) {
+                // let it happen, don't do anything
+            }
+            else {
+                // Ensure that it is a number and stop the key press
+                event.preventDefault();
+            }
+        }
+    });
+    $('#gst_Excp').change(function () {
+
+        if (this.checked)
+
+            $('#IsGSTExcep').removeClass('dis-none');
+        else
+        {
+            $('#IsGSTExcep').addClass('dis-none');
+            $('#GSTCertificateNo').val('');
+            $('#GSTValidity').val('');
+        }
+    });
+
+    $('#TDS_Excp').change(function(){
+        if(this.checked)
+            $('#IsTDSExcep').removeClass('dis-none');
+        else
+        {
+            $('#IsTDSExcep').addClass('dis-none');
+            $('#TDSCertificateNo').val('');
+            $('#TDSValidity').val('');
+        }
+    });
+    var frmdate=@Html.Raw(Json.Encode(Model.FinFormDate));
+    var todate=@Html.Raw(Json.Encode(Model.FinToDate));
+    if(frmdate!=null && todate!=null)
+    {
+        var getdatefrm = moment(frmdate).toDate();
+
+        var todat = moment(todate).toDate();
+        $('#GSTValidity').datepicker({
+            dateFormat: 'dd-MM-yy',
+            changeYear: false,
+            changeMonth: false
+
+
+        }).datepicker("option", "minDate",getdatefrm).datepicker("option", "maxDate",todat).datepicker("setDate",@Html.Raw(Json.Encode(Model.GSTValidity)));
+        $('#TDSValidity').datepicker({
+            dateFormat: 'dd-MM-yy',
+            changeYear: false,
+            changeMonth: false
+
+        }).datepicker("option", "minDate",getdatefrm).datepicker("option", "maxDate", todat).datepicker("setDate",@Html.Raw(Json.Encode(Model.TDSValidity)));
+    }
+    $(document).ready(function () {
+
+        applyAutoComplete($('#BankName'), $('#BankId'), '@Url.Action("LoadBankNameList", "Requirement")',);
+
+    });
+    $( "#ContactPerson" ).keypress(function(e) {
+        var key = e.keyCode;
+        if (key >= 48 && key <= 57) {
+            e.preventDefault();
+        }
+    });
+</script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>
+

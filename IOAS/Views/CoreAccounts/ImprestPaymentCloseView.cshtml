@@ -1,0 +1,207 @@
+﻿@model IOAS.Models.ImprestPaymentModel
+@{
+    ViewBag.Title = "Imprest Master Close";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<style>
+    /* Hide all steps by default: */
+    .tab {
+        display: none;
+        background: #fff;
+        float: left;
+    }
+
+    .step {
+        height: 15px;
+        width: 15px;
+        margin: 0 2px;
+        background-color: #bbbbbb;
+        border: none;
+        border-radius: 50%;
+        display: inline-block;
+        opacity: 0.5;
+    }
+
+        .step.active {
+            opacity: 1;
+        }
+
+        /* Mark the steps that are finished and valid: */
+        .step.finish {
+            background-color: #fff;
+        }
+
+    .custom-nav-pills.nav-pills > li > a {
+        color: rgba(255,255,255,0.5);
+        cursor: default;
+        background: transparent !important;
+        border-color: transparent;
+        border-top-color: transparent;
+        padding: 10px 15px;
+        margin: 0px 15px;
+    }
+
+        .custom-nav-pills.nav-pills > li > a span {
+            width: 100%;
+            float: left;
+        }
+
+    .custom-nav-pills.nav-pills > li.active > a, .custom-nav-pills.nav-pills > li.active > a:focus, .custom-nav-pills.nav-pills > li.active > a:hover {
+        color: #333333;
+        background-color: #fff !important;
+    }
+
+    .custom-st-fd-box {
+        background: #f5f5f5;
+        padding: 15px 0px;
+        border-radius: 4px;
+        display: inline-block;
+    }
+
+    .custom-st-fd-btn {
+        color: #fff;
+        font-size: 16px;
+        margin-top: 15px;
+        display: inline-block;
+    }
+
+    .custom-st-tb-th.table {
+        border: 0px;
+    }
+
+        .custom-st-tb-th.table > tbody > tr > th {
+            background: #3080e3;
+            color: #fff;
+            border: 0px solid #ccc;
+        }
+
+        .custom-st-tb-th.table > tbody > tr > td {
+            border: 0px;
+        }
+</style>
+
+
+<div class="row hd-tt-bg">
+    <div class="col-md-12">
+        <h3>Imprest Master(Close)</h3>
+    </div>
+</div>
+<div class="row">
+    <div class="white-bg ad-navbar">
+        <div class="col-md-3 ds-spl-bg">
+            <div class="ds-icn">
+                <i class="ion-ios-list-outline "></i>
+            </div>
+            <div class="ds-tt">
+                <span>Request Reference</span>
+                <h4>@Model.SourceName</h4>
+                @Html.HiddenFor(m => m.Source, new { @id = "Source" })
+                @Html.HiddenFor(m => m.NeedUpdateTransDetail)
+                @Html.HiddenFor(m => m.ImprestcardId)
+                @Html.HiddenFor(m => m.ImprestProjectDetailsId)
+            </div>
+        </div>
+        <div class="col-md-3 ds-spl-bg">
+            <div class="ds-icn">
+                <i class="ion-ios-calendar-outline"></i>
+            </div>
+            @if (Model.ReferenceNumber != null)
+            {
+                <div class="ds-tt">
+                    <span>Ref Number (WF / Tapal)</span>
+                    <span>@Html.DisplayFor(m => m.ReferenceNumber)</span>
+                    @Html.TextBoxFor(m => m.ReferenceNumber, new { @class = "form-control" })
+                    @Html.TextBoxFor(m => m.SourceReferenceNumber, new { @class = "form-control dis-none" })
+                    @Html.ValidationMessageFor(m => m.SourceReferenceNumber)
+                    @Html.Hidden("SourceTapalOrWorkflow", "True")
+                    @Html.HiddenFor(m => m.SubCode)
+                    @Html.Hidden("TransactionTypeCode", "IMP")
+                </div>
+            }
+            @if (Model.SourceEmailDate != null)
+            {
+                <div class="ds-tt">
+                    <span>Email Date</span>
+                    <h4>@Html.DisplayFor(m => m.SourceEmail)</h4>
+                </div>
+            }
+        </div>
+        <div class="col-md-3 col-md-offset-3">
+            <div class="reg-no custom-reg-no">
+                <div class="form-group custom-form-group">
+                    <label>Number</label>
+                    <h4>@Html.DisplayFor(m => m.ImprestNumber)</h4>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+<div class="vw-dts-bg">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="col-md-12">
+                <table class="table table-bordered mb-null">
+                    <thead>
+                        <tr>
+                            <th colspan="3">Card Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <label>PI</label>
+                                <h4>@Model.NameofPI</h4>
+                            </td>
+                            <td>
+                                <label>Imprest A/C Number</label>
+                                <h4>@Model.ImprestBankACNumber</h4>
+                            </td>
+                            <td>
+                                <label>Imprest Value</label>
+                                <h4>@Model.ImprestValue</h4>
+                            </td>
+                        </tr>
+                   
+                     
+                    </tbody>
+                </table>
+            </div>
+       
+        </div>
+    </div>
+</div>
+<div class="vw-dts-bg">
+    <div class="row">
+        <div class="col-md-12">
+            @Html.Partial("_TransactionDetailsView", Model)
+        </div>
+    </div>
+   
+    <div class="row">
+        <div class="col-md-12">
+            @Html.Partial("_DocumentDetailView", Model.DocumentDetail)
+        </div>
+    </div>
+</div>
+<div class="row">
+      <div class="col-md-12 text-center pd-tb-30">
+
+            <input type="button" onclick="window.location.href='@Url.Action("ImprestPaymentList", "CoreAccounts")';" class="btn btn-default" value="Close" id="btnclose" />
+        </div>
+   
+   
+</div>
+
+
+
+<div id="popup"></div>
+<input type="hidden" id="currentRefId" value="@Model.ImprestcardId" />
+<script>
+    $(document).ready(function () {
+ 
+    CalculateDeductionTotal();
+ 
+    });
+</script>

@@ -1,0 +1,162 @@
+﻿
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Application acknowledgement</title>
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500,700" rel="stylesheet">
+</head>
+
+<body style="font-family: 'Poppins' , sans-serif; font-size:14px;color:#302c2b; line-height:2;">
+    <div class="rt-tb-scrl">
+        <div class="col-md-12">
+            <p>Dear Sir / Madam,</p>
+            @if (Model.IsDeviation == false && Model.SendSlryStruct != "SST")
+            {
+                <p>We have received the <b>Outsourcing</b> appointment request of <b>@Model.PersonName</b> for the post of <b>@Model.DesignationName (@Model.AppointmentType)</b> under project no: <b>@Model.ProjectNumber</b></p>
+                <p> The following will be the next steps from our end</p>
+                <p>
+                    <ol type="1">
+                        <li>Commitment booking</li>
+                        <li>Committee approval</li>
+                        <li>Release of offer letter by outsourcing vendor</li>
+                    </ol>
+                </p>
+            }
+            else if (Model.IsDeviation == false && Model.SendSlryStruct == "SST")
+            {
+                <p>We have received the <b>Outsourcing</b> appointment request of <b>@Model.PersonName</b> for the post of <b>@Model.DesignationName (@Model.AppointmentType)</b> under project no: <b>@Model.ProjectNumber</b></p>
+                <p>Kindly find attached the pay structure for the period from <b>@Model.AppointmentStartDate</b>, to <b>@Model.AppointmentEndDate</b> with the pay of <b>Rs. @Model.BasicPay</b>. Please approve the pay structure or let us know for any changes.</p>
+                <p> The following will be the next steps from our end</p>
+                <p>
+                    <ol type="1">
+                        <li>Commitment booking</li>
+                        <li>Committee approval</li>
+                        <li>Release of offer letter by outsourcing vendor</li>
+                    </ol>
+                </p>
+                <p>@*The normal turnaround time to release the offer letter is 7 working days from the receipt of this email.*@</p>
+            }
+            else if (Model.IsDeviation == true && Model.SendSlryStruct == "SST")
+            {
+                <p>We have received the <b>Outsourcing</b> appointment request of <b>@Model.PersonName</b> for the post of <b>@Model.DesignationName (@Model.AppointmentType)</b> under the Project number <b>@Model.ProjectNumber</b> . While scrutinizing the application for further processing, we found the following deviations from the norms prescribed by the Institute. </p>
+                <p>Please provide a response for the below deviation(s) within 3 business days. During this period the application will be kept on hold.</p>
+                <p class="pg-pay-word">Once the below mentioned deviations are justified and approved by the consent authority, we will use the attached pay structure for salary processing. Hence please approve the pay structure or let us know for any changes.</p>
+            }
+            else if (Model.IsDeviation == true && Model.SendSlryStruct != "SST")
+            {
+                <p>We have received the <b>Outsourcing</b> appointment request of <b>@Model.PersonName</b> for the post of <b>@Model.DesignationName (@Model.AppointmentType)</b> under the Project number <b>@Model.ProjectNumber</b> . While scrutinizing the application for further processing, we found the following deviations from the norms prescribed by the Institute. </p>
+                <p>Please provide a response for the below deviation(s) within 3 business days. During this period the application will be kept on hold.</p>
+            }
+
+            @if (Model.checkdetails != null && Model.IsDeviation == true)
+            {
+                <table border="1" cellspacing="0" cellpadding="5" style="margin-bottom: 10px;" class="CheckListBody">
+                    <tr>
+                        <td>
+                            <h4 style="font-size:14px;margin-bottom: 0px; font-weight:normal;">S.No.</h4>
+                        </td>
+                        <td>
+                            <h4 style="font-size:14px;margin-bottom: 0px; font-weight:normal;">Deviation (s)</h4>
+                        </td>
+                        <td>
+                            <h4 style="font-size:14px;margin-bottom: 0px; font-weight:normal;">Actual norms</h4>
+                        </td>
+                        <td>
+                            <h4 style="font-size:14px;margin-bottom: 0px; font-weight:normal;">Deviation from norms</h4>
+                        </td>
+                    </tr>
+                    @if (Model.checkdetails.Count() > 0)
+                    {
+                        int inc = 0;
+                        int SNo = 0;
+                        int incl = 0;
+                        foreach (var item in Model.checkdetails)
+                        {
+                            if (item.checklistId != 39 && item.checklistId != 40 && item.checklistId != 32 && item.checklistId != 33 && item.checklistId != 38 && item.checklistId != 35)
+                            {
+                                SNo++;
+                                <tr class="Checklist_@item.checklistId">
+                                    <td>
+                                        <h4 class="dyn-srl-No" style="font-size:14px;margin-bottom: 0px; font-weight:normal;">@SNo</h4>
+                                    </td>
+                                    <td>
+                                        <h4 style="font-size:14px;margin-bottom: 0px; font-weight:normal;">@item.devScenarios</h4>
+                                    </td>
+                                    <td>
+                                        <h4 style="font-size:14px;margin-bottom: 0px; font-weight:normal;">@item.actNorms</h4>
+                                    </td>
+                                    <td>
+                                        <h4 style="font-size:14px;margin-bottom: 0px; font-weight:normal;">@item.devinNorms</h4>
+                                    </td>
+                                </tr>
+                            }
+                            if (item.checklistId == 38 || item.checklistId == 35)
+                            {
+                                SNo++;
+                                <tr class="Checklist_@item.checklistId">
+                                    <td>
+                                        <h4 class="dyn-srl-No" style="font-size:14px;margin-bottom: 0px; font-weight:normal;">@SNo</h4>
+                                    </td>
+                                    <td>
+                                        <h4 style="font-size:14px;margin-bottom: 0px; font-weight:normal;">@item.devScenarios</h4>
+                                    </td>
+                                    <td>
+                                        <h4 style="font-size:14px;margin-bottom: 0px; font-weight:normal;">Please refer the IC&SR outsourcing norms link --> <a href="https://icsr.iitm.ac.in/file/pdf/annexure55.pdf">icsr.iitm.ac.in/file/pdf/annexure55.pdf</a></h4>
+                                    </td>
+                                    <td>
+                                        <h4 style="font-size:14px;margin-bottom: 0px; font-weight:normal;">@item.devinNorms</h4>
+                                    </td>
+                                </tr>
+                            }
+                            if (item.checklistId == 39 || item.checklistId == 40 || item.checklistId == 32 || item.checklistId == 33)
+                            {
+                                inc++;
+                            }
+                        }
+                        foreach (var item in Model.checkdetails)
+                        {
+                            if (inc > 0 && (item.checklistId == 39 || item.checklistId == 40 || item.checklistId == 32 || item.checklistId == 33))
+                            {
+                                incl++;
+                                SNo++;
+                                <tr class="Checklist_@item.checklistId">
+                                    <td>
+                                        <h4 class="dyn-srl-No" style="font-size:14px;margin-bottom: 0px; font-weight:normal;">@SNo</h4>
+                                    </td>
+                                    <td>
+                                        <h4 style="font-size:14px;margin-bottom: 0px; font-weight:normal;">@item.devScenarios</h4>
+                                    </td>
+                                    <td>
+                                        <h4 style="font-size:14px;margin-bottom: 0px; font-weight:normal;">@item.actNorms</h4>
+                                    </td>
+                                    @if (incl == 1)
+                                    {
+                                        <td rowspan="@inc">
+                                            <h4 style="font-size:14px;margin-bottom: 0px; font-weight:normal;" id="txt-Comments">@Model.Comments</h4>
+                                        </td>
+                                    }
+                                </tr>
+                            }
+                        }
+                    }
+                </table>
+            }
+
+            @if (Model.AppointmentType == "Part time")
+            {
+                <p>Please note: Part-time employees will not be covered under PF, insurance, and Institute hospital facilities.</p>
+            }
+            <p>For any queries, please mail to "<a href="mailto:icsrrecruitment5@imail.iitm.ac.in" target="_blank">icsrrecruitment5@imail.iitm.ac.in</a>" / "<a href="mailto:icsrrecruitment@iitm.ac.in" target="_blank"> icsrrecruitment@iitm.ac.in</a>" and we will get back to you at the earliest.</p>
+            <p>Thanks and Regards,</p>
+            <p style="margin-top:0px;">
+                @Model.DAName<br>
+                Project Recruitment<br>
+                Centre for IC&SR<br>
+                IIT Madras<br>
+                *This is a system generated email.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

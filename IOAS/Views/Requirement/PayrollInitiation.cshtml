@@ -1,0 +1,172 @@
+﻿@model IOAS.Models.PayrollInitiationModel
+@{
+    ViewBag.Title = "Payroll Initiation";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<div class="row hd-tt-bg">
+    <div class="col-md-12">
+        <h4><b>Payroll Initiation</b></h4>
+
+    </div>
+</div>
+@using (Html.BeginForm("PayrollInitiation", "Requirement", FormMethod.Post, new { @class = "", role = "form", @id = "formPayroll", enctype = "multipart/form-data" }))
+
+{
+<div class="row cts-mn-dts">
+    <div class="page-wrapper mt30">
+        <div class="col-md-12">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="bl-lg-panel-box pb-null">
+                        <div class="cmn-panel-box">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Salary Month</label>
+                                        @Html.DropDownListFor(m => m.SalaryMonth, new SelectList(ViewBag.Finyearmonth, "name", "name"), "Select Month"
+    , new { @class = "form-control",@onchange= "GetSalarymonth();" })
+                                        <div>@Html.ValidationMessageFor(m => m.SalaryMonth)</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Salary Type</label>
+                                        @Html.DropDownListFor(m => m.SalaryType, new SelectList(ViewBag.SalaryType, "id", "name"), "Select Type"
+    , new { @class = "form-control",@onchange= "GetSalarymonth();" })
+                                        <div>@Html.ValidationMessageFor(m => m.SalaryType)</div>
+                                    </div>
+                                </div>
+                                @*<div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Employee Category</label>
+                                        @Html.DropDownListFor(m => m.SalaryEmployeeCategory, new SelectList(ViewBag.EmployeeCategory, "id", "name"), "Select Employee Category"
+    , new { @class = "form-control" })
+                                        <div>@Html.ValidationMessageFor(m => m.SalaryEmployeeCategory)</div>
+                                    </div>
+                                </div>*@
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">From Date</label>
+                                        @Html.TextBoxFor(m => m.FromInitDate, new { @class = "form-control", @readonly = "readonly" })
+                                        <div>@Html.ValidationMessageFor(m => m.FromInitDate)</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">To Date</label>
+                                        @Html.TextBoxFor(m => m.ToInitDate, new { @class = "form-control", @readonly = "readonly" })
+                                        <div>@Html.ValidationMessageFor(m => m.ToInitDate)</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12 mb-lg text-center">
+        <input type="submit" class="btn btn-primary" value="Payroll Initiation" name="Button" id="btnPayrollIn" />
+        <input type="button" onclick="window.location.href='@Url.Action("PayrollInitiationList", "Requirement")';" class="btn btn-default" value="Close" id="btnclose" />
+    </div>
+</div>
+}
+<div class="loading-bg dis-none">
+</div>
+<script type="text/javascript">
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    var alertMsg = '@TempData["alertMsg"]';
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertTitle').html("Success");
+            $('#alertSuccessContent').html(succMsg);
+            $('#SuccessAll').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+        else if (alertMsg != '') {
+            $('#alert').html(alertMsg);
+            $('#Validation').modal('toggle');
+        }
+    });
+    function GetSalarymonth() {
+        var month = $('#SalaryMonth').val();
+        var typeid = $('#SalaryType').val();
+        if (month != "" && typeid != "") {
+            $.getJSON("@Url.Action("LoadPayRollInitaDate", "Requirement")", { MonthAndYear: month, SalaryType: typeid },
+             function (result) {
+                 if (result.FrmSalDate != null && result.toSalDate != null) {
+                     if (typeid == 1) {
+                         var getdatefrm = moment(result.FrmSalDate).add(-1, 'month').toDate();
+                         //var frmdat = moment(result.FrmSalDate).toDate();
+                         var todat = moment(result.toSalDate).toDate();
+                         $('#FromInitDate').datepicker({
+                             changeYear: false,
+                             changeMonth: false,
+                             dateFormat: 'dd-MM-yy',
+
+                         }).datepicker("option", "minDate", getdatefrm).datepicker("option", "maxDate", todat);
+
+                         $('#ToInitDate').datepicker({
+                             dateFormat: 'dd-MM-yy',
+                             changeYear: false,
+                             changeMonth: false
+
+                         }).datepicker("option", "minDate", getdatefrm).datepicker("option", "maxDate", todat);
+                     }
+                     else {
+                         var getdatefrm = moment(result.FrmSalDate).add(-1, 'month').toDate();
+                         var todat = moment(result.toSalDate).toDate();
+
+                         $('#FromInitDate').datepicker({
+
+                             changeYear: false,
+                             changeMonth: false,
+                             dateFormat: 'dd-MM-yy'
+                         }).datepicker("option", "minDate", getdatefrm).datepicker("option", "maxDate", todat);
+
+                         $('#ToInitDate').datepicker({
+                             dateFormat: 'dd-MM-yy',
+                             changeYear: false,
+                             changeMonth: false,
+
+                         }).datepicker("option", "minDate", getdatefrm).datepicker("option", "maxDate", todat);
+
+                     }
+                 }
+
+
+             });
+
+        }
+        else {
+            $('#FromInitDate').datepicker("destroy");
+            $('#ToInitDate').datepicker("destroy");
+            $('#FromInitDate').val('');
+            $('#ToInitDate').val('');
+        }
+
+    }
+   
+
+    $('#btnPayrollIn').click(function (d) {
+        d.preventDefault();
+        var isValid = $('#formPayroll').valid();
+        if (!isValid)
+            return false;
+        if (isValid) {
+            $('.loading-bg').removeClass('dis-none');
+            $('#formPayroll').submit();
+        }
+    });
+</script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>

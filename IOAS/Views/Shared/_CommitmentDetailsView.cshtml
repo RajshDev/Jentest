@@ -1,0 +1,407 @@
+﻿@model IEnumerable<IOAS.Models.BillCommitmentDetailModel>
+@{ var isReversed = Model.Any(m => m.ReversedAmount != null && m.ReversedAmount != 0);}
+
+    
+    
+
+    
+        
+
+                <div>
+                    <table class="table table-bordered mb-null">
+                        <thead>
+                            <tr>
+                                <th>Commitment No</th>
+                                <th>Project Number</th>
+                                <th>Available Balance</th>
+                                <th>Head</th>
+                                <th>Payment Value</th>
+                                @if (isReversed)
+                                {
+                                    <th id="tdRecAmt">Reversed Amount</th>
+                                }
+                                else
+                                {
+                                    <th id="tdRecAmt"></th>
+                                }
+                            </tr>
+                        </thead>
+                        <tbody id="tbodyCommitmentSelList">
+                            @if (Model.Count() > 0)
+                            {
+                                var count = 0;
+                                foreach (var item in Model)
+                                {
+                                    var amt = "CommitmentDetail[" + count + "].PaymentAmount";
+                                    var billDetailId = "CommitmentDetail[" + count + "].BillCommitmentDetailId";
+                                    var commitmentNo = "CommitmentDetail[" + count + "].CommitmentNumber";
+                                    var detailId = "CommitmentDetail[" + count + "].CommitmentDetailId";
+                                    var projNo = "CommitmentDetail[" + count + "].ProjectNumber";
+                                    var availAmt = "CommitmentDetail[" + count + "].AvailableAmount";
+                                    var headName = "CommitmentDetail[" + count + "].HeadName";
+                                    var revAmt = "CommitmentDetail[" + count + "].ReversedAmount";
+                                    <tr>
+                                        <td>@item.CommitmentNumber</td>
+                                        <td><a href="javascript:void(0)" class="btnViewSummary">@item.ProjectNumber</a></td>
+                                        <td>@item.AvailableAmount</td>
+                                        <td>@item.HeadName</td>
+                                        <td>
+                                            @Html.Hidden(@amt, item.PaymentAmount, new { @class = "form-control required", @onkeypress = "return ValidateDecimalOnly(event)", @onblur = "CalculatePaymentValue()", @autocomplete = "off" })
+                                            <h4>@item.PaymentAmount</h4>
+                                            @Html.Hidden(@detailId, item.CommitmentDetailId)
+                                            @Html.Hidden(@billDetailId, item.BillCommitmentDetailId)
+                                            @Html.Hidden(@commitmentNo, item.CommitmentNumber)
+                                            @Html.Hidden(@projNo, item.ProjectNumber)
+                                            @Html.Hidden(@availAmt, item.AvailableAmount)
+                                            @Html.Hidden(@headName, item.HeadName)
+                                        </td>
+                                        <td>
+                                            @if (isReversed)
+                                            {
+                                                @Html.Hidden(@revAmt, item.ReversedAmount, new { @class = "form-control required", @onkeypress = "return ValidateDecimalOnly(event)", @onblur = "CalculateReversedAmount()", @autocomplete = "off" })
+                                               
+                                            }
+                                            @item.ReversedAmount
+                                        </td>
+                                       
+                                    </tr>
+                                    count++;
+
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td>
+                                        @Html.Hidden("CommitmentDetail[0].PaymentAmount", "0", new { @class = "form-control required", @onkeypress = "return ValidateDecimalOnly(event)", @onblur = "CalculatePaymentValue()", @autocomplete = "off" })
+                                        @Html.Hidden("CommitmentDetail.Index", "0")
+                                        @Html.ValidationMessage("CommitmentDetail[0].PaymentAmount")
+                                        @Html.Hidden("CommitmentDetail[0].CommitmentDetailId")
+                                        @Html.Hidden("CommitmentDetail[0].BillCommitmentDetailId")
+                                        @Html.Hidden("CommitmentDetail[0].CommitmentNumber")
+                                        @Html.Hidden("CommitmentDetail[0].ProjectNumber")
+                                        @Html.Hidden("CommitmentDetail[0].AvailableAmount")
+                                        @Html.Hidden("CommitmentDetail[0].HeadName")
+                                    </td>
+                                   
+                                </tr>
+                            }
+                            <tr>
+                                <td colspan="4"></td>
+                                <td colspan="2"class="reg-no">
+                                   
+                                        <label class="lblval">Total Value :</label>
+                                        @Html.Hidden("CommitmentAmount", "", new { @class = "form-control", @autocomplete = "off", @readonly = "readonly" })
+                                        <h4 id="lbltatcomAmt" class="tatval"></h4>
+                                   
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+           
+    
+
+<script type="text/javascript">
+    $('#btnSrchCommitment').click(function () {
+        searchCommitment();
+    });
+    @*function searchCommitment(projectNo) {
+        if (projectNo == undefined) {
+            var keyword = $('#srchKeyword').val();
+            var toDate = $('#srchToDate').val();
+            var fromDate = $('#srchFromDate').val();
+            var projectType = $('#srchProjectType').val();
+            var projectNumber = parseInt($('#srchProjectNumber').val());
+            if (isNaN(projectNumber))
+                projectNumber = 0;
+            if (fromDate == "") {
+                $("#alert").text("From date field is required.");
+                $('#Validation').modal('show');
+                $("#srchFromDate").focus();
+                return false;
+            } else if (toDate == "") {
+                $("#alert").text("To date field is required.");
+                $('#Validation').modal('show');
+                $("#srchToDate").focus();
+                return false;
+            } else if (projectType == "") {
+                $("#alert").text("Project type field is required.");
+                $('#Validation').modal('show');
+                $("#srchProjectType").focus();
+                return false;
+            }
+        } else {
+            projectNumber = projectNo;
+        }
+
+        EmptyCommitmentSrchList()
+        $.ajax({
+            type: "GET",
+            url: "@Url.Action("SearchCommitments", "CoreAccounts")",
+            data: { "fromDate": fromDate, "toDate": toDate, "projectType": projectType, "projectId": projectNumber, "keyword": keyword },
+            dataType: "json",
+            success: function (result) {
+                $.each(result, function (i, item) {
+                    if (i == 0) {
+                        var trEle = $('#tbodyCommitmentSrchList tr:first');
+                        $(trEle).find('input[name="chkCommitmentId"]').val(item.CommitmentId).prop("checked", false);
+                        $(trEle).find('td:nth-child(2)').html(item.CommitmentNumber);
+                        $(trEle).find('td:nth-child(3)').html(item.ProjectNumber);
+                        $(trEle).find('td:nth-child(4)').html(item.BookedAmount);
+                        $(trEle).find('td:nth-child(5)').html(item.AvailableAmount);
+                    } else {
+                        var trEleNew = $('#tbodyCommitmentSrchList tr:first').clone();
+                        $(trEleNew).find('input[name="chkCommitmentId"]').val(item.CommitmentId).prop("checked", false);
+                        $(trEleNew).find('td:nth-child(2)').html(item.CommitmentNumber);
+                        $(trEleNew).find('td:nth-child(3)').html(item.ProjectNumber);
+                        $(trEleNew).find('td:nth-child(4)').html(item.BookedAmount);
+                        $(trEleNew).find('td:nth-child(5)').html(item.AvailableAmount);
+                        $('#tbodyCommitmentSrchList').append(trEleNew);
+                    }
+                });
+
+            },
+            error: function (err) {
+                console.log("error : " + err);
+            }
+        });
+    }*@
+    $(document).on('click', 'a.btnViewSummary', function () {
+        var projNo = $(this).closest('tr').find("input[name$='.ProjectNumber']").val() || '';
+        if (projNo != '') {
+            //var token = $("input[name=__RequestVerificationToken]").val();
+            var searchData = { "projectNo": projNo };
+            $.ajax({
+                url: "@Url.Action("_ProjectSummary", "CoreAccounts")",
+                type: "POST",
+            data: searchData,
+            contentType: "application/x-www-form-urlencoded",
+            success: function (data) {
+                $("#popup").html(data);
+                $("#projectSummaryModal").modal('toggle');
+            },
+            error: function (err) {
+                console.log("error : " + err);
+            }
+        });
+    }
+    });
+    function searchCommitment(projectNo, commitmenttype) {
+
+        if (projectNo == undefined || commitmenttype == undefined) {
+            var keyword = $('#srchKeyword').val();
+            var toDate = $('#srchToDate').val();
+            var fromDate = $('#srchFromDate').val();
+            var projectType = $('#srchProjectType').val();
+            var projectNumber = parseInt($('#srchProjectNumber').val());
+            var CommitmentType = parseInt($('#srchCommitmentType').val());
+            if (isNaN(projectNumber))
+                projectNumber = 0;
+            if (isNaN(CommitmentType))
+                CommitmentType = 0;
+            if (fromDate == "") {
+                $("#alert").text("From date field is required.");
+                $('#Validation').modal('show');
+                $("#srchFromDate").focus();
+                return false;
+            } else if (toDate == "") {
+                $("#alert").text("To date field is required.");
+                $('#Validation').modal('show');
+                $("#srchToDate").focus();
+                return false;
+            } else if (projectType == "") {
+                $("#alert").text("Project type field is required.");
+                $('#Validation').modal('show');
+                $("#srchProjectType").focus();
+                return false;
+            }
+        } if (projectNo != undefined && projectNo != 0) {
+            projectNumber = projectNo;
+        }
+        if (commitmenttype != undefined && commitmenttype != 0) {
+            CommitmentType = commitmenttype;
+        }
+
+        EmptyCommitmentSrchList()
+        $.ajax({
+            type: "GET",
+            url: "@Url.Action("SearchCommitments", "CoreAccounts")",
+            data: { "fromDate": fromDate, "toDate": toDate, "projectType": projectType, "projectId": projectNumber, "keyword": keyword, "commitmentType" : CommitmentType },
+        dataType: "json",
+        success: function (result) {
+            $.each(result, function (i, item) {
+                if (i == 0) {
+                    var trEle = $('#tbodyCommitmentSrchList tr:first');
+                    $(trEle).find('input[name="chkCommitmentId"]').val(item.CommitmentId).prop("checked", false);
+                    $(trEle).find('td:nth-child(2)').html(item.CommitmentNumber);
+                    $(trEle).find('td:nth-child(3)').html(item.ProjectNumber);
+                    $(trEle).find('td:nth-child(4)').html(item.BookedAmount);
+                    $(trEle).find('td:nth-child(5)').html(item.AvailableAmount);
+                } else {
+                    var trEleNew = $('#tbodyCommitmentSrchList tr:first').clone();
+                    $(trEleNew).find('input[name="chkCommitmentId"]').val(item.CommitmentId).prop("checked", false);
+                    $(trEleNew).find('td:nth-child(2)').html(item.CommitmentNumber);
+                    $(trEleNew).find('td:nth-child(3)').html(item.ProjectNumber);
+                    $(trEleNew).find('td:nth-child(4)').html(item.BookedAmount);
+                    $(trEleNew).find('td:nth-child(5)').html(item.AvailableAmount);
+                    $('#tbodyCommitmentSrchList').append(trEleNew);
+                }
+            });
+
+        },
+        error: function (err) {
+            console.log("error : " + err);
+        }
+    });
+    }
+    function FillSelCommitments(result) {
+        $.each(result, function (i, item) {
+            if (i == 0) {
+                var trEle = $('#tbodyCommitmentSelList tr:first');
+                $(trEle).find('td:nth-child(1)').html(item.CommitmentNumber);
+                $(trEle).find('td:nth-child(2)').html(item.ProjectNumber);
+                $(trEle).find('td:nth-child(3)').html(item.AvailableAmount);
+                $(trEle).find('td:nth-child(4)').html(item.HeadName);
+                $(trEle).find("input[name='CommitmentDetail.Index']").val(i);
+                $(trEle).find("input[name$='.PaymentAmount']").val('');
+                $(trEle).find('input[name$=".CommitmentNumber"]').val(item.CommitmentNumber);
+                $(trEle).find('input[name$=".ProjectNumber"]').val(item.ProjectNumber);
+                $(trEle).find('input[name$=".AvailableAmount"]').val(item.AvailableAmount);
+                $(trEle).find('input[name$=".HeadName"]').val(item.HeadName);
+                $(trEle).find('input[name$=".CommitmentDetailId"]').val(item.CommitmentDetailId);
+            } else {
+                var trEleNew = $('#tbodyCommitmentSelList tr:first').clone();
+                $(trEleNew).find('td:nth-child(1)').html(item.CommitmentNumber);
+                $(trEleNew).find('td:nth-child(2)').html(item.ProjectNumber);
+                $(trEleNew).find('td:nth-child(3)').html(item.AvailableAmount);
+                $(trEleNew).find('td:nth-child(4)').html(item.HeadName);
+                $(trEleNew).find("input[name$='.PaymentAmount']").val('');
+                $(trEleNew).find('input[name$=".CommitmentNumber"]').val(item.CommitmentNumber);
+                $(trEleNew).find('input[name$=".ProjectNumber"]').val(item.ProjectNumber);
+                $(trEleNew).find('input[name$=".AvailableAmount"]').val(item.AvailableAmount);
+                $(trEleNew).find('input[name$=".HeadName"]').val(item.HeadName);
+                $(trEleNew).find("input[name='CommitmentDetail.Index']").val(i);
+                $(trEleNew).find("input").each(function () {
+                    $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                    $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                });
+                $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                    $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                });
+                $(trEleNew).find('input[name$=".CommitmentDetailId"]').val(item.CommitmentDetailId);
+                //$(trEleNew).find('a.dis-none').removeClass('dis-none');
+                $('#tbodyCommitmentSelList').append(trEleNew);
+            }
+        });
+        $('#demo').collapse("hide");
+        //$('#NeedUpdateTransDetail').val('true');
+    }
+    $('#btnSelCommitment').click(function () {
+        var selCommitment = [];
+        $('input[name="chkCommitmentId"]:checked').each(function () {
+            var cmtId = $(this).val();
+            if (cmtId != '') { selCommitment.push(cmtId); }
+        });
+        if (selCommitment.length == 0) {
+            $("#alert").text("Please select at least one commitment from the list.");
+            $('#Validation').modal('show');
+            return false;
+        } else {
+            EmptyCommitmentSelList()
+            $.ajax({
+                type: "GET",
+                url: "@Url.Action("GetSelectedCommitmentDetails", "CoreAccounts")",
+                data: { "selCommitment": selCommitment },
+                traditional: true,
+                dataType: "json",
+                success: function (result) {
+                    FillSelCommitments(result);
+                },
+                error: function (err) {
+                    console.log("error : " + err);
+                }
+            });
+        }
+    });
+    function EmptyCommitmentSelList() {
+        $('#tbodyCommitmentSelList tr').not(':first').remove();
+        $('#tbodyCommitmentSelList tr td').not(':last').not(':nth-last-child(2)').html('');
+        //$('#tbodyCommitmentSelList tr td:last').find("input").val("");
+        $('#tbodyCommitmentSelList tr').find("input[name!='CommitmentDetail.Index']").val("");
+        $('#CommitmentAmount').val('');
+    }
+    function EmptyCommitmentSrchList() {
+        $('#tbodyCommitmentSrchList tr').not(':first').remove();
+        $('#tbodyCommitmentSrchList tr td').not(':first').html('');
+    }
+    $("#srchProjectType").change(function () {
+        var Projecttype = $(this).val();
+        if (Projecttype != '') {
+            $.getJSON("@Url.Action("Loadprojectdetailsbytype", "Project")", { projecttype: Projecttype },
+                        function (locationdata) {
+                            var select = $("#srchProjectNumber");
+                            select.empty();
+
+                            $.each(locationdata, function (index, itemData) {
+
+                                select.append($('<option/>', {
+                                    value: itemData.id,
+                                    text: itemData.name
+
+                                }));
+                            });
+                            select.selectpicker('refresh');
+                        });
+        } else {
+            var select = $("#srchProjectNumber");
+            select.empty();
+            select.selectpicker('refresh');
+        }
+    });
+    $(document).on('click', 'a.removeCommitment', function () {
+        if ($('#tbodyCommitmentSelList tr').length != 1) {
+            $(this).closest('tr').remove();
+            CalculatePaymentValue();
+        }
+    });
+    function CalculateReversedAmount() {
+        var ttlPaymentVal = 0;
+        $('#tbodyCommitmentSelList input[name$=".ReversedAmount"]').each(function (i, rowEle) {
+            var paymentVal = parseFloat($(this).val());
+            if (!isNaN(paymentVal))
+                ttlPaymentVal = ttlPaymentVal + paymentVal;
+        });
+        $('#CommitmentAmount').val(ttlPaymentVal);
+    }
+    function CalculatePaymentValue() {
+        var ttlPaymentVal = 0;
+        $('#tbodyCommitmentSelList input[name$=".PaymentAmount"]').each(function (i, rowEle) {
+            var paymentVal = parseFloat($(this).val());
+            if (!isNaN(paymentVal))
+                ttlPaymentVal = ttlPaymentVal + paymentVal;
+        });
+        $('#CommitmentAmount').val(ttlPaymentVal).trigger("change");
+        $('#lbltatcomAmt').text(ttlPaymentVal.toFixed(2));
+        //$('#NeedUpdateTransDetail').val('true');
+    }
+    $('#btnbookcommitment').on('click', function () {
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("_BookCommitment", "CoreAccounts")',
+            data: {
+                // Value: value
+            },
+            contentType: "application/x-www-form-urlencoded",
+            success: function (data) {
+                $("#popup").html(data);
+                $('#TABCModal').modal('toggle');
+            }
+        });
+
+    });
+</script>

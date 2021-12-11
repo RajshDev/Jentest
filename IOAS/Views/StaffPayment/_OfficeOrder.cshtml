@@ -1,0 +1,74 @@
+﻿
+@model IOAS.Models.RCTPopupModel
+<div class="page-wrapper">
+    <div class="row">
+        <div class="col-md-12">            
+            <div class="bk-tb-scrl">
+                <table class="table alter-table">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Order Type</th>
+                            <th>Project Number</th>
+                            <th>Designation</th>
+                            <th>From Date</th>
+                            <th>To Date</th>
+                            <th>Salary</th>
+                            <th>Offer Letter</th>
+                            <th>Office Order</th>
+                            <th>Joining Report</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyExperience">
+                        @if (Model.ExperienceList != null)
+                        {
+                            if (Model.ExperienceList.Count > 0)
+                            {
+                                foreach (var item in Model.ExperienceList)
+                                {
+                                    <tr>
+                                        <td>
+                                            @{
+                                                string actclass = "text-danger";
+                                                if (item.isUpdated == true)
+                                                {
+                                                    actclass = "text-success";
+                                                }
+                                            }
+                                            <span class="status @actclass">•</span>
+                                        </td>
+                                        <td>@item.OrderType</td>
+                                        <td>@item.ProjectNo</td>
+                                        <td>@item.Designation</td>
+                                        <td>@item.FromDate</td>
+                                        <td>@item.ToDate</td>
+                                        <td>@item.Salary</td>
+                                        <td>
+                                            @if (item.OfferLetter != null)
+                                            {
+                                                <a href="@Url.Action("ShowDocument", "Project", new { file = item.OfferLetter, filepath = item.OfferLetterPath })" target="_blank">@item.OfferLetterActualName</a>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (item.OfficeOrder != null)
+                                            {
+                                                <a href="@Url.Action("ShowFile", "Requirement", new { file = item.OfficeOrder, filepath = item.OfficeOrderPath })" target="_blank">@item.OfficeOrderActualName</a>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (item.JoiningReport != null)
+                                            {
+                                                <a href="@Url.Action("ShowFile", "Requirement", new { file = item.JoiningReport, filepath = item.JoiningReportPath })" target="_blank">@item.JoiningReportActualName</a>
+                                            }
+                                        </td>
+                                    </tr>
+                                                        }
+                                                    }
+                                                }
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+    </div>
+    </div>

@@ -1,0 +1,291 @@
+﻿@model IOAS.Models.STEModel
+<div class="row">
+    <div class="col-md-12">
+        <div class="bl-lg-panel-box pb-null">
+            <div class="cmn-panel-box">
+                <div class="grey-bg-adj mb-lg">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h4>Details of Experience:</h4>
+                            <div class="rc-tb-scrl">
+                                <table class="table alter-table mb-null">
+                                    <thead>
+                                        <tr>
+                                            <th style="width:130px;">Type</th>
+                                            <th>ORGANISATION</th>
+                                            <th>DESIGNATION </th>
+                                            <th>FROM</th>
+                                            <th>TO</th>
+                                            <th>SALARY DRAWN / MONTH (Rs.)</th>
+                                            <th>Attachment File</th>
+                                            <th>Remarks</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbodyExperience">
+                                        @if (Model.ExperienceDetail != null)
+                                        {
+                                            var count = 0;
+                                            foreach (var item in Model.ExperienceDetail)
+                                            {
+                                                var expid = "ExperienceDetail[" + count + "].ExperienceId";
+                                                var exptype = "ExperienceDetail[" + count + "].ExperienceTypeId";
+                                                var org = "ExperienceDetail[" + count + "].Organisation";
+                                                var autocom = "ExperienceDetail[" + count + "].DesignationautoComplete";
+                                                var des = "ExperienceDetail[" + count + "].DesignationListId";
+                                                var frmdate = "ExperienceDetail[" + count + "].FromDate";
+                                                var todate = "ExperienceDetail[" + count + "].ToDate";
+                                                var salarydr = "ExperienceDetail[" + count + "].SalaryDrawn";
+                                                var expfile = "ExperienceDetail[" + count + "].ExperienceFile";
+                                                var expfilePath = "ExperienceDetail[" + count + "].ExperienceFilePath";
+                                                var remark = "ExperienceDetail[" + count + "].Remarks";
+                                                <tr>
+                                                    <td>
+                                                        @Html.DropDownList(@exptype, new SelectList(ViewBag.Exptype, "id", "name", item.ExperienceTypeId), "Select Qualification",
+                                                  new { @class = "form-control", @id = "expTypeid" })
+                                                        @Html.ValidationMessage(@exptype)
+                                                        @Html.Hidden("ExperienceDetail.Index", @count)
+                                                        @Html.Hidden(@expid, item.ExperienceId)
+                                                    </td>
+                                                    <td>
+                                                        @Html.TextBox(@org, item.Organisation, new { @class = "form-control" })
+                                                        @Html.ValidationMessage(@org)
+                                                    </td>
+                                                    <td>
+                                                        @Html.TextBox(@autocom, item.DesignationautoComplete, new { @class = "form-control" })
+                                                        @Html.Hidden(@des, item.DesignationListId, new { @class = "form-control" })
+                                                        @Html.ValidationMessage(@des)
+                                                    </td>
+                                                    <td>
+                                                        @Html.TextBox(@frmdate, item.strFromDate, new { @class = "form-control", @readonly = "readonly" })
+                                                        @Html.ValidationMessage(@frmdate)
+                                                    </td>
+                                                    <td>
+                                                        @Html.TextBox(@todate, item.strToDate, new { @class = "form-control", @readonly = "readonly" })
+                                                        @Html.ValidationMessage(@todate)
+                                                    </td>
+                                                    <td>
+                                                        @Html.TextBox(@salarydr, item.SalaryDrawn, new { @class = "form-control", @onkeypress = "return isNumberKey(event)" })
+                                                        @Html.ValidationMessage(@salarydr)
+                                                    </td>
+                                                    <td>
+                                                        @if (item.ExperienceId == null)
+                                                        {
+                                                            <input type="file" class="" name="@expfile" />@:&nbsp; &nbsp; &nbsp;
+                                                        }
+                                                        else
+                                                        {
+                                                            <input type="file" class="" name="@expfile" />@:&nbsp; &nbsp; &nbsp;
+                                                            if (Model.STEId > 0 && !string.IsNullOrEmpty(item.ExperienceFilePath))
+                                                            {
+                                                                @*@Html.Hidden(@expfilePath, item.ExperienceFilePath)*@
+                                                                <a href="@Url.Action("ShowDocument", new { Controller="Account", filepath="Requirement",file=item.ExperienceFilePath, target="_blank" })"><b>@item.ExperienceFileName</b></a>
+                                                            }
+                                                        }
+                                                        @Html.ValidationMessage(@expfile)
+                                                    </td>
+                                                    <td>
+                                                        @Html.TextBox(@remark, item.Remarks, new { @class = "form-control" })
+                                                        @Html.ValidationMessage(@remark)
+                                                    </td>
+                                                    <td>
+                                                        <a href="javascript:void(0)" class="btn-sm btn btn-danger removeExperienceDetail"><i class="ion-android-close"></i></a>
+                                                    </td>
+                                                </tr>
+                                                count++;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <tr>
+                                                <td>
+                                                    @Html.DropDownList("ExperienceDetail[0].ExperienceTypeId", new SelectList(ViewBag.Exptype, "id", "name"), "Select Qualification",
+                                                new { @class = "form-control", @id = "expTypeid" })
+                                                    @Html.ValidationMessage("ExperienceDetail[0].ExperienceTypeId")
+                                                    @Html.Hidden("ExperienceDetail.Index", 0)
+                                                </td>
+                                                <td>
+                                                    @Html.TextBox("ExperienceDetail[0].Organisation", "", new { @class = "form-control" })
+                                                    @Html.ValidationMessage("ExperienceDetail[0].Organisation")
+                                                </td>
+                                                <td>
+                                                    @Html.TextBox("ExperienceDetail[0].DesignationautoComplete", "", new { @class = "form-control" })
+                                                    @Html.Hidden("ExperienceDetail[0].DesignationListId", "", new { @class = "form-control" })
+                                                    @Html.ValidationMessage("ExperienceDetail[0].DesignationListId")
+                                                </td>
+                                                <td>
+                                                    @Html.TextBox("ExperienceDetail[0].FromDate", "", new { @class = "form-control", @id = "txtfrmdate", @autocomplete = "off", @readonly = "readonly" })
+                                                    @Html.ValidationMessage("ExperienceDetail[0].FromDate")
+                                                </td>
+                                                <td>
+                                                    @Html.TextBox("ExperienceDetail[0].ToDate", "", new { @class = "form-control", @id = "txttodate", @autocomplete = "off", @readonly = "readonly" })
+                                                    @Html.ValidationMessage("ExperienceDetail[0].ToDate")
+                                                </td>
+                                                <td>
+                                                    @Html.TextBox("ExperienceDetail[0].SalaryDrawn", "", new { @class = "form-control", @onkeypress = "return isNumberKey(event)" })
+                                                    @Html.ValidationMessage("ExperienceDetail[0].SalaryDrawn")
+                                                </td>
+                                                <td>
+                                                    <input type="file" class="" name="ExperienceDetail[0].ExperienceFile" />&nbsp;&nbsp;&nbsp;
+                                                    @Html.ValidationMessage("ExperienceDetail[0].ExperienceFile")
+                                                    <a href="#" class="link2" target="_blank"></a>
+                                                    <input type="text" name="ExperienceDetail[0].ExperienceFilePath" class="dis-none" />
+                                                    <input type="text" name="ExperienceDetail[0].ExperienceFileName" class="dis-none" />
+                                                </td>
+                                                <td>
+                                                    @Html.TextBox("ExperienceDetail[0].Remarks", "", new { @class = "form-control" })
+                                                    @Html.ValidationMessage("ExperienceDetail[0].Remarks")
+                                                </td>
+                                                <td><a href="javascript:void(0)" class="btn-sm btn btn-danger removeExperienceDetail"><i class="ion-android-close"></i></a></td>
+                                            </tr>
+
+                                        }
+                                    </tbody>
+                                    <tr>
+                                        <td>
+                                            @Html.Hidden("ExpTotal")
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-md-6 mt-md">
+                                <a href="javascript:void(0)" id="btnAddExperience" class="btn btn-primary">Add New</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    var STEID = $('#STEId').val() || 0;
+    var CurrDate = moment(new Date()).toDate();
+    $('input[name$=".FromDate"]').datepicker({
+        dateFormat: 'dd-MM-yy',
+        changeYear: true,
+        yearRange: '-100:+0',
+    }).datepicker("option", "maxDate", CurrDate);
+
+    $('input[name$=".ToDate"]').datepicker({
+        dateFormat: 'dd-MM-yy',
+        changeYear: true,
+        yearRange: '-100:+0',
+    }).datepicker("option", "maxDate", CurrDate);
+
+    var dobString = $('#DateofBirth').val();
+    if (dobString != "") {
+        var dob = new Date(dobString.split('-').join('/'));
+        var Curr = new Date();
+        var year = parseInt(dob.getFullYear());
+        year += 14;
+        var minimumDt = new Date(year, dob.getMonth(), dob.getDate());
+        if (STEID > 0) {
+            var maxdt = new Date($('#Appointmentstartdate').val().split('-').join('/'));
+            maxdt.setDate(maxdt.getDate() - 1);
+            $('input[name$=".FromDate"]').each(function () {
+                $(this).datepicker({ dateFormat: 'dd-MM-yy', changeYear: true }).datepicker("option", "minDate", minimumDt).datepicker("option", "maxDate", maxdt);
+            });
+            $('input[name$=".ToDate"]').each(function () {
+                $(this).datepicker({ dateFormat: 'dd-MM-yy', changeYear: true }).datepicker("option", "minDate", minimumDt).datepicker("option", "maxDate", maxdt);
+            });
+        }
+        else {
+            $('input[name$=".FromDate"]').each(function () {
+                $(this).datepicker({ dateFormat: 'dd-MM-yy', changeYear: true }).datepicker("option", "minDate", minimumDt).datepicker("option", "maxDate", maxdt);
+            });
+            $('input[name$=".ToDate"]').each(function () {
+                $(this).datepicker({ dateFormat: 'dd-MM-yy', changeYear: true }).datepicker("option", "minDate", minimumDt).datepicker("option", "maxDate", maxdt);
+            });
+        }
+    }
+
+
+    $("#btnAddExperience").click(function () {
+        var cln = $('#tbodyExperience tr:first').clone().find("select,input").val("").end();
+        var index = $('#tbodyExperience tr:last').find("input[name='ExperienceDetail.Index']").val();
+        index = parseInt(index) + 1;
+        $(cln).find('b').parent('a').remove();
+        $(cln).find('b').remove();
+        $(cln).find('.link2').remove();
+        $(cln).find("input[name$='.ExperienceFile']").removeClass("dis-none");
+        $(cln).find("input[name='ExperienceDetail.Index']").val(index);
+        $(cln).find("input, select").each(function () {
+            $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+            if ($(this).attr("id"))
+                $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+        });
+        $(cln).find("span[data-valmsg-for]").each(function () {
+            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+        });
+
+        var hdEle = $("input[name='ExperienceDetail[" + index + "].DesignationListId']");
+        var acEle = $("input[name='ExperienceDetail[" + index + "].DesignationautoComplete']");
+        var dobString = $('#DateofBirth').val();
+        if (dobString != "") {
+            var dob = new Date(dobString.split('-').join('/'));
+            var Curr = new Date();
+            var year = parseInt(dob.getFullYear());
+            year += 14;
+            var minimumDt = new Date(year, dob.getMonth(), dob.getDate());
+            if (STEID > 0) {
+                var maxdt = new Date($('#Appointmentstartdate').val().split('-').join('/'));
+                maxdt.setDate(maxdt.getDate() - 1);
+                $(cln).find('.hasDatepicker').attr("id", "").removeClass('hasDatepicker').removeData('datepicker').unbind().datepicker({
+                    dateFormat: 'dd-MM-yy', changeYear: true, yearRange: '-100:+0'
+                }).datepicker("option", "minDate", minimumDt).datepicker("option", "maxDate", maxdt);;
+            }
+            else {
+
+                $(cln).find('.hasDatepicker').attr("id", "").removeClass('hasDatepicker').removeData('datepicker').unbind().datepicker({
+                    dateFormat: 'dd-MM-yy', changeYear: true, yearRange: '-100:+0'
+                }).datepicker("option", "minDate", minimumDt);;
+            }
+        }
+        applyAutoComplete(acEle, hdEle, '@Url.Action("LoadDesignationNameList", "Requirement")');
+
+        var expinValid = validateExperiencedetail();
+        if (expinValid) {
+            $.confirm({
+                title: 'Warning!',
+                content: 'Please fill experience detail',
+                type: 'orange',
+                buttons: {
+                    Ok: function () {
+                        //close
+                    },
+                },
+            });
+            return false;
+        }
+
+        $('#tbodyExperience').append(cln);
+    });
+
+    $('#Designation').click(function () {
+        applyAutoComplete($('#Designation'), $('#DesignationId'), "../Requirement/LoadDesignationNameList");
+    });
+
+
+    $(document).on('click', 'a.removeExperienceDetail', function () {
+        if ($('#tbodyExperience tr').length != 1) {
+            $(this).closest('tr').remove();
+        }
+    });
+
+    $(document).ready(function () {
+        $('#tbodyExperience tr').each(function () {
+            var index = $(this).find("input[name='ExperienceDetail.Index']").val();
+            var hdEle = $("input[name='ExperienceDetail[" + index + "].DesignationListId']");
+            var acEle = $("input[name='ExperienceDetail[" + index + "].DesignationautoComplete']");
+            var frmEle = $("input[name='ExperienceDetail[" + index + "].FromDate']");
+            var toEle = $("input[name='ExperienceDetail[" + index + "].ToDate']");
+            $(frmEle).datepicker({ dateFormat: 'dd-MM-yy', changeYear: true, yearRange: '-10:+50' });
+            $(toEle).datepicker({ dateFormat: 'dd-MM-yy', changeYear: true, yearRange: '-10:+50' });
+            applyAutoComplete(acEle, hdEle, '@Url.Action("LoadDesignationNameList", "Requirement")');
+        });
+    });
+
+
+
+</script>

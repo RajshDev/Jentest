@@ -1,0 +1,218 @@
+﻿
+@model IEnumerable<IOAS.Models.VendorInvoiceBreakUpDetailModel>
+<div class="row">
+    <div class="col-md-12 mb-lg">
+        <h3>Invoice Details</h3>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12 mb-lg">
+        <table class="table alter-table">
+            <thead>
+                <tr>
+                    <td >Invoice Number </td>
+                    <td >Invoice Date</td>
+                    <td >Amount</td>
+                    <td >Tax %</td>
+                    <td >Tax Amount</td>
+                    <td>Tax Eligible</td>
+                </tr>
+            </thead>
+            <tbody id="tbodyInvoiceBU">
+                @if (Model.Count() > 0)
+                {
+                    var count = 0;
+                    foreach (var item in Model)
+                    {
+                        var invoicenumber = "InvoiceBreakDetail[" + count + "].InvoiceNumber";
+                        var invoicedate = "InvoiceBreakDetail[" + count + "].InvoiceDate";
+                        var amount = "InvoiceBreakDetail[" + count + "].Amount";
+                        var taxpercent = "InvoiceBreakDetail[" + count + "].TaxablePercentage";
+                        var taxvalue = "InvoiceBreakDetail[" + count + "].TaxValue";
+                        var taxEligible = "InvoiceBreakDetail[" + count + "].IsTaxEligible";
+                        <tr id="trdetails" class="p-b-sm">                            
+                            <td>
+                                @Html.TextBox(@invoicenumber, item.InvoiceNumber, new { @class = "form-control required" })
+                                @Html.ValidationMessage(@invoicenumber)
+                                @Html.Hidden("InvoiceBreakDetail.Index", @count)
+                            </td>
+                            <td>
+                                @Html.TextBox(@invoicedate, String.Format("{0:dd-MMMM-yyyy}", item.InvoiceDate), new { @class = "form-control required", @autocomplete = "off" })
+                                @Html.ValidationMessage(@invoicedate)
+                            </td>
+                           <td>
+                                @Html.TextBox(@amount, item.Amount, new { @class = "form-control required", @onkeypress = "return ValidateDecimalOnly(event)" })
+                                @Html.ValidationMessage(@amount)
+                            </td>
+                            <td>
+                                @Html.DropDownList(@taxpercent, new SelectList(ViewBag.TaxPctList, "name", "name", item.TaxablePercentage), "Select any", new { @class = "form-control" })
+                                @Html.ValidationMessage(@taxpercent)
+                            </td>
+                            <td>
+                                @Html.TextBox(@taxvalue, item.TaxValue, new { @class = "form-control", @readonly = true })
+                                @Html.ValidationMessage(@taxvalue)
+                            </td>
+                            <td>
+                                @Html.CheckBox(@taxEligible, item.IsTaxEligible)
+                                @Html.ValidationMessage(@taxEligible)
+                            </td>
+                            <td>
+                                <a href="javascript:void(0)" class="btn-circle removeInvoiceBUDetail"><i class="ion-trash-a"></i></a>
+                            </td>
+                        </tr>
+                        @*<script type="text/javascript">
+                                applyAutoComplete($('input[name="' + @hsnCode +'"]'),$('input[name="' + @hsn +'"]'),'@Url.Action("LoadTypeOfServiceList", "CoreAccounts")');
+                            </script>*@
+                        count++;
+                    }
+
+                }
+                else
+                {
+                    <tr>
+                       <td>
+                            @Html.TextBox("InvoiceBreakDetail[0].InvoiceNumber", "", new { @class = "form-control required" })
+                            @Html.ValidationMessage("InvoiceBreakDetail[0].InvoiceNumber")
+                            @Html.Hidden("InvoiceBreakDetail.Index", 0)
+                        </td>
+                        <td>
+                            @Html.TextBox("InvoiceBreakDetail[0].InvoiceDate", "", new { @class = "form-control required", @id = "invdate", @autocomplete = "off" })
+                            @Html.ValidationMessage("InvoiceBreakDetail[0].InvoiceDate")
+                        </td>
+                       <td>
+                            @Html.TextBox("InvoiceBreakDetail[0].Amount", "", new { @class = "form-control required", @onkeypress = "return ValidateDecimalOnly(event)" })
+                            @Html.ValidationMessage("InvoiceBreakDetail[0].Amount")
+                        </td>
+                        <td>
+                            @Html.DropDownList("InvoiceBreakDetail[0].TaxablePercentage", new SelectList(ViewBag.TaxPctList, "name", "name"), "Select any", new { @class = "form-control" })
+                            @Html.ValidationMessage("InvoiceBreakDetail[0].TaxablePercentage")
+                        </td>
+                        <td>
+                            @Html.TextBox("InvoiceBreakDetail[0].TaxValue", "", new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)", @readonly = true })
+                            @Html.ValidationMessage("InvoiceBreakDetail[0].TaxValue")
+                        </td>       
+                        <td>
+                            @Html.CheckBox("InvoiceBreakDetail[0].IsTaxEligible", new { @id = "InvoiceBreakDetail_0_IsTaxEligible" })
+                            @Html.ValidationMessage("InvoiceBreakDetail[0].IsTaxEligible")
+                        </td>                
+                        <td>
+                            <a href="javascript:void(0)" class="btn-circle removeInvoiceBUDetail"><i class="ion-trash-a"></i></a>
+                        </td>
+                    </tr>
+                    @*<script type="text/javascript">
+                            applyAutoComplete($('input[name="InvoiceBreakDetail[0].HSNCode"]'),$('input[name="InvoiceBreakDetail[0].TypeOfServiceOrCategory"]'),'@Url.Action("LoadTypeOfServiceList","CoreAccounts")');
+                        </script>*@
+                }
+            </tbody>
+        </table>
+        <div class="col-md-6 mt-md">
+            <a href="javascript:void(0)" id="btnAddInvoiceBU" class="btn btn-primary">Add New</a>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-4 col-md-offset-4">
+        <div class="form-group custom-form-group ">
+            <label>Total Tax Amount :</label>
+            @Html.TextBox("InvoiceTaxAmount", (string)ViewBag.invoiceTaxAmt, new { @class = "form-control" })
+            @Html.Hidden("InvoiceTaxEligibleAmount")
+            @Html.ValidationMessage("InvoiceTaxAmount")
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="form-group custom-form-group ">
+            <label>Total Invoice Amount :</label>
+            @Html.TextBox("InvoiceAmount", "", new { @class = "form-control", @readonly = true })
+            @Html.ValidationMessage("InvoiceAmount")
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        //var currentRefId = parseInt($('#currentRefId').val()) || 0;
+        //if (currentRefId == 0) {
+        //    calculateAmount();
+        //} else {
+            calculateAmountViewMode();
+        //}
+    });
+    function calculateAmountViewMode() {
+        var totalamount = 0;
+        var totaltax = 0;
+        var eligibletaxtotal = 0;
+        $('#tbodyInvoiceBU tr').each(function (idx, val) {
+            var amount = parseFloat($(this).find('input[name$=".Amount"]').val()) || 0;
+            var taxamount = parseFloat($(this).find('input[name$=".TaxValue"]').val()) || 0;
+            var isEle = $(this).find('input[name$=".IsTaxEligible"]');
+            if (isEle.prop("checked") == true)
+                eligibletaxtotal = eligibletaxtotal + taxamount;
+            totaltax += taxamount;
+            totalamount += amount;
+        });
+        $("#InvoiceAmount").val(totalamount.toFixed(2));
+        //$("#InvoiceTaxAmount").val(totaltax.toFixed(2));
+        $("#InvoiceTaxEligibleAmount").val(eligibletaxtotal.toFixed(2));
+        CalculatePOValue();
+    }
+    $('input[name$=".InvoiceDate"]').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
+    $(document).on('click', 'a.removeInvoiceBUDetail', function () {
+        if ($('#tbodyInvoiceBU tr').length != 1) {
+            $(this).closest('tr').remove();
+            calculateAmount();
+        }
+    });  
+    $(document).on('click',"#btnAddInvoiceBU", function (){
+        var cln = $('#tbodyInvoiceBU tr:first').clone().find("select,input[type!='checkbox'],textarea").val("").end();
+        var index = $('#tbodyInvoiceBU tr:last').find("input[name='InvoiceBreakDetail.Index']").val();
+        index = parseInt(index) + 1;
+        $(cln).find("input[name='InvoiceBreakDetail.Index']").val(index);
+        $(cln).find('input[type="hidden"][name$=".IsTaxEligible"]').val('false');
+        $(cln).find('input[name$=".IsTaxEligible"]').prop('checked', false);
+        $(cln).find("input, select,textarea").each(function () {
+            $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+            if($(this).attr("id"))
+             $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+        });
+
+        $(cln).find("span[data-valmsg-for]").each(function () {
+            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+        });
+        $('#tbodyInvoiceBU').append(cln);
+        $(cln).find('.hasDatepicker').attr("id", "").removeClass('hasDatepicker').removeData('datepicker').unbind().datepicker({
+            maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true
+        });
+    });
+
+    $(document).on('blur', 'input[name$=".Amount"],select[name$=".TaxablePercentage"],input[name$=".IsTaxEligible"]', function () {
+        calculateAmount();
+    });
+    $(document).on('blur', '#InvoiceTaxAmount', function () {
+        CalculatePOValue();
+    });
+    function calculateAmount() {
+        var totalamount = 0;
+        var totaltax = 0;
+        var eligibletaxtotal = 0;
+        $('#tbodyInvoiceBU tr').each(function (idx, val) {
+            var amount = parseFloat($(this).find('input[name$=".Amount"]').val()) || 0;
+            var taxpercent = parseFloat($(this).find('select[name$=".TaxablePercentage"]').val()) || 0;
+            var taxamount = parseFloat((amount * taxpercent) / 100) || 0;
+            $(this).find('input[name$=".TaxValue"]').val(taxamount.toFixed(2));
+            var isEle = $(this).find('input[name$=".IsTaxEligible"]');
+            if (isEle.prop("checked") == true)
+                eligibletaxtotal = eligibletaxtotal + taxamount;
+            totaltax += taxamount;
+            totalamount += amount;
+        });
+        $("#InvoiceAmount").val(totalamount.toFixed(2));
+        $("#InvoiceTaxAmount").val(totaltax.toFixed(2));
+        $("#InvoiceTaxEligibleAmount").val(eligibletaxtotal.toFixed(2));
+        CalculatePOValue();
+    }
+    function EmptyInvoiceBU() {
+        $('#tbodyInvoiceBU tr').not(':first').remove();
+        $('#tbodyInvoiceBU tr').find("input[name!='InvoiceBreakDetail.Index'],select").val("");
+        $('#tbodyInvoiceBU tr').find('input[type="hidden"][name$=".IsTaxEligible"]').val('false');
+        $('#tbodyInvoiceBU tr').find('input[name$=".IsTaxEligible"]').prop('checked', false);
+    }
+</script>

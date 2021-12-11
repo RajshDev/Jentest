@@ -1,0 +1,1000 @@
+﻿
+@model IOAS.Models.EmpITDeductionModel
+@{
+    ViewBag.Title = "IT Declaration";
+    ViewBag.Subtitle = "IT Declaration";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+@using (Html.BeginForm("List", "ITDeclaration", FormMethod.Post, new { @class = "form-horizontal", @id = "itDeclaration", @name = "itDeclaration", role = "form", enctype = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+
+
+    if (!String.IsNullOrEmpty(ViewBag.Errors))
+    {
+        @:
+        <script type="text/javascript">$.alert({ title: 'Validation', content: '@ViewBag.Errors' })</script>
+    }
+    if (!String.IsNullOrEmpty(ViewBag.Message))
+    {
+        @:
+        <script type="text/javascript">$.alert({ title: 'Message', content: '@ViewBag.Message' })</script>
+    }
+
+    <div class="wrapper">
+        <div class="row hd-tt-bg ">
+            <div class="col-md-12">
+                <h4><b>Salary Projection</b></h4>
+            </div>
+        </div>
+        <div class="row">
+            <div class="white-bg ad-navbar">
+                <div class="row">
+                    <div class="col-md-3 ">
+                        <span>Pay Bill No:</span>
+                        @*<input type="text" class="form-control" autocomplete="off" name="Name" id="Name" onchange="this.form.submit()" />
+                            <input type="text" class="form-control dis-none" autocomplete="off" name="PayBillNo" id="PayBillNo" />*@
+                        @Html.TextBoxFor(m => m.EmpInfo.EmployeeName, new { @class = "form-control", @id = "EmployeeName", @autocomplete = "off", @required = "required" })
+                        @Html.TextBoxFor(m => m.EmpInfo.EmployeeID, new { @class = "form-control dis-none", @id = "EmployeeID", @required = "required" })
+
+                    </div>
+                    <div class="col-md-3 ds-spl-bg">
+                        <div class="ds-tt">
+                            <span>Fin Year:</span>
+                            @Html.DropDownListFor(m => m.FinancialYear, new SelectList(ViewBag.Finyr, "value", "label"), "---Fin Year---", new { @class = "form-control required", @id = "FinancialYear" })
+                        </div>
+                    </div>
+                    <div class="col-md-3 ds-spl-bg">
+                        <div class="ds-tt">
+                            <input type="button" value="Search" class="btn btn-primary mt-20" id="btnSearch" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 ">
+                        <span>Name: </span>
+                        <span id="empname">@Model.EmpInfo.EmployeeName</span>
+                    </div>
+                    <div class="col-md-3">
+                        <span>Bank Acc/no:</span>
+                        <span id="accno">@Model.EmpInfo.AccountNo</span>
+                    </div>
+                    <div class="col-md-3">
+                        <span>Salary For:</span>
+                        <span id="salaryfor">@Model.EmpInfo.FinYear</span>
+                    </div>
+                    <div class="col-md-3">
+                        <span>Mode of App:</span>
+                        <span>Adhoc</span>
+
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <span>Dept:</span>
+                        <span id="dept">@Model.EmpInfo.DEPARTMENT</span>
+                    </div>
+                    <div class="col-md-3">
+                        <span>Desig:</span>
+                        <span id="desig">@Model.EmpInfo.Designation</span>
+                    </div>
+                    <div class="col-md-3">
+                        <span>Gender:</span>
+                        <span id="gender">@Model.EmpInfo.Gender</span>
+                    </div>
+                    <div class="col-md-3">
+                        <span>DOB:</span>
+                        <span id="dob">@Model.EmpInfo.DateOfBirth</span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <span>PAN:</span>
+                        <span id="pan">@Model.EmpInfo.PAN</span>
+                    </div>
+                    <div class="col-md-3">
+                        <span>Extension Date:</span>
+                        <span id="extensiondate">@Model.EmpInfo.ExtenDate</span>
+                    </div>
+                    <div class="col-md-3">
+                        <span>Relieve Date:</span>
+                        <span id="relievedate">@Model.EmpInfo.RelDate</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row hd-tt-bg hd-tt-bg-adj">
+            <div class="col-md-12">
+                <ul class="nav nav-pills custom-nav-pills">
+                    <li class="active" id="picDel"><a href="javascript:void(0)" class="ml-null brd-rd-md">Deductions</a></li>
+                    <li id="allOca"><a href="javascript:void(0)" class="brd-rd-md">Salary Projection</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div class="page-wrapper">
+                <div class="col-md-12 mt30">
+                    <div id="tab-01" style="display: block;">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <ul class="nav nav-pills custom-nav-pills">
+                                    <li class="tablinks active" id="IT80C">
+                                        <a href="javascript:void(0)" onclick="switchTabs(event,'tab-80c', 'IT80C')" class="tablinks ml-null brd-rd-md">Section 80C</a>
+                                        @*<button class="tablinks ml-null brd-rd-md" onclick="switchTabs(event,'IT80C')">Section 80C</button>*@
+                                    </li>
+                                    <li class="tablinks" id="IT80D">
+                                        <a href="javascript:void(0)" onclick="switchTabs(event,'tab-80d', 'IT80D')" class="brd-rd-md">Section 80D</a>
+                                        @*<button class="tablinks ml-null brd-rd-md" onclick="switchTabs(event,'IT80D')">Section 80D</button>*@
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div id="tab-80c" class="tabcontent" style="display: block;">
+                            <div class="col-md-6">
+                                <div class="bl-lg-panel-box pb-null">
+                                    <div class="cmn-panel-box">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group custom-form-group">
+                                                            <span><b>Section 80C, 80CCC</b></span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-md-6">
+                                                        <div class="form-group custom-form-group text-right">
+                                                            <span><b>Max Limit: Rs.1,50,000</b></span>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                                @Html.Partial("_EightyCCPartial")
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="tab-80d" class="tabcontent" style="display: none;">
+                            <div class="col-md-6">
+                                <div class="bl-lg-panel-box pb-null">
+                                    <div class="cmn-panel-box">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group custom-form-group">
+                                                            <span><b>Section 80CCD</b></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                @Html.Partial("_EightyDDPartial")
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+
+                            </div>
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            @Html.Partial("_OtherIncomePartial")
+                            <div class="white-bg br-rd">
+                                @Html.Partial("_DocumentDetail", Model.DocumentDetail)
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div style="display: none;" id="tab-02">
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <ul class="nav nav-pills custom-nav-pills">
+                                    <li class="tablinks active" id="main">
+                                        <a href="javascript:void(0)" onclick="switchTabs(event, 'tab-main', 'main')" class="tablinks ml-null brd-rd-md">Main Salary</a>
+                                    </li>
+                                    <li class="tablinks" id="supp">
+                                        <a href="javascript:void(0)" onclick="switchTabs(event, 'tab-supp', 'supp')" class="brd-rd-md">Supplementary Salary</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div id="tab-main" class="tabcontent" style="display: block;">
+                            <div class="col-md-12">
+                                <div class="bl-lg-panel-box pb-null">
+                                    <div class="cmn-panel-box">
+                                        <div class="row">
+                                            <div class="col-md-12">
+
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <div class="grey-bg-adj bc-td-bg mb-lg">
+                                                            <div class="row">
+                                                                <div class="col-md-12">
+                                                                    <div class="bk-tb-scrl">
+                                                                        <table class="table table-bordered mb-null" id="">
+                                                                            <tbody>
+                                                                                <tr>
+                                                                                    <td>Month</td>
+                                                                                    <td>Cons.Pay</td>
+                                                                                    <td>Misc.Pay</td>
+                                                                                    <td>Medical Insurance</td>
+                                                                                    <td>HRA</td>
+                                                                                    <td>Total</td>
+                                                                                    <td>I.T</td>
+                                                                                    <td>Rent Recovery</td>
+                                                                                    <td>Misc.Recovery</td>
+                                                                                    <td>Medical Insurance</td>
+                                                                                    <td>Prof.Tax</td>
+                                                                                    <td>LLP</td>
+                                                                                    <td>Total Deduction</td>
+                                                                                    <td>Net Pay</td>
+                                                                                    <td>Other Pay</td>
+                                                                                    <td>Verified By</td>
+                                                                                    <td>Accountant</td>
+                                                                                </tr>
+                                                                                @if (Model.SalaryDet != null)
+                                                                                {
+                                                                                    var count = 0;
+                                                                                    foreach (var item in Model.SalaryDet)
+                                                                                    {
+
+                                                                                        <tr>
+                                                                                            <td>
+                                                                                                @Html.DisplayFor(m => item.MonthandYear)
+                                                                                                @item.MonthandYear
+
+                                                                                            </td>
+                                                                                            <td>
+
+                                                                                                @Html.DisplayFor(m => item.BasicSalary)
+                                                                                            </td>
+                                                                                            <td>
+                                                                                                @Html.DisplayFor(m => item.MiscPay)
+                                                                                            </td>
+
+                                                                                            <td>
+
+                                                                                                @Html.DisplayFor(m => item.MA)
+                                                                                            </td>
+                                                                                            <td>
+
+                                                                                                @Html.DisplayFor(m => item.HRA)
+                                                                                            </td>
+                                                                                            <td>
+
+                                                                                                @Html.DisplayFor(m => item.GrossSalary)
+                                                                                            </td>
+                                                                                            <td>
+
+                                                                                                @Html.DisplayFor(m => item.IncomeTax)
+                                                                                            </td>
+                                                                                            <td>
+
+                                                                                                0
+                                                                                            </td>
+                                                                                            <td>
+                                                                                                @Html.DisplayFor(m => item.MiscRecovery)
+                                                                                            </td>
+                                                                                            <td>
+
+                                                                                                @Html.DisplayFor(m => item.MA2)
+                                                                                            </td>
+                                                                                            <td>
+
+                                                                                                @Html.DisplayFor(m => item.PF)
+                                                                                            </td>
+                                                                                            <td>
+                                                                                                @Html.DisplayFor(m => item.LLP)
+                                                                                            </td>
+                                                                                            <td>
+
+                                                                                                @Html.DisplayFor(m => item.TotalDeduction)
+                                                                                            </td>
+                                                                                            <td>
+
+                                                                                                @Html.DisplayFor(m => item.GrossTotal)
+                                                                                            </td>
+                                                                                            <td>
+                                                                                                @Html.DisplayFor(m => item.OtherPay)
+                                                                                            </td>
+                                                                                            <td></td>
+                                                                                            <td></td>
+                                                                                        </tr>
+                                                                                        count++;
+
+                                                                                    }
+                                                                                }
+                                                                            </tbody>
+
+                                                                        </table>
+                                                                    </div>
+
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="tab-supp" class="tabcontent" style="display: none;">
+                            <div class="col-md-12">
+                                <div class="bl-lg-panel-box pb-null">
+                                    <div class="cmn-panel-box">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <div class="grey-bg-adj bc-td-bg mb-lg">
+                                                            <div class="row">
+                                                                <div class="col-md-12">
+                                                                    <div class="bk-tb-scrl">
+                                                                        <table class="table table-bordered mb-null" id="employeedetails">
+                                                                            <tbody>
+                                                                                <tr>
+                                                                                    <td>Month</td>
+                                                                                    <td>Cons.Pay</td>
+                                                                                    <td>Misc.Pay</td>
+                                                                                    <td>Medical Insurance</td>
+                                                                                    <td>HRA</td>
+                                                                                    <td>Total</td>
+                                                                                    <td>I.T</td>
+                                                                                    <td>Rent Recovery</td>
+                                                                                    <td>Misc.Recovery</td>
+                                                                                    <td>Medical Insurance</td>
+                                                                                    <td>Prof.Tax</td>
+                                                                                    <td>LLP</td>
+                                                                                    <td>Total Deduction</td>
+                                                                                    <td>Net Pay</td>
+                                                                                    <td>Other Pay</td>
+                                                                                    <td>Verified By</td>
+                                                                                    <td>Accountant</td>
+                                                                                </tr>
+                                                                                @if (Model.SupplemSalaryDet != null)
+                                                                                {
+                                                                                    var count = 0;
+                                                                                    foreach (var item in Model.SupplemSalaryDet)
+                                                                                    {
+
+                                                                                        <tr>
+                                                                                            <td>
+                                                                                                @Html.DisplayFor(m => item.MonthandYear)
+
+                                                                                            </td>
+                                                                                            <td>
+
+                                                                                                @Html.DisplayFor(m => item.BasicSalary)
+                                                                                            </td>
+                                                                                            <td>
+                                                                                                @Html.DisplayFor(m => item.MiscPay)
+                                                                                            </td>
+
+                                                                                            <td>
+
+                                                                                                @Html.DisplayFor(m => item.MA)
+                                                                                            </td>
+                                                                                            <td>
+
+                                                                                                @Html.DisplayFor(m => item.HRA)
+                                                                                            </td>
+                                                                                            <td>
+
+                                                                                                @Html.DisplayFor(m => item.GrossSalary)
+                                                                                            </td>
+                                                                                            <td>
+
+                                                                                                @Html.DisplayFor(m => item.IncomeTax)
+                                                                                            </td>
+                                                                                            <td>
+
+                                                                                                0
+                                                                                            </td>
+                                                                                            <td>
+                                                                                                @Html.DisplayFor(m => item.MiscRecovery)
+                                                                                            </td>
+                                                                                            <td>
+
+                                                                                                @Html.DisplayFor(m => item.MA)
+                                                                                            </td>
+                                                                                            <td>
+
+                                                                                                @Html.DisplayFor(m => item.PF)
+                                                                                            </td>
+                                                                                            <td>
+                                                                                                @Html.DisplayFor(m => item.LLP)
+                                                                                            </td>
+                                                                                            <td>
+
+                                                                                                @Html.DisplayFor(m => item.TotalDeduction)
+                                                                                            </td>
+                                                                                            <td>
+
+                                                                                                @Html.DisplayFor(m => item.GrossTotal)
+                                                                                            </td>
+                                                                                            <td>
+                                                                                                @Html.DisplayFor(m => item.OtherPay)
+                                                                                            </td>
+                                                                                            <td></td>
+                                                                                            <td></td>
+                                                                                        </tr>
+                                                                                        count++;
+
+                                                                                    }
+                                                                                }
+                                                                            </tbody>
+
+                                                                        </table>
+                                                                    </div>
+
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+
+
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        @Html.Partial("_ITExemptionPartial")
+
+        <div class="row">
+            <div class="col-md-12 mb-lg text-center">
+                @Html.AntiForgeryToken()
+                @*<a href="javascript:void(0);" class="btn btn-primary" type="submit">Save as Draft</a>*@
+                <button id="btnSubmit" type="submit" class="btn btn-default" name="btnSave" value="Submit">Save as Draft</button>
+                @*<input id="btnSubmit" type="submit" class="btn btn-default" name="btnSave" value="Save as Draft" />*@
+                <button type="button" class="btn btn-default" onclick="window.location.href='@Url.Action("Dashboard", "Home")';">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="myModal" class="modal fade modal-pr-vw" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <div class="row hd-tt-bg">
+                        <div class="col-md-12">
+                            <h4><b>Pay Change : </b></h4>
+                        </div>
+                    </div>
+
+
+                </div>
+                <div class="modal-body">
+
+
+
+
+                    <div class="row">
+                        <div class="page-wrapper">
+
+                            <div class="custom-md-bg">
+
+                                <div class="row">
+
+                                    <div class="col-md-6">
+                                        <h4>Previous Amount</h4>
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="pr-amt-dts">
+                                                    <h4>Salary Head: <b>HRA</b></h4>
+                                                    <h4>Amount: <b>12123</b></h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <h4>Changed Amount</h4>
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="pr-amt-dts gray-bg">
+                                                    <h4>Salary Head: <b>HRA</b></h4>
+                                                    <h4>Amount: <b>12123</b></h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+
+                        </div>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+}
+
+@using (Html.BeginForm("EmptyPage", "Project", FormMethod.Post, new { @class = "", role = "form", @id = "formSelf", enctype = "multipart/form-data" }))
+{
+}
+
+<script type="text/javascript">
+    //Helper function that gets a count of all the rows <TR> in a table body <TBODY>
+    $.fn.rowCount = function () {
+        return $('tr', $(this).find('tbody')).length;
+    };
+    //$(document).on('click', '#EmployeeName', function () {
+
+    //   // applyAutoComplete($('#EmployeeName'), $('#EmployeeID'), "../ITDeclaration/LoadAdhocStaffList", undefined, undefined, undefined);
+    //    applyAutoComplete($('#Name'), $('#PayBillNo'), "../ITDeclaration/LoadAdhocStaffList", 'EmployeeDetails', undefined, undefined);
+    //    EmployeeDetails();
+    //    LoadEmployeeDetails();
+    //});
+    applyAutoComplete($('#EmployeeName'), $('#EmployeeID'), "../ITDeclaration/GetAutoCompleteAdhocStaffWitheEmpDetails");
+
+    //$(document).on('click', '#EmployeeName', function () {
+
+    //    applyAutoComplete($('#EmployeeName'), $('#EmployeeID'), "../ITDeclaration/LoadAdhocStaffList", undefined, undefined, undefined);
+    //});
+    $('#btnSearch').click(function () {
+        var EmployeeName = $('#EmployeeName').val();
+        var EmployeeID = $('#EmployeeID').val();
+        var FinancialYear = $('#FinancialYear').val();
+        if (FinancialYear != '' && EmployeeID != '' && EmployeeID != 0 && EmployeeName != '') {
+            var url = '@Url.Action("GetList", "ITDeclaration")?EmpId=' + EmployeeID + "&FinYear=" + FinancialYear;
+            dynamicFormPost(url, "formSelf");
+        }
+
+    })
+
+    function dynamicFormPost(url, formName) {
+        var action = url
+        var urlParams = action.substring(action.indexOf("?"));
+        var action = action.substring(0, action.indexOf("?"));
+        var objParam = parseUrl(urlParams);
+        var bodyhtml = "";
+        var form = $("#" + formName);
+        $.each(objParam, function (key, data) {
+            if (document.getElementById(key)) {
+                $('#' + key).val(data);
+            } else {
+                form.append($('<input>').attr({ 'id': key, 'name': key, 'value': data, 'type': 'hidden' }));
+            }
+        });
+        form.attr({ "action": action, "body": objParam });
+        form.submit();
+    }
+    function parseUrl(urlParams) {
+        var retObj = {};
+        var urlParameters = null;
+        if (!urlParams || urlParams.length == 0) { return retObj }
+        if (urlParams.charAt(0) == '?') {
+            urlParameters = urlParams.substring(1);
+        } else {
+            urlParameters = urlParams;
+        }
+        if (urlParameters.length == 0) { return retObj }
+        var parameterPairs = urlParameters.split('&');
+        var x;
+        for (x in parameterPairs) {
+            var parameterPair = parameterPairs[x];
+            parameterPair = parameterPair.split('=');
+            retObj[parameterPair[0]] = parameterPair[1];
+        }
+        return retObj;
+    }
+    function switchTabs(evt, tabName, tabButtonId) {
+        var i, tabcontent, tablinks;
+        var result = validate();
+        //if (result.isValid === true) {
+
+        tablinks = document.getElementsByClassName("tablinks");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
+        tabcontent = document.getElementsByClassName("tabcontent");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+        }
+        document.getElementById(tabName).style.display = "block";
+        evt.currentTarget.className += " active";
+        document.getElementById(tabButtonId).className += " active";
+
+        //} else {
+        //    alertBox('Warning', result.message);
+        //    result.elem.focus();
+        //}
+
+    }
+
+    function EmployeeswitchTabs(evt, tabName, tabButtonId) {
+        var i, tabcontent, tablinks;
+
+        tablinks = document.getElementsByClassName("tablinks");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
+        tabcontent = document.getElementsByClassName("tabcontent");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+        }
+        document.getElementById(tabName).style.display = "block";
+        evt.currentTarget.className += " active";
+        document.getElementById(tabButtonId).className += " active";
+    }
+    $("#btnSubmit").on('click', function (e) {
+        e.preventDefault();
+        var result = validate();
+        if (result.isValid === false) {
+            alertBox('Validation', result.message);
+
+        }
+        var msg = $('#errorMsg').val();
+        if (msg) {
+            alertBox('Validation', msg);
+        }
+        if (result.isValid === true) {
+            //btnSave
+            //$('.input[name$=".btnSave"]').val('btnSave');
+            //var formData = $('#itDeclaration').serializeObject();
+            //var id = 'btnSave'
+            //$.extend(formData, { 'btnSave': id }); //Send Additional data
+            //$("#input_disabled_id").prop('disabled', false);
+            $("#btnSubmit").prop('disabled', false);
+
+            $('#itDeclaration').submit();
+        }
+
+        //else
+        //    preventDefault();
+    });
+
+
+    //$(document).on('click', '#Name', function () {
+    //    applyAutoComplete($('#Name'), $('#PayBillNo'), "../ITDeclaration/LoadAdhocStaffList", 'EmployeeDetails', undefined, undefined);
+    //    EmployeeDetails();
+    //    LoadEmployeeDetails();
+    //});
+    //$(document).on('change', '#Name', function () {
+    //    applyAutoComplete($('#Name'), $('#PayBillNo'), "../ITDeclaration/LoadAdhocStaffList", 'EmployeeDetails', undefined, undefined);
+
+    //});
+    function EmployeeDetails() {
+        PayBillNo = $('#PayBillNo').val();
+        if (PayBillNo != "" || PayBillNo != 0) {
+            $.getJSON("@Url.Action("GetEmployeeDetails", "ITDeclaration")", { PayBillNo: PayBillNo },
+        function (result) {
+            $("#empname").text(result.EmployeeName);
+            $("#accno").text(result.AccountNo);
+            $("#salaryfor").text(result.FinYear);
+            $("#dept").text(result.DEPARTMENT);
+            $("#desig").text(result.Designation);
+            $("#dob").text(result.DateOfBirth);
+            $("#pan").text(result.PAN);
+            $("#gender").text(result.Gender);
+            $("#extensiondate").text(result.ExtenDate);
+            $("#relievedate").text(result.RelDate);
+
+        });
+        }
+    }
+    @*function LoadEmployeeDetails() {
+        PayBillNo = $('#PayBillNo').val();
+        var row;
+        if (PayBillNo != "" || PayBillNo != 0) {
+            $("#employeedetails tr:not(:first)").empty();
+            $.getJSON("@Url.Action("GetEmployeesSalaryDetails", "ITDeclaration")", { PayBillNo: PayBillNo },
+        function (result) {
+            $.each(result, function (i, v1) {
+                row += "<tr><td>" + v1.MonthandYear + "</td><td>" + v1.BasicSalary + "</td><td>"
+                    + " 0 " + "</td><td>" + v1.MA +
+                     "</td><td>" + v1.HRA + "</td><td>" + v1.GrossSalary +
+                     "</td><td>" + v1.IncomeTax + "</td><td>" + "0" + "</td><td>" + "0 " + "</td><td>" + v1.MA
+                     + "</td><td>" + v1.PF + "</td><td>" + "0" + "</td><td>" + v1.TotalDeduction + "</td><td>" + v1.GrossTotal + "</td><td>"
+                + "" + "</td><td>" + "" + "</td></tr>";
+            });
+            $("#employeedetails").append(row);
+        });
+        }
+    }*@
+    var rowCount = $('#table80c').rowCount();
+
+
+    function alertBox(title, message) {
+        $.alert({
+            title: title || 'Alert!',
+            content: message || ''
+        });
+    }
+
+    function validate() {
+        var isValid = true;
+        var count = $("[id^=ItList_]").length;
+        var controls = $("[id^=ItList_]");
+        var amount = 0;
+        var maxLimit = 0;
+        var msg = '';
+        var Particulars = '';
+        var control;
+        var Total80CAmount = 0;
+        var Total80CLimitAmount = 150000;
+        $('#bodycc').find('input[name$=".SectionName"]').each(function () {
+            var ele = $(this).closest('tr');
+            var amt = parseFloat($(this).val()) || 0;
+            amount = parseFloat(ele.find('input[name$=".Amount"]').val()) || 0;
+            Particulars = ele.find('input[name$=".Particulars"]').val();
+            maxLimit = parseFloat(ele.find('input[name$=".MaxLimit"]').val()) || 0;
+            maxLimit = 150000;
+            Total80CAmount = Total80CAmount + amount;
+            //if (amount > maxLimit) {
+            //    isValid = false;
+            //    msg = Particulars + " amount exceeds the maxmimum limit : " + amount + " -- " + maxLimit;
+
+            //}
+        });
+
+        if (Total80CAmount > Total80CLimitAmount) {
+            isValid = false;
+            msg = "80C exceeds the maxmimum limit : " + Total80CAmount + " -- " + Total80CLimitAmount;
+        }
+
+        $('#bodydd').find('input[name$=".SectionName"]').each(function () {
+            var ele = $(this).closest('tr');
+            var amt = parseFloat($(this).val()) || 0;
+            amount = parseFloat(ele.find('input[name$=".Amount"]').val()) || 0;
+            Particulars = ele.find('input[name$=".Particulars"]').val();
+            maxLimit = parseFloat(ele.find('input[name$=".MaxLimit"]').val()) || 0;
+            if (amount > maxLimit) {
+                isValid = false;
+                msg = Particulars + " amount exceeds the maxmimum limit : " + amount + " -- " + maxLimit;
+
+            }
+        });
+        //for (var i = 0; i < count; i++) {
+        //    console.log(controls[i].type);
+        //    if (controls[i].type === 'text' && controls[i].id.indexOf('Amount') > -1) {
+        //        console.log(controls[i].id + ' : ' + $('#' + controls[i].id).val());
+        //        amount = $('#' + controls[i].id).val();
+        //    }
+        //    if (controls[i].type === 'hidden' && controls[i].id.indexOf('MaxLimit') > -1) {
+        //        console.log(controls[i].id + ' : ' + $('#' + controls[i].id).val());
+        //        maxLimit = $('#' + controls[i].id).val();
+        //    }
+        //    if (controls[i].type === 'hidden' && controls[i].id.indexOf('Particulars') > -1) {
+        //        console.log(controls[i].id + ' : ' + $('#' + controls[i].id).val());
+        //        Particulars = $('#' + controls[i].id).val();
+        //    }
+        //    if (parseFloat(maxLimit) > 0 && parseFloat(amount) > parseFloat(maxLimit)) {
+        //        isValid = false;
+        //        msg = Particulars + " amount exceeds the maxmimum limit : " + amount + " -- " + maxLimit;
+        //        control = $('#' + controls[i].id);
+        //        break;
+        //    }
+        //}
+        var result = {
+            isValid: isValid,
+            message: msg,
+            elem: control
+        }
+        return result;
+
+    }
+
+    function SubmitForm() {
+        //Form post
+        document.getElementById("itDeclaration").submit();
+    }
+
+    $(document).ready(function () {
+
+        applyAutoComplete($('#Name'), $('#PayBillNo'), "../ITDeclaration/LoadAdhocStaffList", 'EmployeeDetails', undefined, undefined);
+        EmployeeDetails();
+     //   LoadEmployeeDetails();
+        var firstpage = 1
+        var lastpage = 'Model.TotalPages';
+        var currentPage = $('#currentPage').text();
+
+        if (parseInt(currentPage, 10) === parseInt(lastpage, 10)) {
+            $('#lastPage').addClass('disabled');
+            $('#nextPage').addClass('disabled');
+        }
+        else if (parseInt(currentPage, 10) === parseInt(firstpage, 10)) {
+            $('#firstPage').addClass('disabled');
+            $('#previousPage').addClass('disabled');
+        }
+        $('a[name="pageButton"]').click(function () {
+            var pageNo = 1;
+            if ($(this).text() === 'First') {
+                pageNo = 1;
+            }
+            else if ($(this).text() === 'Last') {
+                pageNo = lastpage;
+            }
+            else if ($(this).text() === 'Previous') {
+                if (parseInt($('#currentPage').text(), 10) > 1) {
+                    pageNo = parseInt($('#currentPage').text(), 10) - 1;
+                }
+
+            }
+            else if ($(this).text() === 'Next') {
+
+                pageNo = parseInt($('#currentPage').text(), 10) + 1;
+            }
+            else {
+                pageNo = $(this).text();
+            }
+            var papername = $('#txtSearchText').val();
+            var model = papername;
+            getData(pageNo, model);
+
+        });
+    });
+
+    function getData(page, model) {
+        var token = $("input[name=__RequestVerificationToken]").val();
+        var searchdata = { "__RequestVerificationToken": token, "model": model, "page": page };
+        //alert($("input[name=__RequestVerificationToken]").val());
+
+        $.ajax({
+            url: 'Url.Action("List", "StaffPayment")',
+            type: "POST",
+            contentType: "application/x-www-form-urlencoded",
+            data: searchdata,
+            success: function (data) {
+                $("#gridData").html(data);
+            }
+        });
+
+    }
+
+    function validateRequired() {
+        $('#errorMsg').html("");
+        var valid = true;
+        $("[id^=flowFile]").each(function (index, item) {
+            var controlId = $(item).attr("id");
+            if ($('#' + controlId).prop('required') && $('#' + controlId).val() === "") {
+                $('#errorMsg').html("Please upload all required documents.");
+                valid = false;
+                return valid;
+            }
+
+        });
+        return valid;
+    }
+
+    function clearUploadText() {
+        $("[id^=flowFile]").each(function (index, item) {
+            var controlId = $(item).attr("id");
+            $('#' + controlId).val("");
+        });
+    }
+
+
+    $("input[name='adaccess']:checkbox").click(function () {
+        if ($(this).attr("value") == "adaccess") {
+            $("#staffID").css("display", "none");
+            $("#staffIDText").css("display", "block");
+            $("#dept").css("display", "none");
+            $("#deptText").css("display", "block");
+            $("#staffName").css("display", "none");
+            $("#staffNameText").css("display", "block");
+            $("#desID").css("display", "none");
+            $("#desIDText").css("display", "block");
+            $("#genID").css("display", "none");
+            $("#genIDText").css("display", "block");
+        }
+
+    });
+
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+    });
+
+    function modRec() {
+        var e = document.getElementById("modRec");
+        var strcomType = e.options[e.selectedIndex].value;
+        if (strcomType == "0") {
+            document.getElementById("cheQue").style.display = "block";
+            document.getElementById("banTra").style.display = "none";
+            document.getElementById("dd").style.display = "none";
+        }
+        else if (strcomType == "1") {
+            document.getElementById("cheQue").style.display = "none";
+            document.getElementById("banTra").style.display = "block";
+            document.getElementById("dd").style.display = "none";
+        }
+        else if (strcomType == "2") {
+            document.getElementById("cheQue").style.display = "none";
+            document.getElementById("banTra").style.display = "none";
+            document.getElementById("dd").style.display = "block";
+        }
+
+        console.log(strcomType);
+    };
+
+    $("#picDel").on("click", function () {
+        $("#tab-01").css("display", "block");
+        $("#tab-02").css("display", "none");
+        $("#tab-03").css("display", "none");
+        $("#tab-04").css("display", "none");
+        $("#picDel").addClass('active');
+        $("#allOca").removeClass('active');
+        $("#modEof").removeClass('active');
+        $("#modEof1").removeClass('active');
+        $("#modEof1").removeClass('active');
+        $("#tab-80c").css("display", "block");
+        $("#tab-80c").addClass('active');
+        //switchTabs(event, 'tab-80c', 'IT80C');
+    });
+
+    $("#allOca").on("click", function () {
+        $("#tab-01").css("display", "none");
+        $("#tab-02").css("display", "block");
+        $("#tab-03").css("display", "none");
+        $("#tab-04").css("display", "none");
+        $("#picDel").removeClass('active');
+        $("#allOca").addClass('active');
+        $("#modEof").removeClass('active');
+        $("#modEof1").removeClass('active');
+        $("#tab-main").css("display", "block");
+        $("#tab-main").addClass('active');
+        //switchTabs(event, 'tab-main', 'main')
+
+    });
+
+    $("#modEof").on("click", function () {
+        $("#tab-01").css("display", "none");
+        $("#tab-02").css("display", "none");
+        $("#tab-03").css("display", "block");
+        $("#tab-04").css("display", "none");
+        $("#picDel").removeClass('active');
+        $("#allOca").removeClass('active');
+        $("#modEof").addClass('active');
+        $("#modEof1").removeClass('active');
+    });
+
+    $("#modEof1").on("click", function () {
+        $("#tab-01").css("display", "none");
+        $("#tab-02").css("display", "none");
+        $("#tab-03").css("display", "none");
+        $("#tab-04").css("display", "block");
+        $("#picDel").removeClass('active');
+        $("#allOca").removeClass('active');
+        $("#modEof").removeClass('active');
+        $("#modEof1").addClass('active');
+    });
+
+</script>

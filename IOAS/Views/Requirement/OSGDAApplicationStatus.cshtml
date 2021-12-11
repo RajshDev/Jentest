@@ -1,0 +1,1192 @@
+﻿@using IOAS.Infrastructure
+@{
+    ViewBag.Title = "DAApplicationStatusOSG";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<div class="row hd-tt-bg">
+
+    <div class="col-md-12">
+        <h3>Application Status OutSourcing</h3>
+        <ul class="nav nav-pills custom-nav-pills custom-spl-nav">
+            <li class="active"><a data-toggle="tab" href="#tabJsExEnOSG" class="brd-rd-md">Extension / Enhancement</a></li>
+            <li><a data-toggle="tab" href="#tabJsRelOSG" class="brd-rd-md">Relieving order List</a></li>
+            <li><a data-toggle="tab" href="#tabJsCHPOSG" class="brd-rd-md">Change of Project List</a></li>
+            <li><a data-toggle="tab" href="#tabJsAPCOSG" class="brd-rd-md">Application Cancelled List</a></li>
+
+        </ul>
+    </div>
+
+</div>
+<div class="tab-content mt30">
+    <div id="tabJsExEnOSG" class="tab-pane fade in active">
+        <div class="custom-jsgrid-normal">
+            <div id="gridExEnhlist">
+            </div>
+        </div>
+    </div>
+
+    <div id="tabJsRelOSG" class="tab-pane fade">
+        <div class="custom-jsgrid-normal">
+            <div id="gridRelievingList">
+
+            </div>
+        </div>
+    </div>
+    <div id="tabJsCHPOSG" class="tab-pane fade">
+        <div class="custom-jsgrid-normal">
+            <div id="gridChangeofProj">
+
+            </div>
+        </div>
+    </div>
+    <div id="tabJsAPCOSG" class="tab-pane fade">
+        <div class="custom-jsgrid-normal">
+            <div id="gridCancelledApp">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="loading-bg dis-none">
+</div>
+<div id="popup">
+</div>
+<script type="text/javascript">
+    loadedList = [];
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    var alertMsg = '@TempData["alertMsg"]';
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+        else if (alertMsg != '') {
+            $('#alert').html(alertMsg);
+            $('#Validation').modal('toggle');
+        }
+        //getData(1);
+
+    });
+
+    function searchData(href) {
+        if (loadedList.indexOf(href) > -1)
+            return false;
+        if (href == "#tabJsRelOSG")
+            $("#gridRelievingList").jsGrid("search");
+        else if (href == "#tabJsCHPOSG")
+            $("#gridChangeofProj").jsGrid("search");
+        else if (href == "#tabJsAPCOSG")
+            $("#gridCancelledApp").jsGrid("search");
+    }
+    $('a[href^="#tabJs"]').click(function () {
+        var href = $(this).attr('href');
+        searchData(href);
+    });
+
+    var DateField = function (config) {
+        jsGrid.Field.call(this, config);
+    };
+    DateField.prototype = new jsGrid.Field({
+        sorter: function (date1, date2) {
+            return new Date(date1) - new Date(date2);
+        },
+
+        itemTemplate: function (value) {
+            if (value != "") {
+                return new Date(value).toDateString();
+            }
+        },
+
+        filterTemplate: function () {
+            var now = new Date();
+            this._fromPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() - 1), changeYear: true });
+            this._toPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() + 1), changeYear: true });
+            return $("<div>").append(this._fromPicker).append(this._toPicker);
+        },
+
+        insertTemplate: function (value) {
+            return this._insertPicker = $("<input>").datepicker({ defaultDate: new Date() });
+        },
+
+        editTemplate: function (value) {
+            return this._editPicker = $("<input>").datepicker().datepicker("setDate", new Date(value));
+        },
+
+        insertValue: function () {
+            return this._insertPicker.datepicker("getDate").toISOString();
+        },
+
+        editValue: function () {
+            return this._editPicker.datepicker("getDate").toISOString();
+        },
+
+        filterValue: function () {
+            return {
+                from: this._fromPicker.datepicker("getDate"),
+                to: this._toPicker.datepicker("getDate")
+            };
+        }
+    });
+    jsGrid.fields.date = DateField;
+    $("#gridExEnhlist").jsGrid({
+        paging: true,
+        pageIndex: 1,
+        pageSize: 10,
+        editing: false,
+        filtering: true,
+        pageLoading: true,
+        autoload: true,
+        controller: {
+
+            loadData: function (filter) {
+                var searchData = [];
+                searchData = {
+                    EmployeeNo: filter.EmployeeNo || null,
+                    ExtensionEnhCategory: filter.ExtensionEnhCategory || null,
+                    SearchTypeofAppointmentName: filter.TypeofAppointmentName || null,
+                    DepartmentName: filter.EmployeeDept || null,
+                    CondidateName: filter.CondidateName || null,
+                    EmployeeName: filter.EmployeeName || null,
+                    ProjectNumber: filter.ProjectNumber || null,
+                    Status: filter.Status || null
+                },
+                filter.model = searchData;
+                filter.Category = "OSG";
+                var deferred = $.Deferred();
+                $.ajax({
+                    type: "post",
+                    url: "GetEmployeeExtensionEnhList",
+                    data: JSON.stringify(filter),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (result) {
+                        //db = result;
+                        //$("#AdvanceBillPaymentList").jsGrid({ data: db });
+                        var da = {
+                            data: result.ExtandEnhList,
+                            itemsCount: result.TotalRecords
+                        }
+                        if (loadedList.indexOf("#tabJsExEnOSG") == -1)
+                            loadedList.push("#tabJsExEnOSG");
+                        deferred.resolve(da);
+                    },
+                    error: function (err) {
+                        console.log("error : " + err);
+                    }
+
+                });
+                return deferred.promise();
+            }
+
+        },
+
+        fields: [
+            { name: "SNo", title: "S.No", editing: false, width: 50 },
+            { type: "number", name: "OrderId", title: "Id", visible: false },
+            { type: "text", name: "EmployeeNo", title: "Employee Number", editing: false },
+            { type: "text", name: "ExtensionEnhCategory", title: "Extension / Enhancement / Amendment", editing: false, width: 120 },
+             { type: "text", name: "TypeofAppointmentName", title: "Type of Appointment", editing: false, width: 104 },
+            { type: "text", name: "EmployeeDept", title: "Department Name", editing: false },
+            { type: "text", name: "ApplicationCategory", title: "Application Category", editing: false, visible: false },
+            { type: "text", name: "EmployeeName", title: "Employee Name", editing: false },
+            { type: "text", name: "ProjectNumber", title: "Project Number", editing: false },
+            { type: "date", name: "StrFrmDate", title: "From Date", editing: false },
+            { type: "date", name: "StrtoDate", title: "To Date", editing: false },
+           { type: "text", name: "Status", title: "Status", editing: false },
+
+
+             {
+                 type: "control", editButton: false, deleteButton: false, width: 120, title: "Action",
+
+                 itemTemplate: function (value, item) {
+                     var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+
+                     if ((item.Status == "Open" && !item.isCommitmentRejection)) {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "Edit", name: "Edit" }, { id: "View", name: "View" }, { id: "Cancel", name: "Cancel" }, { id: "Send for Approval", name: "Send for Approval" }]
+                     }
+                     else if ((item.Status == "Open" && !item.isCommitmentRejection) || item.Status == "Note to PI") {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "Edit", name: "Edit" }, { id: "View", name: "View" }, { id: "Cancel", name: "Cancel" }]
+                     }
+                     else if (item.Status == "Committee Clarify") {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "Send for commitee approval" }, { id: "Cancel", name: "Cancel" }]
+                     }
+                     else if (item.Status == "Open" && item.isCommitmentRejection) {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "Send for commitment booking" }, { id: "Cancel", name: "Cancel" }]
+                     }
+                     else if (item.Status != "Cancel" && item.ExtensionEnhCategory != "Amendment" && item.SendOffer_f) {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }, { id: "Cancel", name: "Cancel" }, { id: "SendOffer", name: "Send Offerletter" }]
+                     }
+                     else if (item.Status != "Cancel" && item.ExtensionEnhCategory != "Amendment" && !item.SendOffer_f) {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }, { id: "Cancel", name: "Cancel" }]
+                     }
+                     else {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }]
+                     }
+                     var $customSelect = $("<select>")
+                         .attr("class", "form-control").prop("selectedIndex", "")
+                     $.each(statusList, function (index, itemData) {
+                         $customSelect.append($('<option/>', {
+
+                             value: itemData.id,
+                             text: itemData.name
+                         }));
+                     });
+                     $customSelect.change(function (e) {
+                         var selVal = $(this).val();
+                         if (selVal == "View") {
+                             if (item.Status != "Cancellation Initiated" && (item.Status == "Committee Clarify" || item.isCommitmentRejection == true)) {
+                                 var url = '@Url.Action("RCTOverAllView", "Requirement")?orderid=' + item.OrderId + '&listf=DA';
+                                 window.location.href = url;
+                             }
+                             else {
+                                 if (item.ExtensionEnhCategory == "Extension") {
+                                     var url = '@Url.Action("RecruitEnhancementView", "Requirement")?OrderId=' + item.OrderId + '&listf=DA';
+                                     window.location.href = url;
+                                 }
+                                 else if (item.ExtensionEnhCategory == "Enhancement") {
+                                     var url = '@Url.Action("RecruitEnhancementView", "Requirement")?OrderId=' + item.OrderId + '&listf=DA';
+                                     window.location.href = url;
+                                 }
+                             }
+                         }
+                         else if (selVal == "SendOffer") {
+                             $.confirm({
+                                 title: "Mail Preview",
+                                 type: 'blue',
+                                 columnClass: 'col-md-12',
+                                 content: function () {
+                                     var self = this;
+                                     return $.ajax({
+                                         type: "Post",
+                                         url: '@Url.Action("SendOfferOrder", "Requirement")',
+                                         data: {
+                                             appid: item.ApplicationId,
+                                             apptype: item.ApplicationCategory,
+                                             offercategory: "OfferLetter",
+                                             isgetbody_f: true,
+                                             orderid: item.OrderId
+                                         }
+                                     }).done(function (response) {
+                                         self.setContent(response.Item2);
+                                         var url = '@Url.Action("ShowOrderDocument", "RCTReportMaster")?appid=' + item.ApplicationId + '&apptype=' + item.ApplicationCategory + '&offercategory=OfferLetter&orderid=' + item.OrderId;
+                                         self.setContentAppend('Attachment : <a href=' + url + ' target="_blank">attachment</a>');
+                                     }).fail(function () {
+                                         self.setContent('Preview page not loaded.');
+                                     });
+                                 },
+                                 buttons: {
+                                     Yes: {
+                                         text: 'Send',
+                                         btnClass: 'btn-blue',
+                                         action: function () {
+                                             $.ajax({
+                                                 type: "Post",
+                                                 url: '@Url.Action("SendOfferOrder", "Requirement")',
+                                                 data: {
+                                                     appid: item.ApplicationId,
+                                                     apptype: item.ApplicationCategory,
+                                                     offercategory: "OfferLetter",
+                                                     orderid: item.OrderId
+                                                 },
+                                                 beforeSend: function () {
+                                                     $(".loading-bg").removeClass('dis-none');
+                                                 },
+                                                 success: function (output) {
+                                                     if (output.Item1 == 1) {
+                                                         $(".loading-bg").addClass('dis-none');
+                                                         $.confirm({
+                                                             title: 'Success Message!',
+                                                             content: "Offer letter mail sent to candidate",
+                                                             type: 'green',
+                                                             buttons: {
+                                                                 Ok: function () {
+                                                                     $("#gridExEnhlist").jsGrid("loadData");
+                                                                 },
+                                                             },
+                                                         });
+                                                     }
+                                                     else if (output.Item1 == 0) {
+                                                         $(".loading-bg").addClass('dis-none');
+                                                         $.confirm({
+                                                             title: 'Warning!',
+                                                             content: output.Item2,
+                                                             type: 'orange',
+                                                             buttons: {
+                                                                 Ok: function () {
+                                                                     $("#gridExEnhlist").jsGrid("loadData");
+                                                                 },
+                                                             },
+                                                         });
+                                                     }
+                                                 },
+                                                 error: function (err) {
+                                                     console.log("error1 : " + err);
+                                                 }
+                                             });
+                                         }
+                                     },
+                                     No: {
+                                         text: 'No',
+                                         btnClass: 'btn-red',
+                                         action: function () {
+                                         }
+                                     },
+                                 }
+                             });
+                         }
+                         else if (selVal == "Send for Approval") {
+                             if (item.ExtensionEnhCategory == "Extension") {
+                                 var url = '@Url.Action("RecruitExtensionSendForApproval", "Requirement")?AppId=' + item.OrderId;
+                                 window.location.href = url;
+                             }
+                             else if (item.ExtensionEnhCategory == "Enhancement") {
+                                 var url = '@Url.Action("RecruitEnhancementSendForApproval", "Requirement")?AppId=' + item.OrderId;
+                                 window.location.href = url;
+                             }
+                         }
+                         else if (selVal == "Cancel") {
+                             $.confirm({
+                                 title: 'Do you want to cancel application ?',
+                                 content: '' +
+                                 '<form action=""  class="formName">' +
+                                    '<div class="form-group"><br/>' +
+                                        '<table>' +
+                                            '<tr><th>Employee No</th><th>&nbsp;&nbsp;:&nbsp;&nbsp;</th><td>' + item.EmployeeNo + '</td></tr><tr>' +
+                                            '<th><br/></th><th></th><td></td></tr>' +
+                                            '<th>Employee Name</th><th>&nbsp;&nbsp;:&nbsp;&nbsp;</th><td>' + item.EmployeeName + '</td></tr>' +
+                                        '</table><br/>' +
+                                        '<label class="required">Remarks</label>' +
+                                          '<textarea id="txtResonCancel" name="reason" class="form-control" row="2" required>' +
+                                          '</textarea><br/>' +
+                                        '<label>Attachment (optional)</label>' + '<br/>' +
+                                        '<input type="file" id="attachement" name="attachement" /> ' +
+                                        '<input type="hidden" name="appid" value=' + item.ApplicationId + ' />' +
+                                        '<input type="hidden" name="apptype" value=' + item.ApplicationCategory + ' />' +
+                                        '<input type="hidden" name="orderid" value=' + item.OrderId + ' />' +
+                                    '</div>' +
+                                 '</form>',
+                                 type: 'blue',
+                                 typeAnimated: true,
+                                 boxWidth: '450px',
+                                 useBootstrap: false,
+                                 buttons: {
+                                     formSubmit: {
+                                         text: 'Submit',
+                                         btnClass: 'btn-blue',
+                                         action: function () {
+                                             var reason = $('#txtResonCancel').val();
+                                             if (reason == "" || reason == null) {
+                                                 $.alert('Remarks Field is Required');
+                                                 return false;
+                                             }
+                                             else if (reason != null || reason != "") {
+                                                 var from = $('.formName');
+                                                 var formData = new FormData(from[0]);
+                                                 var fileUpload = $("#attachement").val();
+                                                 if (fileUpload != "") {
+                                                     var allowedExtensions = [".pdf", ".doc", ".docx"];
+                                                     var fileName = document.getElementById('attachement').files[0].name;
+                                                     var extension = fileName.substr((fileName.lastIndexOf('.') + 1)).toLowerCase();
+                                                     var validFormat = allowedExtensions.includes('.' + extension);
+                                                     if (validFormat) {
+                                                         var _size = document.getElementById('attachement').files[0].size;
+                                                         var iSize = (_size / 1024);
+                                                         iSize = (Math.round(iSize * 100) / 100)
+                                                         if (iSize > 5120) {
+                                                             $.confirm({
+                                                                 title: 'Warning!',
+                                                                 content: 'Attachment size should be allow below 5MB',
+                                                                 type: 'orange',
+                                                                 buttons: {
+                                                                     Ok: function () {
+                                                                         //close
+                                                                     },
+                                                                 },
+                                                             });
+                                                             $("#attachement").val('')
+                                                             return;
+                                                         }
+                                                     }
+                                                     else {
+                                                         $.confirm({
+                                                             title: 'Warning!',
+                                                             content: 'Attachment allowed document type [pdf,doc,docx]',
+                                                             type: 'orange',
+                                                             buttons: {
+                                                                 Ok: function () {
+                                                                     //close
+                                                                 },
+                                                             },
+                                                         });
+                                                         $("#attachement").val('')
+                                                         return;
+                                                     }
+                                                 }
+                                                 $.ajax({
+                                                     type: "Post",
+                                                     url: '@Url.Action("RequestCancelApplication", "Requirement")',
+                                                     data: formData,
+                                                     processData: false,
+                                                     contentType: false,
+                                                     beforeSend: function () {
+                                                         $(".loading-bg").removeClass('dis-none');
+                                                     },
+                                                     success: function (result) {
+                                                         $(".loading-bg").addClass('dis-none');
+                                                         if (isNaN(result) && result != "") {
+                                                             $.confirm({
+                                                                 title: 'Warning!',
+                                                                 content: result,
+                                                                 type: 'orange',
+                                                                 buttons: {
+                                                                     Ok: function () {
+                                                                         $("#gridConApp").jsGrid("loadData");
+                                                                     },
+                                                                 },
+                                                             });
+                                                         }
+                                                         else if (result == 1) {
+                                                             $.confirm({
+                                                                 title: 'Success Message',
+                                                                 content: 'Application cancelled & Cancellation notification sent to PI',
+                                                                 type: 'green',
+                                                                 buttons: {
+                                                                     Ok: function () {
+                                                                         $("#gridExEnhlist").jsGrid("loadData");
+                                                                     },
+                                                                 },
+                                                             });
+                                                         }
+                                                         else if (result == -2) {
+                                                             $.confirm({
+                                                                 title: 'Success Message',
+                                                                 content: 'Cancel request placed successfully',
+                                                                 type: 'green',
+                                                                 buttons: {
+                                                                     Ok: function () {
+                                                                         $("#gridExEnhlist").jsGrid("loadData");
+                                                                     },
+                                                                 },
+                                                             });
+                                                         }
+                                                         else if (result == -1) {
+                                                             $.confirm({
+                                                                 title: 'Warning!',
+                                                                 content: 'Appointment tenure started. Order cannot be cancelled.',
+                                                                 type: 'orange',
+                                                                 buttons: {
+                                                                     Ok: function () {
+                                                                         $("#gridExEnhlist").jsGrid("loadData");
+                                                                     },
+                                                                 },
+                                                             });
+                                                         }
+                                                         else if (result == 2) {
+                                                             $.confirm({
+                                                                 title: 'Warning!',
+                                                                 content: 'Attachment allowed document type [pdf,doc,docx]',
+                                                                 type: 'orange',
+                                                                 buttons: {
+                                                                     Ok: function () {
+                                                                         $("#gridExEnhlist").jsGrid("loadData");
+                                                                     },
+                                                                 },
+                                                             });
+                                                         }
+                                                         else if (result == 3) {
+                                                             $.confirm({
+                                                                 title: 'Warning!',
+                                                                 content: 'You can upload upto 5MB',
+                                                                 type: 'orange',
+                                                                 buttons: {
+                                                                     Ok: function () {
+                                                                         $("#gridExEnhlist").jsGrid("loadData");
+                                                                     },
+                                                                 },
+                                                             });
+                                                         }
+                                                         else {
+                                                             $.confirm({
+                                                                 title: 'Error!',
+                                                                 content: 'Something went to wrong please conatact administrator',
+                                                                 type: 'red',
+                                                                 buttons: {
+                                                                     Ok: function () {
+                                                                         $("#gridExEnhlist").jsGrid("loadData");
+                                                                     },
+                                                                 },
+                                                             });
+                                                         }
+                                                     },
+                                                     error: function (err) {
+                                                         $(".loading-bg").addClass('dis-none');
+                                                         console.log("error1 : " + err);
+                                                     }
+                                                 });
+                                             }
+
+                                         }
+                                     },
+                                     cancel: function () {
+                                         //close
+                                     },
+                                 },
+
+                             });
+                         }
+                         else if (selVal == "Edit") {
+                             if (item.ExtensionEnhCategory == "Extension") {
+                                 var url = '@Url.Action("RecruitExtension", "Requirement")?appid=' + item.ApplicationId + '&apptype=' + item.ApplicationCategory + '&orderId=' + item.OrderId + '&listf=DA';
+                                 window.location.href = url;
+                             }
+                             else if (item.ExtensionEnhCategory == "Enhancement") {
+                                 var url = '@Url.Action("RecruitEnhancement", "Requirement")?appid=' + item.ApplicationId + '&apptype=' + item.ApplicationCategory + '&orderId=' + item.OrderId + '&listf=DA';
+                                 window.location.href = url;
+                             }
+                         }
+
+                         $(this).val("");
+                         return false;
+                         e.stopPropagation();
+                     });
+                     return $result.add($customSelect);
+                 },
+                 _createFilterSwitchButton: function () {
+                     return this._createOnOffSwitchButton("filtering", this.searchModeButtonClass, false);
+                 }
+             }
+
+
+        ],
+
+    });
+    $("#gridExEnhlist").jsGrid("option", "filtering", false);
+
+    $("#gridRelievingList").jsGrid({
+        paging: true,
+        pageIndex: 1,
+        pageSize: 10,
+        editing: false,
+        filtering: true,
+        pageLoading: true,
+        controller: {
+            loadData: function (filter) {
+                var searchData = [];
+                searchData = {
+                    SearchInName: filter.Name || null,
+                    SearchInCategory: "OSG",
+                    SearchInDesignation: filter.Designation || null,
+                    SearchInProjectNumber: filter.ProjectNumber || null,
+                    SearchInEmployeeId: filter.EmployeeId || null,
+                    relievingType: filter.RelievingType || null,
+                },
+                filter.model = searchData;
+                var deferred = $.Deferred();
+                $.ajax({
+                    type: "post",
+                    url: "getEmployeeRelievingList",
+                    data: JSON.stringify(filter),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (result) {
+                        var da = {
+                            data: result.List,
+                            itemsCount: result.TotalRecords
+                        }
+                        if (loadedList.indexOf("#tabJsRelOSG") == -1)
+                            loadedList.push("#tabJsRelOSG");
+                        deferred.resolve(da);
+                    },
+                    error: function (err) {
+                        console.log("error : " + err);
+                    }
+
+                });
+                return deferred.promise();
+            }
+
+        },
+
+        fields: [
+            { name: "SNo", title: "S.No", editing: false, width: 50 },
+            { type: "number", name: "ID", title: "Id", visible: false },
+            { type: "text", name: "EmployeeId", title: "Employee ID", editing: false },
+            { type: "text", name: "Name", title: "Employee Name", editing: false },
+            { type: "text", name: "CategoryName", title: "Category", editing: false },
+            { type: "text", name: "Designation", title: "Designation", editing: false },
+            { type: "text", name: "ProjectNumber", title: "Project Details", editing: false },
+            { type: "text", name: "RelievingType", title: "Relieving Type", editing: false },
+             {
+                 type: "control", editButton: false, deleteButton: false, width: 120, title: "Action",
+
+                 itemTemplate: function (value, item) {
+                     var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+                     if (item.RelievingType == "Open") {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }]
+                     }
+                     else {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }]
+                     }
+
+                     var $customSelect = $("<select>")
+                         .attr("class", "form-control").prop("selectedIndex", "")
+                     $.each(statusList, function (index, itemData) {
+                         $customSelect.append($('<option/>', {
+
+                             value: itemData.id,
+                             text: itemData.name
+                         }));
+                     });
+                     $customSelect.change(function (e) {
+                         var selVal = $(this).val();
+                         if (selVal == "View") {
+                             var url = '@Url.Action("RelievingView", "Requirement")?OrderId=' + item.OrderID + '&listf=DA';
+                             window.location.href = url;
+                         }
+                         $(this).val("");
+                         return false;
+                         e.stopPropagation();
+                     });
+                     return $result.add($customSelect);
+                 },
+                 _createFilterSwitchButton: function () {
+                     return this._createOnOffSwitchButton("filtering", this.searchModeButtonClass, false);
+                 }
+             }
+
+
+        ],
+
+    });
+    $("#gridRelievingList").jsGrid("option", "filtering", false);
+    $("#gridChangeofProj").jsGrid({
+        paging: true,
+        pageIndex: 1,
+        pageSize: 10,
+        editing: false,
+        filtering: true,
+        pageLoading: true,
+
+        controller: {
+            loadData: function (filter) {
+                var searchData = [];
+                searchData = {
+                    EmployeeNo: filter.EmployeeNo || null,
+                    Category: filter.Category || null,
+                    NewProjectNumber: filter.NewProjectNumber || null,
+                    EmployeeName: filter.EmployeeName || null,
+                    Status: filter.Status || null,
+
+                },
+                filter.model = searchData;
+                filter.Category = "OSG";
+                var deferred = $.Deferred();
+                $.ajax({
+                    type: "post",
+                    url: "GetEmployeeChangeOfProjectList",
+                    data: JSON.stringify(filter),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (result) {
+                        var da = {
+                            data: result.Changelist,
+                            itemsCount: result.TotalRecords
+                        }
+                        if (loadedList.indexOf("#tabJsCHPOSG") == -1)
+                            loadedList.push("#tabJsCHPOSG");
+                        deferred.resolve(da);
+                    },
+                    error: function (err) {
+                        console.log("error : " + err);
+                    }
+
+                });
+                return deferred.promise();
+            }
+
+        },
+
+        fields: [
+            { name: "SNo", title: "S.No", editing: false, width: 50 },
+            { type: "number", name: "OrderId", title: "Id", visible: false },
+            { type: "text", name: "EmployeeNo", title: "Employee Number", editing: false },
+            { type: "text", name: "Category", title: "Category", editing: false },
+            { type: "text", name: "EmployeeName", title: "Employee Name", editing: false },
+            { type: "text", name: "NewProjectNumber", title: "New Project Number", editing: false },
+            { type: "text", name: "Status", title: "Status", editing: false },
+
+             {
+                 type: "control", editButton: false, deleteButton: false, width: 120, title: "Action",
+
+                 itemTemplate: function (value, item) {
+                     var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+                     if (item.Status == "Open") {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "Edit", name: "Edit" }, { id: "View", name: "View" }, { id: "Cancel", name: "Cancel" }, { id: "Send for Approval", name: "Send for Approval" }]
+                     }
+                     else if (item.Status == "Open" || item.Status == "Note to PI") {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "Edit", name: "Edit" }, { id: "View", name: "View" }, { id: "Cancel", name: "Cancel" }]
+                     }
+                     else if (item.SendOffer_f) {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }, { id: "SendOffer", name: "Send Offerletter" }]
+                     }
+                     else {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }]
+                     }
+
+                     var $customSelect = $("<select>")
+                         .attr("class", "form-control").prop("selectedIndex", "")
+                     $.each(statusList, function (index, itemData) {
+                         $customSelect.append($('<option/>', {
+
+                             value: itemData.id,
+                             text: itemData.name
+                         }));
+                     });
+                     $customSelect.change(function (e) {
+                         var selVal = $(this).val();
+                         if (selVal == "Edit") {
+                             var url = '@Url.Action("RecruitChangeOfProject", "Requirement")?appid=' + item.ApplicationId + '&apptype=' + item.Category + '&orderId=' + item.OrderId + '&listf=DA';
+                             window.location.href = url;
+                         }
+                         else if (selVal == "View") {
+                             var url = '@Url.Action("RecruitCOPView", "Requirement")?OrderId=' + item.OrderId + '&listf=DA';
+                             window.location.href = url;
+                         }
+                         else if (selVal == "Send for Approval") {
+                             var url = '@Url.Action("RecruitCOPSendForApproval", "Requirement")?AppId=' + item.OrderId;
+                             window.location.href = url;
+                         }
+                         else if (selVal == "SendOffer") {
+                             $.confirm({
+                                 title: "Mail Preview",
+                                 type: 'blue',
+                                 columnClass: 'col-md-12',
+                                 content: function () {
+                                     var self = this;
+                                     return $.ajax({
+                                         type: "Post",
+                                         url: '@Url.Action("SendOfferOrder", "Requirement")',
+                                         data: {
+                                             appid: item.ApplicationId,
+                                             apptype: item.Category,
+                                             offercategory: "OfferLetter",
+                                             isgetbody_f: true,
+                                             orderid: item.OrderId
+                                         }
+                                     }).done(function (response) {
+                                         self.setContent(response.Item2);
+                                         var url = '@Url.Action("ShowOrderDocument", "RCTReportMaster")?appid=' + item.ApplicationId + '&apptype=' + item.Category + '&offercategory=OfferLetter&orderid=' + item.OrderId;
+                                         self.setContentAppend('Attachment : <a href=' + url + ' target="_blank">attachment</a>');
+                                     }).fail(function () {
+                                         self.setContent('Preview page not loaded.');
+                                     });
+                                 },
+                                 buttons: {
+                                     Yes: {
+                                         text: 'Send',
+                                         btnClass: 'btn-blue',
+                                         action: function () {
+                                             $.ajax({
+                                                 type: "Post",
+                                                 url: '@Url.Action("SendOfferOrder", "Requirement")',
+                                                 data: {
+                                                     appid: item.ApplicationId,
+                                                     apptype: item.Category,
+                                                     offercategory: "OfferLetter",
+                                                     orderid: item.OrderId
+                                                 },
+                                                 beforeSend: function () {
+                                                     $(".loading-bg").removeClass('dis-none');
+                                                 },
+                                                 success: function (output) {
+                                                     if (output.Item1 == 1) {
+                                                         $(".loading-bg").addClass('dis-none');
+                                                         $.confirm({
+                                                             title: 'Success Message!',
+                                                             content: "Offer letter mail sent to candidate",
+                                                             type: 'green',
+                                                             buttons: {
+                                                                 Ok: function () {
+                                                                     $("#gridChangeofProj").jsGrid("loadData");
+                                                                 },
+                                                             },
+                                                         });
+                                                     }
+                                                     else if (output.Item1 == 0) {
+                                                         $(".loading-bg").addClass('dis-none');
+                                                         $.confirm({
+                                                             title: 'Warning!',
+                                                             content: output.Item2,
+                                                             type: 'orange',
+                                                             buttons: {
+                                                                 Ok: function () {
+                                                                     $("#gridChangeofProj").jsGrid("loadData");
+                                                                 },
+                                                             },
+                                                         });
+                                                     }
+                                                 },
+                                                 error: function (err) {
+                                                     console.log("error1 : " + err);
+                                                 }
+                                             });
+                                         }
+                                     },
+                                     No: {
+                                         text: 'No',
+                                         btnClass: 'btn-red',
+                                         action: function () {
+                                         }
+                                     },
+                                 }
+                             });
+                         }
+                         else if (selVal == "Cancel") {
+                             $.confirm({
+                                 title: 'Do you want to cancel application ?',
+                                 content: '' +
+                                 '<form action=""  class="formName">' +
+                                    '<div class="form-group"><br/>' +
+                                        '<table>' +
+                                            '<tr><th>Employee No</th><th>&nbsp;&nbsp;:&nbsp;&nbsp;</th><td>' + item.EmployeeNo + '</td></tr><tr>' +
+                                            '<th><br/></th><th></th><td></td></tr>' +
+                                            '<th>Employee Name</th><th>&nbsp;&nbsp;:&nbsp;&nbsp;</th><td>' + item.EmployeeName + '</td></tr>' +
+                                        '</table><br/>' +
+                                        '<label class="required">Remarks</label>' +
+                                          '<textarea id="txtResonCancel" name="reason" class="form-control" row="2" required>' +
+                                          '</textarea><br/>' +
+                                        '<label>Attachment (optional)</label>' + '<br/>' +
+                                        '<input type="file" id="attachement" name="attachement" /> ' +
+                                        '<input type="hidden" name="appid" value=' + item.ApplicationId + ' />' +
+                                        '<input type="hidden" name="apptype" value=' + item.Category + ' />' +
+                                        '<input type="hidden" name="orderid" value=' + item.OrderId + ' />' +
+                                    '</div>' +
+                                 '</form>',
+                                 type: 'blue',
+                                 typeAnimated: true,
+                                 boxWidth: '450px',
+                                 useBootstrap: false,
+                                 buttons: {
+                                     formSubmit: {
+                                         text: 'Submit',
+                                         btnClass: 'btn-blue',
+                                         action: function () {
+                                             var reason = $('#txtResonCancel').val();
+                                             if (reason == "" || reason == null) {
+                                                 $.alert('Remarks Field is Required');
+                                                 return false;
+                                             }
+                                             else if (reason != null || reason != "") {
+                                                 var from = $('.formName');
+                                                 var formData = new FormData(from[0]);
+                                                 var fileUpload = $("#attachement").val();
+                                                 if (fileUpload != "") {
+                                                     var allowedExtensions = [".pdf", ".doc", ".docx"];
+                                                     var fileName = document.getElementById('attachement').files[0].name;
+                                                     var extension = fileName.substr((fileName.lastIndexOf('.') + 1)).toLowerCase();
+                                                     var validFormat = allowedExtensions.includes('.' + extension);
+                                                     if (validFormat) {
+                                                         var _size = document.getElementById('attachement').files[0].size;
+                                                         var iSize = (_size / 1024);
+                                                         iSize = (Math.round(iSize * 100) / 100)
+                                                         if (iSize > 5120) {
+                                                             $.confirm({
+                                                                 title: 'Warning!',
+                                                                 content: 'Attachment size should be allow below 5MB',
+                                                                 type: 'orange',
+                                                                 buttons: {
+                                                                     Ok: function () {
+                                                                         //close
+                                                                     },
+                                                                 },
+                                                             });
+                                                             $("#attachement").val('')
+                                                             return;
+                                                         }
+                                                     }
+                                                     else {
+                                                         $.confirm({
+                                                             title: 'Warning!',
+                                                             content: 'Attachment allowed document type [pdf,doc,docx]',
+                                                             type: 'orange',
+                                                             buttons: {
+                                                                 Ok: function () {
+                                                                     //close
+                                                                 },
+                                                             },
+                                                         });
+                                                         $("#attachement").val('')
+                                                         return;
+                                                     }
+                                                 }
+                                                 $.ajax({
+                                                     type: "Post",
+                                                     url: '@Url.Action("RequestCancelApplication", "Requirement")',
+                                                     data: formData,
+                                                     processData: false,
+                                                     contentType: false,
+                                                     beforeSend: function () {
+                                                         $(".loading-bg").removeClass('dis-none');
+                                                     },
+                                                     success: function (result) {
+                                                         $(".loading-bg").addClass('dis-none');
+                                                         if (isNaN(result) && result != "") {
+                                                             $.confirm({
+                                                                 title: 'Warning!',
+                                                                 content: result,
+                                                                 type: 'orange',
+                                                                 buttons: {
+                                                                     Ok: function () {
+                                                                         $("#gridChangeofProj").jsGrid("loadData");
+                                                                     },
+                                                                 },
+                                                             });
+                                                         }
+                                                         else if (result == 1) {
+                                                             $.confirm({
+                                                                 title: 'Success Message',
+                                                                 content: 'Application cancelled & Cancellation notification sent to PI',
+                                                                 type: 'green',
+                                                                 buttons: {
+                                                                     Ok: function () {
+                                                                         $("#gridChangeofProj").jsGrid("loadData");
+                                                                     },
+                                                                 },
+                                                             });
+                                                         }
+                                                         else if (result == -2) {
+                                                             $.confirm({
+                                                                 title: 'Success Message',
+                                                                 content: 'Cancel request placed successfully',
+                                                                 type: 'green',
+                                                                 buttons: {
+                                                                     Ok: function () {
+                                                                         $("#gridChangeofProj").jsGrid("loadData");
+                                                                     },
+                                                                 },
+                                                             });
+                                                         }
+                                                         else if (result == -1) {
+                                                             $.confirm({
+                                                                 title: 'Warning!',
+                                                                 content: 'Appointment tenure started. Order cannot be cancelled.',
+                                                                 type: 'orange',
+                                                                 buttons: {
+                                                                     Ok: function () {
+                                                                         $("#gridChangeofProj").jsGrid("loadData");
+                                                                     },
+                                                                 },
+                                                             });
+                                                         }
+                                                         else if (result == 2) {
+                                                             $.confirm({
+                                                                 title: 'Warning!',
+                                                                 content: 'Attachment allowed document type [pdf,doc,docx]',
+                                                                 type: 'orange',
+                                                                 buttons: {
+                                                                     Ok: function () {
+                                                                         $("#gridChangeofProj").jsGrid("loadData");
+                                                                     },
+                                                                 },
+                                                             });
+                                                         }
+                                                         else if (result == 3) {
+                                                             $.confirm({
+                                                                 title: 'Warning!',
+                                                                 content: 'You can upload upto 5MB',
+                                                                 type: 'orange',
+                                                                 buttons: {
+                                                                     Ok: function () {
+                                                                         $("#gridChangeofProj").jsGrid("loadData");
+                                                                     },
+                                                                 },
+                                                             });
+                                                         }
+                                                         else {
+                                                             $.confirm({
+                                                                 title: 'Error!',
+                                                                 content: 'Something went to wrong please conatact administrator',
+                                                                 type: 'red',
+                                                                 buttons: {
+                                                                     Ok: function () {
+                                                                         $("#gridChangeofProj").jsGrid("loadData");
+                                                                     },
+                                                                 },
+                                                             });
+                                                         }
+                                                     },
+                                                     error: function (err) {
+                                                         $(".loading-bg").addClass('dis-none');
+                                                         console.log("error1 : " + err);
+                                                     }
+                                                 });
+                                             }
+
+                                         }
+                                     },
+                                     cancel: function () {
+                                         //close
+                                     },
+                                 },
+
+                             });
+                         }
+                         $(this).val("");
+                         return false;
+                         e.stopPropagation();
+                     });
+                     return $result.add($customSelect);
+                 },
+                 _createFilterSwitchButton: function () {
+                     return this._createOnOffSwitchButton("filtering", this.searchModeButtonClass, false);
+                 }
+             }
+
+
+        ],
+
+    });
+    $("#gridChangeofProj").jsGrid("option", "filtering", false);
+    $("#gridCancelledApp").jsGrid({
+        paging: true,
+        pageIndex: 1,
+        pageSize: 10,
+        editing: false,
+        filtering: true,
+        pageLoading: true,
+
+        controller: {
+
+            loadData: function (filter) {
+                var searchData = [];
+                searchData = {
+                    ApplicationNo: filter.ApplicationNumber || null,
+                    Category: filter.Category || null,
+                    PIName: filter.PIName || null,
+                    CondidateName: filter.CondidateName || null,
+                    PIEmail: filter.Email || null,
+                    Status: filter.Status || null,
+                    ApplicationType: filter.ApplicationType || null
+                },
+                filter.model = searchData;
+                filter.Category = "OSG";
+                var deferred = $.Deferred();
+                $.ajax({
+                    type: "post",
+                    url: "GetEmployeeCancelledApplicationList",
+                    data: JSON.stringify(filter),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (result) {
+                        //db = result;
+                        //$("#AdvanceBillPaymentList").jsGrid({ data: db });
+                        var da = {
+                            data: result.ApplicationList,
+                            itemsCount: result.TotalRecords
+                        }
+                        if (loadedList.indexOf("#tabJsAPCOSG") == -1)
+                            loadedList.push("#tabJsAPCOSG");
+                        deferred.resolve(da);
+                    },
+                    error: function (err) {
+                        console.log("error : " + err);
+                    }
+
+                });
+                return deferred.promise();
+            }
+
+        },
+
+        fields: [
+            { name: "SNo", title: "S.No", editing: false, width: 50 },
+            { type: "number", name: "ApplicationId", title: "Id", visible: false },
+            { type: "text", name: "ApplicationNumber", title: "Application Number", editing: false },
+            { type: "text", name: "Category", title: "Category", editing: false },
+            { type: "text", name: "CondidateName", title: "Condidate Name", editing: false },
+            { type: "text", name: "PIName", title: "PI Name", editing: false },
+            { type: "text", name: "Email", title: "PI Email", editing: false },
+            { type: "text", name: "ApplicationType", title: "Application Type", editing: false },
+           { type: "text", name: "Status", title: "Status", editing: false },
+
+             {
+                 type: "control", editButton: false, deleteButton: false, width: 120, title: "Action",
+
+                 itemTemplate: function (value, item) {
+                     var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+                     statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }, { id: "View Documents", name: "View Documents" }]
+                     var $customSelect = $("<select>")
+                         .attr("class", "form-control").prop("selectedIndex", "")
+                     $.each(statusList, function (index, itemData) {
+                         $customSelect.append($('<option/>', {
+
+                             value: itemData.id,
+                             text: itemData.name
+                         }));
+                     });
+                     $customSelect.change(function (e) {
+                         var selVal = $(this).val();
+                         if (selVal == "View") {
+                             var url = '';
+                             if (item.OrderId > 0 && item.ApplicationType == 'Extension') {
+                                 url = '@Url.Action("RecruitExtensionView", "Requirement")?OrderId=' + item.OrderId + '&listf=DA';
+                             }
+                             else if (item.OrderId > 0 && item.ApplicationType == 'Enhancement') {
+                                 url = '@Url.Action("RecruitEnhancementView", "Requirement")?OrderId=' + item.OrderId + '&listf=DA';
+                             }
+                             else if (item.OrderId > 0 && item.ApplicationType == 'Change of project') {
+                                 url = '@Url.Action("RecruitCOPView", "Requirement")?OrderId=' + item.OrderId + '&listf=DA';
+                             }
+                             else {
+                                 url = '@Url.Action("OutsourcingView", "Requirement")?OSGID=' + item.ApplicationId + '&listf=DA';
+                             }
+                             window.location.href = url;
+                         }
+                         else if (selVal == "View Documents") {
+                             $.ajax({
+                                 type: "GET",
+                                 url: '@Url.Action("ViewDocuments", "Requirement")',
+                                 data: {
+                                     appid: item.ApplicationId,
+                                     apptype: item.Category,
+                                     employeeNo: "",
+                                 },
+                                 beforeSend: function () {
+                                     $(".loading-bg").removeClass('dis-none');
+                                 },
+                                 success: function (result) {
+                                     if (result != "") {
+                                         $(".loading-bg").addClass('dis-none');
+                                         $("#popup").html(result);
+                                         $("#popupViewDoc").modal('toggle');
+                                     }
+                                 },
+                                 error: function (err) {
+                                     $(".loading-bg").addClass('dis-none');
+                                     console.log("error1 : " + err);
+                                 }
+                             });
+                         }
+                         $(this).val("");
+                         return false;
+                         e.stopPropagation();
+                     });
+                     return $result.add($customSelect);
+                 },
+                 _createFilterSwitchButton: function () {
+                     return this._createOnOffSwitchButton("filtering", this.searchModeButtonClass, false);
+                 }
+             }
+
+
+        ],
+
+    });
+    $("#gridCancelledApp").jsGrid("option", "filtering", false);
+</script>

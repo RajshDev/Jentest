@@ -1,0 +1,643 @@
+﻿@model IOAS.Models.ProjSummaryModel
+
+@{
+    ViewBag.Title = "Report";
+    ViewBag.Subtitle = "Reports";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+@{
+    System.Globalization.CultureInfo Indian = new System.Globalization.CultureInfo("hi-IN");
+}
+<style>
+    .prd-dts-vw {
+        color: #000;
+        background: #f6f6f6;
+    }
+
+    .current {
+        background: #597df0 !important;
+        color: #fff !important;
+    }
+.vw-dts-bg {
+    width: 100%;
+   
+    
+    border: 1px solid #ddd;
+    background: #fff;
+}.prd-dts-vw .dt-dts {
+    width: 100%;
+    float: left;
+    margin-bottom: 5px;
+}.pd-null {
+    padding: 0;
+}.vw-dts-bg {
+    padding: 0px 0px 0px 0px;
+}
+</style>
+<div class="row hd-tt-bg ">
+    <div class="col-md-12">
+        <h4><b>Project Summary</b></h4>
+    </div>
+</div>
+
+<div class="row">
+    <div class="page-wrapper">
+        <div class="col-md-12 mt30">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="vh-tt-bg vh-tt-bg-adj mt-null">
+                        <div class="vh-frm-bg bl-lg-panel-box pb-null br-adj-null">
+                            <div class="row">
+                                <div class="">
+                                    <div class="col-md-12">
+                                        <div class="grey-bg-adj mb-lg">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="row mt-md">
+                                                        <div class="col-md-3 ">
+                                                            <div class="form-group custom-form-group ">
+                                                                <label class="required">Project Number </label>
+                                                                @Html.TextBoxFor(m => m.ProjectNo, new { @class = "form-control", @id = "ProjectNo", @autocomplete = "off" })
+                                                                @Html.TextBoxFor(m => m.ProjectId, new { @class = "form-control dis-none", @id = "ProjectId" })
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-3 ">
+                                                            <div class="form-group custom-form-group ">
+                                                                <label>OH Report <a href="javascript:void(0)" class="DownOverheadBtn"><i class="ion-android-download"></i></a> </label>
+                                                                
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div class="col-md-12 mt-md mb-lg text-center">
+                <input type="submit" value="View Project Summary" class="btn btn-primary" id="btnSubmit" />
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div id="delsuccess" class="modal fade modal-success" role="dialog">
+    <div class="modal-dialog modal-sm">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-checkmark-circle"></i>
+                <h3 class="modal-title">No Record found!...</h3>
+            </div>
+            <div class="modal-body">
+                <p> No Record found!...</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="myModal" class="modal fade modal-pr-vw" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" onclick="window.location.href='@Url.Action("ProjectSummary", "CoreAccounts")';">&times;</button>
+                <div class="row hd-tt-bg">
+                    <div class="col-md-12">
+                        <h4><b>Reports </b></h4>
+                        <h5>Name of Coordinator: <b style="color:black">@Html.DisplayFor(m => m.Summary.PIname)</b></h5>
+                        @Html.HiddenFor(m => m.ProjId, new { @id = "id" })
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="white-bg ad-navbar">
+
+                        <div class="row prd-dts-bg">
+@if (Model.ProjId > 0)
+{
+                            <div class="col-md-9 prd-dts-vw">
+                                <div class="row mb-md">
+                                    <div class="col-md-3">
+                                        <span >
+                                            Project Number:
+                                        </span>
+                                        <h4><b id="prno">@Html.DisplayFor(m => m.Summary.ProjectNo)</b></h4>
+
+                                        @Html.TextBoxFor(m => m.Common.ProjectId, new { @id = "ProjectId", @class = "form -control dis-none" })
+                                    </div>
+                                    <div class="col-md-4">
+                                        <span>Agency :</span>
+                                        <h4>@Html.DisplayFor(m => m.Summary.AgencyName)</h4>
+                                    </div>
+                                    <div class="col-md-2 pd-null">
+                                        <span>Account Type: </span>
+                                        <h4>@Html.DisplayFor(m => m.Summary.ProjectType)</h4>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                         <span >Start date: </span>
+                                            <h4 >@(String.Format("{0:dd MMM yyyy}", Model.ProjectStartDate))</h4>
+                                       
+                                      
+                                    </div>
+                                </div>
+                                <div class="row mb-md">
+
+                                    <div class="col-md-3">
+                                        <span>Total Sanctioned Value: </span>
+                                        <h4><b>@Html.DisplayFor(m => m.Summary.SanctionedValue)</b></h4>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <span>Sanction Number :</span>
+                                        <h4>@Html.DisplayFor(m => m.Summary.SanctionOrderNo)</h4>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <span>Sanction Date :</span>
+                                        <h4>@Html.DisplayFor(m => m.Summary.SanctionOrderDate)</h4>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <span>Closure date:</span>
+                                        <h4>@(String.Format("{0:dd MMM yyyy}", Model.ProjectCloseDate))</h4>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <span>Title of Projects:</span>
+                                        <h4>@Html.DisplayFor(m => m.Summary.ProjectTittle)</h4>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3 prd-dts-inv">
+
+                                Investigators &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;<a href="javascript:void(0)" class="PrintBtn"><span class="glyphicon glyphicon-print"></span> Print</a>
+                                <div style="overflow: auto; height: 200px;" class="vw-dts-bg">
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Role</th>
+                                                <th>PCF %</th>
+                                                <th>RMF %</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>@Html.DisplayFor(m => m.Common.PIName)</td>
+                                                <td>PI</td>
+                                                <td>@(String.Format("{0:N}", Model.Common.PIPCF))</td>
+                                                <td>@(String.Format("{0:N}", Model.Common.PIRMF))</td>
+                                            </tr>
+
+                                            @if (Model != null && Model.Common.CoPIs != null)
+                                            {
+                                                foreach (var item in Model.Common.CoPIs)
+                                                {
+                                                    <tr>
+                                                        <td>@Html.DisplayFor(m => item.Name)</td>
+                                                        <td>Co-PI</td>
+                                                        <td>@(String.Format("{0:N}", item.PCF))</td>
+                                                        <td>@(String.Format("{0:N}", item.RMF))</td>
+                                                    </tr>
+                                                }
+                                            }
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            }
+                        </div>
+ 
+                        <div class="row">
+                            <div class="col-md-offset-10">
+                               
+                            </div>
+                        </div>
+                      
+                    </div>
+                </div>
+               
+            </div>
+            <div class="modal-body pdt-null">
+
+
+
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="cmn-panel-box">
+
+                            <div>
+                                <div class="row">
+                                    <div class="col-md-12 vw-dts-bg mb-tb">
+                                        <h3 class="mt-null">Project Summary</h3>
+                                        <table class="table table-bordered mb-null">
+                                            <thead>
+                                                <tr>
+                                                    <th>Head</th>
+                                                    <th class="text-right">Allocation</th>
+                                                    <th class="text-right">Commitment (X)</th>
+                                                    <th class="text-right">Expenditure (Y)</th>
+                                                    <th class="text-right">Total (X+Y)</th>
+                                                    @if (Model.Common != null && Model.Common.ProjectClassification != 2 && Model.Common.ProjectClassification != 3)
+                                                {
+                                                        <th class="text-right">Head Wise Available Balance</th>
+                                                    }
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @if (Model.ProjId > 0)
+                                            {
+                                                if (Model.Detail.HeadWise != null)
+                                                {
+                                                    if (Model.Detail.HeadWise.Count() > 0)
+                                                    {
+                                                        var count = 0;
+                                                        foreach (var item in Model.Detail.HeadWise)
+                                                        {
+                                                                <tr>
+                                                                    <td>
+                                                                        @Html.DisplayFor(m => item.AllocationHeadName)
+                                                                    </td>
+                                                                    <td class="text-right">
+                                                                        @(String.Format(Indian, "{0:N}", item.Amount))
+                                                                    </td>
+                                                                    <td class="text-right">
+                                                                        @(String.Format(Indian, "{0:N}", item.BalanceAmount))
+                                                                    </td>
+                                                                    <td class="text-right">
+                                                                        @(String.Format(Indian, "{0:N}", item.Expenditure))
+                                                                    </td>
+                                                                    <td class="text-right">
+                                                                        @(String.Format(Indian, "{0:N}", item.Total))
+                                                                    </td>
+                                                                    @if (Model.Common.ProjectClassification != 2 && Model.Common.ProjectClassification != 3)
+                                            {
+                                                                        <td class="text-right">
+                                                                            @(String.Format(Indian, "{0:N}", item.Available))
+                                                                        </td>
+                                                                    }
+                                                                </tr>
+                                                                count++;
+                                                            }
+                                                            <tr class="bg-gray">
+                                                                <td>
+                                                                    <b>  Total</b>
+                                                                </td>
+                                                                <td class="text-right">
+                                                                    <b> @(String.Format(Indian, "{0:N}", Model.Detail.HeadWise.Sum(m => m.Amount)))</b>
+                                                                </td>
+                                                                <td class="text-right">
+                                                                    <b> @(String.Format(Indian, "{0:N}", Model.Detail.HeadWise.Sum(m => m.BalanceAmount)))</b>
+                                                                </td>
+                                                                <td class="text-right">
+                                                                    <b>@(String.Format(Indian, "{0:N}", Model.Detail.HeadWise.Sum(m => m.Expenditure)))</b>
+                                                                </td>
+                                                                <td class="text-right">
+                                                                    <b> @(String.Format(Indian, "{0:N}", Model.Detail.HeadWise.Sum(m => m.Total)))</b>
+                                                                </td>
+                                                               @if (Model.Common.ProjectClassification != 2 && Model.Common.ProjectClassification != 3)
+                                        {
+                                                                <td class="text-right">
+                                                                    <b> @(String.Format(Indian, "{0:N}", Model.Detail.HeadWise.Sum(m => m.Available)))</b>
+                                                                </td>
+                                                               }
+                                                            </tr>
+                                                        }
+                                                        else
+                                                        {
+                                                            <tr>
+                                                                <td colspan="5" class="text-center">
+                                                                    No Records Found !
+                                                                </td>
+                                                            </tr>
+                                                        }
+                                                    }
+
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            @*<div class="row">
+    <div class="col-md-12">
+
+       <div class="grey-bg-adj  mb-lg">
+            <div class="row">
+                <div class="col-md-12">
+                    <table class="table alter-table mb-null">
+                        <thead>
+                            <tr>
+                                <th>Head</th>
+                                <th class="text-right">Budget Allocation</th>
+                                <th class="text-right">Commitment Unspent Balance</th>
+                                <th class="text-right">Expenditure</th>
+                                <th class="text-right">Total Expenditure including Commitment</th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.ProjId > 0) {
+                            if (Model.Detail.HeadWise != null)
+                            {
+                                var count = 0;
+                                foreach (var item in Model.Detail.HeadWise)
+                                {
+                                    <tr>
+                                        <td style="color:#597df0">
+                                            <b>@Html.DisplayFor(m => item.AllocationHeadName)</b>
+                                        </td>
+                                        <td class="text-right">
+                                            @Html.DisplayFor(m => item.Amount)
+                                        </td>
+                                        <td class="text-right">
+                                            @Html.DisplayFor(m => item.BalanceAmount)
+                                        </td>
+                                        <td class="text-right">
+                                            @Html.DisplayFor(m => item.Expenditure)
+                                        </td>
+                                        <td class="text-right">
+                                            @Html.DisplayFor(m => item.Total)
+                                        </td>
+
+                                    </tr>
+                                        count++;
+                                    }
+
+
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+                                </div>
+                            </div>*@
+                            <div style="padding-top:12px"class="row ">
+
+                                <div class="col-md-12 vw-dts-bg mb-tb pr-dts-grd">
+                                    <table class="table table-bordered">
+                                        <tbody>
+                                            <tr>
+                                                <td class="bg-gray">
+                                                    <label>Receipt upto 31-03-2019</label>
+                                                </td>
+                                                <td class="text-right">
+                                                    <h4>@(String.Format(Indian, "{0:N}", Model.Summary.PrevRec))</h4>
+                                                </td>
+                                                <td class="bg-gray">
+                                                    <label>Receipt after 01-04-2019 <a href="javascript:void(0)" class="DownBtn"><i class="ion-android-download"></i></a></label>
+                                                </td>
+                                                <td class="text-right">
+                                                    <h4>@(String.Format(Indian, "{0:N}", Model.Summary.TotalReceipt)) </h4>
+                                                </td>
+
+                                                <td class="bg-gray"><label>Total Grant Received till date (A)</label></td>
+                                                <td class="text-right"><h4><b>@(String.Format(Indian, "{0:N}", Model.Summary.TotalGrantReceived))</b></h4></td>
+
+
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-gray">
+                                                    <label>Interest upto 31-03-2019</label>
+                                                </td>
+                                                <td class="text-right">
+                                                    <h4>@(String.Format(Indian, "{0:N}", Model.Summary.PrevInterest))</h4>
+                                                </td>
+                                                <td class="bg-gray">
+                                                    <label>Interest after 01-04-2019 </label>
+                                                </td>
+                                                <td class="text-right">
+                                                    <h4>@(String.Format(Indian, "{0:N}", Model.Summary.AfterInterest)) </h4>
+                                                </td>
+
+                                                <td class="bg-gray"><label>Total Interest Earned (B)</label></td>
+                                                <td class="text-right"><h4><b>@(String.Format(Indian, "{0:N}", Model.Summary.TotalInterest))</b></h4></td>
+
+
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-gray">
+                                                    <label>Expenditure upto 31-03-2019</label>
+                                                </td>
+                                                <td class="text-right">
+                                                    <h4>@(String.Format(Indian, "{0:N}", Model.Summary.PrevExp)) </h4>
+                                                </td>
+
+
+                                                <td class="bg-gray">
+                                                    <label>Expenditure after 01-04-2019</label>
+                                                </td>
+                                                <td class="text-right">
+                                                    <h4>@(String.Format(Indian, "{0:N}", Model.Summary.ExpAmt)) </h4>
+                                                </td>
+                                                <td class="bg-gray">
+                                                    <label>Total expenditure till date (C)</label>
+                                                </td>
+                                                <td class="text-right">
+                                                    <h4><b>@(String.Format(Indian, "{0:N}", Model.Summary.TotalExpenditure))</b></h4>
+                                                </td>
+                                            </tr>
+
+                                            <tr>
+                                                <td class="bg-gray">
+                                                    <label>Opening Balance<br />(As on 01-04-2019)</label>
+                                                </td>
+                                                <td class="text-right">
+                                                    <h4>@(String.Format(Indian, "{0:N}", Model.Summary.OpeningBalance)) </h4>
+                                                </td>
+                                                <td class="bg-gray"></td>
+                                                <td></td>
+                                                <td class="bg-gray">
+                                                    <label>Commitment (D)</label>
+                                                </td>
+                                                <td class="text-right"><h4><b>@(String.Format(Indian, "{0:N}", Model.Summary.PreviousCommitment)) </b></h4></td>
+                                            </tr>
+                                            <tr>
+                                                <td></td>
+                                                <td></td>
+                                                <td class="bg-gray"><label>Negative Approval Available</label></td>
+                                                <td class="text-right txt-red"><h4><b>@(String.Format(Indian, "{0:N}", Model.Summary.ApprovedNegativeBalance)) </b></h4></td>
+                                                <td class="bg-green">
+                                                    <label class="txt-wht">Available balance in the project <br />(A+B)-(C+D)</label>
+                                                </td>
+                                                <td class="text-right bg-green">
+                                                    <h4 class="txt-wht fn20"><b>@(String.Format(Indian, "{0:N}", Model.Summary.AvailableBalanceinProject)) </b></h4>
+                                                </td>
+                                            </tr>
+
+                                        </tbody>
+                                    </table>
+
+
+
+                                </div>
+
+
+                            </div>
+                            @*<div class="row">
+
+
+
+
+                                <div class="col-md-12">
+
+                                    <div class="">
+
+
+                                        <div class="row">
+                                            <div class="col-md-5">
+                                                <div class="row">
+                                                    <div class="form-group  mb-null ">
+                                                        <label class="col-md-8">Receipt till 31-03-2019</label>
+                                                        <h4 class="col-md-4 mt-xs">@Html.DisplayFor(m => m.Summary.PrevRec)</h4>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="form-group  mb-null ">
+                                                        <label class="col-md-8">Opening Balance(A)</label>
+                                                        <h4 class="col-md-4 mt-xs">@Html.DisplayFor(m => m.Summary.OpeningBalance)</h4>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="form-group  mb-null ">
+                                                        <label class="col-md-8">Total Grant Received(B) <br />
+                                                        (after 01-04-2019)</label>
+                                                        <h4 class="col-md-4 mt-xs">@Html.DisplayFor(m => m.Summary.TotalReceipt) <a href="javascript:void(0)" class="DownBtn"><i class="ion-android-download"></i></a></h4>
+                                                       
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="form-group  mb-null  ">
+                                                        <label class="col-md-8">Negative Approval Available(C)</label>
+                                                        <h4 class="col-md-4 mt-xs">@Html.DisplayFor(m => m.Summary.ApprovedNegativeBalance)</h4>
+                                                    </div>
+                                                </div>
+                                             
+
+                                            </div>
+                                            <div class="col-md-2 ">
+
+
+
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="row">
+                                                    <div class="form-group  mb-null  ">
+                                                        <label class="col-md-8">Expense till 31-03-2019</label>
+                                                        <h4 class="col-md-4 mt-xs">@Html.DisplayFor(m => m.Summary.PrevExp)</h4>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="form-group  mb-null  ">
+                                                        <label class="col-md-8">Total Expenditure(D)<br />
+                                                            (after 01-04-2019)</label>
+                                                        <h4 class="col-md-4 mt-xs">@Html.DisplayFor(m => m.ExpAmt)</h4>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="form-group  mb-null  ">
+                                                        <label class="col-md-8">Commitments(E)</label>
+                                                        <h4 class="col-md-4 mt-xs">@Html.DisplayFor(m => m.Summary.PreviousCommitment)</h4>
+                                                    </div>
+                                                </div>
+                                                <div class="row ">
+                                                    <div class="form-group   mb-null">
+                                                        <label class="col-md-8">Total Distribution</label>
+                                                        <h4 class="col-md-4 mt-xs">@Html.DisplayFor(m => m.DistributionAmount)</h4>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="form-group  mb-null">
+                                                        <label class="col-md-8 mt-sm">Net Balance(A+B+C)-(D+E)</label>
+                                                        <h4 class="col-md-4 fn-s-md">@Html.DisplayFor(m => m.Summary.NetBalance)</h4>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+
+
+                                    </div>
+
+                                </div>
+
+
+                            </div>*@
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal" onclick="window.location.href='@Url.Action("ProjectSummary", "CoreAccounts")';">Close</button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    $(document).ready(function () {
+        var id = $("#id").val()
+        if (id > 0) {
+            $('#myModal').modal('toggle');
+        }
+
+    });
+    $(document).on('click', '#ProjectNo', function () {
+
+        applyAutoComplete($('#ProjectNo'), $('#ProjectId'), "../CoreAccounts/LoadAllProjectNo", undefined, undefined, undefined);
+    });
+    $('#btnSubmit').click(function () {
+        var ProjectId = $("#ProjectId").val();
+        if (ProjectId != "" && ProjectId != null && ProjectId!=0) {
+            var url = '@Url.Action("ProjectSummary", "CoreAccounts")?ProjectId=' + ProjectId;
+            window.location.href = url;
+        } else {
+            $('#FailedAlert').html("Project Number field required");
+            $('#Failed').modal('toggle');
+        }
+   
+        //  $("#myModal").modal('toggle');
+    });
+    $(document).on('click', 'a.DownBtn', function () {
+        var ProjectNo = $("#prno").text();
+        var url = '@Url.Action("ReceiptReport", "Reports")?ProjectNo=' + ProjectNo;
+        window.location.href = url;
+    });
+    $(document).on('click', 'a.DownOverheadBtn', function () {     
+        var url = '@Url.Action("OverheadReport", "Reports")';
+        window.location.href = url;
+    });
+    
+    $(document).on('click', 'a.PrintBtn', function () {
+        var ProjectId = $("#ProjectId").val();
+        var url = '@Url.Action("ProjectSummary", "ReportMaster")?ProjectId=' + ProjectId;
+        window.open(url, '_blank');
+    });
+   
+</script>

@@ -1,0 +1,568 @@
+﻿@model IOAS.Models.SummerInternshipModel
+@{
+    ViewBag.Title = "Summer Internship";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+
+<div class="row hd-tt-bg">
+    <div class="col-md-12">
+        <h4><b>Summer Internship</b> </h4>
+    </div>
+</div>
+<div class="row">
+    <div class="white-bg ad-navbar">
+        <div class="col-md-3 ds-spl-bg">
+            <div class="ds-icn">
+                <i class="ion-ios-list-outline "></i>
+            </div>
+            <div class="ds-tt">
+                <span>Request Reference</span>
+                <h4>@Model.SourceName</h4>
+                @Html.HiddenFor(m => m.SummrInternStudentId)
+            </div>
+        </div>
+        <div class="col-md-3 ds-spl-bg">
+            <div class="ds-icn">
+                <i class="ion-ios-calendar-outline"></i>
+            </div>
+            @if (Model.ReferenceNumber != null)
+            {
+                <div class="ds-tt">
+                    <span>Ref Number (WF / Tapal)</span>
+                    <span>@Html.DisplayFor(m => m.ReferenceNumber)</span>
+                </div>
+            }
+            @if (Model.SourceEmailDate != null)
+            {
+                <div class="ds-tt">
+                    <span>Email Date</span>
+                    <h4>@Html.DisplayFor(m => m.SourceEmail)</h4>
+                </div>
+            }
+        </div>
+
+
+        <div class="col-md-3 col-md-offset-3">
+            <div class="reg-no custom-reg-no">
+                <div class="form-group custom-form-group">
+                    <label>Number</label>
+                    <h4>@Html.DisplayFor(m => m.SummerInternshipNumber)</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="vw-dts-bg">
+    <div class="row">
+        <div class="col-md-12">
+            <h3>Student Details</h3>
+            <table class="table table-bordered mb-null">
+                <tbody>
+                    <tr>
+                        <td>
+                            <label>PI</label>
+                            <h4>@Model.PIName</h4>
+                        </td>
+                        <td colspan="3">
+                            <label>Project</label>
+                            <h4>@Model.ProjectNumber</h4>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label>Name of Student</label>
+                            <h4>@Model.StudentName</h4>
+                        </td>
+                        <td>
+                            <label>College/Institute Name</label>
+                            <h4>@Model.College</h4>
+                        </td>
+                        <td>
+                            <label>Roll No.</label>
+                            <h4>@Model.StudentRollNo</h4>
+                        </td>
+                        <td>
+                            <label>Course of Study</label>
+                            <h4>@Model.StudentCourse</h4>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label>Year of Study</label>
+                            <h4>@Model.StudentYearofStudy</h4>
+                        </td>
+                        <td>
+                            <label>Address</label>
+                            <h4>@Model.StudentAddress</h4>
+                        </td>
+                        <td colspan="2">
+                            <label>Email</label>
+                            <h4>@Model.StudentEmail</h4>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label>Internship Start Date</label>
+                            <h4>@Model.InternshipStartDate</h4>
+                        </td>
+                        <td>
+                            <label>Internship End Date</label>
+                            <h4>@Model.InternshipCloseDate</h4>
+                        </td>
+                        <td>
+                            <label>Duration of Internship</label>
+                            <h4 id="lblDuration"></h4>
+                        </td>
+                        <td>
+                            <label>Total Stipend Value</label>
+                            <h4>@Model.TotalStipendValue</h4>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label>Bank Name</label>
+                            <h4>@Model.BankName</h4>
+                        </td>
+                        <td>
+                            <label>Account Number</label>
+                            <h4>@Model.AccountNumber</h4>
+                        </td>
+                        <td>
+                            <label>Branch Name</label>
+                            <h4>@Model.BranchName</h4>
+                        </td>
+                        <td>
+                            <label>IFSC Code</label>
+                            <h4>@Model.IFSCCode</h4>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">
+                            <label>Remarks</label>
+                            <h4>@Model.Remark</h4>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="3"></td>
+                        <td class="reg-no">
+                            <label class="lblval">Total Stipend</label>
+                            <h4 class="tatval">@Model.TotalStipendValue</h4>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="vw-dts-bg">
+    <div class="row">
+        <div class="col-md-12">
+            @Html.Partial("_CommitmentDetailsView", Model.CommitmentDetail)
+        </div>
+    </div>
+</div>
+<div class="vw-dts-bg">
+    <div class="row">
+
+        <div class="col-md-12">
+            <div>
+                @Html.Partial("_CheckListDetailView", Model.CheckListDetail)
+            </div>
+            <table class="table table-bordered mb-null">
+                <tbody>
+                    <tr>
+
+                        <td>
+                            @Html.HiddenFor(m => m.CheckListVerified_By, new { @disabled = "disabled" })
+                            @Html.HiddenFor(m => m.CheckListVerifierName, new { @disabled = "disabled" })
+                            <label>Verified by</label>
+                            <h4 id="Verified_ByName">@Html.DisplayFor(m => m.CheckListVerifierName)</h4>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+</div>
+<div class="vw-dts-bg">
+    <div class="row">
+        <div class="col-md-12">
+            @Html.Partial("_TransactionDetailsView", Model)
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            @Html.Partial("_DocumentDetailView", Model.DocumentDetail)
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12 text-center pd-tb-30">
+        @if (Model.PFInit != true)
+        {
+            <input type="button" onclick="window.location.href='@Url.Action("SummerInternshipStudentList", "CoreAccounts")';" class="btn btn-default" value="Close" id="btnclose" />
+        }
+        else
+        {
+            <input type="button" onclick="window.location.href='@Url.Action("Dashboard", "Home")';" class="btn btn-default" value="Close" id="btnclose" />
+        }
+    </div>
+</div>
+<div id="popup"></div>
+<input type="hidden" id="currentRefId" value="@Model.SummrInternStudentId" />
+<input type="hidden" id="processGuideLineId" value="@ViewBag.processGuideLineId" />
+@Html.Partial("_ProcessStatus")
+<script>
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    var mode = '@TempData["viewMode"]';
+
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+        $('.selectpicker').selectpicker({
+            liveSearch: true
+        });
+       
+        var selSource = $('#Source').val();
+        $("#divRefNum, #divRefEmailDate").addClass('dis-none');
+        if (selSource == '1') {
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACWorkflowRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+        } else if (selSource == '3') {
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACTapalRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+        }
+        else if (selSource == '2') {
+            $('#divRefEmailDate').removeClass('dis-none');
+        } else {
+            $("#divRefNum").removeClass('dis-none');
+        }
+        calcDateDiff();
+        var stdntname = $('#txtStudentName').val();
+        $('#lblVendorName').html(stdntname);
+        var advanceAmt = parseFloat($('#txtTotalStipendValue').val());
+        $("#CreditorAmount").val(advanceAmt);
+        CalculatePaymentValue();
+        CalculateDeductionTotal();
+        $('#NeedUpdateTransDetail').val('false');
+    });
+
+    $('#InternshipFromDate, #InternshipToDate').datepicker({ dateFormat: 'dd-MM-yy', changeYear: true, yearRange: '-10:+30' });
+
+    function parseDate(s) {
+        var months = {
+            january: 0, february: 1, march: 2, april: 3, may: 4, june: 5,
+            july: 6, august: 7, september: 8, october: 9, november: 10, december: 11
+        };
+        var p = s.split('-');
+        return new Date(p[2], months[p[1].toLowerCase()], p[0]);
+    }
+
+
+    $('#StipendValueperMonth, #TotalStipendValue, #NoOfTraveller').on("copy cut paste drop", function () {
+        return false;
+    });
+    //$("#InternshipFromDate, #InternshipToDate").change(function () {
+    //    calcDateDiff();
+    //    //calculateamount();
+    //});
+    function calcDateDiff() {
+        var strDate = '@Model.InternshipStartDate';
+        var clsDate = '@Model.InternshipCloseDate';
+        if (strDate != '' && clsDate != '') {
+            var startDate = moment(parseDate(strDate));
+            var closeDate = moment(parseDate(clsDate)).add('days', 1);
+
+            var result = '';
+            var years = closeDate.diff(startDate, 'year');
+            startDate.add(years, 'years');
+
+            var months = closeDate.diff(startDate, 'months');
+            startDate.add(months, 'months');
+
+            var days = closeDate.diff(startDate, 'days');
+            if (years > 1) {
+                result = years + ' years ';
+            } else if (years == 1) {
+                result = years + ' year ';
+            }
+            if (months > 1) {
+                result = result + months + ' months ';
+            } else if (months == 1) {
+                result = result + months + ' month ';
+            }
+            if (days > 1) {
+                result = result + days + ' days';
+            } else if (days == 1) {
+                result = result + days + ' day';
+            }
+
+            $('#lblDuration').html(result);
+            //$('input[name="Duration"]').val(result);
+        }
+    }
+    $('#txtStipendValue').change(function () {
+        //calculateamount();
+        var stipendamount = $(this).val();
+        $('#txtTotalStipendValue').val(stipendamount);
+    });
+    //$('#txtStipendValueperMonth').change(function () {
+    //  //  calculateamount();
+    //    var stipendamount = $("#txtTotalStipendValue").val();
+    //    if (stipendamount < 6500) {
+    //        $('#MsgValidation').html("Stipend amount requested is less than the minimum value (Rs 6500). Please Ensure that justification Email for the Stipend amount requested is received from PI");
+    //        $('#ValidationModal').modal('toggle');
+    //        // return false;
+    //    }
+    //    if (stipendamount > 6500) {
+    //        $('#MsgValidation').html("Stipend amount requested is more than the fixed value (Rs 6500). Please Ensure that justification Email for the Stipend amount requested is received from PI");
+    //        $('#ValidationModal').modal('toggle');
+    //        // return false;
+    //    }
+    //});
+    //function calculateamount() {
+
+    //    var totalstipendamount = 0;
+    //    var stipendpermonth = parseInt($('#txtStipendValueperMonth').val());
+    //    var stipendfordays = 0;
+    //    var duration = 0;
+    //    var result = 0;
+    //    var strDate = $("#InternshipFromDate").val();
+    //    var clsDate = $("#InternshipToDate").val();
+    //    if (strDate != '' && clsDate != '') {
+    //        var startDate = moment(parseDate(strDate));
+    //        var closeDate = moment(parseDate(clsDate));
+
+    //        var mins = closeDate.diff(startDate, 'minutes');
+    //        if (mins <= 0) {
+    //            $('#MsgValidation').html("Internship End Date must be greater than start date.");
+    //            $('#ValidationModal').modal('toggle');
+    //            return false;
+    //        }
+
+    //        var years = closeDate.diff(startDate, 'year');
+    //        startDate.add(years, 'years');
+
+    //        var months = closeDate.diff(startDate, 'months');
+    //        startDate.add(months, 'months');
+
+    //        var days = closeDate.diff(startDate, 'days');
+    //        if (years > 0) {
+    //            result = (years * 12) + months ;
+    //        } else if (years == 0) {
+    //            result = months;
+    //        }
+    //        var stipendperday = stipendpermonth / 31;
+    //        stipendfordays = parseInt(stipendperday * days);
+    //    }
+    //    duration = result;
+    //    totalstipendamount = (stipendpermonth * duration) + stipendfordays;
+    //    if (!isNaN(totalstipendamount)) {
+    //        $("#txtTotalStipendValue").val(totalstipendamount.toFixed(0));
+    //    }
+    //}
+    $('#txtPI').change(function () {
+        var PIID = $(this).val();
+        $.getJSON("@Url.Action("LoadPIProject", "CoreAccounts")", { PIId: PIID },
+                    function (locationdata) {
+                        var select = $("#selectproject");
+                        select.empty();
+
+                        $.each(locationdata, function (index, itemData) {
+                            select.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name
+                            }));
+                        });
+                        select.selectpicker('refresh');
+                    });
+    });
+    function GetTransactionDetails() {
+
+        var interstate_f = false;
+
+        EmptyExpenseDeductionDetails();
+        $.ajax({
+            type: "GET",
+            url: "@Url.Action("GetSummerInternTransactionDetails", "CoreAccounts")",
+            data: { "typeCode": "SMI","tSubCode" : "1", },
+        traditional: true,
+        dataType: "json",
+        success: function (result) {
+            $.each(result.ExpenseDetail, function (i, item) {
+                //var amt = 0;
+                //$("#tbodyCommitmentSelList [name$='.HeadName'][value='"+item.BudgetHeadName+"']").each(function(){
+                //    var elePayment = $(this).closest('td').find("input[name$='.PaymentAmount']");
+                //    var parseVal = parseFloat($(elePayment).val());
+                //    if (!isNaN(parseVal))
+                //        amt = amt + parseVal;
+                //});
+                if (i == 0) {
+                    var trEle = $('#tbodyExpenseList tr:first');
+                    $(trEle).find('input[name$=".Amount"]').val('');
+                    $(trEle).find("input[name='ExpenseDetail.Index']").val(i);
+
+                    var selectGroup = $(trEle).find('select[name$=".AccountGroupId"]');
+                    selectGroup.empty();
+                    $.each(item.AccountGroupList, function (index, itemData) {
+                        selectGroup.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+
+                    var selectHead = $(trEle).find('select[name$=".AccountHeadId"]');
+                    selectHead.empty();
+                    $.each(item.AccountHeadList, function (index, itemData) {
+                        selectHead.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+                } else {
+                    var trEleNew = $('#tbodyExpenseList tr:first').clone().find('input').val('').end();
+                    $(trEleNew).find('input[name$=".Amount"]').val('');
+                    $(trEleNew).find("input[name='ExpenseDetail.Index']").val(i);
+                    $(trEleNew).find("input,Select").each(function () {
+                        $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                        $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                    });
+                    $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                        $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                    });
+
+                    var selectGroup = $(trEleNew).find('select[name$=".AccountGroupId"]');
+                    selectGroup.empty();
+                    $.each(item.AccountGroupList, function (index, itemData) {
+                        selectGroup.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+
+                    var selectHead = $(trEleNew).find('select[name$=".AccountHeadId"]');
+                    selectHead.empty();
+                    $.each(item.AccountHeadList, function (index, itemData) {
+                        selectHead.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+                    $('#tbodyExpenseList').append(trEleNew);
+                }
+            });
+
+            var SummerInternshipAmt =  $('#txtTotalStipendValue').val();
+            $("#CreditorAmount").val(SummerInternshipAmt);
+            var stdntname = $('#txtStudentName').val();
+            $('#lblVendorName').html(stdntname);
+            // $('#lblPIName').html($('#txtPI option:selected').text())
+            $('#NeedUpdateTransDetail').val('false');
+            CalculateDeductionTotal();
+        },
+        error: function (err) {
+            console.log("error : " + err);
+        }
+    });
+    //}
+    }
+
+    function fillMasterDropDown(ele, data, fillDafaultText, valueAsName) {
+        if (fillDafaultText !== undefined) {
+            ele.append($('<option/>', {
+                value: '',
+                text: 'Select any',
+            }));
+        }
+        if (valueAsName !== undefined) {
+            $.each(data, function (index, itemData) {
+                ele.append($('<option/>', {
+                    value: itemData.name,
+                    text: itemData.name,
+                }));
+            });
+        } else {
+            $.each(data, function (index, itemData) {
+                ele.append($('<option/>', {
+                    value: itemData.id,
+                    text: itemData.name,
+                }));
+            });
+        }
+    }
+
+    function ValidateNumberOnly(e) {
+        if (e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)) {
+            return false;
+        }
+    }
+    function ValidateDecimalOnly(evt) {
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode != 46 && charCode > 31
+          && (charCode < 48 || charCode > 57))
+            return false;
+
+        return true;
+    }
+
+    ///* Tab Sections Start*/
+    //var currentTab = 0; // Current tab is set to be the first tab (0)
+    //showTab(currentTab); // Display the crurrent tab
+    //function showTab(n) {
+    //    // This function will display the specified tab of the form...
+    //    var x = document.getElementsByClassName("tab");
+    //    x[n].style.display = "block";
+    //    $(".custom-nav-pills li:eq(" + n + ")").addClass("active");
+    //    //... and fix the Previous/Next buttons:
+    //    if (n == 0) {
+    //        document.getElementById("prevBtn").style.display = "none";
+    //    } else {
+    //        document.getElementById("prevBtn").style.display = "inline";
+    //    }
+    //    if (n == (x.length - 1)) {
+    //        document.getElementById("nextBtn").style.display = "Submit";
+    //        $('#nextBtn').hide();
+    //    } else {
+    //        document.getElementById("nextBtn").innerHTML = "Next";
+    //        $('#nextBtn').show();
+    //    }
+    //    //... and run a function that will display the correct step indicator:
+    //    //fixStepIndicator(n)
+    //}
+
+    //function nextPrev(n) {
+    //    // This function will figure out which tab to display
+    //    var x = document.getElementsByClassName("tab");
+    //    // Exit the function if any field in the current tab is invalid:
+    //   // if (n > 0 && !validateForm(n)) return false;
+    //    if (currentTab + n < x.length) {
+    //        // Hide the current tab:
+    //        x[currentTab].style.display = "none";
+    //        $(".custom-nav-pills li:eq(" + currentTab + ")").removeClass("active");
+    //    } else {
+    //        // ... the form gets submitted:
+    //        formSave();
+    //        return false;
+    //    }
+    //    // Increase or decrease the current tab by 1:
+    //    currentTab = currentTab + n;
+
+    //    // Otherwise, display the correct tab:
+    //    showTab(currentTab);
+    //}
+
+
+</script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>

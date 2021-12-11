@@ -1,0 +1,492 @@
+﻿@model IOAS.Models.STEViewModel
+@using IOAS.GenericServices
+@{
+    ViewBag.Title = "Cancel Application";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+    <link href="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/css/bootstrap-select.min.css")" rel="stylesheet" />
+    string appid = Convert.ToString(Request.Params["appid"]);
+    string apptype = Convert.ToString(Request.Params["apptype"]);
+
+}
+
+<div class="row hd-tt-bg">
+    <div class="col-md-12">
+        <h4><b>Application View</b></h4>
+    </div>
+</div>
+<div class="row cust-tab">
+    <div class="page-wrapper mt30">
+        <div>
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="bl-lg-panel-box pb-null">
+                            <div class="cmn-panel-box">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            @Html.HiddenFor(m => m.appid)
+                                            @Html.HiddenFor(m => m.orderid)
+                                            @Html.HiddenFor(m => m.appType)
+                                            @Html.HiddenFor(M => M.DesignationId)
+                                            <label>Application No: </label>
+                                            <h4>@Html.DisplayFor(M => M.ApplicationNo)</h4>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>Candidate Name: </label>
+                                            <h4>@Html.DisplayFor(M => M.Name)</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>PI Name:</label> <br>
+                                            <h4>@Html.DisplayFor(M => M.ProjectDetailsModel.PIName)</h4>
+
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>Department name:</label> <br>
+                                            <h4>@Html.DisplayFor(M => M.ProjectDetailsModel.PIDepartmentName)</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>MS/Phd:</label> <br>
+                                            <h4>@Html.DisplayFor(M => M.PhdDetail)</h4>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>Designation: </label>
+                                            <h4>@Html.DisplayFor(M => M.Designation)</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>Qualification: </label>
+                                            <h4>@Html.Raw(Model.Qualification)</h4>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>Experience: </label>
+                                            <h4>@Html.DisplayFor(M => M.Experience)</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>Pay: </label>
+                                            <h4>@Html.DisplayFor(M => M.BasicPay)</h4>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>Medical:</label> <br>
+                                            <h4>@Html.DisplayFor(M => M.MedicalAmmount)</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>DOB </label>
+                                            <h4>@Html.DisplayFor(M => M.DateofBirth)</h4>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group  ">
+                                            <label>Application Received Date</label>
+                                            <h4>@Html.DisplayFor(M => M.ApplicationReceiveDate)</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>Pay category:</label>
+                                            <h4>@Html.DisplayFor(M => M.PayType)</h4>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6" id="CldivCSIR">
+                                        <div class="form-group custom-form-group ">
+                                            <label>IITM Pensioner / CSIR Staff :</label>
+                                            <h4>@Html.DisplayFor(M => M.IITMPensionerOrCSIRStaff)</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group  mb-sm">
+                                            <label>Staff category:</label>
+                                            <h4>@Model.StaffCategory</h4>
+                                        </div>
+                                    </div>
+                                    @if (Model.PIJustificationDocuments.Count > 0)
+                                    {
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+
+                                                <label>PI Justification Document</label> <br>
+                                                @foreach (var item in Model.PIJustificationDocuments)
+                                                {
+                                                    <h4>@Html.ActionLink(item.FileName, "ShowDocument", new { Controller = "Account", filepath = "Requirement", file = item.FilePath }, new { @name = "DocDownload", @target = "_blank" })</h4>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="row">
+                                    @if (Model.PIJustificationCommands.Count > 0)
+                                    {
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label>PI Comments</label>
+                                                @foreach (var picomments in Model.PIJustificationCommands)
+                                                {
+                                                    <h4>@picomments</h4>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>DA Comments</label>
+                                            <h4>@Html.DisplayFor(M => M.Comments)</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    @if (Model.isCommiteeRejection)
+                                    {
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group ">
+                                                <label>Committee Comments</label>
+                                                <h4>@Html.DisplayFor(M => M.CommitteeRemark)</h4>
+                                                <em>@Html.DisplayFor(M => M.CommitteeApprovedBy)</em>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group ">
+                                            <label>Cancel Reason</label>
+                                            <h4>@Html.DisplayFor(M => M.CancelReason)</h4>
+                                        </div>
+                                    </div>
+
+                                    @if (!string.IsNullOrEmpty(Model.CancelDocument))
+                                    {
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group ">
+                                                <label>Cancel document</label>
+                                                <h4>@Html.ActionLink(Model.CancelDocument, "ShowDocument", new { Controller = "Account", filepath = "Requirement", file = Model.CancelDocument }, new { @name = "DocDownload", @target = "_blank" })</h4>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="bl-lg-panel-box  pb-null">
+                            <div class="bl-lg-panel-box-hd mb-m-5 pd-null">
+                                <div class="cmn-panel-box">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>Project Number</label>
+                                                <h4>@Html.DisplayFor(M => M.ProjectNumber)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>Project Title</label>
+                                                <h4>@Html.DisplayFor(M => M.ProjectDetailsModel.ProjectTitle)</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>Name of the Client / Sponsoring Agency</label>
+                                                <h4>@Html.DisplayFor(M => M.ProjectDetailsModel.SponsoringAgency)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>Project Type</label>
+                                                <h4>@Html.DisplayFor(M => M.ProjectDetailsModel.ProjectType)</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>PI Name</label>
+                                                <h4>@Html.DisplayFor(M => M.ProjectDetailsModel.PIName)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>Project Start Date</label>
+                                                <h4>@Html.DisplayFor(M => M.ProjectDetailsModel.ProjectStartDate)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>Project Closure Date</label>
+                                                <h4>@Html.DisplayFor(M => M.ProjectDetailsModel.ProjectClosureDate)</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>PI Code</label>
+                                                <h4>@Html.DisplayFor(M => M.ProjectDetailsModel.PICode)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>PI Email ID</label>
+                                                <h4>@Html.DisplayFor(M => M.ProjectDetailsModel.Email)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>PI Phone No</label>
+                                                <h4>@Html.DisplayFor(M => M.ProjectDetailsModel.Phone)</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>Department code </label>
+                                                <h4>@Html.DisplayFor(M => M.ProjectDetailsModel.PIDepartmentCode)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>Department Name</label>
+                                                <h4>@Html.DisplayFor(M => M.ProjectDetailsModel.PIDepartmentName)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label>Medical</label> <br>
+                                                <h4>@Html.DisplayFor(M => M.MedicalINWordings)</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label class="required">Designation</label>
+                                                <h4>@Html.DisplayFor(M => M.Designation)</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label>Appointment start date</label>
+                                                <input type="text" value="@Model.Appointmentstartdate" class="form-control" id="" disabled>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label>Appointment End date</label>
+                                                <input type="text" value="@Model.AppointmentEndDate" class="form-control" id="" disabled>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label>Commitment Amount</label>
+                                                <input type="text" value="@Model.CommitmentAmount" class="form-control" id="" disabled>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label>Committee member</label>
+                                                @Html.TextBoxFor(m => m.CommiteeMember1, new { @class = "form-control", @readonly = "readonly" })
+                                                @Html.HiddenFor(m => m.CommiteeMemberId1)
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label>Committee member</label>
+                                                @Html.TextBoxFor(m => m.CommiteeMember2, new { @class = "form-control", @readonly = "readonly" })
+                                                @Html.HiddenFor(m => m.CommiteeMemberId2)
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label> Chairperson</label>
+                                                @Html.TextBoxFor(m => m.ChairpersonName, new { @class = "form-control", @readonly = "readonly" })
+                                                @Html.HiddenFor(m => m.ChairpersonNameId)
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="text-center" style="margin-bottom: 50px;">
+    <button type="button" id="btnApprove" class="btn btn-danger">Approve</button>
+    <button type="button" class="btn btn-default" onclick="window.location.href='@Url.Action("CancelRequestList","Requirement" )';">Close</button>
+</div>
+<div class="loading-bg dis-none">
+</div>
+<script>
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+    });
+
+    $('a[name="DocDownload"]').click(function (p) {
+        p.preventDefault();
+        var ref = $(this).attr('href');
+        var win = window.open('', '_blank');
+        win.location.href = ref;
+    });
+
+    $('#btnApprove').click(function(e) {
+        e.preventDefault();
+        var InputData = [];
+        var orderid = @Html.Raw(Json.Encode(Model.orderid));
+        InputData = {
+            appid : @appid,
+            apptype : '@apptype',
+            orderid : orderid,
+        };
+
+        $.confirm({
+            title: "Mail Preview",
+            type: 'blue',
+            columnClass: 'col-md-12',
+            content: function () {
+                var self = this;
+                return $.ajax({
+                    type: "Post",
+                    url: '@Url.Action("SendOfferOrder", "Requirement")',
+                    data: {
+                        appid : @appid,
+                        apptype : '@apptype',
+                        offercategory: "Cancel",
+                        isgetbody_f: true,
+                        orderid: orderid
+                    }
+                }).done(function (response) {
+                    self.setContent(response.Item2);
+                }).fail(function () {
+                    self.setContent('Preview page not loaded.');
+                });
+            },
+            buttons: {
+                Yes: {
+                    text: 'Approve',
+                    btnClass: 'btn-blue',
+                    action: function () {
+                        $.ajax({
+                            type: "Post",
+                            url: '@Url.Action("ApproveCancelApplication", "Requirement")',
+                            data: InputData,
+                            contentType: "application/x-www-form-urlencoded",
+                            beforeSend: function () {
+                                $(".loading-bg").removeClass('dis-none');
+                            },
+                            success: function(result)
+                            {
+                                $(".loading-bg").addClass('dis-none');
+                                if (result == 1)
+                                {
+                                    $.confirm({
+                                        title: 'Success Message!',
+                                        content:'Approved successfully.',
+                                        type: 'green',
+                                        buttons: {
+                                            Close: function () {
+                                                var url = '@Url.Action("CancelRequestList", "Requirement")';
+                                                window.location.href = url;
+                                            },
+                                        },
+                                    });
+                                }
+                                else if (result == -1)
+                                {
+                                    $.confirm({
+                                        title: 'Success Message!',
+                                        content:'Already approved.',
+                                        type: 'green',
+                                        buttons: {
+                                            Close: function () {
+                                                var url = '@Url.Action("CancelRequestList", "Requirement")';
+                                                window.location.href = url;
+                                            },
+                                        },
+                                    });
+                                }
+                                else
+                                {
+                                    $.confirm({
+                                        title: 'Error Message!',
+                                        content:'Sorry something went wrong.',
+                                        type: 'red',
+                                        buttons: {
+                                            Close: function () {
+                                                var url = '@Url.Action("CancelRequestList", "Requirement")';
+                                                window.location.href = url;
+                                            },
+                                        },
+                                    });
+                                }
+                            },
+                            error: function (err) {
+                                console.log("error1 : " + err);
+                            }
+                        });
+                    }
+                },
+                No: {
+                    text: 'Decline',
+                    btnClass: 'btn-red',
+                    action: function () {
+                    }
+                },
+            }
+        });
+    });
+</script>
+<script src="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/js/bootstrap-select.min.js")"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>

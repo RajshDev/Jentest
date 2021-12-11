@@ -1,0 +1,221 @@
+﻿@model IOAS.Models.TapalReportViewModel
+@{
+    ViewBag.Title = "Tapal report";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<div id="addnewstatusbar">
+    <div class="row hd-tt-bg">
+        <div class="col-md-4">
+            <h3>Tapal Transanction Detail Report</h3>
+        </div>
+    </div>
+</div>
+<div class="row">
+@using (Html.BeginForm("Tapalreportdetail", "TapalReport", FormMethod.Post, new { @class = "", role = "form", @id = "frmReport", enctype = "multipart/form-data" }))
+{
+    <div class="col-md-12">
+        <div class="page-wrapper">
+            <div class="white-bg">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label class="required">From date</label>
+                            @Html.EditorFor(m => m.fromdate, new { @class = "form-control", @id = "txtfromdate" , @required = "required" })
+                            <div> @Html.ValidationMessageFor(m => m.fromdate)</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label class="required">To date</label>
+                            @Html.EditorFor(m => m.todate, new { @class = "form-control", @id = "txttodate", @required = "required" })
+                            <div> @Html.ValidationMessageFor(m => m.todate)</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label>Department</label>
+                            @Html.DropDownListFor(M => M.departmentid, new SelectList(ViewBag.dept, "Departmentid", "Departmentname"), "Select Departmrnt", new { @id = "ddldept", @class = "form-control", @onchange = "Fillrole()" })
+                            
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label>Role</label>
+                            @Html.DropDownListFor(M => M.roleid, new SelectList(Enumerable.Empty<SelectListItem>(), "Roleid", "Rolename"), "Select Role", new { @id = "ddlrole", @class = "form-control"})
+                            
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label>User</label>
+                           @Html.DropDownListFor(M => M.id, new SelectList(ViewBag.user, "id", "name"), "Select User", new { @id = "ddluser", @class = "form-control" })
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 text-center pd-tb-30">
+                    <input type="button" class="btn btn-primary mr10" value="Show report" name="Button" id="btnreport" />
+                </div>
+            </div>
+        </div>
+    </div>
+}
+ </div>
+<div id="warrningmodal" class="modal fade modal-warning" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-warning"></i>
+                <h3 class="modal-title">Records not founds</h3>
+            </div>
+            <div class="modal-body">
+
+                <p>@ViewBag.msg</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div id="Errormodal" class="modal fade modal-error" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-cancel"></i>
+                <h3 class="modal-title">Error Message</h3>
+            </div>
+            <div class="modal-body">
+
+                <p>@ViewBag.error</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div id="frmdatemodal" class="modal fade modal-error" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-cancel"></i>
+                <h3 class="modal-title">Error Message</h3>
+            </div>
+            <div class="modal-body">
+
+                <p>Please select From date</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div id="Todatemodal" class="modal fade modal-error" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-cancel"></i>
+                <h3 class="modal-title">Error Message</h3>
+            </div>
+            <div class="modal-body">
+
+                <p>Please select To date</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script type="text/javascript">
+
+    $('#btnreport').click(function () {
+        if (Validation() == true) {
+            var frm = $('#fromdate').val();
+            var to = $('#Todate').val();
+            var win = window.open('', '_blank');
+            var url = "@Url.RouteUrl(new {Controller = "TapalReport", Action = "Tapalreportdetail" })?fromdate=" + frm;
+            win.location.href = url + "&todate=" + $('#todate').val() + "&departmentid=" + $('#ddldept').val() + "&roleid=" + $('#ddlrole').val() + "&id=" + $('#ddluser').val();
+           
+        }
+    });
+    var msg = '@ViewBag.msg';
+    var error = '@ViewBag.error';
+    if (msg != '') {
+        $('#warrningmodal').modal('show');
+    }
+    if (error != '')
+    {
+        $('#Errormodal').modal('show');
+    }
+    function Fillrole() {
+        var ddldept = $('#ddldept').val();
+        if (ddldept != '') {
+            $.ajax({
+                url: '@Url.Action("Rolelist","Account")',
+                type: "Post",
+                dataType: "JSON",
+                data: { Depertmentid: ddldept },
+
+                success: function (result) {
+                    
+                    $("#ddlrole").html(""); // clear before appending new list
+                    var markup = "<option value='0'>Select Role</option>";
+                    $("#ddlrole").html(markup).show();
+                    $.each(result, function (i, role) {
+                        $("#ddlrole").append(
+                            $('<option></option>').val(role.Roleid).html(role.Rolename));
+                    });
+
+                }
+            });
+        }
+        else {
+
+            $('#ddlrole').html("");
+        }
+    }
+    function Validation() {
+        
+        if ($('#fromdate').val() == "") {
+            $('#frmdatemodal').modal('show');
+            return false
+        }
+        else if ($('#todate').val() == "") {
+            $('#Todatemodal').modal('show');
+            return false
+        }
+        else {
+            return true;
+        }
+    }
+</script>

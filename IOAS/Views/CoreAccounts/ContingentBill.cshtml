@@ -1,0 +1,282 @@
+﻿@model IOAS.Models.ContingentBillModel
+@{
+    ViewBag.Title = "Contingent Bill";
+    ViewBag.Subtitle = "Contingent Bill";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<div class="row hd-tt-bg">
+    <div class="col-md-4 pull-left">
+        <h3>Contingent Bill</h3>
+    </div>
+</div>
+<div class="row">
+    @using (Html.BeginForm("ContingentBill", "CoreAccounts", FormMethod.Post, new { @id = "frmTapal", role = "form", enctype = "multipart/form-data" }))
+    {
+
+        <div class="page-wrapper" id="createproposal">
+            <div class="white-bg">
+                <div class="col-md-12 text-right">
+                    @*@Html.CheckBoxFor(m => m.IsPdf) PDF
+                    @Html.CheckBoxFor(m => m.IsDoc) DOC*@
+                </div>
+                <div class="row">
+
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label class="required">Project Number</label>
+                            @Html.TextBox("ProjectNumber", Model.ProjectNumber, new { @class = "form-control" })
+                            @Html.HiddenFor(m => m.ProjectId)
+                            <div class="txt-error txt-red"> @Html.ValidationMessageFor(M => M.ProjectNumber)</div>
+                            @Html.ValidationMessage("ProjectId")
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            @Html.HiddenFor(m => m.ConingentBillId)
+                            <div class="form-group custom-form-group">
+                                <label >VocherNo</label>
+                                @Html.TextBoxFor(m => m.VoucherNo, new { @class = "form-control" })
+                                <div class="txt-error txt-red"> @Html.ValidationMessageFor(M => M.VoucherNo)</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="reg-no">
+                            <div class="form-group custom-form-group ">
+                                <label> Refrence Number </label>
+                                @Html.TextBoxFor(m => m.RefNo, new { @class = "form-control", @id = "RefNo", @disabled = "disabled" })
+                                <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.RefNo)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label>Allotment amount</label>
+                            @Html.TextBoxFor(m => m.AllotmentAmount, new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)" })
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label>Amount expanded</label>
+                            @Html.TextBoxFor(m => m.ExpendedAmount, new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)" })
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label>Balance of allotment</label>
+                            @Html.TextBoxFor(m => m.BalanceAllotmentAmount, new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)" })
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label>Expenditure A/C</label>
+                            @Html.TextBoxFor(m => m.ExpenditureAccount, new { @class = "form-control", })
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label>Authority no.</label>
+                            @Html.TextBoxFor(m => m.AuthorityNo, new { @class = "form-control", })
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label>Authority date</label>
+                            @Html.EditorFor(m => m.AuthorityDate, new { @class = "form-control", @id = "ReceiptDate" })
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label class="required">Project Tittle</label>
+                            @Html.TextBoxFor(m => m.ProjectTittle, new { @class = "form-control", })
+                            <div class="txt-error txt-red"> @Html.ValidationMessageFor(M => M.ProjectTittle)</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label class="required">Project Cordinator</label>
+                            @Html.TextBoxFor(m => m.ProjectCordinator, new { @class = "form-control" })
+                            <div class="txt-error txt-red"> @Html.ValidationMessageFor(M => M.ProjectCordinator)</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label>Department</label>
+                            @Html.TextAreaFor(m => m.DeptofEngg, new { @class = "form-control" })
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label>Net Amount</label>
+                            @Html.TextAreaFor(m => m.NetAmount, new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)" })
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label>During Year</label>
+                            @Html.TextBoxFor(m => m.Duringyear, new { @class = "form-control" })
+                        </div>
+                        </div>
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label>Milestone</label>
+                            @Html.TextBoxFor(m => m.Milestone, new { @class = "form-control" })
+                        </div>
+                        </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label>Payment Date</label>
+                            @Html.EditorFor(m => m.PaymentDate, new { @class = "form-control" })
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label class="required">Attach Final Contractor Bill(.pdf, .doc, .docx)</label>
+                            @Html.TextBoxFor(m => m.FinalAttachDoc, new { @class = "form-control", @type = "file" })
+                        </div>
+                    </div>
+                    @if (!String.IsNullOrEmpty(Model.DocDetail))
+                    {
+                        var Name = Model.DocDetail.Split('_');
+                        var OrgDocName = Name[1];
+                        var Path = "~/Content/ContingentBillDocuments/";
+                        <div class="col-md-4">
+                            <div class="form-group custom-form-group">
+                                <label class="required">Uploaded document</label>
+                                <a href="@Url.Action("ShowUploadedDocument", "CoreAccounts", new { file = Model.DocDetail, filepath = @Path })" target="_blank"> @OrgDocName</a>
+                            </div>
+                        </div>
+                    }
+                   
+                </div>
+            </div>
+
+            <div class="white-bg">
+                <div id="DocdivContent">
+
+                    <div class="gray-bg br-rd">
+                        <div class="row">
+                            <div class="col-md-12" id="DocdivContent">
+                                <div class="row m-b-sm">
+                                    <div class="col-md-11 text-right" style="display:none">
+                                        <a href="javascript:void(0)" id="btnAddDoc" class="btn btn-primary btnAddPCF">Add New</a>
+                                    </div>
+                                </div>
+                                <div class="m-b-sm scrl-table scrl-table-po-bl">
+                                    <table class="table table-bordered" style="width: 1280px;">
+                                        <thead>
+                                            <tr>
+                                                <th colspan="11"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tbodyPCF">
+                                            <tr class="tr1">
+                                                <td style="width: 200px;">Quantity</td>
+                                                <td style="width: 200px;">Rate</td>
+                                                <td style="width: 200px;">Per</td>
+                                                <td style="width: 200px;">Project Payment</td>
+                                                <td style="width: 200px;">Received Date</td>
+                                                <td style="width: 200px;">Received From</td>
+                                                <td style="width: 200px;">Received Amount</td>
+                                            </tr>
+                                            <tr id="trPrimary"> 
+                                                <td>
+                                                    @Html.TextBoxFor(m => m.NoOfQuantity, new { @class = "form-control", @onkeypress = "return ValidateNumberOnly(event)" })
+                                                </td>
+                                                <td>
+                                                    @Html.TextBoxFor(m => m.Rate, new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)" })
+                                                </td>
+                                                <td>
+                                                    @Html.TextBoxFor(m => m.per, new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)" })
+                                                </td>
+                                                <td>
+                                                    @Html.TextBoxFor(m => m.PrjPayment, new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)" })
+                                                </td>
+                                                <td>
+                                                    @Html.EditorFor(m => m.AdvReceiveDate, new { @class = "form-control" })
+                                                </td>
+                                                <td>
+                                                    @Html.TextBoxFor(m => m.AdvReceivedFrom, new { @class = "form-control" })
+                                                </td>
+                                                <td>
+                                                    @Html.TextBoxFor(m => m.ReceivedPayment, new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)" })
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+            <div class="row" id="saveproposal">
+                <div class="col-md-12 text-center pd-tb-30">
+                    <input type="submit" class="btn btn-primary mr10" value="Save" name="Button" />
+                    <input type="button" onclick="window.location.href='@Url.Action("ContingentBillList", "CoreAccounts")';" class="btn btn-default" value="Close" id="btnclose" />
+                </div>
+            </div>
+        </div>
+
+    }
+</div>
+
+<script type="text/javascript">
+
+    applyProjectAutoComplete($('#ProjectNumber'), $('#ProjectId'));
+
+    //$("#VoucherDate").datepicker
+    //      ({
+    //          dateFormat: 'dd-MM-yy',
+    //          yearRange: '-100:+3'
+    //      });
+
+    //$('.btnAddPCF').click(function () {
+
+    //    var cln = $('#tbodyPCF tr:nth-child(2)').clone().find("input").val("").end();
+    //    $(cln).find('.pcftdAmt, .pcftdOH, .tdNet').text('');
+    //    $(cln).find('a.dis-none').removeClass('dis-none');
+    //    var index = $('#tbodyPCF tr:last').find("input[name='PCFDetail.Index']").val();
+    //    index = parseInt(index) + 1;
+    //    $(cln).find("input[name='PCFDetail.Index']").val(index);
+    //    $(cln).find("input, select").each(function () {
+    //        $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+    //        if ($(this).attr("id"))
+    //            $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+    //    });
+    //    $(cln).find("span[data-valmsg-for]").each(function () {
+    //        $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+    //    });
+    //    $(cln).find('.hasDatepicker').attr("id", "").removeClass('hasDatepicker').removeData('datepicker').unbind().datepicker({
+    //       dateFormat: 'dd-MM-yy', changeYear: true, yearRange: '-100:+3'
+    //            });
+    //    $('#tbodyPCF').append(cln);
+    //});
+
+    //$(document).on('click', 'a.removePCFItem', function () {
+    //    $(this).closest('tr').remove();
+    //});
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+    });
+</script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>

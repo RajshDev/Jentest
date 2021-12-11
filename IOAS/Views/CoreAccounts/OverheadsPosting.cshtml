@@ -1,0 +1,2862 @@
+﻿@model IOAS.Models.OverheadsPostingModel
+@{
+    ViewBag.Title = "Overheads Posting";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+@using (Html.BeginForm("OverheadsPosting", "CoreAccounts", FormMethod.Post, new { @class = "", role = "form", @id = "formOHP", enctype = "multipart/form-data" }))
+{
+    <div class="row hd-tt-bg">
+        <div class="col-md-12">
+            <h4><b>Overheads Posting</b> </h4>
+        </div>
+    </div>
+    <div class="row">
+        <div class="white-bg ad-navbar">
+            <div class="col-md-3 ds-spl-bg">
+                <div class="ds-icn">
+                    <i class="ion-ios-list-outline "></i>
+                </div>
+                <div class="ds-tt">
+                    <span class="required">Request Reference</span>
+                    @Html.DropDownListFor(m => m.Source, new SelectList(ViewBag.SourceList, "codevalAbbr", "CodeValDetail"), "Select any",
+                new { @class = "form-control", @readonly = "readonly" })
+                    @Html.ValidationMessageFor(m => m.Source)
+                    @Html.HiddenFor(m => m.OverheadsPostingId)
+                    @Html.HiddenFor(m => m.NeedUpdateTransDetail)
+                    @Html.Hidden("TransactionTypeCode", "OHP")
+                </div>
+            </div>
+            <div class="col-md-3 ds-spl-bg">
+                <div class="ds-icn">
+                    <i class="ion-ios-calendar-outline"></i>
+                </div>
+                <div class="ds-tt" id="divRefNum">
+                    <span class="required">Ref Number (WF / Tapal)</span>
+                    @Html.TextBoxFor(m => m.ReferenceNumber, new { @class = "form-control" })
+                    @Html.TextBoxFor(m => m.SourceReferenceNumber, new { @class = "form-control dis-none" })
+                    @Html.ValidationMessageFor(m => m.SourceReferenceNumber)
+                    @Html.Hidden("SourceTapalOrWorkflow", "True")
+                    @Html.HiddenFor(m => m.SubCode)
+                    @Html.Hidden("TransactionTypeCode", "OHP")
+                </div>
+                <div class="dis-none ds-tt" id="divRefEmailDate">
+                    <span class="required">Email Date</span>
+                    @Html.EditorFor(m => m.SourceEmailDate, new { @class = "form-control" })
+                    <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.SourceEmailDate)</div>
+                </div>
+            </div>
+
+
+            <div class="col-md-3 col-md-offset-3">
+                <div class="reg-no custom-reg-no">
+                    <div class="form-group custom-form-group">
+                        <label>Number</label>
+                        <h4>@Html.DisplayFor(m => m.OverheadsPostingNumber)</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 mt30">
+            <ul class="nav nav-pills custom-nav-pills">
+                <li class="active"><a href="javascript:void(0)"><span>01</span>Overheads Details</a></li>
+                <li><a href="javascript:void(0)"><span>02</span>Backend Credits</a></li>
+                <li><a href="javascript:void(0)"><span>03</span>Transaction Details</a></li>
+                @*<li><a href="javascript:void(0)"><span>04</span>Transaction</a></li>*@
+            </ul>
+            <div class="tab">
+                <div class="gray-bg br-rd">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="row m-b-sm">
+                                <div class="col-md-6">
+                                    <h3 class="mt-xs">Details</h3>
+                                </div>
+                                @*<div class="col-md-6 text-right">
+                                        <a href="javascript:void(0)" id="btnAddHonor" class="btn btn-primary btnAddHonor">Add New</a>
+                                    </div>*@
+                            </div>
+                            <div class="row m-b-sm">
+                                <div class="col-md-3">
+                                    <div class="form-group custom-form-group">
+                                        <label>Project Type</label>
+                                        @Html.DropDownListFor(m => m.ProjectType, new SelectList(ViewBag.Projecttype, "id", "name"), "Select any", new { @class = "form-control", @id = "txtprojecttype", @disabled = true })
+                                        @Html.ValidationMessageFor(m => m.ProjectType)
+                                        @Html.HiddenFor(m => m.ProjectType)
+                                    </div>
+                                </div>
+                                @*<div class="col-md-3">
+                                        <div class="form-group custom-form-group">
+                                            <label>From Date</label>
+                                            @Html.TextBoxFor(m => m.FromDate, new { @class = "form-control", @id = "txtFromDate" })
+                                        </div>
+                                    </div>*@
+                                <div class="col-md-2">
+                                    <div class="form-group custom-form-group">
+                                        <label>Receipts Upto</label>
+                                        @Html.TextBoxFor(m => m.ToDate, new { @class = "form-control", @id = "txtToDate" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group custom-form-group">
+                                        <label>Project Number</label>
+                                        @*@Html.TextBoxFor(m => m.ProjectNumber, new { @class = "form-control", @id = "txtProjectNumber" })
+                                            @Html.TextBoxFor(m => m.SrchProjectId, new { @class = "form-control dis-none", @id = "txtProjectId" })
+                                            @Html.ValidationMessageFor(m => m.ProjectNumber)*@
+                                        @Html.DropDownListFor(m => m.SrchProjectId, new SelectList(ViewBag.ProjectList, "id", "name"), "Select any", new { @class = "form-control selectpicker", @id = "txtsrchProjectid" })
+                                        @Html.ValidationMessageFor(m => m.SrchProjectId)
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group custom-form-group">
+                                        <label>Receipt Number</label>
+                                        @Html.DropDownListFor(m => m.ReceiptId, new SelectList(ViewBag.ReceiptList, "id", "name"), "Select any", new { @class = "form-control selectpicker", @id = "txtreceiptid" })
+                                        @Html.ValidationMessageFor(m => m.ReceiptId)
+                                        @*@Html.TextBoxFor(m => m.ReceiptNumber, new { @class = "form-control", @id = "txtReceiptNumber" })*@
+                                        @*@Html.TextBoxFor(m => m.ReceiptId, new { @class = "form-control dis-none", @id = "txtReceiptId" })*@
+                                        @Html.ValidationMessageFor(m => m.ReceiptId)
+                                    </div>
+                                </div>
+                                <div class="col-md-1 mt20">
+                                    <button id="btnSearch" type="button" class="btn btn-primary">Search</button>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group custom-form-group">
+                                        <label>Remarks</label>
+                                        @Html.TextAreaFor(m => m.Remarks, new { @class = "form-control" })
+                                    </div>
+
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group custom-form-group">
+                                        <label>Attachment</label>
+                                        <label class="required">Attachment: </label>
+                                        <input type="file" class="required" name="Document" />
+                                        @Html.ValidationMessageFor(m => m.Document)
+                                    </div>
+                                    <div class="form-group">
+                                        <a href="@Url.Action("ShowDocument","Project",new { file = Model.DocumentName, filepath = Model.DocumentPath })" target="_blank">@Model.DocumentActualName</a>
+                                    </div>
+                                </div>
+                                @*<div class="col-md-6 text-right">
+                                        <a href="javascript:void(0)" id="btnAddHonor" class="btn btn-primary btnAddHonor">Add New</a>
+                                    </div>*@
+                            </div>
+                            <div class="m-b-sm scrl-table scrl-table-po-bl">
+                                <table class="table table-bordered" style="width: 1780px;">
+                                    <thead>
+                                        <tr>
+                                            <th colspan="10"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbodyHo">
+                                        <tr>
+
+                                            <td style="width: 350px;">Project Number</td>
+                                            <td style="width: 350px;">Receipt Number</td>
+                                            <td style="width: 350px;">Receipt Date</td>
+                                            <td style="width: 200px;">Overheads Value (15%)</td>
+                                            <td style="width: 200px;">Corpous Amount (4%)</td>
+                                            <td style="width: 200px;">ICSR OH Amount (1.50%)</td>
+                                            <td style="width: 200px;">DDF Amount (1.50%)</td>
+                                            <td style="width: 200px;">RMF Amount (4%)</td>
+                                            <td style="width: 100px;">PI Share (RMF Amount)</td>
+                                            <td style="width: 200px;">Staff Welfare Amount (1%)</td>
+                                            <td style="width: 200px;">PCF Amount (3%)</td>
+                                            <td style="width: 100px;">PI Share (PCF Amount)</td>
+
+                                        </tr>
+                                        @if (Model.OverheadsDetails != null)
+                                        {
+                                            var count = 0;
+                                            foreach (var item in Model.OverheadsDetails)
+                                            {
+                                                var projectid = "OverheadsDetails[" + count + "].ProjectId";
+                                                var projectnum = "OverheadsDetails[" + count + "].ProjectNumber";
+                                                var receiptid = "OverheadsDetails[" + count + "].ReceiptId";
+                                                var overheadstypeid = "OverheadsDetails[" + count + "].OverheadsTypeId";
+                                                var receiptdate = "OverheadsDetails[" + count + "].ReceiptDate";
+                                                var receiptnumber = "OverheadsDetails[" + count + "].ReceiptNumber";
+                                                var totaloverheadsamt = "OverheadsDetails[" + count + "].TotalOverheadsValue";
+                                                var corpousamt = "OverheadsDetails[" + count + "].CorpusAmount";
+                                                var corpouspercent = "OverheadsDetails[" + count + "].CorpusPercent";
+                                                var icsrohamt = "OverheadsDetails[" + count + "].ICSROHAmount";
+                                                var icsrohpercent = "OverheadsDetails[" + count + "].ICSROHPercent";
+                                                var ddfamt = "OverheadsDetails[" + count + "].DDFAmount";
+                                                var ddfpercent = "OverheadsDetails[" + count + "].DDFPercent";
+                                                var rmfamt = "OverheadsDetails[" + count + "].RMFAmount";
+                                                var rmfpercent = "OverheadsDetails[" + count + "].RMFPercent";
+                                                var staffwelfareamt = "OverheadsDetails[" + count + "].StaffWelfareAmount";
+                                                var staffwelfarepercent = "OverheadsDetails[" + count + "].StaffWelfarePercent";
+                                                var pcfamt = "OverheadsDetails[" + count + "].PCFAmount";
+                                                var pcfpercent = "OverheadsDetails[" + count + "].PCFPercent";
+                                                var ttlPCFPercent = "OverheadsDetails[" + count + "].TtlPCFPercent";
+                                                var ttlRMFPercent = "OverheadsDetails[" + count + "].TtlRMFPercent";
+                                                //var btnPCF = "OverheadsDetails[" + count + "].BtnPCF";
+                                                //var btnRMF = "OverheadsDetails[" + count + "].BtnRMF";
+                                                var pcfbtnId = "btnViewPCFDetails_" + count;
+                                                var rmfbtnId = "btnViewRMFDetails_" + count;
+
+                                                <tr id="trdetails" class="p-b-sm">
+                                                    <td>
+                                                        @Html.TextBox(@projectnum, item.ProjectNumber, new { @class = "form-control", @autocomplete = "off", @readonly = true })
+                                                        @Html.ValidationMessage(@projectnum)
+                                                        @Html.Hidden("OverheadsDetails.Index", @count)
+                                                        @Html.TextBox(@projectid, item.ProjectId, new { @class = "form-control dis-none" })
+                                                        @Html.TextBox(@receiptid, item.ReceiptId, new { @class = "form-control dis-none" })
+                                                        @Html.TextBox(@ttlPCFPercent, item.TtlPCFPercent, new { @class = "form-control dis-none" })
+                                                        @Html.TextBox(@ttlRMFPercent, item.TtlRMFPercent, new { @class = "form-control dis-none" })
+                                                        @Html.TextBox(@overheadstypeid, item.OverheadsTypeId, new { @class = "form-control dis-none" })
+                                                    </td>
+                                                    <td>
+                                                        @Html.TextBox(@receiptnumber, item.ReceiptNumber, new { @class = "form-control", @autocomplete = "off", @readonly = true })
+                                                        @Html.ValidationMessage(@receiptnumber)
+                                                    </td>
+                                                    <td>
+                                                        @Html.TextBox(@receiptdate, item.ReceiptDate, new { @class = "form-control", @autocomplete = "off", @readonly = true })
+                                                        @Html.ValidationMessage(@receiptdate)
+                                                    </td>
+                                                    <td>
+                                                        @Html.TextBox(@totaloverheadsamt, item.TotalOverheadsValue, new { @class = "form-control" })
+                                                        @Html.ValidationMessage(@totaloverheadsamt)
+                                                    </td>
+                                                    <td>
+                                                        @Html.TextBox(@corpousamt, item.CorpusAmount, new { @class = "form-control", @readonly = true })
+                                                        @Html.TextBox(@corpouspercent, item.CorpusPercent, new { @class = "form-control dis-none" })
+                                                        @Html.ValidationMessage(@corpousamt)
+                                                    </td>
+                                                    <td>
+                                                        @Html.TextBox(@icsrohamt, item.ICSROHAmount, new { @class = "form-control", @readonly = true })
+                                                        @Html.TextBox(@icsrohpercent, item.ICSROHPercent, new { @class = "form-control dis-none" })
+                                                        @Html.ValidationMessage(@icsrohamt)
+                                                    </td>
+
+                                                    <td>
+                                                        @Html.TextBox(@ddfamt, item.DDFAmount, new { @class = "form-control", @readonly = true })
+                                                        @Html.TextBox(@ddfpercent, item.DDFPercent, new { @class = "form-control dis-none" })
+                                                        @Html.ValidationMessage(@ddfamt)
+                                                    </td>
+                                                    <td>
+                                                        @Html.TextBox(@rmfamt, item.RMFAmount, new { @class = "form-control", @readonly = true })
+                                                        @Html.TextBox(@rmfpercent, item.RMFPercent, new { @class = "form-control dis-none" })
+                                                        @Html.ValidationMessage(@rmfamt)
+                                                    </td>
+                                                    <td>
+                                                        <a href="javascript:void(0)" data-toggle="modal" name="OverheadsDetails.RMFbtn" class="btnViewRMFDetails" id="@rmfbtnId"> View Details</a>
+                                                    </td>
+                                                    <td>
+                                                        @Html.TextBox(@staffwelfareamt, item.StaffWelfareAmount, new { @class = "form-control", @readonly = true })
+                                                        @Html.TextBox(@staffwelfarepercent, item.StaffWelfarePercent, new { @class = "form-control dis-none" })
+                                                        @Html.ValidationMessage(@staffwelfareamt)
+                                                    </td>
+                                                    <td>
+                                                        @Html.TextBox(@pcfamt, item.PCFAmount, new { @class = "form-control", @readonly = true })
+                                                        @Html.TextBox(@pcfpercent, item.PCFPercent, new { @class = "form-control dis-none" })
+                                                        @Html.ValidationMessage(@pcfamt)
+                                                    </td>
+                                                    <td>
+                                                        <a href="javascript:void(0)" data-toggle="modal" name="OverheadsDetails.PCFbtn" id="@pcfbtnId"> View Details</a>
+                                                    </td>
+                                                    @*<td>
+                                                            @if (count == 0)
+                                                            {
+                                                                <a href="javascript:void(0)" class="btn-circle dis-none removeHOItem"><i class="ion-trash-a"></i></a>
+                                                            }
+                                                            else
+                                                            {
+                                                                <a href="javascript:void(0)" class="btn-circle  removeHOItem"><i class="ion-trash-a"></i></a>
+                                                            }
+                                                        </td>*@
+                                                </tr>
+                                                count++;
+                                            }
+
+                                        }
+
+                                        else
+                                        {
+                                            <tr>
+                                                <td>
+                                                    @Html.TextBox("OverheadsDetails[0].ProjectNumber", "", new { @class = "form-control", @id = "txtname", @autocomplete = "off", @readonly = true })
+                                                    @Html.Hidden("OverheadsDetails.Index", "0")
+                                                    @Html.ValidationMessage("OverheadsDetails[0].ProjectNumber")
+                                                    @Html.TextBox("OverheadsDetails[0].ReceiptId", "", new { @class = "form-control dis-none" })
+                                                    @Html.TextBox("OverheadsDetails[0].ProjectId", "", new { @class = "form-control dis-none" })
+                                                    @Html.TextBox("OverheadsDetails[0].TtlPCFPercent", "", new { @class = "form-control dis-none" })
+                                                    @Html.TextBox("OverheadsDetails[0].TtlRMFPercent", "", new { @class = "form-control dis-none" })
+                                                    @Html.TextBox("OverheadsDetails[0].OverheadsTypeId", "", new { @class = "form-control dis-none" })
+                                                </td>
+
+                                                <td>
+                                                    @Html.TextBox("OverheadsDetails[0].ReceiptNumber", "", new { @class = "form-control", @autocomplete = "off", @readonly = true })
+                                                    @Html.ValidationMessage("OverheadsDetails[0].ReceiptNumber")
+                                                </td>
+                                                <td>
+                                                    @Html.TextBox("OverheadsDetails[0].ReceiptDate", "", new { @class = "form-control", @id = "txtReceipt", @autocomplete = "off", @readonly = true })
+                                                    @Html.ValidationMessage("OverheadsDetails[0].ReceiptDate")
+
+                                                </td>
+                                                <td>
+                                                    @Html.TextBox("OverheadsDetails[0].TotalOverheadsValue", "", new { @class = "form-control", @autocomplete = "off" })
+                                                    @Html.ValidationMessage("OverheadsDetails[0].TotalOverheadsValue")
+                                                </td>
+                                                <td>
+                                                    @Html.TextBox("OverheadsDetails[0].CorpusAmount", "", new { @class = "form-control", @readonly = true })
+                                                    @Html.TextBox("OverheadsDetails[0].CorpusPercent", "", new { @class = "form-control dis-none" })
+                                                    @Html.ValidationMessage("OverheadsDetails[0].CorpusAmount")
+                                                </td>
+                                                <td>
+                                                    @Html.TextBox("OverheadsDetails[0].ICSROHAmount", "", new { @class = "form-control", @readonly = true })
+                                                    @Html.TextBox("OverheadsDetails[0].ICSROHPercent", "", new { @class = "form-control dis-none" })
+                                                    @Html.ValidationMessage("OverheadsDetails[0].ICSROHAmount")
+                                                </td>
+
+                                                <td>
+                                                    @Html.TextBox("OverheadsDetails[0].DDFAmount", "", new { @class = "form-control", @readonly = true })
+                                                    @Html.TextBox("OverheadsDetails[0].DDFPercent", "", new { @class = "form-control dis-none" })
+                                                    @Html.ValidationMessage("OverheadsDetails[0].DDFAmount")
+                                                </td>
+                                                <td>
+                                                    @Html.TextBox("OverheadsDetails[0].RMFAmount", "", new { @class = "form-control", @readonly = true })
+                                                    @Html.TextBox("OverheadsDetails[0].RMFPercent", "", new { @class = "form-control dis-none" })
+                                                    @Html.ValidationMessage("OverheadsDetails[0].RMFAmount")
+                                                </td>
+                                                <td>
+                                                    <a href="javascript:void(0)" data-toggle="modal" id="btnViewRMFDetails_0"> View Details</a>
+                                                </td>
+                                                <td>
+                                                    @Html.TextBox("OverheadsDetails[0].StaffWelfareAmount", "", new { @class = "form-control", @readonly = true })
+                                                    @Html.TextBox("OverheadsDetails[0].StaffWelfarePercent", "", new { @class = "form-control dis-none" })
+                                                    @Html.ValidationMessage("OverheadsDetails[0].StaffWelfareAmount")
+                                                </td>
+                                                <td>
+                                                    @Html.TextBox("OverheadsDetails[0].PCFAmount", "", new { @class = "form-control", @readonly = true })
+                                                    @Html.TextBox("OverheadsDetails[0].PCFPercent", "", new { @class = "form-control dis-none" })
+                                                    @Html.ValidationMessage("OverheadsDetails[0].PCFAmount")
+                                                </td>
+
+                                                <td>
+                                                    <a href="javascript:void(0)" data-toggle="modal" id="btnViewPCFDetails_0"> View Details</a>
+                                                </td>
+                                                @*<td>
+                                                        <a href="javascript:void(0)" class="btn-circle dis-none removeHOItem"><i class="ion-trash-a"></i></a>
+                                                    </td>*@
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col-md-2 pull-right">
+                                <div class="form-group custom-form-group">
+                                    <label>Total Overheads value</label>
+                                    @Html.TextBoxFor(m => m.TotalAmount, new { @class = "form-control", @id = "txtTotalOverheadsValue" })
+                                    @Html.ValidationMessageFor(m => m.TotalAmount)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab">
+                <div class="col-md-12">
+                    <div class="bl-lg-panel-box pb-null">
+                        <div class="cmn-panel-box">
+                            <div class="col-md-6">
+                                <div class="form-group custom-form-group">
+                                    <label>PCF</label>
+                                </div>
+                            </div>
+                            <div class="col-md-2 pull-right">
+                                <div class="form-group custom-form-group">
+                                    <label>Total PCF Amount</label>
+                                    @Html.TextBoxFor(m => m.TotalPCFAmount, new { @class = "form-control", @id = "txtTotalPCFValue" })
+                                    @Html.ValidationMessageFor(m => m.TotalPCFAmount)
+                                </div>
+                            </div>
+                            <div class="m-b-sm scrl-table scrl-table-po-bl">
+                                <table class="table table-bordered" style="width: 1200px;">
+                                    <thead>
+                                        <tr>
+                                            <th colspan="10"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbodyPCF">
+                                        <tr>
+                                            <td style="width: 200px;">Receipt Number</td>
+                                            <td style="width: 350px;">PI Name</td>
+                                            <td style="width: 300px;">Project Number</td>
+                                            <td style="width: 300px;">PCF Credit Bank</td>
+                                            <td style="width: 200px;">PCF Amount</td>
+                                        </tr>
+                                        @if (Model.PCFCreditDetails != null)
+                                        {
+                                            var count = 0;
+                                            foreach (var item in Model.PCFCreditDetails)
+                                            {
+                                                var projectid = "PCFCreditDetails[" + count + "].ProjectId";
+                                                var piid = "PCFCreditDetails[" + count + "].PIId";
+                                                var selid = "PCFCreditDetails[" + count + "].Id";
+                                                var bankid = "PCFCreditDetails[" + count + "].BankId";
+                                                var projectnum = "PCFCreditDetails[" + count + "].ProjectNumber";
+                                                var piname = "PCFCreditDetails[" + count + "].NameofPI";
+                                                var receiptid = "PCFCreditDetails[" + count + "].ReceiptId";
+                                                var receiptnumber = "PCFCreditDetails[" + count + "].ReceiptNumber";
+                                                var pcfamt = "PCFCreditDetails[" + count + "].Amount";
+                                                var pcfpercent = "PCFCreditDetails[" + count + "].Percent";
+
+                                                <tr id="trdetails" class="p-b-sm">
+
+                                                    <td>
+                                                        @Html.TextBox(@receiptnumber, item.ReceiptNumber, new { @class = "form-control required", @autocomplete = "off", @readonly = true })
+                                                        @Html.ValidationMessage(@receiptnumber)
+                                                        @Html.Hidden("PCFCreditDetails.Index", @count)
+                                                        @Html.TextBox(@projectid, item.ProjectId, new { @class = "form-control required dis-none" })
+                                                        @Html.TextBox(@receiptid, item.ReceiptId, new { @class = "form-control  dis-none" })
+                                                    </td>
+                                                    <td>
+                                                        @Html.TextBox(@piname, item.NameofPI, new { @class = "form-control required", @autocomplete = "off", @readonly = true })
+                                                        @Html.TextBox(@piid, item.PIId, new { @class = "form-control dis-none" })
+                                                        @Html.ValidationMessage(@piname)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DropDownList(@selid, new SelectList(item.ProjectNumber, "id", "name", item.Id), new { @class = "form-control required", @id = "txtprojectnumber" })
+                                                        @Html.ValidationMessage(@selid)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DropDownList(@bankid, new SelectList(item.Bank, "id", "name", item.BankId), new { @class = "form-control required", @id = "txtbank" })
+                                                        @Html.ValidationMessage(@bankid)
+                                                    </td>
+                                                    <td>
+                                                        @Html.TextBox(@pcfamt, item.Amount, new { @class = "form-control required", @readonly = true })
+                                                        @Html.TextBox(@pcfpercent, item.Percent, new { @class = "form-control dis-none" })
+                                                        @Html.ValidationMessage(@pcfamt)
+                                                    </td>
+
+                                                </tr>
+                                                count++;
+                                            }
+
+                                        }
+
+                                        else
+                                        {
+                                            <tr>
+                                                <td>
+                                                    @Html.TextBox("PCFCreditDetails[0].ReceiptNumber", "", new { @class = "form-control required", @id = "txtreceiptnumber", @autocomplete = "off", @readonly = true })
+                                                    @Html.Hidden("PCFCreditDetails.Index", "0")
+                                                    @Html.ValidationMessage("PCFCreditDetails[0].ReceiptNumber")
+                                                    @Html.TextBox("PCFCreditDetails[0].ReceiptId", "", new { @class = "form-control dis-none" })
+                                                    @Html.TextBox("PCFCreditDetails[0].ProjectId", "", new { @class = "form-control dis-none" })
+                                                </td>
+                                                <td>
+                                                    @Html.TextBox("PCFCreditDetails[0].NameofPI", "", new { @class = "form-control required", @id = "txtPIName", @autocomplete = "off", @readonly = true })
+                                                    @Html.ValidationMessage("PCFCreditDetails[0].NameofPI")
+                                                    @Html.TextBox("PCFCreditDetails[0].PIId", "", new { @class = "form-control dis-none" })
+                                                </td>
+
+                                                <td>
+                                                    @Html.DropDownList("PCFCreditDetails[0].Id", new SelectList(ViewBag.ProjectNumber, "id", "name"), "Select any", new { @class = "form-control required" })
+                                                    @Html.ValidationMessage("PCFCreditDetails[0].Id")
+                                                </td>
+                                                <td>
+                                                    @Html.DropDownList("PCFCreditDetails[0].BankId", new SelectList(ViewBag.Bank, "id", "name"), "Select any", new { @class = "form-control required" })
+                                                    @Html.ValidationMessage("PCFCreditDetails[0].BankId")
+                                                </td>
+                                                <td>
+                                                    @Html.TextBox("PCFCreditDetails[0].Amount", "", new { @class = "form-control required", @autocomplete = "off" })
+                                                    @Html.TextBox("PCFCreditDetails[0].Percent", "", new { @class = "form-control dis-none" })
+                                                    @Html.ValidationMessage("PCFCreditDetails[0].Amount")
+                                                </td>
+
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="m-b-sm scrl-table scrl-table-po-bl dis-none">
+                                <table class="table table-bordered" style="width: 1200px;">
+                                    <thead>
+                                        <tr>
+                                            <th colspan="10"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbodyPCFShare">
+                                        <tr>
+                                            <td style="width: 200px;">PCF Percent</td>
+                                        </tr>
+                                        @if (Model.PIPCFShareDetails != null)
+                                        {
+                                            var count = 0;
+                                            foreach (var item in Model.PIPCFShareDetails)
+                                            {
+                                                var projectid = "PIPCFShareDetails[" + count + "].ProjectId";
+                                                var receiptid = "PIPCFShareDetails[" + count + "].ReceiptId";
+                                                var piname = "PIPCFShareDetails[" + count + "].NameofPI";
+                                                var pcfamt = "PIPCFShareDetails[" + count + "].PCFAmount";
+                                                var pcfshare = "PIPCFShareDetails[" + count + "].PCFPercent";
+
+                                                <tr class="p-b-sm">
+
+                                                    <td>
+                                                        @Html.TextBox(@pcfamt, item.PCFAmount, new { @class = "form-control", @readonly = true })
+                                                        @Html.TextBox(@pcfshare, item.PCFPercent, new { @class = "form-control dis-none" })
+                                                        @Html.TextBox(@projectid, item.ProjectId, new { @class = "form-control dis-none" })
+                                                        @Html.TextBox(@receiptid, item.ReceiptId, new { @class = "form-control dis-none" })
+                                                        @Html.ValidationMessage(@pcfamt)
+                                                        @Html.Hidden("PIPCFShareDetails.Index", @count)
+                                                    </td>
+
+                                                </tr>
+                                                count++;
+                                            }
+
+                                        }
+
+                                        else
+                                        {
+                                            <tr>
+                                                <td>
+                                                    @Html.TextBox("PIPCFShareDetails[0].PCFAmount", "", new { @class = "form-control", @autocomplete = "off" })
+                                                    @Html.TextBox("PIPCFShareDetails[0].PCFPercent", "", new { @class = "form-control dis-none" })
+                                                    @Html.TextBox("PIPCFShareDetails[0].ReceiptId", "", new { @class = "form-control dis-none" })
+                                                    @Html.ValidationMessage("PIPCFShareDetails[0].PCFAmount")
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="bl-lg-panel-box pb-null">
+                        <div class="cmn-panel-box">
+                            <div class="col-md-6">
+                                <div class="form-group custom-form-group">
+                                    <label>RMF</label>
+                                </div>
+                            </div>
+                            <div class="col-md-2 pull-right">
+                                <div class="form-group custom-form-group">
+                                    <label>Total RMF Amount</label>
+                                    @Html.TextBoxFor(m => m.TotalRMFAmount, new { @class = "form-control", @id = "txtTotalRMFValue" })
+                                    @Html.ValidationMessageFor(m => m.TotalRMFAmount)
+                                </div>
+                            </div>
+                            <div class="m-b-sm scrl-table scrl-table-po-bl">
+                                <table class="table table-bordered" style="width: 1200px;">
+                                    <thead>
+                                        <tr>
+                                            <th colspan="10"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbodyRMF">
+                                        <tr>
+                                            <td style="width: 200px;">Receipt Number</td>
+                                            <td style="width: 350px;">PI Name</td>
+                                            <td style="width: 300px;">Project Number</td>
+                                            <td style="width: 300px;">RMF Credit Bank</td>
+                                            <td style="width: 200px;">RMF Amount</td>
+                                        </tr>
+                                        @if (Model.RMFCreditDetails != null)
+                                        {
+                                            var count = 0;
+                                            foreach (var item in Model.RMFCreditDetails)
+                                            {
+                                                var projectid = "RMFCreditDetails[" + count + "].ProjectId";
+                                                var piid = "RMFCreditDetails[" + count + "].PIId";
+                                                var selid = "RMFCreditDetails[" + count + "].Id";
+                                                var bankid = "RMFCreditDetails[" + count + "].BankId";
+                                                var projectnum = "RMFCreditDetails[" + count + "].ProjectNumber";
+                                                var piname = "RMFCreditDetails[" + count + "].NameofPI";
+                                                var receiptid = "RMFCreditDetails[" + count + "].ReceiptId";
+                                                var receiptnumber = "RMFCreditDetails[" + count + "].ReceiptNumber";
+                                                var rmfamt = "RMFCreditDetails[" + count + "].Amount";
+                                                var rmfpercent = "RMFCreditDetails[" + count + "].Percent";
+
+                                                <tr id="trdetails" class="p-b-sm">
+
+                                                    <td>
+                                                        @Html.TextBox(@receiptnumber, item.ReceiptNumber, new { @class = "form-control required", @autocomplete = "off", @readonly = true })
+                                                        @Html.ValidationMessage(@receiptnumber)
+                                                        @Html.Hidden("RMFCreditDetails.Index", @count)
+                                                        @Html.TextBox(@projectid, item.ProjectId, new { @class = "form-control dis-none" })
+                                                        @Html.TextBox(@receiptid, item.ReceiptId, new { @class = "form-control dis-none" })
+                                                    </td>
+                                                    <td>
+                                                        @Html.TextBox(@piname, item.NameofPI, new { @class = "form-control required", @autocomplete = "off", @readonly = true })
+                                                        @Html.TextBox(@piid, item.PIId, new { @class = "form-control dis-none" })
+                                                        @Html.ValidationMessage(@piname)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DropDownList(@selid, new SelectList(item.ProjectNumber, "id", "name", item.Id), new { @class = "form-control required", @id = "txtprojectnumber" })
+                                                        @Html.ValidationMessage(@selid)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DropDownList(@bankid, new SelectList(item.Bank, "id", "name", item.BankId), new { @class = "form-control required", @id = "txtbank" })
+                                                        @Html.ValidationMessage(@bankid)
+                                                    </td>
+                                                    <td>
+                                                        @Html.TextBox(@rmfamt, item.Amount, new { @class = "form-control required", @readonly = true })
+                                                        @Html.TextBox(@rmfpercent, item.Percent, new { @class = "form-control dis-none" })
+                                                        @Html.ValidationMessage(@rmfamt)
+                                                    </td>
+
+                                                </tr>
+                                                count++;
+                                            }
+
+                                        }
+
+                                        else
+                                        {
+                                            <tr>
+                                                <td>
+                                                    @Html.TextBox("RMFCreditDetails[0].ReceiptNumber", "", new { @class = "form-control required", @id = "txtreceiptnumber", @autocomplete = "off", @readonly = true })
+                                                    @Html.Hidden("RMFCreditDetails.Index", "0")
+                                                    @Html.ValidationMessage("RMFCreditDetails[0].ReceiptNumber")
+                                                    @Html.TextBox("RMFCreditDetails[0].ReceiptId", "", new { @class = "form-control dis-none" })
+                                                    @Html.TextBox("RMFCreditDetails[0].ProjectId", "", new { @class = "form-control dis-none" })
+                                                </td>
+                                                <td>
+                                                    @Html.TextBox("RMFCreditDetails[0].NameofPI", "", new { @class = "form-control required", @id = "txtPIName", @autocomplete = "off", @readonly = true })
+                                                    @Html.ValidationMessage("RMFCreditDetails[0].NameofPI")
+                                                    @Html.TextBox("RMFCreditDetails[0].PIId", "", new { @class = "form-control dis-none" })
+                                                </td>
+
+                                                <td>
+                                                    @Html.DropDownList("RMFCreditDetails[0].Id", new SelectList(ViewBag.ProjectNumber, "id", "name"), "Select any", new { @class = "form-control required" })
+                                                    @Html.ValidationMessage("RMFCreditDetails[0].Id")
+                                                </td>
+                                                <td>
+                                                    @Html.DropDownList("RMFCreditDetails[0].BankId", new SelectList(ViewBag.Bank, "id", "name"), "Select any", new { @class = "form-control required" })
+                                                    @Html.ValidationMessage("RMFCreditDetails[0].BankId")
+                                                </td>
+                                                <td>
+                                                    @Html.TextBox("RMFCreditDetails[0].Amount", "", new { @class = "form-control required", @autocomplete = "off" })
+                                                    @Html.ValidationMessage("RMFCreditDetails[0].Amount")
+                                                    @Html.TextBox("RMFCreditDetails[0].Percent", "", new { @class = "form-control dis-none" })
+                                                </td>
+
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="m-b-sm scrl-table scrl-table-po-bl dis-none">
+                                <table class="table table-bordered" style="width: 1200px;">
+                                    <thead>
+                                        <tr>
+                                            <th colspan="10"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbodyRMFShare">
+                                        <tr>
+                                            <td style="width: 200px;">RMF Percent</td>
+                                        </tr>
+                                        @if (Model.PIRMFShareDetails != null)
+                                        {
+                                            var count = 0;
+                                            foreach (var item in Model.PIRMFShareDetails)
+                                            {
+                                                var projectid = "PIRMFShareDetails[" + count + "].ProjectId";
+                                                var receiptid = "PIRMFShareDetails[" + count + "].ReceiptId";
+                                                var piname = "PIRMFShareDetails[" + count + "].NameofPI";
+                                                var rmfamt = "PIRMFShareDetails[" + count + "].RMFAmount";
+                                                var rmfshare = "PIRMFShareDetails[" + count + "].RMFPercent";
+
+                                                <tr class="p-b-sm">
+
+                                                    <td>
+                                                        @Html.TextBox(@rmfamt, item.RMFAmount, new { @class = "form-control", @readonly = true })
+                                                        @Html.TextBox(@rmfshare, item.RMFPercent, new { @class = "form-control dis-none" })
+                                                        @Html.TextBox(@receiptid, item.ReceiptId, new { @class = "form-control dis-none" })
+                                                        @Html.Hidden("PIRMFShareDetails.Index", @count)
+                                                    </td>
+
+                                                </tr>
+                                                count++;
+                                            }
+
+                                        }
+
+                                        else
+                                        {
+                                            <tr>
+                                                <td>
+                                                    @Html.TextBox("PIRMFShareDetails[0].RMFAmount", "", new { @class = "form-control", @autocomplete = "off" })
+                                                    @Html.TextBox("PIRMFShareDetails[0].RMFPercent", "", new { @class = "form-control dis-none" })
+                                                    @Html.TextBox("PIRMFShareDetails[0].ReceiptId", "", new { @class = "form-control dis-none" })
+
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <div class="bl-lg-panel-box pb-null">
+                        <div class="cmn-panel-box">
+                            <div class="col-md-6">
+                                <div class="form-group custom-form-group">
+                                    <label>Corpus</label>
+                                </div>
+                            </div>
+                            <div class="col-md-2 pull-right">
+                                <div class="form-group custom-form-group">
+                                    <label>Total Corpus Amount</label>
+                                    @Html.TextBoxFor(m => m.TotalCorpusAmount, new { @class = "form-control", @id = "txtTotalCorpusValue" })
+                                    @Html.ValidationMessageFor(m => m.TotalCorpusAmount)
+                                </div>
+                            </div>
+                            <div class="m-b-sm scrl-table scrl-table-po-bl">
+                                <table class="table table-bordered" style="width: 1080px;">
+                                    <thead>
+                                        <tr>
+                                            <th colspan="10"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbodyCorpus">
+                                        <tr>
+                                            <td style="width: 200px;">Receipt Number</td>
+                                            @*<td style="width: 350px;">PI Name</td>*@
+                                            @*<td style="width: 250px;">Project Number</td>*@
+                                            <td style="width: 300px;">Corpus Credit Bank</td>
+                                            <td style="width: 200px;">Corpus Amount</td>
+                                        </tr>
+                                        @if (Model.CorpusCreditDetails != null)
+                                        {
+                                            var count = 0;
+                                            foreach (var item in Model.CorpusCreditDetails)
+                                            {
+                                                var projectid = "CorpusCreditDetails[" + count + "].ProjectId";
+                                                var selid = "CorpusCreditDetails[" + count + "].Id";
+                                                var bankid = "CorpusCreditDetails[" + count + "].BankId";
+                                                //var piid = "CorpusCreditDetails[" + count + "].PIId";
+                                                var projectnum = "CorpusCreditDetails[" + count + "].ProjectNumber";
+                                                //var piname = "BackEndCreditDetails[" + count + "].NameofPI";
+                                                var receiptid = "CorpusCreditDetails[" + count + "].ReceiptId";
+                                                var receiptnumber = "CorpusCreditDetails[" + count + "].ReceiptNumber";
+                                                var corpusamt = "CorpusCreditDetails[" + count + "].Amount";
+
+                                                <tr id="trdetails" class="p-b-sm">
+
+                                                    <td>
+                                                        @Html.TextBox(@receiptnumber, item.ReceiptNumber, new { @class = "form-control", @autocomplete = "off", @readonly = true })
+                                                        @Html.ValidationMessage(@receiptnumber)
+                                                        @Html.Hidden("CorpusCreditDetails.Index", @count)
+                                                        @Html.TextBox(@projectid, item.ProjectId, new { @class = "form-control dis-none" })
+                                                        @Html.TextBox(@receiptid, item.ReceiptId, new { @class = "form-control dis-none" })
+                                                    </td>
+
+                                                    @*<td>
+                                                            @Html.DropDownList(@selid, new SelectList(item.ProjectNumber, "id", "name", item.Id), new { @class = "form-control", @id = "txtprojectnumber" })
+                                                            @Html.ValidationMessage(@selid)
+                                                        </td>*@
+                                                    <td>
+                                                        @Html.DropDownList(@bankid, new SelectList(item.Bank, "id", "name", item.BankId), new { @class = "form-control", @id = "txtbank" })
+                                                        @Html.ValidationMessage(@bankid)
+                                                    </td>
+                                                    <td>
+                                                        @Html.TextBox(@corpusamt, item.Amount, new { @class = "form-control", @readonly = true })
+
+                                                        @Html.ValidationMessage(@corpusamt)
+                                                    </td>
+
+                                                </tr>
+                                                count++;
+                                            }
+
+                                        }
+
+                                        else
+                                        {
+                                            <tr>
+                                                <td>
+                                                    @Html.TextBox("CorpusCreditDetails[0].ReceiptNumber", "", new { @class = "form-control", @id = "txtreceiptnumber", @autocomplete = "off", @readonly = true })
+                                                    @Html.Hidden("CorpusCreditDetails.Index", "0")
+                                                    @Html.ValidationMessage("CorpusCreditDetails[0].ReceiptNumber")
+                                                    @Html.TextBox("CorpusCreditDetails[0].ReceiptId", "", new { @class = "form-control dis-none" })
+                                                    @Html.TextBox("CorpusCreditDetails[0].ProjectId", "", new { @class = "form-control dis-none" })
+                                                </td>
+
+                                                @*<td>
+                                                        @Html.DropDownList("CorpusCreditDetails[0].Id", new SelectList(ViewBag.ProjectNumber, "id", "name"), "Select any", new { @class = "form-control" })
+                                                        @Html.ValidationMessage("CorpusCreditDetails[0].Id")
+                                                    </td>*@
+                                                <td>
+                                                    @Html.DropDownList("CorpusCreditDetails[0].BankId", new SelectList(ViewBag.Bank, "id", "name"), "Select any", new { @class = "form-control" })
+                                                    @Html.ValidationMessage("CorpusCreditDetails[0].BankId")
+                                                </td>
+                                                <td>
+                                                    @Html.TextBox("CorpusCreditDetails[0].Amount", "", new { @class = "form-control", @autocomplete = "off" })
+                                                    @Html.ValidationMessage("CorpusCreditDetails[0].Amount")
+                                                </td>
+
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="bl-lg-panel-box pb-null">
+                        <div class="cmn-panel-box">
+                            <div class="col-md-6">
+                                <div class="form-group custom-form-group">
+                                    <label>ICSR Overheads</label>
+                                </div>
+                            </div>
+                            <div class="col-md-2 pull-right">
+                                <div class="form-group custom-form-group">
+                                    <label>Total ICSR Overhead Amount</label>
+                                    @Html.TextBoxFor(m => m.TotalICSROHAmount, new { @class = "form-control", @id = "txtTotalICSROHValue" })
+                                    @Html.ValidationMessageFor(m => m.TotalICSROHAmount)
+                                </div>
+                            </div>
+                            <div class="m-b-sm scrl-table scrl-table-po-bl">
+                                <table class="table table-bordered" style="width: 1080px;">
+                                    <thead>
+                                        <tr>
+                                            <th colspan="10"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbodyICSROH">
+                                        <tr>
+                                            <td style="width: 200px;">Receipt Number</td>
+                                            @*<td style="width: 350px;">PI Name</td>*@
+                                            <td style="width: 200px;">Project Number</td>
+                                            <td style="width: 300px;">ICSR Overheads Credit Bank</td>
+                                            <td style="width: 200px;">ICSR OH Amount</td>
+                                        </tr>
+                                        @if (Model.ICSRCreditDetails != null)
+                                        {
+                                            var count = 0;
+                                            foreach (var item in Model.ICSRCreditDetails)
+                                            {
+                                                var projectid = "ICSRCreditDetails[" + count + "].ProjectId";
+                                                var selid = "ICSRCreditDetails[" + count + "].Id";
+                                                var bankid = "ICSRCreditDetails[" + count + "].BankId";
+                                                var projectnum = "ICSRCreditDetails[" + count + "].ProjectNumber";
+                                                var receiptid = "ICSRCreditDetails[" + count + "].ReceiptId";
+                                                var receiptnumber = "ICSRCreditDetails[" + count + "].ReceiptNumber";
+                                                var corpusamt = "ICSRCreditDetails[" + count + "].Amount";
+
+                                                <tr id="trdetails" class="p-b-sm">
+
+                                                    <td>
+                                                        @Html.TextBox(@receiptnumber, item.ReceiptNumber, new { @class = "form-control", @autocomplete = "off", @readonly = true })
+                                                        @Html.ValidationMessage(@receiptnumber)
+                                                        @Html.Hidden("ICSRCreditDetails.Index", @count)
+                                                        @Html.TextBox(@projectid, item.ProjectId, new { @class = "form-control dis-none" })
+                                                        @Html.TextBox(@receiptid, item.ReceiptId, new { @class = "form-control dis-none" })
+                                                    </td>
+
+                                                    <td>
+                                                        @Html.DropDownList(@selid, new SelectList(item.ProjectNumber, "id", "name", item.Id), new { @class = "form-control", @id = "txtprojectnumber" })
+                                                        @Html.ValidationMessage(@selid)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DropDownList(@bankid, new SelectList(item.Bank, "id", "name", item.BankId), new { @class = "form-control", @id = "txtbank" })
+                                                        @Html.ValidationMessage(@bankid)
+                                                    </td>
+                                                    <td>
+                                                        @Html.TextBox(@corpusamt, item.Amount, new { @class = "form-control", @readonly = true })
+
+                                                        @Html.ValidationMessage(@corpusamt)
+                                                    </td>
+
+                                                </tr>
+                                                count++;
+                                            }
+
+                                        }
+
+                                        else
+                                        {
+                                            <tr>
+                                                <td>
+                                                    @Html.TextBox("ICSRCreditDetails[0].ReceiptNumber", "", new { @class = "form-control", @id = "txtreceiptnumber", @autocomplete = "off", @readonly = true })
+                                                    @Html.Hidden("ICSRCreditDetails.Index", "0")
+                                                    @Html.ValidationMessage("ICSRCreditDetails[0].ReceiptNumber")
+                                                    @Html.TextBox("ICSRCreditDetails[0].ReceiptId", "", new { @class = "form-control dis-none" })
+                                                    @Html.TextBox("ICSRCreditDetails[0].ProjectId", "", new { @class = "form-control dis-none" })
+                                                </td>
+
+                                                <td>
+                                                    @Html.DropDownList("ICSRCreditDetails[0].Id", new SelectList(ViewBag.ProjectNumber, "id", "name"), "Select any", new { @class = "form-control required" })
+                                                    @Html.ValidationMessage("ICSRCreditDetails[0].Id")
+                                                </td>
+                                                <td>
+                                                    @Html.DropDownList("ICSRCreditDetails[0].BankId", new SelectList(ViewBag.Bank, "id", "name"), "Select any", new { @class = "form-control required" })
+                                                    @Html.ValidationMessage("ICSRCreditDetails[0].BankId")
+                                                </td>
+                                                <td>
+                                                    @Html.TextBox("ICSRCreditDetails[0].Amount", "", new { @class = "form-control", @autocomplete = "off" })
+                                                    @Html.ValidationMessage("ICSRCreditDetails[0].Amount")
+                                                </td>
+
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="bl-lg-panel-box pb-null">
+                        <div class="cmn-panel-box">
+
+                            <div class="col-md-6">
+                                <div class="form-group custom-form-group">
+                                    <label>DDF</label>
+                                </div>
+                            </div>
+                            <div class="col-md-2 pull-right">
+                                <div class="form-group custom-form-group">
+                                    <label>Total DDF Amount</label>
+                                    @Html.TextBoxFor(m => m.TotalDDFAmount, new { @class = "form-control", @id = "txtTotalDDFValue" })
+                                    @Html.ValidationMessageFor(m => m.TotalDDFAmount)
+                                </div>
+                            </div>
+                            <div class="m-b-sm scrl-table scrl-table-po-bl">
+                                <table class="table table-bordered" style="width: 1300px;">
+                                    <thead>
+                                        <tr>
+                                            <th colspan="10"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbodyDDF">
+                                        <tr>
+                                            <td style="width: 200px;">Receipt Number</td>
+                                            <td style="width: 350px;">Department</td>
+                                            <td style="width: 300px;">Project Number</td>
+                                            <td style="width: 300px;">DDF Credit Bank</td>
+                                            <td style="width: 200px;">DDF Amount</td>
+                                        </tr>
+                                        @if (Model.DDFCreditDetails != null)
+                                        {
+                                            var count = 0;
+                                            foreach (var item in Model.DDFCreditDetails)
+                                            {
+                                                var projectid = "DDFCreditDetails[" + count + "].ProjectId";
+                                                var selid = "DDFCreditDetails[" + count + "].Id";
+                                                var bankid = "DDFCreditDetails[" + count + "].BankId";
+                                                var departmentid = "DDFCreditDetails[" + count + "].DepartmentId";
+                                                var projectnum = "DDFCreditDetails[" + count + "].ProjectNumber";
+                                                var department = "DDFCreditDetails[" + count + "].DepartmentName";
+                                                var receiptid = "DDFCreditDetails[" + count + "].ReceiptId";
+                                                var receiptnumber = "DDFCreditDetails[" + count + "].ReceiptNumber";
+                                                var corpusamt = "DDFCreditDetails[" + count + "].Amount";
+
+                                                <tr id="trdetails" class="p-b-sm">
+
+                                                    <td>
+                                                        @Html.TextBox(@receiptnumber, item.ReceiptNumber, new { @class = "form-control", @autocomplete = "off", @readonly = true })
+                                                        @Html.ValidationMessage(@receiptnumber)
+                                                        @Html.Hidden("DDFCreditDetails.Index", @count)
+                                                        @Html.TextBox(@projectid, item.ProjectId, new { @class = "form-control dis-none required" })
+                                                        @Html.TextBox(@receiptid, item.ReceiptId, new { @class = "form-control dis-none" })
+                                                    </td>
+                                                    <td>
+                                                        @Html.TextBox(@department, item.DepartmentName, new { @class = "form-control", @readonly = true })
+                                                        @Html.ValidationMessage(@department)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DropDownList(@selid, new SelectList(item.ProjectNumber, "id", "name", item.Id), new { @class = "form-control required", @id = "txtprojectnumber" })
+                                                        @Html.ValidationMessage(@selid)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DropDownList(@bankid, new SelectList(item.Bank, "id", "name", item.BankId), new { @class = "form-control", @id = "txtbank" })
+                                                        @Html.ValidationMessage(@bankid)
+                                                    </td>
+                                                    <td>
+                                                        @Html.TextBox(@corpusamt, item.Amount, new { @class = "form-control", @readonly = true })
+                                                        @Html.ValidationMessage(@corpusamt)
+                                                    </td>
+
+                                                </tr>
+                                                count++;
+                                            }
+
+                                        }
+
+                                        else
+                                        {
+                                            <tr>
+                                                <td>
+                                                    @Html.TextBox("DDFCreditDetails[0].ReceiptNumber", "", new { @class = "form-control", @id = "txtreceiptnumber", @autocomplete = "off", @readonly = true })
+                                                    @Html.Hidden("DDFCreditDetails.Index", "0")
+                                                    @Html.ValidationMessage("DDFCreditDetails[0].ReceiptNumber")
+                                                    @Html.TextBox("DDFCreditDetails[0].ReceiptId", "", new { @class = "form-control dis-none" })
+                                                    @Html.TextBox("DDFCreditDetails[0].ProjectId", "", new { @class = "form-control dis-none required" })
+                                                </td>
+                                                <td>
+                                                    @Html.TextBox("DDFCreditDetails[0].DepartmentName", "", new { @class = "form-control", @autocomplete = "off" })
+                                                    @Html.ValidationMessage("DDFCreditDetails[0].DepartmentName")
+                                                </td>
+                                                <td>
+                                                    @Html.DropDownList("DDFCreditDetails[0].Id", new SelectList(ViewBag.ProjectNumber, "id", "name"), "Select any", new { @class = "form-control required" })
+                                                    @Html.ValidationMessage("DDFCreditDetails[0].Id")
+                                                </td>
+                                                <td>
+                                                    @Html.DropDownList("DDFCreditDetails[0].BankId", new SelectList(ViewBag.Bank, "id", "name"), "Select any", new { @class = "form-control" })
+                                                    @Html.ValidationMessage("DDFCreditDetails[0].BankId")
+                                                </td>
+                                                <td>
+                                                    @Html.TextBox("DDFCreditDetails[0].Amount", "", new { @class = "form-control", @autocomplete = "off" })
+                                                    @Html.ValidationMessage("DDFCreditDetails[0].Amount")
+                                                </td>
+
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="bl-lg-panel-box pb-null">
+                        <div class="cmn-panel-box">
+                            <div class="col-md-6">
+                                <div class="form-group custom-form-group">
+                                    <label>Staff Welfare</label>
+                                </div>
+                            </div>
+                            <div class="col-md-2 pull-right">
+                                <div class="form-group custom-form-group">
+                                    <label>Total Staff Welfare Amount</label>
+                                    @Html.TextBoxFor(m => m.TotalStaffWelfareAmount, new { @class = "form-control", @id = "txtTotalStaffwelfareamt" })
+                                    @Html.ValidationMessageFor(m => m.TotalStaffWelfareAmount)
+                                </div>
+                            </div>
+                            <div class="m-b-sm scrl-table scrl-table-po-bl">
+                                <table class="table table-bordered" style="width: 1080px;">
+                                    <thead>
+                                        <tr>
+                                            <th colspan="10"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbodyStaffWelfare">
+                                        <tr>
+                                            <td style="width: 200px;">Receipt Number</td>
+                                            @*<td style="width: 350px;">PI Name</td>*@
+                                            <td style="width: 250px;">Project Number</td>
+                                            <td style="width: 300px;">Staff Welfare Credit Bank</td>
+                                            <td style="width: 200px;">Staff Welfare Amount</td>
+                                        </tr>
+                                        @if (Model.StaffWelfareCreditDetails != null)
+                                        {
+                                            var count = 0;
+                                            foreach (var item in Model.StaffWelfareCreditDetails)
+                                            {
+                                                var projectid = "StaffWelfareCreditDetails[" + count + "].ProjectId";
+                                                var selid = "StaffWelfareCreditDetails[" + count + "].Id";
+                                                var bankid = "StaffWelfareCreditDetails[" + count + "].BankId";
+                                                var projectnum = "StaffWelfareCreditDetails[" + count + "].ProjectNumber";
+                                                var receiptid = "StaffWelfareCreditDetails[" + count + "].ReceiptId";
+                                                var receiptnumber = "StaffWelfareCreditDetails[" + count + "].ReceiptNumber";
+                                                var corpusamt = "StaffWelfareCreditDetails[" + count + "].Amount";
+
+                                                <tr id="trdetails" class="p-b-sm">
+
+                                                    <td>
+                                                        @Html.TextBox(@receiptnumber, item.ReceiptNumber, new { @class = "form-control", @autocomplete = "off", @readonly = true })
+                                                        @Html.ValidationMessage(@receiptnumber)
+                                                        @Html.Hidden("StaffWelfareCreditDetails.Index", @count)
+                                                        @Html.TextBox(@projectid, item.ProjectId, new { @class = "form-control dis-none" })
+                                                        @Html.TextBox(@receiptid, item.ReceiptId, new { @class = "form-control dis-none" })
+                                                    </td>
+
+                                                    <td>
+                                                        @Html.DropDownList(@selid, new SelectList(item.ProjectNumber, "id", "name", item.Id), new { @class = "form-control", @id = "txtprojectnumber" })
+                                                        @Html.ValidationMessage(@selid)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DropDownList(@bankid, new SelectList(item.Bank, "id", "name", item.BankId), new { @class = "form-control", @id = "txtbank" })
+                                                        @Html.ValidationMessage(@bankid)
+                                                    </td>
+                                                    <td>
+                                                        @Html.TextBox(@corpusamt, item.Amount, new { @class = "form-control", @readonly = true })
+
+                                                        @Html.ValidationMessage(@corpusamt)
+                                                    </td>
+
+                                                </tr>
+                                                count++;
+                                            }
+
+                                        }
+
+                                        else
+                                        {
+                                            <tr>
+                                                <td>
+                                                    @Html.TextBox("StaffWelfareCreditDetails[0].ReceiptNumber", "", new { @class = "form-control", @id = "txtreceiptnumber", @autocomplete = "off", @readonly = true })
+                                                    @Html.Hidden("StaffWelfareCreditDetails.Index", "0")
+                                                    @Html.ValidationMessage("StaffWelfareCreditDetails[0].ReceiptNumber")
+                                                    @Html.TextBox("StaffWelfareCreditDetails[0].ReceiptId", "", new { @class = "form-control dis-none" })
+                                                    @Html.TextBox("StaffWelfareCreditDetails[0].ProjectId", "", new { @class = "form-control dis-none" })
+                                                </td>
+
+                                                <td>
+                                                    @Html.DropDownList("StaffWelfareCreditDetails[0].Id", new SelectList(ViewBag.ProjectNumber, "id", "name"), "Select any", new { @class = "form-control" })
+                                                    @Html.ValidationMessage("StaffWelfareCreditDetails[0].Id")
+                                                </td>
+                                                <td>
+                                                    @Html.DropDownList("StaffWelfareCreditDetails[0].BankId", new SelectList(ViewBag.Bank, "id", "name"), "Select any", new { @class = "form-control" })
+                                                    @Html.ValidationMessage("StaffWelfareCreditDetails[0].BankId")
+                                                </td>
+                                                <td>
+                                                    @Html.TextBox("StaffWelfareCreditDetails[0].Amount", "", new { @class = "form-control", @autocomplete = "off" })
+                                                    @Html.ValidationMessage("StaffWelfareCreditDetails[0].Amount")
+                                                </td>
+
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="tab">
+                @Html.Partial("_TransactionDetails", Model)
+            </div>
+
+            <div class="custom-nav-btn text-right">
+                <button type="button" class="btn btn-default pull-left" id="prevBtn" onclick="nextPrev(-1)">Previous</button>
+                <button type="button" class="btn btn-primary pull-right" id="nextBtn" onclick="nextPrev(1)">Next</button>
+                <button type="button" class="btn btn-default pull-right" onclick="window.location.href='@Url.Action("OverheadsPostingList", "CoreAccounts")';">Close</button>
+            </div>
+        </div>
+    </div>
+
+}
+<div id="ValidationModal" class="modal fade modal-warning" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-warning"></i>
+                <h3 class="modal-title">Warning</h3>
+            </div>
+            <div class="modal-body">
+
+                <p id="MsgValidation"></p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div class="loading-bg dis-none">
+    @*<div class="lds-spinner"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>*@
+</div>
+@Html.AntiForgeryToken()
+<div id="popup"></div>
+<script>
+        var errMsg = '@TempData["errMsg"]';
+        var succMsg = '@TempData["succMsg"]';
+        $('#SourceEmailDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy' }).attr('readonly', 'readonly');
+        $('#txtFromDate, #txtToDate').datepicker({ dateFormat: 'dd-MM-yy' });
+        $(document).ready(function () {
+            if (succMsg != '') {
+                $('#alertSuccess').html(succMsg);
+                $('#Success').modal('toggle');
+            }
+            else if (errMsg != '') {
+                $('#FailedAlert').html(errMsg);
+                $('#Failed').modal('toggle');
+            }
+            $('.selectpicker').selectpicker({
+                liveSearch: true,
+            });
+
+            var selSource = $('#Source').val();
+            $("#divRefNum, #divRefEmailDate").addClass('dis-none');
+            if (selSource == '1') {
+                applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACWorkflowRefNumber", "Proposal")");
+                $("#divRefNum").removeClass('dis-none');
+            } else if (selSource == '3') {
+                applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACTapalRefNumber", "Proposal")");
+                $("#divRefNum").removeClass('dis-none');
+            }
+            else if (selSource == '2') {
+                $('#divRefEmailDate').removeClass('dis-none');
+            } else {
+                $("#divRefNum").removeClass('dis-none');
+            }
+            $('select[name="ProjectType"]').val(@Model.ProjectType);
+            $('input[name$=".TotalOverheadsValue"]').each(function (idx, val) {
+                calculateamount($(this).closest('tr'));
+            });
+            @*applyAutoComplete($("input[name='ProjectNumber']"), $("input[name='ProjectId ']"), "@Url.Action("LoadProjectList", "CoreAccounts")");*@
+            //$("input[name='ProjectNumber']").each(function () {
+            //    projectChange($(this), 'U');
+            //});
+            //$(".loading-bg").hide();
+        });
+        $('#formOHP').submit(function () {
+            var id = $(this).attr('Id');
+
+            $('button[type="submit"],#nextBtn,#btnSave').attr('disabled', 'true');
+        });
+        @*$("input[name='ProjectNumber']").change(function () {
+            var pjctnumber = $(this).val();
+
+            var projectnumber = pjctnumber.substring(0,pjctnumber.indexOf("-"));
+            $.getJSON("@Url.Action("GetProjectIdbyNumber", "CoreAccounts")", { ProjectNumber: projectnumber },
+
+                        function (locationdata) {
+                            $.each(locationdata, function (index, itemData) {
+                                $("input[name='SrchProjectId']").val(itemData.id);
+                            });
+                        });
+        });*@
+        //function aplyProjectAutoComplete(ele, url, setId) {
+        //    $(ele).autocomplete({
+        //        select: function (event, ui) {
+        //            event.preventDefault();
+        //            $(ele).val(ui.item.label);
+        //            //$(ele).closest('tr').find(".lblSelId").text(ui.item.label);
+        //            if (setId == true) {
+        //                $("input[name='SrchProjectId']").val(ui.item.value);
+        //                $("input[name='ProjectNumber']").val(ui.item.label);
+        //            } else {
+        //                $(ele).closest('tr').find("input[name='SrchProjectId']").val('');
+        //                $(ele).closest('tr').find("input[name='ProjectNumber']").val('');
+        //            }
+        //        },
+        //        focus: function (event, ui) {
+        //            event.preventDefault();
+        //            $(ele).val(ui.item.label);
+        //        },
+        //        source: function (request, response) {
+        //            $.getJSON(url, { term: request.term },
+        //             function (locationdata) {
+        //                 response(locationdata);
+        //             });
+        //        },
+        //        minLength: 3
+        //    });
+        //}
+        //function projectChange(el, mode) {
+        //    var selProj = $("input[name='ProjectNumber']");
+        //    if (mode != 'U') {
+        //        $("input[name='SrchProjectId'], input[name='ProjectNumber']").val('');
+        //        //$(el).closest('tr').find("input[name='autoComplete'],input[name='UserId'],input[name='Name']").val('');
+        //    }
+
+        //    aplyProjectAutoComplete(selProj, "../CoreAccounts/LoadOHProjectList", true)
+
+        //}
+        @*function changeProject() {
+            var token = $("input[name=__RequestVerificationToken]").val();
+            var Name = $("input[name='Name']").val();
+            var Userid = $("input[name='UserId']").val();
+            var url = '@Url.Action("ActiveProjectDetails", "Project")?PIId=' + Userid;
+            $(".loading-bg").show();
+            window.location.href = url;
+
+        };*@
+
+        function resetData() {
+            $('#InvoiceDate,#ProjectNumber,#PIDepartmentName,#NameofPI,#SponsoringAgencyName,#Agencyregaddress,#Agencydistrict,#AgencyPincode').text('');
+            $('#Agencycontactpersonmobile,#AgencycontactpersonEmail,#Agencycontactperson,#TAN,#PAN,#GSTNumber,#Agencystatecode,#Agencystate,#BankName,#BankAccountNumber').text('');
+            $('#TaxableAmount,#CGST,#CGSTPercentage,#SGST,#SGSTPercentage,#IGST,#IGSTPercentage,#TotalTaxValue,#TotalTaxpercentage,#TotalInvoiceValue,#TotalCreditAmount').val('');
+            $('#tbodyPreRec tr').remove();
+        }
+        $('#Source').change(function () {
+            var selSource = $(this).val();
+            $("#SourceReferenceNumber,#ReferenceNumber").val('');
+		    $("#divRefNum, #divRefEmailDate").addClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('False');
+		    if (selSource == '1') {
+                applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACWorkflowRefNumber", "Proposal")");
+                $("#divRefNum").removeClass('dis-none');
+                $("#SourceTapalOrWorkflow").val('True');
+            } else if (selSource == '3') {
+                applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACTapalRefNumber", "Proposal")");
+                $("#divRefNum").removeClass('dis-none');
+                $("#SourceTapalOrWorkflow").val('True');
+            }
+            else if (selSource == '2') {
+                $('#divRefEmailDate').removeClass('dis-none');
+                $("#SourceTapalOrWorkflow").val('False');
+            } else {
+                $("#divRefNum").removeClass('dis-none');
+                $("#SourceTapalOrWorkflow").val('True');
+            }
+        });
+    $('#txtsrchProjectid').change(function () {
+        debugger;            
+        var ProjectId = $('#txtsrchProjectid').val();
+        $.getJSON("../CoreAccounts/GetReceiptListbyProject", { ProjectId: ProjectId },
+                    function (data) {
+                        var select = $("select[name='ReceiptId']");
+                        select.empty();
+                        select.append($('<option/>', {
+                            value: 0,
+                            text: "Select Receipt"
+                        })).selectpicker('refresh');;
+                        $.each(data.rcvlist, function (index, itemData) {
+                            select.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name
+                            })).selectpicker('refresh');;
+                        });                     
+                            
+                    });     
+    });
+        $('#btnSearch').on('click', function () {
+            // var token = $("input[name=__RequestVerificationToken]").val();
+            $(".loading-bg").removeClass('dis-none');
+            GetOverheadsDetails();
+        });
+        function GetOverheadsDetails() {
+            var ReceiptId = $("#txtreceiptid").val();
+           // var ReceiptId = $("input[name='ReceiptId']").val();
+            var ProjectId = $('#txtsrchProjectid').val();
+            var ReceiptUptoDate = $("#txtToDate").val();
+            //  var SearchBy = $('input[name^="SearchField.SearchBy"]:checked').val();
+            //var FromDate = $('#FromDate').val();
+            //var ToDate = $('#ToDate').val();
+            //var typecode = $('#transtypecode').val();
+            //EmptyExpenseDeductionDetails();
+
+            $.ajax({
+                type: "GET",
+                url: "@Url.Action("GetOverheadsDetails", "CoreAccounts")",
+                data: { "ProjectId": ProjectId, "ReceiptId" : ReceiptId, "ReceiptToDate" : ReceiptUptoDate },
+                traditional: true,
+                dataType: "json",
+                success: function (result) {
+
+                    if(result.OverheadsDetails.length == 0)
+                    {
+                        var trEle = $('#tbodyHo tr').not(':first');
+                        $(trEle).find('input').val('');
+                        $('#MsgValidation').html("No Records found.");
+                        $('#ValidationModal').modal('toggle');
+                    }
+
+                    $.each(result.OverheadsDetails, function (i, item) {
+                        //var amt = 0;
+                        //$("#tbodyCommitmentSelList [name$='.HeadName'][value='"+item.BudgetHeadName+"']").each(function(){
+                        //    var elePayment = $(this).closest('td').find("input[name$='.PaymentAmount']");
+                        //    var parseVal = parseFloat($(elePayment).val());
+                        //    if (!isNaN(parseVal))
+                        //        amt = amt + parseVal;
+                        //});
+                        if (i == 0) {
+                            var trEle = $('#tbodyHo tr:last');
+                            $('#tbodyHo tr').not(':first').not(':last').remove();
+                            $(trEle).find('input').val('');
+                            $(trEle).find('input[name$=".ProjectId"]').val(item.ProjectId);
+                            $(trEle).find('input[name$=".ProjectNumber"]').val(item.ProjectNumber);
+
+                            $(trEle).find('input[name$=".ReceiptId"]').val(item.ReceiptId);
+                            $(trEle).find('input[name$=".ReceiptNumber"]').val(item.ReceiptNumber);
+
+                            $(trEle).find('input[name$=".TotalOverheadsValue"]').val(item.TotalOverheadsValue);
+
+                            $(trEle).find('input[name$=".OverheadsTypeId"]').val(item.OverheadsTypeId);
+                            $(trEle).find('input[name$=".ReceiptDate"]').val(item.ReceiptDate);
+
+                            $(trEle).find('input[name$=".CorpusAmount"]').val(item.CorpusAmount);
+                            $(trEle).find('input[name$=".CorpusPercent"]').val(item.CorpusPercent);
+
+                            $(trEle).find('input[name$=".ICSROHAmount"]').val(item.ICSROHAmount);
+                            $(trEle).find('input[name$=".ICSROHPercent"]').val(item.ICSROHPercent);
+
+                            $(trEle).find('input[name$=".DDFAmount"]').val(item.DDFAmount);
+                            $(trEle).find('input[name$=".DDFPercent"]').val(item.DDFPercent);
+
+                            $(trEle).find('input[name$=".RMFAmount"]').val(item.RMFAmount);
+                            $(trEle).find('input[name$=".RMFPercent"]').val(item.RMFPercent);
+
+                            $(trEle).find('input[name$=".StaffWelfareAmount"]').val(item.StaffWelfareAmount);
+                            $(trEle).find('input[name$=".StaffWelfarePercent"]').val(item.StaffWelfarePercent);
+
+                            $(trEle).find('input[name$=".PCFAmount"]').val(item.PCFAmount);
+                            $(trEle).find('input[name$=".PCFPercent"]').val(item.PCFPercent);
+
+                            $(trEle).find('input[name$=".TtlPCFPercent"]').val(item.TtlPCFPercent);
+                            $(trEle).find('input[name$=".TtlRMFPercent"]').val(item.TtlRMFPercent);
+
+                            $(trEle).find("input[name='OverheadsDetails.Index']").val(i);
+                            $(trEle).find("input[name$='.BtnPCF']").val(i);
+                            $(trEle).find("input[name$='.BtnRMF']").val(i);
+
+
+                        } else {
+                            var trEleNew = $('#tbodyHo tr:last').clone().find('input').val('').end();
+                            $(trEleNew).find("input[name='OverheadsDetails.Index']").val(i);
+                            $(trEleNew).find("input[name$='.BtnPCF']").val(i);
+                            $(trEleNew).find("input[name$='.BtnRMF']").val(i);
+                            $(trEleNew).find('input[name$=".ProjectId"]').val(item.ProjectId);
+                            $(trEleNew).find('input[name$=".ProjectNumber"]').val(item.ProjectNumber);
+
+                            $(trEleNew).find('input[name$=".ReceiptId"]').val(item.ReceiptId);
+                            $(trEleNew).find('input[name$=".ReceiptNumber"]').val(item.ReceiptNumber);
+
+                            $(trEleNew).find('input[name$=".TotalOverheadsValue"]').val(item.TotalOverheadsValue);
+
+                            $(trEleNew).find('input[name$=".OverheadsTypeId"]').val(item.OverheadsTypeId);
+                            $(trEleNew).find('input[name$=".ReceiptDate"]').val(item.ReceiptDate);
+
+                            $(trEleNew).find('input[name$=".CorpusAmount"]').val(item.CorpusAmount);
+                            $(trEleNew).find('input[name$=".CorpusPercent"]').val(item.CorpusPercent);
+
+                            $(trEleNew).find('input[name$=".ICSROHAmount"]').val(item.ICSROHAmount);
+                            $(trEleNew).find('input[name$=".ICSROHPercent"]').val(item.ICSROHPercent);
+
+                            $(trEleNew).find('input[name$=".DDFAmount"]').val(item.DDFAmount);
+                            $(trEleNew).find('input[name$=".DDFPercent"]').val(item.DDFPercent);
+
+                            $(trEleNew).find('input[name$=".RMFAmount"]').val(item.RMFAmount);
+                            $(trEleNew).find('input[name$=".RMFPercent"]').val(item.RMFPercent);
+
+                            $(trEleNew).find('input[name$=".StaffWelfareAmount"]').val(item.StaffWelfareAmount);
+                            $(trEleNew).find('input[name$=".StaffWelfarePercent"]').val(item.StaffWelfarePercent);
+
+                            $(trEleNew).find('input[name$=".PCFAmount"]').val(item.PCFAmount);
+                            $(trEleNew).find('input[name$=".PCFPercent"]').val(item.PCFPercent);
+
+                            $(trEleNew).find('input[name$=".TtlPCFPercent"]').val(item.TtlPCFPercent);
+                            $(trEleNew).find('input[name$=".TtlRMFPercent"]').val(item.TtlRMFPercent);
+
+                            $(trEleNew).find("input,Select").each(function () {
+                                $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                                $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                            });
+                            $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                                $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                            });
+                            $(trEleNew).find('.hasDatepicker').attr("id", "").removeClass('hasDatepicker').removeData('datepicker').unbind().datepicker({
+                                dateFormat: 'dd-MM-yy', changeYear: true
+                            })
+
+                            $('#tbodyHo').append(trEleNew);
+
+                        }
+                    });
+
+                    $.each(result.PCFCreditDetails, function (i, item) {
+                        //var amt = 0;
+                        //$("#tbodyCommitmentSelList [name$='.HeadName'][value='"+item.BudgetHeadName+"']").each(function(){
+                        //    var elePayment = $(this).closest('td').find("input[name$='.PaymentAmount']");
+                        //    var parseVal = parseFloat($(elePayment).val());
+                        //    if (!isNaN(parseVal))
+                        //        amt = amt + parseVal;
+                        //});
+
+                        if (i == 0) {
+                            var trEle = $('#tbodyPCF tr:last');
+                            $('#tbodyPCF tr').not(':first').not(':last').remove();
+                            var selectPN = $(trEle).find("select[name$='.Id']");
+                            selectPN.empty();
+                            $.each(item.ProjectNumber, function (index, itemData) {
+                                selectPN.append($('<option/>', {
+                                    value: itemData.id,
+                                    text: itemData.name,
+                                }));
+                            });
+                            var selectBank = $(trEle).find("select[name$='.BankId']");
+                            selectBank.empty();
+                            $.each(item.Bank, function (index, itemData) {
+                                selectBank.append($('<option/>', {
+                                    value: itemData.id,
+                                    text: itemData.name,
+                                }));
+                            });
+                            $(trEle).find('input').val('');
+                            $(trEle).find('input[name$=".ProjectId"]').val(item.ProjectId);
+                            //$(trEle).find('input[name$=".ProjectNumber"]').val(item.ProjectNumber);
+
+                            $(trEle).find('input[name$=".PIId"]').val(item.PIId);
+                            $(trEle).find('input[name$=".Id"]').val(item.Id);
+
+                            $(trEle).find('input[name$=".BankId"]').val(item.BankId);
+                            $(trEle).find('input[name$=".NameofPI"]').val(item.NameofPI);
+
+                            $(trEle).find('input[name$=".ReceiptId"]').val(item.ReceiptId);
+                            $(trEle).find('input[name$=".ReceiptNumber"]').val(item.ReceiptNumber);
+
+                            $(trEle).find('input[name$=".Amount"]').val(item.Amount);
+                            $(trEle).find('input[name$=".Percent"]').val(item.Percent);
+
+                            $(trEle).find("input[name='PCFCreditDetails.Index']").val(i);
+
+
+                        } else {
+                            var trEleNew = $('#tbodyPCF tr:last').clone().find('input').val('').end();
+                            $(trEleNew).find("input[name='PCFCreditDetails.Index']").val(i);
+
+                            var selectPN = $(trEleNew).find("select[name$='.Id']");
+                            selectPN.empty();
+                            $.each(item.ProjectNumber, function (index, itemData) {
+                                selectPN.append($('<option/>', {
+                                    value: itemData.id,
+                                    text: itemData.name,
+                                }));
+                            });
+                            var selectBank = $(trEleNew).find("select[name$='.BankId']");
+                            selectBank.empty();
+                            $.each(item.Bank, function (index, itemData) {
+                                selectBank.append($('<option/>', {
+                                    value: itemData.id,
+                                    text: itemData.name,
+                                }));
+                            });
+                            $(trEleNew).find('input[name$=".ProjectId"]').val(item.ProjectId);
+                            $(trEleNew).find('input[name$=".ProjectNumber"]').val(item.ProjectNumber);
+
+                            $(trEleNew).find('input[name$=".PIId"]').val(item.PIId);
+                            $(trEleNew).find('input[name$=".Id"]').val(item.Id);
+
+                            $(trEleNew).find('input[name$=".BankId"]').val(item.BankId);
+                            $(trEleNew).find('input[name$=".NameofPI"]').val(item.NameofPI);
+
+                            $(trEleNew).find('input[name$=".ReceiptId"]').val(item.ReceiptId);
+                            $(trEleNew).find('input[name$=".ReceiptNumber"]').val(item.ReceiptNumber);
+
+                            $(trEleNew).find('input[name$=".Amount"]').val(item.Amount);
+                            $(trEleNew).find('input[name$=".Percent"]').val(item.Percent);
+                            $(trEleNew).find("input,Select").each(function () {
+                                $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                                $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                            });
+                            $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                                $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                            });
+
+                            $(trEleNew).find('.hasDatepicker').attr("id", "").removeClass('hasDatepicker').removeData('datepicker').unbind().datepicker({
+                                dateFormat: 'dd-MM-yy', changeYear: true
+                            })
+
+                            $('#tbodyPCF').append(trEleNew);
+                        }
+                    });
+
+                    $.each(result.PIPCFShareDetails, function (i, item) {
+                        //var amt = 0;
+                        //$("#tbodyCommitmentSelList [name$='.HeadName'][value='"+item.BudgetHeadName+"']").each(function(){
+                        //    var elePayment = $(this).closest('td').find("input[name$='.PaymentAmount']");
+                        //    var parseVal = parseFloat($(elePayment).val());
+                        //    if (!isNaN(parseVal))
+                        //        amt = amt + parseVal;
+                        //});
+                        if (i == 0) {
+                            var trEle = $('#tbodyPCFShare tr:last');
+                            $('#tbodyPCFShare tr').not(':first').not(':last').remove();
+                            $(trEle).find('input').val('');
+                            $(trEle).find('input[name$=".ProjectId"]').val(item.ProjectId);
+                            $(trEle).find('input[name$=".NameofPI"]').val(item.NameofPI);
+                            $(trEle).find('input[name$=".PIId"]').val(item.PIId);
+                            $(trEle).find('input[name$=".ReceiptId"]').val(item.ReceiptId);
+
+                            $(trEle).find('input[name$=".PCFAmount"]').val(item.PCFAmount);
+                            $(trEle).find('input[name$=".PCFPercent"]').val(item.PCFPercent);
+
+                            $(trEle).find("input[name='PIPCFShareDetails.Index']").val(i);
+
+
+                        } else {
+                            var trEleNew = $('#tbodyPCFShare tr:last').clone().find('input').val('').end();
+                            $(trEleNew).find("input[name='PIPCFShareDetails.Index']").val(i);
+                            $(trEleNew).find('input[name$=".ProjectId"]').val(item.ProjectId);
+                            $(trEleNew).find('input[name$=".PIId"]').val(item.PIId);
+                            $(trEleNew).find('input[name$=".NameofPI"]').val(item.NameofPI);
+                            $(trEleNew).find('input[name$=".ReceiptId"]').val(item.ReceiptId);
+
+                            $(trEleNew).find('input[name$=".PCFAmount"]').val(item.PCFAmount);
+                            $(trEleNew).find('input[name$=".PCFPercent"]').val(item.PCFPercent);
+
+                            $(trEleNew).find("input,Select").each(function () {
+                                $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                                $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                            });
+                            $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                                $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                            });
+
+                            $(trEleNew).find('.hasDatepicker').attr("id", "").removeClass('hasDatepicker').removeData('datepicker').unbind().datepicker({
+                                dateFormat: 'dd-MM-yy', changeYear: true
+                            })
+
+                            $('#tbodyPCFShare').append(trEleNew);
+                        }
+                    });
+
+                    $.each(result.RMFCreditDetails, function (i, item) {
+                        //var amt = 0;
+                        //$("#tbodyCommitmentSelList [name$='.HeadName'][value='"+item.BudgetHeadName+"']").each(function(){
+                        //    var elePayment = $(this).closest('td').find("input[name$='.PaymentAmount']");
+                        //    var parseVal = parseFloat($(elePayment).val());
+                        //    if (!isNaN(parseVal))
+                        //        amt = amt + parseVal;
+                        //});
+                        if (i == 0) {
+                            var trEle = $('#tbodyRMF tr:last');
+                            $('#tbodyRMF tr').not(':first').not(':last').remove();
+                            var selectPN = $(trEle).find("select[name$='.Id']");
+                            selectPN.empty();
+                            $.each(item.ProjectNumber, function (index, itemData) {
+                                selectPN.append($('<option/>', {
+                                    value: itemData.id,
+                                    text: itemData.name,
+                                }));
+                            });
+                            var selectBank = $(trEle).find("select[name$='.BankId']");
+                            selectBank.empty();
+                            $.each(item.Bank, function (index, itemData) {
+                                selectBank.append($('<option/>', {
+                                    value: itemData.id,
+                                    text: itemData.name,
+                                }));
+                            });
+                            $(trEle).find('input').val('');
+                            $(trEle).find('input[name$=".ProjectId"]').val(item.ProjectId);
+                            $(trEle).find('input[name$=".ProjectNumber"]').val(item.ProjectNumber);
+
+                            $(trEle).find('input[name$=".PIId"]').val(item.PIId);
+                            $(trEle).find('input[name$=".Id"]').val(item.Id);
+
+                            $(trEle).find('input[name$=".BankId"]').val(item.BankId);
+                            $(trEle).find('input[name$=".NameofPI"]').val(item.NameofPI);
+
+                            $(trEle).find('input[name$=".ReceiptId"]').val(item.ReceiptId);
+                            $(trEle).find('input[name$=".ReceiptNumber"]').val(item.ReceiptNumber);
+
+                            $(trEle).find('input[name$=".Amount"]').val(item.Amount);
+                            $(trEle).find('input[name$=".Percent"]').val(item.Percent);
+
+                            $(trEle).find("input[name='RMFCreditDetails.Index']").val(i);
+
+
+                        } else {
+                            var trEleNew = $('#tbodyRMF tr:last').clone().find('input').val('').end();
+                            $(trEleNew).find("input[name='RMFCreditDetails.Index']").val(i);
+                            var selectPN = $(trEleNew).find("select[name$='.Id']");
+                            selectPN.empty();
+                            $.each(item.ProjectNumber, function (index, itemData) {
+                                selectPN.append($('<option/>', {
+                                    value: itemData.id,
+                                    text: itemData.name,
+                                }));
+                            });
+                            var selectBank = $(trEleNew).find("select[name$='.BankId']");
+                            selectBank.empty();
+                            $.each(item.Bank, function (index, itemData) {
+                                selectBank.append($('<option/>', {
+                                    value: itemData.id,
+                                    text: itemData.name,
+                                }));
+                            });
+                            $(trEleNew).find('input[name$=".ProjectId"]').val(item.ProjectId);
+                            $(trEleNew).find('input[name$=".ProjectNumber"]').val(item.ProjectNumber);
+
+                            $(trEleNew).find('input[name$=".PIId"]').val(item.PIId);
+                            $(trEleNew).find('input[name$=".Id"]').val(item.Id);
+
+                            $(trEleNew).find('input[name$=".BankId"]').val(item.BankId);
+                            $(trEleNew).find('input[name$=".NameofPI"]').val(item.NameofPI);
+
+                            $(trEleNew).find('input[name$=".ReceiptId"]').val(item.ReceiptId);
+                            $(trEleNew).find('input[name$=".ReceiptNumber"]').val(item.ReceiptNumber);
+
+                            $(trEleNew).find('input[name$=".Amount"]').val(item.Amount);
+                            $(trEleNew).find('input[name$=".Percent"]').val(item.Percent);
+                            $(trEleNew).find("input,Select").each(function () {
+                                $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                                $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                            });
+                            $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                                $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                            });
+                            $(trEleNew).find('.hasDatepicker').attr("id", "").removeClass('hasDatepicker').removeData('datepicker').unbind().datepicker({
+                                dateFormat: 'dd-MM-yy', changeYear: true
+                            })
+
+                            $('#tbodyRMF').append(trEleNew);
+
+                        }
+                    });
+
+                    $.each(result.PIRMFShareDetails, function (i, item) {
+                        //var amt = 0;
+                        //$("#tbodyCommitmentSelList [name$='.HeadName'][value='"+item.BudgetHeadName+"']").each(function(){
+                        //    var elePayment = $(this).closest('td').find("input[name$='.PaymentAmount']");
+                        //    var parseVal = parseFloat($(elePayment).val());
+                        //    if (!isNaN(parseVal))
+                        //        amt = amt + parseVal;
+                        //});
+                        if (i == 0) {
+                            var trEle = $('#tbodyRMFShare tr:last');
+                            $('#tbodyRMFShare tr').not(':first').not(':last').remove();
+                            $(trEle).find('input').val('');
+                            $(trEle).find('input[name$=".ProjectId"]').val(item.ProjectId);
+                            $(trEle).find('input[name$=".NameofPI"]').val(item.NameofPI);
+                            $(trEle).find('input[name$=".PIId"]').val(item.PIId);
+                            $(trEle).find('input[name$=".ReceiptId"]').val(item.ReceiptId);
+
+                            $(trEle).find('input[name$=".RMFAmount"]').val(item.RMFAmount);
+                            $(trEle).find('input[name$=".RMFPercent"]').val(item.RMFPercent);
+
+                            $(trEle).find("input[name='PIRMFShareDetails.Index']").val(i);
+
+
+                        } else {
+                            var trEleNew = $('#tbodyRMFShare tr:last').clone().find('input').val('').end();
+                            $(trEleNew).find("input[name='PIRMFShareDetails.Index']").val(i);
+                            $(trEleNew).find('input[name$=".ProjectId"]').val(item.ProjectId);
+                            $(trEleNew).find('input[name$=".NameofPI"]').val(item.NameofPI);
+                            $(trEleNew).find('input[name$=".PIId"]').val(item.PIId);
+                            $(trEleNew).find('input[name$=".ReceiptId"]').val(item.ReceiptId);
+
+                            $(trEleNew).find('input[name$=".RMFAmount"]').val(item.RMFAmount);
+                            $(trEleNew).find('input[name$=".RMFPercent"]').val(item.RMFPercent);
+
+                            $(trEleNew).find("input,Select").each(function () {
+                                $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                                $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                            });
+                            $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                                $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                            });
+
+                            $(trEleNew).find('.hasDatepicker').attr("id", "").removeClass('hasDatepicker').removeData('datepicker').unbind().datepicker({
+                                dateFormat: 'dd-MM-yy', changeYear: true
+                            })
+
+                            $('#tbodyRMFShare').append(trEleNew);
+                        }
+                    });
+
+                    $.each(result.CorpusCreditDetails, function (i, item) {
+                        //var amt = 0;
+                        //$("#tbodyCommitmentSelList [name$='.HeadName'][value='"+item.BudgetHeadName+"']").each(function(){
+                        //    var elePayment = $(this).closest('td').find("input[name$='.PaymentAmount']");
+                        //    var parseVal = parseFloat($(elePayment).val());
+                        //    if (!isNaN(parseVal))
+                        //        amt = amt + parseVal;
+                        //});
+                        if (i == 0) {
+                            var trEle = $('#tbodyCorpus tr:last');
+                            $('#tbodyCorpus tr').not(':first').not(':last').remove();
+                            var selectBank = $(trEle).find("select[name$='.BankId']");
+                            selectBank.empty();
+                            $.each(item.Bank, function (index, itemData) {
+                                selectBank.append($('<option/>', {
+                                    value: itemData.id,
+                                    text: itemData.name,
+                                }));
+                            });
+                            $(trEle).find('input').val('');
+                            $(trEle).find('input[name$=".Id"]').val(item.Id);
+                            $(trEle).find('input[name$=".BankId"]').val(item.BankId);
+
+                            $(trEle).find('input[name$=".PIId"]').val(item.PIId);
+                            $(trEle).find('input[name$=".ProjectNumber"]').val(item.ProjectNumber);
+
+                            $(trEle).find('input[name$=".NameofPI"]').val(item.NameofPI);
+                            $(trEle).find('input[name$=".ReceiptId"]').val(item.ReceiptId);
+
+                            $(trEle).find('input[name$=".ReceiptNumber"]').val(item.ReceiptNumber);
+                            $(trEle).find('input[name$=".Amount"]').val(item.Amount);
+
+                            $(trEle).find("input[name='CorpusCreditDetails.Index']").val(i);
+
+
+                        } else {
+                            var trEleNew = $('#tbodyCorpus tr:last').clone().find('input').val('').end();
+                            $(trEleNew).find("input[name='CorpusCreditDetails.Index']").val(i);
+                            var selectBank = $(trEleNew).find("select[name$='.BankId']");
+                            selectBank.empty();
+                            $.each(item.Bank, function (index, itemData) {
+                                selectBank.append($('<option/>', {
+                                    value: itemData.id,
+                                    text: itemData.name,
+                                }));
+                            });
+                            $(trEleNew).find('input[name$=".Id"]').val(item.Id);
+                            $(trEleNew).find('input[name$=".BankId"]').val(item.BankId);
+
+                            $(trEleNew).find('input[name$=".PIId"]').val(item.PIId);
+                            $(trEleNew).find('input[name$=".ProjectNumber"]').val(item.ProjectNumber);
+
+                            $(trEleNew).find('input[name$=".NameofPI"]').val(item.NameofPI);
+                            $(trEleNew).find('input[name$=".ReceiptId"]').val(item.ReceiptId);
+
+                            $(trEleNew).find('input[name$=".ReceiptNumber"]').val(item.ReceiptNumber);
+                            $(trEleNew).find('input[name$=".Amount"]').val(item.Amount);
+
+                            $(trEleNew).find("input,Select").each(function () {
+                                $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                                $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                            });
+                            $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                                $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                            });
+
+                            $(trEleNew).find('.hasDatepicker').attr("id", "").removeClass('hasDatepicker').removeData('datepicker').unbind().datepicker({
+                                dateFormat: 'dd-MM-yy', changeYear: true
+                            })
+
+                            $('#tbodyCorpus').append(trEleNew);
+                        }
+                    });
+
+                    $.each(result.ICSRCreditDetails, function (i, item) {
+                        //var amt = 0;
+                        //$("#tbodyCommitmentSelList [name$='.HeadName'][value='"+item.BudgetHeadName+"']").each(function(){
+                        //    var elePayment = $(this).closest('td').find("input[name$='.PaymentAmount']");
+                        //    var parseVal = parseFloat($(elePayment).val());
+                        //    if (!isNaN(parseVal))
+                        //        amt = amt + parseVal;
+                        //});
+                        if (i == 0) {
+                            var trEle = $('#tbodyICSROH tr:last');
+                            $('#tbodyICSROH tr').not(':first').not(':last').remove();
+                            var selectPN = $(trEle).find("select[name$='.Id']");
+                            selectPN.empty();
+                            $.each(item.ProjectNumber, function (index, itemData) {
+                                selectPN.append($('<option/>', {
+                                    value: itemData.id,
+                                    text: itemData.name,
+                                }));
+                            });
+                            var selectBank = $(trEle).find("select[name$='.BankId']");
+                            selectBank.empty();
+                            $.each(item.Bank, function (index, itemData) {
+                                selectBank.append($('<option/>', {
+                                    value: itemData.id,
+                                    text: itemData.name,
+                                }));
+                            });
+                            $(trEle).find('input').val('')
+                            $(trEle).find('input[name$=".Id"]').val(item.Id);
+                            $(trEle).find('input[name$=".BankId"]').val(item.BankId);
+
+                            $(trEle).find('input[name$=".ProjectId"]').val(item.ProjectId);
+                            $(trEle).find('input[name$=".ProjectNumber"]').val(item.ProjectNumber);
+
+                            $(trEle).find('input[name$=".ReceiptId"]').val(item.ReceiptId);
+
+                            $(trEle).find('input[name$=".ReceiptNumber"]').val(item.ReceiptNumber);
+                            $(trEle).find('input[name$=".Amount"]').val(item.Amount);
+
+                            $(trEle).find("input[name='ICSRCreditDetails.Index']").val(i);
+
+
+                        } else {
+                            var trEleNew = $('#tbodyICSROH tr:last').clone().find('input').val('').end();
+                            $(trEleNew).find("input[name='ICSRCreditDetails.Index']").val(i);
+                            var selectPN = $(trEleNew).find("select[name$='.Id']");
+                            selectPN.empty();
+                            $.each(item.ProjectNumber, function (index, itemData) {
+                                selectPN.append($('<option/>', {
+                                    value: itemData.id,
+                                    text: itemData.name,
+                                }));
+                            });
+                            var selectBank = $(trEleNew).find("select[name$='.BankId']");
+                            selectBank.empty();
+                            $.each(item.Bank, function (index, itemData) {
+                                selectBank.append($('<option/>', {
+                                    value: itemData.id,
+                                    text: itemData.name,
+                                }));
+                            });
+
+                            $(trEleNew).find('input[name$=".Id"]').val(item.Id);
+                            $(trEleNew).find('input[name$=".BankId"]').val(item.BankId);
+
+                            $(trEleNew).find('input[name$=".ProjectId"]').val(item.ProjectId);
+                            $(trEleNew).find('input[name$=".ProjectNumber"]').val(item.ProjectNumber);
+
+                            $(trEleNew).find('input[name$=".ReceiptId"]').val(item.ReceiptId);
+
+                            $(trEleNew).find('input[name$=".ReceiptNumber"]').val(item.ReceiptNumber);
+                            $(trEleNew).find('input[name$=".Amount"]').val(item.Amount);
+
+                            $(trEleNew).find("input,Select").each(function () {
+                                $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                                $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                            });
+                            $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                                $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                            });
+
+                            $(trEleNew).find('.hasDatepicker').attr("id", "").removeClass('hasDatepicker').removeData('datepicker').unbind().datepicker({
+                                dateFormat: 'dd-MM-yy', changeYear: true
+                            })
+
+                            $('#tbodyICSROH').append(trEleNew);
+                        }
+                    });
+
+                    $.each(result.DDFCreditDetails, function (i, item) {
+                        //var amt = 0;
+                        //$("#tbodyCommitmentSelList [name$='.HeadName'][value='"+item.BudgetHeadName+"']").each(function(){
+                        //    var elePayment = $(this).closest('td').find("input[name$='.PaymentAmount']");
+                        //    var parseVal = parseFloat($(elePayment).val());
+                        //    if (!isNaN(parseVal))
+                        //        amt = amt + parseVal;
+                        //});
+                        if (i == 0) {
+                            var trEle = $('#tbodyDDF tr:last');
+                            $('#tbodyDDF tr').not(':first').not(':last').remove();
+                            var selectPN = $(trEle).find("select[name$='.Id']");
+                            selectPN.empty();
+                            $.each(item.ProjectNumber, function (index, itemData) {
+                                selectPN.append($('<option/>', {
+                                    value: itemData.id,
+                                    text: itemData.name,
+                                }));
+                            });
+                            var selectBank = $(trEle).find("select[name$='.BankId']");
+                            selectBank.empty();
+                            $.each(item.Bank, function (index, itemData) {
+                                selectBank.append($('<option/>', {
+                                    value: itemData.id,
+                                    text: itemData.name,
+                                }));
+                            });
+                            $(trEle).find('input').val('')
+                            $(trEle).find('input[name$=".Id"]').val(item.Id);
+                            $(trEle).find('input[name$=".BankId"]').val(item.BankId);
+
+                            $(trEle).find('input[name$=".ProjectId"]').val(item.ProjectId);
+                            $(trEle).find('input[name$=".ProjectNumber"]').val(item.ProjectNumber);
+
+                            $(trEle).find('input[name$=".DepartmentId"]').val(item.DepartmentId);
+                            $(trEle).find('input[name$=".DepartmentName"]').val(item.DepartmentName);
+
+                            $(trEle).find('input[name$=".ReceiptId"]').val(item.ReceiptId);
+                            $(trEle).find('input[name$=".ReceiptNumber"]').val(item.ReceiptNumber);
+
+                            $(trEle).find('input[name$=".Amount"]').val(item.Amount);
+
+                            $(trEle).find("input[name='DDFCreditDetails.Index']").val(i);
+
+
+                        } else {
+                            var trEleNew = $('#tbodyDDF tr:last').clone().find('input').val('').end();
+                            $(trEleNew).find("input[name='DDFCreditDetails.Index']").val(i);
+                            var selectPN = $(trEle).find("select[name$='.Id']");
+                            selectPN.empty();
+                            $.each(item.ProjectNumber, function (index, itemData) {
+                                selectPN.append($('<option/>', {
+                                    value: itemData.id,
+                                    text: itemData.name,
+                                }));
+                            });
+                            var selectBank = $(trEle).find("select[name$='.BankId']");
+                            selectBank.empty();
+                            $.each(item.Bank, function (index, itemData) {
+                                selectBank.append($('<option/>', {
+                                    value: itemData.id,
+                                    text: itemData.name,
+                                }));
+                            });
+                            $(trEleNew).find('input[name$=".Id"]').val(item.Id);
+                            $(trEleNew).find('input[name$=".BankId"]').val(item.BankId);
+
+                            $(trEleNew).find('input[name$=".ProjectId"]').val(item.ProjectId);
+                            $(trEleNew).find('input[name$=".ProjectNumber"]').val(item.ProjectNumber);
+
+                            $(trEleNew).find('input[name$=".DepartmentId"]').val(item.DepartmentId);
+                            $(trEleNew).find('input[name$=".DepartmentName"]').val(item.DepartmentName);
+
+                            $(trEleNew).find('input[name$=".ReceiptId"]').val(item.ReceiptId);
+                            $(trEleNew).find('input[name$=".ReceiptNumber"]').val(item.ReceiptNumber);
+
+                            $(trEleNew).find('input[name$=".Amount"]').val(item.Amount);
+
+                            $(trEleNew).find("input,Select").each(function () {
+                                $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                                $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                            });
+                            $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                                $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                            });
+
+                            $(trEleNew).find('.hasDatepicker').attr("id", "").removeClass('hasDatepicker').removeData('datepicker').unbind().datepicker({
+                                dateFormat: 'dd-MM-yy', changeYear: true
+                            })
+
+                            $('#tbodyDDF').append(trEleNew);
+                        }
+                    });
+
+                    $.each(result.StaffWelfareCreditDetails, function (i, item) {
+                        //var amt = 0;
+                        //$("#tbodyCommitmentSelList [name$='.HeadName'][value='"+item.BudgetHeadName+"']").each(function(){
+                        //    var elePayment = $(this).closest('td').find("input[name$='.PaymentAmount']");
+                        //    var parseVal = parseFloat($(elePayment).val());
+                        //    if (!isNaN(parseVal))
+                        //        amt = amt + parseVal;
+                        //});
+                        if (i == 0) {
+                            var trEle = $('#tbodyStaffWelfare tr:last');
+                            $('#tbodyStaffWelfare tr').not(':first').not(':last').remove();
+                            var selectPN = $(trEle).find("select[name$='.Id']");
+                            selectPN.empty();
+                            $.each(item.ProjectNumber, function (index, itemData) {
+                                selectPN.append($('<option/>', {
+                                    value: itemData.id,
+                                    text: itemData.name,
+                                }));
+                            });
+                            var selectBank = $(trEle).find("select[name$='.BankId']");
+                            selectBank.empty();
+                            $.each(item.Bank, function (index, itemData) {
+                                selectBank.append($('<option/>', {
+                                    value: itemData.id,
+                                    text: itemData.name,
+                                }));
+                            });
+                            $(trEle).find('input').val('');
+                            $(trEle).find('input[name$=".Id"]').val(item.Id);
+                            $(trEle).find('input[name$=".BankId"]').val(item.BankId);
+
+                            $(trEle).find('input[name$=".ProjectId"]').val(item.ProjectId);
+                            $(trEle).find('input[name$=".ProjectNumber"]').val(item.ProjectNumber);
+
+                            $(trEle).find('input[name$=".ReceiptId"]').val(item.ReceiptId);
+                            $(trEle).find('input[name$=".ReceiptNumber"]').val(item.ReceiptNumber);
+
+                            $(trEle).find('input[name$=".Amount"]').val(item.Amount);
+
+                            $(trEle).find("input[name='StaffWelfareCreditDetails.Index']").val(i);
+
+
+                        } else {
+                            var trEleNew = $('#tbodyStaffWelfare tr:last').clone().find('input').val('').end();
+                            var selectPN = $(trEleNew).find("select[name$='.Id']");
+                            selectPN.empty();
+                            $.each(item.ProjectNumber, function (index, itemData) {
+                                selectPN.append($('<option/>', {
+                                    value: itemData.id,
+                                    text: itemData.name,
+                                }));
+                            });
+                            var selectBank = $(trEleNew).find("select[name$='.BankId']");
+                            selectBank.empty();
+                            $.each(item.Bank, function (index, itemData) {
+                                selectBank.append($('<option/>', {
+                                    value: itemData.id,
+                                    text: itemData.name,
+                                }));
+                            });
+                            $(trEleNew).find('input[name$=".Id"]').val(item.Id);
+                            $(trEleNew).find('input[name$=".BankId"]').val(item.BankId);
+
+                            $(trEleNew).find('input[name$=".ProjectId"]').val(item.ProjectId);
+                            $(trEleNew).find('input[name$=".ProjectNumber"]').val(item.ProjectNumber);
+
+                            $(trEleNew).find('input[name$=".DepartmentId"]').val(item.DepartmentId);
+                            $(trEleNew).find('input[name$=".DepartmentName"]').val(item.DepartmentName);
+
+                            $(trEleNew).find('input[name$=".ReceiptId"]').val(item.ReceiptId);
+                            $(trEleNew).find('input[name$=".ReceiptNumber"]').val(item.ReceiptNumber);
+
+                            $(trEleNew).find('input[name$=".Amount"]').val(item.Amount);
+
+                            $(trEleNew).find("input,Select").each(function () {
+                                $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                                $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                            });
+                            $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                                $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                            });
+
+                            $(trEleNew).find('.hasDatepicker').attr("id", "").removeClass('hasDatepicker').removeData('datepicker').unbind().datepicker({
+                                dateFormat: 'dd-MM-yy', changeYear: true
+                            })
+
+                            $('#tbodyStaffWelfare').append(trEleNew);
+                        }
+                    });
+                    $("input[name='TotalAmount']").val(result.TotalAmount);
+                    $(".loading-bg").addClass('dis-none');
+                },
+                error: function (err) {
+                    console.log("error : " + err);
+                    $(".loading-bg").addClass('dis-none');
+                }
+            });
+        //}
+        }
+
+         function AddNewExpense() {
+        //var subcode = $('#SubCode').val();
+        $.ajax({
+            type: "GET",
+            url: "@Url.Action("GetAddNewExpenseDetails", "CoreAccounts")",
+            data: { "typeCode": "OHP", "tSubCode": 1 },
+            traditional: true,
+            dataType: "json",
+            success: function (result) {
+                $.each(result.ExpenseDetail, function (i, item) {
+                    var cln = $('#tbodyExpenseList tr:first').clone().find("select,input").val("").end();
+                    $(cln).find('a.dis-none').removeClass('dis-none');
+                    var index = $('#tbodyExpenseList tr:last').find("input[name='ExpenseDetail.Index']").val();
+                    index = parseInt(index) + 1;
+                    $(cln).find("input[name='ExpenseDetail.Index']").val(index);
+                    $(cln).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                    $(cln).find('input[name$=".IsJV"]').val(item.IsJV);
+                    $(cln).find('#lblTransType').text(item.TransactionType);
+                    $(cln).find("input, select").each(function () {
+                        $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+                        $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+                    });
+                    $(cln).find("span[data-valmsg-for]").each(function () {
+                        $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+                    });
+
+                    var selectGroup = $(cln).find("select[name$='.AccountGroupId']");
+                    selectGroup.empty();
+                    $.each(item.AccountGroupList, function (index, itemData) {
+                        selectGroup.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+
+                    var selectHead = $(cln).find("select[name$='.AccountHeadId']");
+                    selectHead.empty();
+                    $.each(item.AccountHeadList, function (index, itemData) {
+                        selectHead.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+                    $('#tbodyExpenseList').append(cln);
+                });
+            },
+            error: function (err) {
+                console.log("error : " + err);
+            }
+        });
+    }
+        function GetTransactionDetails() {
+            var interstate_f = false;
+            //var typecode = $('#transtypecode').val();
+            //EmptyExpenseDeductionDetails();
+            $.ajax({
+                type: "GET",
+                url: "@Url.Action("GetTransactionDetails", "CoreAccounts")",
+                data: { "typeCode": "OHP", "tSubCode" : "1", },
+            traditional: true,
+            dataType: "json",
+            success: function (result) {
+                $.each(result.ExpenseDetail, function (i, item) {
+                    //var amt = 0;
+                    //$("#tbodyCommitmentSelList [name$='.HeadName'][value='"+item.BudgetHeadName+"']").each(function(){
+                    //    var elePayment = $(this).closest('td').find("input[name$='.PaymentAmount']");
+                    //    var parseVal = parseFloat($(elePayment).val());
+                    //    if (!isNaN(parseVal))
+                    //        amt = amt + parseVal;
+                    //});
+                    if (i == 0) {
+                        var trEle = $('#tbodyExpenseList tr:first');
+                        $(trEle).find('input[name$=".Amount"]').val('');
+                        $(trEle).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                        $(trEle).find('#lblTransType').text(item.TransactionType);
+                        $(trEle).find('input[name$=".IsJV"]').val(item.IsJV);
+                        $(trEle).find("input[name='ExpenseDetail.Index']").val(i);
+
+                        var selectGroup = $(trEle).find('select[name$=".AccountGroupId"]');
+                        selectGroup.empty();
+                        $.each(item.AccountGroupList, function (index, itemData) {
+                            selectGroup.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name,
+                            }));
+                        });
+
+                        var selectHead = $(trEle).find('select[name$=".AccountHeadId"]');
+                        selectHead.empty();
+                        $.each(item.AccountHeadList, function (index, itemData) {
+                            selectHead.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name,
+                            }));
+                        });
+                    } else {
+                        var trEleNew = $('#tbodyExpenseList tr:first').clone().find('input').val('').end();
+                        $(trEleNew).find('input[name$=".Amount"]').val('');
+                        $(trEleNew).find("input[name='ExpenseDetail.Index']").val(i);
+                        $(trEleNew).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                        $(trEleNew).find('#lblTransType').text(item.TransactionType);
+                        $(trEleNew).find('input[name$=".IsJV"]').val(item.IsJV);
+                        $(trEleNew).find("input,Select").each(function () {
+                            $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                            $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                        });
+                        $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                        });
+
+                        var selectGroup = $(trEleNew).find('select[name$=".AccountGroupId"]');
+                        selectGroup.empty();
+                        $.each(item.AccountGroupList, function (index, itemData) {
+                            selectGroup.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name,
+                            }));
+                        });
+
+                        var selectHead = $(trEleNew).find('select[name$=".AccountHeadId"]');
+                        selectHead.empty();
+                        $.each(item.AccountHeadList, function (index, itemData) {
+                            selectHead.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name,
+                            }));
+                        });
+                        $('#tbodyExpenseList').append(trEleNew);
+                    }
+                });
+                $.each(result.DeductionDetail, function (i, item) {
+                    if (i == 0) {
+                        var trEle = $('#tbodyDeductionList tr:first');
+                        $(trEle).find('input').val('');
+                        var amtEle = $(trEle).find('input[name$=".Amount"]');
+                        amtEle.removeClass('required');
+                        $(trEle).find('input[name$=".AccountGroupId"]').val(item.AccountGroupId);
+                        $(trEle).find('input[name$=".DeductionHeadId"]').val(item.DeductionHeadId);
+                        $(trEle).find('input[name$=".DeductionHead"]').val(item.DeductionHead);
+                        $(trEle).find('input[name$=".AccountGroup"]').val(item.AccountGroup);
+                        $(trEle).find('td:nth-child(1)').html(item.AccountGroup);
+                        $(trEle).find('td:nth-child(2)').html(item.DeductionHead);
+                    } else {
+                        var trEleNew = $('#tbodyDeductionList tr:first').clone().find('input').val('').end();
+                        $(trEleNew).find("input").each(function () {
+                            $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                            $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                        });
+                        $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                        });
+                        var amtEle = $(trEleNew).find('input[name$=".Amount"]');
+
+                        amtEle.removeClass('required');
+                        $(trEleNew).find('input[name$=".AccountGroupId"]').val(item.AccountGroupId);
+                        $(trEleNew).find('input[name$=".DeductionHeadId"]').val(item.DeductionHeadId);
+                        $(trEleNew).find('input[name$=".DeductionHead"]').val(item.DeductionHead);
+                        $(trEleNew).find('input[name$=".AccountGroup"]').val(item.AccountGroup);
+                        $(trEleNew).find('td:nth-child(1)').html(item.AccountGroup);
+                        $(trEleNew).find('td:nth-child(2)').html(item.DeductionHead);
+                        $('#tbodyDeductionList').append(trEleNew);
+                    }
+                });
+                var Name =  $("input[name='PIName']").val();
+                // $("#CreditorAmount").val(StipendAmt);
+                $('#lblVendorName').html(Name);
+                $('#NeedUpdateTransDetail').val('false');
+                CalculateDeductionTotal();
+            },
+            error: function (err) {
+                console.log("error : " + err);
+            }
+        });
+        //}
+        }
+        function CalculateContraTotal() {
+            var ttlCrVal = 0, ttlDrVal = 0;
+            $('#tbodyDr input[name$=".Amount"]').each(function (i, rowEle) {
+                var parseVal = parseFloat($(this).val()) || 0;
+                ttlDrVal = ttlDrVal + parseVal;
+            });
+            $('#tbodyCr input[name$=".Amount"]').each(function (i, rowEle) {
+                var parseVal = parseFloat($(this).val()) || 0;
+                ttlCrVal = ttlCrVal + parseVal;
+            });
+            $('#ttlContraDr').val(ttlDrVal);
+            $('#ttlContraCr').val(ttlCrVal);
+        }
+
+        function formSave(){
+            var model = @Html.Raw(Json.Encode(Model));
+
+            var isValid = $('#formOHP').valid();
+            if (!isValid)
+                return false;
+            //var netCrAmt = parseFloat($('#ttlContraDr').val()) || 0;
+            //var netDrAmt = parseFloat($('#ttlContraCr').val()) || 0;
+            //if (netDrAmt != netCrAmt || netCrAmt == 0) {
+            //    $("#alert").text('Not a valid entry. Credit and Debit value are not equal.');
+            //    $('#Validation').modal('show');
+            //    return false;
+            //}
+            //var crHead = [];
+            //var drHead = [];
+            //$('#tbodyDr select[name$=".AccountHeadId"]').each(function (idx, val) { drHead.push($(val).val()); });
+            //drHead.sort();
+            //for (var k = 1; k < drHead.length; ++k) {
+            //    if (drHead[k] == drHead[k - 1]) {
+            //        $('#alert').html("Duplicate head exist in Debit details. Please select a different head.");
+            //        $('#Validation').modal('toggle');
+            //        return false;
+            //    }
+            //}
+            //$('#tbodyCr select[name$=".AccountHeadId"]').each(function (idx, val) { crHead.push($(val).val()); });
+            //crHead.sort();
+            //for (var k = 1; k < crHead.length; ++k) {
+            //    if (crHead[k] == crHead[k - 1]) {
+            //        $('#alert').html("Duplicate head exist in Credit details. Please select a different head.");
+            //        $('#Validation').modal('toggle');
+            //        return false;
+            //    }
+            //}
+            //$('#tbodyCr input[name$=".Amount"]').each(function () {
+            //    var ele = $(this).closest('tr');
+            //    var amt = parseFloat($(this).val()) || 0;
+            //    var balAmt = parseFloat(ele.find('.balAmt').text()) || 0;
+            //    if (balAmt < amt) {
+            //        $('#alert').html("Some of the amount exceed balance amount. Please correct and submit again.");
+            //        $('#Validation').modal('toggle');
+            //        amtEle.focus();
+            //        return false;
+            //    }
+            //});
+
+            if (isValid)
+                $('#formOHP').submit();
+        };
+
+        $('#TaxableAmount').on("copy cut paste drop", function () {
+            return false;
+        });
+        $('#txtprojecttype').change(function () {
+            // projectChange($(this));
+            var projecttype = $(this).val();
+            var url = 'OverheadsPosting?projecttype=' + projecttype;
+            window.location.href = url;
+        });
+        $(document).on('change', 'input[name$=".TotalOverheadsValue"]', function () {
+            calculatealloverheads();
+            calculateamount($(this).closest('tr'));
+        });
+
+        function calculateamount(eleTr) {
+            var totalfacultyamt = 0;
+            var totalpcfamt = 0;
+            var totalcorpusamt = 0;
+            var totalicsrohamt = 0;
+            var totalddfamt = 0;
+            var totalrmfamt = 0;
+            var totalswfamt = 0;
+            var inputRecId = $(eleTr).find('input[name$=".ReceiptId"]').val();
+
+            $('#tbodyPCF tr').each(function (idx, val) {
+                var receiptid = $(this).closest('tr').find('input[name$=".ReceiptId"]').val()
+                if (inputRecId == receiptid)
+                {
+                    var pcfvalue = parseFloat(eleTr.closest('tr').find('input[name$=".PCFAmount"]').val());
+                    var pcfpercent = parseFloat($(this).closest('tr').find('input[name$=".Percent"]').val());
+                    var pcfamt = (pcfvalue * pcfpercent) / 100;
+                    $(this).closest('tr').find('input[name$=".Amount"]').val(pcfamt);
+                    totalpcfamt += pcfamt;
+                }
+            });
+            $('#tbodyRMF tr').each(function (idx, val) {
+                var receiptid = $(this).closest('tr').find('input[name$=".ReceiptId"]').val()
+                if (inputRecId == receiptid) {
+                    var rmfvalue = parseFloat(eleTr.closest('tr').find('input[name$=".RMFAmount"]').val());
+                    var rmfpercent = parseFloat($(this).closest('tr').find('input[name$=".Percent"]').val());
+                    var rmfamt = (rmfvalue * rmfpercent) / 100;
+                    $(this).closest('tr').find('input[name$=".Amount"]').val(rmfamt);
+                    totalrmfamt += rmfamt;
+                }
+            });
+            $('#tbodyCorpus tr').each(function (idx, val) {
+                var receiptid = $(this).closest('tr').find('input[name$=".ReceiptId"]').val()
+                if (inputRecId == receiptid) {
+                    var corpusvalue = parseFloat(eleTr.closest('tr').find('input[name$=".CorpusAmount"]').val());
+                    $(this).closest('tr').find('input[name$=".Amount"]').val(corpusvalue);
+                    totalcorpusamt += corpusvalue
+                }
+            });
+            $('#tbodyICSROH tr').each(function (idx, val) {
+                var receiptid = $(this).closest('tr').find('input[name$=".ReceiptId"]').val()
+                if (inputRecId == receiptid) {
+                    var icsrohvalue = parseFloat(eleTr.closest('tr').find('input[name$=".ICSROHAmount"]').val());
+                    $(this).closest('tr').find('input[name$=".Amount"]').val(icsrohvalue);
+                    totalicsrohamt += icsrohvalue;
+                }
+            });
+            $('#tbodyDDF tr').each(function (idx, val) {
+                var receiptid = $(this).closest('tr').find('input[name$=".ReceiptId"]').val()
+                if (inputRecId == receiptid) {
+                    var ddfvalue = parseFloat(eleTr.closest('tr').find('input[name$=".DDFAmount"]').val());
+                    $(this).closest('tr').find('input[name$=".Amount"]').val(ddfvalue);
+                    totalddfamt += ddfvalue;
+                }
+            });
+            $('#tbodyStaffWelfare tr').each(function (idx, val) {
+                var receiptid = $(this).closest('tr').find('input[name$=".ReceiptId"]').val()
+                if (inputRecId == receiptid) {
+                    var swfvalue = parseFloat(eleTr.closest('tr').find('input[name$=".StaffWelfareAmount"]').val());
+                    $(this).closest('tr').find('input[name$=".Amount"]').val(swfvalue);
+                    totalswfamt += swfvalue
+                }
+            });
+
+        }
+
+
+        function calculatealloverheads() {
+            $('input[name$=".TotalOverheadsValue"]').each(function (idx, val) {
+                var totalohamt = $(this).val();
+                var corpuspercent = parseFloat($(this).closest('tr').find('input[name$=".CorpusPercent"]').val() || 0);
+                var icsrohpercent = parseFloat($(this).closest('tr').find('input[name$=".ICSROHPercent"]').val() || 0);
+                var ddfpercent = parseFloat($(this).closest('tr').find('input[name$=".DDFPercent"]').val() || 0);
+                var rmfpercent = parseFloat($(this).closest('tr').find('input[name$=".RMFPercent"]').val() || 0);
+                var staffwelfarepercent = parseFloat($(this).closest('tr').find('input[name$=".StaffWelfarePercent"]').val() || 0);
+                var pcfpercent = parseFloat($(this).closest('tr').find('input[name$=".PCFPercent"]').val() || 0);
+                var totalpercent = parseFloat(corpuspercent + icsrohpercent + ddfpercent + rmfpercent + staffwelfarepercent + pcfpercent);
+
+                var corpusamt = parseFloat(((corpuspercent / totalpercent) * totalohamt).toFixed(0));
+                var icsrohamt = parseFloat(((icsrohpercent / totalpercent) * totalohamt).toFixed(0));
+                var ddfamt = parseFloat(((ddfpercent / totalpercent) * totalohamt).toFixed(0));
+                var rmfamt = parseFloat(((rmfpercent / totalpercent) * totalohamt).toFixed(0));
+                var staffwelfareamt = parseFloat(((staffwelfarepercent / totalpercent) * totalohamt).toFixed(0));
+                var pcfamt = parseFloat(((pcfpercent / totalpercent) * totalohamt).toFixed(0));
+                var totalamt = parseFloat(corpusamt + icsrohamt + ddfamt + rmfamt + staffwelfareamt + pcfamt);
+                var diffamt = 0;
+                if (totalamt > totalohamt) {
+                    diffamt = totalamt - totalohamt;
+                    staffwelfareamt = parseFloat((staffwelfareamt - diffamt).toFixed(0));
+                }
+                if (totalamt < totalohamt) {
+                    diffamt = totalohamt - totalamt;
+                    staffwelfareamt = parseFloat((staffwelfareamt + diffamt).toFixed(0));
+                }
+
+                $(this).closest('tr').find('input[name$=".CorpusAmount"]').val(corpusamt)
+                $(this).closest('tr').find('input[name$=".ICSROHAmount"]').val(icsrohamt)
+                $(this).closest('tr').find('input[name$=".DDFAmount"]').val(ddfamt)
+                $(this).closest('tr').find('input[name$=".RMFAmount"]').val(rmfamt)
+                $(this).closest('tr').find('input[name$=".StaffWelfareAmount"]').val(staffwelfareamt)
+                $(this).closest('tr').find('input[name$=".PCFAmount"]').val(pcfamt)
+
+                var totaloverheads = 0;
+                var totalcorpusamt = 0;
+                var totalicsrohamt = 0;
+                var totalddfamt = 0;
+                var totalrmfamt = 0;
+                var totalstaffwelfareamt = 0;
+                var totalpcfamt = 0;
+                $('#tbodyHo tr').each(function (idx, val) {
+                    var overheads = parseFloat($(this).closest('tr').find('input[name$=".TotalOverheadsValue"]').val() || 0)
+                    var corpus = parseFloat($(this).closest('tr').find('input[name$=".CorpusAmount"]').val() || 0)
+                    var ICSROH = parseFloat($(this).closest('tr').find('input[name$=".ICSROHAmount"]').val() || 0)
+                    var DDF = parseFloat($(this).closest('tr').find('input[name$=".DDFAmount"]').val() || 0)
+                    var RMF = parseFloat($(this).closest('tr').find('input[name$=".RMFAmount"]').val() || 0)
+                    var StaffWelfare = parseFloat($(this).closest('tr').find('input[name$=".StaffWelfareAmount"]').val() || 0)
+                    var PCF = parseFloat($(this).closest('tr').find('input[name$=".PCFAmount"]').val() || 0)
+                    totaloverheads += overheads;
+                    totalcorpusamt += corpus;
+                    totalicsrohamt += ICSROH;
+                    totalddfamt += DDF;
+                    totalrmfamt += RMF;
+                    totalstaffwelfareamt += StaffWelfare;
+                    totalpcfamt += PCF;
+                });
+                $('input[name="TotalAmount"]').val(totaloverheads);
+                $('input[name="TotalCorpusAmount"]').val(totalcorpusamt);
+                $('input[name="TotalICSROHAmount"]').val(totalicsrohamt);
+                $('input[name="TotalPCFAmount"]').val(totalpcfamt);
+                $('input[name="TotalRMFAmount"]').val(totalrmfamt);
+                $('input[name="TotalDDFAmount"]').val(totalddfamt);
+                $('input[name="TotalStaffWelfareAmount"]').val(totalstaffwelfareamt);
+
+            });
+        }
+        $(document).on('click','[id^="btnViewRMFDetails_"]', function () {
+            //var indexval = $(this).closest('tr').find("input[name='OverheadsDetails.Index']").val();
+
+            var projectid = $(this).closest('tr').find('input[name$=".ProjectId"]').val();
+            var rmfvalue = $(this).closest('tr').find('input[name$=".RMFAmount"]').val();
+            var receiptid = $('select[name="ReceiptId"]').val() || 0;
+            var todate = $('input[name="ToDate"]').val();
+            var prjctid = $("#txtsrchProjectid").val() || 0;
+            // var tdsvalue = parseFloat($(this).closest('tr').find('input[name$=".TDSValue"]').val() || 0);
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("_OverheadsPostingPIRMFShare", "CoreAccounts")',
+                data: {
+                    Projectid: projectid, RMFValue: rmfvalue, ReceiptId: receiptid, Todate: todate, srchPjctId: prjctid
+                },
+                contentType: "application/x-www-form-urlencoded",
+                success: function (data) {
+                    $("#popup").html(data);
+                    $('#ViewDetailsModal').modal('toggle');
+                }
+            });
+
+        });
+
+        $(document).on('click','[id^="btnViewPCFDetails_"]' , function () {
+            var projectid = $(this).closest('tr').find('input[name$=".ProjectId"]').val();
+            var pcfvalue = $(this).closest('tr').find('input[name$=".PCFAmount"]').val();
+            var receiptid = $('select[name="ReceiptId"]').val() || 0;
+            var todate = $('input[name="ToDate"]').val();
+            var prjctid = $("#txtsrchProjectid").val() || 0;
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("_OverheadsPostingPIPCFShare", "CoreAccounts")',
+                data: {
+                    Projectid: projectid, PCFValue: pcfvalue, ReceiptId: receiptid, Todate: todate, srchPjctId: prjctid
+                },
+                contentType: "application/x-www-form-urlencoded",
+                success: function (data) {
+                    $("#popup").html(data);
+                    $('#ViewDetailsModal').modal('toggle');
+                }
+            });
+
+        });
+
+
+        $('#btnAddDrDetail').click(function () {
+            var cln = $('#tbodyDr tr:first').clone().find("select,input").val("").end();
+            var index = $('#tbodyDr tr:last').find("input[name='DrDetail.Index']").val();
+            index = parseInt(index) + 1;
+            $(cln).find("input[name='DrDetail.Index']").val(index);
+            $(cln).find("input, select").each(function () {
+                $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+                $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+            });
+            $(cln).find("span[data-valmsg-for]").each(function () {
+                $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+            });
+            $('#tbodyDr').append(cln);
+        });
+        $(document).on('click', 'a.removeDrDetail', function () {
+            if ($('#tbodyDr tr').length != 1) {
+                $(this).closest('tr').remove();
+                CalculateContraTotal();
+            }
+        });
+        $('#btnAddCrDetail').click(function () {
+            var cln = $('#tbodyCr tr:first').clone().find("select,input").val("").end();
+            var index = $('#tbodyCr tr:last').find("input[name='CrDetail.Index']").val();
+            index = parseInt(index) + 1;
+            $(cln).find("input[name='CrDetail.Index']").val(index);
+            $(cln).find("input, select").each(function () {
+                $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+                $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+            });
+            $(cln).find("span[data-valmsg-for]").each(function () {
+                $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+            });
+            $('#tbodyCr').append(cln);
+        });
+        $(document).on('click', 'a.removeCrDetail', function () {
+            if ($('#tbodyCr tr').length != 1) {
+                $(this).closest('tr').remove();
+                CalculateContraTotal();
+            }
+        });
+        /* Tab Sections Start*/
+        var currentTab = 0; // Current tab is set to be the first tab (0)
+        showTab(currentTab); // Display the crurrent tab
+        function showTab(n) {
+            // This function will display the specified tab of the form...
+            var x = document.getElementsByClassName("tab");
+            x[n].style.display = "block";
+            $(".custom-nav-pills li:eq(" + n + ")").addClass("active");
+            //... and fix the Previous/Next buttons:
+            if (n == 0) {
+                document.getElementById("prevBtn").style.display = "none";
+            } else {
+                document.getElementById("prevBtn").style.display = "inline";
+            }
+            if (n == (x.length - 1)) {
+                document.getElementById("nextBtn").innerHTML = "Submit";
+            } else {
+                document.getElementById("nextBtn").innerHTML = "Next";
+            }
+            //... and run a function that will display the correct step indicator:
+            //fixStepIndicator(n)
+        }
+
+        function nextPrev(n) {
+            // This function will figure out which tab to display
+            var x = document.getElementsByClassName("tab");
+            // Exit the function if any field in the current tab is invalid:
+            if (n > 0 && !validateForm(n)) return false;
+            if (currentTab + n < x.length) {
+                // Hide the current tab:
+                x[currentTab].style.display = "none";
+                $(".custom-nav-pills li:eq(" + currentTab + ")").removeClass("active");
+            } else {
+                // ... the form gets submitted:
+                formSave();
+                return false;
+            }
+            // Increase or decrease the current tab by 1:
+            currentTab = currentTab + n;
+
+            // Otherwise, display the correct tab:
+            showTab(currentTab);
+        }
+        function ValidateTransaction() {
+            var msg = 'valid';
+            //var netCrAmt = parseFloat($('#CreditorAmount').val());
+            //var commitmentAmt = parseFloat($('#CommitmentAmount').val());
+            var ttlExpAmt = parseFloat($('#ExpenseAmount').val()) || 0;
+            var ttldeductAmt = parseFloat($('#DeductionAmount').val()) || 0;
+            var netPayAmt = parseFloat($('#txtNetPayableValue').val());
+            var eligtax = parseFloat($('#txtEligibleTaxValue').val());
+            var crAmt = parseFloat($('#ttlCr').val()) || 0;
+            var netDrAmt = ttlExpAmt + ttldeductAmt;
+            //var ttlAdvAmt = netPayAmt;
+            //var netDrAmt = ttlExpAmt + ttldeductAmt;
+            //var offsetValue = $("input[name='GST']:checked").val();
+
+            if (netDrAmt != crAmt) {
+                msg = 'Not a valid entry. Credit and Debit value are not equal.';
+            }
+
+            //var hdList = [];
+            //var hdJVList = [];
+            //$('#tbodyExpenseList tr').find('select[name$=".AccountHeadId"]').each(function (idx, val) {
+            //    var jv = $(this).closest('tr').find("input[name$='.IsJV']").val();
+            //    if (jv.toLowerCase() == "true")
+            //        hdJVList.push($(val).val());
+            //    else
+            //        hdList.push($(val).val());
+            //});
+            //hdList.sort();
+            //hdJVList.sort();
+            //// duplicate check
+            //for (var k = 1; k < hdList.length; ++k) {
+            //    if (hdList[k] == hdList[k - 1]) {
+            //        msg = "Duplicate account head exist in expense details. Please select a different head.";
+            //    }
+            //}
+            return msg;
+        }
+        function validateForm(n) {
+            // This function deals with validation of the form fields
+            var isValid = false;
+            var hadError = false;
+            var tabs = $(".tab");
+            var currentTabEle = tabs[currentTab];
+            var inputs = $(":input, textarea, select"); // get all the form inputs and selects
+            var stepElements = $(currentTabEle).find(inputs); // get inputs for current step
+            var count = stepElements.length; // check that there are inputs
+            if (count <= 0) {                // if there are not no reason to loop them
+                return true;                 // this can be used to perform other action if there are no steps
+            } else if (currentTab == 0) {
+
+                var msg = 'valid';
+                $('input[name$=".TotalOverheadsValue"]').each(function (idx, val) {
+                    var totalpcfpercent = parseFloat($(this).closest('tr').find('input[name$=".TtlPCFPercent"]').val()) || 0;
+                    var totalrmfpercent = parseFloat($(this).closest('tr').find('input[name$=".TtlRMFPercent"]').val()) || 0;
+                    var inputRecNo = $(this).closest('tr').find('input[name$=".ReceiptNumber"]').val();
+
+                    if (totalrmfpercent != 100 || totalpcfpercent != 100) {
+                        msg = "The PCF and RMF share is not equal to 100 %. Please check and update this receipt number " + inputRecNo;
+                    }
+                });
+                if (msg != 'valid') {
+                    hadError = true;
+                    $("#alert").text(msg);
+                    $('#Validation').modal('show');
+                }
+                else
+                {
+                    calculatealloverheads();
+                }
+                //var availablebalance = $("input[name='PjctAvailableBalanceAmount']").val();
+                //var distributiontype = $('#txtdistributiontype').val();
+                //var distributionamount = $('#txtDistributionAmount').val();
+                //if (distributionamount > availablebalance) {
+                //    $('#MsgValidation').html("The amount distributed cannot be greater than available balance. Please check and update the value.");
+                //    $('#ValidationModal').modal('toggle');
+                //    return false;
+                //}
+                //if (distributiontype == 1 && distributionamount == availablebalance) {
+                //    $('#MsgValidation').html("Distribution amount cannot be equal to available balance for Partial Distribution. Please change the value or Select Final Distribution.");
+                //    $('#ValidationModal').modal('toggle');
+                //    return false;
+                //}
+                //if (distributiontype == 2) {
+                //    calcDateDiff();
+                //}
+            }
+            else if (currentTab == 1) {
+                //var availablebalance = parseFloat($("input[name='AmountAvailableforDistribution']").val() || 0);
+                //var totalfacultyamount = parseFloat($('#txtTotalAmount').val() || 0);
+                //var pcfamount = parseFloat($('#txtTotalPCF').val() || 0);
+                //// var instituteOHAmount = parseFloat($("input[name='InstituteOverheadAmount']").val() || 0);
+                //var totaldistributed = totalfacultyamount + pcfamount;
+                //if (totaldistributed != availablebalance) {
+                //    $('#MsgValidation').html("The amount distributed to faculty is not equal to available balance. Please change the value.");
+                //    $('#ValidationModal').modal('toggle');
+                //    return false;
+                //}
+                ////if (totalfacultyamount < availablebalance)
+                ////{
+                ////    $('#MsgValidation').html("The available balance amount has not been distributed to faculty. Please change the value.");
+                ////    $('#ValidationModal').modal('toggle');
+                ////    return false;
+                ////}
+                //var content = $('#tbodyCommitmentSrchList tr td:last').html();
+                //if (content == '') {
+                //    searchCommitment()
+                //}
+
+                //$('#tbodyPCF tr').each(function (idx, val) {
+                //    var receiptid = $(this).closest('tr').find('input[name$=".ReceiptId"]').val()
+                //    if (receiptid > 0)
+                //    {
+                //        var projectid = parseFloat($(this).closest('tr').find('input[name$=".Id"]').val()) || 0;
+                //        var receiptnum = parseFloat($(this).closest('tr').find('input[name$=".ReceiptNumber"]').val());
+                //        var piname = parseFloat($(this).closest('tr').find('input[name$=".NameofPI"]').val());
+
+                //        if(projectid == 0)
+                //        {
+                //            $('#alert').html("PCF Project not available for PI " + piname + " in Receipt number " + receiptnum + ". Please update Project to proceed.");
+                //            $('#Validation').modal('toggle');
+                //            return false;
+                //        }
+                //    }
+                //});
+                //$('#tbodyRMF tr').each(function (idx, val) {
+                //    var receiptid = $(this).closest('tr').find('input[name$=".ReceiptId"]').val()
+                //    if (receiptid > 0)
+                //    {
+                //        var projectid = parseFloat($(this).closest('tr').find('input[name$=".Id"]').val()) || 0;
+                //        var receiptnum = parseFloat($(this).closest('tr').find('input[name$=".ReceiptNumber"]').val());
+                //        var piname = parseFloat($(this).closest('tr').find('input[name$=".NameofPI"]').val());
+
+                //        if(projectid == 0)
+                //        {
+                //            $('#alert').html("RMF Project not available for PI " + piname + " in Receipt number " + receiptnum + ". Please update Project to proceed.");
+                //            $('#Validation').modal('toggle');
+                //            return false;
+                //        }
+                //    }
+                //});
+                ////$('#tbodyCorpus tr').each(function (idx, val) {
+                ////    var receiptid = $(this).closest('tr').find('input[name$=".ReceiptId"]').val()
+                ////    if (receiptid > 0)
+                ////    {
+                ////        var projectid = parseFloat($(this).closest('tr').find('input[name$=".ProjectId"]').val()) || 0;
+                ////        var receiptnum = parseFloat($(this).closest('tr').find('input[name$=".ReceiptNumber"]').val()) || 0;
+
+                ////        if(projectid == 0)
+                ////        {
+                ////            $('#alert').html("Corpus Project not available for PI " + piname + " in Receipt number " + receiptnum + ". Please update Project to proceed.");
+                ////            $('#Validation').modal('toggle');
+                ////            return false;
+                ////        }
+                ////    }
+                ////});
+                //$('#tbodyICSROH tr').each(function (idx, val) {
+                //    var receiptid = $(this).closest('tr').find('input[name$=".ReceiptId"]').val()
+                //    if (receiptid > 0)
+                //    {
+                //        var projectid = parseFloat($(this).closest('tr').find('input[name$=".Id"]').val()) || 0;
+                //        var receiptnum = parseFloat($(this).closest('tr').find('input[name$=".ReceiptNumber"]').val());
+
+                //        if(projectid == 0)
+                //        {
+                //            $('#alert').html("ICSR OH Project not available for Receipt number " + receiptnum + ". Please update Project to proceed.");
+                //            $('#Validation').modal('toggle');
+                //            return false;
+                //        }
+                //    }
+                //});
+                //$('#tbodyDDF tr').each(function (idx, val) {
+                //    var receiptid = $(this).closest('tr').find('input[name$=".ReceiptId"]').val()
+                //    if (receiptid > 0)
+                //    {
+                //        var projectid = parseFloat($(this).closest('tr').find('input[name$=".Id"]').val()) || 0;
+                //        var receiptnum = parseFloat($(this).closest('tr').find('input[name$=".ReceiptNumber"]').val());
+
+                //        if(projectid == 0)
+                //        {
+                //            $('#alert').html("Department Development Fund Project not available for Receipt number " + receiptnum + ". Please update Project to proceed.");
+                //            $('#Validation').modal('toggle');
+                //            return false;
+                //        }
+                //    }
+                //});
+                //$('#tbodyStaffWelfare tr').each(function (idx, val) {
+                //    var receiptid = $(this).closest('tr').find('input[name$=".ReceiptId"]').val()
+                //    if (receiptid > 0)
+                //    {
+                //        var projectid = parseFloat($(this).closest('tr').find('input[name$=".Id"]').val()) || 0;
+                //        var receiptnum = parseFloat($(this).closest('tr').find('input[name$=".ReceiptNumber"]').val());
+
+                //        if(projectid == 0)
+                //        {
+                //            $('#alert').html("Staff Welfare Project not available for Receipt number " + receiptnum + ". Please update Project to proceed.");
+                //            $('#Validation').modal('toggle');
+                //            return false;
+                //        }
+                //    }
+                //});
+
+
+                if ($('#NeedUpdateTransDetail').val().toLowerCase() == 'true') {
+                    GetTransactionDetails();
+                }
+                var creditoramt = $('input[name="TotalAmount"]').val()
+                $("#CreditorAmount").val(creditoramt);
+            }
+            else if (currentTab == 2) {
+                var validationMsg = ValidateTransaction()
+                if (validationMsg != 'valid') {
+                    hadError = true;
+                    $("#alert").text(validationMsg);
+                    $('#Validation').modal('show');
+                }
+            }
+
+            $(stepElements).each(function (idx, ele) {
+
+                if (!$(ele).is(':radio') && !$(ele).is(':checkbox') && !$(ele).is(':password')) {
+                    isValid = $(ele).valid();//$(document.forms[0]).validate().element($(this)); // check that the input is valid. This can also be used on a per input basis to perform another action if the field is not valid.
+                    if (!isValid) { hadError = true; } // set our flag if there was an error
+                }
+
+            });
+            return !hadError; // return the valid status
+
+        }
+</script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>

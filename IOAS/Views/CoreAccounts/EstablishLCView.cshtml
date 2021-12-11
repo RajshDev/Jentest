@@ -1,0 +1,1812 @@
+﻿@model IOAS.Models.LCOpeningModel
+@{
+    ViewBag.Title = "Establish LC";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+@using (Html.BeginForm("LCOpening", "CoreAccounts", FormMethod.Post, new { @class = "", role = "form", @id = "formSI", enctype = "multipart/form-data" }))
+{
+    <div class="row hd-tt-bg">
+        <div class="col-md-12">
+            <h4><b>Establish LC</b> </h4>
+        </div>
+    </div>
+    <div class="row">
+        <div class="white-bg ad-navbar">
+            <div class="col-md-3 ds-spl-bg">
+                <div class="ds-icn">
+                    <i class="ion-ios-list-outline "></i>
+                </div>
+                <div class="ds-tt">
+                    <span class="required">Request Reference</span>
+                    @Html.DropDownListFor(m => m.Source, new SelectList(ViewBag.SourceList, "codevalAbbr", "CodeValDetail"), "Select any",
+         new { @class = "form-control", @disabled = true })
+                    @Html.ValidationMessageFor(m => m.Source)
+                    @Html.HiddenFor(m => m.NeedUpdateTransDetail)
+                    @Html.HiddenFor(m => m.LCOpeningId)
+                </div>
+            </div>
+            <div class="col-md-3 ds-spl-bg">
+                <div class="ds-icn">
+                    <i class="ion-ios-calendar-outline"></i>
+                </div>
+                <div class="ds-tt" id="divRefNum">
+                    <span class="required">Ref Number (WF / Tapal)</span>
+                    @*@Html.DropDownListFor(m => m.SourceReferenceNumber, new SelectList(ViewBag.SourceRefNumberList, "id", "name"), "Select any",
+                        new { @class = "form-control" })*@
+                    @Html.TextBoxFor(m => m.ReferenceNumber, new { @class = "form-control", @readonly = true })
+                    @Html.TextBoxFor(m => m.SourceReferenceNumber, new { @class = "form-control dis-none" })
+                    @Html.ValidationMessageFor(m => m.SourceReferenceNumber)
+                    @Html.Hidden("SourceTapalOrWorkflow", "True")
+                    @Html.HiddenFor(m => m.SubCode)
+                    @Html.Hidden("TransactionTypeCode", "LCO")
+                    @Html.TextBoxFor(m => m.IsEstablish, new { @class = "form-control dis-none", @id = "txtIsEstablish" })
+                    @Html.TextBoxFor(m => m.IsEditEstablish, new { @class = "form-control dis-none", @id = "txtIsEditEstablish" })
+                    @Html.TextBoxFor(m => m.IsEditMode, new { @class = "form-control dis-none", @id = "txtIsEditMode" })
+                </div>
+                <div class="dis-none ds-tt" id="divRefEmailDate">
+                    <span class="required">Email Date</span>
+                    @Html.TextBoxFor(m => m.SourceEmailDate, new { @class = "form-control", @disabled = true, @id = "SourceEmailDte" })
+                    <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.SourceEmailDate)</div>
+                </div>
+            </div>
+
+            <div class="col-md-3 col-md-offset-3">
+                <div class="reg-no custom-reg-no">
+                    <div class="form-group custom-form-group">
+                        <label>Number</label>
+                        <h4>@Html.DisplayFor(m => m.LCOpeningNumber)</h4>
+                    </div>
+                </div>
+            </div>
+            @*<div class="col-md-3 col-md-offset-3">
+                    <div class="reg-no reg-adj yellow" style="margin-bottom: 0px;padding: 5px 15px;">
+                        <div class="row">
+                            <div class="col-md-10">
+                                <div class="form-group custom-form-group">
+                                    <label>LC Number</label>
+                                    <h4>@Html.DisplayFor(m => m.LCOpeningNumber)</h4>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group custom-form-group">
+                                    <label>Seq. No.</label>
+                                    <h4>@Html.DisplayFor(m => m.LCAmmendSeqNumber)</h4>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>*@
+        </div>
+        <div class="row">
+
+            <div class="col-md-12 mt30">
+                <ul class="nav nav-pills custom-nav-pills">
+                    <li class="active"><a href="javascript:void(0)"><span>01</span>LC Info</a></li>
+                    <li><a href="javascript:void(0)"><span>02</span>Conditions and Clauses</a></li>
+                    <li><a href="javascript:void(0)"><span>03</span>Establishment and Commitment Details</a></li>
+                    <li><a href="javascript:void(0)"><span>04</span>Transaction Details</a></li>
+                    <li><a href="javascript:void(0)"><span>05</span>CheckList Details</a></li>
+                    <li><a href="javascript:void(0)"><span>06</span>Document Details</a></li>
+                </ul>
+
+                <div class="tab">
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="bl-lg-panel-box pb-null">
+                                    <div class="cmn-panel-box">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="vh-grid-tb mt-null mb-lg">
+                                                            <div class="vh-grid-cell grey-bg">
+                                                                <div class="grey-bg-adj">
+                                                                    <div class="row">
+                                                                        <div class="col-md-12">
+                                                                            <h4 class="mt-null">Project Info</h4>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        <div class="col-md-4">
+                                                                            <div class="form-group custom-form-group mb-null">
+                                                                                <label class="required">Project No: </label>
+                                                                                @Html.TextBoxFor(m => m.ProjectNumber, new { @class = "form-control", @id = "txtProjectNumber", @readonly = true })
+                                                                                @Html.TextBoxFor(m => m.ProjectId, new { @class = "form-control dis-none" })
+                                                                                @Html.ValidationMessageFor(m => m.ProjectNumber)
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-4">
+                                                                            <div class="form-group custom-form-group mb-null">
+                                                                                <label class="required">PO Number:</label>
+                                                                                @Html.TextBoxFor(m => m.PONumber, new { @class = "form-control", @id = "txtPONumber", @readonly = true })
+                                                                                @Html.ValidationMessageFor(m => m.PONumber)
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-4">
+                                                                            <div class="form-group custom-form-group mb-null">
+                                                                                <label class="required">Commitment No: </label>
+                                                                                @Html.HiddenFor(m => m.CommitmentId)
+                                                                                @Html.DisplayFor(m => m.CommitmentNumber)
+                                                                                @*@Html.DropDownListFor(m => m.CommitmentId, new SelectList(ViewBag.CommitmentNumberList, "id", "name"), "Select any", new { @class = "form-control selectpicker", @id = "txtCommitmentNumber", @required = "required", @readonly = true })*@
+                                                                                @Html.ValidationMessageFor(m => m.CommitmentId)
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="vh-grid-tb mt-null mb-lg">
+                                                            <div class="vh-grid-cell grey-bg">
+                                                                <div class="grey-bg-adj">
+                                                                    <div class="row">
+                                                                        <div class="col-md-12">
+                                                                            <h4 class="mt-null">Bank Info</h4>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        <div class="col-md-4">
+                                                                            <div class="form-group custom-form-group mb-null">
+                                                                                <label class="required">Issuing Bank: </label>
+                                                                                @Html.DropDownListFor(m => m.IssuingBank, new SelectList(ViewBag.BankList, "id", "name"), "Select any", new { @class = "form-control", @id = "txtIssuingBank", @required = "required", @disabled = true })
+                                                                                @Html.ValidationMessageFor(m => m.IssuingBank)
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-4">
+                                                                            <div class="form-group custom-form-group mb-null">
+                                                                                <label>Bank A/C Number:</label>
+                                                                                @Html.TextBoxFor(m => m.BankAccountNumber, new { @class = "form-control", @id = "txtBankAccountNumber", @readonly = true })
+                                                                                @Html.ValidationMessageFor(m => m.BankAccountNumber)
+                                                                            </div>
+                                                                        </div>
+                                                                        <div id="divStaticOAEMI" class="col-md-2 mt15 dis-none">
+                                                                            <div>
+                                                                                <div class="form-group custom-form-group mb-null">
+                                                                                    <label name="lblEMI"></label>
+                                                                                    @Html.TextBox("EMIValue", null, new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)", @onchange = "sumEMI(this);", @autocomplete = "off", @readonly = true })
+                                                                                    @Html.ValidationMessage("EMIValue")
+
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-4">
+                                                                            <div class="form-group custom-form-group mb-null">
+                                                                                <label class="fn-normal">No of Terms</label>
+                                                                                @Html.TextBoxFor(m => m.PaymentTerms, new { @class = "form-control", @onkeyup = "createOANoOfEMI(this);", @readonly = true })
+                                                                                @Html.TextBoxFor(m => m.TotalPmtTermsAmt, new { @class = "form-control dis-none" })
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div id="divOADynEMI" class="row">
+
+
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <div class="grey-bg-adj">
+                                                            <div class="row">
+                                                                <div class="col-md-12">
+                                                                    <div class="lt-bl-bg">
+                                                                        <div class="row">
+                                                                            <div class="col-md-12">
+                                                                                <h4>LC Info</h4>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="row mb-md">
+                                                                            <div class="col-md-3">
+                                                                                <div class="form-group custom-form-group">
+                                                                                    <label class="required">Type (40A) :</label>
+                                                                                    @Html.DropDownListFor(m => m.Type40A, new SelectList(ViewBag.TypeList, "id", "name"), "Select any", new { @class = "form-control", @id = "txtType40A", @required = "required", @disabled = true })
+                                                                                    @Html.ValidationMessageFor(m => m.Type40A)
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <div class="col-md-3">
+                                                                                <div class="form-group custom-form-group">
+                                                                                    <label class="required">Request Date (31C) :</label>
+                                                                                    @Html.TextBoxFor(m => m.RequestDate, new { @class = "form-control", @id = "txtRequestDate", @disabled = true })
+                                                                                    @Html.ValidationMessageFor(m => m.RequestDate)
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <div class="col-md-3">
+                                                                                <div class="form-group custom-form-group">
+                                                                                    <label class="required">Currency (32B) :</label>
+                                                                                    @Html.DropDownListFor(m => m.Currency, new SelectList(ViewBag.Currency, "id", "name"), "Select any", new { @class = "form-control", @id = "txtRemittanceCurrency", @required = "required", @disabled = true })
+                                                                                    @Html.ValidationMessageFor(m => m.Currency)
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <div class="col-md-3">
+                                                                                <div class="form-group custom-form-group">
+                                                                                    <label class="required">Amount (32B) :</label>
+                                                                                    @Html.TextBoxFor(m => m.LCDraftAmount, new { @class = "form-control", @id = "txtLCDraftAmount", @readonly = true })
+                                                                                    @Html.ValidationMessageFor(m => m.LCDraftAmount)
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="row">
+                                                                            <div class="col-md-3">
+                                                                                <div class="form-group custom-form-group">
+                                                                                    <label class="required">Place of Expiry (31D) :</label>
+                                                                                    @Html.TextBoxFor(m => m.PlaceofExpiry, new { @class = "form-control", @id = "txtPlaceofExpiry", @readonly = true })
+                                                                                    @Html.ValidationMessageFor(m => m.PlaceofExpiry)
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="col-md-3">
+                                                                                <div class="form-group custom-form-group">
+                                                                                    <label class="required">LC Expiry Date :</label>
+                                                                                    @Html.TextBoxFor(m => m.LCExpiryDate, new { @class = "form-control", @id = "txtLCExpiryDate", @disabled = true })
+                                                                                    @Html.ValidationMessageFor(m => m.LCExpiryDate)
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="col-md-3">
+                                                                                <div class="form-group custom-form-group">
+                                                                                    <label class="required">Credit Available With  (41A) :</label>
+                                                                                    @*@Html.DropDownListFor(m => m.CreditAvailableBank, new SelectList(ViewBag.BankList, "id", "name"), "Select any", new { @class = "form-control", @id = "txtCreditAvailableBank", @required = "required", @disabled = true })*@
+                                                                                    @Html.TextBoxFor(m => m.CreditAvailableBank, new { @class = "form-control", @id = "txtCreditAvailableBank", @disabled = true })
+                                                                                    @Html.ValidationMessageFor(m => m.CreditAvailableBank)
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <div class="col-md-3">
+                                                                                <div class="form-group custom-form-group">
+                                                                                    <label class="required">By (41A) :</label>
+                                                                                    @Html.DropDownListFor(m => m.CreditAvailableBy, new SelectList(ViewBag.CreditAvailBy, "id", "name"), "Select any", new { @class = "form-control", @id = "txtCreditAvailableBy", @required = "required", @disabled = true })
+                                                                                    @Html.ValidationMessageFor(m => m.CreditAvailableBy)
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="row mb-md">
+
+                                                                            <div class="col-md-3">
+                                                                                <div class="form-group custom-form-group">
+                                                                                    <label class="required">Tenor (42C) :</label>
+                                                                                    @Html.TextBoxFor(m => m.Tenor42C, new { @class = "form-control", @id = "txtTenor42C", @readonly = true })
+                                                                                    @Html.ValidationMessageFor(m => m.Tenor42C)
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="col-md-9">
+                                                                                <div class="form-group custom-form-group">
+                                                                                    <label class="required">For :</label>
+                                                                                    @Html.TextBoxFor(m => m.CreditAvailableFor, new { @class = "form-control", @id = "txtCreditAvailableFor", @readonly = true })
+                                                                                    @Html.ValidationMessageFor(m => m.CreditAvailableFor)
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div class="row mb-md">
+                                                                            <div class="col-md-3">
+                                                                                <div class="form-group custom-form-group">
+                                                                                    <label>Advising Bank :</label>
+                                                                                    @Html.TextBoxFor(m => m.AdvisingBank, new { @class = "form-control", @id = "txtAdvisingBank", @readonly = true })
+                                                                                    @Html.ValidationMessageFor(m => m.AdvisingBank)
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <div class="col-md-3">
+                                                                                <div class="form-group custom-form-group">
+                                                                                    <label>Branch :</label>
+                                                                                    @Html.TextBoxFor(m => m.AdvisingBankBranch, new { @class = "form-control", @id = "txtAdvisingBankBranch", @readonly = true })
+                                                                                    @Html.ValidationMessageFor(m => m.AdvisingBankBranch)
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <div class="col-md-3">
+                                                                                <div class="form-group custom-form-group">
+                                                                                    <label>Address :</label>
+                                                                                    @Html.TextBoxFor(m => m.AdvisingBankAddress, new { @class = "form-control", @id = "txtAdvisingBankAddress", @readonly = true })
+                                                                                    @Html.ValidationMessageFor(m => m.AdvisingBankAddress)
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <div class="col-md-3">
+                                                                                <div class="form-group custom-form-group">
+                                                                                    <label>City :</label>
+                                                                                    @Html.TextBoxFor(m => m.AdvisingBankCity, new { @class = "form-control", @id = "txtAdvisingBankCity", @readonly = true })
+                                                                                    @Html.ValidationMessageFor(m => m.AdvisingBankCity)
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div class="row mb-md">
+                                                                            <div class="col-md-3">
+                                                                                <div class="form-group custom-form-group">
+                                                                                    <label>State :</label>
+                                                                                    @Html.TextBoxFor(m => m.AdvisingBankState, new { @class = "form-control", @id = "txtAdvisingBankCity", @readonly = true })
+                                                                                    @Html.ValidationMessageFor(m => m.AdvisingBankState)
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <div class="col-md-3">
+                                                                                <div class="form-group custom-form-group">
+                                                                                    <label>Country :</label>
+                                                                                    @Html.DropDownListFor(m => m.LCCountry, new SelectList(ViewBag.CountryList, "CountryID", "CountryName"), "Select any", new { @class = "form-control", @id = "txtLCCountry", @disabled = true })
+                                                                                    @Html.ValidationMessageFor(m => m.LCCountry)
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <div class="col-md-3">
+                                                                                <div class="form-group custom-form-group">
+                                                                                    <label>Postal Code :</label>
+                                                                                    @Html.TextBoxFor(m => m.PostalCode, new { @class = "form-control", @id = "txtPostalCode", @readonly = true })
+                                                                                    @Html.ValidationMessageFor(m => m.PostalCode)
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <div class="col-md-3">
+                                                                                <div class="form-group custom-form-group">
+                                                                                    <label>SWIFT/IFSC Code  :</label>
+                                                                                    @Html.TextBoxFor(m => m.SwiftorIFSCCode, new { @class = "form-control", @id = "txtSwiftorIFSCCode", @readonly = true })
+                                                                                    @Html.ValidationMessageFor(m => m.SwiftorIFSCCode)
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div class="row mb-md">
+                                                                            <div class="col-md-3">
+                                                                                <div class="form-group custom-form-group">
+                                                                                    <label>Drawee (42A) :</label>
+                                                                                    @Html.TextBoxFor(m => m.Drawee42A, new { @class = "form-control", @id = "txtDrawee42A", @readonly = true })
+                                                                                    @Html.ValidationMessageFor(m => m.Drawee42A)
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div class="row mb-md">
+                                                                            <div class="col-md-3">
+                                                                                <div class="form-group custom-form-group">
+                                                                                    <label class="required">Beneficiary (59) :</label>
+                                                                                    @Html.TextBoxFor(m => m.Beneficiary, new { @class = "form-control", @id = "txtBeneficiary", @readonly = true })
+                                                                                    @Html.ValidationMessageFor(m => m.Beneficiary)
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <div class="col-md-3">
+                                                                                <div class="form-group custom-form-group">
+                                                                                    <label class="required">Address :</label>
+                                                                                    @Html.TextBoxFor(m => m.BeneficiaryAddress, new { @class = "form-control", @id = "txtBeneficiaryAddress", @readonly = true })
+                                                                                    @Html.ValidationMessageFor(m => m.BeneficiaryAddress)
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <div class="col-md-3">
+                                                                                <div class="form-group custom-form-group">
+                                                                                    <label>City :</label>
+                                                                                    @Html.TextBoxFor(m => m.BeneficiaryCity, new { @class = "form-control", @id = "txtBeneficiaryCity", @readonly = true })
+                                                                                    @Html.ValidationMessageFor(m => m.BeneficiaryCity)
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <div class="col-md-3">
+                                                                                <div class="form-group custom-form-group">
+                                                                                    <label>State  :</label>
+                                                                                    @Html.TextBoxFor(m => m.BeneficiaryState, new { @class = "form-control", @id = "txtBeneficiaryState", @readonly = true })
+                                                                                    @Html.ValidationMessageFor(m => m.BeneficiaryState)
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div class="row mb-md">
+                                                                            <div class="col-md-3">
+                                                                                <div class="form-group custom-form-group">
+                                                                                    <label>Country :</label>
+                                                                                    @Html.DropDownListFor(m => m.BeneficiaryCountry, new SelectList(ViewBag.CountryList, "CountryID", "CountryName"), "Select any", new { @class = "form-control", @id = "txtBeneficiaryCountry", @disabled = true })
+                                                                                    @Html.ValidationMessageFor(m => m.BeneficiaryCountry)
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <div class="col-md-3">
+                                                                                <div class="form-group custom-form-group">
+                                                                                    <label>Postal Code :</label>
+                                                                                    @Html.TextBoxFor(m => m.BeneficiaryPostalCode, new { @class = "form-control", @id = "txtBeneficiaryPostCode", @readonly = true })
+                                                                                    @Html.ValidationMessageFor(m => m.BeneficiaryPostalCode)
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
+
+                                                    </div>
+
+                                                </div>
+
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <div class="lt-bl-bg">
+                                                            <div class="row">
+                                                                <div class="col-md-12">
+                                                                    <h4>Goods Info</h4>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row  mb-md">
+                                                                <div class="col-md-3">
+                                                                    <div class="form-group custom-form-group">
+                                                                        <label class="required">Partial Shipment Option (43P)</label>
+                                                                        @Html.DropDownListFor(m => m.PartialShipmentOption, new SelectList(ViewBag.PartShipmentOpt, "id", "name"), "Select any", new { @class = "form-control", @id = "txtType40A", @required = "required", @disabled = true })
+                                                                        @Html.ValidationMessageFor(m => m.PartialShipmentOption)
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-3">
+                                                                    <div class="form-group custom-form-group">
+                                                                        <label class="required">Transhipment Option (43T)</label>
+                                                                        @Html.DropDownListFor(m => m.TransShipmentOption, new SelectList(ViewBag.TransShipmentOpt, "id", "name"), "Select any", new { @class = "form-control", @id = "txtType40A", @required = "required", @disabled = true })
+                                                                        @Html.ValidationMessageFor(m => m.TransShipmentOption)
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-3">
+                                                                    <div class="form-group custom-form-group">
+                                                                        <label class="required">Port of Loading/Airport of Departure (44E)</label>
+                                                                        @Html.TextBoxFor(m => m.PortorAirportofLoading, new { @class = "form-control", @id = "txtPortofLoading", @readonly = true })
+                                                                        @Html.ValidationMessageFor(m => m.PortorAirportofLoading)
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-3">
+                                                                    <div class="form-group custom-form-group">
+                                                                        <label class="required">Port Of Discharge/Airport of Destination (44F)</label>
+                                                                        @Html.TextBoxFor(m => m.PortorAirportofDestination, new { @class = "form-control", @id = "txtPortofDestination", @readonly = true })
+                                                                        @Html.ValidationMessageFor(m => m.PortorAirportofDestination)
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="row  mb-md">
+                                                                <div class="col-md-3">
+                                                                    <div class="form-group custom-form-group">
+                                                                        <label class="required">Latest Date of Shipment (44C)</label>
+                                                                        @Html.TextBoxFor(m => m.LatestDateofShipment, new { @class = "form-control", @id = "txtLatestDateofShipment", @disabled = true })
+                                                                        @Html.ValidationMessageFor(m => m.LatestDateofShipment)
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-3">
+                                                                    <div class="form-group custom-form-group">
+                                                                        <label class="required">Description of Goods And/or Services (45A)</label>
+                                                                        @Html.TextAreaFor(m => m.DescriptionofGoodsandService, new { @class = "form-control", @id = "txtDescriptionofGoodsandService", @readonly = true })
+                                                                        @Html.ValidationMessageFor(m => m.DescriptionofGoodsandService)
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-3">
+                                                                    <div class="form-group custom-form-group">
+                                                                        <label>Proforma Invoice No</label>
+                                                                        @Html.TextBoxFor(m => m.ProformaInvoiceNumber, new { @class = "form-control", @id = "txtProformaInvoiceNumber", @readonly = true })
+                                                                        @Html.ValidationMessageFor(m => m.ProformaInvoiceNumber)
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-3">
+                                                                    <div class="form-group custom-form-group">
+                                                                        <label>Proforma Invoice Date</label>
+                                                                        @Html.TextBoxFor(m => m.ProformaInvoiceDate, new { @class = "form-control", @id = "txtProformaInvoiceDate", @disabled = true })
+                                                                        @Html.ValidationMessageFor(m => m.ProformaInvoiceDate)
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="row  mb-md">
+                                                                <div class="col-md-3">
+                                                                    <div class="form-group custom-form-group">
+                                                                        <label>Country Of Origin</label>
+                                                                        @Html.DropDownListFor(m => m.CountryofOrigin, new SelectList(ViewBag.CountryList, "CountryID", "CountryName"), "Select any", new { @class = "form-control", @id = "txtType40A", @disabled = true })
+                                                                        @Html.ValidationMessageFor(m => m.CountryofOrigin)
+
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-3">
+                                                                    <div class="form-group custom-form-group">
+                                                                        <label>Insurance Coverage Details</label>
+                                                                        @Html.TextBoxFor(m => m.InsuranceCoverageDetails, new { @class = "form-control", @id = "txtInsuranceCoverageDetls", @readonly = true })
+                                                                        @Html.ValidationMessageFor(m => m.InsuranceCoverageDetails)
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-3">
+                                                                    <div class="form-group custom-form-group">
+                                                                        <label>Policy Number </label>
+                                                                        @Html.TextBoxFor(m => m.InsurancePolicyNumber, new { @class = "form-control", @id = "txtInsurancePolicyNumber", @readonly = true })
+                                                                        @Html.ValidationMessageFor(m => m.InsurancePolicyNumber)
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-3">
+                                                                    <div class="form-group custom-form-group">
+                                                                        <label>Policy Date </label>
+                                                                        @Html.TextBoxFor(m => m.InsurancePolicyDate, new { @class = "form-control", @id = "txtInsurancePolicyDate", @disabled = true })
+                                                                        @Html.ValidationMessageFor(m => m.InsurancePolicyDate)
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="row  mb-md">
+                                                                <div class="col-md-3">
+                                                                    <div class="form-group custom-form-group">
+                                                                        <label class="required">Trade INCO Terms</label>
+                                                                        @Html.DropDownListFor(m => m.TradeINCOTerms, new SelectList(ViewBag.INCOterms, "id", "name"), "Select any", new { @class = "form-control", @id = "txtType40A", @required = "required", @disabled = true })
+                                                                        @Html.ValidationMessageFor(m => m.TradeINCOTerms)
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-4">
+                                                                    <div class="form-group custom-form-group">
+                                                                        <label class="required">Charges 71B</label>
+                                                                        @Html.TextBoxFor(m => m.ChargesAmount, new { @class = "form-control", @id = "txtChargesAmount", @readonly = true })
+                                                                        @Html.ValidationMessageFor(m => m.ChargesAmount)
+                                                                        @*<h5>ALL BANK CHARGES INSIDE INDIA ARE TO THE ACCOUNT OF APPLICANT AND OUTSIDE INDIA ARE TO THE ACCOUNT OF  BENEFICIARY</h5>*@
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-4">
+                                                                    <div class="form-group custom-form-group">
+                                                                        <label class="required">Presentation Period (48)</label>
+                                                                        @Html.TextBoxFor(m => m.PresentationPeriod, new { @class = "form-control", @id = "txtPresentationPeriod", @readonly = true })
+                                                                        @Html.ValidationMessageFor(m => m.PresentationPeriod)
+                                                                        @*<h5>Documents should be presented for negotiation within 21 days from the date of shipment</h5>*@
+                                                                    </div>
+                                                                </div>
+
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <div class="lt-bl-bg">
+                                                            <div class="row">
+                                                                <div class="col-md-12">
+                                                                    <h4>Documents Info</h4>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row  mb-md">
+                                                                <div class="col-md-3">
+                                                                    <div class="form-group custom-form-group">
+                                                                        <label>Documents Required (46A)</label>
+                                                                        @Html.TextBoxFor(m => m.DocumentsRequired, new { @class = "form-control", @id = "txtDocumentsRequired", @readonly = true })
+                                                                        @Html.ValidationMessageFor(m => m.DocumentsRequired)
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-3">
+                                                                    <div class="form-group custom-form-group">
+                                                                        <label>Mode of Dispatch</label>
+                                                                        @Html.DropDownListFor(m => m.ModeofDispatch, new SelectList(ViewBag.DispatchMode, "id", "name"), "Select any", new { @class = "form-control", @id = "txtdespatchMode", @required = "required", @disabled = true })
+                                                                        @Html.ValidationMessageFor(m => m.ModeofDispatch)
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="row  mb-md">
+                                                                <div class="col-md-12">
+                                                                    <div class="form-group custom-form-group">
+                                                                        @Html.TextArea("DocContent", new { @id = "docinfoContent", @class = "mul-txt-mh250", @disabled = true })
+                                                                    </div>
+                                                                </div>
+
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <div class="lt-bl-bg">
+                                                            <div class="row">
+                                                                <div class="col-md-12">
+                                                                    <h4>Additional Conditions (47A)</h4>
+                                                                </div>
+                                                            </div>
+                                                            @*<div class="text-right mb20">
+                                                                    <a href="javascript:void(0)" id="btnAddCondition" class="btn btn-primary">Add New</a>
+                                                                </div>*@
+
+                                                            <div class="row  mb-md">
+                                                                <div class="col-md-12">
+                                                                    <div class="form-group custom-form-group">
+                                                                        <div id="editor">
+                                                                        </div>
+                                                                        @Html.TextArea("AddtnlConditionsContent", new { @id = "addcndtnsContent", @class = "mul-txt-mh250", @disabled = true })
+                                                                    </div>
+
+                                                                </div>
+
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab">
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="bl-lg-panel-box pb-null">
+                                    <div class="cmn-panel-box">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <div class="grey-bg-adj">
+                                                            <div class="row">
+                                                                <div class="col-md-12">
+                                                                    <div class="lt-bl-bg">
+                                                                        <div class="row">
+                                                                            <div class="col-md-12">
+                                                                                <h4>Conditions and Clause</h4>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="row mb-md">
+                                                                            <div class="col-md-3">
+                                                                                <div class="form-group custom-form-group">
+                                                                                    <label class="required">Draft LC No.</label>
+                                                                                    @Html.TextBoxFor(m => m.DraftLCNumber, new { @class = "form-control", @id = "txtDraftLCNo", @readonly = true })
+                                                                                    @Html.ValidationMessageFor(m => m.DraftLCNumber)
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="col-md-3">
+                                                                                <div class="form-group custom-form-group">
+                                                                                    <label class="required">Remarks</label>
+                                                                                    @Html.TextBoxFor(m => m.Remark, new { @class = "form-control", @id = "txtRemarks", @readonly = true })
+                                                                                    @Html.ValidationMessageFor(m => m.Remark)
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <div class="col-md-3">
+                                                                                <div class="form-group custom-form-group">
+                                                                                    <label class="required">Attachment</label>
+                                                                                    @*<input type="file" id="Document" name="Document">*@
+                                                                                    @Html.ValidationMessage("Document")
+                                                                                    <a href="@Url.Action("ShowDocument","Project",new { file = Model.DocumentName, filepath = Model.DocumentPath })" target="_blank">@Model.DocumentActualName</a>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
+
+                                                    </div>
+
+                                                </div>
+
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <div class="lt-bl-bg">
+                                                            <div class="row">
+                                                                <div class="col-md-12">
+                                                                    <h4>Clause Ammendments</h4>
+                                                                </div>
+                                                            </div>
+                                                            <div class="text-right mb20">
+                                                                <a href="javascript:void(0)" id="btnAddClauseAmnd" class="btn btn-primary">Add New</a>
+                                                            </div>
+
+                                                            <div class="row  mb-md">
+                                                                <div class="col-md-12">
+                                                                    <table class="table table-bordered">
+                                                                        <thead>
+                                                                            <tr>
+                                                                                <th style="width:250px;">Clause</th>
+                                                                                <th style="width:650px;">Existing</th>
+                                                                                <th style="width:650px;">To be Amended</th>
+                                                                                <th style="width:50px;"></th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody id="tbodyclause">
+                                                                            @if (Model.DraftLCConditions != null)
+                                                                            {
+                                                                                if (Model.DraftLCConditions.Count() > 0)
+                                                                                {
+                                                                                    var count = 0;
+                                                                                    foreach (var item in Model.DraftLCConditions)
+                                                                                    {
+                                                                                        //var category = "PCFDetails[" + count + "].FacultyCategory";
+                                                                                        var id = "DraftLCConditions[" + count + "].DraftConditionsId";
+                                                                                        var clause = "DraftLCConditions[" + count + "].LCDraftClause";
+                                                                                        var existconditions = "DraftLCConditions[" + count + "].LCDraftExistConditions";
+                                                                                        var newconditions = "DraftLCConditions[" + count + "].LCDraftNewConditions";
+                                                                                        var lcopeningid = "DraftLCConditions[" + count + "].LCOpeningId";
+
+                                                                                        <tr>
+
+                                                                                            <td class="tdLCCondtns">
+                                                                                                @Html.TextBox(@clause, item.LCDraftClause, new { @class = "form-control", @id = "txtLCDraftClause", @readonly = true })
+                                                                                                @Html.TextBox(@id, item.DraftConditionsId, new { @class = "form-control dis-none" })
+                                                                                                @Html.ValidationMessage(@clause)
+                                                                                                @Html.Hidden("DraftLCConditions.Index", @count)
+                                                                                            </td>
+
+                                                                                            <td>
+                                                                                                @Html.TextBox(@existconditions, item.LCDraftExistConditions, new { @class = "form-control", @readonly = true })
+                                                                                                @Html.ValidationMessage(@existconditions)
+                                                                                            </td>
+                                                                                            <td>
+                                                                                                @Html.TextBox(@newconditions, item.LCDraftNewConditions, new { @class = "form-control", @readonly = true })
+                                                                                                @Html.ValidationMessage(@newconditions)
+                                                                                            </td>
+
+                                                                                            <td>
+                                                                                                <a href="javascript:void(0)" class="btn-circle dis-none removeDraftClause"><i class="ion-trash-a"></i></a>
+                                                                                            </td>
+                                                                                        </tr>
+                                                                                        count++;
+                                                                                    }
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <tr>
+
+                                                                                        <td class="tdLCCondtl">
+                                                                                            @Html.TextBox("DraftLCConditions[0].LCDraftClause", "", new { @class = "form-control", @readonly = true })
+                                                                                            @Html.TextBox("DraftLCConditions[0].DraftConditionsId", "", new { @class = "form-control dis-none" })
+                                                                                            @Html.Hidden("DraftLCConditions.Index", 0)
+                                                                                            @Html.ValidationMessage("DraftLCConditions[0].LCDraftClause")
+                                                                                        </td>
+                                                                                        <td>
+                                                                                            @Html.TextArea("DraftLCConditions[0].LCDraftExistConditions", "", new { @class = "form-control", @readonly = true })
+                                                                                            @Html.ValidationMessage("DraftLCConditions[0].LCDraftExistConditions")
+                                                                                        </td>
+                                                                                        <td>
+                                                                                            @Html.TextArea("DraftLCConditions[0].LCDraftNewConditions", "", new { @class = "form-control", @readonly = true })
+                                                                                            @Html.ValidationMessage("DraftLCConditions[0].LCDraftNewConditions")
+                                                                                        </td>
+
+                                                                                        <td>
+                                                                                            <a href="javascript:void(0)" class="btn-circle dis-none removeDraftClause"><i class="ion-trash-a"></i></a>
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                }
+                                                                            }
+                                                                        </tbody>
+                                                                    </table>
+
+                                                                </div>
+
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab">
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="bl-lg-panel-box pb-null">
+                                    <div class="cmn-panel-box">
+                                        <div class="row">
+                                            <div class="col-md-12">
+
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <div class="grey-bg-adj">
+                                                            <div class="row">
+                                                                <div class="col-md-12">
+                                                                    <div class="lt-bl-bg">
+                                                                        <div class="row">
+                                                                            <div class="col-md-12">
+                                                                                <h4>LC Establishment</h4>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="row mb-md">
+                                                                            <div class="col-md-3">
+                                                                                <div class="form-group custom-form-group">
+                                                                                    <label class="required">Established LC Number</label>
+                                                                                    @Html.TextBoxFor(m => m.EstablishedLCNo, new { @class = "form-control", @id = "txtEstablishedLCNumber", @required = "required" })
+                                                                                    @Html.ValidationMessageFor(m => m.EstablishedLCNo)
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="col-md-3">
+                                                                                <div class="form-group custom-form-group">
+                                                                                    <label class="required">Bank Ref No.</label>
+                                                                                    @Html.TextBoxFor(m => m.LCEstablishBankRefNo, new { @class = "form-control", @id = "txtLCEstablishBankRefNo" })
+                                                                                    @Html.ValidationMessageFor(m => m.LCEstablishBankRefNo)
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="col-md-3">
+                                                                                <div class="form-group custom-form-group">
+                                                                                    <label class="required">Remarks</label>
+                                                                                    @Html.TextBoxFor(m => m.LCEstablishRemark, new { @class = "form-control", @id = "txtRemarks" })
+                                                                                    @Html.ValidationMessageFor(m => m.LCEstablishRemark)
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <div class="col-md-3">
+                                                                                <div class="form-group custom-form-group">
+                                                                                    <label class="required">Bank Charges</label>
+                                                                                    @Html.TextBoxFor(m => m.BankCharges, new { @class = "form-control", @id = "txtBankCharges", @onkeypress = "return ValidateDecimalOnly(event)" })
+                                                                                    @Html.ValidationMessageFor(m => m.BankCharges)
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
+
+                                                    </div>
+
+                                                </div>
+                                                <div class="row">
+                                                    @Html.Partial("_CommitmentDetails", Model.CommitmentDetail)
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab">
+                    @Html.Partial("_TransactionDetails", Model)
+                </div>
+                <div class="tab">
+                    <div class="col-md-12 col-sm-12 m-b-sm">
+                        <div class="">
+                            @Html.Partial("_CheckListDetail", Model.CheckListDetail)
+                        </div>
+                        <div>
+                            @Html.HiddenFor(m => m.CheckListVerified_By)
+                            @Html.HiddenFor(m => m.CheckListVerifierName)
+                            <div class="col-md-3 col-md-offset-9">
+                                <div class="form-group custom-form-group">
+                                    <label>Verified by</label>
+                                    <h4 id="Verified_ByName">@Html.DisplayFor(m => m.CheckListVerifierName)</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab">
+                    <div class="col-md-12 col-sm-12 m-b-sm">
+                        <div class="">
+                            @Html.Partial("_DocumentDetail", Model.DocumentDetail)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="custom-nav-btn text-right">
+                    <button type="button" class="btn btn-default pull-left" id="prevBtn" onclick="nextPrev(-1)">Previous</button>
+                    <button type="button" class="btn btn-primary pull-right" id="nextBtn" onclick="nextPrev(1)">Next</button>
+                    <button type="button" class="btn btn-default pull-right" onclick="window.location.href='@Url.Action("LCOpeningList", "CoreAccounts")';">Close</button>
+                </div>
+
+            </div>
+
+
+        </div>
+    </div>
+}
+<div id="ValidationModal" class="modal fade modal-warning" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-warning"></i>
+                <h3 class="modal-title">Warning</h3>
+            </div>
+            <div class="modal-body">
+
+                <p id="MsgValidation"></p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+@Html.AntiForgeryToken()
+<div id="popup"></div>
+<script>
+    var dis = '@ViewBag.disabled';
+    if (dis != "") {
+        $('.form-control').prop('disabled', true);
+        $('.ion-trash-a').removeClass();
+        $('#btnAddCondition').hide();
+        $('#btnAddClauseAmnd').hide();
+        $("input[type='radio']").prop('disabled', true);
+        $('#selectCommitment').hide();
+        $('#btnReset,#btnbookcommitment,#btnbookcommitment,#btnCollapseSrchCommit').hide();
+        $('input[type="checkbox"]').prop('disabled', true);
+        $('input[type="file"],#btnAddAttachment').hide();
+        $('#ProcessStatusContainer .form-control').prop('disabled', false);
+        $('#btnAddExpense').hide();
+        $('.btn-circle').removeClass();
+        $('.ion-close-round').removeClass();
+    }
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    // $('#TravelToDate, #TravelFromDate').datepicker({ minDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
+    $('input[name="RequestDate"]').datepicker({ dateFormat: 'dd-MM-yy', changeYear: true });
+    $('#SourceEmailDte, #srchFromDate, #srchToDate, #txtLatestDateofShipment, #txtProformaInvoiceDate, #txtInsurancePolicyDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
+    $('#srchToDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true }).datepicker("setDate", "0");
+    var defaultFromDate = moment(new Date()).add(-10, 'days').toDate();
+    $('#srchFromDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true }).datepicker("setDate", defaultFromDate);
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+            CalculateDeductionTotal();
+            GetTransactionDetails();
+        }
+        $('.selectpicker').selectpicker({
+            liveSearch: true
+        });
+        var selSource = $('#Source').val();
+        $("#divRefNum, #divRefEmailDate").addClass('dis-none');
+        if (selSource == '1') {
+            $("#divRefNum").removeClass('dis-none');
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACWorkflowRefNumber", "Proposal")");
+        } else if (selSource == '3') {
+            $("#divRefNum").removeClass('dis-none');
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACTapalRefNumber", "Proposal")");
+        }
+        else if (selSource == '2') {
+            $('#divRefEmailDate').removeClass('dis-none');
+        } else {
+            $("#divRefNum").removeClass('dis-none');
+        }
+
+        $("input[name='ProjectNumber']").each(function () {
+            projectChange($(this), 'U');
+            var PjctId = $('input[name="ProjectId"]').val();
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("GetFRMDetailsbyProject", "CoreAccounts")",
+                data: { "ProjectId": PjctId },
+                traditional: true,
+                dataType: "json",
+                success: function (result) {
+
+                    var select = $("#txtCommitmentNumber");
+                    select.empty();
+
+                    $.each(result.CommitmentList, function (index, itemData) {
+                        select.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name
+                        }));
+                    });
+                    select.selectpicker('refresh');
+
+                },
+                error: function (err) {
+                    console.log("error : " + err);
+                }
+            });
+        });
+        @*var cndtsDetails = @Html.Raw(Json.Encode(Model.Conditions));
+        $.each(cndtsDetails, function (i, result) {
+            if (i == 0) {
+                var trEle = $('#tbodyCondtns tr:first');
+                $('#tbodyCondtns tr').not(':first').remove();
+                $(trEle).find("input[name='Conditions.Index']").val(i);
+
+                trEle.find('input[name$=".ConditionsId"]').val(result.ConditionsId);
+                trEle.find('input[name$=".LCOpeningClause"]').val(result.LCOpeningClause);
+                trEle.find('input[name$=".LCOpeningConditions"]').val(result.LCOpeningConditions);
+
+            } else {
+                var trEleNew = $('#tbodyCondtns tr:first').clone();
+               // $(trEleNew).find('a.dis-none').removeClass('dis-none');
+                $(trEleNew).find("input[name='Conditions.Index']").val(i);
+                $(trEleNew).find("input, select").each(function () {
+                    $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                    $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                    //$(this).attr("code", $(this).attr("id").replace(/\d+/, i));
+                });
+                $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                    $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                });
+
+                trEleNew.find('input[name$=".ConditionsId"]').val(result.ConditionsId);
+                trEleNew.find('input[name$=".LCOpeningClause"]').val(result.LCOpeningClause);
+                trEleNew.find('input[name$=".LCOpeningConditions"]').val(result.LCOpeningConditions);
+
+                //$(trEleNew).find('.hasDatepicker').attr("id", "").removeClass('hasDatepicker').removeData('datepicker').unbind().datepicker({
+                //    dateFormat: 'dd-MM-yy', changeYear: true
+                //})
+
+                $('#tbodyCondtns').append(trEleNew);
+            }
+        });*@
+        var draftcndtsDetails = @Html.Raw(Json.Encode(Model.DraftLCConditions));
+        $.each(draftcndtsDetails, function (i, result) {
+            if (i == 0) {
+                var trEle = $('#tbodyclause tr:first');
+                $('#tbodyclause tr').not(':first').remove();
+                $(trEle).find("input[name='DraftLCConditions.Index']").val(i);
+
+                trEle.find('input[name$=".DraftConditionsId"]').val(result.DraftConditionsId);
+                trEle.find('input[name$=".LCDraftClause"]').val(result.LCDraftClause);
+                trEle.find('input[name$=".LCDraftExistConditions"]').val(result.LCDraftExistConditions);
+                trEle.find('input[name$=".LCDraftNewConditions"]').val(result.LCDraftNewConditions);
+
+            } else {
+                var trEleNew = $('#tbodyclause tr:first').clone();
+                //$(trEleNew).find('a.dis-none').removeClass('dis-none');
+                $(trEleNew).find("input[name='DraftLCConditions.Index']").val(i);
+                $(trEleNew).find("input, select").each(function () {
+                    $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                    $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                    //$(this).attr("code", $(this).attr("id").replace(/\d+/, i));
+                });
+                $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                    $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                });
+
+                trEleNew.find('input[name$=".DraftConditionsId"]').val(result.DraftConditionsId);
+                trEleNew.find('input[name$=".LCDraftClause"]').val(result.LCDraftClause);
+                trEleNew.find('input[name$=".LCDraftExistConditions"]').val(result.LCDraftExistConditions);
+                trEleNew.find('input[name$=".LCDraftNewConditions"]').val(result.LCDraftNewConditions);
+
+                $('#tbodyclause').append(trEleNew);
+            }
+        });
+        CalculatePaymentValue();
+        CalculateDeductionTotal();
+        EMIValue = @Html.Raw(Json.Encode(Model.ArrayEMIValue));
+        var ttlEMIVal = 0;
+        if (EMIValue != null) {
+            for (var i = 1; i <= EMIValue.length; i++) {
+                var parseVal = parseFloat(EMIValue[i - 1]);
+                if (!isNaN(parseVal))
+                    ttlEMIVal = ttlEMIVal + parseVal;
+                var staticDiv = $('#divStaticOAEMI').clone();
+                staticDiv.find('input[name="EMIValue"]').attr("name", "ArrayEMIValue").val(parseVal);
+                staticDiv.removeClass('dis-none');
+                staticDiv.find('label[name="lblEMI"]').html('Term ' + i + ' %');
+                $('#divOADynEMI').append(staticDiv);
+            }
+        }
+        $("select[name='Currency']").val(@Model.Currency);
+        $("select[name='IssuingBank']").val(@Model.IssuingBank);
+    });
+    $("select[name='IssuingBank']").change(function () {
+
+        var bankId = $(this).val();
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("GetBankAccountNumber", "CoreAccounts")",
+            data: { "BankId": bankId },
+            traditional: true,
+            dataType: "json",
+            success: function (result) {
+                $('#txtBankAccountNumber').val(result.BankAccountNumber);
+            },
+            error: function (err) {
+                console.log("error : " + err);
+            }
+        });
+
+    });
+    $(function () {
+        $('#docinfoContent').ckeditor();
+    });
+    $(function () {
+        $('#addcndtnsContent').ckeditor();
+    });
+    function createOANoOfEMI(evt) {
+        var noOfEMI = evt;
+        $('#lblEMIVal').html('0');
+        $('#divOADynEMI').html('');
+        if (!isNaN(noOfEMI)) {
+            for (var i = 1; i <= noOfEMI; i++) {
+                var staticDiv = $('#divStaticOAEMI').clone();
+                staticDiv.find('input[name="EMIValue"]').attr("name", "ArrayEMIValue");
+                staticDiv.removeClass('dis-none');
+                staticDiv.find('label[name="lblEMI"]').html('Term ' + i + ' %');
+                $('#divOADynEMI').append(staticDiv);
+            }
+        }
+    }
+
+    function sumEMI(evt) {
+        var ttlEMIVal = 0;
+        $('input[name ="ArrayEMIValue"]').each(function () {
+            var parseVal = parseFloat($(this).val());
+            if (!isNaN(parseVal))
+                ttlEMIVal = ttlEMIVal + parseVal;
+        });
+        $('input[name ="TotalPmtTermsAmt"]').val(ttlEMIVal);
+        if(ttlEMIVal != 100)
+        {
+            $('#alert').html("Total Payment terms should be 100 %. Please check");
+            $('#Validation').modal('toggle');
+            return false;
+        }
+    }
+    //$('#fromdate, #todate').datepicker({ dateFormat: 'dd-MM-yy', changeYear: true, yearRange: '-10:+30' });
+    $('#Source').change(function () {
+        var selSource = $(this).val();
+        //var select = $("#SourceReferenceNumber");
+        //select.empty();
+        $("#SourceReferenceNumber,#ReferenceNumber").val('');
+        $("#divRefNum, #divRefEmailDate").addClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('False');
+        if (selSource == '1') {
+            @*$.getJSON("@Url.Action("GetWorkflowRefNumber","Proposal")",
+             function (locationdata) {
+                 fillMasterDropDown(select,locationdata);
+             });*@
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACWorkflowRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        } else if (selSource == '3') {
+            @*$.getJSON("@Url.Action("GetTapalRefNumber","Proposal")",
+            function (locationdata) {
+                fillMasterDropDown(select,locationdata);
+            });*@
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACTapalRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        }
+        else if (selSource == '2') {
+            $('#divRefEmailDate').removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('False');
+        } else {
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        }
+        $("input[name='ProjectNumber']").each(function () {
+            projectChange($(this), 'U');
+        });
+
+    });
+    //$( "#formSI input[type='checkbox']" ).on( "click", function(){
+    //    //if ($(this).prop('checked')){
+    //    //    $(this).attr('IsChecked', 'true');
+    //    //} else {
+    //    //    $(this).attr('IsChecked', 'false');
+    //    //}
+
+    //var checkboxes = $('#myform').find('input[type="checkbox"]');
+    //$.each( checkboxes, function( key, value ) {
+    //    if (value.value == false) {
+    //        value.value = 1;
+    //    } else {
+    //        value.value = 0;
+    //    }
+    //   // $(value).attr('type', 'hidden');
+    //});
+    //});
+    //$( "#formSI input[type='checkbox']" ).click(function () {
+    //    $(this).val() == "false" ? $(this).val("true") : $(this).val("false");
+    //    $(this).closest('tr').find('input[name$=".FacultyDesignation"]').removeAttr('readonly');
+    //});
+
+    //$(document).on('click', 'select[name$=".IsChecked"]', function () {
+    //    $(this).closest('tr').find('input[name$=".FacultyDesignation"]').removeAttr('readonly');
+    //});
+    //$('#tbodyCheckList input[name$=".IsChecked"]').click(function () {
+    //    if ($('#tbodyCheckList input[name$=".IsChecked"][type="checkbox"]').not(':checked').length > 0) {
+    //        $('#tbodyCheckList input[name$=".IsChecked"]').val(false);
+    //    } else {
+    //        $('#tbodyCheckList input[name$=".IsChecked"]').val(true);
+    //    }
+
+    //});
+    function formToJSON(f) {
+
+        var fd = $(f).serializeArray();
+
+        var d = {};
+        $(fd).each(function() {
+            if (d[this.name] !== undefined){
+                if (!Array.isArray(d[this.name])) {
+                    d[this.name] = [d[this.name]];
+                }
+                d[this.name].push(this.value);
+            }else{
+                d[this.name] = this.value;
+            }
+        });
+        $('#formSI input[type=checkbox]').each( function () { d[this.name] = this.checked; } );
+        return d;
+    }
+    function formSave(){
+        var isValid = $('#formSI').valid();
+        if (!isValid)
+            return false;
+        var doctypevalues = [];
+        $('select[name$=".DocumentType"]').each(function (idx, val) { doctypevalues.push($(val).val()); });
+        doctypevalues.sort();
+        // duplicate check
+        for (var k = 1; k < doctypevalues.length; ++k) {
+            if (doctypevalues[k] == doctypevalues[k - 1]) {
+                $('#alert').html("Selected attachment type already exist. Please select a different attachment type.");
+                $('#Validation').modal('toggle');
+                return false;
+            }
+            isValid = true;
+        }
+        if (isValid)
+            $('#formSI').submit();
+        @*if (isValid)
+        {
+            //var Model = $('#formSI').serializeObject();
+
+
+            var Model = formToJSON($('#formSI'));
+           // var Content = $("#docinfoContent").val();
+            var Details = { "model": Model}
+            var searchdata = JSON.stringify(Details);
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("LCOpening", "CoreAccounts")',
+                async: true,
+                //data: Model,
+                //async: true,
+
+                contentType: 'application/json',
+                dataType: "json",
+                data: searchdata,
+                success: function (result) {
+                    if (result[0].Value == "Success") {
+                        var url = '@Url.Action("LCOpeningList", "CoreAccounts")?msg=Success' ;
+                        window.location.href = url;
+                        //$('#alertSuccess').html("LC has been created successfully.");
+                        //$('#Success').modal('toggle');
+
+                    } else if (result[0].Value == "Updated") {
+                        var url = '@Url.Action("LCOpeningList", "CoreAccounts")?msg=Updated';
+                        window.location.href = url;
+                        //$('#alertSuccess').html("LC has been updated successfully.");
+                        //$('#Success').modal('toggle');
+                    }
+                    else if (result[0].Value == "Established") {
+                        //$('#alertSuccess').html("LC has been established successfully.");
+                        //$('#Success').modal('toggle');
+                        var url = '@Url.Action("LCOpeningList", "CoreAccounts")?msg=Established';
+                        window.location.href = url;
+                    }
+                    else if (result[0].Value == "Error") {
+                        var url = '@Url.Action("LCOpeningList", "CoreAccounts")?msg=Established';
+                        window.location.href = url;
+                        //$('#FailedAlert').html("Something went wrong please contact administrator");
+                        //$('#Failed').modal('toggle');
+                    }
+                }
+            });
+            var valid = isValid;
+        }*@
+    }
+    function aplyAutoComplete(ele, url, setId) {
+        $(ele).autocomplete({
+            select: function (event, ui) {
+                event.preventDefault();
+                $(ele).val(ui.item.label);
+                //$(ele).closest('tr').find(".lblSelId").text(ui.item.label);
+                if (setId == true) {
+                    $(ele).closest('tr').find("input[name$='.UserId']").val(ui.item.value);
+                    $(ele).closest('tr').find("input[name$='.Name']").val(ui.item.label);
+                } else {
+                    $(ele).closest('tr').find("input[name$='.UserId']").val('0');
+                    $(ele).closest('tr').find("input[name$='.Name']").val(ui.item.label);
+                }
+            },
+            focus: function (event, ui) {
+                event.preventDefault();
+                $(ele).val(ui.item.label);
+            },
+            source: function (request, response) {
+                $.getJSON(url, { term: request.term },
+                 function (locationdata) {
+                     response(locationdata);
+                 });
+            },
+            minLength: 3
+        });
+    }
+
+    function aplyProjectAutoComplete(ele, url, setId) {
+        $(ele).autocomplete({
+            select: function (event, ui) {
+                event.preventDefault();
+                $(ele).val(ui.item.label);
+                //$(ele).closest('tr').find(".lblSelId").text(ui.item.label);
+                if (setId == true) {
+                    $("input[name='ProjectId']").val(ui.item.value);
+                    $("input[name='ProjectNumber']").val(ui.item.label);
+                } else {
+                    $(ele).closest('tr').find("input[name='ProjectId']").val('');
+                    $(ele).closest('tr').find("input[name='ProjectNumber']").val('');
+                }
+            },
+            focus: function (event, ui) {
+                event.preventDefault();
+                $(ele).val(ui.item.label);
+            },
+            source: function (request, response) {
+                $.getJSON(url, { term: request.term },
+                 function (locationdata) {
+                     response(locationdata);
+                 });
+            },
+            minLength: 3
+        });
+    }
+    function projectChange(el, mode) {
+        var selProj = $("input[name='ProjectNumber']");
+        if (mode != 'U') {
+            $("input[name='ProjectId'], input[name='ProjectNumber']").val('');
+            //$(el).closest('tr').find("input[name='autoComplete'],input[name='UserId'],input[name='Name']").val('');
+        }
+        $("input[name='ProjectId']").addClass('required');
+        $("input[name='ProjectNumber']").addClass('required');
+        aplyProjectAutoComplete(selProj, "../CoreAccounts/LoadProjectList", true)
+
+    }
+
+    $('input[name="ProjectNumber"]').change(function () {
+        // $(document).on('change', 'input[name="ProjectNumber"]', function () {
+        var PjctId = $('input[name="ProjectId"]').val();
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("GetFRMDetailsbyProject", "CoreAccounts")",
+            data: { "ProjectId": PjctId },
+            traditional: true,
+            dataType: "json",
+            success: function (result) {
+
+                var select = $("#txtCommitmentNumber");
+                select.empty();
+
+                $.each(result.CommitmentList, function (index, itemData) {
+                    select.append($('<option/>', {
+                        value: itemData.id,
+                        text: itemData.name
+                    }));
+                });
+                select.selectpicker('refresh');
+
+            },
+            error: function (err) {
+                console.log("error : " + err);
+            }
+        });
+    });
+
+    function parseDate(s) {
+        var months = {
+            january: 0, february: 1, march: 2, april: 3, may: 4, june: 5,
+            july: 6, august: 7, september: 8, october: 9, november: 10, december: 11
+        };
+        var p = s.split('-');
+        return new Date(p[2], months[p[1].toLowerCase()], p[0]);
+    }
+
+    $(document).on('change', 'input[name$=".Amount"]', function () {
+        calculateamount();
+    });
+
+    $('#txtdespatchMode').change(function () {
+
+        var dsptchmode = $(this).val();
+        $.getJSON("@Url.Action("GetLCDocumentInfoDetails", "CoreAccounts")", { DespatchMode: dsptchmode },
+                    function (locationdata) {
+                        $.each(locationdata, function (index, itemData) {
+                            $('#docinfoContent').html(locationdata.Condition);
+                        });
+
+                    });
+    });
+
+    $('#btnAddCondition').click(function () {
+        var cln = $('#tbodyCondtns tr:first').clone().find("select,input,textarea").val("").end();
+        // $(cln).find('.tdAdvAmt, .tdTaxAmt, .tdNetAmt, .tdTaxCode').text('');
+        $(cln).find('a.dis-none').removeClass('dis-none');
+        $(cln).find('.ion-trash-a').show();
+        $(cln).find('a').addClass('removeCondtns');
+        $(cln).find('input[name$=".LCOpeningClause"]').removeAttr('readonly');
+        $(cln).find('input[name$=".LCOpeningConditions"]').removeAttr('readonly');
+        var index = $('#tbodyCondtns tr:last').find("input[name='Conditions.Index']").val();
+        index = parseInt(index) + 1;
+        $(cln).find("input[name='Conditions.Index']").val(index);
+        $(cln).find("input, select").each(function () {
+            $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+            // $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+            // $(this).attr("code", $(this).attr("id").replace(/\d+/, index));
+        });
+        $(cln).find("span[data-valmsg-for]").each(function () {
+            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+        });
+        $(cln).find('.hasDatepicker').attr("id", "").removeClass('hasDatepicker').removeData('datepicker').unbind().datepicker({
+            maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true
+        })
+        $('#tbodyCondtns').append(cln);
+
+    });
+    $(document).on('click', 'a.removeCondtns', function () {
+        $(this).closest('tr').remove();
+
+    });
+
+    $('#btnAddClauseAmnd').click(function () {
+        var cln = $('#tbodyclause tr:first').clone().find("select,input,textarea").val("").end();
+        // $(cln).find('.tdAdvAmt, .tdTaxAmt, .tdNetAmt, .tdTaxCode').text('');
+        $(cln).find('a.dis-none').removeClass('dis-none');
+        $(cln).find('.ion-trash-a').show();
+        $(cln).find('a').addClass('removeDraftClause');
+        $(cln).find('input[name$=".LCDraftClause"]').removeAttr('readonly');
+        $(cln).find('input[name$=".LCDraftExistConditions"]').removeAttr('readonly');
+        $(cln).find('input[name$=".LCDraftNewConditions"]').removeAttr('readonly');
+        var index = $('#tbodyclause tr:last').find("input[name='DraftLCConditions.Index']").val();
+        index = parseInt(index) + 1;
+        $(cln).find("input[name='DraftLCConditions.Index']").val(index);
+        $(cln).find("input, select").each(function () {
+            $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+            // $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+            // $(this).attr("code", $(this).attr("id").replace(/\d+/, index));
+        });
+        $(cln).find("span[data-valmsg-for]").each(function () {
+            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+        });
+        $(cln).find('.hasDatepicker').attr("id", "").removeClass('hasDatepicker').removeData('datepicker').unbind().datepicker({
+            maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true
+        })
+        $('#tbodyclause').append(cln);
+
+    });
+    $(document).on('click', 'a.removeDraftClause', function () {
+        $(this).closest('tr').remove();
+
+    });
+
+    function AddNewExpense(){
+        //var stateCode = $('#lblStateCode').html();
+        //var BillType = $('#BillType').val();
+        $.ajax({
+            type: "GET",
+            url: "@Url.Action("GetAddNewExpenseDetails", "CoreAccounts")",
+            data: { "typeCode": "LCO","tSubCode" : "1"},
+            traditional: true,
+            dataType: "json",
+            success: function (result) {
+                $.each(result.ExpenseDetail, function (i, item) {
+                    var cln = $('#tbodyExpenseList tr:first').clone().find("select,input").val("").end();
+                    $(cln).find('a.dis-none').removeClass('dis-none');
+                    var index = $('#tbodyExpenseList tr:last').find("input[name='ExpenseDetail.Index']").val();
+                    index = parseInt(index) + 1;
+                    $(cln).find("input[name='ExpenseDetail.Index']").val(index);
+                    $(cln).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                    $(cln).find('#lblTransType').text(item.TransactionType);
+                    $(cln).find('input[name$=".IsJV"]').val(item.IsJV);
+                    $(cln).find("input, select").each(function () {
+                        $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+                        $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+                    });
+                    $(cln).find("span[data-valmsg-for]").each(function () {
+                        $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+                    });
+
+                    var selectGroup = $(cln).find("select[name$='.AccountGroupId']");
+                    selectGroup.empty();
+                    $.each(item.AccountGroupList, function (index, itemData) {
+                        selectGroup.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+
+                    var selectHead = $(cln).find("select[name$='.AccountHeadId']");
+                    selectHead.empty();
+                    $.each(item.AccountHeadList, function (index, itemData) {
+                        selectHead.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+                    $('#tbodyExpenseList').append(cln);
+                });
+            },
+            error: function (err) {
+                console.log("error : " + err);
+            }
+        });
+    }
+    function GetTransactionDetails() {
+        var interstate_f = false;
+        //var typecode = $('#transtypecode').val();
+        EmptyExpenseDeductionDetails();
+        $.ajax({
+            type: "GET",
+            url: "@Url.Action("GetTransactionDetails", "CoreAccounts")",
+            data: { "typeCode": "LCO", "tSubCode" : "1", },
+            traditional: true,
+            dataType: "json",
+            success: function (result) {
+                $.each(result.ExpenseDetail, function (i, item) {
+                    //var amt = 0;
+                    //$("#tbodyCommitmentSelList [name$='.HeadName'][value='"+item.BudgetHeadName+"']").each(function(){
+                    //    var elePayment = $(this).closest('td').find("input[name$='.PaymentAmount']");
+                    //    var parseVal = parseFloat($(elePayment).val());
+                    //    if (!isNaN(parseVal))
+                    //        amt = amt + parseVal;
+                    //});
+                    if (i == 0) {
+                        var trEle = $('#tbodyExpenseList tr:first');
+                        $(trEle).find('input[name$=".Amount"]').val('');
+                        $(trEle).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                        $(trEle).find('#lblTransType').text(item.TransactionType);
+                        $(trEle).find('input[name$=".IsJV"]').val(item.IsJV);
+                        $(trEle).find("input[name='ExpenseDetail.Index']").val(i);
+
+                        var selectGroup = $(trEle).find('select[name$=".AccountGroupId"]');
+                        selectGroup.empty();
+                        $.each(item.AccountGroupList, function (index, itemData) {
+                            selectGroup.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name,
+                            }));
+                        });
+
+                        var selectHead = $(trEle).find('select[name$=".AccountHeadId"]');
+                        selectHead.empty();
+                        $.each(item.AccountHeadList, function (index, itemData) {
+                            selectHead.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name,
+                            }));
+                        });
+                    } else {
+                        var trEleNew = $('#tbodyExpenseList tr:first').clone().find('input').val('').end();
+                        $(trEleNew).find('input[name$=".Amount"]').val('');
+                        $(trEleNew).find("input[name='ExpenseDetail.Index']").val(i);
+                        $(trEleNew).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                        $(trEleNew).find('#lblTransType').text(item.TransactionType);
+                        $(trEleNew).find('input[name$=".IsJV"]').val(item.IsJV);
+                        $(trEleNew).find("input,Select").each(function () {
+                            $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                            $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                        });
+                        $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                        });
+
+                        var selectGroup = $(trEleNew).find('select[name$=".AccountGroupId"]');
+                        selectGroup.empty();
+                        $.each(item.AccountGroupList, function (index, itemData) {
+                            selectGroup.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name,
+                            }));
+                        });
+
+                        var selectHead = $(trEleNew).find('select[name$=".AccountHeadId"]');
+                        selectHead.empty();
+                        $.each(item.AccountHeadList, function (index, itemData) {
+                            selectHead.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name,
+                            }));
+                        });
+                        $('#tbodyExpenseList').append(trEleNew);
+                    }
+                });
+                $.each(result.DeductionDetail, function (i, item) {
+                    if (i == 0) {
+                        var trEle = $('#tbodyDeductionList tr:first');
+                        $(trEle).find('input').val('');
+                        var amtEle = $(trEle).find('input[name$=".Amount"]');
+                        amtEle.removeClass('required');
+                        $(trEle).find('input[name$=".AccountGroupId"]').val(item.AccountGroupId);
+                        $(trEle).find('input[name$=".DeductionHeadId"]').val(item.DeductionHeadId);
+                        $(trEle).find('input[name$=".DeductionHead"]').val(item.DeductionHead);
+                        $(trEle).find('input[name$=".AccountGroup"]').val(item.AccountGroup);
+                        $(trEle).find('td:nth-child(1)').html(item.AccountGroup);
+                        $(trEle).find('td:nth-child(2)').html(item.DeductionHead);
+                    } else {
+                        var trEleNew = $('#tbodyDeductionList tr:first').clone().find('input').val('').end();
+                        $(trEleNew).find("input").each(function () {
+                            $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                            $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                        });
+                        $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                        });
+                        var amtEle = $(trEleNew).find('input[name$=".Amount"]');
+
+                        amtEle.removeClass('required');
+                        $(trEleNew).find('input[name$=".AccountGroupId"]').val(item.AccountGroupId);
+                        $(trEleNew).find('input[name$=".DeductionHeadId"]').val(item.DeductionHeadId);
+                        $(trEleNew).find('input[name$=".DeductionHead"]').val(item.DeductionHead);
+                        $(trEleNew).find('input[name$=".AccountGroup"]').val(item.AccountGroup);
+                        $(trEleNew).find('td:nth-child(1)').html(item.AccountGroup);
+                        $(trEleNew).find('td:nth-child(2)').html(item.DeductionHead);
+                        $('#tbodyDeductionList').append(trEleNew);
+                    }
+                });
+                var Name =  $("input[name='PIName']").val();
+                // $("#CreditorAmount").val(StipendAmt);
+                $('#lblVendorName').html(Name);
+                $('#NeedUpdateTransDetail').val('false');
+                CalculateDeductionTotal();
+            },
+            error: function (err) {
+                console.log("error : " + err);
+            }
+        });
+        //}
+    }
+
+    $('#CreditorAmount, #ExpenseAmount, #CreditorAmount, input[name $=".PaymentAmount"], input[name $=".Quantity"], input[name $=".TotalAmount"], input[name $=".Amount"], #ttlCr, #ttlDr').on("copy cut paste drop", function () {
+        return false;
+    });
+
+    function fillMasterDropDown(ele, data, fillDafaultText, valueAsName) {
+        if (fillDafaultText !== undefined) {
+            ele.append($('<option/>', {
+                value: '',
+                text: 'Select any',
+            }));
+        }
+        if (valueAsName !== undefined) {
+            $.each(data, function (index, itemData) {
+                ele.append($('<option/>', {
+                    value: itemData.name,
+                    text: itemData.name,
+                }));
+            });
+        } else {
+            $.each(data, function (index, itemData) {
+                ele.append($('<option/>', {
+                    value: itemData.id,
+                    text: itemData.name,
+                }));
+            });
+        }
+    }
+
+    /* Tab Sections Start*/
+    var currentTab = 0; // Current tab is set to be the first tab (0)
+    showTab(currentTab); // Display the crurrent tab
+    function showTab(n) {
+        // This function will display the specified tab of the form...
+        var x = document.getElementsByClassName("tab");
+        x[n].style.display = "block";
+        $(".custom-nav-pills li:eq(" + n + ")").addClass("active");
+        //... and fix the Previous/Next buttons:
+        if (n == 0) {
+            document.getElementById("prevBtn").style.display = "none";
+        } else {
+            document.getElementById("prevBtn").style.display = "inline";
+        }
+        if (n == (x.length - 1)) {
+            document.getElementById("nextBtn").innerHTML = "Submit";
+            $('#nextBtn').hide();
+        } else {
+            document.getElementById("nextBtn").innerHTML = "Next";
+            $('#nextBtn').show();
+        }
+        //... and run a function that will display the correct step indicator:
+        //fixStepIndicator(n)
+    }
+
+    function nextPrev(n) {
+        // This function will figure out which tab to display
+        var x = document.getElementsByClassName("tab");
+        // Exit the function if any field in the current tab is invalid:
+        //if (n > 0 && !validateForm(n)) return false;
+        if (currentTab + n < x.length) {
+            // Hide the current tab:
+            x[currentTab].style.display = "none";
+            $(".custom-nav-pills li:eq(" + currentTab + ")").removeClass("active");
+        } else {
+            // ... the form gets submitted:
+            formSave();
+            return false;
+        }
+        // Increase or decrease the current tab by 1:
+        currentTab = currentTab + n;
+
+        // Otherwise, display the correct tab:
+        showTab(currentTab);
+    }
+
+    //function validateForm(n) {
+    //    // This function deals with validation of the form fields
+    //    var isValid = false;
+    //    var hadError = false;
+    //    var tabs = $(".tab");
+    //    var currentTabEle = tabs[currentTab];
+    //    var inputs = $(":input, textarea, select"); // get all the form inputs and selects
+    //    var stepElements = $(currentTabEle).find(inputs); // get inputs for current step
+    //    var count = stepElements.length; // check that there are inputs
+    //    if (count <= 0) {                // if there are not no reason to loop them
+    //        return true;                 // this can be used to perform other action if there are no steps
+    //    } if (currentTab == 0) {
+
+    //    }
+    //    else if (currentTab == 1) {
+
+    //    }
+    //    else if (currentTab == 2) {
+
+    //        //var validationMsg = ValidateCommitment()
+    //        //if (validationMsg != 'valid') {
+    //        //    hadError = true;
+    //        //    $("#alert").text(validationMsg);
+    //        //    $('#Validation').modal('show');
+    //        //} else {
+    //        if ($('#NeedUpdateTransDetail').val().toLowerCase() == 'true') {
+    //            GetTransactionDetails();
+    //            //}
+    //        }
+    //            var netPayAmt = parseFloat($('#CommitmentAmount').val());
+    //            var credit = netPayAmt;
+    //            var name = $('input[name="Beneficiary"]').val();
+    //            $('#lblVendorName').html(name);
+    //            $("#CreditorAmount").val(credit);
+    //            CalculateDeductionTotal();
+
+    //    }
+    //    else if (currentTab == 3) {
+
+    //        var validationMsg = ValidateTransaction()
+    //        if (validationMsg != 'valid') {
+    //            hadError = true;
+    //            $("#alert").text(validationMsg);
+    //            $('#Validation').modal('show');
+    //        }
+    //    }
+    //    else if (currentTab == 4) {
+    //        if ($('#CheckListVerified_By').val() == '') {
+    //            hadError = true;
+    //            $("#alert").text('Checklist is not verified.');
+    //            $('#Validation').modal('show');
+    //        }
+    //    }
+    //    $(stepElements).each(function (idx, ele) {
+
+    //        if (!$(ele).is(':radio') && !$(ele).is(':checkbox') && !$(ele).is(':password')) {
+    //            isValid = $(ele).valid();//$(document.forms[0]).validate().element($(this)); // check that the input is valid. This can also be used on a per input basis to perform another action if the field is not valid.
+    //            if (!isValid) { hadError = true; } // set our flag if there was an error
+    //        }
+
+    //    });
+    //    return !hadError; // return the valid status
+
+    //}
+
+</script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>

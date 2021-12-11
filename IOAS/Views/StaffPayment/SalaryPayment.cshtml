@@ -1,0 +1,250 @@
+﻿@model IOAS.Models.PagedData<IOAS.Models.SalaryModel>
+
+@{
+    ViewBag.Title = "SalaryPayment";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+
+<div class="wrapper">
+    <div class="row hd-tt-bg">
+        <div class="col-md-12">
+            <h4><b>Salary Processing</b></h4>
+            <ul class="nav nav-pills custom-nav-pills custom-spl-nav">
+                <li id="picDel"><a href="javascript:void(0)" class="ml-null brd-rd-md">Salary Initiation</a></li>
+                <li id="allOca"><a href="javascript:void(0)" class="ml-null brd-rd-md">Commitment</a></li>
+                <li id="trans"><a href="javascript:void(0)" class="ml-null brd-rd-md">Transaction</a></li>
+                <li class="active" id="modEof1"><a href="javascript:void(0)" class="ml-null brd-rd-md">Payment Process</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+@using (Html.BeginForm("SalaryPayment", "StaffPayment", new { page = 1, pageSize = 10 }, FormMethod.Post, new { @class = "form-horizontal", @id = "frmSalaryPayment", @name = "frmSalaryPayment", role = "form" }))
+{
+    @Html.AntiForgeryToken()
+
+
+    if (!String.IsNullOrEmpty(ViewBag.Errors))
+    {
+        @:<script type="text/javascript">$.alert({title:'Validation', content:'@ViewBag.Errors'})</script>
+    }
+    if (!String.IsNullOrEmpty(ViewBag.Message))
+    {
+        @:<script type="text/javascript">$.alert({title:'Message', content:'@ViewBag.Message'})</script>
+    }
+
+    <div class="row">
+        <div class="page-wrapper">
+            <div class="col-md-12 mt30">
+
+
+                <div class="col-md-12">
+                    <div class="row">
+
+                        <div class="col-md-12">
+                            <div class="bl-lg-panel-box pb-null">
+                                <div class="cmn-panel-box">
+                                    <div class="row">
+                                        <div class="col-md-12">
+
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <div class="form-group custom-form-group">
+                                                        <label>Mode of Payment</label>
+                                                        <select class="form-control">
+                                                            <option value="0">All</option>
+                                                            <option value="1">Cheque</option>
+                                                            <option value="2">RTGS</option>
+                                                        </select>
+
+                                                    </div>
+                                                </div>
+
+                                                @*<div class="col-md-4">
+                                                        <div class="form-group custom-form-group">
+                                                            <label>Month Year</label>
+                                                            @Html.DropDownList("MonthYear", new SelectList(ViewBag.months, "Value", "Value", ViewBag.SelectedMonth), "--- Select ---",
+                                                            new { @class = "required form-control", @onchange = "this.form.submit();" })
+
+                                                        </div>
+                                                    </div>*@
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-12">
+
+                                                    <div class="vh-grid-tb mt-null mb-lg">
+
+                                                        <div class="vh-grid-cell grey-bg">
+
+                                                            <div>
+                                                                <h4 class="vh-grid-tb-dark-hd">Cheque </h4>
+                                                            </div>
+
+                                                            <div class="grey-bg-adj">
+                                                                <div class="row">
+                                                                    <div class="col-md-12">
+                                                                        <table id="tblSalaryCheque" class="table alter-table mb-null">
+                                                                            <thead>
+                                                                                <tr>
+                                                                                    <th style="width:150px;">Employee</th>
+                                                                                    <th>Value</th>
+                                                                                </tr>
+                                                                            </thead>
+                                                                            <tbody>
+                                                                                @{
+                                                                                    if (Model.Data != null && Model.Data.Any())
+                                                                                    {
+                                                                                        foreach (var item in Model.Data)
+                                                                                        {
+                                                                                            if (item.ModeOfPaymentName == "Cheque")
+                                                                                            {
+                                                                                                <tr>
+                                                                                                    <td>
+                                                                                                        <label>@Html.DisplayFor(modelItem => item.EmployeeName)</label>
+                                                                                                    </td>
+                                                                                                    <td>
+                                                                                                        <label>@Html.DisplayFor(modelItem => item.MonthSalary)</label>
+                                                                                                    </td>
+                                                                                                </tr>
+                                                                                            }
+
+                                                                                        }
+                                                                                    }
+                                                                                }
+
+                                                                            </tbody>
+                                                                        </table>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
+
+                                                        <div class="vh-grid-cell">
+
+                                                            <div>
+                                                                <h4 class="vh-grid-tb-light-hd">RTGS</h4>
+                                                            </div>
+
+
+                                                            <div class="grey-bg-adj">
+                                                                <div class="row">
+                                                                    <div class="col-md-12">
+                                                                        <table id="tblSalaryRTGS" class="table alter-table mb-null">
+                                                                            <thead>
+                                                                                <tr>
+                                                                                    <th style="width:150px;">Employee</th>
+                                                                                    <th>Value</th>
+                                                                                </tr>
+                                                                            </thead>
+                                                                            <tbody>
+                                                                                @{
+                                                                                    if (Model.Data != null && Model.Data.Any())
+                                                                                    {
+                                                                                        foreach (var item in Model.Data)
+                                                                                        {
+                                                                                            if (item.ModeOfPaymentName == "RTGS")
+                                                                                            {
+                                                                                                <tr>
+                                                                                                    <td>
+                                                                                                        <label>@Html.DisplayFor(modelItem => item.EmployeeName)</label>
+                                                                                                    </td>
+                                                                                                    <td>
+                                                                                                        <label>@Html.DisplayFor(modelItem => item.MonthSalary)</label>
+                                                                                                    </td>
+                                                                                                </tr>
+                                                                                            }
+
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            </tbody>
+                                                                        </table>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
+
+                                                    </div>
+
+
+                                                </div>
+                                            </div>
+
+                                            <div class="row mb-lg">
+                                                <div class="col-md-6">
+                                                </div>
+                                                <div class="col-md-1"></div>
+                                                <div class="col-md-5">
+                                                    <button type="submit" name="btnBack" class="btn btn-default">Back</button>
+                                                    @*<button type="submit" name="btnSave" class="btn btn-primary" @ViewBag.AllowSave>Save</button>*@
+                                                    <button type="submit" name="btnSubmit" class="btn btn-primary" @ViewBag.AllowSubmit>Submit</button>
+                                                    <a href='@Url.Action("List", "StaffPayment")' role="button" class="btn btn-success btn-md">Back To List</a>
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+
+
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+
+}
+
+<script type="text/javascript">
+    //LoadSalaryDetails();
+
+     function LoadSalaryDetails() {
+        var page = $("#page").val() || 1;
+        var pageSize = 10;
+        var token = $("input[name=__RequestVerificationToken]").val();
+        var searchdata = { "__RequestVerificationToken": token };
+        var headers = {
+            contentType: 'application/x-www-form-urlencoded'
+        }
+        headers['__RequestVerificationToken'] = token;
+        var style = 'float: right; text-align:right; width: 100px;';
+        $.ajax({
+            url: '@Url.Action("GetSalaryPayment", "StaffPayment")?page=' + page+'&pageSize='+pageSize,
+            type: "GET",
+            headers: headers,
+            data: searchdata,
+            success: function (response) {
+                console.log(data);
+                var data = response.data;
+                var row = '';
+                if(data) {
+
+                    for(var i=0;i<data.length;i++){
+                        var field1 = '<label>'+data[i].EmployeeName+'</label>';
+                        var field2 = '<label>'+data[i].EmployeeName+'</label>';
+                        row = '<tr><td>'+field1+'</td><td>'+field2+'</td></tr>';
+                        $("#tblSalaryCheque tbody").append(row);
+                    }
+
+                }
+            },
+            error: function (err) {
+                alert(err);
+            }
+        });
+    }
+</script>

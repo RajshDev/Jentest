@@ -1,0 +1,427 @@
+﻿
+@model IOAS.Models.PagedData<IOAS.Models.StaffAppointmentModel>
+
+
+<table id="tblEmployee" class="table alter-table mb-null">
+    <tbody>
+        <tr>
+            <th>
+                Paid
+            </th>
+            <th>
+                Employee No
+            </th>
+            <th>
+                Project No
+            </th>
+            <th>
+                Commitment No
+            </th>
+            <th>
+                Employee Name
+            </th>
+            <th>
+                Dept
+            </th>
+            @*<th>
+                Doj
+            </th>*@
+            @*<th>
+                Project
+            </th>*@
+            <th>
+                Basic Salary
+            </th>
+            <th>
+                Net Salary
+            </th>
+            <th>
+                Mode of payment
+            </th>
+            <th>
+                Action
+            </th>
+        </tr>
+        @{
+            if (Model.Data != null && Model.Data.Any())
+            {
+                var sno = Model.CurrentPage == 1 ? 1 : ((Model.CurrentPage - 1) * Model.pageSize) + 1;
+
+                foreach (var item in Model.Data)
+                {
+
+                    <tr>
+
+                        <td>
+                            <label>@Html.CheckBoxFor(modelItem => item.SalaryDetail.IsPaid)</label>
+                        </td>
+                        <td>
+                            <label>@Html.DisplayFor(modelItem => item.EmployeeID)</label>
+                        </td>
+                        <td>
+                            <label>@Html.DisplayFor(modelItem => item.ProjectNo)</label>
+                        </td>
+                        <td>
+                            <label>@Html.DisplayFor(modelItem => item.CommitmentNo)</label>
+                        </td>
+                        <td>
+                            <label>@Html.DisplayFor(modelItem => item.EmployeeName)</label>
+                        </td>
+                        <td>
+                            <label>@Html.DisplayFor(modelItem => item.DesignationName)</label>
+                        </td>
+                        @*<td>
+                            <label>@Html.DisplayFor(modelItem => item.FromDate)</label>
+                        </td>*@
+                        @*<td>
+                            <label>@Html.DisplayFor(modelItem => item.ProjectNo)</label>
+                        </td>*@
+                        <td>
+                            <label>@Html.DisplayFor(modelItem => item.BasicSalary)</label>
+                        </td>
+                        <td>
+                            <label>@Html.DisplayFor(modelItem => item.SalaryDetail.AnnualSalary)</label>
+                        </td>
+                        <td>
+                            <label>@Html.DisplayFor(modelItem => item.GrossSalary)</label>
+                        </td>
+                        <td>
+                            <label>
+                                <button type="button" name="btnViewModal" class="btn btn-default" data-dismiss="modal">View</button>
+                                @*@Html.ActionLink("View", "ViewDetails", new { RefId = item.EmployeeID }, new { @role = "button", @class = "btn btn-primary  btn-md", @name="viewdetails" })*@
+                            </label>
+                        </td>
+                    </tr>
+
+                }
+            }
+
+        }
+
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="6">
+                @{
+                    var maxpage = Model.visiblePages;
+                    var startpage = 1;
+
+                    if (Model.TotalPages < Model.visiblePages)
+                    {
+                        startpage = 1;
+                        maxpage = Model.TotalPages;
+                    }
+                    else if (Model.CurrentPage >= maxpage)
+                    {
+                        startpage = Model.CurrentPage;
+
+                        if (startpage + Model.visiblePages <= Model.TotalPages)
+                        {
+                            maxpage = startpage + Model.visiblePages;
+                        }
+                        else
+                        {
+                            maxpage = Model.TotalPages;
+                        }
+
+                        if (maxpage > Model.TotalPages)
+                        {
+                            maxpage = Model.TotalPages;
+                            startpage = maxpage - (Model.visiblePages - 1);
+                        }
+
+                    }
+
+                    if (Model.TotalPages > Model.visiblePages)
+                    {
+                        <a id='firstPage' name="pageButton" class="btn btn-primary  btn-md" href="#" onclick="return false;">First</a>
+                        <a id='previousPage' name="pageButton" class="btn btn-default  btn-md" href="#" onclick="return false;">Previous</a>
+                    }
+
+                    for (int i = startpage; i <= maxpage; i++)
+                    {
+
+
+                        if (i == Model.CurrentPage)
+                        {
+                            <a id='currentPage' name="pageButton" class="btn btn-primary  btn-md" href="#" onclick="return false;">@i</a>
+                        }
+                        else
+                        {
+                            <a name="pageButton" class=" btn btn-default  btn-md" href="#" onclick="return false;">@i</a>
+                        }
+                    }
+                    if (Model.TotalPages > Model.visiblePages)
+                    {
+                        <a id='nextPage' name="pageButton" class="btn btn-default  btn-md" href="#" onclick="return false;">Next</a>
+                        <a id='lastPage' name="pageButton" class="btn btn-primary  btn-md" href="#" onclick="return false;">Last</a>
+                    }
+                }
+            </td>
+        </tr>
+    </tfoot>
+</table>
+
+
+
+<div id="SalaryDetailsModal" class="modal fade modal-pr-vw" role="dialog">
+
+    <div class="modal-dialog modal-lg">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <div class="row hd-tt-bg">
+                    <div class="col-md-12">
+                        <h4><b>Salary Details</b></h4>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="page-wrapper">
+
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="pr-amt-dts">
+                                                <h4><b>Total Earnings</b></h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label id="lblTotalEarnings" value=""></label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="pr-amt-dts">
+                                                <h4><b>Total Deductions</b></h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label id="lblOtherDeduction" value=""></label>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                            </div>
+                            <input type="hidden" id="hdSelectedRecord" value="" />
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h4>Earnings</h4>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="pr-amt-dts">
+                                                <h4><b>BASIC</b></h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label id="lblBasic"></label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="pr-amt-dts">
+                                                <h4><b>HRA</b></h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label id="lblHRA" value=""></label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="pr-amt-dts">
+                                                <h4><b>CONVEYANCE</b></h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label id="lblConveyance" value=""></label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="pr-amt-dts">
+                                                <h4><b>OTHER ALLOWANCE</b></h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label id="lblOtherAllowance" value=""></label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="pr-amt-dts">
+                                                <h4><b>MEDICAL ALLOWANCE</b></h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label id="lblMA" value=""></label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <h4>Deductions</h4>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="pr-amt-dts">
+                                                <h4><b>PF</b></h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label id="lblPF"></label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="pr-amt-dts">
+                                                <h4><b>INCOMETAX</b></h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label id="lblIncomeTax" value=""></label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="pr-amt-dts">
+                                                <h4><b>PROF TAX</b></h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label id="lblProfTax" value=""></label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="pr-amt-dts">
+                                                <h4><b>INSURANCE PREMIUM</b></h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label id="lblInsurance" value=""></label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="pr-amt-dts">
+                                                <h4><b>OTHER DEDUCTION</b></h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label id="lblOtherDeduction" value=""></label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="pr-amt-dts">
+                                                <h4><b>Total Earnings</b></h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label id="lblTotalEarnings" value=""></label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="pr-amt-dts">
+                                                <h4><b>Total Deductions</b></h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label id="lblOtherDeduction" value=""></label>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $("[name^=btnViewModal]").on("click", function () {
+            $('#SalaryDetailsModal').modal('show');
+        });
+    });
+
+      $(document).on('click', '#tblEmployee tr', function () {
+        var tableData = $(this).children("td").map(function () {
+            return $(this).text();
+        }).get();
+         $("#hdSelectedRecord").val($.trim(tableData[0]));
+         //alert("Your data is: " + $.trim(tableData[0]) + " , " + $.trim(tableData[1]));
+          SelectedEmployeeSalary()
+     });
+
+     function SelectedEmployeeSalary() {
+        var EmpNo = $("#hdSelectedRecord").val();
+        var token = $("input[name=__RequestVerificationToken]").val();
+        var searchdata = { "__RequestVerificationToken": token };
+        var headers = {
+            contentType: 'application/x-www-form-urlencoded'
+        }
+        headers['__RequestVerificationToken'] = token;
+        searchdata.EmpNo = EmpNo;
+        var style = 'float: right; text-align:right; width: 100px;';
+        $.ajax({
+            url: '@Url.Action("EmplyeeSalaryDetail", "StaffPayment")?EmpNo=' + EmpNo,
+            type: "GET",
+            headers: headers,
+            data: searchdata,
+            success: function (data) {
+                console.log(data);
+                if(data && data.SalaryDetail) {
+                    $("#lblBasic").text(data.SalaryDetail.Basic).css('style', style);
+                    $("#lblHRA").text(data.SalaryDetail.HRA || 0).css('style', style);
+                    $("#lblConveyance").text(data.SalaryDetail.CA || 0).css('style', style);
+                    $("#lblOtherAllowance").text(data.SalaryDetail.OtherAllowance || 0).css('style', style);
+                    $("#lblMA").text(data.SalaryDetail.MA || 0).css('style', style);
+
+                    $("#lblPF").text(data.SalaryDetail.Basic).css(style);
+                    $("#lblIncomeTax").text(data.SalaryDetail.MonthlyTax || 0).css(style);
+                    $("#lblInsurance").text(data.SalaryDetail.CA || 0).css(style);
+                    $("#lblProfTax").text(data.SalaryDetail.OtherAllowance || 0).css(style);
+                    $("#lblOtherDeduction").text(data.SalaryDetail.MA || 0).css(style);
+                }
+            },
+            error: function (err) {
+                alert(err);
+            }
+        });
+    }
+
+
+
+</script>

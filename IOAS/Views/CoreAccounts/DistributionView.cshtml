@@ -1,0 +1,1930 @@
+﻿@model IOAS.Models.DistributionModel
+@{
+    ViewBag.Title = "Distribution Payment";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+
+<div class="row hd-tt-bg">
+    <div class="col-md-12">
+        <h4><b>Distribution</b> </h4>
+    </div>
+</div>
+<div class="row">
+    <div class="white-bg ad-navbar">
+        <div class="col-md-3 ds-spl-bg">
+            <div class="ds-icn">
+                <i class="ion-ios-list-outline "></i>
+            </div>
+            <div class="ds-tt">
+                <span>Request Reference :</span><br />
+                <span>@Html.DisplayFor(m => m.SourceName)</span>
+                @Html.HiddenFor(m => m.Source, new { @id = "Source" })
+                @Html.HiddenFor(m => m.NeedUpdateTransDetail)
+                @Html.HiddenFor(m => m.DistributionId)
+            </div>
+        </div>
+        <div class="col-md-3 ds-spl-bg">
+            <div class="ds-icn">
+                <i class="ion-ios-calendar-outline"></i>
+            </div>
+            @if (Model.ReferenceNumber != null)
+            {
+                <div class="ds-tt">
+                    <span>Ref Number (WF / Tapal)</span>
+                    <span>@Html.DisplayFor(m => m.ReferenceNumber)</span>
+                    @Html.TextBoxFor(m => m.ReferenceNumber, new { @class = "form-control dis-none" })
+                    @Html.TextBoxFor(m => m.SourceReferenceNumber, new { @class = "form-control dis-none" })
+                    @Html.Hidden("SourceTapalOrWorkflow", "True")
+                    @Html.HiddenFor(m => m.SubCode)
+                    @Html.Hidden("TransactionTypeCode", "DIS")
+                </div>
+            }
+            @if (Model.SourceEmail != null)
+            {
+                <div class="ds-tt">
+                    <span>Email Date :</span>
+                    <span>@Html.DisplayFor(m => m.SourceEmail)</span>
+                </div>
+            }
+        </div>
+
+        <div class="col-md-3 col-md-offset-3">
+            <div class="reg-no custom-reg-no">
+                <div class="form-group custom-form-group">
+                    <label>Number</label>
+                    <h4>@Html.DisplayFor(m => m.DistributionNumber)</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="vw-dts-bg">
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table table-bordered mb-null">
+                <thead>
+                    <tr>
+                        <th colspan="5">Distribution</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <label>Distribution Type</label>
+                            <h4>@Model.DistributionTypes</h4>
+                        </td>
+                        <td>
+                            <label>Project No</label>
+                            <h4>@Model.ProjectNumber</h4>
+                        </td>
+                        <td>
+                            <label>Available balance</label>
+                            <h4>@Model.PjctAvailableBalanceAmount</h4>
+                        </td>
+                        <td>
+                            <label>Month & Year</label>
+                            <h4>@Model.DistributionDate</h4>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2"></td>
+                        <td colspan="2" class="reg-no">
+                            <label class="lblval">Distribution Amount</label>
+                            @Html.HiddenFor(m => m.DistributionAmount, new { @class = "form-control", @id = "txtDistributionAmount", @onchange = "calculateamount();" })
+                            <h4 class="tatval">@Model.DistributionAmount</h4>
+                        </td>
+
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="vw-dts-bg">
+    <div class="row">
+        <div class="col-md-6">
+            <table class="table table-bordered mb-null">
+                <tbody>
+                    <tr>
+                        <td>
+                            <label>PI Name</label>
+                            <h4>@Model.PIName</h4>
+                        </td>
+                        <td>
+                            <label>Total Received</label><br />
+                            <label>Receipt Amount</label>
+                            <h4>@Model.PjctTotalAmtReceivedincldngOHandGST</h4>
+                            <label>Overheads Amount</label>
+                            <h4>@Model.PjctTotalAmountReceivedOH</h4>
+                            <label>GST Amount</label>
+                            <h4>@Model.PjctTotalAmountReceivedGST</h4>
+                            <label>Balane Amount</label>
+                            <h4>@Model.PjctTotalAmountReceived</h4>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label>Total Spent Amount</label>
+                            <h4>@Model.PjctTotalAmountSpent</h4>
+                        </td>
+                        <td>
+                            <label>Open Commitment</label>
+                            <h4>@Model.PjctOpenCommitmentAmount</h4>
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+        </div>
+        <div class="col-md-6">
+            <table class="table table-bordered mb-null">
+                <thead>
+                    <tr>
+                        <th colspan="2"><label>Expenditure</label></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <label>Lab Code</label>
+                            <h4>@Model.LabCode</h4>
+                        </td>
+                        <td>
+                            <label>EUCO</label>
+                            @Html.HiddenFor(m => m.EUCOAmount, new { @class = "form-control", @id = "txtEUCOAmount", @onchange = "calculateamount();", @onkeypress = "return ValidateDecimalOnly(event)", @autocomplete = "off" })
+                            <h4>@Model.EUCOAmount</h4>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label>STORES CONSUMED</label>
+                            @Html.HiddenFor(m => m.StoresConsumedAmount, new { @class = "form-control", @id = "txtStoresAmount", @onchange = "calculateamount();", @onkeypress = "return ValidateDecimalOnly(event)", @autocomplete = "off" })
+                            <h4>@Model.StoresConsumedAmount</h4>
+                        </td>
+                        <td>
+                            <label>CENTRAL FACILITIES</label>
+                            @Html.HiddenFor(m => m.CentralFacilitiesAmount, new { @class = "form-control", @id = "txtCentralFacilitiesAmount", @onchange = "calculateamount();", @onkeypress = "return ValidateDecimalOnly(event)", @autocomplete = "off" })
+                            <h4>@Model.CentralFacilitiesAmount</h4>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label>OTHERS</label>
+                            @Html.HiddenFor(m => m.OthersAmount, new { @class = "form-control", @id = "txtOthersAmount", @onchange = "calculateamount();", @onkeypress = "return ValidateDecimalOnly(event)", @autocomplete = "off" })
+                            <h4>@Model.OthersAmount</h4>
+                        </td>
+                        <td class="reg-no">
+                            <label class="lblval">Total</label>
+                            <h4 class="tatval" id="lblExpenditureAmount"></h4>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="vw-dts-bg">
+    <div class="row">
+        <div class="col-md-6">
+            <table class="table table-bordered mb-null">
+                <tbody>
+                    @if (Model.DistributionOverheads != null)
+                    {
+                        var count = 0;
+                        foreach (var item in Model.DistributionOverheads)
+                        {
+                            var overheadtypeid = "DistributionOverheads[" + count + "].OverheadtypeId";
+                            var overheadtype = "DistributionOverheads[" + count + "].Overheadtypename";
+                            var overheadpercent = "DistributionOverheads[" + count + "].OverheadPercentage";
+                            var overheadamount = "DistributionOverheads[" + count + "].OverheadAmount";
+                            <tr>
+                                <td>
+                                    <span class="tdOHtype">
+                                        @Html.DisplayFor(m => item.Overheadtypename, new { @class = "form-control", @id = "txtOverheadTypename" })
+                                        @Html.DisplayFor(m => item.OverheadPercentage, new { @class = "form-control", @id = "txtOverheadPercentage" }) % :
+                                    </span>
+                                    @Html.Hidden("DistributionOverheads.Index", @count)
+                                    @Html.Hidden(@overheadtypeid, item.OverheadtypeId)
+                                    @Html.Hidden(@overheadtype, item.Overheadtypename)
+                                    @Html.Hidden(@overheadpercent, item.OverheadPercentage)
+                                </td>
+                                <td>
+                                    <span class="tdOHAmount">
+                                        @Html.DisplayFor(m => item.OverheadAmount, new { @class = "form-control", @id = "txtOverheadamtdisplay" })
+                                    </span>
+                                    @Html.Hidden(@overheadamount, item.OverheadAmount, new { @class = "form-control", @id = "txtOverheadamt" })
+                                </td>
+
+                            </tr>
+                            count++;
+                        }
+                    }
+                    <tr>
+                        <td>
+                            <label>Institute OH @Html.DisplayFor(m => m.InstituteOverheadPercentage) % :</label>
+                            <h4>@Html.DisplayFor(m => m.InstituteOverheadAmount)</h4>
+                            @Html.HiddenFor(m => m.InstituteOverheadPercentage)
+                            @Html.HiddenFor(m => m.InstituteOverheadAmount)
+                        </td>
+                        <td>
+                            <label>Amount Available for Staff</label>
+                            <h4>@Html.DisplayFor(m => m.AmountAvailableforDistribution)</h4>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label>Total Individual Share</label>
+                            <h4>@Model.TotalIndividualShareAmount</h4>
+                        </td>
+                        <td>
+                            <label>Total PCF</label>
+                            <h4 id="lblTotalPCFShare"></h4>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
+        <div class="col-md-6">
+            <table class="table table-bordered mb-null">
+                <thead>
+                    <tr>
+                        <th colspan="2">Amount Transferred to IIT</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <label>Power/Water/Others</label>
+                            @Html.HiddenFor(m => m.TransferedToIITAmount, new { @class = "form-control", @id = "txtTransferedToIITAmount", @onchange = "calculateamount();", @onkeypress = "return ValidateDecimalOnly(event)", @autocomplete = "off" })
+                            <h4>@Model.TransferedToIITAmount</h4>
+                        </td>
+                        <td class="reg-no">
+                            <label class="lblval">Subtotal</label>
+                            @Html.HiddenFor(m => m.SubTotalAmount, new { @class = "form-control", @id = "txtSubTotalAmount" })
+                            <h4 id="lblSubTotalAmount" class="tatval"></h4>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label>Amount Available for Distribution</label>
+                            <h4 id="amtavailfordistri"></h4>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="vw-dts-bg">
+    <div class="row">
+        <div class="col-md-12">
+            <h4>Distribution Details</h4>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Name</th>
+                        <th>Designation</th>
+                        <th>Department</th>
+                        <th>PayBill No	</th>
+                        <th>Project No</th>
+                        <th>Amount</th>
+                        @*<th>TDS</th>
+                            <th>Net</th>*@
+                        <th>Payment Mode</th>
+                        @*<th>Bank Name</th>
+                            <th>Branch </th>
+                            <th>A/C No</th>
+                            <th>IFSC</th>*@
+                    </tr>
+                </thead>
+                <tbody id="tbodyPO">
+                    @{
+                        var distotal = Model.DistributionDetails.Select(x => x.Amount).Sum() ?? 0;
+                    }
+                    @if (Model.DistributionDetails != null)
+
+                    {
+
+
+                        var count = 0;
+                        foreach (var item in Model.DistributionDetails)
+                        {
+                            var category = "DistributionDetails[" + count + "].Category";
+                            var userid = "DistributionDetails[" + count + "].UserId";
+                            var name = "DistributionDetails[" + count + "].Name";
+                            var distributiondetailsId = "DistributionDetails[" + count + "].DistributionDetailId";
+                            var facultydept = "DistributionDetails[" + count + "].FacultyDepartment";
+                            var facultydesig = "DistributionDetails[" + count + "].FacultyDesignation";
+                            var paybillnumber = "DistributionDetails[" + count + "].PayBillNumber";
+                            var projectnumber = "DistributionDetails[" + count + "].ProjectNumber";
+                            var amount = "DistributionDetails[" + count + "].Amount";
+                            //var tdsvalue = "DistributionDetails[" + count + "].TDSValue";
+                            //var netamount = "DistributionDetails[" + count + "].NetAmount";
+                            var paymentmode = "DistributionDetails[" + count + "].PaymentMode";
+                            //var bankname = "DistributionDetails[" + count + "].BankName";
+                            //var bankbranch = "DistributionDetails[" + count + "].BranchName";
+                            //var accountnumber = "DistributionDetails[" + count + "].AccountNumber";
+                            //var ifsccode = "DistributionDetails[" + count + "].IFSCCode";
+                            var autoComp = "DistributionDetails[" + count + "].autoComplete";
+                            count++;
+                            <tr>
+
+                                <td>
+                                    <h4>@item.CategoryName</h4>
+                                    @Html.Hidden(@distributiondetailsId, item.DistributionDetailId, new { @class = "form-control dis-none" })
+
+                                </td>
+                                <td class="tdDDLUser">
+                                    @Html.Hidden(@autoComp, item.Name, new { @class = "form-control", @id = "txtname" })
+                                    @Html.Hidden(@userid, item.UserId, new { @class = "form-control dis-none" })
+
+                                    @Html.Hidden("DistributionDetails.Index", @count)
+                                    @item.Name
+                                </td>
+
+                                <td>
+                                    @item.FacultyDesignation
+                                </td>
+                                <td>
+
+                                    @item.FacultyDepartment
+                                </td>
+                                <td>
+
+                                    @item.PayBillNumber
+                                </td>
+                                <td>
+
+                                    @item.ProjectNumber
+                                </td>
+                                <td>
+                                    @Html.Hidden(@amount, item.Amount, new { @class = "form-control", @onchange = "calculatefacultyamount()", @onkeypress = "return ValidateDecimalOnly(event)" })
+                                    @item.Amount
+                                </td>
+                                @*<td>
+                                        @Html.TextBox(@tdsvalue, item.TDSValue, new { @class = "form-control", @onchange = "calculatetdsamount()", @onkeypress = "return ValidateDecimalOnly(event)" })
+                                        @Html.ValidationMessage(@tdsvalue)
+                                    </td>
+                                    <td>
+                                        @Html.TextBox(@netamount, item.NetAmount, new { @class = "form-control", @onchange = "calculatenetamount()", @readonly = true })
+                                        @Html.ValidationMessage(@netamount)
+                                    </td>*@
+                                <td>
+                                    @item.PaymentModeName
+                                </td>
+
+
+
+                            </tr>
+
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td></td>
+                            <td class="tdDDLUser"></td>
+                            <td class="tdTxtName dis-none"></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+
+                    }
+                    <tr>
+                        <td colspan="6"></td>
+                        <td colspan="2" class="reg-no">
+
+
+                            <label class="lblval">Total Amount</label>
+                            <h4 class="tatval">@distotal</h4>
+
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+</div>
+<div class="vw-dts-bg">
+    <div class="row">
+        <div class="col-md-12">
+            <h4>PCF</h4>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        @*<th style="width:150px;">Type</th>*@
+                        <th>Name</th>
+                        <th>Department</th>
+                        <th>Designation</th>
+                        @*<th style="width:200px;">Account Number</th>*@
+                        <th>Employee PCF Id</th>
+                        <th>Amount </th>
+
+                    </tr>
+                </thead>
+                <tbody id="tbodyPCF">
+                    @if (Model.PCFDetails != null)
+
+                    {
+                        var count = 0;
+                        foreach (var item in Model.PCFDetails)
+                        {
+                            //var category = "PCFDetails[" + count + "].FacultyCategory";
+                            var userid = "PCFDetails[" + count + "].PCFPIUserId";
+                            var name = "PCFDetails[" + count + "].PCFName";
+                            var PCFdetailsId = "PCFDetails[" + count + "].PCFDetailId";
+                            var PCFId = "PCFDetails[" + count + "].EmployeePCFId";
+                            var department = "PCFDetails[" + count + "].DepartmentofStaff";
+                            var designation = "PCFDetails[" + count + "].DesignationofStaff";
+                            var PCFamt = "PCFDetails[" + count + "].PCFAmount";
+                            // var PCFAcNumber = "PCFDetails[" + count + "].PCFAccountNumber";
+                            var autoComp = "PCFDetails[" + count + "].PCFautoComplete";
+                            count++;
+                            <tr>
+
+
+                                <td class="tdPCFUser">
+                                    @Html.Hidden(@autoComp, item.PCFName, new { @class = "form-control", @id = "txtPCFname" })
+                                    @Html.Hidden(@userid, item.PCFPIUserId, new { @class = "form-control dis-none" })
+                                    @Html.ValidationMessage(@userid)
+                                    @Html.Hidden("PCFDetails.Index", @count)
+                                    @Html.Hidden(@PCFdetailsId, item.PCFDetailId, new { @class = "form-control dis-none" })
+                                    <h4>@item.PCFName</h4>
+                                </td>
+
+                                <td>
+                                    @Html.Hidden(@department, item.DepartmentofStaff, new { @class = "form-control", @readonly = true })
+                                    <h4>@item.DepartmentofStaff</h4>
+                                </td>
+                                <td>
+                                    @Html.Hidden(@designation, item.DesignationofStaff, new { @class = "form-control", @readonly = true })
+                                    <h4>@item.DesignationofStaff</h4>
+                                </td>
+                                @*<td>
+                                        @Html.TextBox(@PCFAcNumber, item.PCFAccountNumber, new { @class = "form-control", @readonly = true })
+                                        @Html.ValidationMessage(@PCFAcNumber)
+                                    </td>*@
+                                <td>
+                                    @Html.Hidden(@PCFId, item.EmployeePCFId, new { @class = "form-control", @readonly = true })
+                                    <h4>@item.EmployeePCFId</h4>
+                                </td>
+                                <td>
+                                    @Html.Hidden(@PCFamt, item.PCFAmount, new { @class = "form-control", @readonly = true, @onchange = "calculatePCFamount();" })
+                                    <h4>@item.PCFAmount</h4>
+                                </td>
+                            </tr>
+
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+
+                            <td class="tdDDLUser"></td>
+                            <td class="tdTxtName dis-none"></td>
+                            <td></td>
+                            <td></td>
+
+
+                            <td></td>
+                            <td></td>
+
+
+
+                        </tr>
+
+                    }
+                    <tr>
+                        <td colspan="4"></td>
+                        <td class="reg-no">
+                            @{
+                                var PCFtat = Model.PCFDetails.Select(m => m.PCFAmount).Sum() ?? 0;
+                            }
+
+                            <label class="lblval">Total PCF</label>
+                            <h4 class="tatval">@PCFtat</h4>
+
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+</div>
+<div class="vw-dts-bg">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="row">
+                <div class="col-md-12">
+                    @Html.Partial("_CommitmentDetailsView", Model.CommitmentDetail)
+                    @Html.Partial("_TransactionDetailsView", Model)
+                </div>
+            </div>
+            <div class="row">
+
+                <div class="col-md-12">
+                    <div>
+                        @Html.Partial("_CheckListDetailView", Model.CheckListDetail)
+                    </div>
+                    <table class="table table-bordered mb-null">
+                        <tbody>
+                            <tr>
+
+                                <td>
+                                    @Html.HiddenFor(m => m.CheckListVerified_By, new { @disabled = "disabled" })
+                                    @Html.HiddenFor(m => m.CheckListVerifierName, new { @disabled = "disabled" })
+                                    <label>Verified by</label>
+                                    <h4 id="Verified_ByName">@Html.DisplayFor(m => m.CheckListVerifierName)</h4>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    @Html.Partial("_DocumentDetailView", Model.DocumentDetail)
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12 text-center pd-tb-30">
+        @if (Model.PFInit != true)
+        {
+            <input type="button" onclick="window.location.href='@Url.Action("DistributionList", "CoreAccounts")';" class="btn btn-default" value="Close" id="btnclose" />
+        }
+        else
+        {
+            <input type="button" onclick="window.location.href='@Url.Action("Dashboard", "Home")';" class="btn btn-default" value="Close" id="btnclose" />
+        }
+    </div>
+</div>
+
+
+
+
+
+
+<div id="ValidationModal" class="modal fade modal-warning" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-warning"></i>
+                <h3 class="modal-title">Warning</h3>
+            </div>
+            <div class="modal-body">
+
+                <p id="MsgValidation"></p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+@Html.AntiForgeryToken()
+<div id="popup"></div>
+<input type="hidden" id="currentRefId" value="@Model.DistributionId" />
+<input type="hidden" id="processGuideLineId" value="@ViewBag.processGuideLineId" />
+@Html.Partial("_ProcessStatus")
+<script>
+    @*var dis = '@ViewBag.disabled';
+    if (dis != "") {
+        $('.form-control').prop('disabled', true);
+        $('.ion-trash-a').removeClass();
+        $('#btnAddPO').hide();
+        $('#btnAddPayment').hide();
+        $("input[type='radio']").prop('disabled', true);
+        $('#selectCommitment').hide();
+        $('#btnReset,#btnbookcommitment,#btnbookcommitment,#btnCollapseSrchCommit').hide();
+        $('input[type="checkbox"]').prop('disabled', true);
+        $('input[type="file"],#btnAddAttachment').hide();
+        $('#ProcessStatusContainer .form-control').prop('disabled', false);
+        $('#btnAddExpense').hide();
+        $('.btn-circle').removeClass();
+        $('.ion-close-round').removeClass();
+    }*@
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    // $('#TravelToDate, #TravelFromDate').datepicker({ minDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
+    $('input[name$=".InvDate"]').datepicker({maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
+    $('#SourceEmailDate, #srchFromDate, #srchToDate,#InvoiceDate,#PODate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
+    $('#srchToDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true }).datepicker("setDate", "0");
+    var defaultFromDate = moment(new Date()).add(-10, 'days').toDate();
+    $('#srchFromDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true }).datepicker("setDate", defaultFromDate);
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+            CalculateDeductionTotal();
+            GetTransactionDetails();
+        }
+        $('.selectpicker').selectpicker({
+            liveSearch: true
+        });
+        var selSource = $('#Source').val();
+        $("#divRefNum, #divRefEmailDate").addClass('dis-none');
+        if (selSource == '1') {
+            $("#divRefNum").removeClass('dis-none');
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACWorkflowRefNumber", "Proposal")");
+        } else if (selSource == '3') {
+            $("#divRefNum").removeClass('dis-none');
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACTapalRefNumber", "Proposal")");
+        }
+        else if (selSource == '2') {
+            $('#divRefEmailDate').removeClass('dis-none');
+        } else {
+            $("#divRefNum").removeClass('dis-none');
+        }
+        $('select[name="DistributionType"]').val(@Model.DistributionType);
+        @*$('input[name="PjctAvailableBalanceAmount"]').val(@Model.PjctAvailableBalanceAmount);*@
+        var distributetype = $('select[name="DistributionType"]').val();
+        if(distributetype != '')
+        {
+            if(distributetype == 1)
+            {
+                $('#txtDistributionAmount').removeAttr('readonly');
+            }
+            if(distributetype == 2)
+            {
+                $('#txtDistributionAmount').attr('readonly', 'readonly');
+            }
+        }
+        $("input[name$='.PCFautoComplete']").each(function () {
+            pcfPIChange($(this),'U');
+        });
+       // var distributionDetails = @Html.Raw(Json.Encode(Model.DistributionDetails));
+        //$.each(distributionDetails, function (i, result) {
+        //    if (i == 0) {
+        //        var trEle = $('#tbodyPO tr:first');
+        //        $('#tbodyPO tr').not(':first').remove();
+        //        $(trEle).find("input[name='DistributionDetails.Index']").val(i);
+        //        //trEle.find("input[name='PaymentDetails.Index']");
+        //        trEle.find('select[name$=".Category"]').val(result.Category);
+        //        //  paymentCategoryChange(trEle);
+        //        ////  trEle.find('select[name$=".Department"]').val(result.Department);
+        //        trEle.find('input[name$=".autoComplete"]').val(result.Name);
+        //        trEle.find('input[name$=".Name"]').val(result.Name);
+        //        trEle.find('input[name$=".UserId"]').val(result.UserId);
+
+        //        if(result.Category == 6)
+        //        {
+        //            trEle.find('input[name$=".FacultyDesignation"]').removeAttr('readonly');
+        //            trEle.find('input[name$=".FacultyDepartment"]').removeAttr('readonly');
+        //        }
+        //        else if(result.Category == 3 || result.Category == 7 || result.Category == 9 || result.Category == 10)
+        //        {
+        //            trEle.find('input[name$=".FacultyDesignation"]').attr('readonly', 'readonly');
+        //            trEle.find('input[name$=".FacultyDepartment"]').attr('readonly', 'readonly');
+        //        }
+
+        //        trEle.find('input[name$=".DistributionDetailId"]').val(result.DistributionDetailId);
+        //        trEle.find('input[name$=".PayBillNumber"]').val(result.PayBillNumber);
+        //        trEle.find('input[name$=".ProjectNumber"]').val(result.ProjectNumber);
+        //        trEle.find('select[name$=".PaymentMode"]').val(result.PaymentMode);
+        //        trEle.find('input[name$=".FacultyDesignation"]').val(result.FacultyDesignation);
+        //        trEle.find('input[name$=".FacultyDepartment"]').val(result.FacultyDepartment);
+        //          //if (result.PaymentMode == 1)
+        //          //  {
+        //          //      trEle.find('input[name$=".BankName"]').removeAttr('readonly');
+        //          //      trEle.find('input[name$=".BranchName"]').removeAttr('readonly');
+        //          //      trEle.find('input[name$=".AccountNumber"]').removeAttr('readonly');
+        //          //      trEle.find('input[name$=".IFSCCode"]').removeAttr('readonly');
+        //          //  }
+        //          //  if (result.PaymentMode == 2)
+        //          //  {
+        //          //      trEle.find('input[name$=".BankName"]').attr('readonly', 'readonly');
+        //          //      trEle.find('input[name$=".BranchName"]').attr('readonly', 'readonly');
+        //          //      trEle.find('input[name$=".AccountNumber"]').attr('readonly', 'readonly');
+        //          //      trEle.find('input[name$=".IFSCCode"]').attr('readonly', 'readonly');
+        //          //  }
+        //          //  if (result.PaymentMode == 3)
+        //          //  {
+        //          //      trEle.find('input[name$=".BankName"]').attr('readonly', 'readonly');
+        //          //      trEle.find('input[name$=".BranchName"]').attr('readonly', 'readonly');
+        //          //      trEle.find('input[name$=".AccountNumber"]').attr('readonly', 'readonly');
+        //          //      trEle.find('input[name$=".IFSCCode"]').attr('readonly', 'readonly');
+        //          //  }
+        //          //  if (result.PaymentMode == 0)
+        //          //  {
+        //          //      trEle.find('input[name$=".BankName"]').attr('readonly', 'readonly');
+        //          //      trEle.find('input[name$=".BranchName"]').attr('readonly', 'readonly');
+        //          //      trEle.find('input[name$=".AccountNumber"]').attr('readonly', 'readonly');
+        //          //      trEle.find('input[name$=".IFSCCode"]').attr('readonly', 'readonly');
+        //          //  }
+
+        //        trEle.find('input[name$=".Amount"]').val(result.Amount);
+        //        //trEle.find('input[name$=".TDSValue"]').val(result.TDSValue);
+        //        //trEle.find('input[name$=".NetAmount"]').val(result.NetAmount);
+        //       // trEle.find('input[name$=".BankName"]').val(result.BankName);
+        //       // trEle.find('input[name$=".BranchName"]').val(result.BranchName);
+        //       // trEle.find('input[name$=".AccountNumber"]').val(result.AccountNumber);
+        //      //  trEle.find('input[name$=".IFSCCode"]').val(result.IFSCCode);
+
+        //    } else {
+        //        var trEleNew = $('#tbodyPO tr:first').clone();
+        //        $(trEleNew).find('a.dis-none').removeClass('dis-none');
+        //        $(trEleNew).find("input[name='DistributionDetails.Index']").val(i);
+        //        $(trEleNew).find("input, select").each(function () {
+        //            $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+        //            $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+        //            //$(this).attr("code", $(this).attr("id").replace(/\d+/, i));
+        //        });
+        //        $(trEleNew).find("span[data-valmsg-for]").each(function () {
+        //            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+        //        });
+        //        //  trEle.find("input[name='PaymentDetails.Index']");
+        //        //  DepartmentChange(trEle);
+        //        //  trEle.find('select[name$=".Department"]').val(result.Department);
+        //        trEleNew.find('input[name$=".autoComplete"]').val(result.Name);
+        //        trEleNew.find('input[name$=".Name"]').val(result.Name);
+        //        trEleNew.find('input[name$=".UserId"]').val(result.UserId);
+        //          //if(result.Name != "")
+        //          //{
+        //          //    trEleNew.find('input[name$=".UserId"]').val("0");
+        //          //}
+        //        trEleNew.find('select[name$=".Category"]').val(result.Category);
+        //        trEleNew.find('input[name$=".DistributionDetailId"]').val(result.DistributionDetailId);
+        //        trEleNew.find('input[name$=".PayBillNumber"]').val(result.PayBillNumber);
+        //        trEleNew.find('input[name$=".ProjectNumber"]').val(result.ProjectNumber);
+        //        trEleNew.find('select[name$=".PaymentMode"]').val(result.PaymentMode);
+        //        trEleNew.find('input[name$=".FacultyDepartment"]').val(result.FacultyDepartment);
+        //        trEleNew.find('input[name$=".FacultyDesignation"]').val(result.FacultyDesignation);
+        //        if(result.Category == 6)
+        //        {
+        //            trEleNew.find('input[name$=".FacultyDesignation"]').removeAttr('readonly');
+        //            trEleNew.find('input[name$=".FacultyDepartment"]').removeAttr('readonly');
+        //        }
+        //        else if(result.Category == 3 || result.Category == 7 || result.Category == 9 || result.Category == 10)
+        //        {
+        //            trEleNew.find('input[name$=".FacultyDesignation"]').attr('readonly', 'readonly');
+        //            trEleNew.find('input[name$=".FacultyDepartment"]').attr('readonly', 'readonly');
+        //        }
+        //        //if (result.PaymentMode == 1)
+        //        //    {
+        //        //        trEleNew.find('input[name$=".BankName"]').removeAttr('readonly');
+        //        //        trEleNew.find('input[name$=".BranchName"]').removeAttr('readonly');
+        //        //        trEleNew.find('input[name$=".AccountNumber"]').removeAttr('readonly');
+        //        //        trEleNew.find('input[name$=".IFSCCode"]').removeAttr('readonly');
+        //        //    }
+        //        //if (result.PaymentMode == 2)
+        //        //    {
+        //        //        trEleNew.find('input[name$=".BankName"]').attr('readonly', 'readonly');
+        //        //        trEleNew.find('input[name$=".BranchName"]').attr('readonly', 'readonly');
+        //        //        trEleNew.find('input[name$=".AccountNumber"]').attr('readonly', 'readonly');
+        //        //        trEleNew.find('input[name$=".IFSCCode"]').attr('readonly', 'readonly');
+        //        //    }
+        //        //if (result.PaymentMode == 3)
+        //        //    {
+        //        //        trEleNew.find('input[name$=".BankName"]').attr('readonly', 'readonly');
+        //        //        trEleNew.find('input[name$=".BranchName"]').attr('readonly', 'readonly');
+        //        //        trEleNew.find('input[name$=".AccountNumber"]').attr('readonly', 'readonly');
+        //        //        trEleNew.find('input[name$=".IFSCCode"]').attr('readonly', 'readonly');
+        //        //    }
+        //        //if (result.PaymentMode == 0)
+        //        //    {
+        //        //        trEleNew.find('input[name$=".BankName"]').attr('readonly', 'readonly');
+        //        //        trEleNew.find('input[name$=".BranchName"]').attr('readonly', 'readonly');
+        //        //        trEleNew.find('input[name$=".AccountNumber"]').attr('readonly', 'readonly');
+        //        //        trEleNew.find('input[name$=".IFSCCode"]').attr('readonly', 'readonly');
+        //        //    }
+
+        //        trEleNew.find('input[name$=".Amount"]').val(result.Amount);
+        //        //trEleNew.find('input[name$=".TDSValue"]').val(result.TDSValue);
+        //        //trEleNew.find('input[name$=".NetAmount"]').val(result.NetAmount);
+        //        //trEleNew.find('input[name$=".BankName"]').val(result.BankName);
+        //        //trEleNew.find('input[name$=".BranchName"]').val(result.BranchName);
+        //        //trEleNew.find('input[name$=".AccountNumber"]').val(result.AccountNumber);
+        //        //trEleNew.find('input[name$=".IFSCCode"]').val(result.IFSCCode);
+
+        //        $(trEleNew).find('.hasDatepicker').attr("id", "").removeClass('hasDatepicker').removeData('datepicker').unbind().datepicker({
+        //            dateFormat: 'dd-MM-yy', changeYear: true
+        //        })
+
+        //        $('#tbodyPO').append(trEleNew);
+        //    }
+        //});
+
+        var pcfDetails = @Html.Raw(Json.Encode(Model.PCFDetails));
+        //$.each(pcfDetails, function (i, result) {
+        //    if (i == 0) {
+        //        var trEle = $('#tbodyPCF tr:first');
+        //        $('#tbodyPCF tr').not(':first').remove();
+        //        $(trEle).find("input[name='PCFDetails.Index']").val(i);
+        //        //trEle.find("input[name='PaymentDetails.Index']");
+        //        //trEle.find('select[name$=".Category"]').val(result.Category);
+        //        //  paymentCategoryChange(trEle);
+        //        ////  trEle.find('select[name$=".Department"]').val(result.Department);
+        //        trEle.find('input[name$=".PCFautoComplete"]').val(result.PCFName);
+        //        trEle.find('input[name$=".PCFName"]').val(result.PCFName);
+        //        trEle.find('input[name$=".PCFPIUserId"]').val(result.PCFPIUserId);
+
+
+        //        trEle.find('input[name$=".PCFDetailId"]').val(result.PCFDetailId);
+        //        trEle.find('input[name$=".DepartmentofStaff"]').val(result.DepartmentofStaff);
+        //        trEle.find('input[name$=".DesignationofStaff"]').val(result.DesignationofStaff);
+        //        trEle.find('input[name$=".EmployeePCFId"]').val(result.EmployeePCFId);
+        //        trEle.find('input[name$=".PCFAmount"]').val(result.PCFAmount);
+
+        //    } else {
+        //        var trEleNew = $('#tbodyPCF tr:first').clone();
+        //        $(trEleNew).find('a.dis-none').removeClass('dis-none');
+        //        //$(trEleNew).find("input[name='PCFDetails.Index']").val(i);
+        //        $(trEleNew).find("input, select").each(function () {
+        //            $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+        //            $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+        //            //$(this).attr("code", $(this).attr("id").replace(/\d+/, i));
+        //        });
+        //        $(trEleNew).find("span[data-valmsg-for]").each(function () {
+        //            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+        //        });
+        //        //  trEle.find("input[name='PaymentDetails.Index']");
+        //        pcfPIChange(trEleNew);
+        //        //  trEle.find('select[name$=".Department"]').val(result.Department);
+        //        trEleNew.find('input[name$=".PCFautoComplete"]').val(result.PCFName);
+        //        trEleNew.find('input[name$=".PCFName"]').val(result.PCFName);
+        //        trEleNew.find('input[name$=".PCFPIUserId"]').val(result.PCFPIUserId);
+
+
+        //        trEleNew.find('input[name$=".PCFDetailId"]').val(result.PCFDetailId);
+        //        trEleNew.find('input[name$=".DepartmentofStaff"]').val(result.DepartmentofStaff);
+        //        trEleNew.find('input[name$=".DesignationofStaff"]').val(result.DesignationofStaff);
+        //        trEleNew.find('input[name$=".EmployeePCFId"]').val(result.EmployeePCFId);
+        //        trEleNew.find('input[name$=".PCFAmount"]').val(result.PCFAmount);
+
+
+        //        $(trEleNew).find('.hasDatepicker').attr("id", "").removeClass('hasDatepicker').removeData('datepicker').unbind().datepicker({
+        //            dateFormat: 'dd-MM-yy', changeYear: true
+        //        })
+
+        //        $('#tbodyPCF').append(trEleNew);
+        //    }
+        //});
+        $('#tbodyPO').find('select[name$=".Category"]').each(function () {
+            categoryChange($(this),'U');
+        });
+        // calcDateDiff();
+        var piname = $('input[name="PIName"]').val();
+        $('#lblVendorName').html(piname);
+        // $('#lblVendorName').html($('#txtPI option:selected').text());
+        //var stipendAmt = parseFloat($('#txtTotalStipendValue').val());
+        //$("#CreditorAmount").val(stipendAmt);
+        $("input[name='ProjectNumber']").each(function () {
+            projectChange($(this),'U');
+        });
+        CalculatePaymentValue();
+        CalculateDeductionTotal();
+        calculateamount();
+        calculatePCFamount();
+
+        $('#NeedUpdateTransDetail').val('false');
+    });
+
+    //$('#txtDistributionDate').datepicker( {
+    //    format: "mm-yyyy",
+    //    startView: "months",
+    //    minViewMode: "months"
+    //});
+
+    $('#txtDistributionDate').datepicker({ dateFormat: 'mm/yy'});
+
+    //$('#fromdate, #todate').datepicker({ dateFormat: 'dd-MM-yy', changeYear: true, yearRange: '-10:+30' });
+    $('#Source').change(function () {
+        var selSource = $(this).val();
+        //var select = $("#SourceReferenceNumber");
+        //select.empty();
+        $("#SourceReferenceNumber,#ReferenceNumber").val('');
+        $("#divRefNum, #divRefEmailDate").addClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('False');
+        if (selSource == '1') {
+            @*$.getJSON("@Url.Action("GetWorkflowRefNumber","Proposal")",
+             function (locationdata) {
+                 fillMasterDropDown(select,locationdata);
+             });*@
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACWorkflowRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        } else if (selSource == '3') {
+            @*$.getJSON("@Url.Action("GetTapalRefNumber","Proposal")",
+            function (locationdata) {
+                fillMasterDropDown(select,locationdata);
+            });*@
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACTapalRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        }
+        else if (selSource == '2') {
+            $('#divRefEmailDate').removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('False');
+        } else {
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        }
+    });
+
+    function formSave(){
+        var isValid = $('#formSI').valid();
+        if (!isValid)
+            return false;
+        var doctypevalues = [];
+        $('select[name$=".DocumentType"]').each(function (idx, val) { doctypevalues.push($(val).val()); });
+        doctypevalues.sort();
+        // duplicate check
+        for (var k = 1; k < doctypevalues.length; ++k) {
+            if (doctypevalues[k] == doctypevalues[k - 1]) {
+                $('#alert').html("Selected attachment type already exist. Please select a different attachment type.");
+                $('#Validation').modal('toggle');
+                return false;
+            }
+            isValid = true;
+        }
+        var distributiontype = $('#txtdistributiontype').val();
+        if(distributiontype == 2)
+        {
+            calcDateDiff();
+        }
+
+        if (isValid)
+            $('#formSI').submit();
+    }
+    function aplyAutoComplete(ele, url, setId) {
+        $(ele).autocomplete({
+            select: function (event, ui) {
+                event.preventDefault();
+                $(ele).val(ui.item.label);
+                //$(ele).closest('tr').find(".lblSelId").text(ui.item.label);
+                if (setId == true) {
+                    $(ele).closest('tr').find("input[name$='.UserId']").val(ui.item.value);
+                    $(ele).closest('tr').find("input[name$='.Name']").val(ui.item.label);
+                } else {
+                    $(ele).closest('tr').find("input[name$='.UserId']").val('0');
+                    $(ele).closest('tr').find("input[name$='.Name']").val(ui.item.label);
+                }
+            },
+            focus: function (event, ui) {
+                event.preventDefault();
+                $(ele).val(ui.item.label);
+            },
+            source: function (request, response) {
+                $.getJSON(url, { term: request.term },
+                 function (locationdata) {
+                     response(locationdata);
+                 });
+            },
+            minLength: 3
+        });
+    }
+    function categoryChange(el, mode) {
+        var selCat = $(el).val();
+        //$('input[name$=".Category"]');
+        if (mode != 'U') {
+            $(el).closest('tr').find("input[name='autoComplete'],input[name='UserId'],input[name='Name']").val('');
+        }
+        if (selCat == 3) {
+            $(el).closest('tr').find("td.tdDDLUser").removeClass('dis-none');
+            $(el).closest('tr').find("td.tdTxtName").addClass('dis-none');
+            $(el).closest('tr').find("input[name$='.UserId']").addClass('required');
+            var ele = $(el).closest('tr').find("input[name$='.autoComplete']");
+            $(ele).addClass('required');
+            $(el).closest('tr').find("input[name$='.Name']").removeClass('required');
+            aplyAutoComplete(ele, "../CoreAccounts/LoadProfessorList", true)
+        } else if (selCat == 7) {
+            $(el).closest('tr').find("td.tdDDLUser").removeClass('dis-none');
+            $(el).closest('tr').find("td.tdTxtName").addClass('dis-none');
+            $(el).closest('tr').find("input[name$='.UserId']").addClass('required');
+            var ele = $(el).closest('tr').find("input[name$='.autoComplete']");
+            $(ele).addClass('required');
+            $(el).closest('tr').find("input[name$='.Name']").removeClass('required');
+            aplyAutoComplete(ele, "../CoreAccounts/LoadStaffList", true);
+        }
+        else if (selCat == 9) {
+            $(el).closest('tr').find("td.tdDDLUser").removeClass('dis-none');
+            $(el).closest('tr').find("td.tdTxtName").addClass('dis-none');
+            $(el).closest('tr').find("input[name$='.UserId']").addClass('required');
+            var ele = $(el).closest('tr').find("input[name$='.autoComplete']");
+            $(ele).addClass('required');
+            $(el).closest('tr').find("input[name$='.Name']").removeClass('required');
+            aplyAutoComplete(ele, "../CoreAccounts/LoadProjectStaffList", true);
+        }
+        else if (selCat == 10) {
+            $(el).closest('tr').find("td.tdDDLUser").removeClass('dis-none');
+            $(el).closest('tr').find("td.tdTxtName").addClass('dis-none');
+            $(el).closest('tr').find("input[name$='.UserId']").addClass('required');
+            var ele = $(el).closest('tr').find("input[name$='.autoComplete']");
+            $(ele).addClass('required');
+            $(el).closest('tr').find("input[name$='.Name']").removeClass('required');
+            aplyAutoComplete(ele, "../CoreAccounts/LoadAdhocStaffList", true);
+        }
+        else if (selCat == 6) {
+            $(el).closest('tr').find("input[name$='.UserId']").removeClass('required');
+            // var ele = $(el).closest('tr').find("input[name$='.autoComplete']").val();
+            $(el).removeClass('required');
+            $(el).closest('tr').find("input[name$='.Name']").removeClass('required');
+        }
+    }
+
+
+    function aplyProjectAutoComplete(ele, url, setId) {
+        $(ele).autocomplete({
+            select: function (event, ui) {
+                event.preventDefault();
+                $(ele).val(ui.item.label);
+                //$(ele).closest('tr').find(".lblSelId").text(ui.item.label);
+                if (setId == true) {
+                    $("input[name='ProjectId']").val(ui.item.value);
+                    $("input[name='ProjectNumber']").val(ui.item.label);
+                } else {
+                    $(ele).closest('tr').find("input[name='ProjectId']").val('');
+                    $(ele).closest('tr').find("input[name='ProjectNumber']").val('');
+                }
+            },
+            focus: function (event, ui) {
+                event.preventDefault();
+                $(ele).val(ui.item.label);
+            },
+            source: function (request, response) {
+                $.getJSON(url, { term: request.term },
+                 function (locationdata) {
+                     response(locationdata);
+                 });
+            },
+            minLength: 3
+        });
+    }
+    function projectChange(el, mode) {
+        var selProj = $("input[name='ProjectNumber']");
+        if (mode != 'U') {
+            $("input[name='ProjectId'], input[name='ProjectNumber']").val('');
+            //$(el).closest('tr').find("input[name='autoComplete'],input[name='UserId'],input[name='Name']").val('');
+        }
+        $("input[name='ProjectId']").addClass('required');
+        $("input[name='ProjectNumber']").addClass('required');
+        aplyProjectAutoComplete(selProj, "../CoreAccounts/LoadDistributeProjectList", true)
+
+    }
+
+    function applyPCFAutoComplete(ele, url, setId) {
+        $(ele).autocomplete({
+            select: function (event, ui) {
+                event.preventDefault();
+                $(ele).val(ui.item.label);
+                //$(ele).closest('tr').find(".lblSelId").text(ui.item.label);
+                if (setId == true) {
+                    $(ele).closest('tr').find("input[name$='.PCFPIUserId']").val(ui.item.value);
+                    $(ele).closest('tr').find("input[name$='.PCFName']").val(ui.item.label);
+                } else {
+                    $(ele).closest('tr').find("input[name$='.PCFPIUserId']").val('');
+                    $(ele).closest('tr').find("input[name$='.PCFName']").val('');
+                }
+            },
+            focus: function (event, ui) {
+                event.preventDefault();
+                $(ele).val(ui.item.label);
+            },
+            source: function (request, response) {
+                $.getJSON(url, { term: request.term },
+                 function (locationdata) {
+                     response(locationdata);
+                 });
+            },
+            minLength: 3
+        });
+    }
+    function pcfPIChange(el, mode) {
+        var selPI = $(el).val();
+
+        //$('input[name$=".Category"]');
+        if (mode != 'U') {
+            $(el).closest('tr').find("input[name$='.autoComplete'],input[name$='.UserId'],input[name$='.Name']").val('');
+        }
+
+            $(el).closest('tr').find("td.tdPCFUser").removeClass('dis-none');
+            $(el).closest('tr').find("td.tdTxtPCFName").addClass('dis-none');
+            //$(el).closest('tr').find("input[name$='.PCFPIUserId']").addClass('required');
+            var ele = $(el).closest('tr').find("input[name$='.PCFautoComplete']");
+            //$(ele).addClass('required');
+            $(el).closest('tr').find("input[name$='.PCFName']").removeClass('required');
+            applyPCFAutoComplete(ele, "../CoreAccounts/LoadProfessorList", true)
+
+    }
+    $(document).on('change', 'select[name$=".Category"]', function () {
+        var category = $(this).val();
+        categoryChange($(this));
+        if(category == 6)
+        {
+            $(this).closest('tr').find('input[name$=".FacultyDesignation"]').removeAttr('readonly');
+            $(this).closest('tr').find('input[name$=".FacultyDepartment"]').removeAttr('readonly');
+        }
+        else if(category == 3 || category == 7 || category == 9)
+        {
+            $(this).closest('tr').find('input[name$=".FacultyDesignation"]').attr('readonly', 'readonly');
+            $(this).closest('tr').find('input[name$=".FacultyDepartment"]').attr('readonly', 'readonly');
+        }
+        $(this).closest('tr').find('input[name$=".UserId"]').val('');
+        $(this).closest('tr').find('input[name$=".FacultyDesignation"]').val('');
+        $(this).closest('tr').find('input[name$=".Amount"]').val('');
+        $(this).closest('tr').find('input[name$=".autoComplete"]').val('');
+        $(this).closest('tr').find('input[name$=".FacultyDepartment"]').val('');
+    });
+
+    function parseDate(s) {
+        var months = {
+            january: 0, february: 1, march: 2, april: 3, may: 4, june: 5,
+            july: 6, august: 7, september: 8, october: 9, november: 10, december: 11
+        };
+        var p = s.split('-');
+        return new Date(p[2], months[p[1].toLowerCase()], p[0]);
+    }
+
+
+    $(document).on('change', 'input[name$=".Amount"]', function () {
+        calculateamount();
+    });
+
+
+    $(document).on('click', 'a.removeDetail', function () {
+        $(this).closest('tr').remove();
+        calculateamount();
+        calculatefacultyamount();
+        //calculatetdsamount();
+        //calculatenetamount();
+    });
+    $(document).on('click', 'a.removePCF', function () {
+        $(this).closest('tr').remove();
+        calculatePCFamount();
+    });
+
+    $('#txtdistributiontype').change(function () {
+        // projectChange($(this));
+        var availablebal = $("input[name='PjctAvailableBalanceAmount']").val();
+        var distributiontype = $(this).val();
+        if(distributiontype == 1)
+        {
+            $('#txtDistributionAmount').val('');
+            $('#txtDistributionAmount').removeAttr('readonly');
+        }
+        if(distributiontype == 2)
+        {
+            $('#txtDistributionAmount').val(availablebal);
+            $('#txtDistributionAmount').attr('readonly', 'readonly');
+            calcDateDiff();
+        }
+        calculateamount();
+    });
+
+    $("input[name='ProjectNumber']").change(function () {
+        //projectChange($(this, "U"));
+        var distributiontype = $('#txtdistributiontype').val();
+        if (distributiontype == 2)
+        {
+            calcDateDiff();
+        }
+        var projectnumber = $(this).val();
+        $.getJSON("@Url.Action("GetProjectIdbyNumber", "CoreAccounts")", { ProjectNumber: projectnumber },
+
+                    function (locationdata) {
+                        $.each(locationdata, function (index, itemData) {
+                            $("input[name='ProjectId']").val(itemData.id);
+                        });
+                    });
+
+
+        $('#NeedUpdateTransDetail').val('true');
+        var Projectid = $("input[name='ProjectId']").val();
+
+        $.getJSON("@Url.Action("GetProjectsummary", "CoreAccounts")", { ProjectId: Projectid },
+                    function (locationdata) {
+                        //$('#transtypecode').val(locationdata.name)
+                        var totalreceiptamt = parseFloat(locationdata.TotalReceipt) + parseFloat(locationdata.OverHeads) + parseFloat(locationdata.GST)
+                        //var spentamt = parseFloat(locationdata.AmountSpent)
+                        $('#piname').html(locationdata.PIname);
+                        $('#totamtreceivedinclOHandGST').html(totalreceiptamt);
+                        $('#totamtreceivedOH').html(locationdata.OverHeads);
+                        $('#totamtreceivedGST').html(locationdata.GST);
+                        $('#totamtreceivedBalance').html(locationdata.TotalReceipt);
+                        $('#totamtspent').html(locationdata.AmountSpent);
+                        $('#pjctopencommit').html(locationdata.PreviousCommitment);
+                        if (distributiontype == 2)
+                        {
+                            $('#txtDistributionAmount').val(locationdata.AvailableBalance);
+                            $('#txtDistributionAmount').attr('readonly', 'readonly');
+                        }
+                        if (distributiontype == 1)
+                        {
+                            $('#txtDistributionAmount').removeAttr('readonly');
+                        }
+                        if (distributiontype == 0)
+                        {
+                            $('#txtDistributionAmount').attr('readonly', 'readonly');
+                            $('#txtDistributionAmount').val(locationdata.AvailableBalance);
+                        }
+                        $("input[name='PjctAvailableBalanceAmount']").val(locationdata.AvailableBalance)
+                        $("input[name='PIName']").val(locationdata.PIname)
+                        $('#pjctbalnce').html(locationdata.AvailableBalance)
+                        //$('#txtPCFPIName').val(locationdata.PIname)
+                        if(locationdata.PIname == null)
+                        {
+                            projectChange($(this));
+                            calculateamount()
+                        }
+
+                        calculateamount();
+                    });
+    });
+
+    $(document).on('change', 'input[name$=".autoComplete"]', function () {
+        var ele = $(this);
+        var name = $(this).val();
+        var category = $(this).closest('tr').find('select[name$=".Category"]').val();
+        var useridele = $(this).closest('tr').find('input[name$=".UserId"]');
+        if (name == "")
+        {
+            id = "0";
+            $(this).closest('tr').find('input[name$=".UserId"]').val(id);
+        }
+        if (name != "" && !name.includes('-'))
+        {
+            id = "";
+            $(this).closest('tr').find('input[name$=".UserId"]').val(id);
+        }
+        var id = $(this).closest('tr').find('input[name$=".UserId"]').val();
+        if (id == "")
+        {
+            $(this).closest('tr').find('input[name$=".autoComplete"]').addClass('required');
+            $(this).closest('tr').find('input[name$=".UserId"]').addClass('required');
+        }
+        else{
+            $(this).closest('tr').find('input[name$=".autoComplete"]').removeClass('required');
+            $(this).closest('tr').find('input[name$=".UserId"]').removeClass('required');
+        }
+        if(category == 6)
+        {
+            $(this).closest('tr').find("input[name$='.Name']").val(name);
+            $(this).closest('tr').find("input[name$='.UserId']").val('0');
+        }
+        var id = $(this).closest('tr').find('input[name$=".UserId"]').val();
+
+        var categoryname = "";
+        if(category == 3)
+        {
+            categoryname = "Professor";
+        }
+        if(category == 7)
+        {
+            categoryname = "Staff";
+        }
+        if(category == 9)
+        {
+            categoryname = "Project Staff";
+        }
+        $.getJSON("@Url.Action("GetStaffDetailsbyId", "CoreAccounts")", { EmpId: id, Category: categoryname},
+
+                  function (locationdata) {
+                      if(locationdata.length > 0)
+                      {
+                          $.each(locationdata, function (index, itemData) {
+                              if(itemData.FacultyDepartment != "")
+                              {
+                                  ele.closest('tr').find('input[name$=".FacultyDepartment"]').val(itemData.FacultyDepartment);
+                              }else if (itemData.FacultyDepartment == "")
+                              {
+                                  ele.closest('tr').find('input[name$=".FacultyDepartment"]').val('');
+                              }
+                              if(itemData.FacultyDesignation != "")
+                              {
+                                  ele.closest('tr').find('input[name$=".FacultyDesignation"]').val(itemData.FacultyDesignation);
+                              }
+                              else if(itemData.FacultyDesignation == "")
+                              {
+                                  ele.closest('tr').find('input[name$=".FacultyDesignation"]').val('');
+                              }
+
+                              //ele.closest('tr').find('input[name$=".FacultyDepartment"]').val(itemData.FacultyDepartment);
+                              //ele.closest('tr').find('input[name$=".FacultyDesignation"]').val(itemData.FacultyDesignation);
+                          });
+                      }
+                      else
+                      {
+                          ele.closest('tr').find('input[name$=".FacultyDepartment"]').val('');
+                          ele.closest('tr').find('input[name$=".FacultyDesignation"]').val('');
+                          ele.closest('tr').find('input[name$=".Amount"]').val('');
+                      }
+                  });
+        calculatefacultyamount();
+    });
+    $(document).on('change', 'input[name$=".PCFautoComplete"]', function () {
+        var ele = $(this);
+        var name = $(this).val();
+        var useridele = $(this).closest('tr').find('input[name$=".PCFPIUserId"]');
+        if (name == "")
+        {
+            id = "0";
+            $(this).closest('tr').find('input[name$=".PCFPIUserId"]').val(id);
+        }
+        if (name != "" && !name.includes('-'))
+        {
+            id = "";
+            $(this).closest('tr').find('input[name$=".PCFPIUserId"]').val(id);
+        }
+
+        var id = $(this).closest('tr').find('input[name$=".PCFPIUserId"]').val();
+            if (id == "")
+            {
+                $(this).closest('tr').find('input[name$=".PCFautoComplete"]').addClass('required');
+                $(this).closest('tr').find('input[name$=".PCFPIUserId"]').addClass('required');
+            }
+            else{
+                $(this).closest('tr').find('input[name$=".PCFautoComplete"]').removeClass('required');
+                $(this).closest('tr').find('input[name$=".PCFPIUserId"]').removeClass('required');
+            }
+
+        $.getJSON("@Url.Action("GetPIDetailsbyId", "CoreAccounts")", { UserId: id },
+
+                  function (locationdata) {
+                      if(locationdata.length > 0)
+                      {
+                          $.each(locationdata, function (index, itemData) {
+                              if(itemData.FacultyDepartment != "")
+                              {
+                                  ele.closest('tr').find('input[name$=".DepartmentofStaff"]').val(itemData.FacultyDepartment);
+                              }else if (itemData.FacultyDepartment == "")
+                              {
+                                  ele.closest('tr').find('input[name$=".DepartmentofStaff"]').val('');
+                              }
+                              if(itemData.FacultyDesignation != "")
+                              {
+                                  ele.closest('tr').find('input[name$=".DesignationofStaff"]').val(itemData.FacultyDesignation);
+                              }
+                              else if(itemData.FacultyDesignation == "")
+                              {
+                                  ele.closest('tr').find('input[name$=".DesignationofStaff"]').val('');
+                              }
+                              if(itemData.FacultyPCFId != "")
+                              {
+                                  ele.closest('tr').find('input[name$=".EmployeePCFId"]').val(itemData.FacultyPCFId);
+                              }
+                              else if(itemData.FacultyPCFId == "")
+                              {
+                                  ele.closest('tr').find('input[name$=".EmployeePCFId"]').val('');
+                              }
+                          });
+                      }
+                      else
+                      {
+                          ele.closest('tr').find('input[name$=".DepartmentofStaff"]').val('');
+                          ele.closest('tr').find('input[name$=".DesignationofStaff"]').val('');
+                          ele.closest('tr').find('input[name$=".EmployeePCFId"]').val('');
+                      }
+
+                  });
+    });
+    function calcDateDiff() {
+        var Projectid = $("input[name='ProjectId']").val();
+        $.getJSON("@Url.Action("GetProjectDuration", "CoreAccounts")", { ProjectId: Projectid },
+
+                  function (locationdata) {
+                      $.each(locationdata, function (index, itemData) {
+                          $("input[name='ProjectId']").val(itemData.ProjectId);
+                          var clsDate = itemData.ProjectCloseDate;
+                          var todayDate = itemData.TodayDate;
+                          if (clsDate != '' && todayDate != '') {
+                              var todayDate = moment(parseDate(todayDate));
+                              var clsDate = moment(parseDate(clsDate));
+
+                              var mins = clsDate.diff(todayDate, 'minutes');
+                              if (mins > 0) {
+                                  $('#MsgValidation').html("Final Distribution cannot be done before completion of the Project.");
+                                  $('#ValidationModal').modal('toggle');
+                                  $("#TentativeClosedate").val('');
+                                  return false;
+                              }
+                              //var result = '';
+                              //var years = closeDate.diff(todayDate, 'year');
+                              //todayDate.add(years, 'years');
+
+                              //var months = closeDate.diff(todayDate, 'months');
+                              //todayDate.add(months, 'months');
+
+                              //var days = closeDate.diff(todayDate, 'days');
+                              //if (years > 1) {
+                              //    result = years + ' years ';
+                              //} else if (years == 1) {
+                              //    result = years + ' year ';
+                              //}
+                              //if (months > 1) {
+                              //    result = result + months + ' months ';
+                              //} else if (months == 1) {
+                              //    result = result + months + ' month ';
+                              //}
+                              //if (days > 1) {
+                              //    result = result + days + ' days';
+                              //} else if (days == 1) {
+                              //    result = result + days + ' day';
+                              //}
+
+                              //$('#lblDuration').html(result);
+                          }
+                      });
+                  });
+
+    }
+
+    $('#txtDistributionAmount').change(function () {
+        var availablebalance = parseFloat($("input[name='PjctAvailableBalanceAmount']").val());
+        var distributiontype = $('#txtdistributiontype').val();
+        var distributionamount = parseFloat($(this).val());
+        if (distributionamount > availablebalance)
+        {
+            $('#MsgValidation').html("Distribution amount cannot be greater than available balance. Please change the value.");
+            $('#ValidationModal').modal('toggle');
+            return false;
+        }
+        if (distributiontype == 1 && distributionamount == availablebalance)
+        {
+            $('#MsgValidation').html("Distribution amount cannot be equal to available balance for Partial Distribution. Please change the value or Select Final Distribution.");
+            $('#ValidationModal').modal('toggle');
+            return false;
+        }
+        calculateamount()
+    });
+
+    $('#btnAddPayment').click(function () {
+        var cln = $('#tbodyPO tr:first').clone().find("select,input").val("").end();
+        // $(cln).find('.tdAdvAmt, .tdTaxAmt, .tdNetAmt, .tdTaxCode').text('');
+        $(cln).find('a.dis-none').removeClass('dis-none');
+        $(cln).find('input[name$=".BankName"]').attr('readonly', 'readonly');
+        $(cln).find('input[name$=".BranchName"]').attr('readonly', 'readonly');
+        $(cln).find('input[name$=".AccountNumber"]').attr('readonly', 'readonly');
+        $(cln).find('input[name$=".IFSCCode"]').attr('readonly', 'readonly');
+        var index = $('#tbodyPO tr:last').find("input[name='DistributionDetails.Index']").val();
+        index = parseInt(index) + 1;
+        $(cln).find("input[name='DistributionDetails.Index']").val(index);
+        $(cln).find("input, select").each(function () {
+            $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+            // $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+            // $(this).attr("code", $(this).attr("id").replace(/\d+/, index));
+        });
+        $(cln).find("span[data-valmsg-for]").each(function () {
+            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+        });
+        $(cln).find('.hasDatepicker').attr("id", "").removeClass('hasDatepicker').removeData('datepicker').unbind().datepicker({
+            maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true
+        })
+
+        $('#tbodyPO').append(cln);
+
+    });
+    $('#btnAddPCF').click(function () {
+        var cln = $('#tbodyPCF tr:first').clone().find("select,input").val("").end();
+        // $(cln).find('.tdAdvAmt, .tdTaxAmt, .tdNetAmt, .tdTaxCode').text('');
+        $(cln).find('a.dis-none').removeClass('dis-none');
+        var index = $('#tbodyPCF tr:last').find("input[name='PCFDetails.Index']").val();
+        index = parseInt(index) + 1;
+        $(cln).find("input[name='PCFDetails.Index']").val(index);
+        $(cln).find("input, select").each(function () {
+            $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+            // $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+            // $(this).attr("code", $(this).attr("id").replace(/\d+/, index));
+        });
+        $(cln).find("span[data-valmsg-for]").each(function () {
+            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+        });
+        $(cln).find('.hasDatepicker').attr("id", "").removeClass('hasDatepicker').removeData('datepicker').unbind().datepicker({
+            maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true
+        })
+        $('#tbodyPCF').append(cln);
+        var ix = $('#tbodyPCF tr:last').find("input[name='PCFDetails.Index']");
+        pcfPIChange(ix);
+
+    });
+    $('#tbodyPCF').find('input[name$=".autoComplete"]').each(function () {
+        pcfPIChange($(this),'U');
+    });
+    function calculateamount() {
+
+        var subtotal = 0;
+        var expensetotal = 0;
+        var amtavailforstaff = 0;
+        var amtavailfordistr = 0;
+        var EUCOamt = parseFloat($("#txtEUCOAmount").val() || 0);
+        var Storesamt = parseFloat($("#txtStoresAmount").val()|| 0);
+        var CentralFacilitiesamt = parseFloat($("#txtCentralFacilitiesAmount").val() || 0);
+        var Othersamt = parseFloat($("#txtOthersAmount").val() || 0);
+        var TransferedtoIITamt = parseFloat($("#txtTransferedToIITAmount").val() || 0);
+        var Distributionamt = parseFloat($("#txtDistributionAmount").val() || 0);
+        var instituteOH = parseFloat($("input[name='InstituteOverheadAmount']").val() || 0);
+        expensetotal = parseFloat(EUCOamt + Storesamt + CentralFacilitiesamt + Othersamt);
+        subtotal = expensetotal + TransferedtoIITamt;
+        if (!isNaN(expensetotal)) {
+           // $("#txtExpenditureAmount").val(expensetotal.toFixed(0));
+            $("#lblExpenditureAmount").text(expensetotal.toFixed(0));
+            // $("#CreditorAmount").val(netpayabletotal.toFixed(0));
+        }
+        if (!isNaN(subtotal)) {
+            //$("#txtSubTotalAmount").val(subtotal.toFixed(0));
+            $("#lblSubTotalAmount").text(subtotal.toFixed(0));
+        }
+
+
+        var totalinstOHamount = 0;
+        var totalinstOHpercent = 0;
+        var instohamt = 0;
+        var availableamount = 0;
+        var percentage = 0;
+
+        $('#OverheadsList tr').each(function (idx, val) {
+            percentage = parseFloat($(this).find('input[name$=".OverheadPercentage"]').val() || 0);
+            availableamount = Distributionamt - subtotal;
+            instohamt = parseFloat((availableamount * percentage) / 100) ;
+
+            if (!isNaN(instohamt)) {
+                totalinstOHamount += instohamt;
+                $(this).find('.tdOHAmount').html(instohamt.toFixed(0));
+                $(this).find('input[name$=".OverheadAmount"]').val(instohamt.toFixed(0));
+            }
+
+        });
+
+        $('input[name="InstituteOverheadAmount"]').val(totalinstOHamount.toFixed(0));
+        $("#instoh").html(totalinstOHamount.toFixed(0));
+        amtavailforstaff = (Distributionamt - subtotal) - totalinstOHamount;
+        if (!isNaN(amtavailforstaff)) {
+            $("input[name='AmountAvailableforDistribution']").val(amtavailforstaff.toFixed(0));
+            $("#amtavailforstaff").html(amtavailforstaff.toFixed(0))
+            $("#txtAmtAvailableforDistribution").val(amtavailforstaff.toFixed(0));
+        }
+        amtavailfordistr = (Distributionamt - subtotal);
+        $("#amtavailfordistri").html(amtavailfordistr.toFixed(0))
+    }
+
+    function calculatefacultyamount() {
+        var totalfacultyamt = 0;
+        var totalNetamt = 0;
+        $('#tbodyPO tr').each(function (idx, val) {
+            var amount = parseFloat($(this).closest('tr').find('input[name$=".Amount"]').val() || 0);
+            var tdsvalue = parseFloat($(this).closest('tr').find('input[name$=".TDSValue"]').val() || 0);
+            var netamt = amount - tdsvalue;
+            $(this).closest('tr').find('input[name$=".NetAmount"]').val(netamt)
+            if (!isNaN(amount)) {
+                totalfacultyamt += amount;
+            }
+            if (!isNaN(netamt)) {
+                totalNetamt += netamt;
+            }
+        });
+        $("#tatdistrubution").text(totalfacultyamt.toFixed(0));
+        $("#txtTotalAmount").val(totalfacultyamt.toFixed(0));
+        $("#txtStaffNetAmount").val(totalNetamt.toFixed(0));
+        $("#txtTotalIndividualShare").val(totalfacultyamt.toFixed(0));
+        var availablebalance = parseFloat($("input[name='PjctAvailableBalanceAmount']").val());
+        var distributionamount = parseFloat($('#txtDistributionAmount').val());
+        if (distributionamount > availablebalance)
+        {
+            $('#MsgValidation').html("Distribution amount cannot be greater than available balance. Please change the value.");
+            $('#ValidationModal').modal('toggle');
+            return false;
+        }
+    }
+    function calculatePCFamount() {
+
+        var totalPCFamt = 0;
+
+        $('#tbodyPCF tr').each(function (idx, val) {
+            var amount = parseFloat($(this).closest('tr').find('input[name$=".PCFAmount"]').val() || 0);
+            if (!isNaN(amount)) {
+                totalPCFamt += amount;
+            }
+
+        });
+        $("#lblTotalPCFShare").text(totalPCFamt.toFixed(0));
+        $("#txtTotalPCFShare").val(totalPCFamt.toFixed(0));
+        $("#txtTotalPCF").val(totalPCFamt.toFixed(0));
+    }
+    //function calculatetdsamount() {
+    //    var totalTDSamt = 0;
+    //    var totalNetamt = 0;
+    //    $('#tbodyPO tr').each(function (idx, val) {
+
+    //        var tdsvalue = parseFloat($(this).closest('tr').find('input[name$=".TDSValue"]').val()|| 0);
+    //        var amount = parseFloat($(this).closest('tr').find('input[name$=".Amount"]').val()|| 0);
+    //        var netamt = amount - tdsvalue;
+    //        $(this).closest('tr').find('input[name$=".NetAmount"]').val(netamt)
+    //        if (!isNaN(tdsvalue)) {
+    //            totalTDSamt += tdsvalue;
+    //        }
+    //        if (!isNaN(netamt)) {
+    //            totalNetamt += netamt;
+    //        }
+    //    });
+    //    $("#txtTDSAmount").val(totalTDSamt.toFixed(0));
+    //    $("#txtStaffNetAmount").val(totalNetamt.toFixed(0));
+    //}
+    //function calculatenetamount() {
+
+    //    var totalNetamt = 0;
+    //    var totalfacultyamt = 0;
+    //    $('#tbodyPO tr').each(function (idx, val) {
+
+    //        var netamount = parseFloat($(this).closest('tr').find('input[name$=".NetAmount"]').val());
+
+    //        if (!isNaN(netamount)) {
+    //            totalNetamt += netamount;
+    //        }
+    //    });
+
+    //    $("#txtStaffNetAmount").val(totalNetamt.toFixed(0));
+    //}
+
+    //function calculateInstituteOverheadamount() {
+    //    var totalinstOHamount = 0;
+    //    var totalinstOHpercent = 0;
+    //    var instohamt = 0;
+    //    var distributionamount = 0;
+    //    var availableamount = 0;
+    //    var percentage = 0;
+    //    $('#OverheadsList tr').each(function (idx, val) {
+    //        percentage = parseFloat($(this).find('input[name$=".OverheadPercentage"]').val() || 0);
+    //        distributionamount = parseFloat($("#txtDistributionAmount").val() || 0);
+    //        subtotalamount = parseFloat($("#txtSubTotalAmount").val() || 0);
+    //        availableamount = distributionamount - subtotalamount;
+    //        instohamt = parseFloat((availableamount * percentage) / 100) ;
+
+    //        if (!isNaN(instohamt)) {
+    //            totalinstOHamount += instohamt;
+    //            $(this).find('.tdOHAmount').html(instohamt.toFixed(0));
+    //            $(this).find('input[name$=".OverheadAmount"]').val(instohamt.toFixed(0));
+    //        }
+
+    //    });
+
+    //    $('input[name="InstituteOverheadAmount"]').val(totalinstOHamount.toFixed(0));
+    //    $("#instoh").html(totalinstOHamount.toFixed(0));
+
+    //}
+    //$(document).on('change', 'select[name$=".PaymentMode"]', function () {
+    //    var mode = $(this).val();
+    //    if (mode == 1)
+    //    {
+    //        $(this).closest('tr').find('input[name$=".BankName"]').removeAttr('readonly');
+    //        $(this).closest('tr').find('input[name$=".BranchName"]').removeAttr('readonly');
+    //        $(this).closest('tr').find('input[name$=".AccountNumber"]').removeAttr('readonly');
+    //        $(this).closest('tr').find('input[name$=".IFSCCode"]').removeAttr('readonly');
+    //    }
+    //    if (mode == 2)
+    //    {
+    //        $(this).closest('tr').find('input[name$=".BankName"]').attr('readonly', 'readonly');
+    //        $(this).closest('tr').find('input[name$=".BranchName"]').attr('readonly', 'readonly');
+    //        $(this).closest('tr').find('input[name$=".AccountNumber"]').attr('readonly', 'readonly');
+    //        $(this).closest('tr').find('input[name$=".IFSCCode"]').attr('readonly', 'readonly');
+    //    }
+    //    if (mode == 3)
+    //    {
+    //        $(this).closest('tr').find('input[name$=".BankName"]').attr('readonly', 'readonly');
+    //        $(this).closest('tr').find('input[name$=".BranchName"]').attr('readonly', 'readonly');
+    //        $(this).closest('tr').find('input[name$=".AccountNumber"]').attr('readonly', 'readonly');
+    //        $(this).closest('tr').find('input[name$=".IFSCCode"]').attr('readonly', 'readonly');
+    //    }
+    //    if (mode == 0)
+    //    {
+    //        $(this).closest('tr').find('input[name$=".BankName"]').attr('readonly', 'readonly');
+    //        $(this).closest('tr').find('input[name$=".BranchName"]').attr('readonly', 'readonly');
+    //        $(this).closest('tr').find('input[name$=".AccountNumber"]').attr('readonly', 'readonly');
+    //        $(this).closest('tr').find('input[name$=".IFSCCode"]').attr('readonly', 'readonly');
+    //    }
+    //});
+
+    function AddNewExpense(){
+        //var stateCode = $('#lblStateCode').html();
+        //var BillType = $('#BillType').val();
+        $.ajax({
+            type: "GET",
+            url: "@Url.Action("GetAddNewExpenseDetails", "CoreAccounts")",
+            data: { "typeCode": "DIS","tSubCode" : "1"},
+            traditional: true,
+            dataType: "json",
+            success: function (result) {
+                $.each(result.ExpenseDetail, function (i, item) {
+                    var cln = $('#tbodyExpenseList tr:first').clone().find("select,input").val("").end();
+                    $(cln).find('a.dis-none').removeClass('dis-none');
+                    var index = $('#tbodyExpenseList tr:last').find("input[name='ExpenseDetail.Index']").val();
+                    index = parseInt(index) + 1;
+                    $(cln).find("input[name='ExpenseDetail.Index']").val(index);
+                    $(cln).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                    $(cln).find('#lblTransType').text(item.TransactionType);
+                    $(cln).find('input[name$=".IsJV"]').val(item.IsJV);
+                    $(cln).find("input, select").each(function () {
+                        $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+                        $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+                    });
+                    $(cln).find("span[data-valmsg-for]").each(function () {
+                        $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+                    });
+
+                    var selectGroup = $(cln).find("select[name$='.AccountGroupId']");
+                    selectGroup.empty();
+                    $.each(item.AccountGroupList, function (index, itemData) {
+                        selectGroup.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+
+                    var selectHead = $(cln).find("select[name$='.AccountHeadId']");
+                    selectHead.empty();
+                    $.each(item.AccountHeadList, function (index, itemData) {
+                        selectHead.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+                    $('#tbodyExpenseList').append(cln);
+                });
+            },
+            error: function (err) {
+                console.log("error : " + err);
+            }
+        });
+    }
+    function GetTransactionDetails() {
+        var interstate_f = false;
+        //var typecode = $('#transtypecode').val();
+        EmptyExpenseDeductionDetails();
+        $.ajax({
+            type: "GET",
+            url: "@Url.Action("GetTransactionDetails", "CoreAccounts")",
+            data: { "typeCode": "DIS", "tSubCode" : "1", },
+            traditional: true,
+            dataType: "json",
+            success: function (result) {
+                $.each(result.ExpenseDetail, function (i, item) {
+                    //var amt = 0;
+                    //$("#tbodyCommitmentSelList [name$='.HeadName'][value='"+item.BudgetHeadName+"']").each(function(){
+                    //    var elePayment = $(this).closest('td').find("input[name$='.PaymentAmount']");
+                    //    var parseVal = parseFloat($(elePayment).val());
+                    //    if (!isNaN(parseVal))
+                    //        amt = amt + parseVal;
+                    //});
+                    if (i == 0) {
+                        var trEle = $('#tbodyExpenseList tr:first');
+                        $(trEle).find('input[name$=".Amount"]').val('');
+                        $(trEle).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                        $(trEle).find('#lblTransType').text(item.TransactionType);
+                        $(trEle).find('input[name$=".IsJV"]').val(item.IsJV);
+                        $(trEle).find("input[name='ExpenseDetail.Index']").val(i);
+
+                        var selectGroup = $(trEle).find('select[name$=".AccountGroupId"]');
+                        selectGroup.empty();
+                        $.each(item.AccountGroupList, function (index, itemData) {
+                            selectGroup.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name,
+                            }));
+                        });
+
+                        var selectHead = $(trEle).find('select[name$=".AccountHeadId"]');
+                        selectHead.empty();
+                        $.each(item.AccountHeadList, function (index, itemData) {
+                            selectHead.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name,
+                            }));
+                        });
+                    } else {
+                        var trEleNew = $('#tbodyExpenseList tr:first').clone().find('input').val('').end();
+                        $(trEleNew).find('input[name$=".Amount"]').val('');
+                        $(trEleNew).find("input[name='ExpenseDetail.Index']").val(i);
+                        $(trEleNew).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                        $(trEleNew).find('#lblTransType').text(item.TransactionType);
+                        $(trEleNew).find('input[name$=".IsJV"]').val(item.IsJV);
+                        $(trEleNew).find("input,Select").each(function () {
+                            $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                            $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                        });
+                        $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                        });
+
+                        var selectGroup = $(trEleNew).find('select[name$=".AccountGroupId"]');
+                        selectGroup.empty();
+                        $.each(item.AccountGroupList, function (index, itemData) {
+                            selectGroup.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name,
+                            }));
+                        });
+
+                        var selectHead = $(trEleNew).find('select[name$=".AccountHeadId"]');
+                        selectHead.empty();
+                        $.each(item.AccountHeadList, function (index, itemData) {
+                            selectHead.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name,
+                            }));
+                        });
+                        $('#tbodyExpenseList').append(trEleNew);
+                    }
+                });
+                $.each(result.DeductionDetail, function (i, item) {
+                    if (i == 0) {
+                        var trEle = $('#tbodyDeductionList tr:first');
+                        $(trEle).find('input').val('');
+                        var amtEle = $(trEle).find('input[name$=".Amount"]');
+                        amtEle.removeClass('required');
+                        $(trEle).find('input[name$=".AccountGroupId"]').val(item.AccountGroupId);
+                        $(trEle).find('input[name$=".DeductionHeadId"]').val(item.DeductionHeadId);
+                        $(trEle).find('input[name$=".DeductionHead"]').val(item.DeductionHead);
+                        $(trEle).find('input[name$=".AccountGroup"]').val(item.AccountGroup);
+                        $(trEle).find('td:nth-child(1)').html(item.AccountGroup);
+                        $(trEle).find('td:nth-child(2)').html(item.DeductionHead);
+                    } else {
+                        var trEleNew = $('#tbodyDeductionList tr:first').clone().find('input').val('').end();
+                        $(trEleNew).find("input").each(function () {
+                            $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                            $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                        });
+                        $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                        });
+                        var amtEle = $(trEleNew).find('input[name$=".Amount"]');
+
+                        amtEle.removeClass('required');
+                        $(trEleNew).find('input[name$=".AccountGroupId"]').val(item.AccountGroupId);
+                        $(trEleNew).find('input[name$=".DeductionHeadId"]').val(item.DeductionHeadId);
+                        $(trEleNew).find('input[name$=".DeductionHead"]').val(item.DeductionHead);
+                        $(trEleNew).find('input[name$=".AccountGroup"]').val(item.AccountGroup);
+                        $(trEleNew).find('td:nth-child(1)').html(item.AccountGroup);
+                        $(trEleNew).find('td:nth-child(2)').html(item.DeductionHead);
+                        $('#tbodyDeductionList').append(trEleNew);
+                    }
+                });
+                var Name =  $("input[name='PIName']").val();
+                // $("#CreditorAmount").val(StipendAmt);
+                $('#lblVendorName').html(Name);
+                $('#NeedUpdateTransDetail').val('false');
+                CalculateDeductionTotal();
+            },
+            error: function (err) {
+                console.log("error : " + err);
+            }
+        });
+        //}
+    }
+
+    $('#CreditorAmount, #ExpenseAmount, #CreditorAmount, input[name $=".PaymentAmount"], input[name $=".Quantity"], input[name $=".TotalAmount"], input[name $=".Amount"], #ttlCr, #ttlDr').on("copy cut paste drop", function () {
+        return false;
+    });
+
+    function fillMasterDropDown(ele, data, fillDafaultText, valueAsName) {
+        if (fillDafaultText !== undefined) {
+            ele.append($('<option/>', {
+                value: '',
+                text: 'Select any',
+            }));
+        }
+        if (valueAsName !== undefined) {
+            $.each(data, function (index, itemData) {
+                ele.append($('<option/>', {
+                    value: itemData.name,
+                    text: itemData.name,
+                }));
+            });
+        } else {
+            $.each(data, function (index, itemData) {
+                ele.append($('<option/>', {
+                    value: itemData.id,
+                    text: itemData.name,
+                }));
+            });
+        }
+    }
+
+    /* Tab Sections Start*/
+    var currentTab = 0; // Current tab is set to be the first tab (0)
+   // showTab(currentTab); // Display the crurrent tab
+
+
+
+
+
+</script>

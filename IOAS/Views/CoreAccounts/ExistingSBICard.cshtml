@@ -1,0 +1,982 @@
+﻿@model IOAS.Models.SBIECardModel
+@{
+    ViewBag.Title = "SBI Prepaid ECard";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<script src="@Url.Content("~/Scripts/CoreAccounts/SBIECard.js")"></script>
+<style>
+    /* Hide all steps by default: */
+    .tab {
+        display: none;
+        background: #fff;
+        float: left;
+    }
+   
+    .step {
+        height: 15px;
+        width: 15px;
+        margin: 0 2px;
+        background-color: #bbbbbb;
+        border: none;
+        border-radius: 50%;
+        display: inline-block;
+        opacity: 0.5;
+    }
+
+        .step.active {
+            opacity: 1;
+        }
+
+        /* Mark the steps that are finished and valid: */
+        .step.finish {
+            background-color: #fff;
+        }
+
+    .custom-nav-pills.nav-pills > li > a {
+        color: rgba(255,255,255,0.5);
+        cursor: default;
+        background: transparent !important;
+        border-color: transparent;
+        border-top-color: transparent;
+        padding: 10px 15px;
+        margin: 0px 15px;
+    }
+
+        .custom-nav-pills.nav-pills > li > a span {
+            width: 100%;
+            float: left;
+        }
+
+    .custom-nav-pills.nav-pills > li.active > a, .custom-nav-pills.nav-pills > li.active > a:focus, .custom-nav-pills.nav-pills > li.active > a:hover {
+        color: #333333;
+        background-color: #fff !important;
+    }
+
+    .custom-st-fd-box {
+        background: #f5f5f5;
+        padding: 15px 0px;
+        border-radius: 4px;
+        display: inline-block;
+    }
+
+    .custom-st-fd-btn {
+        color: #fff;
+        font-size: 16px;
+        margin-top: 15px;
+        display: inline-block;
+    }
+
+    .custom-st-tb-th.table {
+        border: 0px;
+    }
+
+        .custom-st-tb-th.table > tbody > tr > th {
+            background: #3080e3;
+            color: #fff;
+            border: 0px solid #ccc;
+        }
+
+        .custom-st-tb-th.table > tbody > tr > td {
+            border: 0px;
+        }
+</style>
+<div class="row hd-tt-bg">
+    <div class="col-md-4">
+        <h3>SBI Prepaid E Card</h3>
+    </div>
+    @*<div class="col-md-4">
+            <div class="search-btn">
+                <input type="text" value="" placeholder="Search" class="form-control">
+                <a href="#" id="btnsearch" class="btn"> <i class="ion-search"></i></a>
+            </div>
+
+        </div>*@
+    
+</div>
+<div class="row">
+    @using (Html.BeginForm("SBIECard", "CoreAccounts", FormMethod.Post, new { @class = "", role = "form", @id = "formSBICard", enctype = "multipart/form-data" }))
+    {
+        <div class="row">
+            <div class="white-bg ad-navbar">
+                @*<div class="col-md-3 ds-spl-bg">
+                    <div class="ds-icn">
+                        <i class="ion-ios-list-outline "></i>
+                    </div>
+                    <div class="ds-tt">
+                        <span>Card Valid Till</span>
+                        <h4 id="CardExpdate">@Html.DisplayFor(m => m.CardExpryDte, new { @class = "form-control", @disabled = "disabled", @required = "required" })</h4>
+                        @Html.Hidden("CardExpiryDate")
+                        @Html.Hidden("CardExpryDte")
+                        @Html.Hidden("SBIEcardId")
+                        @Html.HiddenFor(m => m.NeedUpdateTransDetail)
+                    </div>
+                </div>*@
+                <div class="col-md-3 ds-spl-bg">
+                    <div class="ds-icn">
+                        <i class="ion-ios-calendar-outline"></i>
+                    </div>
+                    <div class="ds-tt">
+                        <span>Current Financial Year</span>
+                        <h4 id="txtcurrentfinyear">@Html.DisplayFor(m => m.CurrentFinancialYear, new { @class = "form-control", @readonly = true })</h4>
+                        @Html.Hidden("ProjectID")
+                        @Html.HiddenFor(m => m.SubCode)
+                        @Html.Hidden("TransactionTypeCode", "STM")
+                        @Html.HiddenFor(m => m.NeedUpdateTransDetail)
+                    </div>
+                </div>
+                <div class="col-md-3 ds-spl-bg">
+                    <div class="ds-icn">
+                        <i class="ion-ios-list-outline"></i>
+                    </div>
+                    <div class="ds-tt">
+                        <span>Department Name:</span>
+                        <h4 id="txtPIdepartment">@Html.DisplayFor(m => m.PIDepartmentName, new { @class = "form-control", @readonly = true }) </h4>
+                    </div>
+                </div>
+                <div class="col-md-2 ds-spl-bg">
+                    <div class="ds-icn">
+                        <i class="ion-android-open"></i>
+                    </div>
+                    <div class="ds-tt">
+                        <span>PI Name:</span>
+                        <h4 id="txtPIname">@Html.DisplayFor(m => m.NameofPI, new { @class = "form-control", @readonly = true })</h4>
+                        @Html.Hidden("PIId")
+                        @Html.Hidden("NameofPI")
+                        @Html.Hidden("SBIEcardId")
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="page-wrapper">
+                <div class="col-md-12 mt30">
+                    <ul class="nav nav-pills custom-nav-pills">
+                        <li class="active"><a href="javascript:void(0)"><span>01</span>Card Details</a></li>
+                        <li><a href="javascript:void(0)"><span>03</span>Transaction Details</a></li>
+                        <li><a href="javascript:void(0)"><span>04</span>CheckList Details</a></li>
+                        <li><a href="javascript:void(0)"><span>05</span>Document Details</a></li>
+                    </ul>
+                    
+                        <div class="tab">
+                            <div class="col-md-12 col-sm-12 m-b-sm">
+                                <div class="row mb20">
+                                    <div class="page-wrapper">
+                                        <div class="col-md-12">
+                                            <div class="white-bg">
+                                                <div class="row">
+                                                    @if (Model.SBIEcardId > 0)
+                                                    {
+                                                        <h3 style="color: #0066cc"> * This Professor has already been issued a Prepaid Card</h3>
+                                                    }
+                                                    @if (Model.SBIEcardId == 0)
+                                                    {
+                                                        <h3 style="color: #0066cc"> * This Professor already has Prepaid Card(s) with card limit exceeded and applied for new one for his additional projects</h3>
+                                                    }
+
+                                                    <h3>Card Details</h3>
+                                                    @*<div class="form-group custom-form-group">
+                <label>PI Name :</label>
+                @Html.DropDownListFor(m => m.PIId, new SelectList(ViewBag.PIName, "id", "name"), "Select PI", new { @id = "txtSelectPI", @class = "form-control selectpicker" })
+            </div>
+            <div class="form-group custom-form-group">
+                <label>Project :</label>
+               @Html.DropDownListFor(m => m.SelectProject, new SelectList(ViewBag.Project, "id", "name"), "Select Project", new { @id = "txtSelectProject", @class = "form-control selectpicker" })
+            </div>*@
+                                                    @if (Model.SBIEcardId > 0)
+                                                    {
+                                                        <div class="row">
+                                                            <div class="col-md-3">
+                                                                <div class="form-group custom-form-group">
+                                                                    <label class="required">State Bank A/C Number :</label>
+                                                                    @Html.TextBoxFor(m => m.StateBankACNumber, new { @class = "form-control", @id = "txtEStatebankac", @readonly = true, @required = "required" })
+                                                                    <div class="txt-error txt-red"> @Html.ValidationMessageFor(m => m.StateBankACNumber)</div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-3">
+                                                                <div class="form-group custom-form-group">
+                                                                    <label class="required">SBI Prepaid Card No. :</label>
+                                                                    @Html.TextBoxFor(m => m.SBIEcardNumber, new { @class = "form-control", @id = "txtEprepaidcardnumber", @readonly = true, maxlength = "16" })
+                                                                    <div class="txt-error txt-red"> @Html.ValidationMessageFor(m => m.PIAddressLine2)</div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-3">
+                                                                <div class="form-group custom-form-group">
+                                                                    <label class="required">Date of Birth : </label>
+                                                                    @Html.TextBoxFor(m => m.DOB, new { @class = "form-control", @id = "txtEDateofbirth", @readonly = true, @required = "required" })
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-3">
+                                                                <div class="form-group custom-form-group">
+                                                                    <label class="required">Gender :</label>
+                                                                    @*@Html.TextBoxFor(m => m.PIGender, new { @class = "form-control", @rows = "3", @readonly = true, @required = "required", @id = "txtdescriptionofservice" })*@
+                                                                    @Html.DropDownListFor(m => m.PIGender, new SelectList(ViewBag.Gender, "id", "name"), "Select Gender", new { @id = "txtEPIGender", @class = "form-control", @readonly = true, @required = "required" })
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                    @if (Model.SBIEcardId == 0)
+                                                    {
+                                                        <div class="row">
+                                                            <div class="col-md-3">
+                                                                <div class="form-group custom-form-group">
+                                                                    <label class="required">State Bank A/C Number :</label>
+                                                                    @Html.TextBoxFor(m => m.StateBankACNumber, new { @class = "form-control", @required = "required", @id = "txtEStatebankac" })
+                                                                    <div class="txt-error txt-red"> @Html.ValidationMessageFor(m => m.StateBankACNumber)</div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-3">
+                                                                <div class="form-group custom-form-group">
+                                                                    <label class="required">SBI Prepaid Card No. :</label>
+                                                                    @Html.TextBoxFor(m => m.SBIEcardNumber, new { @class = "form-control", @required = "required", @id = "txtEprepaidcardnumber", maxlength = "16" })
+                                                                    <div class="txt-error txt-red"> @Html.ValidationMessageFor(m => m.SBIEcardNumber)</div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-3">
+                                                                <div class="form-group custom-form-group">
+                                                                    <label class="required">Date of Birth : </label>
+                                                                    @Html.TextBoxFor(m => m.DOB, new { @class = "form-control", @id = "txtEDateofbirth", @readonly = true, @required = "required" })
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-3">
+                                                                <div class="form-group custom-form-group">
+                                                                    <label class="required">Gender :</label>
+                                                                    @*@Html.TextBoxFor(m => m.PIGender, new { @class = "form-control", @rows = "3", @readonly = true, @required = "required", @id = "txtdescriptionofservice" })*@
+                                                                    @Html.DropDownListFor(m => m.PIGender, new SelectList(ViewBag.Gender, "id", "name"), "Select Gender", new { @id = "txtEPIGender", @class = "form-control", @readonly = true, @required = "required" })
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                   
+                                                    <div class="row">
+                                                        <div class="col-md-3">
+                                                            <div class="form-group custom-form-group">
+                                                                <label class="required">Father's Name: </label>
+                                                                @Html.TextBoxFor(m => m.FatherFirstName, new { @class = "form-control", @id = "txtEPIFathername", @readonly = true, @required = "required" })
+                                                                <div class="txt-error txt-red"> @Html.ValidationMessageFor(m => m.FatherFirstName)</div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <div class="form-group custom-form-group">
+                                                                <label class="required">Mother's Maiden Name :</label>
+                                                                @Html.TextBoxFor(m => m.MothersMaiden, new { @class = "form-control", @id = "txtEPIMothermaidenname", @readonly = true, @required = "required" })
+                                                                <div class="txt-error txt-red"> @Html.ValidationMessageFor(m => m.MothersMaiden)</div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <div class="form-group custom-form-group">
+                                                                <label class="required">Mobile Number :</label>
+                                                                @Html.TextBoxFor(m => m.PIMobile, new { @class = "form-control", @id = "txtEPIMobile", @readonly = true, @required = "required" })
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <div class="form-group custom-form-group">
+                                                                <label class="required">Email: </label>
+                                                                @Html.TextBoxFor(m => m.PIEmail, new { @class = "form-control", @id = "txtEPIEmail", @readonly = true, @required = "required" })
+                                                                <div class="txt-error txt-red"> @Html.ValidationMessageFor(m => m.PIEmail)</div>
+                                                            </div>
+                                                        </div>
+                                                       
+                                                    </div>
+                                                    <div class="row">
+                                                        
+                                                        <div class="col-md-3">
+                                                            <div class="form-group custom-form-group">
+                                                                <label class="required">Address Line 1: </label>
+                                                                @Html.TextBoxFor(m => m.PIAddressLine1, new { @class = "form-control", @id = "txtEPIAddressline1", @readonly = true, @required = "required" })
+                                                                <div class="txt-error txt-red"> @Html.ValidationMessageFor(m => m.PIAddressLine1)</div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <div class="form-group custom-form-group">
+                                                                <label class="required">Address Line 2: </label>
+                                                                @Html.TextBoxFor(m => m.PIAddressLine2, new { @class = "form-control", @id = "txtEPIAddressline2", @readonly = true, @required = "required" })
+                                                                <div class="txt-error txt-red"> @Html.ValidationMessageFor(m => m.PIAddressLine2)</div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <div class="form-group custom-form-group">
+                                                                <label class="required">District: </label>
+                                                                @Html.TextBoxFor(m => m.PIdistrict, new { @class = "form-control", @id = "txtEPIDistrict", @readonly = true, @required = "required" })
+                                                                <div class="txt-error txt-red"> @Html.ValidationMessageFor(m => m.PIdistrict)</div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <div class="form-group custom-form-group">
+                                                                <label class="required">City: </label>
+                                                                @Html.TextBoxFor(m => m.PICity, new { @class = "form-control", @id = "txtEPICity", @readonly = true, @required = "required" })
+                                                                <div class="txt-error txt-red"> @Html.ValidationMessageFor(m => m.PIAddressLine1)</div>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                    </div>
+                                                    <div class="row">
+                                                       
+                                                        <div class="col-md-3">
+                                                            <div class="form-group custom-form-group">
+                                                                <label class="required">State: </label>
+                                                                @Html.TextBoxFor(m => m.PIstate, new { @class = "form-control", @id = "txtEPIState", @readonly = true, @required = "required" })
+                                                                <div class="txt-error txt-red"> @Html.ValidationMessageFor(m => m.PIstate)</div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <div class="form-group custom-form-group">
+                                                                <label class="required">Pincode: </label>
+                                                                @Html.TextBoxFor(m => m.PIPincode, new { @class = "form-control", @id = "txtEPIPincode", @readonly = true, @required = "required" })
+                                                                <div class="txt-error txt-red"> @Html.ValidationMessageFor(m => m.PIPincode)</div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <div class="form-group custom-form-group">
+                                                                <label class="required">PAN: </label>
+                                                                @Html.TextBoxFor(m => m.PAN, new { @class = "form-control", @id = "txtEPIPAN", @readonly = true, @required = "required" })
+                                                                <div class="txt-error txt-red"> @Html.ValidationMessageFor(m => m.PAN)</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                   
+                                                    <div class="row">
+
+                                                        <div class="col-md-3">
+                                                            <div class="form-group custom-form-group">
+                                                                <label class="required"><b>Current Amount alloted :</b></label>
+                                                                @Html.TextBoxFor(m => m.CurrentProjectAllotmentValue, new { @class = "form-control", @id = "txtECurrentProjectcardvalue", @required = "required", @onkeypress = "return ValidateDecimalOnly(event)" })
+                                                                <div class="txt-error txt-red"> @Html.ValidationMessageFor(m => m.CurrentProjectAllotmentValue)</div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-3 pull-right">
+                                                            <div class="form-group custom-form-group">
+                                                                <label class="required"> <b>Total Card Value :</b></label>
+                                                                @Html.TextBoxFor(m => m.TotalValueofCard, new { @class = "form-control", @id = "txtEtotalcardvalue", @readonly = true, @required = "required" })
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    </div>
+                                                </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                   
+                    <div class="tab">
+                        @Html.Partial("_TransactionDetails", Model)
+                    </div>
+                    <div class="tab">
+                        <div class="col-md-12 col-sm-12 m-b-sm">
+                            <div class="">
+                                @Html.Partial("_CheckListDetail", Model.CheckListDetail)
+                            </div>
+                            <div>
+                                @Html.HiddenFor(m => m.CheckListVerified_By)
+                                @Html.HiddenFor(m => m.CheckListVerifierName)
+                                <div class="col-md-3 col-md-offset-9">
+                                    <div class="form-group custom-form-group">
+                                        <label>Verified by</label>
+                                        <h4 id="Verified_ByName">@Html.DisplayFor(m => m.CheckListVerifierName)</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab">
+                        <div class="col-md-12 col-sm-12 m-b-sm">
+                            <div class="">
+                                @Html.Partial("_DocumentDetail", Model.DocumentDetail)
+                            </div>
+                        </div>
+                    </div>
+                    
+   
+    <div class="custom-nav-btn text-right">
+        @*<input type="submit" class="btn btn-primary" value="Save" name="Button" id="btnNewSave" />*@
+        <button type="button" class="btn btn-default pull-left" id="prevBtn" onclick="nextPrev(-1)">Previous</button>
+        <button type="button" class="btn btn-primary pull-right" id="nextBtn" onclick="nextPrev(1)">Next</button>
+        <a href="@Url.Action("SBIECardList", "CoreAccounts")" class="btn btn-primary">Close</a>
+    </div>
+                    
+                </div>
+
+            </div>
+        </div>
+    }
+</div>
+
+
+          @if (ViewBag.succMsg != null)
+                {
+                            <div id="myModal" class="modal fade modal-success" role="dialog">
+                                <div class="modal-dialog modal-sm">
+
+                                    <!-- Modal content-->
+                                    <div class="modal-content">
+
+                                        <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal" onclick="window.location.href='@Url.Action("SBIECardList", "CoreAccounts")';">&times;</button>
+                                            <i class="ion-android-checkmark-circle"></i>
+                                            <h3 class="modal-title">Saved successfully</h3>
+                                        </div>
+                                        <div class="modal-body">
+
+                                            <p>@ViewBag.succMsg</p>
+
+                                        </div>
+
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal" onclick="window.location.href='@Url.Action("SBIECardList", "CoreAccounts")';">Close</button>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <script>
+                                $(document).ready(function () {
+                                    $('#myModal').modal('show');
+                                });
+
+                            </script>
+
+                    }
+@if (ViewBag.errMsg != null)
+{
+    <div id="myModal1" class="modal fade modal-error" role="dialog">
+        <div class="modal-dialog modal-sm">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" onclick="window.location.href='@Url.Action("SBIECardList", "CoreAccounts")';">&times;</button>
+                    <i class="ion-android-cancel"></i>
+                    <h3 class="modal-title">Error Message</h3>
+                </div>
+                <div class="modal-body">
+
+                    <p>@ViewBag.errMsg</p>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" onclick="window.location.href='@Url.Action("SBIECardList", "CoreAccounts")';">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            $('#myModal1').modal('show');
+        });
+
+    </script>
+}
+
+                        <div id="ValidationModal" class="modal fade modal-warning" role="dialog">
+                            <div class="modal-dialog modal-sm">
+
+                                <!-- Modal content-->
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                        <i class="ion-android-warning"></i>
+                                        <h3 class="modal-title">Warning</h3>
+                                    </div>
+                                    <div class="modal-body">
+
+                                        <p id="MsgValidation"></p>
+
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+@Html.AntiForgeryToken()
+<div id="popup"></div>
+                        <script>
+                            var errMsg = '@ViewBag.errMsg';
+                            var piList = '@Html.Raw(Json.Encode(ViewBag.PI))';
+                            var allocationHeads = '@Html.Raw(Json.Encode(ViewBag.allocatehead))'
+                            var modelData = '@Html.Raw(Json.Encode(Model))'
+                            $('#SourceEmailDate, #srchFromDate, #srchToDate,#InvoiceDate,#PODate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
+                            $('#srchToDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true }).datepicker("setDate", "0");
+                            var defaultFromDate = moment(new Date()).add(-10, 'days').toDate();
+                            $('#srchFromDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true }).datepicker("setDate", defaultFromDate); 
+                            $(document).ready(function () {
+                                //get the relevant form
+                                //  var form = $('#frmSRB');
+                                $('.selectpicker').selectpicker({
+                                    liveSearch: true
+                                });
+                                $('.selectpicker').selectpicker('refresh');
+                                //if (errMsg) {
+                                //    $('#FailedAlert').html(errMsg);
+                                //    $('#Failed').modal('toggle');
+                                //    var jsonData = JSON.parse(modelData);
+                                //    $('#addnewpage').hide();
+                                //    $('#SBIPrepaidECard').show();
+                                //    $('#gridlist').hide();
+                                //    $('#viewdoc').hide();
+                                //    fillData(jsonData);
+
+                                //} else {
+                                //    $('#SBIPrepaidECard').hide();
+                                //    $('#viewdoc').hide();
+                                //}
+                                var piname = $('input[name="NameofPI"]').val();
+                                $('#lblVendorName').html(piname)
+                                CalculatePaymentValue();
+                                CalculateDeductionTotal();
+                            });
+
+                            $("#FromDate, #ToDate, #txtDateofbirth, #txtEDateofbirth").datepicker
+                                      ({
+                                          dateFormat: 'dd-MM-yy',
+                                          showStatus: true,
+                                          showWeeks: true,
+                                          changeYear: true,
+                                          yearRange: '-100:+0',
+                                          highlightWeek: true,
+                                          numberOfMonths: 1,
+                                          showAnim: "scale",
+                                          showOptions: {
+                                              origin: ["top", "left"]
+                                          }
+                                      });
+
+                            function parseDate(s) {
+                                var months = {
+                                    january: 0, february: 1, march: 2, april: 3, may: 4, june: 5,
+                                    july: 6, august: 7, september: 8, october: 9, november: 10, december: 11
+                                };
+                                var p = s.split('-');
+                                return new Date(p[2], months[p[1].toLowerCase()], p[0]);
+                            }
+
+                            function isNumberKey(evt) {
+                                var charCode = (evt.which) ? evt.which : evt.keyCode;
+                                if (charCode != 46 && charCode > 31
+                                  && (charCode < 48 || charCode > 57))
+                                    return false;
+
+                                return true;
+                            }
+                            function noedit() {
+                                return false;
+                            }
+
+
+                            function ValidateNumberOnly(e) {
+                                if (e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)) {
+                                    return false;
+                                }
+                            }
+                            function ValidateDecimalOnly(evt) {
+                                var charCode = (evt.which) ? evt.which : evt.keyCode;
+                                if (charCode != 46 && charCode > 31
+                                  && (charCode < 48 || charCode > 57))
+                                    return false;
+
+                                return true;
+                            }
+                            function GetTransactionDetails() {
+                                //var commitmentDetailIds = [];
+                                //var stateCode = $('#lblStateCode').html();
+                                //var BillType = $('#BillType').val();
+                                // var tdsDetailId = $('#VendorTDSDetailId').val() || null;
+                                var interstate_f = false;
+                                //if ($('#lblStateCode').html() == '33')
+                                //    interstate_f = true;
+                                //$('#tbodyCommitmentSelList input[name$=".CommitmentDetailId"]').each(function () {
+                                //    var cmtDetId = $(this).val();
+                                //    if (cmtDetId != '') { commitmentDetailIds.push(cmtDetId); }
+                                //});
+                                //if (commitmentDetailIds.length == 0) {
+                                //    $("#alert").text("Please select at least one commitment from the list.");
+                                //    $('#Validation').modal('show');
+                                //    return false;
+                                //} else {
+                                EmptyExpenseDeductionDetails();
+                                $.ajax({
+                                    type: "GET",
+                                    url: "@Url.Action("GetTransactionDetails", "CoreAccounts")",
+                                    data: { "typeCode": "ECD","tSubCode" : "1", },
+                                traditional: true,
+                                dataType: "json",
+                                success: function (result) {
+                                    $.each(result.ExpenseDetail, function (i, item) {
+                                        //var amt = 0;
+                                        //$("#tbodyCommitmentSelList [name$='.HeadName'][value='"+item.BudgetHeadName+"']").each(function(){
+                                        //    var elePayment = $(this).closest('td').find("input[name$='.PaymentAmount']");
+                                        //    var parseVal = parseFloat($(elePayment).val());
+                                        //    if (!isNaN(parseVal))
+                                        //        amt = amt + parseVal;
+                                        //});
+                                        if (i == 0) {
+                                            var trEle = $('#tbodyExpenseList tr:first');
+                                            $(trEle).find('input[name$=".Amount"]').val('');
+                                            $(trEle).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                                            $(trEle).find('input[name$=".IsJV"]').val(item.IsJV);
+                                            $(trEle).find('#lblTransType').text(item.TransactionType);
+                                            $(trEle).find("input[name='ExpenseDetail.Index']").val(i);
+
+                                            var selectGroup = $(trEle).find('select[name$=".AccountGroupId"]');
+                                            selectGroup.empty();
+                                            $.each(item.AccountGroupList, function (index, itemData) {
+                                                selectGroup.append($('<option/>', {
+                                                    value: itemData.id,
+                                                    text: itemData.name,
+                                                }));
+                                            });
+
+                                            var selectHead = $(trEle).find('select[name$=".AccountHeadId"]');
+                                            selectHead.empty();
+                                            $.each(item.AccountHeadList, function (index, itemData) {
+                                                selectHead.append($('<option/>', {
+                                                    value: itemData.id,
+                                                    text: itemData.name,
+                                                }));
+                                            });
+                                        } else {
+                                            var trEleNew = $('#tbodyExpenseList tr:first').clone().find('input').val('').end();
+                                            $(trEleNew).find('input[name$=".Amount"]').val('');
+                                            $(trEleNew).find("input[name='ExpenseDetail.Index']").val(i);
+                                            $(trEleNew).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                                            $(trEleNew).find('input[name$=".IsJV"]').val(item.IsJV);
+                                            $(trEleNew).find('#lblTransType').text(item.TransactionType);
+                                            $(trEleNew).find("input,Select").each(function () {
+                                                $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                                                $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                                            });
+                                            $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                                                $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                                            });
+
+                                            var selectGroup = $(trEleNew).find('select[name$=".AccountGroupId"]');
+                                            selectGroup.empty();
+                                            $.each(item.AccountGroupList, function (index, itemData) {
+                                                selectGroup.append($('<option/>', {
+                                                    value: itemData.id,
+                                                    text: itemData.name,
+                                                }));
+                                            });
+
+                                            var selectHead = $(trEleNew).find('select[name$=".AccountHeadId"]');
+                                            selectHead.empty();
+                                            $.each(item.AccountHeadList, function (index, itemData) {
+                                                selectHead.append($('<option/>', {
+                                                    value: itemData.id,
+                                                    text: itemData.name,
+                                                }));
+                                            });
+                                            $('#tbodyExpenseList').append(trEleNew);
+                                        }
+                                    });
+                                    $.each(result.DeductionDetail, function (i, item) {
+                                        if (i == 0) {
+                                            var trEle = $('#tbodyDeductionList tr:first');
+                                            var amtEle = $(trEle).find('input[name$=".Amount"]');
+                                            if(item.TDSPercentage == null){
+                                                amtEle.val('');
+                                            }else{
+                                                tds = ttlAdvTax * item.TDSPercentage / 100;
+                                                amtEle.val(tds);
+                                            }
+
+                                            amtEle.addClass('required');
+                                            $(trEle).find('input[name$=".AccountGroupId"]').val(item.AccountGroupId);
+                                            $(trEle).find('input[name$=".DeductionHeadId"]').val(item.DeductionHeadId);
+                                            $(trEle).find('input[name$=".DeductionHead"]').val(item.DeductionHead);
+                                            $(trEle).find('input[name$=".AccountGroup"]').val(item.AccountGroup);
+                                            $(trEle).find('td:nth-child(1)').html(item.AccountGroup);
+                                            $(trEle).find('td:nth-child(2)').html(item.DeductionHead);
+                                        } else {
+                                            var trEleNew = $('#tbodyDeductionList tr:first').clone().find('input').val('').end();
+                                            //$(trEleNew).find("input[name='DeductionDetail.Index']").val(i);
+                                            $(trEleNew).find("input").each(function () {
+                                                $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                                                $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                                            });
+                                            $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                                                $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                                            });
+                                            var amtEle = $(trEleNew).find('input[name$=".Amount"]');
+                                            amtEle.addClass('required');
+                                            if(item.TDSPercentage != null){
+                                                tds = ttlAdvTax * item.TDSPercentage / 100;
+                                                amtEle.val(tds);
+                                            }
+                                            $(trEleNew).find('input[name$=".AccountGroupId"]').val(item.AccountGroupId);
+                                            $(trEleNew).find('input[name$=".DeductionHeadId"]').val(item.DeductionHeadId);
+                                            $(trEleNew).find('input[name$=".DeductionHead"]').val(item.DeductionHead);
+                                            $(trEleNew).find('input[name$=".AccountGroup"]').val(item.AccountGroup);
+                                            $(trEleNew).find('td:nth-child(1)').html(item.AccountGroup);
+                                            $(trEleNew).find('td:nth-child(2)').html(item.DeductionHead);
+                                            $('#tbodyDeductionList').append(trEleNew);
+                                        }
+                                    });
+                                    var AllocAmt = $('#txtECurrentProjectcardvalue').val();
+                                    $("#CreditorAmount").val(AllocAmt);
+                                    $('#NeedUpdateTransDetail').val('false');
+                                    CalculateDeductionTotal();
+                                },
+                                error: function (err) {
+                                    console.log("error : " + err);
+                                }
+                            });
+                            //}
+                            }
+                            $('#txtEprepaidcardnumber').change(function () {        
+                                var cardnumber = $(this).val();
+                                if ((cardnumber.length < 16)) {
+                                    $("#alert").text("Please enter 16 digit card number.");
+                                    $('#Validation').modal('show');
+                                    return false;
+                                }    
+                            });
+                            $('#txtECurrentProjectcardvalue').change(function () {
+                                var amt = $(this).val();
+                                if (amt > 10000) {
+                                    $("#alert").text("Amount for SBI Prepaid Card alloted per project cannot be greater than Rs 10000.");
+                                    $('#Validation').modal('show');
+                                    return false;
+                                }
+                                $('#CreditorAmount').val(amt);
+                            });
+                            function AddNewExpense(){
+                                //var stateCode = $('#lblStateCode').html();
+                                //var BillType = $('#BillType').val();
+                                $.ajax({
+                                    type: "GET",
+                                    url: "@Url.Action("GetAddNewExpenseDetails", "CoreAccounts")",
+                                    data: { "typeCode": "ECD","tSubCode" : "1"},
+                                traditional: true,
+                                dataType: "json",
+                                success: function (result) {
+                                    $.each(result.ExpenseDetail, function (i, item) {
+                                        var cln = $('#tbodyExpenseList tr:first').clone().find("select,input").val("").end();
+                                        $(cln).find('a.dis-none').removeClass('dis-none');
+                                        var index = $('#tbodyExpenseList tr:last').find("input[name='ExpenseDetail.Index']").val();
+                                        index = parseInt(index) + 1;
+                                        $(cln).find("input[name='ExpenseDetail.Index']").val(index);
+                                        $(cln).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                                        $(cln).find('#lblTransType').text(item.TransactionType);
+                                        $(cln).find('input[name$=".IsJV"]').val(item.IsJV);
+                                        $(cln).find("input, select").each(function () {
+                                            $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+                                            $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+                                        });
+                                        $(cln).find("span[data-valmsg-for]").each(function () {
+                                            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+                                        });
+
+                                        var selectGroup = $(cln).find("select[name$='.AccountGroupId']");
+                                        selectGroup.empty();
+                                        $.each(item.AccountGroupList, function (index, itemData) {
+                                            selectGroup.append($('<option/>', {
+                                                value: itemData.id,
+                                                text: itemData.name,
+                                            }));
+                                        });
+
+                                        var selectHead = $(cln).find("select[name$='.AccountHeadId']");
+                                        selectHead.empty();
+                                        $.each(item.AccountHeadList, function (index, itemData) {
+                                            selectHead.append($('<option/>', {
+                                                value: itemData.id,
+                                                text: itemData.name,
+                                            }));
+                                        });
+                                        $('#tbodyExpenseList').append(cln);
+                                    });
+                                },
+                                error: function (err) {
+                                    console.log("error : " + err);
+                                }
+                            });
+                            }
+                            //function ValidateCommitment() {
+                            //    var msg = 'valid';
+                            //    var commitmentAmt = parseFloat($('#CommitmentAmount').val());
+                            //    // var netAdvAmt = parseFloat($('#lblAdvNetAmt').html());
+                            //    var ttlAdvAmt = parseFloat($('#txtECurrentProjectcardvalue').val());
+                            //    var advPct = parseInt($("#AdvancePercentage").val());
+                            //    var offsetValue = $("input[name='GST']:checked").val();
+                            //    $("#tbodyCommitmentSelList tr").each(function () {
+                            //        var elePayment = $(this).find("input[name$='.PaymentAmount']");
+                            //        var eleAvlBal = $(this).find('input[name$=".AvailableAmount"]');
+                            //        var parseVal = parseFloat($(elePayment).val()) || 0;
+                            //        var avlBal = parseFloat($(eleAvlBal).val()) || 0;
+                            //        if (parseVal > avlBal)
+                            //            msg = "Commitment payment value should not be greater than available balance."
+                            //    });
+                            //    if (isNaN(ttlAdvAmt) || isNaN(commitmentAmt)) {
+                            //        msg = 'The requested advance value / allocated commitment value is not a valid entry.';
+                            //    } else if (ttlAdvAmt != commitmentAmt) {
+                            //        msg = 'There is a mismatch between the allocated value from project and allocated commitment value. Please update the value to continue.';
+                            //    }
+                            //        return msg;
+                            //    }
+                            
+                            function ValidateTransaction() {
+                                var msg = 'valid';
+                                var netCrAmt = parseFloat($('#CreditorAmount').val());
+                                var commitmentAmt = parseFloat($('#CommitmentAmount').val());
+                                var ttlExpAmt = parseFloat($('#ExpenseAmount').val()) || 0;
+                                var ttldeductAmt = parseFloat($('#ttlCr').val()) || 0;
+                                var ttlAdvAmt = parseFloat($('#txtECurrentProjectcardvalue').val());
+                                //var netDrAmt = ttlExpAmt + ttldeductAmt;
+                                //var offsetValue = $("input[name='GST']:checked").val();
+                                if (isNaN(netCrAmt)) {
+                                    return 'The Credit value is not a valid entry.';
+                                }
+                                if (netCrAmt != ttlExpAmt || netCrAmt != ttldeductAmt) {
+                                    msg = 'Not a valid entry. Credit and Debit value are not equal.';
+                                }
+                                if (isNaN(ttlExpAmt)) {
+                                    msg = 'The requested advance value / Transaction value is not a valid entry.';
+                                }
+                                //else if (ttlExpAmt != commitmentAmt) {
+                                //    msg = 'There is a mismatch between allocated commitment value and transaction value. Please update the value to continue.';
+                                //}
+
+                                var hdList = [];
+                                $('#tbodyExpenseList tr').find('select[name$=".AccountHeadId"]').each(function (idx, val) { hdList.push($(val).val()); });
+                                hdList.sort();
+                                // duplicate check
+                                for (var k = 1; k < hdList.length; ++k) {
+                                    if (hdList[k] == hdList[k - 1]) {
+                                        msg = "Duplicate account head exist in expense details. Please select a different head.";
+                                    }
+                                }
+                                return msg;
+                            }
+                  
+                            /* Tab Sections Start*/
+                            var currentTab = 0; // Current tab is set to be the first tab (0)
+                            showTab(currentTab); // Display the crurrent tab
+                            function showTab(n) {
+                                
+                                // This function will display the specified tab of the form...
+                                var x = document.getElementsByClassName("tab");
+                                x[n].style.display = "block";
+                                $(".custom-nav-pills li:eq(" + n + ")").addClass("active");
+                                //... and fix the Previous/Next buttons:
+                                if (n == 0) {
+                                    document.getElementById("prevBtn").style.display = "none";
+                                } else {
+                                    document.getElementById("prevBtn").style.display = "inline";
+                                }
+                                if (n == (x.length - 1)) {
+                                    document.getElementById("nextBtn").innerHTML = "Submit";
+                                } else {
+                                    document.getElementById("nextBtn").innerHTML = "Next";
+                                }
+                                //... and run a function that will display the correct step indicator:
+                                //fixStepIndicator(n)
+                            }
+
+                            function nextPrev(n) {
+                                
+                                // This function will figure out which tab to display
+                                var x = document.getElementsByClassName("tab");
+                                // Exit the function if any field in the current tab is invalid:
+                                if (n > 0 && !validateForm(n)) return false;
+                                if (currentTab + n < x.length) {
+                                    // Hide the current tab:
+                                    x[currentTab].style.display = "none";
+                                    $(".custom-nav-pills li:eq(" + currentTab + ")").removeClass("active");
+                                } else {
+                                    // ... the form gets submitted:
+                                    formSave();
+                                    return false;
+                                }
+                                // Increase or decrease the current tab by 1:
+                                currentTab = currentTab + n;
+
+                                // Otherwise, display the correct tab:
+                                showTab(currentTab);
+                            }
+
+                            function validateForm(n) {
+                                // This function deals with validation of the form fields
+                                var isValid = false;
+                                var hadError = false;
+                                var tabs = $(".tab");
+                                var currentTabEle = tabs[currentTab];
+                                var inputs = $(":input, textarea, select"); // get all the form inputs and selects
+                                var stepElements = $(currentTabEle).find(inputs); // get inputs for current step
+                                var count = stepElements.length; // check that there are inputs
+                                if (count <= 0) {                // if there are not no reason to loop them
+                                    return true;                 // this can be used to perform other action if there are no steps
+                                } else if (currentTab == 0) {
+                                    var cardnumber = $('#txtEprepaidcardnumber').val();
+                                    if (!(cardnumber.length == 16)) {
+                                        $("#alert").text("Please enter only 16 digit card number.");
+                                        $('#Validation').modal('show');
+                                        return false;
+                                    }
+                                    var gender = $('#txtEPIGender').val();
+                                    if (gender == "Select Gender") {
+                                        isValid = false;
+                                        $('#alert').html('Please select Gender');
+                                        $('#Validation').modal('toggle');
+                                        return false;
+                                    }
+                                    var amt = $('#txtECurrentProjectcardvalue').val();
+                                    if (amt > 10000) {
+                                        $("#alert").text('Amount for SBI Prepaid Card alloted per project cannot be greater than Rs 10000.');
+                                        $('#Validation').modal('show');
+                                        return false;
+                                    }
+                                    
+                                        if ($('#NeedUpdateTransDetail').val() == 'True') {
+                                            GetTransactionDetails();
+                                        }
+                                        //if(parseInt($("#AdvancePercentage").val()) == 100){
+                                        CalculateDeductionTotal();
+                                 
+                                }
+                                else if (currentTab == 1) {
+                                    var validationMsg = ValidateTransaction()
+                                    if (validationMsg != 'valid') {
+                                        hadError = true;
+                                        $("#alert").text(validationMsg);
+                                        $('#Validation').modal('show');
+                                    }
+                                }
+                                else if (currentTab == 2) {
+                                    if ($('#CheckListVerified_By').val() == '') {
+                                        hadError = true;
+                                        $("#alert").text('Checklist is not verified.');
+                                        $('#Validation').modal('show');
+                                    }
+                                }
+                                
+                                $(stepElements).each(function (idx, ele) {
+
+                                    if (!$(ele).is(':radio') && !$(ele).is(':checkbox')) {
+                                        isValid = $(ele).valid();//$(document.forms[0]).validate().element($(this)); // check that the input is valid. This can also be used on a per input basis to perform another action if the field is not valid.
+                                        if (!isValid) { hadError = true; } // set our flag if there was an error
+                                    }
+
+                                });
+                                return !hadError; // return the valid status
+
+                            }
+                            function formSave() {
+                                var isValid = $('#formSBICard').valid();
+                                if (!isValid)
+                                    return false;
+                                $('#formSBICard').submit();
+                            }                            
+                           
+</script>
+
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>

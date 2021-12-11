@@ -1,0 +1,101 @@
+﻿
+@{
+    ViewBag.Title = "Old Rec and Exp";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+<div class="row hd-tt-bg">
+    <div class="col-md-12">
+        <h4><b>Old Rec and Exp</b> </h4>
+    </div>
+</div>
+<style>
+    .vw-dts-bg .hgt-bg {
+        background: #597df0;
+        color: #fff;
+    }
+
+        .vw-dts-bg .hgt-bg label {
+            font-size: 16px !important;
+            color: #fff !important;
+        }
+
+        .vw-dts-bg .hgt-bg h4 {
+            font-size: 18px !important;
+            color: #fff;
+        }
+
+    .vw-dts-bg .hgt-bg-pl {
+        background: #e11eda;
+        color: #fff;
+    }
+
+        .vw-dts-bg .hgt-bg-pl label {
+            font-size: 16px !important;
+            color: #fff !important;
+        }
+
+        .vw-dts-bg .hgt-bg-pl h4 {
+            font-size: 18px !important;
+            color: #fff;
+        }
+</style>
+<div class="row">
+    <div class="white-bg ad-navbar">
+        <div class="col-md-3 ds-spl-bg">
+            <div class="ds-icn">
+                <i class="ion-ios-list-outline "></i>
+            </div>
+            <div class="ds-tt">
+                <span>Rec Project Number</span>
+                <input type="text" class="form-control" autocomplete="off" name="ProjNo" id="ProjNo" />
+                <input type="text" class="form-control dis-none" autocomplete="off" name="ProjId" id="ProjId" />
+            </div>
+        </div>
+        
+        <div class="col-md-3 ds-spl-bg">
+            <div class="ds-tt">
+                <input type="button" value="Download Rec" class="btn btn-primary mt-20" id="btnSubmit" />
+            </div>
+        </div>
+        <div class="col-md-3 ds-spl-bg">
+            <div class="ds-icn">
+                <i class="ion-ios-list-outline "></i>
+            </div>
+            <div class="ds-tt">
+                <span>Exp Project Number</span>
+                <input type="text" class="form-control" autocomplete="off" name="ExpProjNo" id="ExpProjNo" />
+                <input type="text" class="form-control dis-none" autocomplete="off" name="ExpProjId" id="ExpProjId" />
+            </div>
+        </div>
+
+        <div class="col-md-3 ds-spl-bg">
+            <div class="ds-tt">
+                <input type="button" value="Download Exp" class="btn btn-primary mt-20" id="btnSubmitExp" />
+            </div>
+        </div>
+
+    </div>
+</div>
+<script>
+    $(document).on('click', '#ExpProjNo', function () {
+        applyAutoComplete($('#ExpProjNo'), $('#ExpProjId'), "../CoreAccounts/LoadProjectNumber", undefined, undefined, undefined);
+    });
+    $(document).on('click', '#ProjNo', function () {
+        applyAutoComplete($('#ProjNo'), $('#ProjId'), "../CoreAccounts/LoadProjectNumber", undefined, undefined, undefined);
+    });
+
+    $('#btnSubmitExp').click(function () {
+        
+        var ProjectId = $("#ExpProjId").val() || 0;
+        var url = '@Url.Action("OldExpenditure", "Reports")?ProjectId=' + ProjectId;
+        window.location.href = url;
+    });
+    $('#btnSubmit').click(function () {
+
+        var ProjectId = $("#ProjId").val()||0;
+        var url = '@Url.Action("Oldreceipts", "Reports")?ProjectId=' + ProjectId;
+        window.location.href = url;
+    });
+</script>
+

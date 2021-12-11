@@ -1,0 +1,246 @@
+﻿@model IOAS.Models.ProjectCommitmentModel
+
+@{
+    ViewBag.Title = "Commitment";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+
+<div class="wrapper">
+    <div class="row hd-tt-bg">
+        <div class="col-md-12">
+            <h4><b>Salary Processing</b></h4>
+            <ul class="nav nav-pills custom-nav-pills custom-spl-nav">
+                <li id="picDel"><a href="javascript:void(0)" class="ml-null brd-rd-md">Salary Initiation</a></li>
+                <li class="active" id="allOca"><a href="javascript:void(0)" class="ml-null brd-rd-md">Commitment</a></li>
+                <li id="trans"><a href="javascript:void(0)" class="ml-null brd-rd-md">Transaction</a></li>
+                <li id="modEof1"><a href="javascript:void(0)" class="ml-null brd-rd-md">Payment Process</a></li>
+
+            </ul>
+        </div>
+    </div>
+</div>
+@using (Html.BeginForm("Commitment", "StaffPayment", new { page = 1, pageSize = 10 }, FormMethod.Post, new { @class = "form-horizontal", @id = "frmCommitment", @name = "frmCommitment", role = "form" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m=>m.PaymentHeadId)
+    @Html.HiddenFor(m=>m.PaymentMonthYear)
+
+    if (!String.IsNullOrEmpty(ViewBag.Errors))
+    {
+        @:<script type="text/javascript">$.alert({title:'Validation', content:'@ViewBag.Errors'})</script>
+    }
+    if (!String.IsNullOrEmpty(ViewBag.Message))
+    {
+        @:<script type="text/javascript">$.alert({title:'Message', content:'@ViewBag.Message'})</script>
+    }
+
+    <div class="row">
+        <div class="page-wrapper">
+            <div class="col-md-12 mt30">
+
+
+                <div class="col-md-12">
+                    <div class="row">
+
+                        <div class="col-md-12">
+                            <div class="bl-lg-panel-box pb-null">
+                                <div class="cmn-panel-box">
+                                    <div class="row">
+                                        <div class="col-md-12">
+
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="col-md-12" id="gridCommitment">
+
+                                                    </div>   
+                                                   
+                                                </div>
+                                            </div>
+                                            <div class="row mt-20">
+                                                <div class="col-md-4 col-md-offset-8">
+                                                    <div class="form-group custom-form-group ">
+                                                        <label>Net Value :</label>
+                                                        @Html.TextBoxFor(m=>m.TotalAmount, new { @class = "form-control", @autocomplete = "off", @readonly = "readonly" })
+                                                       
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+                                        </div>
+
+
+
+                                    </div>
+
+
+
+
+                                </div>
+
+
+                                <div class="row mb-lg">
+                                    <div class="col-md-6">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="text-right ">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+
+                                        <button type="submit" name="btnBack" class="btn btn-default">Back</button>
+
+                                        <button type="submit" name="btnProceed" class="btn btn-primary" data-dismiss="modal">Proceed</button>
+
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+}
+
+
+<script type="text/javascript">
+    //LoadSalaryDetails();
+    var DateField = function (config) {
+        jsGrid.Field.call(this, config);
+    };
+
+    DateField.prototype = new jsGrid.Field({
+        sorter: function (date1, date2) {
+            return new Date(date1) - new Date(date2);
+        },
+
+        itemTemplate: function (value) {
+            return new Date(value).toDateString();
+        },
+
+        filterTemplate: function () {
+            var now = new Date();
+            this._fromPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() - 1), dateFormat: 'dd-MM-yy', changeYear: true });
+            this._toPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() + 1), dateFormat: 'dd-MM-yy', changeYear: true });
+            return $("<div>").append(this._fromPicker).append(this._toPicker);
+        },
+
+        insertTemplate: function (value) {
+            return this._insertPicker = $("<input>").datepicker({ defaultDate: new Date() });
+        },
+
+        editTemplate: function (value) {
+            return this._editPicker = $("<input>").datepicker().datepicker("setDate", new Date(value));
+        },
+
+        insertValue: function () {
+            return this._insertPicker.datepicker("getDate").toISOString();
+        },
+
+        editValue: function () {
+            return this._editPicker.datepicker("getDate").toISOString();
+        },
+
+        filterValue: function () {
+            return {
+                from: this._fromPicker.datepicker("getDate"),
+                to: this._toPicker.datepicker("getDate")
+            };
+        }
+    });
+    jsGrid.fields.date = DateField;
+    $("#gridCommitment").jsGrid({
+        paging: true,
+        pageIndex: 1,
+        pageSize: 10,
+        pageLoading: true,
+        autoload: true,
+        editing: false,
+        filtering: true,
+        controller: {
+            loadData: function (filter) {
+                var deferred = $.Deferred();
+                var token = $("input[name=__RequestVerificationToken]").val();
+                var PaymentHeadId = $("#PaymentHeadId").val() || 0;
+                filter.__RequestVerificationToken = token;
+                filter.PaymentHeadId = PaymentHeadId;
+                $.ajax({
+                    type: "post",
+                    url: 'SearchAdhocSalaryCommitmentList',
+                    data: filter,
+                    dataType: "json",
+                    success: function (datas) {
+                        var da = {
+                            data: datas.Data,
+                            itemsCount: datas.TotalRecords
+                        }
+
+                        deferred.resolve(da);
+                    }
+                });
+                return deferred.promise();
+
+            }
+
+        },
+        fields: [
+            { name: "SlNo", title: "S.No", editing: false, width: 60 },
+            { type: "text", name: "CommitmentNo", title: "Commitment Number", editing: false },
+            { type: "text", name: "ProjectNo", title: "Project Number", editing: false },
+            { name: "CurrentBalance", title: "Balance Available", editing: false },
+            { name: "SalaryToBePaid", title: "Amount", editing: false },
+            { name: "BalanceAfter", title: "Balance Af Commitement", editing: false },
+             {
+                 type: "control", width: 100, deleteButton: false, editButton: false,
+                 _createFilterSwitchButton: function () {
+                     return this._createOnOffSwitchButton("filtering", this.searchModeButtonClass, false)
+                 }                
+             }
+        ],
+    });
+    $("#gridCommitment").jsGrid("option", "filtering", false);
+     function LoadSalaryDetails() {
+        var page = $("#page").val() || 1;
+        var pageSize = 10;
+        var token = $("input[name=__RequestVerificationToken]").val();
+        var searchdata = { "__RequestVerificationToken": token };
+        var headers = {
+            contentType: 'application/x-www-form-urlencoded'
+        }
+        headers['__RequestVerificationToken'] = token;
+        var style = 'float: right; text-align:right; width: 100px;';
+        $.ajax({
+            url: '@Url.Action("GetSalaryPayment", "StaffPayment")?page=' + page+'&pageSize='+pageSize,
+            type: "GET",
+            headers: headers,
+            data: searchdata,
+            success: function (response) {
+                console.log(data);
+                var data = response.data;
+                var row = '';
+                if(data) {
+
+                    for(var i=0;i<data.length;i++){
+                        var field1 = '<label>'+data[i].EmployeeName+'</label>';
+                        var field2 = '<label>'+data[i].EmployeeName+'</label>';
+                        row = '<tr><td>'+field1+'</td><td>'+field2+'</td></tr>';
+                        $("#tblSalaryCheque tbody").append(row);
+                    }
+
+                }
+            },
+            error: function (err) {
+                alert(err);
+            }
+        });
+    }
+</script>

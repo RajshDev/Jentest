@@ -1,0 +1,168 @@
+﻿
+@{
+    ViewBag.Title = "   ";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<div class="row hd-tt-bg">
+    <div class="col-md-12">
+        <h3>Application Cancel List</h3>
+    </div>
+
+</div>
+<div class="row cts-mn-dts ">
+    <div class="col-md-12">
+        <div class="row mt30">
+            <div class="page-wrapper">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="custom-jsgrid-normal">
+                            <div id="gridCancelledList">
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $("#gridCancelledList").jsGrid({
+        paging: true,
+        pageIndex: 1,
+        pageSize: 10,
+        editing: false,
+        filtering: true,
+        pageLoading: true,
+        autoload: true,
+        controller: {
+
+            loadData: function (filter) {
+                var searchData = [];
+                searchData = {
+                    ApplicationNo: filter.ApplicationNumber || null,
+                    PIName: filter.PIName || null,
+                    CondidateName: filter.CondidateName || null,
+                    PIEmail: filter.Email || null,
+                    Status: filter.Status || null
+                },
+                filter.model = searchData;
+                var deferred = $.Deferred();
+                $.ajax({
+                    type: "post",
+                    url: "GetCancelledApplication",
+                    data: JSON.stringify(filter),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (result) {
+                        //db = result;
+                        //$("#AdvanceBillPaymentList").jsGrid({ data: db });
+                        var da = {
+                            data: result.VerfList,
+                            itemsCount: result.TotalRecords
+                        }
+                        deferred.resolve(da);
+                    },
+                    error: function (err) {
+                        console.log("error : " + err);
+                    }
+
+                });
+                return deferred.promise();
+            }
+
+        },
+
+        fields: [
+            { name: "SNo", title: "S.No", editing: false, width: 50 },
+            { type: "number", name: "ApplicationId", title: "Id", visible: false },
+            {
+                type: "text", name: "ApplicationNumber", title: "Application Number", editing: false, width: 150,
+                itemTemplate: function (item, name) {
+                    return $("<td>").append(name.ApplicationNumber + "<span class='gd-msg-hgt'>" + name.Category + "</span>");
+                }
+            },
+            { type: "text", name: "Category", title: "Category", editing: false, visible: false },
+            {
+                type: "text", name: "CondidateName", title:"Condidate Name & Designation", editing: false,
+                itemTemplate: function (item, name) {
+                    return $("<td>").append("<b>" + name.CondidateName + "</b>" + "<br/><span class='fn-s-xs'>" + name.Designation + "</span>");
+                }
+
+            },
+            {
+                type: "text", name: "PIName", title: "PI Name & Project Number", editing: false,
+                itemTemplate: function (item, name) {
+                    return $("<td>").append(name.PIName + "<br/><span class='fn-s-xs'>(" + name.ProjectNumber + ")</span>");
+                }
+            },
+            //{ type: "text", name: "Email", title: "PI Email", editing: false },
+           {
+               type: "text", name: "Status", title: "Status", editing: false,
+               cellRenderer: function (item, value) {
+                   if (value.Status == "Cancel") {
+                       return $("<td>").addClass("txt-rd").append(value.Status);
+                   }
+
+                   else {
+                       return $("<td>").append(value.Status);
+                   }
+               }
+           },
+
+             {
+                 type: "control", editButton: false, deleteButton: false, width: 100, title: "Action",
+
+                 itemTemplate: function (value, item) {
+                     var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+                     if (item.Status == "Cancelled") {
+                         statusList = [{ id: "", name: "Action" }, { id: "View", name: "View" }]
+                     }
+                     else {
+                         statusList = [{ id: "", name: "Action" }, { id: "View", name: "View" }]
+                     }
+                     var $customSelect = $("<select>")
+                         .attr("class", "form-control").prop("selectedIndex", "")
+                     $.each(statusList, function (index, itemData) {
+                         $customSelect.append($('<option/>', {
+
+                             value: itemData.id,
+                             text: itemData.name
+                         }));
+                     });
+                     $customSelect.change(function (e) {
+                         var selVal = $(this).val();
+                         if (selVal == "View") {
+                             if (item.Category == "CON") {
+                                 var url = '@Url.Action("ConsultantView", "Requirement")?consultantAppId=' + item.ApplicationId + '&listf=AC';
+                                 window.location.href = url;
+                             }
+                             else if (item.Category == "STE") {
+                                 var url = '@Url.Action("STEView", "Requirement")?STEID=' + item.ApplicationId + '&listf=AC';
+                                 window.location.href = url;
+                             }
+                             else if (item.Category == "OSG") {
+                                 var url = '@Url.Action("OutsourcingView", "Requirement")?OSGID=' + item.ApplicationId + '&listf=AC';
+                                 window.location.href = url;
+                             }
+                         }
+
+
+
+                         $(this).val("");
+                         return false;
+                         e.stopPropagation();
+                     });
+                     return $result.add($customSelect);
+                 },
+                 _createFilterSwitchButton: function () {
+                     return this._createOnOffSwitchButton("filtering", this.searchModeButtonClass, false);
+                 }
+             }
+
+
+        ],
+
+    });
+    $("#gridCancelledList").jsGrid("option", "filtering", false);
+</script>

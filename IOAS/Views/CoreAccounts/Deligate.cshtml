@@ -1,0 +1,281 @@
+﻿@model IOAS.Models.DeligateModel
+
+@{
+    ViewBag.Title = "Deligate";
+    ViewBag.Subtitle = "Reports";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+<div class="row hd-tt-bg">
+    <div class="col-md-12">
+        <h4><b>Delegation</b> </h4>
+    </div>
+</div>
+
+
+<style>
+    .vw-dts-bg .hgt-bg {
+        background: #597df0;
+        color: #fff;
+    }
+
+        .vw-dts-bg .hgt-bg label {
+            font-size: 16px !important;
+            color: #fff !important;
+        }
+
+        .vw-dts-bg .hgt-bg h4 {
+            font-size: 18px !important;
+            color: #fff;
+        }
+
+    .vw-dts-bg .hgt-bg-pl {
+        background: #e11eda;
+        color: #fff;
+    }
+
+        .vw-dts-bg .hgt-bg-pl label {
+            font-size: 16px !important;
+            color: #fff !important;
+        }
+
+        .vw-dts-bg .hgt-bg-pl h4 {
+            font-size: 18px !important;
+            color: #fff;
+        }
+</style>
+
+<div class="row">
+    <div class="white-bg ad-navbar">
+        <div class="col-md-3 ds-spl-bg">
+            <div class="ds-icn">
+                <i class="ion-ios-list-outline "></i>
+            </div>
+            <div class="ds-tt">
+                <span>User Name</span>
+                @Html.TextBoxFor(m => m.ApproverName, new { @class = "form-control", @id = "ApproverName" })
+                @Html.TextBoxFor(m => m.ApproverId, new { @class = "form-control dis-none", @id = "ApproverId" })
+            </div>
+        </div>
+        <div class="col-md-3 ds-spl-bg">
+            <div class="ds-tt">
+                <input type="button" value="Submit" class="btn btn-primary mt-20" id="btnSubmit" />
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<div class="row vw-dts-bg">
+    <div class="col-md-12">
+        <table class="table table-bordered">
+            <thead style="padding-bottom:20px;">
+                <tr>
+                    <th colspan="3">Flow History :</th>
+                    <th >Search :</th>
+                    <th><input type="text" id="textsearch" class="form-control" onkeyup="searchmenu()" placeholder="Flow Search"></th>
+
+            </thead>
+            <tbody id="tbodyFlow">
+                <tr>
+                    <td style="width:80px">
+                        <label><b>Process Guideline Name</b></label>
+                    </td>
+                    <td style="width:80px">
+                        <label><b>Flow</b></label>                    
+                    </td>
+                    <td style="width:80px">
+                        <label><b>Approver</b></label>
+                    </td>
+                    <td style="width:80px">
+                        <label><b>Delegated To</b></label>                  
+                    </td>
+                    <td  style="width:80px">
+                        <label><b>Action</b></label>                    
+                    </td>
+                </tr>
+                @if (Model.ListModel != null)
+                {
+                    var count = 0;
+                    foreach (var item in Model.ListModel)
+                    {
+                        var header = "ListModel[" + count + "].Header";
+                        var headerid = "ListModel[" + count + "].HeaderId";
+                        var process = "ListModel[" + count + "].Process";
+                        var processid = "ListModel[" + count + "].ProcessId";
+                        var actualapprover = "ListModel[" + count + "].ActualApprover";
+                        var actualapproverid = "ListModel[" + count + "].ActualApproverId";
+                        var delegateid= "ListModel[" + count + "].DeligateToId";
+                        var delegateTo = "ListModel[" + count + "].DeligateTo";
+                        <tr >
+                            <td>
+                                @Html.DisplayFor(m => item.Header)  @Html.Hidden("ListModel.Index", @count)
+                                @Html.Hidden("ListModel.Index", @count)
+                                @Html.Hidden(@headerid, item.HeaderId)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(m => item.Process)  
+                                @Html.Hidden(@processid, item.ProcessId)                           
+                            </td>
+                            <td>
+                                @Html.DisplayFor(m => item.ActualApprover)
+                                @Html.Hidden(@actualapproverid, item.ActualApproverId)
+                            </td>
+                            <td >
+                                @Html.TextBox(@delegateTo, item.DeligateTo, new { @class = "form-control", @id = "", @autocomplete = "off", @readonly = true })
+                                @Html.TextBox(@delegateid, item.DeligateToId, new { @class = "form-control dis-none" })
+                            </td>
+
+                            <td>
+                              <div class="col-md-6">
+                                  <a href="javascript:void(0)" class="btn-circle edit"><i style="color:darkgreen" class="glyphicon glyphicon-pencil"></i></a>
+                                  <a href="javascript:void(0)" class="dis-none save"><i style="color:darkblue" class="">Save</i></a>
+                                </div> 
+                                <div class="col-md-6">
+                                    <a href="javascript:void(0)" class="dis-none cancel"><i style="color:orangered" class="">Cancel</i></a>
+
+                                     <a href="javascript:void(0)" class="btn-circle delete"><i style="color:red" class="glyphicon glyphicon-trash"></i></a>                                         
+                                </div>   
+
+                            </td>
+                        </tr>
+                        count++;
+                    }
+
+                }
+            </tbody>
+        </table>
+    </div>
+
+
+</div>
+
+
+
+
+<script>
+    function searchmenu() {
+        $text = $("#textsearch").val();
+        $filter = $text.toLowerCase();
+        $("#tbodyFlow tr").filter(function () {
+            $(this).toggle($(this).text().toLowerCase().indexOf($filter) > -1)
+        });
+    }
+    function aplyAutoCom(ele, url, setId) {
+        $(ele).autocomplete({
+            select: function (event, ui) {
+                event.preventDefault();
+                $(ele).val(ui.item.label);
+                if (setId == true) {
+                    $(ele).closest('tr').find('input[name$=".DeligateToId"]').val(ui.item.value);
+                    $(ele).closest('tr').find('input[name$=".DeligateTo"]').val(ui.item.label);
+                } else {
+                    $(ele).closest('tr').find('input[name$=".DeligateToId"]').val('0');
+                    $(ele).closest('tr').find('input[name$=".DeligateTo"]').val(ui.item.label);
+                }
+            },
+            focus: function (event, ui) {
+                event.preventDefault();
+                $(ele).val(ui.item.label);
+            },
+            source: function (request, response) {
+                $.getJSON(url, { term: request.term },
+                 function (locationdata) {
+                     response(locationdata);
+                 });
+            },
+            minLength: 3
+        });
+    }
+        $(document).on('click', '#ApproverName', function () {
+                    applyAutoComplete($('#ApproverName'), $('#ApproverId'), "../ReportMaster/LoadUserName", undefined, undefined, undefined);
+        });
+        $('#tbodyFlow').find(' input[name$=".DeligateTo"]').each(function () {
+            var ele = $(this).closest('tr').find('input[name$=".DeligateTo"]');
+            aplyAutoCom(ele, "../ReportMaster/LoadUserName", true)
+
+        });
+        $(document).on('click', 'a.edit', function () {
+            $(this).closest('tr').find('input[name$=".DeligateTo"]').prop("readonly", false);
+            $(this).closest('tr').find('.cancel').removeClass('dis-none');
+            $(this).closest('tr').find('.save').removeClass('dis-none');
+            $(this).closest('tr').find('.edit').addClass('dis-none');
+            $(this).closest('tr').find('.delete').addClass('dis-none');
+        });
+
+        $(document).on('click', 'a.cancel', function ()
+        {
+            var DeligateTo = $(this).closest('tr').find('input[name$=".DeligateTo"]');
+            var DeligateToId = $(this).closest('tr').find('input[name$=".DeligateToId"]');
+            var ProcessId = $(this).closest('tr').find('input[name$=".ProcessId"]').val();
+            var HeadId = $(this).closest('tr').find('input[name$=".HeaderId"]').val();
+            var ActualApproverId = $(this).closest('tr').find('input[name$=".ActualApproverId"]').val();
+            if (ProcessId > 0 && HeadId > 0 && ActualApproverId > 0)
+            {
+                $.getJSON("@Url.Action("GetDelegatedName", "CoreAccounts")", { ApproverId: ActualApproverId, HeadId: HeadId, ProcessId: ProcessId },
+        function (result) {
+            DeligateTo.val(result.Item1);
+            DeligateToId.val(result.Item2);
+        });
+            }
+            $(this).closest('tr').find('input[name$=".DeligateTo"]').prop("readonly", true);
+            $(this).closest('tr').find('.cancel').addClass('dis-none');
+            $(this).closest('tr').find('.save').addClass('dis-none');
+            $(this).closest('tr').find('.edit').removeClass('dis-none');
+            $(this).closest('tr').find('.delete').removeClass('dis-none');
+        });
+
+        $(document).on('click', 'a.save', function () {
+            var ProcessId = $(this).closest('tr').find('input[name$=".ProcessId"]').val();
+            var HeadId = $(this).closest('tr').find('input[name$=".HeaderId"]').val();
+            var ActualApproverId = $(this).closest('tr').find('input[name$=".ActualApproverId"]').val();
+            var DeligateToId = $(this).closest('tr').find('input[name$=".DeligateToId"]').val();
+            if (ProcessId > 0 && HeadId > 0 && ActualApproverId > 0 && DeligateToId > 0)
+            {
+                $.getJSON("@Url.Action("AddDelegate", "CoreAccounts")", { ApproverId: ActualApproverId, HeadId: HeadId, ProcessId: ProcessId, DelegatedToId: DeligateToId },
+        function (result) {
+            if (result == true) {
+                messageBox("It has been added successfully", "success");
+            } else {
+                messageBox("Something went wrong", "error");
+            }
+        });
+            }
+            $(this).closest('tr').find('input[name$=".DeligateTo"]').prop("readonly", true);
+            $(this).closest('tr').find('.cancel').addClass('dis-none');
+            $(this).closest('tr').find('.save').addClass('dis-none');
+            $(this).closest('tr').find('.edit').removeClass('dis-none');
+            $(this).closest('tr').find('.delete').removeClass('dis-none');
+        });
+    $(document).on('click', 'a.delete', function () {
+        var DeligateTo = $(this).closest('tr').find('input[name$=".DeligateTo"]');
+        var varDeligateToId = $(this).closest('tr').find('input[name$=".DeligateToId"]');
+        var ProcessId = $(this).closest('tr').find('input[name$=".ProcessId"]').val();
+        var HeadId = $(this).closest('tr').find('input[name$=".HeaderId"]').val();
+        var ActualApproverId = $(this).closest('tr').find('input[name$=".ActualApproverId"]').val();
+        var DeligateToId = $(this).closest('tr').find('input[name$=".DeligateToId"]').val();
+        if (ProcessId > 0 && HeadId > 0 && ActualApproverId > 0 && DeligateToId > 0)
+        {    var choice = confirm("Are you sure, Do you want to delete this delegation process?");
+        if (choice === true) {
+            $.getJSON("@Url.Action("RemoveDelegate", "CoreAccounts")", { ApproverId: ActualApproverId, HeadId: HeadId, ProcessId: ProcessId, DelegatedToId: DeligateToId },
+    function (result) {
+        DeligateTo.val('');
+        varDeligateToId.val('0');
+        if (result==true) {
+            messageBox("It has been deleted successfully", "success");
+        } else {
+            messageBox("No delegation in this process", "warning");
+        }
+        
+    });
+        }
+        }
+    });
+        $('#btnSubmit').click(function () {
+            var Id = $("#ApproverId").val();
+            var url = '@Url.Action("Deligate", "CoreAccounts")?Id=' + Id;
+        window.location.href = url;
+
+    });
+</script>

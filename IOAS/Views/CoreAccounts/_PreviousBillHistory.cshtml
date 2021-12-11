@@ -1,0 +1,127 @@
+﻿<div id="preBillHistoryModal" class="modal fade modal-pr-vw" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <div class="row hd-tt-bg">
+                    <div class="col-md-12">
+                        <h4><b>Previous Bill History </b></h4>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="custom-md-bg">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div id="preBillHistoryList"></div>
+                        </div>
+                        <div class="col-md-4 col-md-offset-8">
+                            <label><b>Total Amount :</b> </label>
+                            <label>@ViewBag.TtlAmt </label>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script type="text/javascript" >
+    var db = @Html.Raw(Json.Encode(ViewBag.data));
+    var DateField = function (config) {
+        jsGrid.Field.call(this, config);
+    };
+
+    DateField.prototype = new jsGrid.Field({
+        sorter: function (date1, date2) {
+            return new Date(date1) - new Date(date2);
+        },
+
+        itemTemplate: function (value) {
+            return new Date(value).toDateString();
+        },
+
+        filterTemplate: function () {
+            var now = new Date();
+            this._fromPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() - 1), changeYear: true });
+            this._toPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() + 1), changeYear: true });
+            return $("<div>").append(this._fromPicker).append(this._toPicker);
+        },
+
+        insertTemplate: function (value) {
+            return this._insertPicker = $("<input>").datepicker({ defaultDate: new Date() });
+        },
+
+        editTemplate: function (value) {
+            return this._editPicker = $("<input>").datepicker().datepicker("setDate", new Date(value));
+        },
+
+        insertValue: function () {
+            return this._insertPicker.datepicker("getDate").toISOString();
+        },
+
+        editValue: function () {
+            return this._editPicker.datepicker("getDate").toISOString();
+        },
+
+        filterValue: function () {
+            return {
+                from: this._fromPicker.datepicker("getDate"),
+                to: this._toPicker.datepicker("getDate")
+            };
+        }
+    });
+    jsGrid.fields.date = DateField;     
+    $("#preBillHistoryList").jsGrid({
+        paging: true,
+        pageIndex: 1,
+        pageSize: 5,
+        editing: false,
+        filtering: true,
+        controller: {
+
+            loadData: function (filter) {
+                return $.grep(db, function (ow) {
+                    return (!filter.BillNumber || ow.BillNumber.toLowerCase().indexOf(filter.BillNumber.toLowerCase()) > -1)
+                   && (!filter.InvoiceNumber || ow.InvoiceNumber.toLowerCase().indexOf(filter.InvoiceNumber.toLowerCase()) > -1)
+                   && (!filter.TransactionType || ow.TransactionType.toLowerCase().indexOf(filter.TransactionType.toLowerCase()) > -1)
+                   && (!filter.PONumber || ow.PONumber.toLowerCase().indexOf(filter.PONumber.toLowerCase()) > -1)
+                   && (!filter.InvoiceDate.from || new Date(ow.InvoiceDate) >= filter.InvoiceDate.from)
+                   && (!filter.InvoiceDate.to || new Date(ow.InvoiceDate) <= filter.InvoiceDate.to)
+                   && (!filter.BillDate.from || new Date(ow.BillDate) >= filter.BillDate.from)
+                   && (!filter.BillDate.to || new Date(ow.BillDate) <= filter.BillDate.to);
+                });
+            }
+
+        },
+
+        fields: [
+            { name: "SlNo", title: "S.No", editing: false, width: 50 },
+            { type: "text", name: "BillNumber", title: "Bill Number", editing: false },
+            { name: "BillDate", title: "Bill Date", type: "date", width: 100, align: "center" },
+            { type: "text", name: "InvoiceNumber", title: "Invoice Number", editing: false },
+            { name: "InvoiceDate", title: "Invoice Date", type: "date", width: 100, align: "center" },
+            { type: "text", name: "TransactionType", title: "Type", editing: false },
+            { type: "text", name: "PONumber", title: "PO Number", editing: false },
+            { name: "POAmount", title: "PO Amount", editing: false },
+            { name: "BillAmount", title: "Bill Amount", editing: false },
+            {
+                type: "control", editButton: false, deleteButton: false, width: "60px",
+                _createFilterSwitchButton: function () {
+                    return this._createOnOffSwitchButton("filtering", this.searchModeButtonClass, false);
+                }
+            }
+
+
+        ],
+
+    });
+    $("#preBillHistoryList").jsGrid("option", "filtering", false);
+    $(document).ready(function () {
+        $("#preBillHistoryList").jsGrid({ data: db });
+    });
+</script>

@@ -1,0 +1,134 @@
+﻿@model IEnumerable<IOAS.Models.AttachmentDetailModel>
+<h3>Document Details</h3>
+<div class="row">
+    <div class="col-md-12">
+
+        <div id="divAttachContent">
+            <table class="table table-bordered mb-null">
+                <thead>
+                    <tr>
+                        <th>Attachment type</th>
+                        <th>Attachment Name </th>
+                        <th>Attachment </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+
+                        if (Model.Count() > 0)
+                        {
+                            var count = 0;
+                            foreach (var item in Model)
+                            {
+                                var docType = "DocumentDetail[" + count + "].DocumentType";
+                                var docId = "DocumentDetail[" + count + "].DocumentDetailId";
+                                var docRemarks = "DocumentDetail[" + count + "].Remarks";
+                                var docFile = "DocumentDetail[" + count + "].DocumentFile";
+                                var docName = "DocumentDetail[" + count + "].DocumentName";
+                                var docPath = "DocumentDetail[" + count + "].DocumentPath";
+                                var docActName = "DocumentDetail[" + count + "].DocumentActualName";
+                                var docTypeName = "DocumentDetail[" + count + "].DocumentTypeName";
+
+                                <tr  id="divAttachPrimary">
+                                    
+                                    <td>
+                                        @*@Html.DropDownList(@docType, new SelectList(ViewBag.DocmentTypeList, "id", "name", item.DocumentType), "Select any",
+                                new { @class = "form-control required", @id = "docType" })*@
+                                        <h4>@item.DocumentTypeName</h4>
+                                        @Html.Hidden("DocumentDetail.Index", @count)
+                                        @Html.Hidden(@docId, item.DocumentDetailId)
+                                        @Html.Hidden(@docName, item.DocumentName)
+                                        @Html.Hidden(@docPath, item.DocumentPath)
+                                        @Html.Hidden(@docActName, item.DocumentActualName)
+
+                                    </td>
+                                    <td>
+                                        <h4>@item.Remarks</h4>
+                                    </td>
+                                   
+                                    <td>
+                                        <a href="@Url.Action("ShowDocument","Project",new { file = item.DocumentName, filepath = item.DocumentPath })" target="_blank">@item.DocumentActualName</a>
+                                    </td>
+                                    
+                                </tr>
+                                count++;
+                            }
+                        }
+                        else
+                        {
+                            <tr  id="divAttachPrimary">
+                                <td>
+                                    @*@Html.DropDownList("DocumentDetail[0].DocumentType", new SelectList(ViewBag.DocmentTypeList, "id", "name"), "Select any",
+                            new { @class = "form-control required", @id = "docType" })
+                                     @Html.Hidden("DocumentDetail.Index", "0")
+                                     @Html.ValidationMessage("DocumentDetail[0].DocumentType")*@
+                                </td>
+                                <td>
+                                    @*<input class="form-control" name="DocumentDetail[0].Remarks" value="" type="text">*@
+
+                                </td>
+                                <td>
+                                    @*<input type="file" class="required" name="DocumentDetail[0].DocumentFile" />&nbsp;&nbsp;&nbsp;*@
+
+
+                                </td>
+                                <td>
+                                    <a href="" target="_blank"></a>
+                                </td>
+                               
+
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $('#btnAddAttachment').click(function () {
+        var cln = $("#divAttachPrimary").clone().find("input").val("").end();
+        $(cln).find('button.dis-none').removeClass('dis-none');
+        $(cln).find('div.doclink').addClass('dis-none');
+        var index = $('#divAttachContent div.m-b-sm').length;//$("#divAttachPrimary").length - 1;
+        $(cln).find("input[name='DocumentDetail.Index']").val(index);
+        $(cln).find("input, select").each(function () {
+            $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+        });
+        $(cln).find("input[name$='.DocumentFile']").addClass('Required');
+        $(cln).insertBefore($('#divAttachContent').find('.p-b-sm'));
+
+    });
+    $(document).on('click', '#divAttachContent button[name="removeDocButton"]', function () {
+        $(this).closest('#divAttachPrimary').remove();
+    });
+    $(document).on('change', 'input[name$=".DocumentFile"]', function () {
+        var file = $(this).val();
+        if (file != "") {
+            var file_size = $(this)[0].files[0].size;
+            var extension = file.substr((file.lastIndexOf('.') + 1)).toLowerCase();
+            switch (extension) {
+                case 'doc':
+                case 'docx':
+                case 'pdf':
+                    isValidExten = true;
+                    break;
+                default:
+                    isValidExten = false;
+            }
+            if (isValidExten == false) {
+                $('#alert').html("Please upload any one of these type file [doc, docx, pdf].");
+                $('#Validation').modal('toggle');
+                $(this).val('');
+                return false;
+            }
+            else if (file_size > 5242880) {
+                $('#alert').html("You can upload the file up to 5 MB.");
+                $('#Validation').modal('toggle');
+                $(this).val('');
+                return false;
+            }
+        }
+    });
+
+</script>

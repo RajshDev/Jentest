@@ -1,0 +1,289 @@
+﻿@{
+    ViewBag.Title = "T & M Salary List";
+    ViewBag.Subtitle = "T & M Salary List";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+<div class="row hd-tt-bg">
+    <div class="col-md-4">
+        <h3>T & M Salary List</h3>
+    </div>
+    <div id="addnewpage" class="col-md-8 flt-nav-links">
+
+        <a href="@Url.Action("AgencySalary")"> <i class="ion-plus"></i>Add New</a>
+
+    </div>
+</div>
+
+<div class="row mt30">
+    <div class="page-wrapper">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="custom-jsgrid-normal">
+                    <div id="SalaryList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="popup"></div>
+
+<script type="text/javascript">
+
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    /*Filter Function */
+    $("#FromDate, #ToDate").datepicker
+          ({
+              dateFormat: 'dd-MM-yy',
+              showStatus: true,
+              showWeeks: true,
+              changeYear: true,
+              yearRange: '-100:+0',
+              highlightWeek: true,
+              numberOfMonths: 1,
+              showAnim: "scale",
+              showOptions: {
+                  origin: ["top", "left"]
+              }
+          });
+    $('a[name="btnClose"],button[name="btnClose"]').click(function () {
+        $('#popupFilter').css("display", "none");
+    });
+    $("#btnFilter").click(function () {
+        $('#popupFilter').css("display", "Block");
+    });
+    $('#btnSearch').on('click', function () {
+        // var token = $("input[name=__RequestVerificationToken]").val();
+        getData();
+
+    });
+    function ResetForm() {
+        $('#PaymentNo').val('');
+        $('#FromDate').val('');
+        $('#ToDate').val('');
+
+    }
+    $('#btnReset').click(function () {
+        $('#PaymentNo').val('');
+        $('#FromDate').val('');
+        $('#ToDate').val('');
+        getData();
+    });
+
+    var searchAgencyURL = 'SearchAgencySalaryList';
+    function getData() {
+        var PayNo = $('#PaymentNo').val();
+        var FromDate = $('#FromDate').val();
+        var ToDate = $('#ToDate').val();
+        if (PayNo == "") {
+            HonorNo = null;
+        }
+        if (FromDate == "") {
+            FromDate = null;
+        }
+        if (ToDate == "") {
+            ToDate = null;
+        }
+        var searchdata = {
+            PaymentNo: PayNo,
+            FromDate: FromDate,
+            ToDate: ToDate
+        };
+
+        $.ajax({
+            type: "GET",
+            url: searchAgencyURL,
+            data: searchdata,
+            dataType: "json",
+            success: function (result) {
+                $("#HonororiumList").jsGrid({ data: result });
+               // $('#gridlist').show();
+                $('#popupFilter').hide();
+
+            },
+            error: function (err) {
+                console.log("error : " + err);
+            }
+        });
+
+    }
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+    });
+    var DateField = function (config) {
+        jsGrid.Field.call(this, config);
+    };
+    DateField.prototype = new jsGrid.Field({
+        sorter: function (date1, date2) {
+            return new Date(date1) - new Date(date2);
+        },
+
+        itemTemplate: function (value) {
+            return new Date(value).toDateString();
+        },
+
+        filterTemplate: function () {
+            var now = new Date();
+            this._fromPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() - 1), changeYear: true });
+            this._toPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() + 1), changeYear: true });
+            return $("<div>").append(this._fromPicker).append(this._toPicker);
+        },
+
+        insertTemplate: function (value) {
+            return this._insertPicker = $("<input>").datepicker({ defaultDate: new Date() });
+        },
+
+        editTemplate: function (value) {
+            return this._editPicker = $("<input>").datepicker().datepicker("setDate", new Date(value));
+        },
+
+        insertValue: function () {
+            return this._insertPicker.datepicker("getDate").toISOString();
+        },
+
+        editValue: function () {
+            return this._editPicker.datepicker("getDate").toISOString();
+        },
+
+        filterValue: function () {
+            return {
+                from: this._fromPicker.datepicker("getDate"),
+                to: this._toPicker.datepicker("getDate")
+            };
+        }
+    });
+    jsGrid.fields.date = DateField;
+    var db;
+
+    $("#SalaryList").jsGrid({
+        paging: true,
+        pageIndex: 1,
+        pageSize: 5,
+        editing: false,
+        filtering: true,
+        controller: {
+            loadData: function (filter) {
+                return $.grep(db, function (ow) {
+                    return (!filter.BillNumber || ow.BillNumber.toLowerCase().indexOf(filter.BillNumber.toLowerCase()) > -1)
+                   && (!filter.RequestedDate.from || new Date(ow.RequestedDate) >= filter.RequestedDate.from)
+                   && (!filter.RequestedDate.to || new Date(ow.RequestedDate) <= filter.RequestedDate.to);
+                });
+            }
+        },
+
+        fields: [
+            { name: "SlNo", title: "S.No", editing: false, width: 10 },
+            { type: "text", name: "PaymentNo", title: "Payment Number", visible: false, align: "left" },
+            { type: "text", name: "MonthYear", title: "Month & year", editing: false, align: "left", width: 70 },
+            { type: "text",name: "TotalEmployee", title: "Total Employee", editing: false, align: "left", width: 70 },
+            { name: "TotalAmount", title: "Total Amount", editing: false, align: "left", width: 70 },
+            { name: "Status", title: "Status", editing: false, align: "left", width: 70 },
+
+             {
+                 type: "control", editButton: false, deleteButton: false, title: "Action", width: 80,
+                 itemTemplate: function (value, item) {
+                     var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+                     if (item.Status == "Open") {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "Approve", name: "Approve" }, { id: "Edit", name: "Edit" }, { id: "View", name: "View" }]
+                     } else if (item.Status == "Init") {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "Edit", name: "Edit" }, { id: "View", name: "View" }]
+
+                     }
+                     else {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }]
+                     }
+                     var $customSelect = $("<select>")
+                         .attr("class", "form-control").prop("selectedIndex", "")
+
+                     $.each(statusList, function (index, itemData) {
+                         $customSelect.append($('<option/>', {
+
+                             value: itemData.id,
+                             text: itemData.name
+                         }));
+                     });
+
+                     $customSelect.change(function (e) {
+                         var selVal = $(this).val();
+                         if (selVal == "Edit") {
+                             var url = '@Url.Action("AgencySalary", "StaffPayment")?agencySalaryId=' + item.AgencySalaryID;
+                             window.location.href = url;
+                         }else if (selVal == "View") {
+                             var url = '@Url.Action("AgencySalaryView", "StaffPayment")?agencySalaryId=' + item.AgencySalaryID;
+                             window.location.href = url;
+                         }
+                         else if (selVal == "Approve") {
+                             var choice = confirm("Are you sure, Do you want to approval this bill?");
+                             if (choice === true) {
+                                 $('.loading-bg').removeClass('dis-none');
+                                 $.ajax({
+                                     type: "POST",
+                                     url: '@Url.Action("AgencySalaryApproved", "StaffPayment")',
+                                     data: {
+                                         agencySalaryId: item.AgencySalaryID
+                                     },
+                                     success: function (result) {
+                                         if (result.status == true) {
+                                             $('#alertSuccess').html("Bill has been approved successfully.");
+                                             $('#Success').modal('toggle');
+                                             loadDetails();
+                                         } else if (result.status == false) {
+                                             $('#FailedAlert').html(result.msg);
+                                             $('#Failed').modal('toggle');
+                                         }
+                                         $('.loading-bg').addClass('dis-none');
+                                     },
+                                     error: function (err) {
+                                         console.log("error1 : " + err);
+                                         $('.loading-bg').addClass('dis-none');
+                                     }
+                                 });
+                             }
+                         }
+                         $(this).val("");
+                         return false;
+                         e.stopPropagation();
+                     });
+
+                     return $result.add($customSelect);
+                 },
+                 _createFilterSwitchButton: function () {
+                     return this._createOnOffSwitchButton("filtering", this.searchModeButtonClass, false);
+                 }
+             }
+
+
+        ],
+
+    });
+
+    $("#SalaryList").jsGrid("option", "filtering", false);
+    loadDetails();
+    function loadDetails() {
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("GetAgencySalaryList", "StaffPayment")',
+            data: {},
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (result) {
+                db = result;
+                $("#SalaryList").jsGrid({ data: db });
+            },
+            error: function (err) {
+                console.log("error : " + err);
+            }
+
+        });
+    }
+
+</script>

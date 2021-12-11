@@ -1,0 +1,3342 @@
+﻿@model IOAS.Models.DistributionModel
+@{
+    ViewBag.Title = "Distribution Payment";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+@using (Html.BeginForm("Distribution", "CoreAccounts", FormMethod.Post, new { @class = "", role = "form", @id = "formSI", enctype = "multipart/form-data" }))
+{
+    <div class="row hd-tt-bg">
+        <div class="col-md-12">
+            <h4><b>Distribution</b> </h4>
+        </div>
+    </div>
+    <div class="row">
+        <div class="white-bg ad-navbar">
+            <div class="col-md-3 ds-spl-bg">
+                <div class="ds-icn">
+                    <i class="ion-ios-list-outline "></i>
+                </div>
+                <div class="ds-tt">
+                    <span class="required">Request Reference</span>
+                    @Html.DropDownListFor(m => m.Source, new SelectList(ViewBag.SourceList, "codevalAbbr", "CodeValDetail"), "Select any",
+         new { @class = "form-control" })
+                    @Html.ValidationMessageFor(m => m.Source)
+                    @Html.HiddenFor(m => m.NeedUpdateTransDetail)
+                    @Html.HiddenFor(m => m.DistributionId)
+                </div>
+            </div>
+            <div class="col-md-3 ds-spl-bg">
+                <div class="ds-icn">
+                    <i class="ion-ios-calendar-outline"></i>
+                </div>
+                <div class="ds-tt" id="divRefNum">
+                    <span class="required">Ref Number (WF / Tapal)</span>
+                    @*@Html.DropDownListFor(m => m.SourceReferenceNumber, new SelectList(ViewBag.SourceRefNumberList, "id", "name"), "Select any",
+                        new { @class = "form-control" })*@
+                    @Html.TextBoxFor(m => m.ReferenceNumber, new { @class = "form-control" })
+                    @Html.TextBoxFor(m => m.SourceReferenceNumber, new { @class = "form-control dis-none" })
+                    @Html.ValidationMessageFor(m => m.SourceReferenceNumber)
+                    @Html.Hidden("SourceTapalOrWorkflow", "True")
+                    @Html.HiddenFor(m => m.SubCode)
+                    @Html.Hidden("TransactionTypeCode", "DIS")
+                </div>
+                <div class="dis-none ds-tt" id="divRefEmailDate">
+                    <span class="required">Email Date</span>
+                    @Html.EditorFor(m => m.SourceEmailDate, new { @class = "form-control" })
+                    <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.SourceEmailDate)</div>
+                </div>
+            </div>
+
+            <div class="col-md-3 col-md-offset-3">
+                <div class="reg-no custom-reg-no">
+                    <div class="form-group custom-form-group">
+                        <label>Number</label>
+                        <h4>@Html.DisplayFor(m => m.DistributionNumber)</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+
+        <div class="col-md-12 mt30">
+            <ul class="nav nav-pills custom-nav-pills">
+                <li class="active"><a href="javascript:void(0)"><span>01</span>Distribution</a></li>
+                <li><a href="javascript:void(0)"><span>02</span>Distribution Details</a></li>
+                <li><a href="javascript:void(0)"><span>03</span>Commitment Details</a></li>
+                <li><a href="javascript:void(0)"><span>04</span>Transaction Details</a></li>
+                <li><a href="javascript:void(0)"><span>05</span>CheckList Details</a></li>
+                <li><a href="javascript:void(0)"><span>06</span>Document Details</a></li>
+            </ul>
+
+            <div class="tab">
+
+                <div class="col-md-12">
+                    <div class="row">
+
+                        <div class="col-md-12">
+                            <div class="bl-lg-panel-box pb-null">
+                                <div class="cmn-panel-box">
+                                    <div class="row">
+                                        <div class="col-md-6">
+
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="form-group custom-form-group">
+                                                        <label>Distribution Type</label>
+                                                        @Html.DropDownListFor(m => m.DistributionType, new SelectList(ViewBag.DistributionType, "id", "name"), "Select any", new { @class = "form-control required", @id = "txtdistributiontype" })
+                                                        @Html.ValidationMessageFor(m => m.DistributionType)
+                                                        @Html.HiddenFor(m => m.ProjectType)
+
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group custom-form-group">
+                                                        <label>Project No </label>
+                                                        @Html.TextBoxFor(m => m.ProjectNumber, new { @class = "form-control", @id = "txtProjectNumber", @onchange = "calculateamount();" })
+                                                        @Html.TextBoxFor(m => m.ProjectId, new { @class = "form-control dis-none" })
+                                                        @Html.ValidationMessageFor(m => m.ProjectNumber)
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="vh-grid-tb mt-null mb-lg">
+                                                <div class="vh-grid-cell grey-bg">
+                                                    <div class="grey-bg-adj">
+                                                        <div class="row">
+                                                            <div class="col-md-6">
+                                                                <div class="form-group custom-form-group">
+                                                                    <label>PI Name :</label>
+                                                                    <h4 id="piname">@Html.DisplayFor(m => m.PIName)</h4>
+                                                                    @Html.HiddenFor(m => m.PIName)
+                                                                    @Html.HiddenFor(m => m.PIId)
+                                                                </div>
+                                                                <div class="form-group custom-form-group">
+                                                                    <label>Total Spent Amount :</label>
+                                                                    <h4 id="totamtspent">@Html.DisplayFor(m => m.PjctTotalAmountSpent)</h4>
+                                                                </div>
+                                                                <div class="form-group custom-form-group">
+                                                                    <label>Open Commitment :</label>
+                                                                    <h4 id="pjctopencommit">@Html.DisplayFor(m => m.PjctOpenCommitmentAmount)</h4>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <div class="form-group custom-form-group">
+                                                                    <label>Total Received :</label> <br />
+                                                                    Receipt Amount : <span id="totamtreceivedinclOHandGST"> @Html.DisplayFor(m => m.PjctTotalAmtReceivedincldngOHandGST)</span> <br />
+                                                                    Overheads Amount : <span id="totamtreceivedOH"> @Html.DisplayFor(m => m.PjctTotalAmountReceivedOH)</span><br />
+                                                                    GST Amount : <span id="totamtreceivedGST"> @Html.DisplayFor(m => m.PjctTotalAmountReceivedGST)</span><br />
+                                                                    <b> Balance Amount : <span id="totamtreceivedBalance"> @Html.DisplayFor(m => m.PjctTotalAmountReceived)</span><br /></b>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+
+                                                        </div>
+
+                                                    </div>
+
+                                                </div>
+                                            </div>
+
+
+
+                                            <div class="vh-grid-tb mt-null mb-lg">
+                                                <div class="vh-grid-cell grey-bg">
+                                                    <div class="grey-bg-adj">
+
+                                                        <div class="row">
+                                                            <div class="form-group custom-form-group ml15">
+                                                                <table>
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <th></th>
+                                                                            <th style="width:150px" class="text-center"></th>
+                                                                            @*<th>Sanctioned Value</th>*@
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody id="OverheadsList">
+                                                                        @if (Model.DistributionOverheads != null)
+                                                                        {
+                                                                            var count = 0;
+                                                                            foreach (var item in Model.DistributionOverheads)
+                                                                            {
+                                                                                var overheadtypeid = "DistributionOverheads[" + count + "].OverheadtypeId";
+                                                                                var overheadtype = "DistributionOverheads[" + count + "].Overheadtypename";
+                                                                                var overheadpercent = "DistributionOverheads[" + count + "].OverheadPercentage";
+                                                                                var overheadamount = "DistributionOverheads[" + count + "].OverheadAmount";
+                                                                                <tr>
+                                                                                    <td>
+                                                                                        <span class="tdOHtype">
+                                                                                            @Html.DisplayFor(m => item.Overheadtypename, new { @class = "form-control", @id = "txtOverheadTypename" })
+                                                                                            @Html.DisplayFor(m => item.OverheadPercentage, new { @class = "form-control", @id = "txtOverheadPercentage" }) % :
+                                                                                        </span>
+                                                                                        @Html.Hidden("DistributionOverheads.Index", @count)
+                                                                                        @Html.Hidden(@overheadtypeid, item.OverheadtypeId)
+                                                                                        @Html.Hidden(@overheadtype, item.Overheadtypename)
+                                                                                        @Html.Hidden(@overheadpercent, item.OverheadPercentage)
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        <span class="tdOHAmount">
+                                                                                            @Html.DisplayFor(m => item.OverheadAmount, new { @class = "form-control", @id = "txtOverheadamtdisplay" })
+                                                                                        </span>
+                                                                                        @Html.Hidden(@overheadamount, item.OverheadAmount, new { @class = "form-control", @id = "txtOverheadamt" })
+                                                                                    </td>
+
+                                                                                </tr>
+                                                                                count++;
+                                                                            }
+                                                                        }
+
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="form-group custom-form-group mb-md">
+                                                                <label class="col-md-4">Institute OH @Html.DisplayFor(m => m.InstituteOverheadPercentage) % :</label>
+                                                                <h4 class="col-md-6 mt-xs" id="instoh">@Html.DisplayFor(m => m.InstituteOverheadAmount)</h4>
+                                                                @Html.HiddenFor(m => m.InstituteOverheadPercentage)
+                                                                @Html.HiddenFor(m => m.InstituteOverheadAmount)
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="form-group custom-form-group mb-md">
+                                                                <b>
+                                                                    <label class="col-md-7" style="font-weight:bold">Amount Available for Staff:</label>
+                                                                    <span class="col-md-3 mt-xs" id="amtavailforstaff">@Html.DisplayFor(m => m.AmountAvailableforDistribution)</span>
+                                                                </b>
+                                                                @Html.HiddenFor(m => m.AmountAvailableforDistribution, new { @id = "txtAmtAvailableforDistribution" })
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-md-6">
+                                                                <div class="form-group custom-form-group mb-null">
+                                                                    <label>Total Individual Share :</label>
+                                                                    @Html.TextBoxFor(m => m.TotalIndividualShareAmount, new { @class = "form-control", @id = "txtTotalIndividualShare", @readonly = true })
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <div class="form-group custom-form-group mb-null">
+                                                                    <label>Total PCF :</label>
+                                                                    @Html.TextBoxFor(m => m.TotalPCFShareAmount, new { @class = "form-control", @id = "txtTotalPCFShare", @readonly = true })
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="grey-bg-adj">
+                                                <div class="row">
+                                                    <div class="col-md-4">
+                                                        <div class="form-group custom-form-group mb-null">
+                                                            <label>Available balance :</label>
+                                                            <h4 id="pjctbalnce">@Html.DisplayFor(m => m.PjctAvailableBalanceAmount)</h4>
+                                                            @Html.HiddenFor(m => m.PjctAvailableBalanceAmount)
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="form-group custom-form-group">
+                                                            <label>Month & Year </label>
+                                                            @Html.TextBoxFor(m => m.DistributionDate, new { @class = "form-control", @id = "txtDistributionDate" })
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="form-group custom-form-group">
+                                                            <label>Distribution Amount </label>
+                                                            @Html.TextBoxFor(m => m.DistributionAmount, new { @class = "form-control", @id = "txtDistributionAmount", @onchange = "calculateamount();" })
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <div class="lt-bl-bg">
+                                                            <div class="row">
+                                                                <div class="col-md-12">
+                                                                    <h4>Expenditure</h4>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row">
+                                                                <div class="form-group custom-form-group">
+                                                                    <label class="col-md-6">Lab Code :</label>
+                                                                    <div class="col-md-6">
+                                                                        @*@Html.TextBoxFor(m => m.LabCode, new { @class = "form-control", @id = "txtToLabCode" })*@
+                                                                        @Html.DropDownListFor(m => m.LabCode, new SelectList(ViewBag.Labcode, "name", "name"), "Select any", new { @class = "form-control selectpicker", @id = "txtToLabCode" })
+                                                                        @Html.ValidationMessageFor(m => m.LabCode)
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row">
+                                                                <div class="form-group custom-form-group">
+                                                                    <label class="col-md-6">EUCO</label>
+                                                                    <div class="col-md-6">
+                                                                        @Html.TextBoxFor(m => m.EUCOAmount, new { @class = "form-control", @id = "txtEUCOAmount", @onchange = "calculateamount();", @onblur = "Changetransaction()", @onkeypress = "return ValidateDecimalOnly(event)", @autocomplete = "off" })
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row">
+                                                                <div class="form-group custom-form-group">
+                                                                    <label class="col-md-6"> STORES CONSUMED</label>
+                                                                    <div class="col-md-6">
+                                                                        @Html.TextBoxFor(m => m.StoresConsumedAmount, new { @class = "form-control", @id = "txtStoresAmount", @onchange = "calculateamount();", @onblur = "Changetransaction()", @onkeypress = "return ValidateDecimalOnly(event)", @autocomplete = "off" })
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row">
+                                                                <div class="form-group custom-form-group">
+                                                                    <label class="col-md-6">CENTRAL FACILITIES</label>
+                                                                    <div class="col-md-6">
+                                                                        @Html.TextBoxFor(m => m.CentralFacilitiesAmount, new { @class = "form-control", @id = "txtCentralFacilitiesAmount", @onchange = "calculateamount();", @onblur = "Changetransaction()", @onkeypress = "return ValidateDecimalOnly(event)", @autocomplete = "off" })
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row">
+                                                                <div class="form-group custom-form-group">
+                                                                    <label class="col-md-6">OTHERS</label>
+                                                                    <div class="col-md-6">
+                                                                        @Html.TextBoxFor(m => m.OthersAmount, new { @class = "form-control", @id = "txtOthersAmount", @onchange = "calculateamount();", @onblur = "Changetransaction()", @onkeypress = "return ValidateDecimalOnly(event)", @autocomplete = "off" })
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row">
+                                                                <div class="form-group custom-form-group mb-null">
+                                                                    <label class="col-md-6">Total</label>
+                                                                    <div class="col-md-6">
+                                                                        @Html.TextBoxFor(m => m.TotalExpenditureAmount, new { @class = "form-control", @id = "txtExpenditureAmount", @onkeypress = "return ValidateDecimalOnly(event)", @autocomplete = "off" })
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <div class="lt-bl-bg">
+                                                            <div class="row">
+                                                                <div class="col-md-12">
+                                                                    <h4>Amount Transferred to IIT</h4>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row">
+                                                                <div class="form-group custom-form-group">
+                                                                    <label class="col-md-6">Power/Water/Others</label>
+                                                                    <div class="col-md-6">
+                                                                        @Html.TextBoxFor(m => m.TransferedToIITAmount, new { @class = "form-control", @id = "txtTransferedToIITAmount", @onchange = "calculateamount();", @onblur = "Changetransaction()", @onkeypress = "return ValidateDecimalOnly(event)", @autocomplete = "off" })
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row">
+                                                                <div class="form-group custom-form-group">
+                                                                    <label class="col-md-6"> Subtotal</label>
+                                                                    <div class="col-md-6">
+                                                                        @Html.TextBoxFor(m => m.SubTotalAmount, new { @class = "form-control", @id = "txtSubTotalAmount" })
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row">
+                                                                <div class="form-group custom-form-group">
+                                                                    <b>
+                                                                        <label class="col-md-7" style="font-weight:bold">Amount Available for Distribution:</label>
+                                                                        <span class="col-md-3 mt-xs" id="amtavailfordistri"></span>
+                                                                    </b>
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab">
+                <div class="">
+
+                    <div class="col-md-12">
+                        <div class="bl-lg-panel-box pb-null">
+                            <div class="cmn-panel-box">
+                                <div class="text-right mb20">
+                                    <a href="javascript:void(0)" id="btnAddPayment" class="btn btn-primary">Add New</a>
+                                </div>
+                                <div class="grey-bg-adj mb-lg">
+                                    <div class="row">
+                                        <div class="col-md-12 scrl-table scrl-table-po-bl">
+                                            <table class="table alter-table mb-null">
+                                                <thead>
+                                                    <tr>
+                                                        <th style="width:150px;">Type</th>
+                                                        <th style="width:270px;">Name</th>
+                                                        <th style="width:200px;">Designation</th>
+                                                        <th style="width:200px;">Department</th>
+                                                        <th style="width:200px;">PayBill No	</th>
+                                                        <th style="width:200px;">Project No</th>
+                                                        <th style="width:150px;">Amount</th>
+                                                        @*<th>TDS</th>
+                                                            <th>Net</th>*@
+                                                        <th style="width:150px;">Payment Mode</th>
+                                                        @*<th>Bank Name</th>
+                                                            <th>Branch </th>
+                                                            <th>A/C No</th>
+                                                            <th>IFSC</th>*@
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="tbodyPO">
+                                                    @if (Model.DistributionDetails != null && Model.DistributionDetails.Count() > 0)
+
+                                                    {
+                                                        var count = 0;
+                                                        foreach (var item in Model.DistributionDetails)
+                                                        {
+                                                            var category = "DistributionDetails[" + count + "].Category";
+                                                            var userid = "DistributionDetails[" + count + "].UserId";
+                                                            var name = "DistributionDetails[" + count + "].Name";
+                                                            var distributiondetailsId = "DistributionDetails[" + count + "].DistributionDetailId";
+                                                            var facultydept = "DistributionDetails[" + count + "].FacultyDepartment";
+                                                            var facultydesig = "DistributionDetails[" + count + "].FacultyDesignation";
+                                                            var paybillnumber = "DistributionDetails[" + count + "].PayBillNumber";
+                                                            var projectnumber = "DistributionDetails[" + count + "].ProjectNumber";
+                                                            var amount = "DistributionDetails[" + count + "].Amount";
+                                                            //var tdsvalue = "DistributionDetails[" + count + "].TDSValue";
+                                                            //var netamount = "DistributionDetails[" + count + "].NetAmount";
+                                                            var paymentmode = "DistributionDetails[" + count + "].PaymentMode";
+                                                            //var bankname = "DistributionDetails[" + count + "].BankName";
+                                                            //var bankbranch = "DistributionDetails[" + count + "].BranchName";
+                                                            //var accountnumber = "DistributionDetails[" + count + "].AccountNumber";
+                                                            //var ifsccode = "DistributionDetails[" + count + "].IFSCCode";
+                                                            var autoComp = "DistributionDetails[" + count + "].autoComplete";
+                                                            count++;
+                                                            <tr>
+
+                                                                <td>
+                                                                    @Html.DropDownList(@category, new SelectList(ViewBag.FacultyType, "id", "name", item.Category), "Select any", new { @class = "form-control", @id = "txtfacultytype" })
+                                                                    @Html.ValidationMessage(@category)
+                                                                    @Html.TextBox(@distributiondetailsId, item.DistributionDetailId, new { @class = "form-control dis-none" })
+
+                                                                </td>
+                                                                <td class="tdDDLUser">
+                                                                    @Html.TextBox(@autoComp, item.Name, new { @class = "form-control", @id = "txtname" })
+                                                                    @Html.TextBox(@userid, item.UserId, new { @class = "form-control dis-none" })
+                                                                    @Html.ValidationMessage(@userid)
+                                                                    @Html.Hidden("DistributionDetails.Index", @count)
+                                                                </td>
+                                                                <td class="tdTxtName dis-none">
+                                                                    @Html.TextBox(@name, item.Name, new { @class = "form-control" })
+                                                                    @Html.ValidationMessage(@name)
+                                                                </td>
+                                                                <td>
+                                                                    @Html.TextBox(@facultydesig, item.FacultyDesignation, new { @class = "form-control", @readonly = true })
+                                                                    @Html.ValidationMessage(@facultydesig)
+                                                                </td>
+                                                                <td>
+                                                                    @Html.TextBox(@facultydept, item.FacultyDepartment, new { @class = "form-control", @readonly = true })
+                                                                    @Html.ValidationMessage(@facultydept)
+                                                                </td>
+                                                                <td>
+                                                                    @Html.TextBox(@paybillnumber, item.PayBillNumber, new { @class = "form-control", @readonly = true })
+                                                                    @Html.ValidationMessage(@paybillnumber)
+                                                                </td>
+                                                                <td>
+                                                                    @Html.TextBox(@projectnumber, item.ProjectNumber, new { @class = "form-control", @readonly = true })
+                                                                    @Html.ValidationMessage(@projectnumber)
+                                                                </td>
+                                                                <td>
+                                                                    @Html.TextBox(@amount, item.Amount, new { @class = "form-control", @onchange = "calculatefacultyamount()", @onblur = "Changetransaction()", @onkeypress = "return ValidateDecimalOnly(event)" })
+                                                                    @Html.ValidationMessage(@amount)
+                                                                </td>
+                                                                @*<td>
+                                                                        @Html.TextBox(@tdsvalue, item.TDSValue, new { @class = "form-control", @onchange = "calculatetdsamount()", @onkeypress = "return ValidateDecimalOnly(event)" })
+                                                                        @Html.ValidationMessage(@tdsvalue)
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.TextBox(@netamount, item.NetAmount, new { @class = "form-control", @onchange = "calculatenetamount()", @readonly = true })
+                                                                        @Html.ValidationMessage(@netamount)
+                                                                    </td>*@
+                                                                <td>
+                                                                    @Html.DropDownList(@paymentmode, new SelectList(ViewBag.PaymentMode, "id", "name", item.PaymentMode), "Select any", new { @class = "form-control", @id = "txtpaymentmode", @onchange = "Changetransaction()" })
+                                                                    @Html.ValidationMessage(@paymentmode)
+                                                                </td>
+
+                                                                @*<td>
+                                                                        @Html.TextBox(@bankname, item.BankName, new { @class = "form-control", @readonly = true })
+                                                                        @Html.ValidationMessage(@bankname)
+
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.TextBox(@bankbranch, item.BranchName, new { @class = "form-control", @readonly = true })
+                                                                        @Html.ValidationMessage(@bankbranch)
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.TextBox(@accountnumber, item.AccountNumber, new { @class = "form-control", @readonly = true })
+                                                                        @Html.ValidationMessage(@accountnumber)
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.TextBox(@ifsccode, item.IFSCCode, new { @class = "form-control", @readonly = true })
+                                                                        @Html.ValidationMessage(@ifsccode)
+                                                                    </td>*@
+                                                                <td>
+                                                                    <a href="javascript:void(0)" class="btn-circle dis-none removeDetail"><i class="ion-trash-a"></i></a>
+                                                                </td>
+                                                            </tr>
+
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        <tr>
+                                                            <td>
+                                                                @Html.DropDownList("DistributionDetails[0].Category", new SelectList(ViewBag.FacultyType, "id", "name"), "Select any", new { @class = "form-control" })
+                                                                @Html.ValidationMessage("DistributionDetails[0].Category")
+                                                                @Html.TextBox("DistributionDetails[0].DistributionDetailId", "", new { @class = "form-control dis-none" })
+                                                                @Html.Hidden("DistributionDetails.Index", 0)
+                                                            </td>
+                                                            <td class="tdDDLUser">
+                                                                @Html.TextBox("DistributionDetails[0].autoComplete", "", new { @class = "form-control" })
+                                                                @Html.TextBox("DistributionDetails[0].UserId", "", new { @class = "form-control dis-none" })
+
+                                                                @Html.ValidationMessage("DistributionDetails[0].UserId")
+                                                            </td>
+                                                            <td class="tdTxtName dis-none">
+                                                                @Html.TextBox("DistributionDetails[0].Name", "", new { @class = "form-control" })
+                                                                @Html.ValidationMessage("DistributionDetails[0].Name")
+                                                            </td>
+                                                            <td>
+                                                                @Html.TextBox("DistributionDetails[0].FacultyDesignation", "", new { @class = "form-control", @readonly = true })
+                                                                @Html.ValidationMessage("DistributionDetails[0].FacultyDesignation")
+                                                            </td>
+                                                            <td>
+                                                                @Html.TextBox("DistributionDetails[0].FacultyDepartment", "", new { @class = "form-control", @readonly = true })
+                                                                @Html.ValidationMessage("DistributionDetails[0].FacultyDepartment")
+                                                            </td>
+                                                            <td>
+                                                                @Html.TextBox("DistributionDetails[0].PayBillNumber", "", new { @class = "form-control", @readonly = true })
+                                                                @Html.ValidationMessage("DistributionDetails[0].PayBillNumber")
+                                                            </td>
+                                                            <td>
+                                                                @Html.TextBox("DistributionDetails[0].ProjectNumber", "", new { @class = "form-control", @readonly = true })
+                                                                @Html.ValidationMessage("DistributionDetails[0].ProjectNumber")
+                                                            </td>
+                                                            <td>
+                                                                @Html.TextBox("DistributionDetails[0].Amount", "", new { @class = "form-control", @onchange = "calculatefacultyamount()", @onblur = "Changetransaction()", @onkeypress = "return ValidateDecimalOnly(event)" })
+                                                                @Html.ValidationMessage("DistributionDetails[0].Amount")
+                                                            </td>
+                                                            @*<td>
+                                                                    @Html.TextBox("DistributionDetails[0].TDSValue", "", new { @class = "form-control", @onchange = "calculatetdsamount()", @onkeypress = "return ValidateDecimalOnly(event)" })
+                                                                    @Html.ValidationMessage("DistributionDetails[0].TDSValue")
+                                                                </td>
+                                                                <td>
+                                                                    @Html.TextBox("DistributionDetails[0].NetAmount", "", new { @class = "form-control", @onchange = "calculatenetamount()", @readonly = true })
+                                                                    @Html.ValidationMessage("DistributionDetails[0].NetAmount")
+                                                                </td>*@
+                                                            <td>
+                                                                @Html.DropDownList("DistributionDetails[0].PaymentMode", new SelectList(ViewBag.PaymentMode, "id", "name"), "Select any", new { @class = "form-control", @id = "txtpaymentmode", @onchange = "Changetransaction()" })
+                                                                @Html.ValidationMessage("DistributionDetails[0].PaymentMode")
+                                                            </td>
+                                                            @*<td>
+                                                                    @Html.TextBox("DistributionDetails[0].BankName", "", new { @class = "form-control", @readonly = true })
+                                                                    @Html.ValidationMessage("DistributionDetails[0].BankName")
+                                                                    @Html.Hidden("DistributionDetails.Index", 0)
+                                                                </td>
+                                                                <td>
+                                                                    @Html.TextBox("DistributionDetails[0].BranchName", "", new { @class = "form-control", @readonly = true })
+                                                                    @Html.ValidationMessage("DistributionDetails[0].BranchName")
+                                                                </td>
+                                                                <td>
+                                                                    @Html.TextBox("DistributionDetails[0].AccountNumber", "", new { @class = "form-control", @readonly = true })
+                                                                    @Html.ValidationMessage("DistributionDetails[0].AccountNumber")
+                                                                </td>
+                                                                <td>
+                                                                    @Html.TextBox("DistributionDetails[0].IFSCCode", "", new { @class = "form-control", @readonly = true })
+                                                                    @Html.ValidationMessage("DistributionDetails[0].IFSCCode")
+                                                                </td>*@
+                                                            <td>
+                                                                <a href="javascript:void(0)" class="btn-circle dis-none removeDetail"><i class="ion-trash-a"></i></a>
+                                                            </td>
+
+                                                        </tr>
+
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mt-20 mb20">
+                                    <div class="col-md-3 pull-right">
+                                        <div class="form-group custom-form-group mb-null">
+                                            <label>Total Amount :</label>
+                                            @Html.TextBoxFor(m => m.FacultyDistributedTotalAmount, new { @class = "form-control", @id = "txtTotalAmount", @readonly = true })
+                                        </div>
+                                    </div>
+                                    @*<div class="col-md-4">
+                                            <div class="form-group custom-form-group mb-null">
+                                                <label>Total TDS :</label>
+                                                @Html.TextBoxFor(m => m.FacultyDistributedTotalTDSAmount, new { @class = "form-control", @id = "txtTDSAmount", @readonly = true })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group mb-null">
+                                                <label>Total Individual Payable :</label>
+                                                @Html.TextBoxFor(m => m.FacultyDistributedTotalNetAmount, new { @class = "form-control", @id = "txtStaffNetAmount", @readonly = true })
+                                            </div>
+                                        </div>*@
+
+                                </div>
+
+                                <div class="row mt-20">
+                                    <div class="col-md-12">
+                                        <div class="lt-bl-bg">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <h4>PCF</h4>
+                                                </div>
+                                            </div>
+                                            <div class="text-right mb20">
+                                                <a href="javascript:void(0)" id="btnAddPCF" class="btn btn-primary">Add New</a>
+                                            </div>
+                                            <table class="table alter-table mb-null">
+                                                <thead>
+                                                    <tr>
+                                                        @*<th style="width:150px;">Type</th>*@
+                                                        <th style="width:270px;">Name</th>
+                                                        <th style="width:270px;">Department</th>
+                                                        <th style="width:270px;">Designation</th>
+                                                        @*<th style="width:200px;">Account Number</th>*@
+                                                        <th style="width:200px;">Employee PCF Id</th>
+                                                        <th style="width:200px;">Amount </th>
+
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="tbodyPCF">
+                                                    @if (Model.PCFDetails != null && Model.PCFDetails.Count > 0)
+
+                                                    {
+                                                        var count = 0;
+                                                        foreach (var item in Model.PCFDetails)
+                                                        {
+                                                            //var category = "PCFDetails[" + count + "].FacultyCategory";
+                                                            var userid = "PCFDetails[" + count + "].PCFPIUserId";
+                                                            var name = "PCFDetails[" + count + "].PCFName";
+                                                            var PCFdetailsId = "PCFDetails[" + count + "].PCFDetailId";
+                                                            var PCFId = "PCFDetails[" + count + "].EmployeePCFId";
+                                                            var department = "PCFDetails[" + count + "].DepartmentofStaff";
+                                                            var designation = "PCFDetails[" + count + "].DesignationofStaff";
+                                                            var PCFamt = "PCFDetails[" + count + "].PCFAmount";
+                                                            // var PCFAcNumber = "PCFDetails[" + count + "].PCFAccountNumber";
+                                                            var autoComp = "PCFDetails[" + count + "].PCFautoComplete";
+                                                            count++;
+                                                            <tr>
+
+                                                                @*<td>
+                                                                        @Html.DropDownList(@category, new SelectList(ViewBag.FacultyType, "id", "name", item.FacultyCategory), "Select any", new { @class = "form-control required", @id = "txtfacultycategory" })
+                                                                        @Html.ValidationMessage(@category)
+                                                                        @Html.TextBox(@PCFdetailsId, item.PCFDetailId, new { @class = "form-control dis-none" })
+                                                                    </td>*@
+                                                                <td class="tdPCFUser">
+                                                                    @Html.TextBox(@autoComp, item.PCFName, new { @class = "form-control", @id = "txtPCFname" })
+                                                                    @Html.TextBox(@userid, item.PCFPIUserId, new { @class = "form-control dis-none" })
+                                                                    @Html.ValidationMessage(@userid)
+                                                                    @Html.Hidden("PCFDetails.Index", @count)
+                                                                    @Html.TextBox(@PCFdetailsId, item.PCFDetailId, new { @class = "form-control dis-none" })
+                                                                </td>
+                                                                <td class="tdTxtPCFName dis-none">
+                                                                    @Html.TextBox(@name, item.PCFName, new { @class = "form-control" })
+                                                                    @Html.ValidationMessage(@name)
+                                                                </td>
+                                                                <td>
+                                                                    @Html.TextBox(@department, item.DepartmentofStaff, new { @class = "form-control", @readonly = true })
+                                                                    @Html.ValidationMessage(@department)
+                                                                </td>
+                                                                <td>
+                                                                    @Html.TextBox(@designation, item.DesignationofStaff, new { @class = "form-control", @readonly = true })
+                                                                    @Html.ValidationMessage(@designation)
+                                                                </td>
+                                                                @*<td>
+                                                                        @Html.TextBox(@PCFAcNumber, item.PCFAccountNumber, new { @class = "form-control", @readonly = true })
+                                                                        @Html.ValidationMessage(@PCFAcNumber)
+                                                                    </td>*@
+                                                                <td>
+                                                                    @Html.TextBox(@PCFId, item.EmployeePCFId, new { @class = "form-control", @readonly = true })
+                                                                    @Html.ValidationMessage(@PCFId)
+                                                                </td>
+                                                                <td>
+                                                                    @Html.TextBox(@PCFamt, item.PCFAmount, new { @class = "form-control", @onchange = "calculatePCFamount();", @onblur = "Changetransaction()" })
+                                                                    @Html.ValidationMessage(@PCFamt)
+                                                                </td>
+
+
+                                                                <td>
+                                                                    <a href="javascript:void(0)" class="btn-circle dis-none removePCF"><i class="ion-trash-a"></i></a>
+                                                                </td>
+                                                            </tr>
+
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        <tr>
+                                                            @*<td>
+                                                                    @Html.DropDownList("PCFDetails[0].FacultyCategory", new SelectList(ViewBag.FacultyType, "id", "name"), "Select any", new { @class = "form-control required" })
+                                                                    @Html.ValidationMessage("PCFDetails[0].FacultyCategory")
+                                                                </td>*@
+                                                            <td class="tdDDLUser">
+                                                                @Html.TextBox("PCFDetails[0].PCFautoComplete", "", new { @class = "form-control" })
+                                                                @Html.TextBox("PCFDetails[0].PCFPIUserId", "", new { @class = "form-control dis-none" })
+                                                                @Html.Hidden("PCFDetails.Index", 0)
+                                                                @Html.ValidationMessage("PCFDetails[0].PCFPIUserId")
+                                                                @Html.TextBox("PCFDetails[0].PCFDetailId", "", new { @class = "form-control dis-none" })
+                                                            </td>
+                                                            <td class="tdTxtName dis-none">
+                                                                @Html.TextBox("PCFDetails[0].PCFName", "", new { @class = "form-control" })
+                                                                @Html.ValidationMessage("PCFDetails[0].PCFName")
+                                                            </td>
+                                                            <td>
+                                                                @Html.TextBox("PCFDetails[0].DepartmentofStaff", "", new { @class = "form-control", @readonly = true })
+                                                                @Html.ValidationMessage("PCFDetails[0].DepartmentofStaff")
+                                                            </td>
+                                                            <td>
+                                                                @Html.TextBox("PCFDetails[0].DesignationofStaff", "", new { @class = "form-control", @readonly = true })
+                                                                @Html.ValidationMessage("PCFDetails[0].DesignationofStaff")
+                                                            </td>
+
+                                                            @*<td>
+                                                                    @Html.TextBox("PCFDetails[0].PCFAccountNumber", "", new { @class = "form-control", @readonly = true })
+                                                                    @Html.ValidationMessage("PCFDetails[0].PCFAccountNumber")
+                                                                </td>*@
+                                                            <td>
+                                                                @Html.TextBox("PCFDetails[0].EmployeePCFId", "", new { @class = "form-control", @readonly = true })
+                                                                @Html.ValidationMessage("PCFDetails[0].EmployeePCFId")
+                                                            </td>
+                                                            <td>
+                                                                @Html.TextBox("PCFDetails[0].PCFAmount", "", new { @class = "form-control", @onchange = "calculatePCFamount();", @onblur = "Changetransaction()", @onkeypress = "return ValidateDecimalOnly(event)" })
+                                                                @Html.ValidationMessage("PCFDetails[0].PCFAmount")
+                                                            </td>
+
+                                                            <td>
+                                                                <a href="javascript:void(0)" class="btn-circle dis-none removePCF"><i class="ion-trash-a"></i></a>
+                                                            </td>
+
+                                                        </tr>
+
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="row mt-20 mb20">
+                                    <div class="col-md-3 pull-right">
+                                        <div class="form-group custom-form-group mb-null">
+                                            <label>Total PCF :</label>
+                                            @Html.TextBoxFor(m => m.TotalPCFAmount, new { @class = "form-control", @id = "txtTotalPCF", @readonly = true })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+
+
+                </div>
+
+            </div>
+            <div class="tab">
+                @Html.Partial("_CommitmentDetails", Model.CommitmentDetail)
+            </div>
+            <div class="tab">
+                @Html.Partial("_TransactionDetails", Model)
+            </div>
+            <div class="tab">
+                <div class="col-md-12 col-sm-12 m-b-sm">
+                    <div class="">
+                        @Html.Partial("_CheckListDetail", Model.CheckListDetail)
+                    </div>
+                    <div>
+                        @Html.HiddenFor(m => m.CheckListVerified_By)
+                        @Html.HiddenFor(m => m.CheckListVerifierName)
+                        <div class="col-md-3 col-md-offset-9">
+                            <div class="form-group custom-form-group">
+                                <label>Verified by</label>
+                                <h4 id="Verified_ByName">@Html.DisplayFor(m => m.CheckListVerifierName)</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab">
+                <div class="col-md-12 col-sm-12 m-b-sm">
+                    <div class="">
+                        @Html.Partial("_DocumentDetail", Model.DocumentDetail)
+                    </div>
+                </div>
+            </div>
+
+            <div class="custom-nav-btn text-right">
+                <button type="button" class="btn btn-default pull-left" id="prevBtn" onclick="nextPrev(-1)">Previous</button>
+                <button type="button" class="btn btn-primary pull-right" id="nextBtn" onclick="nextPrev(1)">Next</button>
+                <button type="button" class="btn btn-default pull-right" onclick="window.location.href='@Url.Action("DistributionList", "CoreAccounts")';">Close</button>
+            </div>
+
+        </div>
+
+
+    </div>
+
+}
+<div id="ValidationModal" class="modal fade modal-warning" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-warning"></i>
+                <h3 class="modal-title">Warning</h3>
+            </div>
+            <div class="modal-body">
+
+                <p id="MsgValidation"></p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+@Html.AntiForgeryToken()
+<div id="popup"></div>
+<script>
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    // $('#TravelToDate, #TravelFromDate').datepicker({ minDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
+    $('input[name$=".InvDate"]').datepicker({maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
+    $('#SourceEmailDate, #srchFromDate, #srchToDate,#InvoiceDate,#PODate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
+    $('#srchToDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true }).datepicker("setDate", "0");
+    var defaultFromDate = moment(new Date()).add(-10, 'days').toDate();
+    $('#srchFromDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true }).datepicker("setDate", defaultFromDate);
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+            CalculateDeductionTotal();
+            GetTransactionDetails();
+        }
+        $("select[name='LabCode']").val('@Model.LabCode');
+        $('.selectpicker').selectpicker({
+            liveSearch: true
+        });
+        $('.selectpicker').selectpicker('refresh');
+
+        var selSource = $('#Source').val();
+        $("#divRefNum, #divRefEmailDate").addClass('dis-none');
+        if (selSource == '1') {
+            $("#divRefNum").removeClass('dis-none');
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACWorkflowRefNumber", "Proposal")");
+        } else if (selSource == '3') {
+            $("#divRefNum").removeClass('dis-none');
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACTapalRefNumber", "Proposal")");
+        }
+        else if (selSource == '2') {
+            $('#divRefEmailDate').removeClass('dis-none');
+        } else {
+            $("#divRefNum").removeClass('dis-none');
+        }
+        $('select[name="DistributionType"]').val(@Model.DistributionType);
+        @*$('input[name="PjctAvailableBalanceAmount"]').val(@Model.PjctAvailableBalanceAmount);*@
+        var distributetype = $('select[name="DistributionType"]').val();
+        if(distributetype != '')
+        {
+            if(distributetype == 1)
+            {
+                $('#txtDistributionAmount').removeAttr('readonly');
+            }
+            if(distributetype == 2)
+            {
+                $('#txtDistributionAmount').attr('readonly', 'readonly');
+            }
+        }
+        $("input[name$='.PCFautoComplete']").each(function () {
+            pcfPIChange($(this),'U');
+        });
+        var distributionDetails = @Html.Raw(Json.Encode(Model.DistributionDetails));
+        $.each(distributionDetails, function (i, result) {
+            if (i == 0) {
+                var trEle = $('#tbodyPO tr:first');
+                $('#tbodyPO tr').not(':first').remove();
+                $(trEle).find("input[name='DistributionDetails.Index']").val(i);
+                //trEle.find("input[name='PaymentDetails.Index']");
+                trEle.find('select[name$=".Category"]').val(result.Category);
+                //  paymentCategoryChange(trEle);
+                ////  trEle.find('select[name$=".Department"]').val(result.Department);
+                trEle.find('input[name$=".autoComplete"]').val(result.Name);
+                trEle.find('input[name$=".Name"]').val(result.Name);
+                trEle.find('input[name$=".UserId"]').val(result.UserId);
+
+                if(result.Category == 6)
+                {
+                    trEle.find('input[name$=".FacultyDesignation"]').removeAttr('readonly');
+                    trEle.find('input[name$=".FacultyDepartment"]').removeAttr('readonly');
+
+                    var selectHead = $(trEle).find('select[name$=".PaymentMode"]');
+                    selectHead.empty();
+                    selectHead.append($('<option/>', {
+                        value: 0,
+                        text: 'Select Any',
+                    }));
+                    selectHead.append($('<option/>', {
+                        value: 1,
+                        text: 'Cheque',
+                    }));
+                }
+                else if(result.Category == 3 || result.Category == 7 || result.Category == 9 || result.Category == 10)
+                {
+                    trEle.find('input[name$=".FacultyDesignation"]').attr('readonly', 'readonly');
+                    trEle.find('input[name$=".FacultyDepartment"]').attr('readonly', 'readonly');
+                    var selectHead = $(trEle).find('select[name$=".PaymentMode"]');
+                    selectHead.empty();
+                    selectHead.append($('<option/>', {
+                        value: 0,
+                        text: 'Select Any',
+                    }));
+                    selectHead.append($('<option/>', {
+                        value: 1,
+                        text: 'Cheque',
+                    }));
+                    selectHead.append($('<option/>', {
+                        value: 2,
+                        text: 'Salary',
+                    }));
+                }
+
+                trEle.find('input[name$=".DistributionDetailId"]').val(result.DistributionDetailId);
+                trEle.find('input[name$=".PayBillNumber"]').val(result.PayBillNumber);
+                trEle.find('input[name$=".ProjectNumber"]').val(result.ProjectNumber);
+                trEle.find('select[name$=".PaymentMode"]').val(result.PaymentMode);
+                trEle.find('input[name$=".FacultyDesignation"]').val(result.FacultyDesignation);
+                trEle.find('input[name$=".FacultyDepartment"]').val(result.FacultyDepartment);
+                  //if (result.PaymentMode == 1)
+                  //  {
+                  //      trEle.find('input[name$=".BankName"]').removeAttr('readonly');
+                  //      trEle.find('input[name$=".BranchName"]').removeAttr('readonly');
+                  //      trEle.find('input[name$=".AccountNumber"]').removeAttr('readonly');
+                  //      trEle.find('input[name$=".IFSCCode"]').removeAttr('readonly');
+                  //  }
+                  //  if (result.PaymentMode == 2)
+                  //  {
+                  //      trEle.find('input[name$=".BankName"]').attr('readonly', 'readonly');
+                  //      trEle.find('input[name$=".BranchName"]').attr('readonly', 'readonly');
+                  //      trEle.find('input[name$=".AccountNumber"]').attr('readonly', 'readonly');
+                  //      trEle.find('input[name$=".IFSCCode"]').attr('readonly', 'readonly');
+                  //  }
+                  //  if (result.PaymentMode == 3)
+                  //  {
+                  //      trEle.find('input[name$=".BankName"]').attr('readonly', 'readonly');
+                  //      trEle.find('input[name$=".BranchName"]').attr('readonly', 'readonly');
+                  //      trEle.find('input[name$=".AccountNumber"]').attr('readonly', 'readonly');
+                  //      trEle.find('input[name$=".IFSCCode"]').attr('readonly', 'readonly');
+                  //  }
+                  //  if (result.PaymentMode == 0)
+                  //  {
+                  //      trEle.find('input[name$=".BankName"]').attr('readonly', 'readonly');
+                  //      trEle.find('input[name$=".BranchName"]').attr('readonly', 'readonly');
+                  //      trEle.find('input[name$=".AccountNumber"]').attr('readonly', 'readonly');
+                  //      trEle.find('input[name$=".IFSCCode"]').attr('readonly', 'readonly');
+                  //  }
+
+                trEle.find('input[name$=".Amount"]').val(result.Amount);
+                //trEle.find('input[name$=".TDSValue"]').val(result.TDSValue);
+                //trEle.find('input[name$=".NetAmount"]').val(result.NetAmount);
+               // trEle.find('input[name$=".BankName"]').val(result.BankName);
+               // trEle.find('input[name$=".BranchName"]').val(result.BranchName);
+               // trEle.find('input[name$=".AccountNumber"]').val(result.AccountNumber);
+              //  trEle.find('input[name$=".IFSCCode"]').val(result.IFSCCode);
+
+            } else {
+                var trEleNew = $('#tbodyPO tr:first').clone();
+                $(trEleNew).find('a.dis-none').removeClass('dis-none');
+                $(trEleNew).find("input[name='DistributionDetails.Index']").val(i);
+                $(trEleNew).find("input, select").each(function () {
+                    $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                    $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                    //$(this).attr("code", $(this).attr("id").replace(/\d+/, i));
+                });
+                $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                    $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                });
+                //  trEle.find("input[name='PaymentDetails.Index']");
+                //  DepartmentChange(trEle);
+                //  trEle.find('select[name$=".Department"]').val(result.Department);
+                trEleNew.find('input[name$=".autoComplete"]').val(result.Name);
+                trEleNew.find('input[name$=".Name"]').val(result.Name);
+                trEleNew.find('input[name$=".UserId"]').val(result.UserId);
+                  //if(result.Name != "")
+                  //{
+                  //    trEleNew.find('input[name$=".UserId"]').val("0");
+                  //}
+
+                if(result.Category == 6)
+                {
+                    trEleNew.find('input[name$=".FacultyDesignation"]').removeAttr('readonly');
+                    trEleNew.find('input[name$=".FacultyDepartment"]').removeAttr('readonly');
+                    var selectHead = $(trEleNew).find('select[name$=".PaymentMode"]');
+                    selectHead.empty();
+                    selectHead.append($('<option/>', {
+                        value: 0,
+                        text: 'Select Any',
+                    }));
+                    selectHead.append($('<option/>', {
+                        value: 1,
+                        text: 'Cheque',
+                    }));
+                }
+                else if(result.Category == 3 || result.Category == 7 || result.Category == 9 || result.Category == 10)
+                {
+                    trEleNew.find('input[name$=".FacultyDesignation"]').attr('readonly', 'readonly');
+                    trEleNew.find('input[name$=".FacultyDepartment"]').attr('readonly', 'readonly');
+                    var selectHead = $(trEleNew).find('select[name$=".PaymentMode"]');
+                    selectHead.empty();
+                    selectHead.append($('<option/>', {
+                        value: 0,
+                        text: 'Select Any',
+                    }));
+                    selectHead.append($('<option/>', {
+                        value: 1,
+                        text: 'Cheque',
+                    }));
+                    selectHead.append($('<option/>', {
+                        value: 2,
+                        text: 'Salary',
+                    }));
+                }
+                trEleNew.find('select[name$=".Category"]').val(result.Category);
+                trEleNew.find('input[name$=".DistributionDetailId"]').val(result.DistributionDetailId);
+                trEleNew.find('input[name$=".PayBillNumber"]').val(result.PayBillNumber);
+                trEleNew.find('input[name$=".ProjectNumber"]').val(result.ProjectNumber);
+                trEleNew.find('select[name$=".PaymentMode"]').val(result.PaymentMode);
+                trEleNew.find('input[name$=".FacultyDepartment"]').val(result.FacultyDepartment);
+                trEleNew.find('input[name$=".FacultyDesignation"]').val(result.FacultyDesignation);
+                //if (result.PaymentMode == 1)
+                //    {
+                //        trEleNew.find('input[name$=".BankName"]').removeAttr('readonly');
+                //        trEleNew.find('input[name$=".BranchName"]').removeAttr('readonly');
+                //        trEleNew.find('input[name$=".AccountNumber"]').removeAttr('readonly');
+                //        trEleNew.find('input[name$=".IFSCCode"]').removeAttr('readonly');
+                //    }
+                //if (result.PaymentMode == 2)
+                //    {
+                //        trEleNew.find('input[name$=".BankName"]').attr('readonly', 'readonly');
+                //        trEleNew.find('input[name$=".BranchName"]').attr('readonly', 'readonly');
+                //        trEleNew.find('input[name$=".AccountNumber"]').attr('readonly', 'readonly');
+                //        trEleNew.find('input[name$=".IFSCCode"]').attr('readonly', 'readonly');
+                //    }
+                //if (result.PaymentMode == 3)
+                //    {
+                //        trEleNew.find('input[name$=".BankName"]').attr('readonly', 'readonly');
+                //        trEleNew.find('input[name$=".BranchName"]').attr('readonly', 'readonly');
+                //        trEleNew.find('input[name$=".AccountNumber"]').attr('readonly', 'readonly');
+                //        trEleNew.find('input[name$=".IFSCCode"]').attr('readonly', 'readonly');
+                //    }
+                //if (result.PaymentMode == 0)
+                //    {
+                //        trEleNew.find('input[name$=".BankName"]').attr('readonly', 'readonly');
+                //        trEleNew.find('input[name$=".BranchName"]').attr('readonly', 'readonly');
+                //        trEleNew.find('input[name$=".AccountNumber"]').attr('readonly', 'readonly');
+                //        trEleNew.find('input[name$=".IFSCCode"]').attr('readonly', 'readonly');
+                //    }
+
+                trEleNew.find('input[name$=".Amount"]').val(result.Amount);
+                //trEleNew.find('input[name$=".TDSValue"]').val(result.TDSValue);
+                //trEleNew.find('input[name$=".NetAmount"]').val(result.NetAmount);
+                //trEleNew.find('input[name$=".BankName"]').val(result.BankName);
+                //trEleNew.find('input[name$=".BranchName"]').val(result.BranchName);
+                //trEleNew.find('input[name$=".AccountNumber"]').val(result.AccountNumber);
+                //trEleNew.find('input[name$=".IFSCCode"]').val(result.IFSCCode);
+
+                $(trEleNew).find('.hasDatepicker').attr("id", "").removeClass('hasDatepicker').removeData('datepicker').unbind().datepicker({
+                    dateFormat: 'dd-MM-yy', changeYear: true
+                })
+
+                $('#tbodyPO').append(trEleNew);
+            }
+        });
+
+        var pcfDetails = @Html.Raw(Json.Encode(Model.PCFDetails));
+        $.each(pcfDetails, function (i, result) {
+            if (i == 0) {
+                var trEle = $('#tbodyPCF tr:first');
+                $('#tbodyPCF tr').not(':first').remove();
+                $(trEle).find("input[name='PCFDetails.Index']").val(i);
+                //trEle.find("input[name='PaymentDetails.Index']");
+                //trEle.find('select[name$=".Category"]').val(result.Category);
+                //  paymentCategoryChange(trEle);
+                ////  trEle.find('select[name$=".Department"]').val(result.Department);
+                trEle.find('input[name$=".PCFautoComplete"]').val(result.PCFName);
+                trEle.find('input[name$=".PCFName"]').val(result.PCFName);
+                trEle.find('input[name$=".PCFPIUserId"]').val(result.PCFPIUserId);
+
+
+                trEle.find('input[name$=".PCFDetailId"]').val(result.PCFDetailId);
+                trEle.find('input[name$=".DepartmentofStaff"]').val(result.DepartmentofStaff);
+                trEle.find('input[name$=".DesignationofStaff"]').val(result.DesignationofStaff);
+                trEle.find('input[name$=".EmployeePCFId"]').val(result.EmployeePCFId);
+                trEle.find('input[name$=".PCFAmount"]').val(result.PCFAmount);
+
+            } else {
+                var trEleNew = $('#tbodyPCF tr:first').clone();
+                $(trEleNew).find('a.dis-none').removeClass('dis-none');
+                $(trEleNew).find("input[name='PCFDetails.Index']").val(i);
+                $(trEleNew).find("input, select").each(function () {
+                    $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                    $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                    //$(this).attr("code", $(this).attr("id").replace(/\d+/, i));
+                });
+                $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                    $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                });
+                //  trEle.find("input[name='PaymentDetails.Index']");
+                pcfPIChange(trEleNew);
+                //  trEle.find('select[name$=".Department"]').val(result.Department);
+                trEleNew.find('input[name$=".PCFautoComplete"]').val(result.PCFName);
+                trEleNew.find('input[name$=".PCFName"]').val(result.PCFName);
+                trEleNew.find('input[name$=".PCFPIUserId"]').val(result.PCFPIUserId);
+
+
+                trEleNew.find('input[name$=".PCFDetailId"]').val(result.PCFDetailId);
+                trEleNew.find('input[name$=".DepartmentofStaff"]').val(result.DepartmentofStaff);
+                trEleNew.find('input[name$=".DesignationofStaff"]').val(result.DesignationofStaff);
+                trEleNew.find('input[name$=".EmployeePCFId"]').val(result.EmployeePCFId);
+                trEleNew.find('input[name$=".PCFAmount"]').val(result.PCFAmount);
+
+
+                $(trEleNew).find('.hasDatepicker').attr("id", "").removeClass('hasDatepicker').removeData('datepicker').unbind().datepicker({
+                    dateFormat: 'dd-MM-yy', changeYear: true
+                })
+
+                $('#tbodyPCF').append(trEleNew);
+            }
+        });
+        $('#tbodyPO').find('select[name$=".Category"]').each(function () {
+            categoryChange($(this),'U');
+        });
+        // calcDateDiff();
+        var piname = $('input[name="PIName"]').val();
+        $('#lblVendorName').html(piname);
+        // $('#lblVendorName').html($('#txtPI option:selected').text());
+        //var stipendAmt = parseFloat($('#txtTotalStipendValue').val());
+        //$("#CreditorAmount").val(stipendAmt);
+        $("input[name='ProjectNumber']").each(function () {
+            projectChange($(this),'U');
+        });
+        CalculatePaymentValue();
+        CalculateDeductionTotal();
+        calculateamount();
+        calculatePCFamount();
+
+        $('#NeedUpdateTransDetail').val('false');
+    });
+    $('#formSI').submit(function () {
+        var id = $(this).attr('Id');
+
+        $('button[type="submit"],#nextBtn,#btnSave').attr('disabled', 'true');
+    });
+    //$('#txtDistributionDate').datepicker( {
+    //    format: "mm-yyyy",
+    //    startView: "months",
+    //    minViewMode: "months"
+    //});
+    var currentTime = new Date();
+
+    var startDateFrom = new Date(currentTime.getFullYear(),currentTime.getMonth(),1);
+    var startDateTo = new Date(currentTime.getFullYear(),currentTime.getMonth() +1,0);
+    $('#txtDistributionDate').datepicker({ dateFormat: 'mm/yy',numberOfMonths: 1,
+        minDate: startDateFrom,
+        maxDate: startDateTo});
+
+    //$('#fromdate, #todate').datepicker({ dateFormat: 'dd-MM-yy', changeYear: true, yearRange: '-10:+30' });
+    $('#Source').change(function () {
+        var selSource = $(this).val();
+        //var select = $("#SourceReferenceNumber");
+        //select.empty();
+        $("#SourceReferenceNumber,#ReferenceNumber").val('');
+        $("#divRefNum, #divRefEmailDate").addClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('False');
+        if (selSource == '1') {
+            @*$.getJSON("@Url.Action("GetWorkflowRefNumber","Proposal")",
+             function (locationdata) {
+                 fillMasterDropDown(select,locationdata);
+             });*@
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACWorkflowRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        } else if (selSource == '3') {
+            @*$.getJSON("@Url.Action("GetTapalRefNumber","Proposal")",
+            function (locationdata) {
+                fillMasterDropDown(select,locationdata);
+            });*@
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACTapalRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        }
+        else if (selSource == '2') {
+            $('#divRefEmailDate').removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('False');
+        } else {
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        }
+    });
+
+    function formSave(){
+        var isValid = $('#formSI').valid();
+        if (!isValid)
+            return false;
+        var doctypevalues = [];
+        $('select[name$=".DocumentType"]').each(function (idx, val) { doctypevalues.push($(val).val()); });
+        doctypevalues.sort();
+        // duplicate check
+        for (var k = 1; k < doctypevalues.length; ++k) {
+            if (doctypevalues[k] == doctypevalues[k - 1]) {
+                $('#alert').html("Selected attachment type already exist. Please select a different attachment type.");
+                $('#Validation').modal('toggle');
+                return false;
+            }
+            isValid = true;
+        }
+        var distributiontype = $('#txtdistributiontype').val();
+        if(distributiontype == 2)
+        {
+            calcDateDiff();
+        }
+
+        if (isValid)
+            $('#formSI').submit();
+    }
+    function aplyAutoComplete(ele, url, setId) {
+        $(ele).autocomplete({
+            select: function (event, ui) {
+                event.preventDefault();
+                $(ele).val(ui.item.label);
+                //$(ele).closest('tr').find(".lblSelId").text(ui.item.label);
+                if (setId == true) {
+                    $(ele).closest('tr').find("input[name$='.UserId']").val(ui.item.value);
+                    $(ele).closest('tr').find("input[name$='.Name']").val(ui.item.label);
+                } else {
+                    $(ele).closest('tr').find("input[name$='.UserId']").val('0');
+                    $(ele).closest('tr').find("input[name$='.Name']").val(ui.item.label);
+                }
+            },
+            focus: function (event, ui) {
+                event.preventDefault();
+                $(ele).val(ui.item.label);
+            },
+            source: function (request, response) {
+                $.getJSON(url, { term: request.term },
+                 function (locationdata) {
+                     response(locationdata);
+                 });
+            },
+            minLength: 3
+        });
+    }
+    function categoryChange(el, mode) {
+        var selCat = $(el).val();
+        //$('input[name$=".Category"]');
+        if (mode != 'U') {
+            $(el).closest('tr').find("input[name='autoComplete'],input[name='UserId'],input[name='Name']").val('');
+        }
+        if (selCat == 3) {
+            $(el).closest('tr').find("td.tdDDLUser").removeClass('dis-none');
+            $(el).closest('tr').find("td.tdTxtName").addClass('dis-none');
+            $(el).closest('tr').find("input[name$='.UserId']").addClass('required');
+            var ele = $(el).closest('tr').find("input[name$='.autoComplete']");
+            $(ele).addClass('required');
+            $(el).closest('tr').find("input[name$='.Name']").removeClass('required');
+            aplyAutoComplete(ele, "../CoreAccounts/LoadProfessorList", true)
+        } else if (selCat == 7) {
+            $(el).closest('tr').find("td.tdDDLUser").removeClass('dis-none');
+            $(el).closest('tr').find("td.tdTxtName").addClass('dis-none');
+            $(el).closest('tr').find("input[name$='.UserId']").addClass('required');
+            var ele = $(el).closest('tr').find("input[name$='.autoComplete']");
+            $(ele).addClass('required');
+            $(el).closest('tr').find("input[name$='.Name']").removeClass('required');
+            aplyAutoComplete(ele, "../CoreAccounts/LoadStaffList", true);
+        }
+        else if (selCat == 9) {
+            $(el).closest('tr').find("td.tdDDLUser").removeClass('dis-none');
+            $(el).closest('tr').find("td.tdTxtName").addClass('dis-none');
+            $(el).closest('tr').find("input[name$='.UserId']").addClass('required');
+            var ele = $(el).closest('tr').find("input[name$='.autoComplete']");
+            $(ele).addClass('required');
+            $(el).closest('tr').find("input[name$='.Name']").removeClass('required');
+            aplyAutoComplete(ele, "../CoreAccounts/LoadProjectStaffList", true);
+        }
+        else if (selCat == 10) {
+            $(el).closest('tr').find("td.tdDDLUser").removeClass('dis-none');
+            $(el).closest('tr').find("td.tdTxtName").addClass('dis-none');
+            $(el).closest('tr').find("input[name$='.UserId']").addClass('required');
+            var ele = $(el).closest('tr').find("input[name$='.autoComplete']");
+            $(ele).addClass('required');
+            $(el).closest('tr').find("input[name$='.Name']").removeClass('required');
+            aplyAutoComplete(ele, "../CoreAccounts/LoadDISAdhocStaffList", true);
+        }
+        else if (selCat == 6) {
+            $(el).closest('tr').find("input[name$='.UserId']").removeClass('required');
+            // var ele = $(el).closest('tr').find("input[name$='.autoComplete']").val();
+            $(el).removeClass('required');
+            $(el).closest('tr').find("input[name$='.Name']").removeClass('required');
+        }
+    }
+
+
+    function aplyProjectAutoComplete(ele, url, setId) {
+        $(ele).autocomplete({
+            select: function (event, ui) {
+                event.preventDefault();
+                $(ele).val(ui.item.label);
+                //$(ele).closest('tr').find(".lblSelId").text(ui.item.label);
+                if (setId == true) {
+                    $("input[name='ProjectId']").val(ui.item.value);
+                    $("input[name='ProjectNumber']").val(ui.item.label);
+                } else {
+                    $(ele).closest('tr').find("input[name='ProjectId']").val('');
+                    $(ele).closest('tr').find("input[name='ProjectNumber']").val('');
+                }
+            },
+            focus: function (event, ui) {
+                event.preventDefault();
+                $(ele).val(ui.item.label);
+            },
+            source: function (request, response) {
+                $.getJSON(url, { term: request.term },
+                 function (locationdata) {
+                     response(locationdata);
+                 });
+            },
+            minLength: 3
+        });
+    }
+    function projectChange(el, mode) {
+        var selProj = $("input[name='ProjectNumber']");
+        if (mode != 'U') {
+            $("input[name='ProjectId'], input[name='ProjectNumber']").val('');
+            //$(el).closest('tr').find("input[name='autoComplete'],input[name='UserId'],input[name='Name']").val('');
+        }
+        $("input[name='ProjectId']").addClass('required');
+        $("input[name='ProjectNumber']").addClass('required');
+        aplyProjectAutoComplete(selProj, "../CoreAccounts/LoadDistributeProjectList", true)
+
+    }
+
+    function applyPCFAutoComplete(ele, url, setId) {
+        $(ele).autocomplete({
+            select: function (event, ui) {
+                event.preventDefault();
+                $(ele).val(ui.item.label);
+                //$(ele).closest('tr').find(".lblSelId").text(ui.item.label);
+                if (setId == true) {
+                    $(ele).closest('tr').find("input[name$='.PCFPIUserId']").val(ui.item.value);
+                    $(ele).closest('tr').find("input[name$='.PCFName']").val(ui.item.label);
+                } else {
+                    $(ele).closest('tr').find("input[name$='.PCFPIUserId']").val('');
+                    $(ele).closest('tr').find("input[name$='.PCFName']").val('');
+                }
+            },
+            focus: function (event, ui) {
+                event.preventDefault();
+                $(ele).val(ui.item.label);
+            },
+            source: function (request, response) {
+                $.getJSON(url, { term: request.term },
+                 function (locationdata) {
+                     response(locationdata);
+                 });
+            },
+            minLength: 3
+        });
+    }
+    function pcfPIChange(el, mode) {
+        var selPI = $(el).val();
+
+        //$('input[name$=".Category"]');
+        if (mode != 'U') {
+            $(el).closest('tr').find("input[name$='.autoComplete'],input[name$='.UserId'],input[name$='.Name']").val('');
+        }
+
+            $(el).closest('tr').find("td.tdPCFUser").removeClass('dis-none');
+            $(el).closest('tr').find("td.tdTxtPCFName").addClass('dis-none');
+            //$(el).closest('tr').find("input[name$='.PCFPIUserId']").addClass('required');
+            var ele = $(el).closest('tr').find("input[name$='.PCFautoComplete']");
+            //$(ele).addClass('required');
+            $(el).closest('tr').find("input[name$='.PCFName']").removeClass('required');
+            applyPCFAutoComplete(ele, "../CoreAccounts/LoadProfessorList", true)
+
+    }
+    $(document).on('change', 'select[name$=".Category"]', function () {
+        var category = $(this).val();
+        categoryChange($(this));
+        if(category == 6)
+        {
+            $(this).closest('tr').find('input[name$=".FacultyDesignation"]').removeAttr('readonly');
+            $(this).closest('tr').find('input[name$=".FacultyDepartment"]').removeAttr('readonly');
+            var selectHead = $(this).closest('tr').find('select[name$=".PaymentMode"]');
+            selectHead.empty();
+            selectHead.append($('<option/>', {
+                value: 0,
+                text: 'Select Any',
+            }));
+            selectHead.append($('<option/>', {
+                value: 1,
+                text: 'Cheque',
+            }));
+        }
+        else if(category == 3 || category == 7 || category == 9 || category == 10)
+        {
+            $(this).closest('tr').find('input[name$=".FacultyDesignation"]').attr('readonly', 'readonly');
+            $(this).closest('tr').find('input[name$=".FacultyDepartment"]').attr('readonly', 'readonly');
+            var selectHead = $(this).closest('tr').find('select[name$=".PaymentMode"]');
+            selectHead.empty();
+            selectHead.append($('<option/>', {
+                value: 0,
+                text: 'Select Any',
+            }));
+            selectHead.append($('<option/>', {
+                value: 1,
+                text: 'Cheque',
+            }));
+            selectHead.append($('<option/>', {
+                value: 2,
+                text: 'Salary',
+            }));
+        }
+        else if (category == 0)
+        {
+            $(this).closest('tr').find("input[name$='.UserId']").removeClass('required');
+            var ele = $(this).closest('tr').find("input[name$='.autoComplete']");
+            $(ele).removeClass('required');
+            $(this).closest('tr').find("input[name$='.Name']").removeClass('required');
+        }
+        $(this).closest('tr').find('input[name$=".UserId"]').val('');
+        $(this).closest('tr').find('input[name$=".FacultyDesignation"]').val('');
+        $(this).closest('tr').find('input[name$=".Amount"]').val('');
+        $(this).closest('tr').find('input[name$=".autoComplete"]').val('');
+        $(this).closest('tr').find('input[name$=".Name"]').val('');
+        $(this).closest('tr').find('input[name$=".FacultyDepartment"]').val('');
+        $(this).closest('tr').find('input[name$=".PayBillNumber"]').val('');
+        $(this).closest('tr').find('select[name$=".PaymentMode"]').val('');
+        calculatefacultyamount();
+    });
+
+    function parseDate(s) {
+        var months = {
+            january: 0, february: 1, march: 2, april: 3, may: 4, june: 5,
+            july: 6, august: 7, september: 8, october: 9, november: 10, december: 11
+        };
+        var p = s.split('-');
+        return new Date(p[2], months[p[1].toLowerCase()], p[0]);
+    }
+
+
+    $(document).on('change', 'input[name$=".Amount"]', function () {
+        calculateamount();
+        var amount = parseFloat($(this).val()) || 0;
+        if (amount > 0)
+        {
+            $(this).closest('tr').find('select[name$=".PaymentMode"]').addClass('required');
+        }
+    });
+
+
+    $(document).on('click', 'a.removeDetail', function () {
+        $(this).closest('tr').remove();
+        calculateamount();
+        calculatefacultyamount();
+        //calculatetdsamount();
+        //calculatenetamount();
+    });
+    $(document).on('click', 'a.removePCF', function () {
+        $(this).closest('tr').remove();
+        calculatePCFamount();
+    });
+
+    $('#txtdistributiontype').change(function () {
+        // projectChange($(this));
+        var availablebal = $("input[name='PjctAvailableBalanceAmount']").val();
+        var distributiontype = $(this).val();
+        if(distributiontype == 1)
+        {
+            $('#txtDistributionAmount').val('');
+            $('#txtDistributionAmount').removeAttr('readonly');
+        }
+        if(distributiontype == 2)
+        {
+            $('#txtDistributionAmount').val(availablebal);
+            $('#txtDistributionAmount').attr('readonly', 'readonly');
+            calcDateDiff();
+        }
+        calculateamount();
+    });
+
+    $("input[name='ProjectNumber']").change(function () {
+        //projectChange($(this, "U"));
+        var distributiontype = $('#txtdistributiontype').val();
+        if (distributiontype == 2)
+        {
+            calcDateDiff();
+        }
+        var projectnumber = $(this).val();
+        $.getJSON("@Url.Action("GetProjectIdbyNumber", "CoreAccounts")", { ProjectNumber: projectnumber },
+
+                    function (locationdata) {
+                        $.each(locationdata, function (index, itemData) {
+                            $("input[name='ProjectId']").val(itemData.id);
+                        });
+                    });
+
+
+        $('#NeedUpdateTransDetail').val('true');
+        var Projectid = $("input[name='ProjectId']").val();
+
+        $.getJSON("@Url.Action("GetProjectsummary", "CoreAccounts")", { ProjectId: Projectid },
+                    function (locationdata) {
+                        //$('#transtypecode').val(locationdata.name)
+                        //var totalreceiptamt = parseFloat(locationdata.TotalGrantReceived) + parseFloat(locationdata.OverHeads) + parseFloat(locationdata.GST)
+                        var totalreceiptamt=parseFloat(locationdata.TotalReceipt)+parseFloat(locationdata.Tax)
+                        var totrecivedbal=parseFloat(totalreceiptamt)-parseFloat(locationdata.OverHeads)-parseFloat(locationdata.GST);
+                        //var spentamt = parseFloat(locationdata.AmountSpent)
+                        $('#piname').html(locationdata.PIname);
+                        $('#totamtreceivedinclOHandGST').html(totalreceiptamt);
+                        $('#totamtreceivedOH').html(locationdata.OverHeads);
+                        $('#totamtreceivedGST').html(locationdata.GST);
+                        $('#totamtreceivedBalance').html(totrecivedbal);
+                        $('#totamtspent').html(locationdata.AmountSpent);
+                        $('#pjctopencommit').html(locationdata.PreviousCommitment);
+                        if (distributiontype == 2)
+                        {
+                            $('#txtDistributionAmount').val(locationdata.AvailableBalance);
+                            $('#txtDistributionAmount').attr('readonly', 'readonly');
+                        }
+                        if (distributiontype == 1)
+                        {
+                            $('#txtDistributionAmount').removeAttr('readonly');
+                        }
+                        if (distributiontype == 0)
+                        {
+                            $('#txtDistributionAmount').attr('readonly', 'readonly');
+                            $('#txtDistributionAmount').val(locationdata.AvailableBalance);
+                        }
+                        $("input[name='PjctAvailableBalanceAmount']").val(locationdata.AvailableBalance)
+                        $("input[name='PIName']").val(locationdata.PIname)
+                        $('#pjctbalnce').html(locationdata.AvailableBalance)
+                        //$('#txtPCFPIName').val(locationdata.PIname)
+                        if(locationdata.PIname == null)
+                        {
+                            projectChange($(this));
+                            calculateamount()
+                        }
+
+                        calculateamount();
+                    });
+    });
+
+    $(document).on('change', 'input[name$=".autoComplete"]', function () {
+        var ele = $(this);
+        var name = $(this).val();
+        var category = $(this).closest('tr').find('select[name$=".Category"]').val();
+        var useridele = $(this).closest('tr').find('input[name$=".UserId"]');
+        if (name == "")
+        {
+            id = "0";
+            $(this).closest('tr').find('input[name$=".UserId"]').val(id);
+        }
+        if (name != "" && !name.includes('-'))
+        {
+            id = "";
+            $(this).closest('tr').find('input[name$=".UserId"]').val(id);
+        }
+        var id = $(this).closest('tr').find('input[name$=".UserId"]').val();
+        if (id == "")
+        {
+            $(this).closest('tr').find('input[name$=".autoComplete"]').addClass('required');
+            $(this).closest('tr').find('input[name$=".UserId"]').addClass('required');
+        }
+        else{
+            $(this).closest('tr').find('input[name$=".autoComplete"]').removeClass('required');
+            $(this).closest('tr').find('input[name$=".UserId"]').removeClass('required');
+        }
+        if(category == 6)
+        {
+            $(this).closest('tr').find("input[name$='.Name']").val(name);
+            $(this).closest('tr').find("input[name$='.UserId']").val('0');
+        }
+        var id = $(this).closest('tr').find('input[name$=".UserId"]').val();
+
+        var categoryname = "";
+        if(category == 3)
+        {
+            categoryname = "Professor";
+        }
+        if(category == 7)
+        {
+            categoryname = "Staff";
+        }
+        if(category == 9)
+        {
+            categoryname = "Project Staff";
+        }
+        if(category == 10)
+        {
+            categoryname = "AdhocStaff";
+        }
+        $.getJSON("@Url.Action("GetStaffDetailsbyId", "CoreAccounts")", { EmpId: id, Category: categoryname},
+
+                  function (locationdata) {
+                      if(locationdata.length > 0)
+                      {
+                          $.each(locationdata, function (index, itemData) {
+                              if(itemData.FacultyDepartment != "")
+                              {
+                                  ele.closest('tr').find('input[name$=".FacultyDepartment"]').val(itemData.FacultyDepartment);
+                              }else if (itemData.FacultyDepartment == "")
+                              {
+                                  ele.closest('tr').find('input[name$=".FacultyDepartment"]').val('');
+                              }
+                              if(itemData.FacultyDesignation != "")
+                              {
+                                  ele.closest('tr').find('input[name$=".FacultyDesignation"]').val(itemData.FacultyDesignation);
+                              }
+                              else if(itemData.FacultyDesignation == "")
+                              {
+                                  ele.closest('tr').find('input[name$=".FacultyDesignation"]').val('');
+                              }
+                              if(itemData.FacultyPayBillNumber != "")
+                              {
+                                  ele.closest('tr').find('input[name$=".PayBillNumber"]').val(itemData.FacultyPayBillNumber);
+                              }
+                              else if(itemData.FacultyPayBillNumber == "")
+                              {
+                                  ele.closest('tr').find('input[name$=".PayBillNumber"]').val('');
+                              }
+
+                              //ele.closest('tr').find('input[name$=".FacultyDepartment"]').val(itemData.FacultyDepartment);
+                              //ele.closest('tr').find('input[name$=".FacultyDesignation"]').val(itemData.FacultyDesignation);
+                          });
+                      }
+                      else
+                      {
+                          ele.closest('tr').find('input[name$=".FacultyDepartment"]').val('');
+                          ele.closest('tr').find('input[name$=".FacultyDesignation"]').val('');
+                          ele.closest('tr').find('input[name$=".Amount"]').val('');
+                      }
+                  });
+        calculatefacultyamount();
+    });
+    $(document).on('change', 'input[name$=".PCFautoComplete"]', function () {
+        var ele = $(this);
+        var name = $(this).val();
+        var useridele = $(this).closest('tr').find('input[name$=".PCFPIUserId"]');
+        if (name == "")
+        {
+            id = "0";
+            $(this).closest('tr').find('input[name$=".PCFPIUserId"]').val(id);
+        }
+        if (name != "" && !name.includes('-'))
+        {
+            id = "";
+            $(this).closest('tr').find('input[name$=".PCFPIUserId"]').val(id);
+        }
+
+        var id = $(this).closest('tr').find('input[name$=".PCFPIUserId"]').val();
+            if (id == "")
+            {
+                $(this).closest('tr').find('input[name$=".PCFautoComplete"]').addClass('required');
+                $(this).closest('tr').find('input[name$=".PCFPIUserId"]').addClass('required');
+            }
+            else{
+                $(this).closest('tr').find('input[name$=".PCFautoComplete"]').removeClass('required');
+                $(this).closest('tr').find('input[name$=".PCFPIUserId"]').removeClass('required');
+            }
+
+        $.getJSON("@Url.Action("GetPIDetailsbyId", "CoreAccounts")", { UserId: id },
+
+                  function (locationdata) {
+                      if(locationdata.length > 0)
+                      {
+                          $.each(locationdata, function (index, itemData) {
+                              if(itemData.FacultyDepartment != "")
+                              {
+                                  ele.closest('tr').find('input[name$=".DepartmentofStaff"]').val(itemData.FacultyDepartment);
+                              }else if (itemData.FacultyDepartment == "")
+                              {
+                                  ele.closest('tr').find('input[name$=".DepartmentofStaff"]').val('');
+                              }
+                              if(itemData.FacultyDesignation != "")
+                              {
+                                  ele.closest('tr').find('input[name$=".DesignationofStaff"]').val(itemData.FacultyDesignation);
+                              }
+                              else if(itemData.FacultyDesignation == "")
+                              {
+                                  ele.closest('tr').find('input[name$=".DesignationofStaff"]').val('');
+                              }
+                              if(itemData.FacultyPCFId != "")
+                              {
+                                  ele.closest('tr').find('input[name$=".EmployeePCFId"]').val(itemData.FacultyPCFId);
+                              }
+                              else if(itemData.FacultyPCFId == "")
+                              {
+                                  ele.closest('tr').find('input[name$=".EmployeePCFId"]').val('');
+                              }
+                          });
+                      }
+                      else
+                      {
+                          ele.closest('tr').find('input[name$=".DepartmentofStaff"]').val('');
+                          ele.closest('tr').find('input[name$=".DesignationofStaff"]').val('');
+                          ele.closest('tr').find('input[name$=".EmployeePCFId"]').val('');
+                      }
+
+                  });
+    });
+    function calcDateDiff() {
+        var Projectid = $("input[name='ProjectId']").val();
+        $.getJSON("@Url.Action("GetProjectDuration", "CoreAccounts")", { ProjectId: Projectid },
+
+                  function (locationdata) {
+                      $.each(locationdata, function (index, itemData) {
+                          $("input[name='ProjectId']").val(itemData.ProjectId);
+                          var clsDate = itemData.ProjectCloseDate;
+                          var todayDate = itemData.TodayDate;
+                          if (clsDate != '' && todayDate != '') {
+                              var todayDate = moment(parseDate(todayDate));
+                              var clsDate = moment(parseDate(clsDate));
+
+                              var mins = clsDate.diff(todayDate, 'minutes');
+                              if (mins > 0) {
+                                  $('#MsgValidation').html("Final Distribution cannot be done before completion of the Project.");
+                                  $('#ValidationModal').modal('toggle');
+                                  $("#TentativeClosedate").val('');
+                                  return false;
+                              }
+                              //var result = '';
+                              //var years = closeDate.diff(todayDate, 'year');
+                              //todayDate.add(years, 'years');
+
+                              //var months = closeDate.diff(todayDate, 'months');
+                              //todayDate.add(months, 'months');
+
+                              //var days = closeDate.diff(todayDate, 'days');
+                              //if (years > 1) {
+                              //    result = years + ' years ';
+                              //} else if (years == 1) {
+                              //    result = years + ' year ';
+                              //}
+                              //if (months > 1) {
+                              //    result = result + months + ' months ';
+                              //} else if (months == 1) {
+                              //    result = result + months + ' month ';
+                              //}
+                              //if (days > 1) {
+                              //    result = result + days + ' days';
+                              //} else if (days == 1) {
+                              //    result = result + days + ' day';
+                              //}
+
+                              //$('#lblDuration').html(result);
+                          }
+                      });
+                  });
+
+    }
+
+    $('#txtDistributionAmount').change(function () {
+        var availablebalance = parseFloat($("input[name='PjctAvailableBalanceAmount']").val());
+        var distributiontype = $('#txtdistributiontype').val();
+        var distributionamount = parseFloat($(this).val());
+        if (distributionamount > availablebalance)
+        {
+            $('#MsgValidation').html("Distribution amount cannot be greater than available balance. Please change the value.");
+            $('#ValidationModal').modal('toggle');
+            return false;
+        }
+        //if (distributiontype == 1 && distributionamount == availablebalance)
+        //{
+        //    $('#MsgValidation').html("Distribution amount cannot be equal to available balance for Partial Distribution. Please change the value or Select Final Distribution.");
+        //    $('#ValidationModal').modal('toggle');
+        //    return false;
+        //}
+        calculateamount()
+    });
+
+    $('#btnAddPayment').click(function () {
+        var cln = $('#tbodyPO tr:first').clone().find("select,input").val("").end();
+        // $(cln).find('.tdAdvAmt, .tdTaxAmt, .tdNetAmt, .tdTaxCode').text('');
+        $(cln).find('a.dis-none').removeClass('dis-none');
+        $(cln).find('input[name$=".BankName"]').attr('readonly', 'readonly');
+        $(cln).find('input[name$=".BranchName"]').attr('readonly', 'readonly');
+        $(cln).find('input[name$=".AccountNumber"]').attr('readonly', 'readonly');
+        $(cln).find('input[name$=".IFSCCode"]').attr('readonly', 'readonly');
+        var index = $('#tbodyPO tr:last').find("input[name='DistributionDetails.Index']").val();
+        index = parseInt(index) + 1;
+        $(cln).find("input[name='DistributionDetails.Index']").val(index);
+        $(cln).find("input, select").each(function () {
+            $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+            // $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+            // $(this).attr("code", $(this).attr("id").replace(/\d+/, index));
+        });
+        $(cln).find("span[data-valmsg-for]").each(function () {
+            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+        });
+        $(cln).find('.hasDatepicker').attr("id", "").removeClass('hasDatepicker').removeData('datepicker').unbind().datepicker({
+            maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true
+        })
+
+        $('#tbodyPO').append(cln);
+
+    });
+    $('#btnAddPCF').click(function () {
+        var cln = $('#tbodyPCF tr:first').clone().find("select,input").val("").end();
+        // $(cln).find('.tdAdvAmt, .tdTaxAmt, .tdNetAmt, .tdTaxCode').text('');
+        $(cln).find('a.dis-none').removeClass('dis-none');
+        var index = $('#tbodyPCF tr:last').find("input[name='PCFDetails.Index']").val();
+        index = parseInt(index) + 1;
+        $(cln).find("input[name='PCFDetails.Index']").val(index);
+        $(cln).find("input, select").each(function () {
+            $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+            // $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+            // $(this).attr("code", $(this).attr("id").replace(/\d+/, index));
+        });
+        $(cln).find("span[data-valmsg-for]").each(function () {
+            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+        });
+        $(cln).find('.hasDatepicker').attr("id", "").removeClass('hasDatepicker').removeData('datepicker').unbind().datepicker({
+            maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true
+        })
+        $('#tbodyPCF').append(cln);
+        var ix = $('#tbodyPCF tr:last').find("input[name='PCFDetails.Index']");
+        pcfPIChange(ix);
+
+    });
+    $('#tbodyPCF').find('input[name$=".autoComplete"]').each(function () {
+        pcfPIChange($(this),'U');
+    });
+
+    function Changetransaction() {
+        $('#NeedUpdateTransDetail').val('true');
+    }
+    function calculateamount() {
+
+        var subtotal = 0;
+        var expensetotal = 0;
+        var amtavailforstaff = 0;
+        var amtavailfordistr = 0;
+        var EUCOamt = parseFloat($("#txtEUCOAmount").val() || 0);
+        var Storesamt = parseFloat($("#txtStoresAmount").val()|| 0);
+        var CentralFacilitiesamt = parseFloat($("#txtCentralFacilitiesAmount").val() || 0);
+        var Othersamt = parseFloat($("#txtOthersAmount").val() || 0);
+        var TransferedtoIITamt = parseFloat($("#txtTransferedToIITAmount").val() || 0);
+        var Distributionamt = parseFloat($("#txtDistributionAmount").val() || 0);
+        var instituteOH = parseFloat($("input[name='InstituteOverheadAmount']").val() || 0);
+        expensetotal = parseFloat(EUCOamt + Storesamt + CentralFacilitiesamt + Othersamt);
+        subtotal = expensetotal + TransferedtoIITamt;
+        if (!isNaN(expensetotal)) {
+            $("#txtExpenditureAmount").val(expensetotal.toFixed(0));
+            // $("#CreditorAmount").val(netpayabletotal.toFixed(0));
+        }
+        if (!isNaN(subtotal)) {
+            $("#txtSubTotalAmount").val(subtotal.toFixed(0));
+        }
+
+
+        var totalinstOHamount = 0;
+        var totalinstOHpercent = 0;
+        var instohamt = 0;
+        var availableamount = 0;
+        var percentage = 0;
+        var totalinstOHbreakamount = 0;
+
+        $('#OverheadsList tr').each(function (idx, val) {
+            percentage = parseFloat($(this).find('input[name$=".OverheadPercentage"]').val() || 0);
+            availableamount = Distributionamt - subtotal;
+            instohamt = parseFloat((availableamount * percentage) / 100) ;
+
+            if (!isNaN(instohamt)) {
+                totalinstOHamount += instohamt;
+                $(this).find('.tdOHAmount').html(instohamt.toFixed(0));
+                $(this).find('input[name$=".OverheadAmount"]').val(instohamt.toFixed(0));
+            }
+
+
+            var amount = parseFloat($(this).find('input[name$=".OverheadAmount"]').val() || 0);
+            var ohtype = parseFloat($(this).find('input[name$=".OverheadtypeId"]').val() || 0);
+
+            if (!isNaN(amount)) {
+                totalinstOHbreakamount += amount;
+            }
+
+        });
+
+        if(totalinstOHbreakamount > totalinstOHamount)
+        {
+            var diff = totalinstOHbreakamount - totalinstOHamount;
+            $('#OverheadsList tr').each(function (idx, val) {
+                var ohtypeid = parseFloat($(this).find('input[name$=".OverheadtypeId"]').val() || 0);
+                var ohamount = parseFloat($(this).find('input[name$=".OverheadAmount"]').val() || 0);
+                if(ohtypeid == 3)
+                {
+                    ohamount = ohamount - diff;
+                }
+                $(this).find('.tdOHAmount').html(ohamount.toFixed(0));
+                $(this).find('input[name$=".OverheadAmount"]').val(ohamount.toFixed(0));
+            });
+        }
+        if(totalinstOHamount > totalinstOHbreakamount)
+        {
+            var diff = totalinstOHamount - totalinstOHbreakamount;
+            $('#OverheadsList tr').each(function (idx, val) {
+                var ohtypeid = parseFloat($(this).find('input[name$=".OverheadtypeId"]').val() || 0);
+                var ohamount = parseFloat($(this).find('input[name$=".OverheadAmount"]').val() || 0);
+                if(ohtypeid == 3)
+                {
+                    ohamount = ohamount + diff;
+                }
+                $(this).find('.tdOHAmount').html(ohamount.toFixed(0));
+                $(this).find('input[name$=".OverheadAmount"]').val(ohamount.toFixed(0));
+            });
+        }
+        //var insohamtttl = Math.Round(totalinstOHamount);
+        $('input[name="InstituteOverheadAmount"]').val(totalinstOHamount.toFixed(0));
+        $("#instoh").html(totalinstOHamount.toFixed(0));
+        amtavailforstaff = (Distributionamt - subtotal) - totalinstOHamount;
+        if (!isNaN(amtavailforstaff)) {
+            $("input[name='AmountAvailableforDistribution']").val(amtavailforstaff.toFixed(0));
+            $("#amtavailforstaff").html(amtavailforstaff.toFixed(0))
+            $("#txtAmtAvailableforDistribution").val(amtavailforstaff.toFixed(0));
+        }
+        amtavailfordistr = (Distributionamt - subtotal);
+        $("#amtavailfordistri").html(amtavailfordistr.toFixed(0))
+    }
+
+    function calculatefacultyamount() {
+        var totalfacultyamt = 0;
+        var totalNetamt = 0;
+        $('#tbodyPO tr').each(function (idx, val) {
+            var amount = parseFloat($(this).closest('tr').find('input[name$=".Amount"]').val() || 0);
+            var tdsvalue = parseFloat($(this).closest('tr').find('input[name$=".TDSValue"]').val() || 0);
+            var netamt = amount - tdsvalue;
+            $(this).closest('tr').find('input[name$=".NetAmount"]').val(netamt)
+            if (!isNaN(amount)) {
+                totalfacultyamt += amount;
+            }
+            if (!isNaN(netamt)) {
+                totalNetamt += netamt;
+            }
+        });
+        $("#txtTotalAmount").val(totalfacultyamt.toFixed(0));
+        $("#txtStaffNetAmount").val(totalNetamt.toFixed(0));
+        $("#txtTotalIndividualShare").val(totalfacultyamt.toFixed(0));
+        var availablebalance = parseFloat($("input[name='PjctAvailableBalanceAmount']").val());
+        var distributionamount = parseFloat($('#txtDistributionAmount').val());
+        if (distributionamount > availablebalance)
+        {
+            $('#MsgValidation').html("Distribution amount cannot be greater than available balance. Please change the value.");
+            $('#ValidationModal').modal('toggle');
+            return false;
+        }
+    }
+    function calculatePCFamount() {
+
+        var totalPCFamt = 0;
+
+        $('#tbodyPCF tr').each(function (idx, val) {
+            var amount = parseFloat($(this).closest('tr').find('input[name$=".PCFAmount"]').val() || 0);
+            if (!isNaN(amount)) {
+                totalPCFamt += amount;
+            }
+
+        });
+        $("#txtTotalPCFShare").val(totalPCFamt.toFixed(0));
+        $("#txtTotalPCF").val(totalPCFamt.toFixed(0));
+    }
+    //function calculatetdsamount() {
+    //    var totalTDSamt = 0;
+    //    var totalNetamt = 0;
+    //    $('#tbodyPO tr').each(function (idx, val) {
+
+    //        var tdsvalue = parseFloat($(this).closest('tr').find('input[name$=".TDSValue"]').val()|| 0);
+    //        var amount = parseFloat($(this).closest('tr').find('input[name$=".Amount"]').val()|| 0);
+    //        var netamt = amount - tdsvalue;
+    //        $(this).closest('tr').find('input[name$=".NetAmount"]').val(netamt)
+    //        if (!isNaN(tdsvalue)) {
+    //            totalTDSamt += tdsvalue;
+    //        }
+    //        if (!isNaN(netamt)) {
+    //            totalNetamt += netamt;
+    //        }
+    //    });
+    //    $("#txtTDSAmount").val(totalTDSamt.toFixed(0));
+    //    $("#txtStaffNetAmount").val(totalNetamt.toFixed(0));
+    //}
+    //function calculatenetamount() {
+
+    //    var totalNetamt = 0;
+    //    var totalfacultyamt = 0;
+    //    $('#tbodyPO tr').each(function (idx, val) {
+
+    //        var netamount = parseFloat($(this).closest('tr').find('input[name$=".NetAmount"]').val());
+
+    //        if (!isNaN(netamount)) {
+    //            totalNetamt += netamount;
+    //        }
+    //    });
+
+    //    $("#txtStaffNetAmount").val(totalNetamt.toFixed(0));
+    //}
+
+    //function calculateInstituteOverheadamount() {
+    //    var totalinstOHamount = 0;
+    //    var totalinstOHpercent = 0;
+    //    var instohamt = 0;
+    //    var distributionamount = 0;
+    //    var availableamount = 0;
+    //    var percentage = 0;
+    //    $('#OverheadsList tr').each(function (idx, val) {
+    //        percentage = parseFloat($(this).find('input[name$=".OverheadPercentage"]').val() || 0);
+    //        distributionamount = parseFloat($("#txtDistributionAmount").val() || 0);
+    //        subtotalamount = parseFloat($("#txtSubTotalAmount").val() || 0);
+    //        availableamount = distributionamount - subtotalamount;
+    //        instohamt = parseFloat((availableamount * percentage) / 100) ;
+
+    //        if (!isNaN(instohamt)) {
+    //            totalinstOHamount += instohamt;
+    //            $(this).find('.tdOHAmount').html(instohamt.toFixed(0));
+    //            $(this).find('input[name$=".OverheadAmount"]').val(instohamt.toFixed(0));
+    //        }
+
+    //    });
+
+    //    $('input[name="InstituteOverheadAmount"]').val(totalinstOHamount.toFixed(0));
+    //    $("#instoh").html(totalinstOHamount.toFixed(0));
+
+    //}
+    //$(document).on('change', 'select[name$=".PaymentMode"]', function () {
+    //    var mode = $(this).val();
+    //    if (mode == 1)
+    //    {
+    //        $(this).closest('tr').find('input[name$=".BankName"]').removeAttr('readonly');
+    //        $(this).closest('tr').find('input[name$=".BranchName"]').removeAttr('readonly');
+    //        $(this).closest('tr').find('input[name$=".AccountNumber"]').removeAttr('readonly');
+    //        $(this).closest('tr').find('input[name$=".IFSCCode"]').removeAttr('readonly');
+    //    }
+    //    if (mode == 2)
+    //    {
+    //        $(this).closest('tr').find('input[name$=".BankName"]').attr('readonly', 'readonly');
+    //        $(this).closest('tr').find('input[name$=".BranchName"]').attr('readonly', 'readonly');
+    //        $(this).closest('tr').find('input[name$=".AccountNumber"]').attr('readonly', 'readonly');
+    //        $(this).closest('tr').find('input[name$=".IFSCCode"]').attr('readonly', 'readonly');
+    //    }
+    //    if (mode == 3)
+    //    {
+    //        $(this).closest('tr').find('input[name$=".BankName"]').attr('readonly', 'readonly');
+    //        $(this).closest('tr').find('input[name$=".BranchName"]').attr('readonly', 'readonly');
+    //        $(this).closest('tr').find('input[name$=".AccountNumber"]').attr('readonly', 'readonly');
+    //        $(this).closest('tr').find('input[name$=".IFSCCode"]').attr('readonly', 'readonly');
+    //    }
+    //    if (mode == 0)
+    //    {
+    //        $(this).closest('tr').find('input[name$=".BankName"]').attr('readonly', 'readonly');
+    //        $(this).closest('tr').find('input[name$=".BranchName"]').attr('readonly', 'readonly');
+    //        $(this).closest('tr').find('input[name$=".AccountNumber"]').attr('readonly', 'readonly');
+    //        $(this).closest('tr').find('input[name$=".IFSCCode"]').attr('readonly', 'readonly');
+    //    }
+    //});
+
+    function AddNewExpense(){
+        //var stateCode = $('#lblStateCode').html();
+        //var BillType = $('#BillType').val();
+        $.ajax({
+            type: "GET",
+            url: "@Url.Action("GetAddNewExpenseDetails", "CoreAccounts")",
+            data: { "typeCode": "DIS","tSubCode" : "1"},
+            traditional: true,
+            dataType: "json",
+            success: function (result) {
+                $.each(result.ExpenseDetail, function (i, item) {
+                    var cln = $('#tbodyExpenseList tr:first').clone().find("select,input").val("").end();
+                    $(cln).find('a.dis-none').removeClass('dis-none');
+                    var index = $('#tbodyExpenseList tr:last').find("input[name='ExpenseDetail.Index']").val();
+                    index = parseInt(index) + 1;
+                    $(cln).find("input[name='ExpenseDetail.Index']").val(index);
+                    $(cln).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                    $(cln).find('#lblTransType').text(item.TransactionType);
+                    $(cln).find('input[name$=".IsJV"]').val(item.IsJV);
+                    $(cln).find("input, select").each(function () {
+                        $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+                        $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+                    });
+                    $(cln).find("span[data-valmsg-for]").each(function () {
+                        $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+                    });
+
+                    var selectGroup = $(cln).find("select[name$='.AccountGroupId']");
+                    selectGroup.empty();
+                    $.each(item.AccountGroupList, function (index, itemData) {
+                        selectGroup.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+
+                    var selectHead = $(cln).find("select[name$='.AccountHeadId']");
+                    selectHead.empty();
+                    $.each(item.AccountHeadList, function (index, itemData) {
+                        selectHead.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+                    $('#tbodyExpenseList').append(cln);
+                });
+            },
+            error: function (err) {
+                console.log("error : " + err);
+            }
+        });
+    }
+    function GetTransactionDetails() {
+        var interstate_f = false;
+        //var typecode = $('#transtypecode').val();
+        $('#SubCode').val("1");
+        EmptyExpenseDeductionDetails();
+        $.ajax({
+            type: "GET",
+            url: "@Url.Action("GetTransactionDetails", "CoreAccounts")",
+            data: { "typeCode": "DIS", "tSubCode" : "1", },
+        traditional: true,
+        dataType: "json",
+        success: function (result) {
+
+                //var amt = 0;
+                //$("#tbodyCommitmentSelList [name$='.HeadName'][value='"+item.BudgetHeadName+"']").each(function(){
+                //    var elePayment = $(this).closest('td').find("input[name$='.PaymentAmount']");
+                //    var parseVal = parseFloat($(elePayment).val());
+                //    if (!isNaN(parseVal))
+                //        amt = amt + parseVal;
+                //});
+
+                var expenseheadid = 0;
+                var totalinstOHbreakamount = 0;
+                var totalchqamount = 0;
+                var totalslryamount = 0;
+                var eucoamount = parseFloat($("#txtEUCOAmount").val() || 0);
+                var iitamount = parseFloat($("#txtTransferedToIITAmount").val() || 0);
+                var staffdistributedamt = parseFloat($("#txtTotalAmount").val() || 0);
+                var storesamount = parseFloat($("#txtStoresAmount").val() || 0);
+                var centralfacilitiesamount = parseFloat($("#txtCentralFacilitiesAmount").val() || 0);
+                var othersamount = parseFloat($("#txtOthersAmount").val() || 0);
+                var pcfamount = parseFloat($("#txtTotalPCF").val() || 0);
+                var ttlotheramt = 0;
+
+                $('#OverheadsList tr').each(function (idx, val) {
+
+
+                    var amount = parseFloat($(this).find('input[name$=".OverheadAmount"]').val() || 0);
+                    var ohtype = parseFloat($(this).find('input[name$=".OverheadtypeId"]').val() || 0);
+                    var distributionamount = parseFloat($("#txtDistributionAmount").val() || 0);
+                    var ctrlamt = 0;
+                    if (!isNaN(amount)) {
+                        totalinstOHbreakamount += amount;
+                    }
+                    if(ohtype == 1)
+                    {
+                        expenseheadid =  138
+                    }
+                    if(ohtype == 2)
+                    {
+                        expenseheadid =  298
+                    }
+                    if(ohtype == 3)
+                    {
+                        expenseheadid = 141
+                    }
+                    if(ohtype == 4)
+                    {
+                        expenseheadid = 299
+                    }
+                    if(ohtype == 5)
+                    {
+                        expenseheadid = 143
+                    }
+
+   $.each(result.ExpenseDetail, function (i, item) {
+                if (i == 0) {
+                    var trEle = $('#tbodyExpenseList tr:first');
+
+
+                    //$.each(item.AccountHeadList, function (index, itemData) {
+
+                        //if(itemData.id == expenseheadid)
+                        //{
+                        //    $(trEle).find('input[name$=".Amount"]').val(amount);
+                        //    $(trEle).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                        //    $(trEle).find('#lblTransType').text(item.TransactionType);
+                        //    $(trEle).find('input[name$=".IsJV"]').val(item.IsJV);
+                        //    $(trEle).find("input[name='ExpenseDetail.Index']").val(i);
+                        //    var selectHead = $(trEle).find('select[name$=".AccountHeadId"]');
+                        //    selectHead.empty();
+                        //    selectHead.append($('<option/>', {
+                        //        value: itemData.id,
+                        //        text: itemData.name,
+                        //    }));
+                        //    var selectGroup = $(trEle).find('select[name$=".AccountGroupId"]');
+                        //    selectGroup.empty();
+                        //    $.each(item.AccountGroupList, function (index, itemData) {
+                        //        selectGroup.append($('<option/>', {
+                        //            value: itemData.id,
+                        //            text: itemData.name,
+                        //        }));
+                        //    });
+                        //}
+                        //else
+                        //{
+                            $(trEle).find('input[name$=".Amount"]').val(distributionamount);
+                            $(trEle).find('input[name$=".TransactionType"]').val('Debit');
+                            $(trEle).find('#lblTransType').text('Debit');
+                            $(trEle).find('input[name$=".IsJV"]').val(false);
+                            $(trEle).find("input[name='ExpenseDetail.Index']").val(i);
+                            var selectHead = $(trEle).find('select[name$=".AccountHeadId"]');
+                            selectHead.empty();
+                            selectHead.append($('<option/>', {
+                                value: 134,
+                                text: "Project Clearing Payable",
+                            }));
+                            var selectGroup = $(trEle).find('select[name$=".AccountGroupId"]');
+                            selectGroup.empty();
+                            $.each(item.AccountGroupList, function (index, itemData) {
+                                selectGroup.append($('<option/>', {
+                                    value: 33,
+                                    text: "Others",
+                                }));
+                            });
+                        //}
+                    //});
+                } else {
+
+                    //$(trEleNew).find('input[name$=".Amount"]').val('');
+                    //$(trEleNew).find("input[name='ExpenseDetail.Index']").val(i);
+                    //$(trEleNew).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                    //$(trEleNew).find('#lblTransType').text(item.TransactionType);
+                    //$(trEleNew).find('input[name$=".IsJV"]').val(item.IsJV);
+                    //$(trEleNew).find("input,Select").each(function () {
+                    //    $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                    //    $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                    //});
+                    //$(trEleNew).find("span[data-valmsg-for]").each(function () {
+                    //    $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                    //});
+
+                    //var selectGroup = $(trEleNew).find('select[name$=".AccountGroupId"]');
+                    //selectGroup.empty();
+                    //$.each(item.AccountGroupList, function (index, itemData) {
+                    //    selectGroup.append($('<option/>', {
+                    //        value: itemData.id,
+                    //        text: itemData.name,
+                    //    }));
+
+                    //});
+
+
+                    $.each(item.AccountHeadList, function (index, itemData) {
+
+                        if(itemData.id == expenseheadid)
+                        {
+                            ctrlamt = amount
+                            //if(expenseheadid == 299)
+                            //{
+                            //    ctrlamt = centralfacilitiesamount + storesamount + othersamount + amount;
+                            //}
+                            var trEleNew = $('#tbodyExpenseList tr:first').clone().find('input').val('').end();
+                            $(trEleNew).find('input[name$=".Amount"]').val(ctrlamt);
+                            $(trEleNew).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                            $(trEleNew).find('#lblTransType').text(item.TransactionType);
+                            $(trEleNew).find('input[name$=".IsJV"]').val(item.IsJV);
+                            $(trEleNew).find("input[name='ExpenseDetail.Index']").val(i);
+                            $(trEleNew).find("input,Select").each(function () {
+                                $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                                $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                            });
+                            $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                                $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                            });
+                            var selectHead = $(trEleNew).find('select[name$=".AccountHeadId"]');
+                            selectHead.empty();
+                            selectHead.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name,
+                            }));
+                            var selectGroup = $(trEleNew).find('select[name$=".AccountGroupId"]');
+                            selectGroup.empty();
+                            $.each(item.AccountGroupList, function (index, itemData) {
+                                selectGroup.append($('<option/>', {
+                                    value: itemData.id,
+                                    text: itemData.name,
+                                }));
+                            });
+                            $('#tbodyExpenseList').append(trEleNew);
+                        }
+
+                    });
+
+                }
+             });
+       });
+
+
+    $.each(result.ExpenseDetail, function (i, item) {
+              if (i == 0) {
+                  var trEle = $('#tbodyExpenseList tr:first');
+                  $.each(item.AccountHeadList, function (index, itemData) {
+                      if(eucoamount > 0 &&  itemData.id == 301)
+                      {
+                          $(trEle).find('input[name$=".Amount"]').val(eucoamount);
+                          $(trEle).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                          $(trEle).find('#lblTransType').text(item.TransactionType);
+                          $(trEle).find('input[name$=".IsJV"]').val(item.IsJV);
+                          $(trEle).find("input[name='ExpenseDetail.Index']").val(i);
+                          var selectHead = $(trEle).find('select[name$=".AccountHeadId"]');
+                          selectHead.empty();
+                          selectHead.append($('<option/>', {
+                              value: itemData.id,
+                              text: itemData.name,
+                          }));
+                          var selectGroup = $(trEle).find('select[name$=".AccountGroupId"]');
+                          selectGroup.empty();
+                          $.each(item.AccountGroupList, function (index, itemData) {
+                              selectGroup.append($('<option/>', {
+                                  value: itemData.id,
+                                  text: itemData.name,
+                              }));
+                          });
+                      }
+
+                  });
+              }
+              else {
+                  $.each(item.AccountHeadList, function (index, itemData) {
+
+                  if(eucoamount > 0 &&  itemData.id == 301)
+                  {
+                      var trEleNew = $('#tbodyExpenseList tr:first').clone().find('input').val('').end();
+                      $(trEleNew).find('input[name$=".Amount"]').val(eucoamount);
+                      $(trEleNew).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                      $(trEleNew).find('#lblTransType').text(item.TransactionType);
+                      $(trEleNew).find('input[name$=".IsJV"]').val(item.IsJV);
+                      $(trEleNew).find("input[name='ExpenseDetail.Index']").val(i);
+                      $(trEleNew).find("input,Select").each(function () {
+                          $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                          $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                      });
+                      $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                          $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                      });
+                      var selectHead = $(trEleNew).find('select[name$=".AccountHeadId"]');
+                      selectHead.empty();
+                      selectHead.append($('<option/>', {
+                          value: itemData.id,
+                          text: itemData.name,
+                      }));
+                      var selectGroup = $(trEleNew).find('select[name$=".AccountGroupId"]');
+                      selectGroup.empty();
+                      $.each(item.AccountGroupList, function (index, itemData) {
+                          selectGroup.append($('<option/>', {
+                              value: itemData.id,
+                              text: itemData.name,
+                          }));
+                      });
+                      $('#tbodyExpenseList').append(trEleNew);
+                  }
+                });
+
+              }
+     });
+
+    $.each(result.ExpenseDetail, function (i, item) {
+              if (i == 0) {
+                  var trEle = $('#tbodyExpenseList tr:first');
+                  $.each(item.AccountHeadList, function (index, itemData) {
+
+                      if(iitamount > 0 && itemData.id == 302)
+                      {
+                          $(trEle).find('input[name$=".Amount"]').val(iitamount);
+                          $(trEle).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                          $(trEle).find('#lblTransType').text(item.TransactionType);
+                          $(trEle).find('input[name$=".IsJV"]').val(item.IsJV);
+                          $(trEle).find("input[name='ExpenseDetail.Index']").val(i);
+                          var selectHead = $(trEle).find('select[name$=".AccountHeadId"]');
+                          selectHead.empty();
+                          selectHead.append($('<option/>', {
+                              value: itemData.id,
+                              text: itemData.name,
+                          }));
+                          var selectGroup = $(trEle).find('select[name$=".AccountGroupId"]');
+                          selectGroup.empty();
+                          $.each(item.AccountGroupList, function (index, itemData) {
+                              selectGroup.append($('<option/>', {
+                                  value: itemData.id,
+                                  text: itemData.name,
+                              }));
+                          });
+                      }
+                  });
+              }
+              else {
+                  $.each(item.AccountHeadList, function (index, itemData) {
+
+                  if(iitamount > 0 && itemData.id == 302)
+                  {
+                      var trEleNew = $('#tbodyExpenseList tr:first').clone().find('input').val('').end();
+                      $(trEleNew).find('input[name$=".Amount"]').val(iitamount);
+                      $(trEleNew).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                      $(trEleNew).find('#lblTransType').text(item.TransactionType);
+                      $(trEleNew).find('input[name$=".IsJV"]').val(item.IsJV);
+                      $(trEleNew).find("input[name='ExpenseDetail.Index']").val(i);
+                      $(trEleNew).find("input,Select").each(function () {
+                          $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                          $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                      });
+                      $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                          $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                      });
+                      var selectHead = $(trEleNew).find('select[name$=".AccountHeadId"]');
+                      selectHead.empty();
+                      selectHead.append($('<option/>', {
+                          value: itemData.id,
+                          text: itemData.name,
+                      }));
+                      var selectGroup = $(trEleNew).find('select[name$=".AccountGroupId"]');
+                      selectGroup.empty();
+                      $.each(item.AccountGroupList, function (index, itemData) {
+                          selectGroup.append($('<option/>', {
+                              value: itemData.id,
+                              text: itemData.name,
+                          }));
+                      });
+                      $('#tbodyExpenseList').append(trEleNew);
+                  }
+                  });
+              }
+    });
+
+    $.each(result.ExpenseDetail, function (i, item) {
+        if (i == 0) {
+            var trEle = $('#tbodyExpenseList tr:first');
+            $.each(item.AccountHeadList, function (index, itemData) {
+
+                if(centralfacilitiesamount > 0 && itemData.id == 348)
+                {
+                    $(trEle).find('input[name$=".Amount"]').val(centralfacilitiesamount);
+                    $(trEle).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                    $(trEle).find('#lblTransType').text(item.TransactionType);
+                    $(trEle).find('input[name$=".IsJV"]').val(item.IsJV);
+                    $(trEle).find("input[name='ExpenseDetail.Index']").val(i);
+                    var selectHead = $(trEle).find('select[name$=".AccountHeadId"]');
+                    selectHead.empty();
+                    selectHead.append($('<option/>', {
+                        value: itemData.id,
+                        text: itemData.name,
+                    }));
+                    var selectGroup = $(trEle).find('select[name$=".AccountGroupId"]');
+                    selectGroup.empty();
+                    $.each(item.AccountGroupList, function (index, itemData) {
+                        selectGroup.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+                }
+            });
+        }
+        else {
+            $.each(item.AccountHeadList, function (index, itemData) {
+
+                if(centralfacilitiesamount > 0 && itemData.id == 348)
+                {
+                    var trEleNew = $('#tbodyExpenseList tr:first').clone().find('input').val('').end();
+                    $(trEleNew).find('input[name$=".Amount"]').val(centralfacilitiesamount);
+                    $(trEleNew).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                    $(trEleNew).find('#lblTransType').text(item.TransactionType);
+                    $(trEleNew).find('input[name$=".IsJV"]').val(item.IsJV);
+                    $(trEleNew).find("input[name='ExpenseDetail.Index']").val(i);
+                    $(trEleNew).find("input,Select").each(function () {
+                        $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                        $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                    });
+                    $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                        $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                    });
+                    var selectHead = $(trEleNew).find('select[name$=".AccountHeadId"]');
+                    selectHead.empty();
+                    selectHead.append($('<option/>', {
+                        value: itemData.id,
+                        text: itemData.name,
+                    }));
+                    var selectGroup = $(trEleNew).find('select[name$=".AccountGroupId"]');
+                    selectGroup.empty();
+                    $.each(item.AccountGroupList, function (index, itemData) {
+                        selectGroup.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+                    $('#tbodyExpenseList').append(trEleNew);
+                }
+            });
+        }
+    });
+
+    $.each(result.ExpenseDetail, function (i, item) {
+        if (i == 0) {
+            var trEle = $('#tbodyExpenseList tr:first');
+            $.each(item.AccountHeadList, function (index, itemData) {
+
+                if(storesamount > 0 && itemData.id == 347)
+                {
+                    $(trEle).find('input[name$=".Amount"]').val(storesamount);
+                    $(trEle).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                    $(trEle).find('#lblTransType').text(item.TransactionType);
+                    $(trEle).find('input[name$=".IsJV"]').val(item.IsJV);
+                    $(trEle).find("input[name='ExpenseDetail.Index']").val(i);
+                    var selectHead = $(trEle).find('select[name$=".AccountHeadId"]');
+                    selectHead.empty();
+                    selectHead.append($('<option/>', {
+                        value: itemData.id,
+                        text: itemData.name,
+                    }));
+                    var selectGroup = $(trEle).find('select[name$=".AccountGroupId"]');
+                    selectGroup.empty();
+                    $.each(item.AccountGroupList, function (index, itemData) {
+                        selectGroup.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+                }
+            });
+        }
+        else {
+            $.each(item.AccountHeadList, function (index, itemData) {
+
+                if(storesamount > 0 && itemData.id == 347)
+                {
+                    var trEleNew = $('#tbodyExpenseList tr:first').clone().find('input').val('').end();
+                    $(trEleNew).find('input[name$=".Amount"]').val(storesamount);
+                    $(trEleNew).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                    $(trEleNew).find('#lblTransType').text(item.TransactionType);
+                    $(trEleNew).find('input[name$=".IsJV"]').val(item.IsJV);
+                    $(trEleNew).find("input[name='ExpenseDetail.Index']").val(i);
+                    $(trEleNew).find("input,Select").each(function () {
+                        $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                        $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                    });
+                    $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                        $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                    });
+                    var selectHead = $(trEleNew).find('select[name$=".AccountHeadId"]');
+                    selectHead.empty();
+                    selectHead.append($('<option/>', {
+                        value: itemData.id,
+                        text: itemData.name,
+                    }));
+                    var selectGroup = $(trEleNew).find('select[name$=".AccountGroupId"]');
+                    selectGroup.empty();
+                    $.each(item.AccountGroupList, function (index, itemData) {
+                        selectGroup.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+                    $('#tbodyExpenseList').append(trEleNew);
+                }
+            });
+        }
+    });
+    $.each(result.ExpenseDetail, function (i, item) {
+        if (i == 0) {
+            var trEle = $('#tbodyExpenseList tr:first');
+            $.each(item.AccountHeadList, function (index, itemData) {
+
+                if(othersamount > 0 && itemData.id == 50)
+                {
+                    $(trEle).find('input[name$=".Amount"]').val(othersamount);
+                    $(trEle).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                    $(trEle).find('#lblTransType').text(item.TransactionType);
+                    $(trEle).find('input[name$=".IsJV"]').val(item.IsJV);
+                    $(trEle).find("input[name='ExpenseDetail.Index']").val(i);
+                    var selectHead = $(trEle).find('select[name$=".AccountHeadId"]');
+                    selectHead.empty();
+                    selectHead.append($('<option/>', {
+                        value: itemData.id,
+                        text: itemData.name,
+                    }));
+                    var selectGroup = $(trEle).find('select[name$=".AccountGroupId"]');
+                    selectGroup.empty();
+                    $.each(item.AccountGroupList, function (index, itemData) {
+                        selectGroup.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+                }
+            });
+        }
+        else {
+            $.each(item.AccountHeadList, function (index, itemData) {
+
+                if(othersamount > 0 && itemData.id == 50)
+                {
+                    var trEleNew = $('#tbodyExpenseList tr:first').clone().find('input').val('').end();
+                    $(trEleNew).find('input[name$=".Amount"]').val(othersamount);
+                    $(trEleNew).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                    $(trEleNew).find('#lblTransType').text(item.TransactionType);
+                    $(trEleNew).find('input[name$=".IsJV"]').val(item.IsJV);
+                    $(trEleNew).find("input[name='ExpenseDetail.Index']").val(i);
+                    $(trEleNew).find("input,Select").each(function () {
+                        $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                        $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                    });
+                    $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                        $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                    });
+                    var selectHead = $(trEleNew).find('select[name$=".AccountHeadId"]');
+                    selectHead.empty();
+                    selectHead.append($('<option/>', {
+                        value: itemData.id,
+                        text: itemData.name,
+                    }));
+                    var selectGroup = $(trEleNew).find('select[name$=".AccountGroupId"]');
+                    selectGroup.empty();
+                    $.each(item.AccountGroupList, function (index, itemData) {
+                        selectGroup.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+                    $('#tbodyExpenseList').append(trEleNew);
+                }
+            });
+        }
+    });
+    //$.each(result.ExpenseDetail, function (i, item) {
+    //    if (i == 0) {
+    //        var trEle = $('#tbodyExpenseList tr:first');
+    //        $.each(item.AccountHeadList, function (index, itemData) {
+    //            if((centralfacilitiesamount > 0 || storesamount > 0 || othersamount > 0) &&  itemData.id == 299)
+    //            {
+    //                ttlotheramt = centralfacilitiesamount + storesamount + othersamount
+    //                $(trEle).find('input[name$=".Amount"]').val(ttlotheramt);
+    //                $(trEle).find('input[name$=".TransactionType"]').val(item.TransactionType);
+    //                $(trEle).find('#lblTransType').text(item.TransactionType);
+    //                $(trEle).find('input[name$=".IsJV"]').val(item.IsJV);
+    //                $(trEle).find("input[name='ExpenseDetail.Index']").val(i);
+    //                var selectHead = $(trEle).find('select[name$=".AccountHeadId"]');
+    //                selectHead.empty();
+    //                selectHead.append($('<option/>', {
+    //                    value: itemData.id,
+    //                    text: itemData.name,
+    //                }));
+    //                var selectGroup = $(trEle).find('select[name$=".AccountGroupId"]');
+    //                selectGroup.empty();
+    //                $.each(item.AccountGroupList, function (index, itemData) {
+    //                    selectGroup.append($('<option/>', {
+    //                        value: itemData.id,
+    //                        text: itemData.name,
+    //                    }));
+    //                });
+    //            }
+
+    //        });
+    //    }
+    //    else {
+    //        $.each(item.AccountHeadList, function (index, itemData) {
+
+    //            if((centralfacilitiesamount > 0 || storesamount > 0 || othersamount > 0) &&  itemData.id == 299)
+    //            {
+    //                ttlotheramt = centralfacilitiesamount + storesamount + othersamount
+    //                var trEleNew = $('#tbodyExpenseList tr:first').clone().find('input').val('').end();
+    //                $(trEleNew).find('input[name$=".Amount"]').val(ttlotheramt);
+    //                $(trEleNew).find('input[name$=".TransactionType"]').val(item.TransactionType);
+    //                $(trEleNew).find('#lblTransType').text(item.TransactionType);
+    //                $(trEleNew).find('input[name$=".IsJV"]').val(item.IsJV);
+    //                $(trEleNew).find("input[name='ExpenseDetail.Index']").val(i);
+    //                $(trEleNew).find("input,Select").each(function () {
+    //                    $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+    //                    $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+    //                });
+    //                $(trEleNew).find("span[data-valmsg-for]").each(function () {
+    //                    $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+    //                });
+    //                var selectHead = $(trEleNew).find('select[name$=".AccountHeadId"]');
+    //                selectHead.empty();
+    //                selectHead.append($('<option/>', {
+    //                    value: itemData.id,
+    //                    text: itemData.name,
+    //                }));
+    //                var selectGroup = $(trEleNew).find('select[name$=".AccountGroupId"]');
+    //                selectGroup.empty();
+    //                $.each(item.AccountGroupList, function (index, itemData) {
+    //                    selectGroup.append($('<option/>', {
+    //                        value: itemData.id,
+    //                        text: itemData.name,
+    //                    }));
+    //                });
+    //                $('#tbodyExpenseList').append(trEleNew);
+    //            }
+    //        });
+
+    //    }
+    //});
+
+    //$.each(result.ExpenseDetail, function (i, item) {
+    //    if (i == 0) {
+    //        var trEle = $('#tbodyExpenseList tr:first');
+    //        $.each(item.AccountHeadList, function (index, itemData) {
+    //            if((othersamount > 0 || storesamount > 0) &&  itemData.id == 50)
+    //            {
+    //                ttlotheramt = storesamount + othersamount;
+    //                $(trEle).find('input[name$=".Amount"]').val(ttlotheramt);
+    //                $(trEle).find('input[name$=".TransactionType"]').val(item.TransactionType);
+    //                $(trEle).find('#lblTransType').text(item.TransactionType);
+    //                $(trEle).find('input[name$=".IsJV"]').val(item.IsJV);
+    //                $(trEle).find("input[name='ExpenseDetail.Index']").val(i);
+    //                var selectHead = $(trEle).find('select[name$=".AccountHeadId"]');
+    //                selectHead.empty();
+    //                selectHead.append($('<option/>', {
+    //                    value: itemData.id,
+    //                    text: itemData.name,
+    //                }));
+    //                var selectGroup = $(trEle).find('select[name$=".AccountGroupId"]');
+    //                selectGroup.empty();
+    //                $.each(item.AccountGroupList, function (index, itemData) {
+    //                    selectGroup.append($('<option/>', {
+    //                        value: itemData.id,
+    //                        text: itemData.name,
+    //                    }));
+    //                });
+    //            }
+
+    //        });
+    //    }
+    //    else {
+    //        $.each(item.AccountHeadList, function (index, itemData) {
+
+    //            if((othersamount > 0 || storesamount > 0) &&  itemData.id == 50)
+    //            {
+    //                ttlotheramt = storesamount + othersamount;
+    //                var trEleNew = $('#tbodyExpenseList tr:first').clone().find('input').val('').end();
+    //                $(trEleNew).find('input[name$=".Amount"]').val(ttlotheramt);
+    //                $(trEleNew).find('input[name$=".TransactionType"]').val(item.TransactionType);
+    //                $(trEleNew).find('#lblTransType').text(item.TransactionType);
+    //                $(trEleNew).find('input[name$=".IsJV"]').val(item.IsJV);
+    //                $(trEleNew).find("input[name='ExpenseDetail.Index']").val(i);
+    //                $(trEleNew).find("input,Select").each(function () {
+    //                    $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+    //                    $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+    //                });
+    //                $(trEleNew).find("span[data-valmsg-for]").each(function () {
+    //                    $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+    //                });
+    //                var selectHead = $(trEleNew).find('select[name$=".AccountHeadId"]');
+    //                selectHead.empty();
+    //                selectHead.append($('<option/>', {
+    //                    value: itemData.id,
+    //                    text: itemData.name,
+    //                }));
+    //                var selectGroup = $(trEleNew).find('select[name$=".AccountGroupId"]');
+    //                selectGroup.empty();
+    //                $.each(item.AccountGroupList, function (index, itemData) {
+    //                    selectGroup.append($('<option/>', {
+    //                        value: itemData.id,
+    //                        text: itemData.name,
+    //                    }));
+    //                });
+    //                $('#tbodyExpenseList').append(trEleNew);
+    //            }
+    //        });
+
+    //    }
+    //});
+
+    $.each(result.ExpenseDetail, function (i, item) {
+        if (i == 0) {
+            var trEle = $('#tbodyExpenseList tr:first');
+            $.each(item.AccountHeadList, function (index, itemData) {
+                if(pcfamount > 0 &&  itemData.id == 139)
+                {
+                    $(trEle).find('input[name$=".Amount"]').val(pcfamount);
+                    $(trEle).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                    $(trEle).find('#lblTransType').text(item.TransactionType);
+                    $(trEle).find('input[name$=".IsJV"]').val(item.IsJV);
+                    $(trEle).find("input[name='ExpenseDetail.Index']").val(i);
+                    var selectHead = $(trEle).find('select[name$=".AccountHeadId"]');
+                    selectHead.empty();
+                    selectHead.append($('<option/>', {
+                        value: itemData.id,
+                        text: itemData.name,
+                    }));
+                    var selectGroup = $(trEle).find('select[name$=".AccountGroupId"]');
+                    selectGroup.empty();
+                    $.each(item.AccountGroupList, function (index, itemData) {
+                        selectGroup.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+                }
+
+            });
+        }
+        else {
+            $.each(item.AccountHeadList, function (index, itemData) {
+
+                if(pcfamount > 0 &&  itemData.id == 139)
+                {
+                    var trEleNew = $('#tbodyExpenseList tr:first').clone().find('input').val('').end();
+                    $(trEleNew).find('input[name$=".Amount"]').val(pcfamount);
+                    $(trEleNew).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                    $(trEleNew).find('#lblTransType').text(item.TransactionType);
+                    $(trEleNew).find('input[name$=".IsJV"]').val(item.IsJV);
+                    $(trEleNew).find("input[name='ExpenseDetail.Index']").val(i);
+                    $(trEleNew).find("input,Select").each(function () {
+                        $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                        $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                    });
+                    $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                        $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                    });
+                    var selectHead = $(trEleNew).find('select[name$=".AccountHeadId"]');
+                    selectHead.empty();
+                    selectHead.append($('<option/>', {
+                        value: itemData.id,
+                        text: itemData.name,
+                    }));
+                    var selectGroup = $(trEleNew).find('select[name$=".AccountGroupId"]');
+                    selectGroup.empty();
+                    $.each(item.AccountGroupList, function (index, itemData) {
+                        selectGroup.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+                    $('#tbodyExpenseList').append(trEleNew);
+                }
+            });
+
+        }
+    });
+
+    $('#tbodyPO tr').each(function (idx, val) {
+
+        var amount = parseFloat($(this).find('input[name$=".Amount"]').val() || 0);
+        var paymode = parseFloat($(this).find('select[name$=".PaymentMode"]').val() || 0);
+
+        if (!isNaN(amount) && paymode == 1) {
+            totalchqamount += amount;
+        }
+        if (!isNaN(amount) && paymode == 2) {
+            totalslryamount += amount;
+        }
+
+    });
+    $.each(result.ExpenseDetail, function (i, item) {
+        if (i == 0) {
+            var trEle = $('#tbodyExpenseList tr:first');
+            $.each(item.AccountHeadList, function (index, itemData) {
+
+                if(totalchqamount > 0 && itemData.id == 149)
+                {
+                    $(trEle).find('input[name$=".Amount"]').val(totalchqamount);
+                    $(trEle).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                    $(trEle).find('#lblTransType').text(item.TransactionType);
+                    $(trEle).find('input[name$=".IsJV"]').val(item.IsJV);
+                    $(trEle).find("input[name='ExpenseDetail.Index']").val(i);
+                    var selectHead = $(trEle).find('select[name$=".AccountHeadId"]');
+                    selectHead.empty();
+                    selectHead.append($('<option/>', {
+                        value: itemData.id,
+                        text: itemData.name,
+                    }));
+                    var selectGroup = $(trEle).find('select[name$=".AccountGroupId"]');
+                    selectGroup.empty();
+                    $.each(item.AccountGroupList, function (index, itemData) {
+                        selectGroup.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+                }
+            });
+        } else {
+
+
+            $.each(item.AccountHeadList, function (index, itemData) {
+
+                if(totalchqamount > 0 &&  itemData.id == 149)
+                {
+                    var trEleNew = $('#tbodyExpenseList tr:first').clone().find('input').val('').end();
+                    $(trEleNew).find('input[name$=".Amount"]').val(totalchqamount);
+                    $(trEleNew).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                    $(trEleNew).find('#lblTransType').text(item.TransactionType);
+                    $(trEleNew).find('input[name$=".IsJV"]').val(item.IsJV);
+                    $(trEleNew).find("input[name='ExpenseDetail.Index']").val(i);
+                    $(trEleNew).find("input,Select").each(function () {
+                        $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                        $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                    });
+                    $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                        $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                    });
+                    var selectHead = $(trEleNew).find('select[name$=".AccountHeadId"]');
+                    selectHead.empty();
+                    selectHead.append($('<option/>', {
+                        value: itemData.id,
+                        text: itemData.name,
+                    }));
+                    var selectGroup = $(trEleNew).find('select[name$=".AccountGroupId"]');
+                    selectGroup.empty();
+                    $.each(item.AccountGroupList, function (index, itemData) {
+                        selectGroup.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+                    $('#tbodyExpenseList').append(trEleNew);
+                }
+
+            });
+
+        }
+    });
+    $.each(result.ExpenseDetail, function (i, item) {
+        if (i == 0) {
+            var trEle = $('#tbodyExpenseList tr:first');
+            $.each(item.AccountHeadList, function (index, itemData) {
+
+                if(totalslryamount > 0 &&  itemData.id == 317)
+                {
+                    $(trEle).find('input[name$=".Amount"]').val(totalslryamount);
+                    $(trEle).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                    $(trEle).find('#lblTransType').text(item.TransactionType);
+                    $(trEle).find('input[name$=".IsJV"]').val(item.IsJV);
+                    $(trEle).find("input[name='ExpenseDetail.Index']").val(i);
+                    var selectHead = $(trEle).find('select[name$=".AccountHeadId"]');
+                    selectHead.empty();
+                    selectHead.append($('<option/>', {
+                        value: itemData.id,
+                        text: itemData.name,
+                    }));
+                    var selectGroup = $(trEle).find('select[name$=".AccountGroupId"]');
+                    selectGroup.empty();
+                    $.each(item.AccountGroupList, function (index, itemData) {
+                        selectGroup.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+                }
+            });
+        } else {
+
+
+            $.each(item.AccountHeadList, function (index, itemData) {
+
+                if(totalslryamount > 0 &&  itemData.id == 317)
+                {
+                    var trEleNew = $('#tbodyExpenseList tr:first').clone().find('input').val('').end();
+                    $(trEleNew).find('input[name$=".Amount"]').val(totalslryamount);
+                    $(trEleNew).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                    $(trEleNew).find('#lblTransType').text(item.TransactionType);
+                    $(trEleNew).find('input[name$=".IsJV"]').val(item.IsJV);
+                    $(trEleNew).find("input[name='ExpenseDetail.Index']").val(i);
+                    $(trEleNew).find("input,Select").each(function () {
+                        $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                        $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                    });
+                    $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                        $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                    });
+                    var selectHead = $(trEleNew).find('select[name$=".AccountHeadId"]');
+                    selectHead.empty();
+                    selectHead.append($('<option/>', {
+                        value: itemData.id,
+                        text: itemData.name,
+                    }));
+                    var selectGroup = $(trEleNew).find('select[name$=".AccountGroupId"]');
+                    selectGroup.empty();
+                    $.each(item.AccountGroupList, function (index, itemData) {
+                        selectGroup.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+                    $('#tbodyExpenseList').append(trEleNew);
+                }
+
+            });
+
+        }
+    });
+            $.each(result.DeductionDetail, function (i, item) {
+                if (i == 0) {
+                    var trEle = $('#tbodyDeductionList tr:first');
+                    $(trEle).find('input').val('');
+                    var amtEle = $(trEle).find('input[name$=".Amount"]');
+                    amtEle.removeClass('required');
+                    $(trEle).find('input[name$=".AccountGroupId"]').val(item.AccountGroupId);
+                    $(trEle).find('input[name$=".DeductionHeadId"]').val(item.DeductionHeadId);
+                    $(trEle).find('input[name$=".DeductionHead"]').val(item.DeductionHead);
+                    $(trEle).find('input[name$=".AccountGroup"]').val(item.AccountGroup);
+                    $(trEle).find('td:nth-child(1)').html(item.AccountGroup);
+                    $(trEle).find('td:nth-child(2)').html(item.DeductionHead);
+                } else {
+                    var trEleNew = $('#tbodyDeductionList tr:first').clone().find('input').val('').end();
+                    $(trEleNew).find("input").each(function () {
+                        $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                        $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                    });
+                    $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                        $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                    });
+                    var amtEle = $(trEleNew).find('input[name$=".Amount"]');
+
+                    amtEle.removeClass('required');
+                    $(trEleNew).find('input[name$=".AccountGroupId"]').val(item.AccountGroupId);
+                    $(trEleNew).find('input[name$=".DeductionHeadId"]').val(item.DeductionHeadId);
+                    $(trEleNew).find('input[name$=".DeductionHead"]').val(item.DeductionHead);
+                    $(trEleNew).find('input[name$=".AccountGroup"]').val(item.AccountGroup);
+                    $(trEleNew).find('td:nth-child(1)').html(item.AccountGroup);
+                    $(trEleNew).find('td:nth-child(2)').html(item.DeductionHead);
+                    $('#tbodyDeductionList').append(trEleNew);
+                }
+            });
+            var Name =  $("input[name='PIName']").val();
+            // $("#CreditorAmount").val(StipendAmt);
+            $('#lblVendorName').html(Name);
+            $('#NeedUpdateTransDetail').val('false');
+            CalculateDeductionTotal();
+        },
+        error: function (err) {
+            console.log("error : " + err);
+        }
+    });
+    //}
+    }
+
+    $('#CreditorAmount, #ExpenseAmount, #CreditorAmount, input[name $=".PaymentAmount"], input[name $=".Quantity"], input[name $=".TotalAmount"], input[name $=".Amount"], #ttlCr, #ttlDr').on("copy cut paste drop", function () {
+        return false;
+    });
+
+    function fillMasterDropDown(ele, data, fillDafaultText, valueAsName) {
+        if (fillDafaultText !== undefined) {
+            ele.append($('<option/>', {
+                value: '',
+                text: 'Select any',
+            }));
+        }
+        if (valueAsName !== undefined) {
+            $.each(data, function (index, itemData) {
+                ele.append($('<option/>', {
+                    value: itemData.name,
+                    text: itemData.name,
+                }));
+            });
+        } else {
+            $.each(data, function (index, itemData) {
+                ele.append($('<option/>', {
+                    value: itemData.id,
+                    text: itemData.name,
+                }));
+            });
+        }
+    }
+
+    /* Tab Sections Start*/
+    var currentTab = 0; // Current tab is set to be the first tab (0)
+    showTab(currentTab); // Display the crurrent tab
+    function showTab(n) {
+        // This function will display the specified tab of the form...
+        var x = document.getElementsByClassName("tab");
+        x[n].style.display = "block";
+        $(".custom-nav-pills li:eq(" + n + ")").addClass("active");
+        //... and fix the Previous/Next buttons:
+        if (n == 0) {
+            document.getElementById("prevBtn").style.display = "none";
+        } else {
+            document.getElementById("prevBtn").style.display = "inline";
+        }
+        if (n == (x.length - 1)) {
+            document.getElementById("nextBtn").innerHTML = "Submit";
+        } else {
+            document.getElementById("nextBtn").innerHTML = "Next";
+        }
+        //... and run a function that will display the correct step indicator:
+        //fixStepIndicator(n)
+    }
+
+    function nextPrev(n) {
+        // This function will figure out which tab to display
+        var x = document.getElementsByClassName("tab");
+        // Exit the function if any field in the current tab is invalid:
+        if (n > 0 && !validateForm(n)) return false;
+        if (currentTab + n < x.length) {
+            // Hide the current tab:
+            x[currentTab].style.display = "none";
+            $(".custom-nav-pills li:eq(" + currentTab + ")").removeClass("active");
+        } else {
+            // ... the form gets submitted:
+            formSave();
+            return false;
+        }
+        // Increase or decrease the current tab by 1:
+        currentTab = currentTab + n;
+
+        // Otherwise, display the correct tab:
+        showTab(currentTab);
+    }
+    function ValidateCommitment() {
+        var msg = 'valid';
+        var commitmentAmt = parseFloat($('#CommitmentAmount').val());
+        var ttlAdvAmt = parseFloat($('#txtDistributionAmount').val());
+        // var advPct = parseInt($("#AdvancePercentage").val());
+        var offsetValue = $("input[name='GST']:checked").val();
+        $("#tbodyCommitmentSelList tr").each(function () {
+            var elePayment = $(this).find("input[name$='.PaymentAmount']");
+            var eleAvlBal = $(this).find('input[name$=".AvailableAmount"]');
+            var parseVal = parseFloat($(elePayment).val()) || 0;
+            var avlBal = parseFloat($(eleAvlBal).val()) || 0;
+            if (parseVal > avlBal)
+                msg = "Commitment payment value should not be greater than available balance."
+        });
+        if (isNaN(ttlAdvAmt) || isNaN(commitmentAmt)) {
+            msg = 'The requested advance value / allocated commitment value is not a valid entry.';
+        } else if (ttlAdvAmt != commitmentAmt) {
+            msg = 'There is a mismatch between the payable amount and commitment value.';
+        }
+
+        return msg;
+    }
+    function ValidateTransaction() {
+        var msg = 'valid';
+        var netCrAmt = parseFloat($('#CreditorAmount').val());
+        var commitmentAmt = parseFloat($('#CommitmentAmount').val());
+        var ttlExpAmt = parseFloat($('#ExpenseAmount').val()) || 0;
+        var ttldeductAmt = parseFloat($('#DeductionAmount').val()) || 0;
+        var netPayAmt = parseFloat($('#txtNetPayableValue').val());
+        var eligtax = parseFloat($('#txtEligibleTaxValue').val());
+        var crAmt = parseFloat($('#ttlCr').val()) || 0;
+        var netDrAmt = ttlExpAmt + ttldeductAmt;
+        var ttlAdvAmt = netPayAmt - eligtax;
+        //var netDrAmt = ttlExpAmt + ttldeductAmt;
+        //var offsetValue = $("input[name='GST']:checked").val();
+        if (isNaN(netCrAmt)) {
+            return 'The Credit value is not a valid entry.';
+        }
+        if (netDrAmt != crAmt || netCrAmt != crAmt) {
+            msg = 'Not a valid entry. Credit and Debit value are not equal.';
+        }
+        if (isNaN(netCrAmt) || isNaN(commitmentAmt)) {
+            msg = 'The requested advance value / Transaction value is not a valid entry.';
+        }
+        else if (ttlAdvAmt != commitmentAmt) {
+            msg = 'There is a mismatch between allocated commitment value and transaction value. Please update the value to continue.';
+        }
+
+        //var groupNames = [];
+        //$('#tbodyCommitmentSelList tr').find('input[name$=".HeadName"]').each(function () {
+        //    var commitmentAmt = 0;
+        //    var groupName = $(this).val();
+        //    if(groupNames.indexOf(groupName) == -1){
+        //        $("#tbodyCommitmentSelList [name$='.HeadName'][value='"+groupName+"']").each(function(){
+        //            var elePayment = $(this).closest('td').find("input[name$='.PaymentAmount']");
+        //            var parseVal = parseFloat($(elePayment).val());
+        //            if (!isNaN(parseVal))
+        //                commitmentAmt = commitmentAmt + parseVal;
+        //        });
+        //        var sumOfAmt = 0;
+        //        if(!isNaN(commitmentAmt)){
+        //            $('#tbodyExpenseList tr select[name$=".AccountGroupId"]').each(function () {
+        //                if($(this).find("option:selected").text() == groupName){
+        //                    var individualVal = $(this).closest('tr').find("input[name$='.Amount']").val();
+        //                    individualVal = parseFloat(individualVal);
+        //                    if(!isNaN(individualVal))
+        //                        sumOfAmt = sumOfAmt + individualVal;
+        //                }
+        //            });
+        //            if(commitmentAmt != sumOfAmt){
+        //                msg = 'The amount enter for ' +groupName+ ' is not equal to commitment value.';
+        //                return false;
+        //            }
+        //            groupNames.push(groupName)
+        //        }else{
+        //            msg = 'Commitment Payment Value is not valid.';
+        //            return false;
+        //        }
+        //    }
+        //});
+        var hdList = [];
+        var hdJVList = [];
+        $('#tbodyExpenseList tr').find('select[name$=".AccountHeadId"]').each(function (idx, val) {
+            var jv = $(this).closest('tr').find("input[name$='.IsJV']").val();
+            if (jv.toLowerCase()== "true")
+                hdJVList.push($(val).val());
+            else
+                hdList.push($(val).val());
+        });
+        hdList.sort();
+        hdJVList.sort();
+        // duplicate check
+        for (var k = 1; k < hdList.length; ++k) {
+            if (hdList[k] == hdList[k - 1]) {
+                msg = "Duplicate account head exist in expense details. Please select a different head.";
+            }
+        }
+        return msg;
+    }
+    function validateForm(n) {
+        // This function deals with validation of the form fields
+        var isValid = false;
+        var hadError = false;
+        var tabs = $(".tab");
+        var currentTabEle = tabs[currentTab];
+        var inputs = $(":input, textarea, select"); // get all the form inputs and selects
+        var stepElements = $(currentTabEle).find(inputs); // get inputs for current step
+        var count = stepElements.length; // check that there are inputs
+        if (count <= 0) {                // if there are not no reason to loop them
+            return true;                 // this can be used to perform other action if there are no steps
+        } else if (currentTab == 0) {
+
+            var availablebalance = parseFloat($("input[name='PjctAvailableBalanceAmount']").val());
+            var distributiontype = $('#txtdistributiontype').val();
+            var distributionamount = parseFloat($('#txtDistributionAmount').val());
+            if (distributionamount > availablebalance)
+            {
+                $('#MsgValidation').html("The amount distributed cannot be greater than available balance. Please check and update the value.");
+                $('#ValidationModal').modal('toggle');
+                return false;
+            }
+            //if (distributiontype == 1 && distributionamount == availablebalance)
+            //{
+            //    $('#MsgValidation').html("Distribution amount cannot be equal to available balance for Partial Distribution. Please change the value or Select Final Distribution.");
+            //    $('#ValidationModal').modal('toggle');
+            //    return false;
+            //}
+            if(distributiontype == 2)
+            {
+                calcDateDiff();
+            }
+        }
+        else if (currentTab == 1) {
+            var availablebalance = parseFloat($("input[name='AmountAvailableforDistribution']").val() || 0);
+            var totalfacultyamount = parseFloat($('#txtTotalAmount').val() || 0);
+            var pcfamount = parseFloat($('#txtTotalPCF').val() || 0);
+            // var instituteOHAmount = parseFloat($("input[name='InstituteOverheadAmount']").val() || 0);
+            var totaldistributed = totalfacultyamount + pcfamount;
+            if (totaldistributed != availablebalance)
+            {
+                $('#MsgValidation').html("The amount distributed to faculty is not equal to available balance. Please change the value.");
+                $('#ValidationModal').modal('toggle');
+                return false;
+            }
+
+            $('select[name$=".Category"]').each(function (idx, val) {
+                var category = $(this).val() || 0;
+                var paymentmode = $(this).closest('tr').find('select[name$=".PaymentMode"]').val() || 0;
+                if (category > 0 && paymentmode == 0)
+                {
+                    hadError = true;
+                    $('#MsgValidation').html("Please select payment mode.");
+                    $('#ValidationModal').modal('toggle');
+                    return false;
+                }
+            });
+            //if (totalfacultyamount < availablebalance)
+            //{
+            //    $('#MsgValidation').html("The available balance amount has not been distributed to faculty. Please change the value.");
+            //    $('#ValidationModal').modal('toggle');
+            //    return false;
+            //}
+            var projectid = $("input[name='ProjectId']").val();
+            var content = $('#tbodyCommitmentSrchList tr td:last').html();
+            if (content == '') {
+                searchCommitment(projectid)
+            }
+        }
+        else if (currentTab == 2) {
+            var validationMsg = ValidateCommitment()
+            if (validationMsg != 'valid') {
+                hadError = true;
+                $("#alert").text(validationMsg);
+                $('#Validation').modal('show');
+            } else {
+                if ($('#NeedUpdateTransDetail').val().toLowerCase() == 'true') {
+                    GetTransactionDetails();
+                }
+
+                var netPayAmt = parseFloat($('#txtDistributionAmount').val());
+                var credit = netPayAmt;
+                var piname = $('input[name="PIName"]').val();
+                $('#lblVendorName').html(piname);
+                $("#CreditorAmount").val(credit);
+                CalculateDeductionTotal();
+            }
+        }
+        else if (currentTab == 3) {
+            //var validationMsg = ValidateTransaction()
+            //if (validationMsg != 'valid') {
+            //    hadError = true;
+            //    $("#alert").text(validationMsg);
+            //    $('#Validation').modal('show');
+            //}
+        }
+        else if (currentTab == 4) {
+            if ($('#CheckListVerified_By').val() == '') {
+                hadError = true;
+                $("#alert").text('Checklist is not verified.');
+                $('#Validation').modal('show');
+            }
+        }
+        $(stepElements).each(function (idx, ele) {
+
+            if (!$(ele).is(':radio') && !$(ele).is(':checkbox') && !$(ele).is(':password')) {
+                isValid = $(ele).valid();//$(document.forms[0]).validate().element($(this)); // check that the input is valid. This can also be used on a per input basis to perform another action if the field is not valid.
+                if (!isValid) { hadError = true; } // set our flag if there was an error
+            }
+
+        });
+        return !hadError; // return the valid status
+
+    }
+
+</script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>

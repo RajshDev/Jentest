@@ -1,0 +1,1515 @@
+﻿@model IOAS.Models.PagedList<IOAS.Models.AdhocEmployeeModel>
+@{
+    ViewBag.Title = "PensionSalaryInit";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<style>
+    .auto-com-z-index {
+        z-index: 10000;
+    }
+
+    .your_custom_class {
+        z-index: 10000;
+    }
+</style>
+@using (Html.BeginForm("PensionerSalary", "StaffPayment", FormMethod.Post, new { @class = "", @id = "frmPaymentInit", role = "form", enctype = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="wrapper">
+        <div class="row hd-tt-bg">
+            <div class="col-md-12">
+                <h4><b>Pensioner Salary Processing</b></h4>
+                <ul class="nav nav-pills custom-nav-pills custom-spl-nav">
+                    <li class="active" id="picDel"><a href="javascript:void(0)" class="ml-null brd-rd-md">Salary Initiation</a></li>
+                    <li id="allOca"><a href="javascript:void(0)" class="ml-null brd-rd-md">Commitment</a></li>
+                    <li id="trans"><a href="javascript:void(0)" class="ml-null brd-rd-md">Transaction</a></li>
+                    <li id="modEof1"><a href="javascript:void(0)" class="ml-null brd-rd-md">Payment Process</a></li>
+
+                    @*<li id="modEof1"><a href="javascript:void(0)" class="brd-rd-md">Payment Process</a></li>*@
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="page-wrapper">
+            <div class="col-md-12 mt30">
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+                <div id="tab-01" style="display: block;">
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div class="col-md-12">
+
+                            </div>
+
+                        </div>
+
+                        <div class="bl-lg-panel-box pb-null">
+
+                            <div class="cmn-panel-box">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="">
+                                            
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Month Year</label>
+                                                    @{
+                                                        if (ViewBag.AllowEdit != "disabled")
+                                                        {
+                                                            @Html.DropDownList("PaymentMonthYear", new SelectList(ViewBag.months, "Value", "Value", ViewBag.SelectedPaymonth), "--- Select ---",
+                                                           new { @id = "PaymentMonthYear", @class = "required form-control", @onchange = "this.form.submit();" })
+
+                                                        }
+                                                        else
+                                                        {
+                                                            @Html.DropDownList("PaymentMonthYear", new SelectList(ViewBag.months, "Value", "Value", ViewBag.SelectedPaymonth), "--- Select ---",
+                                                           new { @id = "PaymentMonthYear", @class = "required form-control", @onchange = "this.form.submit();", @disabled = "@ViewBag.AllowEdit" })
+
+                                                        }
+                                                        <a href="javascript:void(0)" id="btnExport">Export to excel</a>
+                                                        @Html.Hidden("PaymentHeadId", null, new { @id = "PaymentHeadId", @value = "@ViewBag.PaymentHeadId" })
+                                                        @Html.Hidden("UploadId", null, new { @value = @ViewBag.uploadId })
+                                                    }
+                                                </div>
+                                            </div>
+                                            @*<div class="col-md-3">
+                                                    <div class="form-group custom-form-group">
+                                                        <label>Department</label>
+                                                        @Html.DropDownList("DepartmentCode", new SelectList(ViewBag.Department, "Code", "Department", ViewBag.SelectedDepartment), "--- Select ---", new { @class = "required form-control", @id = "DepartmentCode", @onchange = "this.form.submit();" })
+                                                        @Html.Hidden("PaymentHeadId", null, new { @id = "PaymentHeadId", @value = "@ViewBag.PaymentHeadId" })
+                                                    </div>
+
+                                                </div>*@
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Category</label>
+                                                    @Html.DropDownList("EmployeeCategory", new SelectList(ViewBag.EmployeeCategoryList, "id", "name", ViewBag.SelectedEmpCategory), "--- Select ---", new { @class = "required form-control", @id = "EmpCategory", @onchange = "this.form.submit();" })
+
+                                                </div>
+
+                                            </div>
+                                            @*<div class="col-md-3">
+                                                    <div class="form-group custom-form-group">
+                                                        <label>EmployeNo</label>
+                                                        @Html.TextBox("EmployeeId", null, new { @class = "form-control", @id = "EmployeeId" })
+                                                    </div>
+
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <div class="form-group custom-form-group">
+                                                        <label>Employee Name</label>
+                                                        @Html.TextBox("NAME", null, new { @class = "form-control", @id = "EmployeeName" })
+                                                    </div>
+                                                </div>*@
+
+                                            <div class="col-md-3">
+                                                <div class="control-group mt-lg">
+                                                    <a href="javascript:void(0);" id="search" role="button" class="btn btn-primary  btn-md">Search</a>
+
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+
+
+
+                                    </div>
+                                    @*<div class="col-md-12">
+                                            <div class="grey-bg-adj mb-lg">
+
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <div id="gridData">
+                                                            @Html.Partial("StaffPartialList")
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row mt-lg">
+                                                    <div class="col-md-6">
+                                                        <div class="control-group">
+                                                            <label>Selected Employee List</label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6 ">
+                                                        <button type="button" class="btn btn-default pull-right mb-md" id="btnAddNewEmp">Add New</button>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <div id="gridSelectedData">
+                                                            @Html.Partial("StaffSelectedPartialList")
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+
+                                        </div>*@
+                                </div>
+                                <div class="row">
+                                    <ul class="nav nav-tabs">
+                                        <li class="active"><a id="tab_Employee" data-toggle="tab" href="#Employee">Staff Details</a></li>
+                                        <li><a id="tab_Verified" data-toggle="tab" href="#Verified">Verified Profile</a></li>
+                                    </ul>
+                                    <div class="tab-content">
+                                        <div id="Employee" class="tab-pane fade in active">
+                                            <div class="col-md-12 pd-null">
+                                                <div class="gray-bg br-rd">
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            @*<div class="row m-b-sm">
+                                                                <div class="col-md-6">
+                                                                    <h3 class="mt-xs">Salary Details</h3>
+                                                                </div>
+                                                                <div class="col-md-2 col-md-offset-4">
+                                                                    <button type="button" class="btn btn-default" id="btnVerifyAll">Verify all</button>
+                                                                                                                            </div>
+                                                                                                                        </div>
+                                                                                                                        <div class="col-md-12" id="gridData">
+
+                                                                                                                        </div>*@
+                                                            <div class="row m-b-sm">
+                                                                <div class="col-md-6">
+                                                                    <h3 class="mt-xs">Validation Details</h3>
+                                                                </div>
+                                                                @*<div class="col-md-2 col-md-offset-4">
+                                                                        <button type="button" class="btn btn-default" id="btnVerifyAll">Verify all</button>
+                                                                    </div>*@
+                                                            </div>
+                                                            <div class="col-md-12">
+                                                                <div class="col-md-6">
+                                                                    <label>Upload </label>
+                                                                    <input id="ValidateFile" name="template" type="file">
+                                                                </div>
+                                                                <div class="col-md-6">
+                                                                    <button type="submit" name="btnValidate" class="btn btn-default" id="btnValidate">Validate</button>
+                                                                    <button type="button" class="btn btn-default dis-none" id="btnVerifyAll">Init Process</button>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-12 mt-lg" id="gridValidateData">
+
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="Verified" class="tab-pane fade">
+                                            <div class="col-md-12 pd-null">
+                                                <div class="gray-bg br-rd">
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <div class="row m-b-sm">
+                                                                <div class="col-md-6">
+                                                                    <h3 class="mt-xs">Verified Profile</h3>
+                                                                </div>
+                                                                <div class="col-md-2 col-md-offset-4">
+                                                                    <button type="button" class="btn btn-default" id="btnAddNewEmp">Add New</button>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-12" id="gridSelectedData">
+
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="col-md-3">
+                                    <div class="form-group custom-form-group">
+                                        <label>Total distribution:</label> <br /><label id="lblTtlDistribution">@ViewBag.TotalDistributionAmount</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group custom-form-group">
+                                        <label>Total honorarium:</label><br /><label id="lblTtlHonororium">@ViewBag.TotalHonororiumAmount</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group custom-form-group">
+                                        <label>Total mandays:</label><br /><label id="lblTtlMandays">@ViewBag.TotalMandaysAmount</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group custom-form-group">
+                                        <label>Total fellowship:</label><br /><label id="lblTtlFellowship">@ViewBag.TotalFellowshipAmount</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="row mb-lg">
+
+                            <div class="col-md-12">
+                                @*<button type="submit" name="btnSave" class="btn btn-primary" @ViewBag.AllowSave>Save</button>*@
+                                <button type="submit" name="btnProceed" class="btn btn-primary pull-right" @ViewBag.AllowProceed>Proceed</button>
+                                <a href='@Url.Action("PensionerSalaryList", "StaffPayment")' role="button" class="btn btn-success btn-md pull-left">Back To List</a>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        @*<input type="hidden" id="currentRefId" value="@ViewBag.currentRefId" />
+            <input type="hidden" id="processGuideLineId" value="@ViewBag.processGuideLineId" />
+            @Html.Partial("_ProcessStatus")*@
+
+        @{
+            if (!String.IsNullOrEmpty(ViewBag.Errors))
+            {
+                @:
+                <script type="text/javascript">
+                    $.alert({ title: 'Validation', content: '@ViewBag.Errors' });
+                    var uId = $('#UploadId').val(result.uploadId) || 0;
+                    if(uId > 0)
+                        $("#gridValidateData").jsGrid("search");
+                </script>
+            }
+            if (!String.IsNullOrEmpty(ViewBag.Message))
+            {
+                @:
+                <script type="text/javascript">$.alert({ title: 'Message', content: '@ViewBag.Message' })</script>
+            }
+        }
+    </div>
+
+
+    <div id="SalaryDetailsModal" class="modal fade modal-pr-vw" role="dialog">
+
+        <div class="modal-dialog modal-lg">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <div class="row hd-tt-bg">
+                        <div class="col-md-12">
+                            <h4><b>Salary Details</b></h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="page-wrapper">
+
+
+                        </div>
+                    </div>
+
+                    <div class="">
+                        <div class="page-wrapper">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="vw-dts-bg pd-b-null">
+                                        <table class="table table-bordered mb-null">
+                                            <tbody>
+                                                <tr id="divAddNewEmp" class="dis-none">
+                                                    <td><b>Employee Name</b></td>
+                                                    <td>
+                                                        @Html.TextBox("autoComplete", null, new { @class = "form-control" })
+                                                        <input type="hidden" id="hdSelectedRecord" value="" />
+                                                    </td>
+                                                    <td><b>Mode of payment</b></td>
+                                                    <td>
+                                                        @Html.DropDownList("MOP", new SelectList(ViewBag.ModeOfPayment, "id", "name"), "--- Select ---",
+                                                           new { @id = "MOP", @class = "required form-control" })
+                                                    </td>
+                                                </tr>
+                                                <tr id="divSelEmp">
+                                                    <td>Employee No</td>
+                                                    <td>
+                                                        <span id="lblEmpNo"></span>
+                                                    </td>
+                                                    <td>Employee Name</td>
+                                                    <td>
+                                                        <label id="lblEmpName"></label>
+                                                    </td>
+                                                    <td>Designation</td>
+                                                    <td>
+                                                        <label id="lblDes"></label>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Previous Gross</td>
+                                                    <td id="lblPreGross"></td>
+                                                    <td>Previous PT</td>
+                                                    <td id="lblPrePT"></td>
+                                                    <td>Previous IT</td>
+                                                    <td id="lblPreIT"></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Payment Month</td>
+                                                    <td id="lblPayMonth"></td>
+                                                    <td>No Of Days</td>
+                                                    <td id="lblNoOfDays"></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="vw-dts-bg pd-b-null">
+                                        <table class="table table-bordered mb-null">
+                                            <tbody>
+                                                <tr>
+                                                    <td colspan="2"><b>Earnings</b></td>
+
+                                                    <td colspan="2"><h4><b>Deductions</b></h4></td>
+
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <input type="hidden" id="hdSelectedModeOfPay" value="" />
+                                                        Basic / Fellowship
+                                                    </td>
+                                                    <td><span id="lblBasic"></span></td>
+                                                    <td>Prof Tax</td>
+                                                    <td><input type="text" id="txtProfTax" class="form-control" value="" /></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>HRA</td>
+                                                    <td><span id="lblHRA" value=""></span></td>
+                                                    <td>Income Tax</td>
+                                                    <td>
+                                                        <input type="text" id="txtMonthlyTax" class="form-control" value="" />
+                                                        <input type="hidden" id="txtTtlDeduExcTax" class="form-control" value="" />
+                                                    </td>
+                                                </tr>
+                                                @*<tr>
+                                                        <td>CONVEYANCE</td>
+                                                        <td><span id="lblConveyance" value=""></span></td>
+                                                        <td>OTHER DEDUCTION</td>
+                                                        <td><span id="lblOtherDeduction" value=""></span></td>
+                                                    </tr>*@
+                                                <tr>
+                                                    <td>Medical Allowance</td>
+                                                    <td><input type="text" id="txtMA" class="form-control" value="" /></td>
+                                                    <td>Medical Insurance</td>
+                                                    <td><input type="text" id="txtMedicalInsurance" readonly class="form-control" value="" /></td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="2">
+                                                        <span>Other Payment</span>
+                                                        <table class="table table-bordered">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>Component Name</th>
+                                                                    <th>Amount</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="tbodyOtherAllow"></tbody>
+                                                        </table>
+                                                    </td>
+
+                                                    <td>Project Expenditure</td>
+                                                    <td><span id="lblProjExp"></span></td>
+                                                </tr>
+
+                                                <tr>
+                                                    <td>
+                                                        <b>Total Other Payment</b>
+                                                    </td>
+                                                    <td><span id="lblTtlOtherAllow"></span></td>
+                                                    <td>Institute Hospital</td>
+                                                    <td><input type="text" class="form-control" id="ttlInstituteHospital" /></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><b>Total Earnings</b></td>
+                                                    <td>
+                                                        <input type="text" readonly class="form-control" id="ttlEarnings" />
+                                                        <input type="hidden" class="form-control" id="ttlEarningsExclOA" />
+                                                        <input type="hidden" class="form-control" id="ttlBasicEarn" />
+                                                        <input type="hidden" class="form-control" id="ttlOA" />
+                                                        @*<label id="lblTotalEarnings" value=""></label>*@
+                                                    </td>
+                                                    <td><b>Total Deductions</b></td>
+                                                    <td>
+                                                        <input type="text" readonly class="form-control" id="ttlDeduction" />
+                                                        @*<label id="lblTotalDeduction" value=""></label>*@
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="vw-dts-bg">
+                                        <table class="table table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th>Type</th>
+                                                    <th>Head</th>
+                                                    <th>Amount</th>
+                                                    <th>Remarks</th>
+                                                    <th>Taxable</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="tbodySalaryBUList">
+
+                                                <tr>
+                                                    <td>
+                                                        @Html.DropDownList("breakUpDetail[0].TypeId", new SelectList(ViewBag.TypeList, "id", "name"), "Select any", new { @class = "form-control" })
+                                                        @Html.ValidationMessage("breakUpDetail[0].TypeId")
+                                                        @Html.Hidden("breakUpDetail.Index", "0")
+                                                        @Html.Hidden("breakUpDetail.IsAffectProjectExp", "false")
+                                                    </td>
+                                                    <td>
+                                                        @Html.DropDownList("breakUpDetail[0].HeadId", new SelectList(ViewBag.HeadList, "id", "name"), "Select any", new { @class = "form-control" })
+                                                        @Html.ValidationMessage("breakUpDetail[0].HeadId")
+                                                    </td>
+                                                    <td>
+                                                        @Html.TextBox("breakUpDetail[0].Amount", "", new
+                                                   {
+                                                       @class = "form-control ",
+                                                       @onkeypress = "return ValidateDecimalOnly(event)",
+                                                       @onblur = "CalculateSALBreakUp()",
+                                                       @autocomplete = "off"
+                                                   })
+                                                        @Html.ValidationMessage("breakUpDetail[0].Amount")
+                                                    </td>
+                                                    <td>
+                                                        @Html.TextBox("breakUpDetail[0].Remarks", "", new { @class = "form-control" })
+                                                        @Html.ValidationMessage("breakUpDetail[0].Remarks")
+                                                    </td>
+                                                    <td>
+                                                        @Html.CheckBox("breakUpDetail[0].IsTaxable")
+                                                        @Html.ValidationMessage("breakUpDetail[0].IsTaxable")
+                                                    </td>
+                                                    <td>
+                                                        <a href="javascript:void(0)" class="removeBU btn-circle"><i class="ion-close-round"></i></a>
+                                                    </td>
+                                                </tr>
+
+                                            </tbody>
+                                        </table>
+                                        <div class="col-md-6 mt-md">
+                                            <a href="javascript:void(0)" id="btnAddSalaryBU" class="btn btn-primary">Add New</a>
+                                        </div>
+                                        <div class="col-md-6 mt-md">
+                                            <div class="col-md-12">
+                                                <div class="col-md-6 text-right"><label>NET Salary :</label></div>
+                                                <div class="col-md-6 text-left">
+                                                    @Html.TextBox("EmpGrossTotal", "", new { @id = "netSal", @class = "form-control", @disabled = "disabled" })
+                                                    @Html.Hidden("empNetSalary")
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                @*<div class="row">
+                                        <div class="col-md-12">
+                                            <div class="col-md-6 text-right"><label>GROSS TOTAL :</label></div>
+                                            <div class="col-md-6 text-left">
+                                                @Html.TextBox("EmpGrossTotal","", new { @id = "netSal", @class = "form-control", @disabled = "disabled" })
+                                                @Html.Hidden("empNetSalary")
+                                            </div>
+                                        </div>
+                                    </div>*@
+                            </div>
+
+
+                            <div class="col-md-12">
+
+
+
+                                <div class="col-md-12">
+                                    <div id="empEarnings" class="col-md-6">
+
+
+
+
+                                    </div>
+
+                                    <div id="empDeduction" class="col-md-6">
+
+
+
+
+                                    </div>
+                                </div>
+                                <div class="row mt-20">
+                                    <div id="divOtherAllow" class="col-md-6 mt-md dis-none">
+
+                                    </div>
+                                </div>
+
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="btnVerify" type="button" class="btn btn-default" data-dismiss="modal" onclick="VerifyEmployeeSalary()">Verified</button>
+                    <button id="btnCloseModal" type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+
+            }
+
+<script type="text/javascript">
+    var modeOfPaymentList = @Html.Raw(Json.Encode(ViewBag.ModeOfPayment));
+    var requestRunning = false;
+    $(document).ready(function () {
+
+        //$("[name^=btnViewModal]").on("click", function () {
+        //    $('#divOtherAllow').addClass('dis-none');
+        //    $('#SalaryDetailsModal').modal('show');
+        //});
+
+        var checkboxes = $("input[type='checkbox']");
+
+        checkboxes.on("click", function () {
+
+            var control = $(this);
+
+            console.log('checkbox click');
+            console.log(control.attr('id'));
+            var row = control.parent('tr');
+            if (control.prop('checked')) {
+                row.addClass('highlight');
+            } else {
+                row.removeClass('highlight');
+            }
+        });
+
+        //var filter = {};
+        //filter.PaymentHeadId = 0;
+        //var page = 1;
+        getSelectedData();
+    });
+    $('#btnValidate').click(function (e) {
+        e.preventDefault();
+        if (requestRunning) {
+            return;
+        }
+        var file = $('#ValidateFile').val();
+        if (file != "") {
+            var extension = file.substr((file.lastIndexOf('.') + 1)).toLowerCase();
+            switch (extension) {
+                case 'xls':
+                case 'xlsx':
+                case 'csv':
+                    isValidExten = true;
+                    break;
+                default:
+                    isValidExten = false;
+            }
+            var PaymentMonthYear = $('#PaymentMonthYear option:selected').val();
+            var TypeOfPayBill = 0;
+            //if (isValidExten == false) {
+            //    alertBox('Validation',"Please upload any one of these type file [xls, xlsx].", "warning");
+            //    return false;
+            //}
+            if (PaymentMonthYear == '') {
+                alertBox('Validation', 'Month Year field is required.')
+                return false;
+            } 
+            //else if (TypeOfPayBill == '') {
+            //    alertBox('Validation', 'Type of Paybill field is required.')
+            //    return false;
+            //}
+            //$('#frmPaymentInit').submit();
+            //var model = new FormData($('#frmPaymentInit')[0]);
+            var model = new FormData();
+            var token = $("input[name=__RequestVerificationToken]").val();
+            //var searchdata = { "__RequestVerificationToken": token };
+            model.append("template", $('#ValidateFile')[0].files[0]);
+            model.append("typeOfPayBill",TypeOfPayBill);
+            model.append("paymentMonthYear",PaymentMonthYear);
+            model.append("__RequestVerificationToken",token);
+            var ajaxOpts = {
+                type: "POST",
+                url: '@Url.Action("ValidateEmployees", "StaffPayment")',
+                data: model,
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: function (result) {
+                    if (result.status == "Valid") {
+                        $.alert("Validation has been done successfully.");
+                        $('#UploadId').val(result.uploadId);
+                        $("#gridValidateData").jsGrid("search");
+                    }else {
+                        messageBox(result.status, "error");
+                    }
+                    $('.loading-bg').addClass('dis-none');
+                    requestRunning = false;
+                },
+                error: function (xhr) {
+                    requestRunning = false;
+                    $('.loading-bg').addClass('dis-none');
+
+                    console.log("error : " + JSON.stringify(xhr) );
+                }
+            };
+
+            requestRunning = true;
+            $('.loading-bg').removeClass('dis-none');
+            $.ajax(ajaxOpts);
+        } else {
+            messageBox("please upload salary template.", "warning");
+        }
+    });
+    $('#btnVerifyAll').click(function () {
+        if (requestRunning) {
+            return;
+        }
+        var PaymentMonthYear = $('#PaymentMonthYear option:selected').val();
+        var TypeOfPayBill = 0;
+        var uploadId = $('#UploadId').val();
+        if (PaymentMonthYear == '') {
+            alertBox('Validation', 'Month Year field is required.')
+            return false;
+        }        
+        else if(uploadId == ''){
+            alertBox('Validation', 'Please validate upload file first.')
+            return false;
+        }
+
+        $.confirm({
+            title: 'Confirmation',
+            content: "This action will hit the project balance. This process can't be reversed, Do you wish to continue?",
+            icon: 'fa fa-question-circle',
+            animation: 'scale',
+            closeAnimation: 'scale',
+            opacity: 0.5,
+            buttons: {
+                confirm: {
+                    text: 'Yes',
+                    btnClass: 'btn-blue',
+                    action: function(){
+                        $('.loading-bg').removeClass('dis-none');
+                        requestRunning = true;
+                        var model = {"typeOfPayBill" :TypeOfPayBill, "paymentMonthYear" : PaymentMonthYear,"uploadId" : uploadId, "pensioner_f": true};
+                        $.ajax({
+                            type: "GET",
+                            url: '@Url.Action("VerifyAllValidatedEmployees", "StaffPayment")',
+                            data: model,
+                            contentType: "application/x-www-form-urlencoded",
+                            dataType: "json",
+                            success: function (result) {
+                                if (result.status == "Success") {
+                                    $.alert("Process has been initiated successfully.");
+                                    $("#PaymentHeadId").val(result.paymentHeadId);
+                                    getSelectedData();
+                                }else {
+                                    messageBox(result.status, "error");
+                                }
+                                $('.loading-bg').addClass('dis-none');
+                                requestRunning = false;
+                            },
+                            error: function (err) {
+                                requestRunning = false;
+                                $('.loading-bg').addClass('dis-none');
+                                console.log("error : " + err);
+                            }
+                        });
+                    }
+                },
+                cancel: {
+                    text: 'No',
+                    action: function(){
+                    }
+                }
+            }
+        });
+    });
+    $(document).on('change', 'select[name$=".TypeId"]', function () {
+        var typeId = $(this).val();
+        var taxEle = $(this).closest('tr').find('input[name$=".IsTaxable"]');
+        $(taxEle).prop("checked", false);
+        if (typeId == '1') {
+            $(taxEle).prop("disabled", false);
+        }
+        else {
+            $(taxEle).prop("disabled", true);
+        }
+        var ele = $(this).closest('tr');
+        var select = ele.find("select[name$='.HeadId']");
+        select.empty();
+        select.append($('<option/>', {
+            value: "",
+            text: "Select any",
+        }));
+        if (typeId != '') {
+            $.getJSON("@Url.Action("GetSalaryBreakUpHead", "StaffPayment")", { "categoryId": 1, "groupId": typeId },
+             function (locationdata) {
+                 $.each(locationdata, function (index, itemData) {
+                     select.append($('<option/>', {
+                         value: itemData.id,
+                         text: itemData.name,
+                     }));
+                 });
+             });
+            select.addClass('required');
+            ele.find("input[name$='.Amount']").addClass('required');
+        } else {
+            select.val('');
+            ele.find("input[name$='.Amount']").val('');
+            ele.find("input[name$='.Remarks']").val('');
+            select.removeClass('required');
+            ele.find("input[name$='.Amount']").removeClass('required');
+        }
+        //CalculateSALBreakUp();
+    });
+    $(document).on('change', 'select[name$=".HeadId"]', function () {
+        var headId = $(this).val();
+        var typeId = $(this).closest('tr').find('select[name$=".TypeId"]').val();
+        var ele = $(this).closest('tr');
+        if (headId != '' && typeId == 2) {
+            $.getJSON("@Url.Action("GetCommonHeadFlag", "StaffPayment")", { "headId": headId },
+             function (data) {
+                 ele.find("input[name$='.IsAffectProjectExp']").val(data);
+                 CalculateSALBreakUp();
+             });
+        } else {
+            ele.find("input[name$='.IsAffectProjectExp']").val('false');
+            CalculateSALBreakUp();
+        }
+
+    });
+    $(document).on('click', 'a.removeBU', function () {
+        if ($('#tbodySalaryBUList tr').length != 1) {
+            $(this).closest('tr').remove();
+            CalculateSALBreakUp();
+        }
+    });
+    $("#btnAddSalaryBU").click(function () {
+        var cln = $('#tbodySalaryBUList tr:first').clone().find("select,input").val("").end();
+        var index = $('#tbodySalaryBUList tr:last').find("input[name='breakUpDetail.Index']").val();
+        index = parseInt(index) + 1;
+        $(cln).find("input[name='breakUpDetail.Index']").val(index);
+        $(cln).find("input[name$='.IsAffectProjectExp']").val('false');
+        $(cln).find("input, select").each(function () {
+            $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+            if ($(this).attr("id"))
+                $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+        });
+        $(cln).find("span[data-valmsg-for]").each(function () {
+            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+        });
+        $('#tbodySalaryBUList').append(cln);
+    });
+
+    function alertBox(title, message) {
+        $.alert({
+            title: title || 'Alert!',
+            content: message || ''
+        });
+    }
+
+    //$(document).on('click', '#tblEmployee tbody > tr', function () {
+    //$(document).on('click', '#tblEmployee tbody  button[name="btnViewModal"]', function () {
+    //    var tableData = $(this).closest('tr').children("td").map(function () {
+    //        return $(this).text();
+    //    }).get();
+    //    console.log(tableData);
+    //    var modeOfPay = $('#item_ModeOfPayment').val()
+    //    $("#hdSelectedRecord").val($.trim(tableData[0]));
+    //    $("#hdSelectedModeOfPay").val(modeOfPay);
+    //    var temp = $("#hdSelectedModeOfPay").val();
+    //    $('#divAddNewEmp').addClass('dis-none');
+    //    $('#divSelEmp').removeClass('dis-none');
+    //    console.log('temp : ', temp);
+    //    SelectedEmployeeSalary()
+    //});
+    $('#btnAddNewEmp').click(function () {
+        $("#hdSelectedRecord").val('');
+        $("#hdSelectedModeOfPay").val('');
+        $("#MOP").val('');
+        $('#autoComplete').val('');
+        $('#divAddNewEmp').removeClass('dis-none');
+        $('#divSelEmp').addClass('dis-none');
+        var PaymentMonthYear = $('#PaymentMonthYear option:selected').val();
+        var TypeOfPayBill = 0;
+        if (PaymentMonthYear == '') {
+            alertBox('Validation', 'Month Year field is required.')
+            return false;
+        } 
+        //else if (TypeOfPayBill == '') {
+        //    alertBox('Validation', 'Type of Paybill field is required.')
+        //    return false;
+        //}
+        var searchData = { "typeOfPayBill": TypeOfPayBill, "PaymentMonthYear": PaymentMonthYear }
+        applyAutoComplete($('#autoComplete'), $('#hdSelectedRecord'), "@Url.Action("LoadAdhocEmpList", "StaffPayment")", "SelectedEmployeeSalary", undefined, undefined, searchData);
+        $('#divOtherAllow').addClass('dis-none');
+        $('#SalaryDetailsModal').modal('show');
+    });
+    $('#MOP').change(function () {
+        $("#hdSelectedModeOfPay").val($(this).val());
+    });
+    $(document).on('keyup', '#txtMonthlyTax,#txtProfTax', function () {
+        var ttlDeduExcTax = parseFloat($('#txtTtlDeduExcTax').val()) || 0;
+        var taxVal = parseFloat($('#txtMonthlyTax').val()) || 0;
+        var PTVal = parseFloat($('#txtProfTax').val()) || 0;
+        var MAVal = parseFloat($('#txtMA').val()) || 0;
+        totalDeduction = parseFloat(ttlDeduExcTax + taxVal + PTVal + MAVal).toFixed(2);
+        $("#ttlDeduction").val(totalDeduction);
+        CalculateSALBreakUp();
+    });
+    $(document).on('keyup', '#txtMA', function () {
+        var ttlDeduExcTax = parseFloat($('#txtTtlDeduExcTax').val()) || 0;
+        var taxVal = parseFloat($('#txtMonthlyTax').val()) || 0;
+        var PTVal = parseFloat($('#txtProfTax').val()) || 0;
+        var MAVal = parseFloat($('#txtMA').val()) || 0;
+        $('#txtMedicalInsurance').val(MAVal.toFixed(2));
+        totalDeduction = parseFloat(ttlDeduExcTax + taxVal + PTVal + MAVal).toFixed(2);
+        $("#ttlDeduction").val(totalDeduction);
+
+        var ttlBasicEarn = parseFloat($('#ttlBasicEarn').val()) || 0;
+        var ttlExclOA = parseFloat(ttlBasicEarn + MAVal).toFixed(2);
+        var otherAl = parseFloat($('#ttlOA').val()) || 0;
+        var totalEarnings  = parseFloat(ttlBasicEarn + MAVal + otherAl).toFixed(2);
+        $('#ttlEarningsExclOA').val(ttlExclOA);
+        $('#lblProjExp').text(ttlExclOA);
+        $("#ttlEarnings").val(totalEarnings);
+        CalculateSALBreakUp();
+    });
+    $('#btnExport').click(function () {
+        var PaymentHeadId = $("#PaymentHeadId").val() || 0;
+        var PaymentMonthYear = $('#PaymentMonthYear option:selected').val();
+        var TypeOfPayBill = $('#TypeOfPayBill').val() || 0;
+        if (PaymentHeadId == 0 && PaymentMonthYear == '--- Select ---')
+            return false;
+       
+        var url = '@Url.Action("ExportPensionerSalary", "StaffPayment")?PaymentHeadId=' + PaymentHeadId + '&TypeOfPayBill=' + TypeOfPayBill + '&PaymentMonthYear=' + PaymentMonthYear;
+        window.open(url, '_blank');
+    });
+    function SelectedEmployeeSalary() {
+        resetOABreakUp();
+        var EmpNo = $("#hdSelectedRecord").val();
+        var token = $("input[name=__RequestVerificationToken]").val();
+        var searchdata = { "__RequestVerificationToken": token };
+        var headers = {
+            contentType: 'application/x-www-form-urlencoded'
+            //'__RequestVerificationToken': token
+        }
+        searchdata.EmpNo = EmpNo;
+        var PaymentMonthYear = $('#PaymentMonthYear option:selected').val();
+        var TypeOfPayBill = 0;
+        var PaymentHeadId = $('#PaymentHeadId').val();
+        var style = 'float: right; text-align:right; width: 100px;';
+        $.ajax({
+            url: '@Url.Action("EmplyeeSalaryDetail", "StaffPayment")?EmpNo=' + EmpNo + '&PaymentMonthYear=' + PaymentMonthYear + '&TypeOfPayBill=' + TypeOfPayBill,
+            type: "GET",
+            headers: headers,
+            //data: searchdata,
+            success: function (data) {
+                var salary = data.SalaryDetail;
+                var totalDeduction = 0;
+                var totalEarnings = 0;
+                if (data && data.SalaryDetail) {
+                    $("#lblEmpNo").text(data.EmployeeID);
+                    $("#lblEmpName").text(data.EmployeeName);
+                    $("#lblDes").text(data.DesignationCode);
+                    var Basic = parseFloat(data.SalaryDetail.Basic || 0).toFixed(2);
+                    var HRA = parseFloat(data.SalaryDetail.HRA || 0).toFixed(2);
+                    var CA = parseFloat(data.SalaryDetail.CA || 0).toFixed(2);
+                    var OtherAllowance = parseFloat(data.SalaryDetail.OtherAllowanceAmount || 0).toFixed(2);
+                    var MA = parseFloat(data.SalaryDetail.MA || 0).toFixed(2);
+                    var MedicalInsurance = parseFloat(data.SalaryDetail.MA || 0).toFixed(2);
+                    var MonthlyTax = parseFloat(data.SalaryDetail.MonthlyTax || 0).toFixed(2);
+                    var PF = parseFloat(data.SalaryDetail.PF || 0).toFixed(2);
+                    var ProfTax = parseFloat(data.SalaryDetail.ProfTax || 0).toFixed(2);
+                    var OtherDeduction = parseFloat(data.SalaryDetail.OtherDeduction || 0).toFixed(2);
+                    var prePT = parseFloat(data.SalaryDetail.PreviousPT || 0).toFixed(2);
+                    var preIT = parseFloat(data.SalaryDetail.PreviousIT || 0).toFixed(2);
+                    var preGross = parseFloat(data.SalaryDetail.PreviousGross || 0).toFixed(2);
+                    ttlDeduExcTax = parseFloat(PF)   + parseFloat(OtherDeduction); //+ parseFloat(MedicalInsurance)+ ProfTax
+                    ttlDeduExcTax = parseFloat(ttlDeduExcTax).toFixed(2);
+                    totalDeduction = parseFloat(MonthlyTax) + parseFloat(PF) + parseFloat(MedicalInsurance) + parseFloat(ProfTax) + parseFloat(OtherDeduction); //
+                    totalDeduction = parseFloat(totalDeduction).toFixed(2);
+                    var total = parseFloat(Basic) + parseFloat(HRA) + parseFloat(CA) + parseFloat(OtherAllowance) + parseFloat(MedicalInsurance);
+                    var ttlBasicEarn = parseFloat(Basic) + parseFloat(HRA) + parseFloat(CA);
+                    var ttlExclOA = parseFloat(Basic) + parseFloat(HRA) + parseFloat(CA) + parseFloat(MedicalInsurance);
+                    totalEarnings = parseFloat(total).toFixed(2);
+                    ttlExclOA = parseFloat(ttlExclOA).toFixed(2);
+                    ttlBasicEarn =  parseFloat(ttlBasicEarn).toFixed(2);
+                    $('#ttlBasicEarn').val(ttlBasicEarn);
+                    $("#ttlDeduction").val(totalDeduction);
+                    $("#ttlEarnings").val(totalEarnings);
+                    $('#ttlEarningsExclOA').val(ttlExclOA);
+                    $('#ttlOA').val(OtherAllowance);
+                    $('#lblProjExp').text(ttlExclOA);
+                    $("#ttlInstituteHospital").val(salary.InstituteHospital.toFixed(2));
+                    $("#empNetSalary,#netSal").val(salary.NetSalary.toFixed(2));
+
+                    $('#lblPreGross').text(preGross);
+                    $('#lblBasic').text(Basic);
+                    $('#lblHRA').text(HRA);
+                    $('#lblPayMonth').text(PaymentMonthYear);
+                    $('#lblNoOfDays').text(salary.NoOfDaysPresent);
+                    $('#lblPrePT').text(prePT);
+                    $('#lblPreIT').text(preIT);
+                    $('#txtProfTax').val(ProfTax);
+                    $('#txtMA').val(MA);
+                    $('#txtMonthlyTax').val(MonthlyTax);
+                    $('#txtTtlDeduExcTax').val(ttlDeduExcTax);
+                    $('#txtMedicalInsurance').val(MedicalInsurance);
+                    //addComponent("Medical Insurance", MedicalInsurance, idDedcution);
+                    //addComponent("Income Tax", MonthlyTax, idDedcution);
+                    //addComponent("PF", PF, idDedcution);
+                    //addComponent("Prof Tax", ProfTax, idDedcution);
+                    //addComponent("Other Deduction", OtherDeduction, idDedcution);
+
+                    //console.log('totalEarnings : ',totalEarnings);
+                    //console.log('OtherAllowance : ',OtherAllowance);
+                    $('#SalaryDetailsModal').modal('show');
+                    var OAList = salary.OtherAllowance || [];
+                    $.each(OAList, function (index, itemData) {
+                        var row = $('<tr/>');
+                        var col1 = $('<td/>').append(itemData.ComponentName);
+                        var col2 = $('<td/>').append(itemData.Amount);
+                        row.append(col1);
+                        row.append(col2);
+                        $('#tbodyOtherAllow').append(row);
+                    });
+                    $('#lblTtlOtherAllow').text(OtherAllowance);
+                }
+
+            },
+            error: function (err) {
+                alertBox('Error', JSON.stringify(err));
+            }
+        });
+    }
+    function addComponent(label, value, element) {
+        var divStr = '<div class="row"> <div class="col-md-6"> <div class=""> <h4><b>__LABEL__</b></h4> </div> </div>' +
+                ' <div class="col-md-6"> __VALUE__ </div> </div>';
+        var temp = "";
+        if (value) {
+            temp = divStr.replace("__LABEL__", label).replace("__VALUE__", value);
+            element.append(temp);
+        }
+    }
+    function addInputComponent(label, value, element) {
+        var divStr = '<div class="row"> <div class="col-md-6"> <div class=""> <h4><b>' + label + '</b></h4> </div> </div>' +
+                ' <div class="col-md-6"><input type="text" class ="form-control" value="' + value + '" /> </div> </div>';
+        //var temp = "";
+        //if (value) {
+        //    temp = divStr.replace("__LABEL__", label).replace("__VALUE__", value);
+        element.append(divStr);
+        //}
+    }
+    function resetOABreakUp() {
+        $('#tbodySalaryBUList tr').not(':first').remove();
+        $('#tbodyOtherAllow tr').remove();
+        $('#tbodySalaryBUList tr').each(function () {
+            $(this).find("select[name$='.TypeId']").val('');
+            $(this).find("input[name$='.Amount']").val('');
+            $(this).find("select[name$='.HeadId']").val('');
+            $(this).find("input[name$='.Remarks']").val('');
+            $(this).find("input[name$='.IsTaxable']").prop("checked", false);
+        });
+    }
+    function VerifyEmployeeSalary() {
+        var EmpNo = $("#hdSelectedRecord").val();
+        var token = $("input[name=__RequestVerificationToken]").val();
+        var searchdata = { "__RequestVerificationToken": token };
+        var headers = {
+            contentType: 'application/x-www-form-urlencoded',
+            '__RequestVerificationToken': token
+        }
+        var PaymentMonthYear = $('#PaymentMonthYear option:selected').val();
+        var TypeOfPayBill = 0;
+        var PaymentHeadId = $('#PaymentHeadId').val();
+        var ModeOfPayment = $("#hdSelectedModeOfPay").val();
+        var projectExp = parseFloat($('#lblProjExp').text()) || 0;
+        if (PaymentMonthYear == '') {
+            alertBox('Validation', 'Month Year field is required.')
+            return false;
+        } 
+        //else if (TypeOfPayBill == '') {
+        //    alertBox('Validation', 'Type of Paybill field is required.')
+        //    return false;
+        //} 
+        else if (EmpNo == '') {
+            alertBox('Validation', 'Employee Name field is required.')
+            return false;
+        } else if (ModeOfPayment == '') {
+            alertBox('Validation', 'Mode of payment field is required.')
+            return false;
+        }else if(projectExp < 0){
+            alertBox('Validation', 'Project expenditure should be greater than zero.')
+            return false;
+        }
+        $('#SalaryDetailsModal').modal('toggle');
+        var employee = {};
+        employee.EmployeeID = EmpNo;
+        employee.PaymentMonthYear = PaymentMonthYear;
+        employee.TypeOfPayBill = TypeOfPayBill;
+        employee.ModeOfPayment = ModeOfPayment;
+        employee.Pensioner_f = true;
+        searchdata.EmpNo = EmpNo;
+        searchdata.employee = employee;
+        //searchdata.PaymentMonthYear = PaymentMonthYear;
+        //searchdata.TypeOfPayBill = TypeOfPayBill;
+        searchdata.PaymentHeadId = (PaymentHeadId) ? PaymentHeadId : 0;
+        searchdata.verify = true;
+        searchdata.tax = $('#txtMonthlyTax').val() || 0;
+        searchdata.PT = $('#txtProfTax').val() || 0;
+        searchdata.MA = $('#txtMA').val() || 0;
+        searchdata.IH = $('#ttlInstituteHospital').val() || 0;
+
+        //var valid = $('#frmPaymentInit').valid();
+        //if (!valid)
+        //    return false;
+        var arrBrkup = [];
+        $('#tbodySalaryBUList tr').each(function () {
+            var objBrkup = {};
+            var type = $(this).find("select[name$='.TypeId']").val();
+            var amt = parseFloat($(this).find("input[name$='.Amount']").val()) || 0;
+            var head = $(this).find("select[name$='.HeadId']").val();
+            var tax = $(this).find("input[name$='.IsTaxable']").is(':checked');
+            if (type != "" && amt != 0 && head != "") {
+                var remarks = $(this).find("input[name$='.Remarks']").val();
+                objBrkup.TypeId = type;
+                objBrkup.Amount = amt;
+                objBrkup.HeadId = head;
+                objBrkup.Remarks = remarks;
+                objBrkup.IsTaxable = tax;
+                arrBrkup.push(objBrkup);
+            }
+        });
+        var dataBU = { "AgencySalaryID": 0, "MonthYear": '', "EmployeeId": '', "buDetail": arrBrkup };
+        searchdata.stringify = JSON.stringify(dataBU);
+        $('.loading-bg').removeClass('dis-none');
+        $.ajax({
+            url: '@Url.Action("VerifyEmplyeeSalary", "StaffPayment")',
+            type: "POST",
+            headers: headers,
+            data: searchdata,
+            success: function (data) {
+                $('.loading-bg').addClass('dis-none');
+                if (data && data.PaymentHeadId && data.SaveStatus == "Success") {
+                    $('#PaymentHeadId').val(data.PaymentHeadId);
+                    var filter = {};
+                    filter.PaymentHeadId = data.PaymentHeadId;
+                    var page = 1;
+
+                    //var url = window.location.toString();
+                    //if (url.indexOf('?PaymentHeadId=') === -1) {
+                    //    url = window.location.toString() + '?PaymentHeadId=' + data.PaymentHeadId;
+                    //    window.location = url;
+                    //}
+                    if (data.OADetail)
+                        fillOADetail(data.OADetail);
+                    var deferr = $.Deferred();
+                    deferr
+                    .then(getData())
+                    .then(getSelectedData())
+                    deferr.resolve();
+                    //getData()
+                    //getSelectedData()
+                } else if (data.SaveStatus != undefined && data.SaveStatus != "Success") {
+                    alertBox('Validation', data.SaveStatus)
+                }
+
+            },
+            error: function (err) {
+                $('.loading-bg').addClass('dis-none');
+                alertBox('Error', JSON.stringify(err));
+            }
+        });
+    }
+
+    function RemoveEmployeeSalary(EmployeeId, paymentId) {
+        var token = $("input[name=__RequestVerificationToken]").val();
+        var searchdata = { "__RequestVerificationToken": token };
+        var headers = {
+            contentType: 'application/x-www-form-urlencoded',
+            '__RequestVerificationToken': token
+        }
+        var PaymentMonthYear = $('#PaymentMonthYear option:selected').val();
+        var TypeOfPayBill = 0;
+        var PaymentHeadId = $('#PaymentHeadId').val();
+        var ModeOfPayment = $("#hdSelectedModeOfPay").val();
+        var employee = {};
+        employee.EmployeeID = EmployeeId;
+        employee.PaymentMonthYear = PaymentMonthYear;
+        employee.TypeOfPayBill = TypeOfPayBill;
+        employee.ModeOfPayment = ModeOfPayment;
+        employee.Pensioner_f = true;
+        searchdata.PaymentId = paymentId;
+        searchdata.employee = employee;
+        searchdata.EmpNo = EmployeeId;
+        searchdata.PaymentMonthYear = PaymentMonthYear;
+        searchdata.TypeOfPayBill = TypeOfPayBill;
+        searchdata.PaymentHeadId = (PaymentHeadId) ? PaymentHeadId : 0;
+        searchdata.verify = false;
+        $('.loading-bg').removeClass('dis-none');
+        $.ajax({
+            url: '@Url.Action("VerifyEmplyeeSalary", "StaffPayment")',
+            type: "POST",
+            headers: headers,
+            data: searchdata,
+            success: function (data) {
+                if (data && data.PaymentHeadId) {
+                    $('.loading-bg').addClass('dis-none');
+                    $('#PaymentHeadId').val(data.PaymentHeadId);
+                    var filter = {};
+                    filter.PaymentHeadId = data.PaymentHeadId;
+                    var page = 1;
+
+                    //var url = window.location.toString();
+                    //if (url.indexOf('?PaymentHeadId=') === -1) {
+                    //    url = window.location.toString() + '?PaymentHeadId=' + data.PaymentHeadId;
+                    //    window.location = url;
+                    //}
+
+                    if (data.OADetail)
+                        fillOADetail(data.OADetail);
+
+                    var deferr = $.Deferred();
+                    deferr
+                    .then(getSelectedData())
+                     .then(getData())
+                    deferr.resolve();
+                    //getSelectedData();
+                    //getData();
+                }
+
+            },
+            error: function (err) {
+                $('.loading-bg').addClass('dis-none');
+                alertBox('Error', JSON.stringify(err));
+            }
+        });
+    }
+    $("#search").click(function () {
+        var page = 1;
+        var model = {};
+        getData();
+        getSelectedData();
+    });
+    function fillOADetail(data) {
+        $("#lblTtlFellowship").text(data.TotalFellowshipAmount);
+        $("#lblTtlMandays").text(data.TotalMandaysAmount);
+        $("#lblTtlHonororium").text(data.TotalHonororiumAmount);
+        $("#lblTtlDistribution").text(data.TotalDistributionAmount);
+    }
+    function getData() {
+        var token = $("input[name=__RequestVerificationToken]").val();
+        var searchdata = { "__RequestVerificationToken": token };
+
+        var PaymentMonthYear = $('#PaymentMonthYear option:selected').val();
+        var TypeOfPayBill = 0;
+        var PaymentHeadId = $('#PaymentHeadId').val();
+
+        var EmpCategory = $('#EmpCategory').val() || 0;
+
+        var model = {};
+        model.PaymentMonthYear = PaymentMonthYear;
+        model.TypeOfPayBill = TypeOfPayBill;
+        model.PaymentHeadId = PaymentHeadId;
+        searchdata.EmployeeCategory = EmpCategory;
+        searchdata.model = model;
+        $("#gridData").jsGrid("search", searchdata);
+    }
+    function getSelectedData() {
+        var token = $("input[name=__RequestVerificationToken]").val();
+        var searchdata = { "__RequestVerificationToken": token };
+
+        var PaymentMonthYear = $('#PaymentMonthYear option:selected').val();
+        var TypeOfPayBill = 0;
+        var PaymentHeadId = $('#PaymentHeadId').val();
+
+        var EmpCategory = $('#EmpCategory').val() || 0;
+
+        var model = {};
+        model.PaymentMonthYear = PaymentMonthYear;
+        model.TypeOfPayBill = TypeOfPayBill;
+        model.PaymentHeadId = PaymentHeadId;
+        searchdata.EmployeeCategory = EmpCategory;
+        searchdata.model = model;
+
+        $("#gridSelectedData").jsGrid("search", searchdata);
+
+    }
+    $("#gridData").jsGrid({
+        paging: true,
+        pageIndex: 1,
+        pageSize: 5,
+        pageLoading: true,
+        autoload: true,
+        editing: false,
+        filtering: true,
+        controller: {
+            loadData: function (filter) {
+                var deferred = $.Deferred();
+                var token = $("input[name=__RequestVerificationToken]").val();
+                var searchdata = { "__RequestVerificationToken": token };
+
+                var PaymentMonthYear = $('#PaymentMonthYear option:selected').val();
+                var TypeOfPayBill = 0;
+                var PaymentHeadId = $('#PaymentHeadId').val();
+
+                var EmpCategory = $('#EmpCategory').val() || 0;
+
+                var model = {};
+                model.PaymentMonthYear = PaymentMonthYear;
+                model.TypeOfPayBill = TypeOfPayBill;
+                model.PaymentHeadId = PaymentHeadId;
+                filter.EmployeeCategory = EmpCategory;
+                filter.model = model;
+                $.ajax({
+                    type: "post",
+                    url: 'SearchPensionerSalary',
+                    data: filter,
+                    contentType: "application/x-www-form-urlencoded",
+                    dataType: "json",
+                    success: function (datas) {
+                        var da = {
+                            data: datas.Data,
+                            itemsCount: datas.TotalRecords
+                        }
+
+                        deferred.resolve(da);
+                    }
+                });
+                return deferred.promise();
+
+            }
+
+        },
+        fields: [
+             { name: "SlNo", title: "S.No", editing: false, width: 60 },
+            { type: "text", name: "PROJECTNO", title: "PROJECTNO", visible: false },
+            { type: "number", name: "PaymentId", title: "PaymentId", visible: false },
+            { type: "text", name: "EmployeeID", title: "Emp No", editing: false },
+            { type: "text", name: "EmployeeName", title: "Emp Name", editing: false },
+            { type: "text", name: "DEPARTMENT", title: "Dept", editing: false },
+            { name: "BasicPay", title: "Basic Salary", editing: false },
+            //{ name: "NetSalary", title: "Net Salary", editing: false },
+            {
+                editButton: false, deleteButton: false, width: 120, title: "Mode of Payment",
+
+                itemTemplate: function (value, item) {
+                    var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+                    var $customSelect = $("<select name='ModeOfPayment'>")
+                        .attr("class", "form-control").prop("selectedIndex", "")
+                    $.each(modeOfPaymentList, function (index, itemData) {
+                        $customSelect.append($('<option/>', {
+
+                            value: itemData.id,
+                            text: itemData.name
+                        }));
+                    });
+                    $customSelect.val('2');
+                    //else
+                    //    $customSelect.val(item.SelModeOfPayment);
+                    return $result.add($customSelect);
+
+                }
+            },
+            {
+                type: "control", width: 100,
+                _createFilterSwitchButton: function () {
+                    return this._createOnOffSwitchButton("filtering", this.searchModeButtonClass, false)
+                },
+                itemTemplate: function (value, item) {
+                    var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+                    var $customButton = $("<button>")
+                        .attr("type", "button")
+                        .attr("class", "ion ion-checkmark-circled")
+                        .click(function (e) {
+                            $('#divOtherAllow').addClass('dis-none');
+                            $('#SalaryDetailsModal').modal('show');
+                            var modeOfPayment = $(this).closest('tr').find('select[name="ModeOfPayment"]').val();
+                            $("#hdSelectedRecord").val(item.EmployeeID);
+                            $("#hdSelectedModeOfPay").val(modeOfPayment);
+                            $('#divAddNewEmp').addClass('dis-none');
+                            $('#divSelEmp').removeClass('dis-none');
+                            SelectedEmployeeSalary();
+                            e.stopPropagation();
+                        });
+                    // return $result.add($customButton);
+                    return $("<div>").append($customButton);
+                }
+            }
+        ],
+    });
+    $("#gridValidateData").jsGrid({
+        paging: true,
+        pageIndex: 1,
+        pageSize: 5,
+        pageLoading: true,
+        editing: false,
+        controller: {
+            loadData: function (filter) {
+                var deferred = $.Deferred();
+                var uploadId = $('#UploadId').val();
+                filter.uploadId = uploadId;
+                $.ajax({
+                    type: "get",
+                    url: 'GetValidateEmpList',
+                    data: filter,
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (datas) {
+                        var da = {
+                            data: datas.Data,
+                            itemsCount: datas.TotalRecords
+                        }
+                        if(datas.TotalRecords == 0)
+                        {
+                            $('#btnVerifyAll').removeClass('dis-none');
+                            $('#btnValidate').addClass('dis-none');
+                        }
+                        deferred.resolve(da);
+                    }
+                });
+                return deferred.promise();
+
+            }
+
+        },
+        fields: [
+             { name: "SalaryUploadDetailId", title: "S.No", editing: false, width: 60 },
+            { name: "FileNumber", title: "File Number", editing: false },
+            { name: "PayBill", title: "PayBill", editing: false },
+            { name: "Name", title: "Name", editing: false },
+            { name: "Basic", title: "Basic", editing: false },
+            { name: "GrossSalary", title: "Gross Salary", editing: false },
+            { name: "NetPay", title: "Net Salary", editing: false },
+            { name: "ValidationMessage", title: "Validation", editing: false }
+        ],
+    });
+    $("#gridSelectedData").jsGrid({
+        paging: true,
+        pageIndex: 1,
+        pageSize: 5,
+        pageLoading: true,
+        autoload: true,
+        editing: false,
+        filtering: true,
+        controller: {
+            loadData: function (filter) {
+                var deferred = $.Deferred();
+                var token = $("input[name=__RequestVerificationToken]").val();
+                var searchdata = { "__RequestVerificationToken": token };
+
+                var PaymentMonthYear = $('#PaymentMonthYear option:selected').val();
+                var TypeOfPayBill = 0;
+                var PaymentHeadId = $('#PaymentHeadId').val();
+
+                var EmpCategory = $('#EmpCategory').val() || 0;
+
+                var model = {};
+                model.PaymentMonthYear = PaymentMonthYear;
+                model.TypeOfPayBill = TypeOfPayBill;
+                model.PaymentHeadId = PaymentHeadId;
+                model.Pensioner_f = true;
+                filter.EmployeeCategory = EmpCategory;
+                filter.model = model;
+                $.ajax({
+                    type: "post",
+                    url: 'AdhocSelectedEmployee',
+                    data: filter,
+                    contentType: "application/x-www-form-urlencoded",
+                    dataType: "json",
+                    success: function (datas) {
+                        var da = {
+                            data: datas.Data,
+                            itemsCount: datas.TotalRecords
+                        }
+
+                        deferred.resolve(da);
+                    }
+                });
+                return deferred.promise();
+
+            }
+
+        },
+        fields: [
+            { name: "SlNo", title: "S.No", editing: false, width: 60 },
+            { type: "text", name: "PROJECTNO", title: "PROJECTNO", visible: false },
+            { type: "number", name: "PaymentId", title: "PaymentId", visible: false },
+            { type: "text", name: "EmployeeID", title: "Emp No", editing: false },
+            { type: "text", name: "EmployeeName", title: "Emp Name", editing: false },
+            { type: "text", name: "DEPARTMENT", title: "Dept", editing: false },
+            { type: "text", name: "ModeOfPaymentName", title: "Mode of payment", editing: false },
+            { name: "BasicPay", title: "Basic Salary", editing: false },
+            { name: "NetSalary", title: "Net Salary", editing: false },
+            {
+                type: "control", width: 100,
+                _createFilterSwitchButton: function () {
+                    return this._createOnOffSwitchButton("filtering", this.searchModeButtonClass, false)
+                },
+                itemTemplate: function (value, item) {
+                    var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+                    var $customButton = $("<button>")
+                        .attr("type", "button")
+                        .attr("class", "ion ion-ios-trash")
+                        .click(function (e) {
+                            var choice = confirm("Do you want to remove this employee?");
+                            if (choice === true) {
+                                RemoveEmployeeSalary(item.EmployeeID, item.PaymentId);
+                            }
+                            e.stopPropagation();
+                        });
+                    // return $result.add($customButton);
+                    return $("<div>").append($customButton);
+                }
+            }
+        ],
+    });
+    $("#gridSelectedData,#gridData").jsGrid("option", "filtering", false);
+    function CalculateSALBreakUp() {
+        //var netSal = parseFloat($('#empNetSalary').val()) || 0;
+        var ttlEarnExclOA = parseFloat($('#ttlEarningsExclOA').val()) || 0;
+        var ttlEarn = parseFloat($('#ttlEarnings').val()) || 0;
+        var ttldedu = parseFloat($('#ttlDeduction').val()) || 0;
+        var netSal = ttlEarn - ttldedu;
+        $('#tbodySalaryBUList tr').each(function () {
+            var type = $(this).find("select[name$='.TypeId']").val();
+            if (type == 1) {
+                var allowance = parseFloat($(this).find("input[name$='.Amount']").val()) || 0;
+                netSal += allowance;
+                ttlEarnExclOA += allowance;
+            } else if (type == 2) {
+                var deduction = parseFloat($(this).find("input[name$='.Amount']").val()) || 0;
+                netSal -= deduction;
+                var exclPro = $(this).closest('tr').find('input[name$=".IsAffectProjectExp"]').val();
+                if(exclPro.toLowerCase() == 'true'){
+                    ttlEarnExclOA -= deduction;
+                }
+            }
+        });
+        $('#netSal').val(netSal.toFixed(2));
+        $('#lblProjExp').text(ttlEarnExclOA.toFixed(2));
+    }
+</script>

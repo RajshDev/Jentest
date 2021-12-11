@@ -1,0 +1,1680 @@
+﻿@model IOAS.Models.AmendmentOrderModel
+@using IOAS.GenericServices
+@{
+    ViewBag.Title = "Amendment";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+    <link href="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/css/bootstrap-select.min.css")" rel="stylesheet" />
+}
+<style>
+    .modal-dialog {
+        width: 850px;
+    }
+</style>
+
+@using (Html.BeginForm("RecruitAmendment", "Requirement", FormMethod.Post, new { @class = "", role = "form", @id = "formAmendment", enctype = "multipart/form-data" }))
+{
+    <div class="row hd-tt-bg">
+        <div class="col-md-12">
+            <h4><b>Amendment Order</b></h4>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="white-bg ad-navbar">
+            <div class="col-md-2 ds-spl-bg">
+
+            </div>
+            <div class="col-md-3 ds-spl-bg">
+                <div class="ds-icn">
+                    <i class="ion-ios-list-outline "></i>
+                </div>
+                <div class="ds-tt">
+                    @Html.HiddenFor(m => m.ApplicationID)
+                    @Html.HiddenFor(m => m.OrderID)
+                    @Html.HiddenFor(m => m.OrderType)
+                    @Html.HiddenFor(m => m.Status)
+                    @Html.HiddenFor(m => m.TypeCode)
+
+                    <span>Request Reference</span>
+                    @Html.DropDownListFor(m => m.RequestReference, new SelectList(ViewBag.ReferenceType, "id", "name"), "Select", new { @class = "form-control" })
+                    <div>@Html.ValidationMessageFor(m => m.RequestReference)</div>
+                </div>
+            </div>
+            <div class="col-md-3 ds-spl-bg">
+                <div class="ds-icn">
+                    <i class="ion-ios-list-outline "></i>
+                </div>
+                <div class="ds-tt" id="divRefNum">
+                    <span class="required">Ref Number (WF / Tapal)</span>
+                    @Html.TextBoxFor(M => M.ReferenceNo, new { @class = "form-control" })
+                    <div>@Html.ValidationMessageFor(M => M.ReferenceNo)</div>
+                    @*@Html.TextBoxFor(m => m.SourceReferenceNumber, new { @class = "form-control" })
+                        <div>@Html.ValidationMessageFor(M => M.SourceReferenceNumber)</div>
+                        @Html.Hidden("SourceTapalOrWorkflow", "True")*@
+                </div>
+                <div class="dis-none ds-tt" id="divRefEmailDate">
+                    <span class="required">Email Date</span>
+                    @Html.EditorFor(m => m.SourceEmailDate, new { @class = "form-control" })
+                    <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.SourceEmailDate)</div>
+                </div>
+            </div><div class="col-md-4">
+            </div>
+        </div>
+    </div>
+
+    <div class="row cust-tab">
+        <div class="page-wrapper mt30">
+            <div>
+                <div class="col-md-12">
+
+                    <div class="row">
+                        <div class="col-md-12">
+
+                            <div class="bl-lg-panel-box pb-null">
+                                <div class="cmn-panel-box">
+
+                                    <div class="row ">
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label>Order Type</label><br />
+                                                <h4>Amendment Order</h4>
+                                            </div>
+                                        </div>
+                                        @if (Model.ApplicationID > 0 && Model.TypeCode == "STE")
+                                        {
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Type of appointment </label>
+                                                    <h4>@Html.DisplayFor(m => m.Typeofappointment)</h4>
+                                                    @Html.HiddenFor(m => m.TypeofappointmentId)
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    @if (Model.ConsolidatedPay)
+                                                    {
+                                                        <input id="ConsolidatedPay" name="ClConsolidatedPay" type="checkbox" checked disabled> <span>Consolidated pay </span><br>
+                                                    }
+                                                    else
+                                                    {
+                                                        <input id="ConsolidatedPay" name="ClConsolidatedPay" type="checkbox" hidden> <span hidden>Consolidated pay </span><br>
+                                                    }
+                                                    @if (Model.Fellowship)
+                                                    {
+                                                        <input id="FellowshipPay" name="ClFellowship" type="checkbox" checked disabled> <span>Fellowship</span> <br>
+                                                    }
+                                                    else
+                                                    {
+                                                        <input id="FellowshipPay" name="ClFellowship" type="checkbox" hidden> <span hidden>Fellowship </span><br>
+                                                    }
+                                                </div>
+                                            </div>
+                                        }
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group  ">
+                                                <label>Email ID</label>
+                                                <h4>@Html.DisplayFor(m => m.Email)</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row ">
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label>Name </label>
+                                                <h4 id="CantidateName">@Html.DisplayFor(m => m.Name)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group mb-sm ">
+                                                <label>Qualification</label>
+                                                <h4>@Html.DisplayFor(m => m.Qualification)</h4>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label>Other experience</label>
+                                                <h4>
+                                                    @Html.DisplayFor(m => m.Experience)
+                                                </h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="col-md-6">
+                                                <div class="form-group custom-form-group">
+                                                    <label>M.S/Ph.D</label>
+                                                    <h4>
+                                                        @Html.CheckBoxFor(m => m.IsMsPhd, new { @Disabled = "Disabled" })
+                                                    </h4>
+                                                </div>
+                                            </div>
+                                            @if (Model.IsMsPhd)
+                                            {
+                                                <div class="col-md-6">
+                                                    <div class="form-group custom-form-group  ">
+                                                        <label>Roll Number</label>
+                                                        <h4>@Html.DisplayFor(m => m.PhdDetail)</h4>
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+
+                                    <div class="row ">
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group mb-sm ">
+                                                <label>Employee Id</label>
+                                                <h4>@Html.DisplayFor(m => m.EmployeeID)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group mb-sm ">
+                                                <label>Contact No</label>
+                                                <h4>@Html.DisplayFor(m => m.ContactNumber)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group ">
+                                                <label>Date of Birth</label>
+                                                <h4>@Html.DisplayFor(m => m.DateofBirth)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group ">
+                                                <label>Age</label>
+                                                <h4 id="Age">@Html.DisplayFor(m => m.Age)</h4>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group ">
+                                                <label>Gate Score</label>
+                                                <h4>@Html.DisplayFor(m => m.GateScore)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label class="required">PI Letter </label>
+                                                @if (Model.OrderID > 0 && !string.IsNullOrEmpty(Model.PILetterPath))
+                                                {
+                                                    <input type="file" id="PILetter" name="PILetter">
+                                                    <div>@Html.ValidationMessage("PILetter")</div>
+                                                    <h4>
+                                                        @Html.ActionLink(Model.PILetterFileName, "ShowDocument", new { Controller = "Account", filepath = "Requirement", file = Model.PILetterPath }, new { @name = "DocDownload", @target = "_blank" })
+                                                        @if (Model.Status == "Draft" || Model.Status == "Open" || Model.Status.Contains("Note"))
+                                                        {
+                                                            <a class="rct-del-doc" value="@Model.PILetterPath">Delete</a>
+                                                        }
+                                                    </h4>
+                                                }
+                                                else
+                                                {
+                                                    <input type="file" id="PILetter" name="PILetter" required>
+                                                    <div>@Html.ValidationMessage("PILetter")</div>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group ">
+                                                <label>Application ReceiveDate</label>
+                                                @Html.EditorFor(m => m.ApplicationReceiveDate, new { @class = "form-control ", @required = "required" })
+                                                <div>@Html.ValidationMessageFor(m => m.ApplicationReceiveDate)</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group ">
+                                                <label>IITM Experience</label>
+                                                <h4>@Html.DisplayFor(m => m.IITMExperience)</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group ">
+                                                <label>Salary</label>
+                                                <h4>@Html.DisplayFor(m => m.Appointmentdetails.Salary)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group ">
+                                                <label>Commitment Amount</label>
+                                                <h4>@Html.DisplayFor(m => m.Appointmentdetails.CommitmentAmmount)</h4>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="bl-lg-panel-box  pb-null">
+                                <div class="bl-lg-panel-box-hd mb-m-5 pd-null">
+                                    <div class="cmn-panel-box">
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Project Number</label>
+                                                    <h4>@Html.DisplayFor(m => m.Appointmentdetails.ProjectNumber)</h4>
+                                                    @Html.Hidden("ProjectId", Model.Appointmentdetails.ProjectID)
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Project Title</label>
+                                                    <h4 id="txtProjectTitle">@Html.DisplayFor(m => m.Appointmentdetails.ProjectTitle)</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Name of the Client / Sponsoring Agency</label>
+                                                    <h4 id="txtClietAgency">@Html.DisplayFor(m => m.Appointmentdetails.SponsoringAgency)</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Project Type</label>
+                                                    <h4 id="txtProjectType">@Html.DisplayFor(m => m.Appointmentdetails.ProjectType)</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>PI Name</label>
+                                                    <h4 id="txtPIName">@Html.DisplayFor(m => m.Appointmentdetails.PIName)</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Project Start Date</label>
+                                                    <h4 id="txtProjectStartDate">@Html.DisplayFor(m => m.Appointmentdetails.ProjectStartDate)</h4>
+
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Project Closure Date</label>
+                                                    <h4 id="txtProjectClosureDate">@Html.DisplayFor(m => m.Appointmentdetails.ProjectClosureDate)</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>PI Code</label>
+                                                    <h4 id="txtPICode">@Html.DisplayFor(m => m.Appointmentdetails.PICode)</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>PI Email ID</label>
+                                                    <h4 id="txtPIEmailID">@Html.DisplayFor(m => m.Appointmentdetails.Email)</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>PI Phone No</label>
+                                                    <h4 id="txtPIPhone">@Html.DisplayFor(m => m.Appointmentdetails.Phone)</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Department code </label>
+                                                    <h4 id="txtDepartmentCode">@Html.DisplayFor(m => m.Appointmentdetails.PIDepartmentCode)</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Department Name</label>
+                                                    <h4 id="txtDepartmentName">@Html.DisplayFor(m => m.Appointmentdetails.PIDepartmentName)</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group custom-form-group">
+                                                            <label>Appointment start date</label>
+                                                            <h4 id="txtAppointmentStartDate">@Html.DisplayFor(m => m.Appointmentdetails.AppointmentStartDate)</h4>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group custom-form-group">
+                                                            <label>Appointment End date</label>
+                                                            <h4 id="txtAppointmentEndDate">@Html.DisplayFor(m => m.Appointmentdetails.AppointmentClosureDate)</h4>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Designation</label>
+                                                    @if (Model.OrderID > 0)
+                                                    {
+                                                        <h4 id="Designation">@Html.DisplayFor(m => m.Designation)</h4>
+                                                        @Html.HiddenFor(m => m.DesignationId)
+                                                        @Html.Hidden("DesignationMedicalamount", Model.MedicalAmmount)
+                                                    }
+                                                    else
+                                                    {
+                                                        <h4 id="Designation">@Html.DisplayFor(m => m.Appointmentdetails.Designation)</h4>
+                                                        @Html.Hidden("DesignationId", Model.Appointmentdetails.DesignationId)
+                                                        @Html.Hidden("DesignationMedicalamount", Model.Appointmentdetails.MedicalAmmount)
+                                                    }
+                                                </div>
+                                            </div>
+                                            @if (Model.ApplicationID > 0 && Model.TypeCode == "STE")
+                                            {
+                                                <div class="col-md-3">
+                                                    <div class="form-group custom-form-group">
+                                                        <label>Medical</label> <br>
+                                                        <h4 id="MedicalText">@Html.DisplayFor(m => m.Appointmentdetails.MedicalText)</h4>
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
+                                        <div class="row">
+
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Salary</label>
+                                                    @if (Model.OrderID > 0)
+                                                    {
+                                                        <h4>@Html.DisplayFor(m => m.Salary)</h4>
+                                                        @Html.HiddenFor(m => m.Salary, new { @id = "Salary" })
+                                                    }
+                                                    else
+                                                    {
+                                                        <h4>@Html.DisplayFor(m => m.Appointmentdetails.Salary)</h4>
+                                                        @Html.HiddenFor(m => m.Appointmentdetails.Salary, new { @id = "Salary" })
+                                                    }
+                                                </div>
+                                            </div>
+
+                                            @if (Model.TypeCode == "OSG")
+                                            {
+                                                <div class="col-md-3">
+                                                    <div class="form-group custom-form-group ">
+                                                        <label>Employee CTC</label>
+                                                        <h4>@Html.DisplayFor(m => m.EmployeeCTC)</h4>
+                                                        @Html.HiddenFor(m => m.EmployeeCTC)
+                                                        @Html.HiddenFor(m => m.LWFAmount)
+                                                    </div>
+                                                </div>
+                                            }
+
+                                            @if (Model.ApplicationID > 0 && Model.TypeCode == "STE")
+                                            {
+                                                <div class="col-md-3">
+                                                    <div class="form-group custom-form-group">
+                                                        <label>HRA</label>
+                                                        @if (Model.OrderID > 0)
+                                                        {
+                                                            <h4>@Html.DisplayFor(m => m.HRA)</h4>
+                                                            @Html.HiddenFor(m => m.HRA)
+                                                        }
+                                                        else
+                                                        {
+                                                            <h4>@Html.DisplayFor(m => m.Appointmentdetails.HRA)</h4>
+                                                            @Html.HiddenFor(m => m.Appointmentdetails.HRA, new { @id = "HRA" })
+                                                        }
+                                                        @Html.HiddenFor(m => m.isHRA)
+                                                        @Html.HiddenFor(m => m.HRAPercentage)
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3" id="">
+                                                    <div class="form-group custom-form-group">
+                                                        <label>Medical Amount</label>
+                                                        @Html.HiddenFor(m => m.MedicalAmmount)
+                                                        @if (Model.OrderID > 0)
+                                                        {
+                                                            <h4 id="MedicalAmmountText">@Model.MedicalAmmount</h4>
+                                                        }
+                                                        else
+                                                        {
+                                                            <h4 id="MedicalAmmountText">@Model.Appointmentdetails.MedicalAmmount</h4>
+                                                        }
+
+                                                        @Html.HiddenFor(m => m.isMedical)
+                                                    </div>
+                                                </div>
+                                            }
+                                            else if (Model.ApplicationID > 0 && Model.TypeCode == "CON")
+                                            {
+                                                <div class="col-md-3">
+                                                    <div class="form-group custom-form-group">
+                                                        <label>GST</label>
+                                                        @if (Model.OrderID > 0)
+                                                        {
+                                                            @Html.DisplayFor(m => m.GST)
+                                                        }
+                                                        else
+                                                        {
+                                                            @Html.DisplayFor(m => m.Appointmentdetails.GST)
+                                                            @Html.HiddenFor(m => m.Appointmentdetails.GST, new { @id = "GST" })
+                                                        }
+                                                        @Html.Hidden("IsGSTapplicable")
+                                                        @Html.Hidden("OldGST", Model.Appointmentdetails.GST)
+                                                    </div>
+                                                </div>
+                                            }
+                                            <div class="col-md-3  reg-no custom-reg-no">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="" id="txt-Commitmenttext">Commitment Amount</label>
+                                                    @if (Model.OrderID > 0)
+                                                    {
+                                                        <h4 id="txt-CommitmentAmount">@Model.CommitmentAmount</h4>
+                                                    }
+                                                    <h4 id="txt-CommitmentAmount"></h4>
+                                                    @Html.HiddenFor(m => m.CommitmentAmount, new { @class = "form-control required", @readonly = "readonly" })
+                                                    @Html.HiddenFor(m => m.isWithdrawCommitment)
+                                                    <div>@Html.ValidationMessageFor(m => m.CommitmentAmount)</div>
+
+                                                    @Html.Hidden("PrjAviAvailableBalance")
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="required">Amendment From Date</label>
+                                                    <h4 id="txt-fromdate"></h4>
+                                                    @Html.EditorFor(m => m.FromDate, new { @class = "form-control required dis-none" })
+                                                    <div>@Html.ValidationMessageFor(m => m.FromDate)</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="required">Amendment To Date</label>
+                                                    @Html.EditorFor(m => m.ToDate, new { @class = "form-control required" })
+                                                    <div>@Html.ValidationMessageFor(m => m.ToDate)</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label>Remarks</label>
+                                                    @Html.TextAreaFor(m => m.PIJustificationRemarks, new { @class = "form-control" })
+                                                    <div>@Html.ValidationMessageFor(m => m.PIJustificationRemarks)</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Project Fund Availability</label>
+                                                    <h4><a id="btnViewSummary" style="color:#ffffff;">Click Here...</a></h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center" style="margin-bottom: 50px;">
+        <button type="button" class="btn btn-primary" id="btnSubmit">Submit</button>
+        <button type="button" class="btn btn-default" onclick="window.location.href='@Url.Action("EmployeeMaster","Requirement")';">Close</button>
+    </div>
+
+    <div id="dialogConfirm" class="modal fade" role="dialog" data-backdrop="static" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header brd-bottom">
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                    <h4 class="modal-title">Mail Preview</h4>
+                </div>
+                <div class="modal-body">
+                    <div style="padding:10px;overflow:auto" id="ShowDeviation">
+
+                    </div>
+                </div>
+                <div class="modal-footer brd-top">
+                    <button type="button" class="btn btn-danger" id="isbtnConfirm">Confirm</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<div class="loading-bg dis-none">
+
+</div>
+
+<div id="popup">
+
+</div>
+
+<input type="hidden" id="currentRefId" value="@Model.OrderID" />
+<input type="hidden" id="processGuideLineId" value="@ViewBag.processGuideLineId" />
+<div id="act-now">
+    @Html.Partial("_ProcessStatus")
+</div>
+
+<script>
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    var alertMsg = '@TempData["alertMsg"]';
+    var ApplicationID = @Json.Encode(Model.ApplicationID) ||0;
+    var isMsPhd = @Html.Raw(Json.Encode(Model.IsMsPhd)) || false;
+    var typcategory = @Html.Raw(Json.Encode(Model.TypeCode)) || "";
+    var TypeOfAppointment = @Json.Encode(Model.TypeofappointmentId) || 0;
+    var OrderID = @Json.Encode(Model.OrderID) ||0;
+    @*var Medical = @Json.Encode(Model.Medical) || 0;
+    var oldMedical = @Json.Encode(Model.Appointmentdetails.Medical) || 0;*@
+    var HRAPercentage = @Json.Encode(Model.HRAPercentage) || 0;
+    var OldCommitmentAmount = @Html.Raw(Json.Encode(Model.Appointmentdetails.CommitmentAmmount)) || 0;
+    var currentdate = moment(new Date()).toDate();
+
+    $(document).ready(function () {
+
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+        else if (alertMsg != '') {
+            $('#alert').html(alertMsg);
+            $('#Validation').modal('toggle');
+        }
+
+        $('.selectpicker').selectpicker({
+            liveSearch: true
+        });
+        $('.selectpicker').selectpicker('refresh');
+
+        if(OrderID > 0)
+        {
+            if(@Html.Raw(Json.Encode(Model.ApplicationReceiveDate)) != null)
+            {
+                var DateRD = "@string.Format("{0:dd/MMMM/yyyy}", Model.ApplicationReceiveDate)";
+                var ApplicationRD = moment(DateRD).toDate();
+
+                $('#ApplicationReceiveDate').datepicker({
+                    dateFormat: 'dd-MM-yy',
+                    changeYear: true
+                }).datepicker("option", "maxDate", currentdate).datepicker("option", "minDate", ApplicationRD);
+
+            }
+            if(@Html.Raw(Json.Encode(Model.SourceEmailDate)) != null){
+                var SourceEmailDate = "@string.Format("{0:dd/MMMM/yyyy}", Model.SourceEmailDate)";
+                var SourceOfEmailDt = moment(SourceEmailDate).toDate();
+
+                $('#SourceEmailDate').datepicker({
+                    dateFormat: 'dd-MM-yy',
+                    changeYear: true
+                }).datepicker("option", "maxDate", currentdate).datepicker("option", "minDate", SourceOfEmailDt);
+            }
+        }
+        else
+        {
+            $('#ApplicationReceiveDate,#SourceEmailDate').datepicker({
+                dateFormat: 'dd-MM-yy',
+                changeYear: true
+            }).datepicker("option", "maxDate", currentdate).datepicker("option", "minDate", -185);
+        }
+
+
+        @*if(OrderID > 0)
+        {
+            if(@Html.Raw(Json.Encode(Model.isMedical)) == false)
+            {
+                $('#isMedical').val(false)
+                UpdateMedical(3);
+            }
+            else
+            {
+                if(isMsPhd == false && TypeOfAppointment != 2)
+                    UpdateMedical(oldMedical);
+                else
+                    UpdateMedical(3);
+            }
+        }*@
+
+    });
+    $("#FromDate,#ToDate").datepicker({
+        dateFormat: 'dd-MM-yy',
+        showStatus: true,
+        showWeeks: true,
+        changeYear: true,
+        yearRange: '1950:+30',
+        highlightWeek: true,
+        numberOfMonths: 1,
+        showAnim: "scale",
+        showOptions: {
+            origin: ["top", "left"]
+        }
+    });
+
+    if(OrderID == 0)
+    {
+        var strappointmentstart =  @Html.Raw(Json.Encode(Model.Appointmentdetails.AppointmentStartDate)) || "";
+        var strappointmentend =  @Html.Raw(Json.Encode(Model.Appointmentdetails.AppointmentClosureDate)) || "";
+        var appointmentstartdt = moment(strappointmentstart.split('-').join('/')).toDate();
+        var appointmentenddt = moment(strappointmentend.split('-').join('/')).toDate();
+        var projectenddate = @Html.Raw(Json.Encode(Model.Appointmentdetails.ProjectClosureDate)) || "";
+        if (projectenddate != "")
+            projectenddate = new Date(projectenddate.split('-').join('/'));
+        var currentdate = moment(new Date()).toDate();
+        var maxDate = moment(new Date()).add('years',+1).toDate();
+        var minDate = "";
+        if(currentdate > appointmentstartdt)
+            minDate = appointmentstartdt;
+
+        if(maxDate > appointmentenddt)
+            maxDate = appointmentenddt
+
+        $('#FromDate').datepicker({
+            dateFormat: 'dd-MM-yy',
+            changeYear: true
+        }).datepicker("option", "maxDate", maxDate).datepicker("option", "minDate", minDate);
+
+        //var chceckdate = moment(strappointmentstart.split('-').join('/')).toDate();
+        if(currentdate > appointmentstartdt)
+        {
+            $('#txt-fromdate').text(strappointmentstart);
+            $('#FromDate').addClass('dis-none');
+            $('#FromDate').trigger("change").val(strappointmentstart);
+
+            var value = $('#FromDate').val().split('-').join('/');
+            if(value != "") {
+                var endDate = moment(projectenddate).toDate();
+                if(endDate != "")
+                {
+                    var addedYear = moment(value).add(+364, 'days').toDate();
+                    if(addedYear < endDate)
+                        endDate = addedYear;
+                }
+                var startDate = moment(value).add(+1, 'days').toDate();
+                $('#ToDate').datepicker({
+                    dateFormat: 'dd-MM-yy',
+                    changeYear: true
+                }).datepicker("option", "minDate", startDate).datepicker("option", "maxDate", endDate);
+            }
+        }
+        else {
+            $('#FromDate').removeClass('dis-none');
+        }
+
+    }
+
+
+
+    var addyear = 0;
+
+    @*if ($("#ProjectId").val() > 0)
+        ProjectSummary()
+
+    if ($("#DesignationId").val() > 0)
+        LoadFillDesignation()
+
+    function LoadFillDesignation() {
+        var DesignationID = $("#DesignationId").val() || 0;
+        if (DesignationID > 0) {
+            $.getJSON("@Url.Action("LoadDesignationDetails", "Requirement")", { DesignationID: DesignationID },
+                function (result) {
+                    if (result.DesignationData.DestinationID > 0) {
+                        $("#MinSalary").val(result.DesignationData.MinSalary);
+                        $("#MaxSalary").val(result.DesignationData.MaxSalary);
+                        if(isMsPhd == false && TypeOfAppointment != 2)
+                        {
+                            if (result.DesignationData.Medical)
+                            {
+                                $('#isMedical').val(true)
+                                $('#DesignationMedicalamount').val(result.DesignationData.MedicalAmount);
+                                UpdateMedical(2);
+                            }
+                            else
+                            {
+                                $('#isMedical').val(false)
+                                $('#DesignationMedicalamount').val(0);
+                                UpdateMedical(3);
+                            }
+                        }
+                        else
+                        {
+                            $('#MedicalAmmount').val(0);
+                            $('#DesignationMedicalamount').val(0);
+                            $('#isMedical').val(false)
+                            UpdateMedical(3);
+                        }
+
+                        if (result.DesignationData.HRA && TypeOfAppointment != 2)
+                        {
+                            $('#HRAText').addClass('dis-none');
+                            $('#HRA').removeClass('dis-none');
+                            $('#HRAPercentage').val(result.DesignationData.HRAPercentage)
+                            HRAPercentage = parseFloat(result.DesignationData.HRAPercentage);
+                            $('#isHRA').val(true);
+                        }
+                        else
+                        {
+                            $('#HRAText').text('0');
+                            $('#isHRA').val(false);
+                            $('#HRA').val(0);
+                            $('#HRAPercentage').val(result.DesignationData.HRAPercentage)
+                            HRAPercentage = parseFloat(result.DesignationData.HRAPercentage);
+                            $('#HRAText').removeClass('dis-none');
+                            $('#HRA').addClass('dis-none');
+                        }
+                        if(OrderID > 0)
+                        {
+                            calculatetaxTotal();
+                        }
+                    }
+                });
+        }
+    }*@
+
+    $('#RequestReference').change(function () {
+        var selSource = $(this).val();
+        $("#SourceReferenceNumber,#ReferenceNo").val('');
+        $("#divRefNum, #divRefEmailDate").addClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('False');
+        if (selSource == '1') {
+            applyAutoComplete($('#ReferenceNo'), $('#SourceReferenceNumber'), "@Url.Action("GetACWorkflowRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        } else if (selSource == '3') {
+            applyAutoComplete($('#ReferenceNo'), $('#SourceReferenceNumber'), "@Url.Action("GetACTapalRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        }
+        else if (selSource == '2') {
+            $('#divRefEmailDate').removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('False');
+        } else {
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        }
+    });
+
+    var selSource = $('#RequestReference').val();
+    $("#divRefNum, #divRefEmailDate").addClass('dis-none');
+    if (selSource == '1') {
+        applyAutoComplete($('#ReferenceNo'), $('#SourceReferenceNumber'), "@Url.Action("GetACWorkflowRefNumber", "Proposal")");
+        $("#divRefNum").removeClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('True');
+    } else if (selSource == '3') {
+        applyAutoComplete($('#ReferenceNo'), $('#SourceReferenceNumber'), "@Url.Action("GetACTapalRefNumber", "Proposal")");
+        $("#divRefNum").removeClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('True');
+    }
+    else if (selSource == '2') {
+        $('#divRefEmailDate').removeClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('False');
+    } else {
+        $("#divRefNum").removeClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('True');
+    }
+
+    $('#Salary,#GST,#HRA').keyup(function () {
+        calculatetaxTotal();
+    });
+
+    function calculatetaxTotal()
+    {
+        var isNotHighSalary = false;
+        var Year = 0,months = 0,days = 0;
+        var starttotaldays = 0,EndDateTotalMonth = 0,StartWorkingDays = 0,EndWorkingDays = 0;
+        var actualAppointmentstartdt = @Html.Raw(Json.Encode(Model.Appointmentdetails.AppointmentStartDate)) || "";
+        var actualAppointmentenddt = @Html.Raw(Json.Encode(Model.Appointmentdetails.AppointmentClosureDate)) || "";
+        var actualAppointmentstartdate = new Date(actualAppointmentstartdt.split('-').join('/'));
+        var actualAppointmentenddate = new Date(actualAppointmentenddt.split('-').join('/'));
+        var startdate = "";
+        var enddate = "";
+        if ($('#FromDate').val() != "" && $('#ToDate').val() != "")
+        {
+            var startdate = new Date($('#FromDate').val().split('-').join('/'));
+            var enddate = new Date($('#ToDate').val().split('-').join('/'));
+            var MonthCount = [];
+            var FromDate=getFormattedDate(startdate);
+            var ToDate=getFormattedDate(enddate);
+            MonthCount = dateRange(FromDate,ToDate)//define moments for the startdate and enddate
+            starttotaldays = parseInt(endOfMonth(startdate).getDate());
+            EndDateTotalMonth = parseInt(endOfMonth(enddate).getDate());
+            StartWorkingDays =0 , EndWorkingDays=0;
+            if(startdate.getMonth() == enddate.getMonth()&&startdate.getFullYear() == enddate.getFullYear()){
+                StartWorkingDays=parseInt(enddate.getDate()) - parseInt(startdate.getDate())+1;
+            }
+            else{
+                StartWorkingDays = starttotaldays - parseInt(startdate.getDate()) + 1;
+                EndWorkingDays = enddate.getDate();
+            }
+            var count = 0;
+            for (var i = 0; i < MonthCount.length; i++) {
+                var lastCount = MonthCount.length - 1;
+                if (i != 0 && i != lastCount) {
+                    count += 1;
+                }
+            }
+            var Workingdays = StartWorkingDays + EndWorkingDays;
+            months = count || 0;
+            days = Workingdays||0;
+        }
+        else {
+            return;
+        }
+
+        if(typcategory == "STE")
+        {
+            var Medical = @Html.Raw(Json.Encode(Model.Appointmentdetails.Medical)) || 0;
+            var Salary = @Html.Raw(Json.Encode(Model.Appointmentdetails.Salary)) || 0;
+            var HRAValue = @Html.Raw(Json.Encode(Model.Appointmentdetails.HRA)) || 0;
+            var ttlVal = 0,MedicalAmount = 0;
+            var isHRA = @Json.Encode(Model.Appointmentdetails.isHRA) || false;
+            if(HRA > 0)
+            {
+                if (isHRA != true)
+                    HRAValue = 0;
+            }
+            var Tot = 0;
+            //check is ConsolidatedPay or Part time appointment
+            if (isMsPhd || TypeOfAppointment == 2) {
+                MedicalAmount = 0;
+                if(TypeOfAppointment == 2)
+                    HRAValue=0;
+            }
+            else if (Medical == 1) {
+                //if Medical Exclude
+                MedicalAmount = parseFloat($('#DesignationMedicalamount').val()) || 0;
+            }
+            else {
+                //if Medical include
+                MedicalAmount = 0;
+            }
+            ttlVal = MedicalAmount + Salary + HRAValue;
+            var StartPerDay = ttlVal / starttotaldays;
+            var EndPerDay = ttlVal / EndDateTotalMonth;
+            var MonthlyAmt = ttlVal;
+            if (months > 0) {
+                Tot += MonthlyAmt * months;
+            }
+            if (days > 0) {
+                Tot += StartWorkingDays * StartPerDay;
+                Tot += EndWorkingDays * EndPerDay;
+            }
+
+            //UpdateValue
+            if (TypeOfAppointment == 2) {
+                $('#MedicalAmmount').val(0);
+                $("#HRA").val(0);
+            }
+            else if(isMsPhd) {
+                $('#MedicalAmmount').val(0);
+            }
+
+            if(Medical == 1 || Medical == 2)
+                $('#MedicalAmmount').val(parseFloat($('#DesignationMedicalamount').val()));
+            else
+                $('#MedicalAmmount').val(0);
+
+            if(actualAppointmentenddate > startdate)
+            {
+                var totalcommitment = 0;
+                if(actualAppointmentstartdate > startdate)
+                    var frontadd = calcoldcommitmentamount(startdate,actualAppointmentstartdate);
+                if(actualAppointmentstartdate < startdate)
+                    var frontminus = calcoldcommitmentamount(actualAppointmentstartdate,startdate);
+                if(actualAppointmentenddate > enddate)
+                    var backminus = calcoldcommitmentamount(enddate,actualAppointmentenddate);
+                if(actualAppointmentenddate < enddate)
+                    var backadd = calcoldcommitmentamount(actualAppointmentenddate,enddate);
+                if(frontadd > 0)
+                    totalcommitment = totalcommitment + frontadd;
+                if(backadd > 0)
+                    totalcommitment = totalcommitment + backadd;
+                if(frontminus > 0)
+                    totalcommitment = totalcommitment - frontminus;
+                if(backminus > 0)
+                    totalcommitment = totalcommitment - backminus;
+                if(totalcommitment < 0){
+                    $('#isWithdrawCommitment').val(true);
+                    $('#txt-Commitmenttext').text("Withdraw Commitment");
+                }
+                else{
+                    $('#isWithdrawCommitment').val(false);
+                    $('#txt-Commitmenttext').text("Commitment Amount");
+                }
+                Tot = Math.abs(totalcommitment);
+            }
+            $('#CommitmentAmount').val(Math.round(Tot));
+            $('#txt-CommitmentAmount').text(Math.round(Tot));
+        }
+        else if(typcategory == "CON") {
+
+            var ttlVal = 0;
+            var Salary = parseFloat($('#Salary').val()) || 0;
+            var taxVal = parseFloat($('#GST').val()) || 0;
+            if($('#GST').val()==0)
+            {
+                $('#IsGSTapplicable').val("No");
+            }
+            else
+            {
+                $('#IsGSTapplicable').val("Yes");
+            }
+
+            var Tot = 0;
+
+            var taxVal = parseFloat($('#GST').val()) || 0;
+            ttlVal = Salary +(Salary * taxVal / 100);
+            var StartPerDay = ttlVal / starttotaldays;
+            var EndPerDay = ttlVal / EndDateTotalMonth;
+            var MonthlyAmt = ttlVal;
+            if (months > 0) {
+                Tot += MonthlyAmt * count;
+            }
+            if (days > 0) {
+                Tot += StartWorkingDays * StartPerDay;
+                Tot += EndWorkingDays * EndPerDay;
+            }
+
+            if(actualAppointmentenddate > startdate)
+            {
+                var totalcommitment = 0;
+                if(actualAppointmentstartdate > startdate)
+                    var frontadd = calcoldcommitmentamount(startdate,actualAppointmentstartdate);
+                if(actualAppointmentstartdate < startdate)
+                    var frontminus = calcoldcommitmentamount(actualAppointmentstartdate,startdate);
+                if(actualAppointmentenddate > enddate)
+                    var backminus = calcoldcommitmentamount(enddate,actualAppointmentenddate);
+                if(actualAppointmentenddate < enddate)
+                    var backadd = calcoldcommitmentamount(actualAppointmentenddate,enddate);
+                if(frontadd > 0)
+                    totalcommitment = totalcommitment + frontadd;
+                if(backadd > 0)
+                    totalcommitment = totalcommitment + backadd;
+                if(frontminus > 0)
+                    totalcommitment = totalcommitment - frontminus;
+                if(backminus > 0)
+                    totalcommitment = totalcommitment - backminus;
+                if(totalcommitment < 0){
+                    $('#isWithdrawCommitment').val(true);
+                    $('#txt-Commitmenttext').text("Withdraw Commitment");
+                }
+                else{
+                    $('#isWithdrawCommitment').val(false);
+                    $('#txt-Commitmenttext').text("Commitment Amount");
+                }
+                Tot = Math.abs(totalcommitment);
+            }
+            $('#CommitmentAmount').val(Math.round(Tot));
+            $('#txt-CommitmentAmount').text(Math.round(Tot));
+        }
+        else if(typcategory == "OSG")
+        {
+            var Medical = @Html.Raw(Json.Encode(Model.Appointmentdetails.Medical)) || 0;
+            //var Salary = @Html.Raw(Json.Encode(Model.Appointmentdetails.Salary)) || 0;
+            var Salary = @Html.Raw(Json.Encode(Model.EmployeeCTC)) || 0;
+            var lwfamt = @Html.Raw(Json.Encode(Model.LWFAmount)) || 0;
+            var isWithdrawCommit = $('#isWithdrawCommitment').val();
+            var HRAValue = 0;
+            var ttlVal = 0,MedicalAmount = 0;
+            var startyear = startdate.getFullYear();
+            var endyear = enddate.getFullYear();
+            var startmonth = startdate.getMonth() + 1;
+            var endmonth = enddate.getMonth() + 1;
+            var actstartmonth = actualAppointmentstartdate.getMonth() + 1;
+            var actendmonth = actualAppointmentenddate.getMonth() + 1;
+            var actstartyear = actualAppointmentstartdate.getFullYear();
+            var actendyear = actualAppointmentenddate.getFullYear();
+            //var isHRA = @Json.Encode(Model.Appointmentdetails.isHRA) || false;
+            //if(HRA > 0)
+            //{
+            //    if (isHRA != true)
+            //        HRAValue = 0;
+            //}
+            var Tot = 0;
+            //check is ConsolidatedPay or Part time appointment
+            if (isMsPhd || TypeOfAppointment == 2) {
+                MedicalAmount = 0;
+                if(TypeOfAppointment == 2)
+                    HRAValue=0;
+            }
+            else if (Medical == 1) {
+                //if Medical Exclude
+                MedicalAmount = parseFloat($('#DesignationMedicalamount').val()) || 0;
+            }
+            else {
+                //if Medical include
+                MedicalAmount = 0;
+            }
+            ttlVal = MedicalAmount + Salary + HRAValue;
+            var StartPerDay = ttlVal / starttotaldays;
+            var EndPerDay = ttlVal / EndDateTotalMonth;
+            var MonthlyAmt = ttlVal;
+            if (months > 0) {
+                Tot += MonthlyAmt * months;
+            }
+            if (days > 0) {
+                Tot += StartWorkingDays * StartPerDay;
+                Tot += EndWorkingDays * EndPerDay;
+            }
+
+            //UpdateValue
+            if (TypeOfAppointment == 2) {
+                $('#MedicalAmmount').val(0);
+                $("#HRA").val(0);
+            }
+            else if(isMsPhd) {
+                $('#MedicalAmmount').val(0);
+            }
+
+            if(Medical == 1 || Medical == 2)
+                $('#MedicalAmmount').val(parseFloat($('#DesignationMedicalamount').val()));
+            else
+                $('#MedicalAmmount').val(0);
+
+            if(actualAppointmentenddate > startdate)
+            {
+                var totalcommitment = 0;
+                if(actualAppointmentstartdate > startdate)
+                    var frontadd = calcoldcommitmentamount(startdate,actualAppointmentstartdate);
+                if(actualAppointmentstartdate < startdate)
+                    var frontminus = calcoldcommitmentamount(actualAppointmentstartdate,startdate);
+                if(actualAppointmentenddate > enddate)
+                    var backminus = calcoldcommitmentamount(enddate,actualAppointmentenddate);
+                if(actualAppointmentenddate < enddate)
+                    var backadd = calcoldcommitmentamount(actualAppointmentenddate,enddate);
+                if(frontadd > 0)
+                    totalcommitment = totalcommitment + frontadd;
+                if(backadd > 0)
+                    totalcommitment = totalcommitment + backadd;
+                if(frontminus > 0)
+                    totalcommitment = totalcommitment - frontminus;
+                if(backminus > 0)
+                    totalcommitment = totalcommitment - backminus;
+                if(totalcommitment < 0){
+                    $('#isWithdrawCommitment').val(true);
+                    $('#txt-Commitmenttext').text("Withdraw Commitment");
+                }
+                else{
+                    $('#isWithdrawCommitment').val(false);
+                    $('#txt-Commitmenttext').text("Commitment Amount");
+                }
+                Tot = Math.abs(totalcommitment);
+            }
+            isWithdrawCommit = $('#isWithdrawCommitment').val();
+
+            if(startyear < endyear)
+            {
+                lwfamt = parseFloat($('input[name=LWFAmount]').val()) || 0;
+                if(lwfamt > 0)
+                {
+                    Tot += lwfamt;
+                }
+            }
+            else if((actendmonth == 12 || endmonth == 12) && startyear == endyear){
+                lwfamt = parseFloat($('input[name=LWFAmount]').val()) || 0;
+                if(lwfamt > 0)
+                {
+                    Tot += lwfamt;
+                }
+            }
+
+
+            if((startyear < actendyear || (actendmonth <= 12 && endmonth > 11)) && isWithdrawCommit == "true")
+            {
+                lwfamt = parseFloat($('input[name=LWFAmount]').val()) || 0;
+                if(lwfamt > 0)
+                {
+                    Tot -= lwfamt;
+                }
+            }
+
+            $('#CommitmentAmount').val(Math.round(Tot));
+            $('#txt-CommitmentAmount').text(Math.round(Tot));
+        }
+    }
+
+
+
+    function calcoldcommitmentamount(startDt,endDt)
+    {
+        if (startDt != "" && endDt != "") {
+            //define moments for the startdate and enddate
+            var startmonthend = parseInt(endOfMonth(startDt).getDate());
+            var enddtmonthend = parseInt(endOfMonth(endDt).getDate());
+            var startworingdays = 0 , endworkingdays = 0;
+            if (startDt.getMonth() == endDt.getMonth() && startDt.getFullYear() == endDt.getFullYear()) {
+                startworingdays = parseInt(endDt.getDate()) - parseInt(startDt.getDate());
+            }
+            else
+            {
+                startworingdays = startmonthend - parseInt(startDt.getDate());
+                endworkingdays = endDt.getDate();
+            }
+
+            var startfrom = getFormattedDate(startDt);
+            var startto = getFormattedDate(endDt);
+            MonthCount = dateRange(startfrom,startto)
+            var count = 0;
+            for (var i = 0; i < MonthCount.length; i++) {
+                var lastCount = MonthCount.length - 1;
+                if (i != 0 && i != lastCount) {
+                    count += 1;
+                }
+            }
+            totaldays = startworingdays + endworkingdays;
+            var months = count || 0;
+            var days = totaldays || 0;
+            var HRAValue = 0;
+            var ttlVal = 0;
+            var Medical = @Html.Raw(Json.Encode(Model.Appointmentdetails.MedicalAmmount)) || 0;
+            var Salary = @Html.Raw(Json.Encode(Model.Appointmentdetails.Salary)) || 0;
+            if(typcategory == "OSG")
+            {
+                Salary = @Html.Raw(Json.Encode(Model.EmployeeCTC)) || 0;
+            }
+            var HRA = @Html.Raw(Json.Encode(Model.Appointmentdetails.HRA)) || 0;
+            var HRAPer = @Html.Raw(Json.Encode(Model.Appointmentdetails.HRAPercentage)) / 100;
+            var selectedmedical = @Html.Raw(Json.Encode(Model.Appointmentdetails.Medical)) || 0;
+            var ishavehra = @Html.Raw(Json.Encode(Model.Appointmentdetails.isHRA)) || false;
+            var oldtax = @Html.Raw(Json.Encode(Model.Appointmentdetails.GST)) || 0;
+            if (ishavehra == false || TypeOfAppointment == 2)
+                HRA = 0;
+
+            var total = 0;
+
+            if (selectedmedical != 1 || Typeofappointment == 2 || isMsPhd)
+                Medical = 0;
+
+            if(typcategory == "CON")
+                ttlVal = Salary + (Salary * oldtax / 100);
+            else
+                ttlVal = Medical + Salary + HRA;
+            var startperday = ttlVal / startmonthend;
+            var endperday = ttlVal / enddtmonthend;
+            var MonthlyAmt = ttlVal;
+            if (months > 0)
+                total += MonthlyAmt * count;
+
+            if (days > 0) {
+                total += startworingdays * startperday;
+                total += endworkingdays * endperday;
+            }
+            return total;
+        }
+    }
+
+
+
+    function dateRange(startDate, endDate) {
+        var start = startDate.split('-');
+        var end = endDate.split('-');
+        var startYear = parseInt(start[0]);
+        var endYear = parseInt(end[0]);
+        var months = [];
+        for (var i = startYear; i <= endYear; i++) {
+            var endMonth = i != endYear ? 11 : parseInt(end[1]) - 1;
+            var startMon = i === startYear ? parseInt(start[1]) - 1 : 0;
+            for (var j = startMon; j <= endMonth; j = j > 12 ? j % 12 || 11 : j + 1) {
+                var month = j + 1;
+                var displayMonth = month < 10 ? '0' + month : month;
+                months.push([displayMonth]);
+            }
+        }
+        return months;
+    }
+
+    function endOfMonth(date) {
+        return new Date(date.getFullYear(), date.getMonth() + 1, 0);
+    }
+
+    $("#FromDate, #ToDate").change(function () {
+        ValidateDateDiff();
+        calculatetaxTotal()
+    });
+
+    $('#FromDate').change(function () {
+        if ($(this).val() != "")
+        {
+            var endDate = "";
+            var fromdate = $('#FromDate').val().split('-').join('/');
+            var projectenddate = $('#txtProjectClosureDate').text().split('-').join('/');
+            $('#ToDate').val('');
+            var endDate = moment(projectenddate).toDate();
+            if(endDate != "")
+            {
+                var addedYear = moment(fromdate).add(+364, 'days').toDate();
+                if(addedYear < endDate)
+                    endDate = addedYear;
+            }
+            var startDate = moment(fromdate).add(+1, 'days').toDate();
+            $('#ToDate').datepicker({
+                dateFormat: 'dd-MM-yy',
+                changeYear: true
+            }).datepicker("option", "minDate", startDate).datepicker("option", "maxDate", endDate);
+        }
+
+    });
+
+    function ValidateDateDiff() {
+        var strDate = $("#FromDate").val();
+        var clsDate = $("#ToDate").val();
+        var StartDate = new Date(strDate.split('-').join('/'));
+        var EndDate = new Date(clsDate.split('-').join('/'));
+
+        var txtProjectStartDate = $("#txtProjectStartDate").text();
+        if (txtProjectStartDate == "") {
+            $("#ToDate").val('')
+            $.alert('Please enter project number');
+            return;
+        }
+        txtProjectStartDate = txtProjectStartDate.split('-').join('/');
+        var ProjectStartDate = new Date(txtProjectStartDate);
+
+        var txtProjectCloseDate = $("#txtProjectClosureDate").text();
+        txtProjectCloseDate = txtProjectCloseDate.split('-').join('/')
+        var ProjectCloseDate = new Date(txtProjectCloseDate);
+
+        if (strDate != '' && clsDate != '') {
+            if (!(StartDate >= ProjectStartDate && StartDate < ProjectCloseDate)) {
+                $("#ToDate").val('')
+                $.alert('Appointment date must be between the project start date and project closure date.');
+                return;
+            }
+            else if (!(EndDate >= ProjectStartDate && EndDate <= ProjectCloseDate)) {
+                $("#ToDate").val('')
+                $.alert('Appointment end date must be between the project start date and project closure date and greater than appointment start date.');
+                return;
+            }
+            var strDate1 = new Date(strDate.split('-').join('/'));
+            strDate1.setMonth(parseInt(strDate1.getMonth() + 1));
+        }
+    }
+
+    function parseDate(s) {
+        var months = {
+            january: 0, february: 1, march: 2, april: 3, may: 4, june: 5,
+            july: 6, august: 7, september: 8, october: 9, november: 10, december: 11
+        };
+        var p = s.split('-');
+        return new Date(p[2], months[p[1].toLowerCase()], p[0]);
+    }
+
+
+
+
+    $('#btnSubmit').click(function () {
+        $('.loading-bg').removeClass('dis-none');
+        var isValid = false;
+        var hadError = false;
+        var tabs = $("#formAmendment");
+        var inputs = $(":input, textarea, select"); // get all the form inputs and selects
+        var stepElements = $(tabs).find(inputs); // get inputs for current step
+        var count = stepElements.length; // check that there are inputs
+        if (count <= 0) {                // if there are not no reason to loop them
+            return true;
+        }
+        $(stepElements).each(function (idx) {
+            if (!$(this).is(':radio') && !$(this).is(':checkbox')) {
+                isValid = $(this).valid();// check that the input is valid. This can also be used on a per input basis to perform another action if the field is not valid.
+                if (!isValid) {
+                    hadError = true;
+                } // set our flag if there was an error
+            }
+        });
+
+        if(hadError)
+        {
+            $.confirm({
+                title: 'Warning!',
+                content: 'Invalid data exist',
+                type: 'orange',
+                buttons: {
+                    Ok: function () {
+                        //close
+                    },
+                },
+            });
+            $('.loading-bg').addClass('dis-none');
+            return;
+        }
+        $(this).attr("disabled", "disabled");
+        formSave()
+    });
+
+    function formSave() {
+        $('#isDraftbtn').val(false);
+        var isValid = $('#formAmendment').valid();
+        if (!isValid)
+            return false;
+        if (isValid)
+            $('#formAmendment').submit();
+    }
+
+
+    $(document).on('click', '#btnViewSummary', function () {
+        var projNo = $('#ProjectId').val() || 0;
+        if (projNo > 0) {
+            var searchData = { "ProjectId": projNo };
+            $.ajax({
+                url: "@Url.Action("_ProjectSummary", "CoreAccounts")",
+                type: "POST",
+                data: searchData,
+                contentType: "application/x-www-form-urlencoded",
+                beforeSend: function () {
+                    $(".loading-bg").removeClass('dis-none');
+                },
+                success: function (result) {
+                    $(".loading-bg").addClass('dis-none');
+                    $("#popup").html(result);
+                    $("#projectSummaryModal").modal('toggle');
+                },
+                error: function (err) {
+                    $(".loading-bg").addClass('dis-none');
+                    console.log("error : " + err);
+                }
+            });
+        }
+    });
+
+    function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode != 46 && charCode > 31
+          && (charCode < 48 || charCode > 57))
+            return false;
+
+        return true;
+    }
+
+
+    $('a[name="DocDownload"]').click(function (p) {
+        p.preventDefault();
+        var ref = $(this).attr('href');
+        var win = window.open('', '_blank');
+        win.location.href = ref;
+    });
+
+    var findtabs = $(".cust-tab");
+    $(findtabs[0]).find('textarea,input[type="text"]').each(function () {
+        var ID = $(this).attr('id');
+        var name = $(this).attr('name').split('.')[1];
+        var NotinID = ["DesignationCode", "ProjectNumber"];
+        var NotinEndName = ["DesignationautoComplete"];
+        if (!NotinID.includes(ID) && !NotinEndName.includes(name)) {
+            $(this).attr('style', 'text-transform:uppercase');
+        }
+    });
+
+    $(document).on('keyup','textarea,input[type="text"]',function(event) {
+        if( $(this).attr('id') != undefined && $(this).attr('id') != "Comments" && $(this).attr('id') != "PIJustificationRemarks") {
+            var input = event.target;
+            var start = input.selectionStart;
+            var end = input.selectionEnd;
+            input.value = input.value.toLocaleUpperCase();
+            input.setSelectionRange(start, end);
+        }
+    });
+
+
+    //MedicalNotApplicable();
+
+
+
+    $('input[name="PILetter"]').change(function (event) {
+        $('#PILetter').empty();
+        var form_data = new FormData();
+        var _size = this.files[0].size;
+        var iSize = (_size / 1024);
+        iSize = (Math.round(iSize * 100) / 100)
+        // Read selected files
+        var allowedExtensions = [".pdf", ".doc", ".docx"];
+        var totalfiles = document.getElementById('PILetter').files.length;
+        for (var index = 0; index < totalfiles; index++) {
+            var fileName = document.getElementById('PILetter').files[index].name;
+            var extension = fileName.substr((fileName.lastIndexOf('.') + 1)).toLowerCase();
+            var validFormat = allowedExtensions.includes('.' + extension);
+            if (!validFormat) {
+                $('#FailedAlert').html('PI Letter File should be allowed olny document type [pdf,doc,docx]');
+                $('#Failed').modal('toggle');
+                $(this).val('');
+                return;
+            }
+            else {
+                if (iSize > 5120) {
+                    $('#FailedAlert').html('Documents size should be allow below 5MB');
+                    $('#Failed').modal('toggle');
+                    $(this).val('');
+                    return;
+                }
+            }
+        }
+    });
+
+    function getBoolean(value) {
+        switch (value) {
+            case true:
+            case "true":
+            case "True":
+            case 1:
+            case "1":
+            case "on":
+            case "yes":
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    //function UpdateMedical(value)
+    //{
+    //    if(value == 1 || value == 2)
+    //    {
+    //        $('#Medical').removeClass('dis-none');
+    //        $('#MedicalText').addClass('dis-none');
+    //        $('#Medical').val(value);
+    //        $('#MedicalText').addClass('dis-none');
+    //        $('#MedicalAmmount').val(parseFloat($('#DesignationMedicalamount').val()))
+    //    }
+    //    else if(value == 3)
+    //    {
+    //        if(!getBoolean($('#isMedical').val()))
+    //        {
+    //            $('#Medical').addClass('dis-none');
+    //            $('#MedicalText').removeClass('dis-none');
+    //        }
+    //        $('#Medical').val(3);
+    //        $('#MedicalAmmount').val(0)
+    //    }
+    //    $('#MedicalText').text($("#Medical option:selected").text());
+    //    $('#txtMedical1').text($("#Medical option:selected").text())
+    //    $('#MedicalAmmountText').text($('#MedicalAmmount').val());
+    //    $('#ClMedical').text($('#MedicalAmmount').val());
+    //}
+
+    function getFormattedDate(date) {
+        var year = date.getFullYear();
+        var month = (1 + date.getMonth()).toString();
+        var day = date.getDate().toString();
+        return year + '-' + month + '-' + day;
+    }
+
+    $('#SourceEmailDate').change(function(){
+        var value=$(this).val();
+        $('#ApplicationReceiveDate').val(value);
+    });
+    $(document).on('click', '#btnViewStaffAllocation', function () {
+        var projNo = $('#ProjectId').val() || 0;
+        if (projNo > 0) {
+            var searchData = { "ProjectId": projNo };
+            $.ajax({
+                url: "@Url.Action("_ViewStaffAllocation", "Requirement")",
+                type: "POST",
+                data: searchData,
+                contentType: "application/x-www-form-urlencoded",
+                beforeSend: function () {
+                    $(".loading-bg").removeClass('dis-none');
+                },
+                success: function (result) {
+                    $(".loading-bg").addClass('dis-none');
+                    $("#popup").html(result);
+                    $("#myModal1").modal('toggle');
+                },
+                error: function (err) {
+                    console.log("error : " + err);
+                    $(".loading-bg").addClass('dis-none');
+                }
+            });
+        }
+    });
+
+
+    var inncPIJus = 1;
+    $("#btnAddFile").click(function () {
+        var cln = $('div#divPIJustification:first').clone().find("input").val("").end();
+        $(cln).find('a').removeClass('dis-none');
+        $(cln).find("input, select").each(function () {
+            $(this).attr("name", $(this).attr("name").replace(/\d+/, inncPIJus));
+            if ($(this).attr("id"))
+                $(this).attr("id", $(this).attr("id").replace(/\d+/, inncPIJus));
+        });
+        $(cln).insertAfter("div#divPIJustification:last");
+        inncPIJus++;
+    });
+    $(document).on('click', 'a.removeFile', function () {
+        if ($('div#divPIJustification').length == 1) {
+            $('div#divPIJustification').find("input").val("").end();
+        }
+        else{
+            $(this).closest('div').remove();
+            UpdateUploadedDoc();
+            $(document).find('input[name^="PIJustificationFile"]').each(function(idx,ele){
+                $(this).attr("name", $(this).attr("name").replace(/\d+/, idx));
+                if ($(this).attr("id"))
+                    $(this).attr("id", $(this).attr("id").replace(/\d+/, idx));
+            });
+            inncPIJus--;
+        }
+    });
+    function UpdateUploadedDoc(){
+        var form_data = new FormData();
+        $('#fileAppend').empty();
+        $(document).find('input[name^="PIJustificationFile"]').each(function(idx,ele){
+            var val=$(this).val();
+            var ID=$(this).attr('id');
+            if(val!=""){
+                var tmppath= URL.createObjectURL(document.getElementById(ID).files[0]);
+                var fileN = document.getElementById(ID).files[0].name;
+                var ele = document.createElement('a');
+                var elebr = document.createElement('br');
+                ele.href =tmppath
+                ele.text=fileN;
+                ele.name="DocDownload";
+                document.getElementById('fileAppend').appendChild(ele);
+                document.getElementById('fileAppend').appendChild(elebr);
+            }
+        });
+    }
+    $(document).on('change','input[name^="PIJustificationFile"]', function(event) {
+        var id = $(this).attr('id');
+        id = id.split('_')[1];
+        if($(this).val() != "")
+        {
+            // Read selected files
+            var allowedExtensions =[".pdf", ".doc",".docx"];
+            var fileName = document.getElementById('PIJustificationFile_'+id).files[0].name;
+            var extension = fileName.substr((fileName.lastIndexOf('.') + 1)).toLowerCase();
+            var validFormat=allowedExtensions.includes('.'+extension);
+            if(validFormat){
+                var _size = document.getElementById('PIJustificationFile_'+id).files[0].size;
+                var iSize = (_size / 1024);
+                iSize = (Math.round(iSize * 100) / 100)
+                if (iSize > 5120) {
+                    $('#FailedAlert').html('Documents size should be allow below 5MB');
+                    $('#Failed').modal('toggle');
+                    $(this).val('');
+                    return;
+                }
+                UpdateUploadedDoc();
+            }
+            else {
+                $('#FailedAlert').html('PIJustification allowed document type [pdf,doc,docx]');
+                $('#Failed').modal('toggle');
+                $(this).val('');
+                return;
+            }
+        }
+        else{
+            UpdateUploadedDoc()
+        }
+    });
+
+    $('#SourceEmailDate').change(function(){
+        var value=$(this).val();
+        $('#ApplicationReceiveDate').val(value);
+    });
+
+
+    function FormDisabled() {
+        $("#formAmendment").find("input, select, textarea").each(function () {
+            var idDisabled = $(this).is(":disabled");
+            var id = $(this).attr('id');
+            if (!idDisabled) {
+                $(this).attr("disabled", "disabled");
+            }
+        });
+    }
+    var Status = @Html.Raw(Json.Encode(Model.Status)) || "";
+    var isDisabledStatus = ["","Open"];
+    if (!isDisabledStatus.includes(Status)) {
+        FormDisabled();
+        $('#btnSubmit').remove();
+        $('#btnViewSummary').removeAttr('disabled');
+    }
+
+
+    $(document).on('click', 'a[class="rct-del-doc"]', function () {
+        if (OrderID > 0) {
+            var $this = $(this);
+            var Filepath = $this.attr("value");
+            $(".loading-bg").removeClass('dis-none');
+            $.getJSON("@Url.Action("DeleteDocument", "Requirement")", { Appid : ApplicationID, Apptype : typcategory, Doctype : "PI Request Document", File : Filepath ,Orderid : OrderID},
+            function (result) {
+                if(result == true)
+                {
+                    $this.parent('h4').remove();
+                    $.alert({
+                        title: 'Success Alert!',
+                        content: "PI Justification document deleted.",
+                        type: 'green'
+                    });
+                    $(".loading-bg").addClass('dis-none');
+                }
+                else
+                {
+                    $.alert({
+                        icon: 'ion-close-circled',
+                        title: 'Error Alert!',
+                        content: "PI Justification document not deleted.",
+                        type: 'red'
+                    });
+                    $(".loading-bg").addClass('dis-none');
+                }
+            });
+        }
+    });
+
+</script>
+<script src="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/js/bootstrap-select.min.js")"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>

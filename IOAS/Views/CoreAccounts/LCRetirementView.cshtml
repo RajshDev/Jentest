@@ -1,0 +1,990 @@
+﻿@model IOAS.Models.LCOpeningModel
+@{
+    ViewBag.Title = "LC Retirement";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+@using (Html.BeginForm("LCRetirement", "CoreAccounts", FormMethod.Post, new { @class = "", role = "form", @id = "formSI", enctype = "multipart/form-data" }))
+{
+    <div class="row hd-tt-bg">
+        <div class="col-md-12">
+            <h4><b>LC Retirement</b> </h4>
+        </div>
+    </div>
+    <div class="row">
+        <div class="white-bg ad-navbar">
+            @*<div class="col-md-3 ds-spl-bg">
+                       <div class="ds-icn">
+                           <i class="ion-ios-list-outline "></i>
+                       </div>
+                       <div class="ds-tt">
+                           <span class="required">Request Reference</span>
+                           @Html.DropDownListFor(m => m.Source, new SelectList(ViewBag.SourceList, "codevalAbbr", "CodeValDetail"), "Select any",
+                new { @class = "form-control" })
+                           @Html.ValidationMessageFor(m => m.Source)
+                           @Html.HiddenFor(m => m.NeedUpdateTransDetail)
+                           @Html.HiddenFor(m => m.LCOpeningId)
+                       </div>
+                   </div>
+                   <div class="col-md-3 ds-spl-bg">
+                       <div class="ds-icn">
+                           <i class="ion-ios-calendar-outline"></i>
+                       </div>
+                       <div class="ds-tt" id="divRefNum">
+                           <span class="required">Ref Number (WF / Tapal)</span>
+                           @Html.DropDownListFor(m => m.SourceReferenceNumber, new SelectList(ViewBag.SourceRefNumberList, "id", "name"), "Select any",
+                               new { @class = "form-control" })
+                           @Html.TextBoxFor(m => m.ReferenceNumber, new { @class = "form-control" })
+                           @Html.TextBoxFor(m => m.SourceReferenceNumber, new { @class = "form-control dis-none" })
+                           @Html.ValidationMessageFor(m => m.SourceReferenceNumber)
+                           @Html.Hidden("SourceTapalOrWorkflow", "True")
+                           @Html.HiddenFor(m => m.SubCode)
+                           @Html.Hidden("TransactionTypeCode", "LCO")
+                           @Html.TextBoxFor(m => m.IsEstablish, new { @class = "form-control dis-none", @id = "txtIsEstablish" })
+                           @Html.TextBoxFor(m => m.IsEditMode, new { @class = "form-control dis-none", @id = "txtIsEditMode" })
+                       </div>
+                       <div class="dis-none ds-tt" id="divRefEmailDate">
+                           <span class="required">Email Date</span>
+                           @Html.EditorFor(m => m.SourceEmailDate, new { @class = "form-control" })
+                           <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.SourceEmailDate)</div>
+                       </div>
+                   </div>*@
+
+
+            @*<div class="col-md-3 pull-right">
+                    <div class="reg-no custom-reg-no">
+                        <div class="form-group custom-form-group">
+                            <label>Number</label>
+                            <h4>@Html.DisplayFor(m => m.ReferenceNumber)</h4>
+                        </div>
+                    </div>
+                </div>*@
+        </div>
+        <div class="row">
+
+            <div class="col-md-12 mt30">
+                <ul class="nav nav-pills custom-nav-pills">
+                    <li class="active"><a href="javascript:void(0)"><span>01</span>LC Retirement Info</a></li>
+                    <li><a href="javascript:void(0)"><span>02</span>Commitment Details</a></li>
+                    <li><a href="javascript:void(0)"><span>03</span>Transaction Details</a></li>
+                    <li><a href="javascript:void(0)"><span>04</span>CheckList Details</a></li>
+                    <li><a href="javascript:void(0)"><span>05</span>Document Details</a></li>
+                </ul>
+
+                <div class="tab">
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="bl-lg-panel-box pb-null">
+                                    <div class="cmn-panel-box">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="vh-grid-tb mt-null mb-lg">
+                                                            <div class="vh-grid-cell grey-bg">
+                                                                <div class="grey-bg-adj">
+
+                                                                    <div class="row">
+                                                                        <div class="col-md-3">
+                                                                            <a href="javascript:void(0)" id="btnViewDetails" class="btn btn-primary">View LC Details</a>
+                                                                        </div>
+
+                                                                    </div>
+
+                                                                    <div class="row mt-20">
+                                                                        <div class="col-md-12">
+                                                                            <div class="lt-bl-bg">
+                                                                                <div class="row">
+                                                                                    <div class="col-md-12">
+                                                                                        <h4 class="text-center">Ammendment History</h4>
+                                                                                    </div>
+                                                                                </div>
+
+                                                                                <div class="m-b-sm">
+                                                                                    <div class="rec-tb-scrl">
+                                                                                        <table class="table alter-table">
+                                                                                            <thead>
+                                                                                                <tr>
+                                                                                                    <th>Amendment Date</th>
+                                                                                                    <th>Seq. No.</th>
+                                                                                                    <th>View</th>
+                                                                                                </tr>
+                                                                                            </thead>
+                                                                                            <tbody>
+                                                                                                @{
+                                                                                                    if (Model.AmendSeqNumber.Count() > 0)
+                                                                                                    {
+                                                                                                        for (int i = 0; i < Model.AmendSeqNumber.Count(); i++)
+                                                                                                        {
+                                                                                                            <tr>
+                                                                                                                <td>@Html.DisplayFor(m => m.AmendDte[i], new { @class = "form-control", @id = "txtPreviousReceiptdate", @readonly = true })</td>
+                                                                                                                <td>@Html.DisplayFor(m => m.AmendSeqNumber[i], new { @class = "form-control", @id = "txtPreviousReceiptnumber", @readonly = true })</td>
+                                                                                                                @Html.HiddenFor(m => m.AmendId[i], new { @id = "txtAmmendId" })
+                                                                                                                <td><a href="javascript:void(0)" id="btnViewAmends">Click Here</a></td>
+                                                                                                            </tr>
+                                                                                                        }
+                                                                                                    }
+                                                                                                }
+                                                                                            </tbody>
+                                                                                        </table>
+                                                                                    </div>
+                                                                                </div>
+
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="reg-no custom-reg-no" style="margin-bottom: 0px;padding: 5px 15px;">
+                                                            <div class="row">
+                                                                <div class="col-md-12">
+                                                                    <div class="form-group custom-form-group">
+                                                                        <label>Reference Number</label>
+                                                                        <h4>@Html.DisplayFor(m => m.ReferenceNumber)</h4>
+                                                                        @Html.HiddenFor(m => m.ReferenceNumber)
+                                                                        @Html.HiddenFor(m => m.NeedUpdateTransDetail)
+                                                                        @Html.HiddenFor(m => m.LCRetirementId)
+                                                                        @Html.HiddenFor(m => m.LCOpeningId)
+                                                                        @Html.HiddenFor(m => m.SubCode)
+                                                                        @Html.Hidden("TransactionTypeCode", "LCR")
+                                                                    </div>
+                                                                </div>
+                                                                @*<div class="col-md-3">
+                                                                        <div class="form-group custom-form-group">
+                                                                            <label>Seq.No.</label>
+                                                                            <h4>@Html.DisplayFor(m => m.LCAmmendSeqNumber)</h4>
+                                                                            @Html.HiddenFor(m => m.LCAmmendSeqNumber)
+                                                                            @Html.HiddenFor(m => m.DraftLCNumber)
+                                                                        </div>
+                                                                    </div>*@
+
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4 mt-40">
+                                                        <div class="vh-grid-tb mt-null mb-lg">
+                                                            <div class="vh-grid-cell grey-bg">
+                                                                <div class="grey-bg-adj">
+
+                                                                    <div class="row">
+                                                                        <div class="col-md-12">
+                                                                            <div class="form-group custom-form-group">
+                                                                                <label class="required">LC Number</label>
+                                                                                @Html.TextBoxFor(m => m.DraftLCNumber, new { @class = "form-control", @id = "txtLCNumber", @readonly = true })
+                                                                                @Html.ValidationMessageFor(m => m.DraftLCNumber)
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div class="row">
+                                                                        <div class="col-md-12">
+                                                                            <div class="form-group custom-form-group">
+                                                                                <label class="required">LC Opening Date</label>
+                                                                                @Html.TextBoxFor(m => m.LCCrtdDate, new { @class = "form-control", @id = "txtLCOpenDate", @readonly = true, @disabled = true })
+                                                                                @Html.ValidationMessageFor(m => m.LCCrtdDate)
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        <div class="col-md-12">
+                                                                            <div class="form-group custom-form-group">
+                                                                                <label class="required">Last Amendment Date</label>
+                                                                                @Html.TextBoxFor(m => m.lastAmendDate, new { @class = "form-control", @id = "txtlastammenddate", @readonly = true })
+                                                                                @Html.ValidationMessageFor(m => m.lastAmendDate)
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+
+                                                </div>
+                                                <div class="row">
+
+                                                    <div class="col-md-12">
+                                                        <div class="vh-grid-tb mt-null mb-lg">
+                                                            <div class="vh-grid-cell grey-bg">
+                                                                <div class="grey-bg-adj">
+                                                                    <div class="row">
+                                                                        <div class="col-md-2">
+                                                                            <div class="form-group custom-form-group">
+                                                                                <label class="required">LC Value in Foreign Currency</label>
+                                                                                @Html.TextBoxFor(m => m.LCRetirementAmtinForgnCurrency, new { @class = "form-control", @id = "txtretireamtinforncurr", @required = "required", @onchange = "calculatenetamount()" })
+                                                                                @Html.ValidationMessageFor(m => m.LCRetirementAmtinForgnCurrency)
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-3">
+                                                                            <div class="form-group custom-form-group">
+                                                                                <label class="required">Currency</label>
+                                                                                @Html.DropDownListFor(m => m.Currency, new SelectList(ViewBag.Currency, "id", "name"), "Select any", new { @class = "form-control mt20", @id = "txtRemittanceCurrency", @required = "required" })
+                                                                                @Html.ValidationMessageFor(m => m.Currency)
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-2">
+                                                                            <div class="form-group custom-form-group">
+                                                                                <label class="required">Exchange Rate Equivalant to INR</label>
+                                                                                @Html.TextBoxFor(m => m.FXRate, new { @class = "form-control", @id = "txtExchangeRate", @required = "required", @onchange = "calculatenetamount()" })
+                                                                                @Html.ValidationMessageFor(m => m.FXRate)
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-2">
+                                                                            <div class="form-group custom-form-group">
+                                                                                <label class="required">Exchange Rate as on Date</label>
+                                                                                @Html.TextBoxFor(m => m.FXRateAsOnDate, new { @class = "form-control", @id = "txtFXRate", @required = "required" })
+                                                                                @Html.ValidationMessageFor(m => m.FXRateAsOnDate)
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-3">
+                                                                            <div class="form-group custom-form-group">
+                                                                                <label class="required">INR Value</label>
+                                                                                @Html.TextBoxFor(m => m.LCRetireEquivalentINRValue, new { @class = "form-control mt20", @id = "txtINRValue", @required = "required", @onchange = "calculatenetamount()" })
+                                                                                @Html.ValidationMessageFor(m => m.LCRetireEquivalentINRValue)
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <div class="lt-bl-bg">
+                                                            <div class="row">
+                                                                <div class="col-md-12">
+                                                                    <h4>Deductions</h4>
+                                                                </div>
+                                                            </div>
+                                                            <div class="text-right mb20">
+                                                                <a href="javascript:void(0)" id="btnAdddeducts" class="btn btn-primary">Add New</a>
+                                                            </div>
+
+                                                            <div class="row  mb-md">
+                                                                <div class="col-md-12">
+                                                                    <table class="table table-bordered">
+                                                                        <thead>
+                                                                            <tr>
+                                                                                <th style="width:650px;">Reason For Deduction</th>
+                                                                                <th style="width:250px;">Amount</th>
+                                                                                <th style="width:50px;"></th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody id="tbodyclause">
+                                                                            @if (Model.RetireDeducts != null)
+
+                                                                            {
+                                                                                var count = 0;
+                                                                                foreach (var item in Model.RetireDeducts)
+                                                                                {
+                                                                                    //var category = "PCFDetails[" + count + "].FacultyCategory";
+                                                                                    var id = "RetireDeducts[" + count + "].RetireDeductsId";
+                                                                                    var reason = "RetireDeducts[" + count + "].ReasonForDeduction";
+                                                                                    var amt = "RetireDeducts[" + count + "].LCRetireDeductsAmount";
+                                                                                    count++;
+                                                                                    <tr>
+
+                                                                                        <td class="tdLCCondtns">
+                                                                                            @Html.TextBox(@reason, item.ReasonForDeduction, new { @class = "form-control" })
+                                                                                            @Html.TextBox(@id, item.RetireDeductsId, new { @class = "form-control dis-none" })
+                                                                                            @Html.ValidationMessage(@reason)
+                                                                                            @Html.Hidden("RetireDeducts.Index", @count)
+                                                                                        </td>
+
+                                                                                        <td>
+                                                                                            @Html.TextBox(@amt, item.LCRetireDeductsAmount, new { @class = "form-control", @onchange = "calculateamount()", @onkeypress = "calculatenetamount()" })
+                                                                                            @Html.ValidationMessage(@amt)
+                                                                                        </td>
+
+                                                                                        <td>
+                                                                                            <a href="javascript:void(0)" class="btn-circle dis-none removeDeducts"><i class="ion-trash-a"></i></a>
+                                                                                        </td>
+                                                                                    </tr>
+
+                                                                                }
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <tr>
+
+                                                                                    <td class="tdLCCondtl">
+                                                                                        @Html.TextBox("RetireDeducts[0].ReasonForDeduction", "", new { @class = "form-control" })
+                                                                                        @Html.TextBox("RetireDeducts[0].RetireDeductsId", "", new { @class = "form-control dis-none" })
+                                                                                        @Html.Hidden("RetireDeducts.Index", 0)
+                                                                                        @Html.ValidationMessage("RetireDeducts[0].ReasonForDeduction")
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        @Html.TextBox("RetireDeducts[0].LCRetireDeductsAmount", "", new { @class = "form-control", @onchange = "calculateamount()" })
+                                                                                        @Html.ValidationMessage("RetireDeducts[0].LCRetireDeductsAmount")
+                                                                                    </td>
+
+                                                                                    <td>
+                                                                                        <a href="javascript:void(0)" class="btn-circle dis-none removeDeducts"><i class="ion-trash-a"></i></a>
+                                                                                    </td>
+                                                                                </tr>
+                                                                            }
+                                                                        </tbody>
+                                                                    </table>
+
+                                                                </div>
+
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-3 pull-right">
+                                                        <div class="form-group custom-form-group">
+                                                            <label class="required">Total Deduction Value</label>
+                                                            @Html.TextBoxFor(m => m.LCRetireTotalDeduction, new { @class = "form-control", @id = "txtRetireTotalDeduction", @required = "required" })
+                                                            @Html.ValidationMessageFor(m => m.LCRetireTotalDeduction)
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-3 pull-right">
+                                                        <div class="form-group custom-form-group">
+                                                            <label class="required">Net Total Value</label>
+                                                            @Html.TextBoxFor(m => m.LCRetireNetTotalAmt, new { @class = "form-control", @id = "txtRetireNetTotalAmt", @required = "required", @onkeypress = "return ValidateDecimalOnly(event)" })
+                                                            @Html.ValidationMessageFor(m => m.LCRetireNetTotalAmt)
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab">
+                    @Html.Partial("_CommitmentDetails", Model.CommitmentDetail)
+                </div>
+
+                <div class="tab">
+                    @Html.Partial("_TransactionDetails", Model)
+                </div>
+                <div class="tab">
+                    <div class="col-md-12 col-sm-12 m-b-sm">
+                        <div class="">
+                            @Html.Partial("_CheckListDetail", Model.CheckListDetail)
+                        </div>
+                        <div>
+                            @Html.HiddenFor(m => m.CheckListVerified_By)
+                            @Html.HiddenFor(m => m.CheckListVerifierName)
+                            <div class="col-md-3 col-md-offset-9">
+                                <div class="form-group custom-form-group">
+                                    <label>Verified by</label>
+                                    <h4 id="Verified_ByName">@Html.DisplayFor(m => m.CheckListVerifierName)</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab">
+                    <div class="col-md-12 col-sm-12 m-b-sm">
+                        <div class="">
+                            @Html.Partial("_DocumentDetail", Model.DocumentDetail)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="custom-nav-btn text-right">
+                    <button type="button" class="btn btn-default pull-left" id="prevBtn" onclick="nextPrev(-1)">Previous</button>
+                    <button type="button" class="btn btn-primary pull-right" id="nextBtn" onclick="nextPrev(1)">Next</button>
+                    <button type="button" class="btn btn-default pull-right" onclick="window.location.href='@Url.Action("LCRetirementList", "CoreAccounts")';">Close</button>
+                </div>
+
+            </div>
+
+
+        </div>
+    </div>
+                                                                                                    }
+<div id="ValidationModal" class="modal fade modal-warning" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-warning"></i>
+                <h3 class="modal-title">Warning</h3>
+            </div>
+            <div class="modal-body">
+
+                <p id="MsgValidation"></p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+@Html.AntiForgeryToken()
+<div id="popup"></div>
+<script>
+    var dis = '@ViewBag.disabled';
+    if (dis != "") {
+        $('.form-control').prop('disabled', true);
+        $('.ion-trash-a').removeClass();
+        $('#btnAdddeducts').hide();
+        $('#btnAddPayment').hide();
+        $("input[type='radio']").prop('disabled', true);
+        $('#selectCommitment').hide();
+        $('#btnReset,#btnbookcommitment,#btnbookcommitment,#btnCollapseSrchCommit').hide();
+        $('input[type="checkbox"]').prop('disabled', true);
+        $('input[type="file"],#btnAddAttachment').hide();
+        $('#ProcessStatusContainer .form-control').prop('disabled', false);
+        $('#btnAddExpense').hide();
+        $('.btn-circle').removeClass();
+        $('.ion-close-round').removeClass();
+    }
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    // $('#TravelToDate, #TravelFromDate').datepicker({ minDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
+    $('input[name="RequestDate"]').datepicker({ dateFormat: 'dd-MM-yy', changeYear: true });
+    $('#SourceEmailDate, #srchFromDate, #srchToDate, #txtAmmendmentDate, #txtFXRate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
+    $('#srchToDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true }).datepicker("setDate", "0");
+    var defaultFromDate = moment(new Date()).add(-10, 'days').toDate();
+    $('#srchFromDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true }).datepicker("setDate", defaultFromDate);
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+            CalculateDeductionTotal();
+            GetTransactionDetails();
+        }
+        $('.selectpicker').selectpicker({
+            liveSearch: true
+        });
+        var selSource = $('#Source').val();
+        $("#divRefNum, #divRefEmailDate").addClass('dis-none');
+        if (selSource == '1') {
+            $("#divRefNum").removeClass('dis-none');
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACWorkflowRefNumber", "Proposal")");
+        } else if (selSource == '3') {
+            $("#divRefNum").removeClass('dis-none');
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACTapalRefNumber", "Proposal")");
+        }
+        else if (selSource == '2') {
+            $('#divRefEmailDate').removeClass('dis-none');
+        } else {
+            $("#divRefNum").removeClass('dis-none');
+        }
+
+
+        var lcrdeducts = @Html.Raw(Json.Encode(Model.RetireDeducts));
+        $.each(lcrdeducts, function (i, result) {
+            if (i == 0) {
+                var trEle = $('#tbodyclause tr:first');
+                $('#tbodyclause tr').not(':first').remove();
+                $(trEle).find("input[name='RetireDeducts.Index']").val(i);
+
+                trEle.find('input[name$=".RetireDeductsId"]').val(result.RetireDeductsId);
+                trEle.find('input[name$=".ReasonForDeduction"]').val(result.ReasonForDeduction);
+                trEle.find('input[name$=".LCRetireDeductsAmount"]').val(result.LCRetireDeductsAmount);
+
+            } else {
+                var trEleNew = $('#tbodyclause tr:first').clone();
+                $(trEleNew).find('a.dis-none').removeClass('dis-none');
+                $(trEleNew).find("input[name='RetireDeducts.Index']").val(i);
+                $(trEleNew).find("input, select").each(function () {
+                    $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                    $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                    //$(this).attr("code", $(this).attr("id").replace(/\d+/, i));
+                });
+                $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                    $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                });
+
+                trEleNew.find('input[name$=".RetireDeductsId"]').val(result.RetireDeductsId);
+                trEleNew.find('input[name$=".ReasonForDeduction"]').val(result.ReasonForDeduction);
+                trEleNew.find('input[name$=".LCRetireDeductsAmount"]').val(result.LCRetireDeductsAmount);
+
+                $('#tbodyclause').append(trEleNew);
+            }
+        });
+        CalculatePaymentValue();
+        CalculateDeductionTotal();
+        $("select[name='Currency']").val(@Model.Currency);
+    });
+
+
+    //$('#fromdate, #todate').datepicker({ dateFormat: 'dd-MM-yy', changeYear: true, yearRange: '-10:+30' });
+    $('#Source').change(function () {
+        var selSource = $(this).val();
+        //var select = $("#SourceReferenceNumber");
+        //select.empty();
+        $("#SourceReferenceNumber,#ReferenceNumber").val('');
+        $("#divRefNum, #divRefEmailDate").addClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('False');
+        if (selSource == '1') {
+            @*$.getJSON("@Url.Action("GetWorkflowRefNumber","Proposal")",
+             function (locationdata) {
+                 fillMasterDropDown(select,locationdata);
+             });*@
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACWorkflowRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        } else if (selSource == '3') {
+            @*$.getJSON("@Url.Action("GetTapalRefNumber","Proposal")",
+            function (locationdata) {
+                fillMasterDropDown(select,locationdata);
+            });*@
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACTapalRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        }
+        else if (selSource == '2') {
+            $('#divRefEmailDate').removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('False');
+        } else {
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        }
+        $("input[name='ProjectNumber']").each(function () {
+            projectChange($(this), 'U');
+        });
+
+    });
+    $('#btnViewDetails').on('click', function () {
+        var lcopeningid = $('input[name="LCOpeningId"]').val();
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("_ViewLCDetails", "CoreAccounts")',
+            data: {
+                LCOpeningid: lcopeningid
+            },
+            contentType: "application/x-www-form-urlencoded",
+            success: function (data) {
+                $("#popup").html(data);
+                $('#TABCModal').modal('toggle');
+            }
+        });
+
+    });
+    $('#btnViewAmmendDtls').on('click', function () {
+        var lcopeningid = $('input[name="LCOpeningId"]').val();
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("_ViewAmendDetails", "CoreAccounts")',
+            data: {
+                LCOpeningid: lcopeningid
+            },
+            contentType: "application/x-www-form-urlencoded",
+            success: function (data) {
+                $("#popup").html(data);
+                $('#TABCModal').modal('toggle');
+            }
+        });
+
+    });
+    function formSave(){
+        var isValid = $('#formSI').valid();
+        if (!isValid)
+            return false;
+        var doctypevalues = [];
+        $('select[name$=".DocumentType"]').each(function (idx, val) { doctypevalues.push($(val).val()); });
+        doctypevalues.sort();
+        // duplicate check
+        for (var k = 1; k < doctypevalues.length; ++k) {
+            if (doctypevalues[k] == doctypevalues[k - 1]) {
+                $('#alert').html("Selected attachment type already exist. Please select a different attachment type.");
+                $('#Validation').modal('toggle');
+                return false;
+            }
+            isValid = true;
+        }
+
+        if (isValid)
+            $('#formSI').submit();
+    }
+
+
+    function parseDate(s) {
+        var months = {
+            january: 0, february: 1, march: 2, april: 3, may: 4, june: 5,
+            july: 6, august: 7, september: 8, october: 9, november: 10, december: 11
+        };
+        var p = s.split('-');
+        return new Date(p[2], months[p[1].toLowerCase()], p[0]);
+    }
+
+    $(document).on('change', 'input[name$=".Amount"]', function () {
+        calculateamount();
+    });
+
+    $('#txtdespatchMode').change(function () {
+
+        var dsptchmode = $(this).val();
+        $.getJSON("@Url.Action("GetLCDocumentInfoDetails", "CoreAccounts")", { DespatchMode: dsptchmode },
+                    function (locationdata) {
+                        $.each(locationdata, function (index, itemData) {
+                            $('#docinfoContent').html(locationdata.Condition);
+                        });
+
+                    });
+    });
+    $('#txtretireamtinforncurr').change(function () {
+        var amtinforgncurr = parseFloat($(this).val()) || 0;
+        var fxrate = parseFloat($('#txtExchangeRate').val()) || 0;
+        var inrvalue = (amtinforgncurr * fxrate).toFixed(2);
+        $('#txtINRValue').val(inrvalue);
+        calculatenetamount();
+    });
+    $('#txtExchangeRate').change(function () {
+        var fxrate  = parseFloat($(this).val()) || 0;
+        var amtinforgncurr = parseFloat($('#txtretireamtinforncurr').val()) || 0;
+        var inrvalue = (amtinforgncurr * fxrate).toFixed(2);
+        $('#txtINRValue').val(inrvalue);
+        calculatenetamount();
+    });
+    $(document).on('change', 'input[name$=".LCRetireDeductsAmount"]', function () {
+        calculatenetamount()
+    });
+   function calculateamount() {
+        //var deductamt = $(this).val();
+        var totaldeductamt = 0;
+        $('#tbodyclause tr').each(function (idx, val) {
+            var amount = parseFloat($(this).closest('tr').find('input[name$=".LCRetireDeductsAmount"]').val()) || 0;
+            if (!isNaN(amount)) {
+                totaldeductamt += amount;
+            }
+        });
+        $('#txtRetireTotalDeduction').val(totaldeductamt);
+    };
+   function calculatenetamount() {
+       //var deductamt = $(this).val();
+       var totaldeductamt = parseFloat($('#txtRetireTotalDeduction').val()) || 0;
+       var totalinramt = parseFloat($('#txtINRValue').val()) || 0;
+       var totalnetamt = (totalinramt - totaldeductamt).toFixed(2);
+       $('#txtRetireNetTotalAmt').val(totalnetamt);
+   };
+    $('#btnAddCondition').click(function () {
+        var cln = $('#tbodyCondtns tr:first').clone().find("select,input,textarea").val("").end();
+        // $(cln).find('.tdAdvAmt, .tdTaxAmt, .tdNetAmt, .tdTaxCode').text('');
+        $(cln).find('a.dis-none').removeClass('dis-none');
+        $(cln).find('.ion-trash-a').show();
+        $(cln).find('a').addClass('removeCondtns');
+        $(cln).find('input[name$=".LCOpeningClause"]').removeAttr('readonly');
+        $(cln).find('input[name$=".LCOpeningConditions"]').removeAttr('readonly');
+        var index = $('#tbodyCondtns tr:last').find("input[name='Conditions.Index']").val();
+        index = parseInt(index) + 1;
+        $(cln).find("input[name='Conditions.Index']").val(index);
+        $(cln).find("input, select").each(function () {
+            $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+            // $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+            // $(this).attr("code", $(this).attr("id").replace(/\d+/, index));
+        });
+        $(cln).find("span[data-valmsg-for]").each(function () {
+            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+        });
+        $(cln).find('.hasDatepicker').attr("id", "").removeClass('hasDatepicker').removeData('datepicker').unbind().datepicker({
+            maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true
+        })
+        $('#tbodyCondtns').append(cln);
+
+    });
+    $(document).on('click', 'a.removeCondtns', function () {
+        $(this).closest('tr').remove();
+
+    });
+
+    $('#btnAdddeducts').click(function () {
+        var cln = $('#tbodyclause tr:first').clone().find("select,input,textarea").val("").end();
+        // $(cln).find('.tdAdvAmt, .tdTaxAmt, .tdNetAmt, .tdTaxCode').text('');
+        $(cln).find('a.dis-none').removeClass('dis-none');
+
+        var index = $('#tbodyclause tr:last').find("input[name='RetireDeducts.Index']").val();
+        index = parseInt(index) + 1;
+        $(cln).find("input[name='RetireDeducts.Index']").val(index);
+        $(cln).find("input, select").each(function () {
+            $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+            // $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+            // $(this).attr("code", $(this).attr("id").replace(/\d+/, index));
+        });
+        $(cln).find("span[data-valmsg-for]").each(function () {
+            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+        });
+        $(cln).find('.hasDatepicker').attr("id", "").removeClass('hasDatepicker').removeData('datepicker').unbind().datepicker({
+            maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true
+        })
+        $('#tbodyclause').append(cln);
+
+    });
+    $(document).on('click', 'a.removeDeducts', function () {
+        $(this).closest('tr').remove();
+
+    });
+
+    function AddNewExpense(){
+        //var stateCode = $('#lblStateCode').html();
+        //var BillType = $('#BillType').val();
+        $.ajax({
+            type: "GET",
+            url: "@Url.Action("GetAddNewExpenseDetails", "CoreAccounts")",
+            data: { "typeCode": "LCR","tSubCode" : "1"},
+            traditional: true,
+            dataType: "json",
+            success: function (result) {
+                $.each(result.ExpenseDetail, function (i, item) {
+                    var cln = $('#tbodyExpenseList tr:first').clone().find("select,input").val("").end();
+                    $(cln).find('a.dis-none').removeClass('dis-none');
+                    var index = $('#tbodyExpenseList tr:last').find("input[name='ExpenseDetail.Index']").val();
+                    index = parseInt(index) + 1;
+                    $(cln).find("input[name='ExpenseDetail.Index']").val(index);
+                    $(cln).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                    $(cln).find('#lblTransType').text(item.TransactionType);
+                    $(cln).find('input[name$=".IsJV"]').val(item.IsJV);
+                    $(cln).find("input, select").each(function () {
+                        $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+                        $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+                    });
+                    $(cln).find("span[data-valmsg-for]").each(function () {
+                        $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+                    });
+
+                    var selectGroup = $(cln).find("select[name$='.AccountGroupId']");
+                    selectGroup.empty();
+                    $.each(item.AccountGroupList, function (index, itemData) {
+                        selectGroup.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+
+                    var selectHead = $(cln).find("select[name$='.AccountHeadId']");
+                    selectHead.empty();
+                    $.each(item.AccountHeadList, function (index, itemData) {
+                        selectHead.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+                    $('#tbodyExpenseList').append(cln);
+                });
+            },
+            error: function (err) {
+                console.log("error : " + err);
+            }
+        });
+    }
+    function GetTransactionDetails() {
+        var interstate_f = false;
+        //var typecode = $('#transtypecode').val();
+        EmptyExpenseDeductionDetails();
+        $.ajax({
+            type: "GET",
+            url: "@Url.Action("GetTransactionDetails", "CoreAccounts")",
+            data: { "typeCode": "LCR", "tSubCode" : "1", },
+            traditional: true,
+            dataType: "json",
+            success: function (result) {
+                $.each(result.ExpenseDetail, function (i, item) {
+                    //var amt = 0;
+                    //$("#tbodyCommitmentSelList [name$='.HeadName'][value='"+item.BudgetHeadName+"']").each(function(){
+                    //    var elePayment = $(this).closest('td').find("input[name$='.PaymentAmount']");
+                    //    var parseVal = parseFloat($(elePayment).val());
+                    //    if (!isNaN(parseVal))
+                    //        amt = amt + parseVal;
+                    //});
+                    if (i == 0) {
+                        var trEle = $('#tbodyExpenseList tr:first');
+                        $(trEle).find('input[name$=".Amount"]').val('');
+                        $(trEle).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                        $(trEle).find('#lblTransType').text(item.TransactionType);
+                        $(trEle).find('input[name$=".IsJV"]').val(item.IsJV);
+                        $(trEle).find("input[name='ExpenseDetail.Index']").val(i);
+
+                        var selectGroup = $(trEle).find('select[name$=".AccountGroupId"]');
+                        selectGroup.empty();
+                        $.each(item.AccountGroupList, function (index, itemData) {
+                            selectGroup.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name,
+                            }));
+                        });
+
+                        var selectHead = $(trEle).find('select[name$=".AccountHeadId"]');
+                        selectHead.empty();
+                        $.each(item.AccountHeadList, function (index, itemData) {
+                            selectHead.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name,
+                            }));
+                        });
+                    } else {
+                        var trEleNew = $('#tbodyExpenseList tr:first').clone().find('input').val('').end();
+                        $(trEleNew).find('input[name$=".Amount"]').val('');
+                        $(trEleNew).find("input[name='ExpenseDetail.Index']").val(i);
+                        $(trEleNew).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                        $(trEleNew).find('#lblTransType').text(item.TransactionType);
+                        $(trEleNew).find('input[name$=".IsJV"]').val(item.IsJV);
+                        $(trEleNew).find("input,Select").each(function () {
+                            $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                            $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                        });
+                        $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                        });
+
+                        var selectGroup = $(trEleNew).find('select[name$=".AccountGroupId"]');
+                        selectGroup.empty();
+                        $.each(item.AccountGroupList, function (index, itemData) {
+                            selectGroup.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name,
+                            }));
+                        });
+
+                        var selectHead = $(trEleNew).find('select[name$=".AccountHeadId"]');
+                        selectHead.empty();
+                        $.each(item.AccountHeadList, function (index, itemData) {
+                            selectHead.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name,
+                            }));
+                        });
+                        $('#tbodyExpenseList').append(trEleNew);
+                    }
+                });
+                $.each(result.DeductionDetail, function (i, item) {
+                    if (i == 0) {
+                        var trEle = $('#tbodyDeductionList tr:first');
+                        $(trEle).find('input').val('');
+                        var amtEle = $(trEle).find('input[name$=".Amount"]');
+                        amtEle.removeClass('required');
+                        $(trEle).find('input[name$=".AccountGroupId"]').val(item.AccountGroupId);
+                        $(trEle).find('input[name$=".DeductionHeadId"]').val(item.DeductionHeadId);
+                        $(trEle).find('input[name$=".DeductionHead"]').val(item.DeductionHead);
+                        $(trEle).find('input[name$=".AccountGroup"]').val(item.AccountGroup);
+                        $(trEle).find('td:nth-child(1)').html(item.AccountGroup);
+                        $(trEle).find('td:nth-child(2)').html(item.DeductionHead);
+                    } else {
+                        var trEleNew = $('#tbodyDeductionList tr:first').clone().find('input').val('').end();
+                        $(trEleNew).find("input").each(function () {
+                            $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                            $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                        });
+                        $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                        });
+                        var amtEle = $(trEleNew).find('input[name$=".Amount"]');
+
+                        amtEle.removeClass('required');
+                        $(trEleNew).find('input[name$=".AccountGroupId"]').val(item.AccountGroupId);
+                        $(trEleNew).find('input[name$=".DeductionHeadId"]').val(item.DeductionHeadId);
+                        $(trEleNew).find('input[name$=".DeductionHead"]').val(item.DeductionHead);
+                        $(trEleNew).find('input[name$=".AccountGroup"]').val(item.AccountGroup);
+                        $(trEleNew).find('td:nth-child(1)').html(item.AccountGroup);
+                        $(trEleNew).find('td:nth-child(2)').html(item.DeductionHead);
+                        $('#tbodyDeductionList').append(trEleNew);
+                    }
+                });
+                var Name =  $("input[name='PIName']").val();
+                // $("#CreditorAmount").val(StipendAmt);
+                $('#lblVendorName').html(Name);
+                $('#NeedUpdateTransDetail').val('false');
+                CalculateDeductionTotal();
+            },
+            error: function (err) {
+                console.log("error : " + err);
+            }
+        });
+        //}
+    }
+
+    $('#CreditorAmount, #ExpenseAmount, #CreditorAmount, input[name $=".PaymentAmount"], input[name $=".Quantity"], input[name $=".TotalAmount"], input[name $=".Amount"], #ttlCr, #ttlDr').on("copy cut paste drop", function () {
+        return false;
+    });
+
+    function fillMasterDropDown(ele, data, fillDafaultText, valueAsName) {
+        if (fillDafaultText !== undefined) {
+            ele.append($('<option/>', {
+                value: '',
+                text: 'Select any',
+            }));
+        }
+        if (valueAsName !== undefined) {
+            $.each(data, function (index, itemData) {
+                ele.append($('<option/>', {
+                    value: itemData.name,
+                    text: itemData.name,
+                }));
+            });
+        } else {
+            $.each(data, function (index, itemData) {
+                ele.append($('<option/>', {
+                    value: itemData.id,
+                    text: itemData.name,
+                }));
+            });
+        }
+    }
+
+    /* Tab Sections Start*/
+    var currentTab = 0; // Current tab is set to be the first tab (0)
+    showTab(currentTab); // Display the crurrent tab
+    function showTab(n) {
+        // This function will display the specified tab of the form...
+        var x = document.getElementsByClassName("tab");
+        x[n].style.display = "block";
+        $(".custom-nav-pills li:eq(" + n + ")").addClass("active");
+        //... and fix the Previous/Next buttons:
+        if (n == 0) {
+            document.getElementById("prevBtn").style.display = "none";
+        } else {
+            document.getElementById("prevBtn").style.display = "inline";
+        }
+        if (n == (x.length - 1)) {
+            document.getElementById("nextBtn").innerHTML = "Submit";
+            $('#nextBtn').hide();
+        } else {
+            document.getElementById("nextBtn").innerHTML = "Next";
+            $('#nextBtn').show();
+        }
+        //... and run a function that will display the correct step indicator:
+        //fixStepIndicator(n)
+    }
+
+    function nextPrev(n) {
+        // This function will figure out which tab to display
+        var x = document.getElementsByClassName("tab");
+        // Exit the function if any field in the current tab is invalid:
+       // if (n > 0 && !validateForm(n)) return false;
+        if (currentTab + n < x.length) {
+            // Hide the current tab:
+            x[currentTab].style.display = "none";
+            $(".custom-nav-pills li:eq(" + currentTab + ")").removeClass("active");
+        } else {
+            // ... the form gets submitted:
+            formSave();
+            return false;
+        }
+        // Increase or decrease the current tab by 1:
+        currentTab = currentTab + n;
+
+        // Otherwise, display the correct tab:
+        showTab(currentTab);
+    }
+    
+</script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>

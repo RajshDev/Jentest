@@ -1,0 +1,1089 @@
+﻿@model IOAS.Models.AgencyModel
+@{
+    ViewBag.Title = "Agency";
+    ViewBag.Subtitle = "Agency";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+@Styles.Render("~/bundles/JSGridCss")
+@Scripts.Render("~/bundles/JSGrid")
+<script src="@Url.Content("~/Scripts/Account/CreateAgency.js")"></script>
+@*<style>
+    .field-validation-valid
+{
+    display: none;
+}
+.validation-summary-valid
+{
+    display: none;
+}
+
+</style>*@
+<div class="row hd-tt-bg" id="addnewpage">
+    <div class="col-md-4">
+
+        <h3>Agency</h3>
+
+    </div>
+    <div class="col-md-8 flt-nav-links">
+        <a href="#" id="btnaddnew"> <i class="ion-plus"></i>Add New</a>
+        <a href="Javascript:void(0)" id="btnFilterUser" class="pull-right"> <i class="ion-android-funnel"></i>Filters</a>
+    </div>
+</div>
+<div id="popFilterUser" class="filter-popup">
+    <div class="">
+        <div class="filter-content">
+            <div class="white-bg">
+                <div class="form-group custom-form-group">
+                    <h3>Filter by</h3>
+                </div>
+                <div class="form-group custom-form-group">
+                    <label>Agency Name</label><br>
+                    @Html.TextBoxFor(M => M.SearchAgencyName, new { @class = "form-control", @id = "txtsrchname" })
+                </div>
+                <div class="form-group custom-form-group">
+                    <label>Agency Code</label><br>
+                    @Html.TextBoxFor(M=>M.SearchAgencyCode,new {@id="txtSeaAgencyCode",@class="form-control" })
+                </div>
+                <div class="form-group custom-form-group">
+                    <label>Agency Country</label><br>
+                    @Html.DropDownListFor(M => M.SearchAgencyCountry, new SelectList(ViewBag.country, "CountryID", "CountryName"), "Select Country", new { @id = "ddlSeaCountry", @class = "form-control" })
+                </div>
+                <div class="form-group custom-form-group mt30 text-center">
+                    <button id="btnSrchUser" type="button" class="btn btn-primary mr10">Search</button>
+                    <button id="btnResetSrchUser" type="button" class="btn btn-default">Reset</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <a href="javascript:void(0)" name="btnCloseUser" class="close-btn"><i class="ion-android-cancel"></i></a>
+
+</div>
+    @using (Html.BeginForm("Createagency", "Account", FormMethod.Post, new { @class = "", role = "form", @id = "formCP", enctype = "multipart/form-data" }))
+    {
+        <div class="col-md-12">
+            <div class="page-wrapper" id="categoryagy" style="display:none">
+                <div class="white-bg">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group custom-form-group">
+                                    <label class="required">Project Type</label>
+                                    @Html.DropDownListFor(M => M.ProjectTypeId, new SelectList(ViewBag.projecttype, "codevalAbbr", "CodeValDetail"), "Select Project Type", new { @id = "txtProjectType", @class="form-control",@required="required",@onchange="ProjectChange()" })
+                                    <div>@Html.ValidationMessageFor(M=>M.ProjectTypeId)</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4" style="display:none" id="countryView">
+                                <div class="form-group custom-form-group">
+                                    <label class="required">Category</label>
+                                    @Html.DropDownListFor(M => M.AgencycountryCategoryId, new SelectList(ViewBag.agycounty, "id", "name"), "Select Category", new { @id = "ddlcountrycate", @class = "form-control", @required = "required" ,@onchange= "Dayanamiccountrytax()" })
+                                    <div> @Html.ValidationMessageFor(M => M.AgencycountryCategoryId)</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4" style="display:none" id="indcategory">
+                                <div class="form-group custom-form-group">
+                                    <label class="required" id="lblagycate">SEZ / NON SEZ</label>
+                                    @Html.DropDownListFor(M => M.IndianagencyCategoryId, new SelectList(ViewBag.indcategory, "id", "name"), "Select", new { @id = "ProjAndCountry", @class = "form-control",@onchange = "Dayanamiccountrytax()" })
+                                    <div><span> @Html.ValidationMessageFor(M => M.IndianagencyCategoryId)</span></div>
+                                </div>
+                            </div>
+                            
+                        </div>
+                    <div class="row">
+                        <div class="col-md-4" style="display:none" id="nonsezcategory">
+                            <div class="form-group custom-form-group">
+                                <label class="required" id="lblnon">Register / Un Register</label>
+                                @Html.DropDownListFor(M => M.NonSezCategoryId, new SelectList(ViewBag.NONSEZ, "id", "name"), "Select", new { @id = "ddlnonsezcategory", @class = "form-control", @required = "required", @onchange = "Dayanamiccountrytax()" })
+                                <div id="valnonsez"> @Html.ValidationMessageFor(M => M.NonSezCategoryId)</div>
+                            </div>
+                        </div>
+                    </div>
+                  </div>
+                </div>
+                    <div class="page-wrapper" id="createagency" style="display:none">
+                        <div class="white-bg">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Agency name</label>
+                                        @Html.TextBoxFor(M => M.AgencyName, new { @class = "form-control", @id = "txtagencyname", @required = "required" })
+                                        <div>@Html.ValidationMessageFor(M => M.AgencyName)</div>
+                                        @Html.HiddenFor(M => M.AgencyId, new { @id = "txtagencyid" })
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Agency code</label>
+                                        @Html.TextBoxFor(M => M.AgencyCode, new { @class = "form-control", @id = "txtagencycode", @required = "required" })
+                                        <div>@Html.ValidationMessageFor(M => M.AgencyCode)</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label>Contact person</label>
+                                        @Html.TextBoxFor(M => M.ContactPerson, new { @class = "form-control", @id = "txtcontactper" })
+                                        <div>@Html.ValidationMessageFor(M => M.ContactPerson)</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label>Contact Number</label>
+                                        @Html.TextBoxFor(M => M.ContactNumber, new { @class = "form-control", @id = "txtcontactno" })
+                                        <div> @Html.ValidationMessageFor(M => M.ContactNumber)</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label>Contact Email</label>
+                                        @Html.TextBoxFor(M => M.ContactEmail, new { @class = "form-control", @id = "txtcontactmail" })
+                                        <div> @Html.ValidationMessageFor(M => M.ContactEmail)</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label>Address</label>
+                                        @Html.TextBoxFor(M => M.Address, new { @class = "form-control", @id = "txtaddress"})
+                                        <div> @Html.ValidationMessageFor(M => M.Address)</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label>Agency Registered Name</label>
+                                        @Html.TextBoxFor(M => M.AgencyRegisterName, new { @class = "form-control", @id = "txtregistername" })
+                                        <div> @Html.ValidationMessageFor(M => M.AgencyRegisterName)</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label>Agency Registered Address</label>
+                                        @Html.TextBoxFor(M => M.AgencyRegisterAddress, new { @class = "form-control", @id = "txtregisteraddr" })
+                                        <div>@Html.ValidationMessageFor(M => M.AgencyRegisterAddress)</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label>District</label>
+                                        @Html.TextBoxFor(M => M.District, new { @class = "form-control", @id = "txtdist" })
+                                        <div class="txt-error txt-red"> @Html.ValidationMessageFor(M => M.District)</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label>Pin Code</label>
+                                        @Html.TextBoxFor(M => M.PinCode, new { @class = "form-control", @id = "txtpincode" })
+
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">State</label>
+                                        @Html.TextBoxFor(M => M.State, new { @class = "form-control", @id = "txtstate", @required = "required" })
+                                        <div class="txt-error txt-red" style="display:none" id="lblstatetxtvalidation"> @Html.ValidationMessageFor(M => M.State)</div>
+                                        @Html.DropDownListFor(M => M.StateId, new SelectList(ViewBag.state, "id", "name"), "Select state", new { @class = "form-control", @id = "ddlstate", @required = "required", style = "display:none" })
+                                        <div class="txt-error txt-red" id="lblstateddlvalidation"> @Html.ValidationMessageFor(M => M.StateId)</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required" id="lblallcountry">Country</label>
+                                        @Html.DropDownListFor(M => M.Country, new SelectList(ViewBag.country, "CountryID", "CountryName"), "Select country", new { @id = "ddlcountry", @class = "form-control", @required = "required" })
+                                        <div class="txt-error txt-red" id="valallcountry"> @Html.ValidationMessageFor(M => M.Country)</div>
+                                        <label class="required" id="lblstatecode" style="display:none">State Code</label>
+                                        @Html.TextBoxFor(M => M.StateCode, new { @class = "form-control", @id = "txtstatecode", @required = "required", style = "display:none", @readonly = "readonly" })
+                                        <div class="txt-error txt-red" style="display:none"> @Html.ValidationMessageFor(M => M.StateCode)</div>
+                                    </div>
+                                </div>
+                            </div>
+                           
+                            <div class="row">
+                                
+                                
+                                @*<div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Agency type</label>
+                                        @Html.DropDownListFor(M => M.AgencyType, new SelectList(ViewBag.projtype, "codevalAbbr", "CodeValDetail"), "Select agency", new { @class = "form-control", @id = "ddlageny", @required = "required" })
+                                        <div class="txt-error txt-red"> @Html.ValidationMessageFor(M => M.AgencyType)</div>
+                                    </div>
+                                </div>*@
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label id="lblpan">PAN</label>
+                                        @Html.TextBoxFor(M => M.PAN, new { @class = "form-control", @id = "txtpan" })
+                                        <div class="txt-error txt-red" id="valpan"> @Html.ValidationMessageFor(M => M.PAN)</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label id="lblgstin">GSTIN</label>
+                                        @Html.TextBoxFor(M => M.GSTIN, new { @class = "form-control", @id = "txtgstin" })
+                                        <div class="txt-error txt-red" id="valgstin"> @Html.ValidationMessageFor(M => M.GSTIN)</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label id="lbltan">TAN</label>
+                                        @Html.TextBoxFor(M => M.TAN, new { @class = "form-control", @id = "txttan" })
+                                        <div class="txt-error txt-red" id="valtan"> @Html.ValidationMessageFor(M => M.TAN)</div>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="row">
+                                @*<div class="col-md-4">
+                <div class="form-group custom-form-group">
+                    <label id="lblscheme" style="display:none" class="required">Scheme</label>
+                    @Html.DropDownListFor(M => M.Scheme, new SelectList(ViewBag.schemes, "id", "name"), "select schemes", new { @class = "form-control", style = "display:none", @id = "ddlscheme" })
+                    <div class="txt-error txt-red" style="display:none" id="lblvalmsg"> @Html.ValidationMessageFor(M => M.Scheme)</div>
+                </div>
+            </div>*@
+            <div class="col-md-4">
+                <div class="form-group custom-form-group">
+                    <label class="required">Company Type</label>
+                    @Html.DropDownListFor(M => M.CompanyId, new SelectList(ViewBag.Company, "id", "name"), "select Company", new { @class = "form-control", @id = "ddlCompanyId",@required="required" })
+                    <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.CompanyId)</div>
+                </div>
+               </div> 
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label>Government Agency Type</label>
+                                        @Html.DropDownListFor(M => M.Ministry, new SelectList(ViewBag.gov, "id", "name"), "select Ministry", new { @class = "form-control", @id = "ddlGovMinistry" })
+                                       
+                                    </div>
+                                </div>
+                                        </div>
+                            <div class="white-bg">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <h3 class="spl-title">Supporting Documents</h3>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div id="DocdivContent">
+                                        <div class="col-md-11 mt10">
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Attachment Type</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label> Attachment Name </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label> Attachment (.pdf, .doc, .docx)</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-1">
+
+                                            </div>
+                                        </div>
+                                        <div id="DocprimaryDiv">
+                                            <div class="col-md-11">
+                                                <div class="col-md-4">
+                                                    <div class="form-group custom-form-group">
+                                                        @Html.DropDownList("DocumentType", new SelectList(ViewBag.agencydoc, "id", "name"), "Select Document Type",
+                                                        new { @class = "form-control", @id = "doctype" })
+                                                        @Html.Hidden("DocumentId")
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <div class="form-group custom-form-group">
+                                                        <input class="form-control" name="AttachName" id="docname" value="" type="text">
+                                                        @*@Html.TextBoxFor(m => m.DocName, new { @class = "form-control", @required = "required", @id="Docname" })*@
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3" id="browsebtn">
+                                                    <div class="form-group custom-form-group mt5">
+                                                        <input type="file" name="File" id="docfile" />&nbsp;&nbsp;&nbsp;
+                                                        
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2 doclink mt6" id="doclink">
+                                                    @*<a href="@Url.Action("ShowDocument", new { Controller = "Manage", file = Model.DocPath, filepath = "~/Content/ProposalDocuments/", link=Model.DocPath })"> </a>*@
+                                                    <a href="#" class="link1" target="_blank"></a>
+                                                </div>
+                                                <div class="col-md-1 ml40 mt5">
+                                                    <button class="dis-none" type="button" name="removeButton"><i class="ion-android-close"></i></button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-1">
+                                        <button type="button" id="btnAddDoc" class="btn-sm"><i class="ion-android-add"></i> </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </div>
+                        <div class="row">
+                            <div class="page-wrapper">
+                            <div class="white-bg">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group">
+                                            <label>Bank Name</label>
+                                            @Html.TextBoxFor(M => M.BankName, new { @class = "form-control", @id = "txtbankname"})
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group">
+                                            <label>Account Number</label>
+                                            @Html.TextBoxFor(M => M.AccountNumber, new { @class = "form-control", @id = "txtacctno" })
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group">
+                                            <label>Branch Name</label>
+                                            @Html.TextBoxFor(M => M.BranchName, new { @class = "form-control", @id = "txtbranch" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group">
+                                            <label>SWIFT Code</label>
+                                            @Html.TextBoxFor(M => M.SWIFTCode, new { @class = "form-control", @id = "txtswiftcode" })
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group">
+                                            <label>MICR Code</label>
+                                            @Html.TextBoxFor(M => M.MICRCode, new { @class = "form-control", @id = "txtmicrcode" })
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group">
+                                            <label>IFSC Code</label>
+                                            @Html.TextBoxFor(M => M.IFSCCode, new { @class = "form-control", @id = "txtifsccode" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group">
+                                            <label>Bank Address</label>
+                                            @Html.TextAreaFor(M => M.BankAddress, new { @class = "form-control", @id = "txtbankadd" })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 text-center pd-tb-30">
+                                <input type="submit" class="btn btn-primary mr10" value="Save" name="Button" id="btnSave" />
+                                <input type="submit" class="btn btn-primary mr10" value="Update" name="Button" id="btnUpdate" style="display:none" />
+                                <input type="button" onclick="window.location.href='@Url.Action("Createagency", "Account")';" class="btn btn-default" value="Close" name="Button" id="btnReset" />
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                }
+           
+                <div class="row mt30" id="gridlist">
+
+                    <div class="col-md-12">
+                        <div class="page-wrapper">
+                            <div class="custom-jsgrid-normal">
+                                <div id="agencylist"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            
+            <div id="savemodal" class="modal fade modal-success" role="dialog">
+                <div class="modal-dialog modal-sm">
+
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <i class="ion-android-checkmark-circle"></i>
+                            <h3 class="modal-title">Created successfully</h3>
+                        </div>
+                        <div class="modal-body">
+
+                            <p>Agency  created successfully</p><br />
+                            <p>@ViewBag.agencycode</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+
+            <div id="warrningmodal" class="modal fade modal-warning" role="dialog">
+                <div class="modal-dialog modal-sm">
+
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <i class="ion-android-warning"></i>
+                            <h3 class="modal-title">Agency name exists !.</h3>
+                        </div>
+                        <div class="modal-body">
+
+                            <p>@ViewBag.Msg</p>
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+<div id="filewarrning" class="modal fade modal-warning" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-warning"></i>
+                <h3 class="modal-title">File Upload Message !.</h3>
+            </div>
+            <div class="modal-body">
+
+                <p>@ViewBag.filemsg</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div id="agencyCodeValidation" class="modal fade modal-warning" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-warning"></i>
+                <h3 class="modal-title">Agency Code</h3>
+            </div>
+            <div class="modal-body">
+
+                <p>Agency Code alredy exits</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+            <div id="updatemodal" class="modal fade modal-success" role="dialog">
+                <div class="modal-dialog modal-sm">
+
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <i class="ion-android-checkmark-circle"></i>
+                            <h3 class="modal-title">Updated successfully</h3>
+                        </div>
+                        <div class="modal-body">
+
+                            <p>Agency Updated successfully</p>
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div id="deletemodal" class="modal fade modal-success" role="dialog">
+                <div class="modal-dialog modal-sm">
+
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <i class="ion-android-checkmark-circle"></i>
+                            <h3 class="modal-title">Deleted successfully</h3>
+                        </div>
+                        <div class="modal-body">
+                            <p>Agency  Deleted successfully</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div id="Errormodal" class="modal fade modal-error" role="dialog">
+                <div class="modal-dialog modal-sm">
+
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <i class="ion-android-cancel"></i>
+                            <h3 class="modal-title">Error Message</h3>
+                        </div>
+                        <div class="modal-body">
+
+                            <p>@ViewBag.error</p>
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div id="GSTmodal" class="modal fade modal-error" role="dialog">
+                <div class="modal-dialog modal-sm">
+
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <i class="ion-android-cancel"></i>
+                            <h3 class="modal-title">Error Message</h3>
+                        </div>
+                        <div class="modal-body">
+
+                            <p>GST Number not valid for selected state.</p>
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+<div id="ValidationModal" class="modal fade modal-warning" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-warning"></i>
+                <h3 class="modal-title">Warning</h3>
+            </div>
+            <div class="modal-body">
+
+                <p id="MsgValidation"></p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+            <div id="deletemodalerror" class="modal fade modal-error" role="dialog">
+                <div class="modal-dialog modal-sm">
+
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <i class="ion-android-cancel"></i>
+                            <h3 class="modal-title">Error Message</h3>
+                        </div>
+                        <div class="modal-body">
+
+                            <p>Somthing went to worng please contact Admin!.</p>
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            
+            <script type="text/javascript">
+                //$(function () { // <-- add this
+                //    $('#formCP').validate({
+                //        rules: {
+                //            thisval: "required"
+                //        }
+                //    });
+                //    console.info($('#formCP').valid());
+                //});
+                $('#btnaddnew').on('click', function () {
+                    $('#createagency').show();
+                    $('#categoryagy').show();
+                    $('#gridlist').hide();
+                    $('#addnewpage').hide();
+                    Reset();
+                   //agencycodeincrement();
+                });
+                function agencycodeincrement() {
+
+                    $.ajax({
+
+                        type: "GET",
+                        url: '@Url.Action("GetAgencyCode", "Account")',
+                        data: "",
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        success: function (result) {
+
+                            $('#txtagencycode').val(result);
+                        }
+
+                    });
+                }
+                $(document).ready(function () {
+
+                    var add = '@ViewBag.success';
+                    if (add != '') {
+                        $('#savemodal').modal('show');
+                    }
+                    var warrning = '@ViewBag.Msg';
+                    if (warrning != '') {
+                        $('#warrningmodal').modal('show');
+                    }
+                    var update = '@ViewBag.update';
+                    if (update != '') {
+                        $('#updatemodal').modal('show');
+                    }
+                    var error = '@ViewBag.error';
+                    if (error != '') {
+                        $('#Errormodal').modal('show');
+                    }
+                    var filemsg = '@ViewBag.filemsg';
+                    if(filemsg!='')
+                    {
+                        $('#filewarrning').modal('show');
+                    }
+
+
+                });
+                function Reset() {
+                    $('#txtagencyid,#txtagencyname,#txtagencycode,#txtcontactper,#txtcontactno,#txtcontactmail,#txtaddress').val('');
+                    $('#txtstate,#txtpan,#txttan,#txtgstin,#txtdist,#txtpincode,#txtbankname,#txtacctno,#txtbranch,#txtswiftcode,#txtmicrcode,#txtifsccode,#txtbankadd,#txtregisteraddr,#txtregistername').val('');
+                    $('#ddlcountry,#ddlageny,#ddlscheme,#ProjAndCountry,#ddlnonsezcategory,#ddlstate,#txtProjectType,#ddlCompanyId,#ddlGovMinistry').prop('selectedIndex', 0);
+                    $("#valallcountry").hide();
+                }
+                $('#ddlageny').on('change', function () {
+                    var agtype = $('#ddlageny').val();
+                    if (agtype == 1) {
+                        $('#ddlscheme').hide();
+                        $('#lblscheme').hide();
+                        $('#lblvalmsg').hide();
+                    }
+                    else if (agtype == 2) {
+                        $('#ddlscheme').show();
+                        $('#lblscheme').show();
+                        $('#lblvalmsg').show();
+                    }
+                });
+                function countrychange() {
+                    var countryid = $('#ddlcountry').val();
+                    var countrycate=$('#ddlcountrycate').val();
+                    if (countrycate == 1) {
+                        $("#ddlcountry").prop('required', false);
+                        $("#lblallcountry").removeClass("required");
+                        $("#ddlcountry").hide();
+                        $("#lblallcountry").hide();
+                        $("#valallcountry").hide();
+                        $('#txtstate').hide();
+                        $('#lblstatetxtvalidation').hide();
+                        $('#ddlstate').show();
+                        $('#txtstatecode').show();
+                        $('#lblstatecode').show();
+                        $('#lblstateddlvalidation').show();
+
+                    }
+                    else {
+                        $("#ddlcountry option[value='128']").remove();
+                        $("#ddlcountry").prop('required', true);
+                        $("#lblallcountry").addClass("required");
+                        $("#lblallcountry").show();
+                        $("#valallcountry").show();
+                        $("#ddlcountry").show();
+                        $('#lblstateddlvalidation').hide();
+                        $('#txtstate').show();
+                        $('#ddlstate').hide();
+                        $('#txtstatecode').hide();
+                        $('#lblstatecode').hide();
+                        $('#lblstatetxtvalidation').show();
+
+                    }
+
+                }
+                $('#ddlstate').on('change', function () {
+
+                    var stateid = $('#ddlstate').val();
+                    $.ajax({
+                        type: "Post",
+                        url: '@Url.Action("GetStateCode", "Account")',
+                        data: { StateId: stateid },
+                        dataType: "json",
+                        success: function (result) {
+                            if (result != "") {
+                                $('#txtstatecode').val(result);
+                            }
+                            else {
+                                $('#Errormodal').modal('show');
+                            }
+                        }
+                    });
+
+                });
+                $('#txtgstin').on('blur', function () {
+                    if ($('#txtgstin').val() != ''&& $('#txtstatecode').val()!='')
+                        {
+                        var Gstnumber = $('#txtgstin').val();
+                        var statecode = $('#txtstatecode').val();
+                        var gstno = Gstnumber.substring(0, 2);
+                        if (gstno != statecode) {
+                            $('#GSTmodal').modal('show');
+                            $('#txtgstin').val('');
+                        }
+                    }
+                });
+                function Dayanamiccountrytax() {
+                    
+                    var projid = $('#txtProjectType').val();
+                    var country = $('#ddlcountrycate').val();
+                    var indcatgory = $('#ProjAndCountry').val();
+                    var noncategory = $('#ddlnonsezcategory').val();
+                    $('span').find("ProjAndCountry").hide();
+                    if (country == '')
+                    {
+                        $('#indcategory').hide();
+                        $('#ProjAndCountry,#ddlnonsezcategory').prop('selectedIndex', 0);
+                    }
+                    if (country == 1 && projid==2) {
+                        $('#indcategory').show();
+                        if (indcatgory != 2) {
+                            $("#ProjAndCountry").show();
+                            $("#ddlnonsezcategory,#valnonsez").hide();
+                            $("#lblagycate").show();
+                            $("#lblnon").hide();
+                            $("#lblnon").removeClass("required");
+                            $("#ddlnonsezcategory").prop('required', false);
+                            $("#lblagycate,#lblnon").addClass("required");
+                            $("#txtgstin").prop('required', false);
+                            $("#valgstin").hide();
+                            $("#lblgstin").removeClass("required");
+                            $("#valindcat").show();
+                            countrychange();
+                            $('#ddlnonsezcategory').prop('required', true);
+                            $('#ProjAndCountry').prop('required', true);
+                        }
+
+                     if (country == 1 && indcatgory == 1 && noncategory == 0) {
+                         $("#lblpan,#lbltan").removeClass("required");
+                         $("#lblgstin").removeClass("required");
+                            $("#txtpan,#txttan").prop('required', false);
+                            $("#txtgstin").prop('required', false);
+                            $("#lblnon").removeClass("required");
+                            $("#ddlnonsezcategory").prop('required', false);
+                            $("#valtan,#valpan,#valgstin").show();
+                            $("#lblnon,#valnonsez").hide();
+                            $("#ddlnonsezcategory").hide();
+                            $('#ddlnonsezcategory').prop('selectedIndex', 0);
+                        }
+                     else if (country == 1 && indcatgory == 2 && noncategory == 0) {
+                            $("#nonsezcategory").show();
+                            $("#lblnon,#valnonsez").show();
+                            $("#ddlnonsezcategory").show();
+                            $("#lblnon").addClass("required");
+                            $("#ddlnonsezcategory").prop('required', true);
+                        }
+                    else if (country == 1 && indcatgory == 2 && noncategory == 1) {
+                            $("#lblgstin").addClass("required");
+
+                            $("#txtpan,#txttan").prop('required', false);
+                            $("#txtgstin").prop('required', false);
+                            $("#valgstin").show();
+                        }
+                        else if (country == 1 && indcatgory == 2 && noncategory == 2) {
+                            $("#lblpan,#lbltan").removeClass("required");
+                            $("#txtpan,#txttan").prop('required', false);
+                            $("#lblgstin").removeClass("required");
+                            $("#txtgstin").prop('required', false);
+                            $("#valgstin").show();
+                        }
+                        else if(country == 1 && indcatgory == 1 && noncategory != 0)
+                        {
+                            $("#lblpan,#lbltan").removeClass("required");
+                            $("#txtpan,#txttan").prop('required', false);
+
+                            $("#lblnon").removeClass("required");
+                            $("#ddlnonsezcategory").prop('required', false);
+                            $("#lblnon,#valnonsez").hide();
+                            $("#ddlnonsezcategory").hide();
+                            $('#ddlnonsezcategory').prop('selectedIndex', 0);
+                        }
+                    
+                    }
+                    //else if(country==1&&indcatgory==1)
+                    //{
+                    //    $("#lblnon").hide();
+                    //    $("#ddlnonsezcategory").hide();
+                    //}
+                    //else if (country == 1 && indcatgory == 2) {
+                    //    $("#lblnon").show();
+                    //    $("#ddlnonsezcategory").show();
+                    //}
+                    else if (country == 2 && projid==2)
+                    {
+                        $("#lblpan,#lblgstin,#lbltan,#lblagycate,#lblnon").removeClass("required");
+                        $("#ProjAndCountry,#ddlnonsezcategory,#txtpan,#txttan,#txtgstin").prop('required', false);
+                        $("#ProjAndCountry,#ddlnonsezcategory,#valnonsez").hide();
+                        $("#lblagycate,#lblnon,#valindcat,#valpan,#valgstin,#valtan").hide();
+                        $('#ddlcountry,#ddlnonsezcategory,#ProjAndCountry').prop('selectedIndex', 0);
+
+                        countrychange();
+                    }
+                    else if (country == 1 && projid == 1) {
+                        $("#lblpan,#lblgstin,#lbltan,#lblagycate,#lblnon").removeClass("required");
+                        $("#ProjAndCountry,#ddlnonsezcategory,#txtpan,#txttan,#txtgstin").prop('required', false);
+                        $("#ProjAndCountry,#ddlnonsezcategory,#valnonsez").hide();
+                        $("#lblagycate,#lblnon,#valindcat").hide();
+                        $("#valpan,#valgstin,#valtan").show();
+                        $('#ddlcountry,#ddlnonsezcategory,#ProjAndCountry').prop('selectedIndex', 0);
+
+                        countrychange();
+                    }
+                    else if (country == 2 && projid == 1) {
+                        $("#lblpan,#lblgstin,#lbltan,#lblagycate,#lblnon").removeClass("required");
+                        $("#ProjAndCountry,#ddlnonsezcategory,#txtpan,#txttan,#txtgstin").prop('required', false);
+                        $("#ProjAndCountry,#ddlnonsezcategory,#valnonsez").hide();
+                        $("#lblagycate,#lblnon,#valindcat,#valpan,#valgstin,#valtan").hide();
+                        $('#ddlcountry,#ddlnonsezcategory,#ProjAndCountry').prop('selectedIndex', 0);
+
+                        countrychange();
+                    }
+                }
+                $('#btnAddDoc').click(function () {
+
+                    var cln = $("#DocprimaryDiv").clone().find("input").val("").end();
+                    $(cln).find('.dis-none').removeClass('dis-none');
+                    $(cln).find('.doclink').addClass('dis-none');
+                    $('#DocdivContent').append(cln)
+
+                });
+                function ProjectChange() {
+                    var projId = $('#txtProjectType').val();
+                    if(projId!=0)
+                    {
+                        $('#ddlcountrycate').prop('selectedIndex', 0);
+                        $('#ProjAndCountry').prop('selectedIndex', 0);
+                        $('#ddlnonsezcategory').prop('selectedIndex', 0);
+                        $('#countryView').prop('selectedIndex', 0);
+                        $('#indcategory').hide();
+                        $('#nonsezcategory').hide();
+                        $('#countryView').show();
+
+                    }
+                    else {
+
+                        $('#countryView').prop('selectedIndex', 0);
+                        $('#countryView').hide();
+                    }
+                }
+                $(document).on('click', '#DocdivContent button', function () {
+
+                    $(this).parent().parent("Div").remove();
+
+                });
+                $('#btnSave').click(function (d) {
+
+                    d.preventDefault();
+                    var isValid = $('#formCP').valid();
+
+                    if (!isValid)
+                        return false;
+
+
+
+                    // to validate if attachment type or attachment name is not left blank when either one of them is filled
+                    var doctypevalues = [];
+                    var docnamevalues = [];
+                    var attachfile = [];
+                    $('select[name="DocumentType"]').each(function (idx, val) { doctypevalues.push($(val).val()); });
+                    $('input[name="AttachName"]').each(function (idx, val) { docnamevalues.push($(val).val()); });
+                    $('input[name="File"]').each(function (idx, val) { attachfile.push($(val).val()); });
+                    //// Sort it
+                    doctypevalues.sort();
+                    docnamevalues.sort();
+                    attachfile.sort();
+                    for (var k = 0; k < doctypevalues.length; ++k) {
+                        if ((doctypevalues[k] > 0) && ((docnamevalues[k] == null) || docnamevalues[k] == "")) {
+                            isValid = false;
+
+                            $('#MsgValidation').html("Please fill Attachment name");
+                            $('#ValidationModal').modal('toggle');
+                            return false;
+
+                        }
+                        if ((docnamevalues[k] != null && docnamevalues[k] != "") && (doctypevalues[k] == null || doctypevalues[k] == 0)) {
+                            isValid = false;
+
+                            $('#MsgValidation').html("Please select Attachment type");
+                            $('#ValidationModal').modal('toggle');
+                            return false;
+
+                        }
+
+                        if(attachfile[k]!=null||attachfile[k]!="")
+                        {
+                            var extension = attachfile[k].split('.').pop().toLowerCase();
+                            if (extension != "") {
+                                if ($.inArray(extension, ["pdf", "doc", "docx", "DOC", "DOCX", "PDF"]) === -1) {
+                                    isValid = false;
+                                    $('#MsgValidation').html("Please upload any one of these type doc [.pdf, .doc, .docx]");
+                                    $('#ValidationModal').modal('toggle');
+                                    return false;
+                                }
+                            }
+                        }
+
+                    }
+                    // duplicate check
+                    for (var k = 1; k < doctypevalues.length; ++k) {
+                        if (doctypevalues[k] == doctypevalues[k - 1]) {
+                            isValid = false;
+
+                            $('#MsgValidation').html("Attachment type is already existing. Please select a different Attachment type.");
+                            $('#ValidationModal').modal('toggle');
+                            return false;
+
+                        }
+                    }
+
+                    if (isValid)
+                        $('#formCP').submit();
+
+                    // $(this).closest("form").submit();
+                });
+                $('#btnUpdate').click(function (d) {
+
+                    d.preventDefault();
+                    var isValid = $('#formCP').valid();
+
+                    if (!isValid)
+                        return false;
+            // to validate if attachment type or attachment name is not left blank when either one of them is filled
+                    var doctypevalues = [];
+                    var docnamevalues = [];
+                    var attachfile = [];
+                    $('select[name="DocumentType"]').each(function (idx, val) { doctypevalues.push($(val).val()); });
+                    $('input[name="AttachName"]').each(function (idx, val) { docnamevalues.push($(val).val()); });
+                    $('input[name="File"]').each(function (idx, val) { attachfile.push($(val).val()); });
+                    //// Sort it
+                    doctypevalues.sort();
+                    docnamevalues.sort();
+                    attachfile.sort();
+                    for (var k = 0; k < doctypevalues.length; ++k) {
+                        if ((doctypevalues[k] > 0) && ((docnamevalues[k] == null) || docnamevalues[k] == "")) {
+                            isValid = false;
+
+                            $('#MsgValidation').html("Please fill Attachment name");
+                            $('#ValidationModal').modal('toggle');
+                            return false;
+
+                        }
+                        if ((docnamevalues[k] != null && docnamevalues[k] != "") && (doctypevalues[k] == null || doctypevalues[k] == 0)) {
+                            isValid = false;
+
+                            $('#MsgValidation').html("Please select Attachment type");
+                            $('#ValidationModal').modal('toggle');
+                            return false;
+
+                        }
+
+                        if (attachfile[k] != null || attachfile[k] != "") {
+                            var extension = attachfile[k].split('.').pop().toLowerCase();
+                            if (extension != "") {
+                                if ($.inArray(extension, ["pdf", "doc", "docx", "DOC", "DOCX", "PDF"]) === -1) {
+                                    isValid = false;
+                                    $('#MsgValidation').html("Please upload any one of these type doc [.pdf, .doc, .docx]");
+                                    $('#ValidationModal').modal('toggle');
+                                    return false;
+                                }
+                            }
+                        }
+
+                    }
+                    // duplicate check
+                    for (var k = 1; k < doctypevalues.length; ++k) {
+                        if (doctypevalues[k] == doctypevalues[k - 1]) {
+                            isValid = false;
+
+                            $('#MsgValidation').html("Attachment type is already existing. Please select a different Attachment type.");
+                            $('#ValidationModal').modal('toggle');
+                            return false;
+
+                        }
+                    }
+
+                    if (isValid)
+                        $('#formCP').submit();
+
+                    // $(this).closest("form").submit();
+                });
+                $('#btnFilterUser').off("click").on("click", function () {
+                    $('#popFilterUser').css("display", "Block");
+                });
+                $('a[name="btnCloseUser"],button[name="btnCloseUser"]').click(function () {
+                    $('#popFilterUser').css("display", "none");
+                });
+                $("#txtagencycode").on('blur', function () {
+                    var code = $('#txtagencycode').val();
+                    $.ajax({
+                        type: "Post",
+                        url: '@Url.Action("GetCheckAgencycode", "Account")',
+                        data: { agyCode: code },
+                        dataType: "json",
+                        success: function (result) {
+                            if (result != "") {
+                                var choice = confirm("Already existing This Agency Code");
+                                if(choice==true)
+                                {
+                                    $("#txtcontactper").focus();
+                                }
+                                else
+                                {
+                                    $("#txtagencycode").focus();
+                                }
+                            }
+                           
+                        }
+                    });
+                });
+            </script>
+          <script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+@*<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")"></script>*@

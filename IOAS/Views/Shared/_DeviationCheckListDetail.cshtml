@@ -1,0 +1,38 @@
+﻿@model IEnumerable<IOAS.Models.CheckListModel>
+<style>
+    .br-rd{border-color: red;}
+</style>
+<div class="row">
+    <div class="col-md-12 alert alert-danger br-rd">
+        <h4><b>Deviation from norms:</b></h4>
+        <table>
+            <tbody id="tbodyDEVCheckList">
+            @{
+                if (Model != null)
+                {
+                    var count = 0;
+                    foreach (var item in Model)
+                    {
+                        var chckName = "CheckListDetail[" + count + "].IsChecked";
+                        var chckId = "DeviationCheckId_" + count;
+                        var chckIdName = "CheckListDetail[" + count + "].FunctionCheckListId";
+                        var chckListName = "CheckListDetail[" + count + "].CheckList";
+                        count++;
+                        <tr>
+                            <td>
+                                @Html.Hidden(@chckIdName, item.FunctionCheckListId)
+                                @Html.CheckBox(@chckName, item.IsChecked,new { @id = @chckId }) &nbsp;
+                                @Html.Hidden(@chckListName, item.CheckList)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(m => item.CheckList)
+                            </td>
+                        </tr>
+                    }
+                }
+            }
+                </tbody>
+            </table>
+        </div>
+        </div>
+

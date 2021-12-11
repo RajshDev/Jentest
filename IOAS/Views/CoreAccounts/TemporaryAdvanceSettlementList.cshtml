@@ -1,0 +1,502 @@
+﻿@model IOAS.Models.TemporaryAdvanceModel
+@{
+    ViewBag.Title = "Temporary Advance";
+    ViewBag.Subtitle = "Temporary Advance List";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<div class="row hd-tt-bg">
+    <div class="col-md-4">
+        <h3>Temporary Advance List</h3>
+    </div>
+    <div id="addnewpage" class="col-md-8 flt-nav-links">
+
+        @*<a href="Javascript:void(0)" id="btnFilter" class="pull-right"> <i class="ion-android-funnel"></i>Filters</a>*@
+        @*<a href="@Url.Action("TemporaryAdvancePayment")"> <i class="ion-plus"></i>Add New</a>*@
+
+    </div>
+</div>
+<div id="popupFilter" class="filter-popup">
+    <div class="">
+        <div class="filter-content">
+            <div class="white-bg">
+                <div class="form-group custom-form-group">
+                    <h3>Filter by</h3>
+                </div>
+
+                <div class="form-group custom-form-group">
+                    @Html.TextBoxFor(m => m.SearchField.ProjectNumber, new { @id = "srchprojectnumber", @placeholder = "Project Number", @class = "form-control" })
+                </div>
+
+                <div class="form-group custom-form-group">
+                    @Html.TextBoxFor(m => m.SearchField.TemporaryAdvanceNumber, new { @id = "srchtempadvnumber", @placeholder = "Temporary Advance Number", @class = "form-control" })
+                </div>
+                <div class="form-group custom-form-group">
+                    @Html.TextBoxFor(m => m.SearchField.TempAdvSettlNumber, new { @id = "srchtempadvsettlnumber", @placeholder = "Temporary Advance Settlement Number", @class = "form-control" })
+                </div>
+                <div class="form-group custom-form-group">
+                    @Html.TextBoxFor(m => m.SearchField.PIName, new { @id = "srchPIName", @placeholder = "PI Name", @class = "form-control" })
+                    @*@Html.DropDownListFor(m => m.SearchField.PIName, new SelectList(ViewBag.PI, "id", "name"), "PI Name", new { @id = "srchPIName", @class = "form-control" })*@
+                </div>
+                
+                <div id="DivCrtdDate" class="form-group custom-form-group">
+                    <label class="full-width">Settlement Date</label>
+                    <label class="half-form">From Date </label>
+                    @Html.TextBoxFor(m => m.SearchField.FromDate, new { @id = "FromDate", @class = "form-control half-form" })
+                    <label class="half-form">To Date </label>
+                    @Html.TextBoxFor(m => m.SearchField.ToDate, new { @id = "ToDate", @class = "form-control half-form" })
+                </div>
+                <div class="form-group custom-form-group mt30 text-center">
+                    <a id="btnReset" href="javascript:void(0)">Reset</a>
+                </div>
+                <div class="form-group custom-form-group mt30 text-center">
+                    <button id="btnSearch" type="button" class="btn btn-primary mr10">Search</button>
+                    <button name="btnClose" type="button" class="btn btn-default">Close</button>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <a href="javascript:void(0)" name="btnClose" class="close-btn"><i class="ion-android-cancel"></i></a>
+
+</div>
+<div class="row mt30">
+    <div class="page-wrapper">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="custom-jsgrid-normal">
+                    <div id="TempAdvSettlPaymentList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="popup" ></div>
+<script type="text/javascript">
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+    });
+    var DateField = function (config) {
+        jsGrid.Field.call(this, config);
+    };
+
+    DateField.prototype = new jsGrid.Field({
+        sorter: function (date1, date2) {
+            return new Date(date1) - new Date(date2);
+        },
+
+        itemTemplate: function (value) {
+            return new Date(value).toDateString();
+        },
+
+        filterTemplate: function () {
+            var now = new Date();
+            this._fromPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() - 1), changeYear: true });
+            this._toPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() + 1), changeYear: true });
+            return $("<div>").append(this._fromPicker).append(this._toPicker);
+        },
+
+        insertTemplate: function (value) {
+            return this._insertPicker = $("<input>").datepicker({ defaultDate: new Date() });
+        },
+
+        editTemplate: function (value) {
+            return this._editPicker = $("<input>").datepicker().datepicker("setDate", new Date(value));
+        },
+
+        insertValue: function () {
+            return this._insertPicker.datepicker("getDate").toISOString();
+        },
+
+        editValue: function () {
+            return this._editPicker.datepicker("getDate").toISOString();
+        },
+
+        filterValue: function () {
+            return {
+                from: this._fromPicker.datepicker("getDate"),
+                to: this._toPicker.datepicker("getDate")
+            };
+        }
+    });
+    jsGrid.fields.date = DateField;
+    var db;
+    $("#TempAdvSettlPaymentList").jsGrid({
+        paging: true,
+        pageIndex: 1,
+        pageSize: 5,
+        editing: false,
+        filtering: true,
+        pageLoading: true,
+        autoload: true,
+        controller: {
+
+            loadData: function (filter) {
+                //return $.grep(db, function (ow) {
+                //    return (!filter.BillNumber || ow.BillNumber.toLowerCase().indexOf(filter.BillNumber.toLowerCase()) > -1)
+                //   && (!filter.RequestedDate.from || new Date(ow.RequestedDate) >= filter.RequestedDate.from)
+                //   && (!filter.RequestedDate.to || new Date(ow.RequestedDate) <= filter.RequestedDate.to);
+                //});
+                var searchData = [];
+                searchData = {
+                    InProjectNumber: filter.ProjectNumber,
+                    InSettlementNumber: filter.TempAdvSettlementNumber,
+                    InTemporaryAdvSearch: filter.TemporaryAdvanceNumber,
+                    Status: filter.Status,
+                    Advancevalue: filter.TemporaryAdvanceValue,
+                    settlemenevalue: filter.SettlementValue
+                },
+                filter.model = searchData;
+                filter.typeCode = "TMS";
+                var deferred = $.Deferred();
+                $.ajax({
+                    type: "post",
+                    url: 'GetTempAdvSettlList',
+                    data: JSON.stringify(filter),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (result) {
+                        //db = result;
+                        //$("#AdvanceBillPaymentList").jsGrid({ data: db });
+                        var da = {
+                            data: result.Templist,
+                            itemsCount: result.TotalRecords
+                        }
+                        deferred.resolve(da);
+                    },
+                    error: function (err) {
+                        console.log("error : " + err);
+                    }
+
+                });
+                return deferred.promise();
+
+            }
+
+        },
+
+        fields: [
+            { name: "SlNo", title: "S.No", editing: false, width: 10 },
+            { type: "number", name: "TempAdvSettlId", title: "Id", visible: false, align: "left" },
+            { type: "number", name: "ProjectId", title: "Projectid", visible: false, align: "left" },
+            { type: "text", name: "ProjectNumber", title: "Project Number", align: "left", width: 70 },
+            { type: "text", name: "TempAdvSettlementNumber", title: "Settlement Number", editing: false, align: "left", width: 70 },
+            { type: "text", name: "TemporaryAdvanceNumber", title: "Temporary Advance Number", editing: false, align: "left", width: 70 },
+            { name: "RequestedDate", title: "Requested Date", type: "date", align: "left", width: 70 },
+           // { name: "TotalExpenseValue", title: "Total Expense", editing: false },
+            { name: "TemporaryAdvanceValue", title: "Advance Amount", editing: false, align: "left", width: 70,type:"text" },
+             { name: "SettlementValue", title: "Settlement Amount", editing: false, align: "left", width: 70,type:"text" },
+            {
+                type: "text", name: "Status", title: "Status", editing: false, align: "left", width: 60,
+                cellRenderer: function (item, value) {
+                    if (value.BillProcessingStatus == true) {
+                        return $("<td>").addClass("bg-green").append(value.Status);
+                    }
+                    else {
+                        return $("<td>").append(value.Status);
+                    }
+                }
+            },
+             {
+                 type: "control", editButton: false, deleteButton: false, title: "Action", width: 80,
+                 itemTemplate: function (value, item) {
+                     var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+                     if (item.Status == "Open") {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "Submit for approval", name: "Submit for approval" }, { id: "Edit", name: "Edit" }, { id: "Print Bill", name: "Print Bill" }, { id: "View", name: "View" }]
+                     }
+                         //else if (item.Status == "Approval Pending") {
+                         //    statusList = [{ id: "", name: "Select Action" }, { id: "Submit for approval", name: "Submit for approval" },  { id: "View", name: "View" }]
+                         //}
+
+                     else {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "Print Bill", name: "Print Bill" }, { id: "View", name: "View" }]
+                     }
+                     var $customSelect = $("<select>")
+                         .attr("class", "form-control").prop("selectedIndex", "")
+
+                     $.each(statusList, function (index, itemData) {
+                         $customSelect.append($('<option/>', {
+
+                             value: itemData.id,
+                             text: itemData.name
+                         }));
+                     });
+
+                     $customSelect.change(function (e) {
+                         var selVal = $(this).val();
+                         @*if (selVal == "Delete") {
+                             var choice = confirm("Are you sure, Do you want to delete this?");
+                             if (choice === true) {
+                                 $.ajax({
+                                     type: "POST",
+                                     url: '@Url.Action("DeleteTemporaryAdvanceBill", "CoreAccounts")',
+                                     data: {
+                                         temporaryAdvanceId: item.TemporaryAdvanceId
+                                     },
+                                     success: function (result) {
+                                         if (result == true) {
+                                             $('#alertSuccess').html("Temporary Advance bill has been deleted successfully.");
+                                             $('#Success').modal('toggle');
+                                             loadDetails();
+                                         } else if (result == false) {
+                                             $('#FailedAlert').html("Something went wrong please contact administrator");
+                                             $('#Failed').modal('toggle');
+                                         }
+                                     },
+                                     error: function (err) {
+                                         console.log("error1 : " + err);
+                                     }
+                                 });
+                             }
+                         } else
+                         if (selVal == "Book Commitment") {
+                             $.ajax({
+                                 type: "GET",
+                                 url: '@Url.Action("_TemporaryADVCommitment", "CoreAccounts")',
+                                 data: {
+                                     temporaryAdvanceId: item.TemporaryAdvanceId
+                                 },
+                                 contentType: "application/x-www-form-urlencoded",
+                                 success: function (data) {
+                                     $("#popup").html(data);
+                                     $('#TABCModal').modal('toggle');
+                                 }
+                             });
+                         } else  *@
+                         if (selVal == "Edit") {
+                             var url = '@Url.Action("TemporaryAdvanceSettlement", "CoreAccounts")?TempAdvsettlId=' + item.TempAdvSettlId;
+                             window.location.href = url;
+                         } else if (selVal == "Print Bill") {
+                             var url = '@Url.Action("TemporaryAdvanceSettlementBill", "ReportMaster")?Id=' + item.TempAdvSettlId;
+                             window.open(url, '_blank');
+                         } else if (selVal == "Submit for approval") {
+                             var choice = confirm("Are you sure, Do you want to submit this bill for approval process?");
+                             if (choice === true) {
+                                 $.ajax({
+                                     type: "POST",
+                                     url: '@Url.Action("TemporaryAdvanceSettlementWFInit", "CoreAccounts")',
+                                     data: {
+                                         id: item.TempAdvSettlId
+                                     },
+                                     success: function (result) {
+                                         if (result.status == true) {
+                                             $('#alertSuccess').html("Temporary advance settlement has been submitted for approval process successfully.");
+                                             $('#Success').modal('toggle');
+                                             loadDetails();
+                                         } else if (result.status == false) {
+
+                                             $('#FailedAlert').html(result.msg);
+                                             $('#Failed').modal('toggle');
+                                         }
+                                     },
+                                     error: function (err) {
+                                         console.log("error1 : " + err);
+                                     }
+                                 });
+                             }
+
+                         } else if (selVal == "Approved") {
+                             var choice = confirm("Are you sure, Do you want to approved this bill?");
+                             if (choice === true) {
+                                 $.ajax({
+                                     type: "POST",
+                                     url: '@Url.Action("TemporaryAdvanceSettlementApproved", "CoreAccounts")',
+                                     data: {
+                                         id: item.TempAdvSettlId
+                                     },
+                                     success: function (result) {
+                                         if (result.status == true) {
+                                             $('#alertSuccess').html("Temporary advance settlement has been approved successfully.");
+                                             $('#Success').modal('toggle');
+                                             loadDetails();
+                                         } else if (result.status == false) {
+                                             $('#FailedAlert').html(result.msg);
+                                             $('#Failed').modal('toggle');
+                                         }
+                                     },
+                                     error: function (err) {
+                                         console.log("error1 : " + err);
+                                     }
+                                 });
+                             }
+                         }
+                         @*else if (selVal == "Settlement") {
+                             var url = '@Url.Action("TemporaryAdvanceSettlement", "CoreAccounts")?TempAdvId=' + item.TemporaryAdvanceId;
+                             window.location.href = url;
+                         } else if (selVal == "Submit for approval") {
+                             var choice = confirm("Are you sure, Do you want to submit this bill for approval process?");
+                             if (choice === true) {
+                                 $.ajax({
+                                     type: "POST",
+                                     url: '@Url.Action("TemporaryAdvanceBillWFInit", "CoreAccounts")',
+                                     data: {
+                                         tempAdvId: item.TemporaryAdvanceId
+                                     },
+                                     success: function (result) {
+                                         if (result == true) {
+                                             $('#alertSuccess').html("Advance bill has been submitted for approval process successfully.");
+                                             $('#Success').modal('toggle');
+                                             loadDetails();
+                                         } else if (result == false) {
+                                             $('#FailedAlert').html("Something went wrong please contact administrator");
+                                             $('#Failed').modal('toggle');
+                                         }
+                                     },
+                                     error: function (err) {
+                                         console.log("error1 : " + err);
+                                     }
+                                 });
+                             }
+                         }*@
+                         else if (selVal == "View") {
+                             var url = '@Url.Action("TemporaryAdvanceSettlementView", "CoreAccounts")?TempAdvsettlId=' + item.TempAdvSettlId;
+                             window.location.href = url;
+                         }
+                         $(this).val("");
+                         return false;
+                         e.stopPropagation();
+                     });
+
+                     return $result.add($customSelect);
+                 },
+                 _createFilterSwitchButton: function () {
+                     return this._createOnOffSwitchButton("filtering", this.searchModeButtonClass, false);
+                 }
+             }
+
+        ],
+
+    });
+    $("#TempAdvSettlPaymentList").jsGrid("option", "filtering", false);
+    loadDetails();
+    function loadDetails() {
+        @*$.ajax({
+            type: "GET",
+            url: '@Url.Action("GetTempAdvSettlList", "CoreAccounts")',
+            data: { typeCode: "TMS" },
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (result) {
+                db = result;
+                $("#TempAdvSettlPaymentList").jsGrid({ data: db });
+            },
+            error: function (err) {
+                console.log("error : " + err);
+            }
+
+        });*@
+        var input = [];
+        input = {
+            InProjectNumber: null,
+            InSettlementNumber: null,
+            InTemporaryAdvSearch:null,
+            Status: null,
+            typeCode: "TMS",
+            Advancevalue: null,
+            settlemenevalue: null
+        },
+        $("#TempAdvSettlPaymentList").jsGrid("search", input, pageIndex = 1, pageSize = 5);
+    }
+    $('a[name="btnClose"],button[name="btnClose"]').click(function () {
+        $('#popupFilter').css("display", "none");
+    });
+    $("#btnFilter").click(function () {
+        $('#popupFilter').css("display", "Block");
+    });
+
+    function ResetForm() {
+        $('#srchprojectnumber').val('');
+        $('#srchtempadvnumber').val('');
+        $('#srchtempadvsettlnumber').val('');
+        $('#srchPIName').val('');
+        $('#FromDate').val('');
+        $('#ToDate').val('');
+    }
+    $('#btnReset').click(function () {
+        ResetForm();
+        getData(1);
+    });
+    $('#btnSearch').on('click', function () {
+        // var token = $("input[name=__RequestVerificationToken]").val();
+        getData(1);
+    });
+    $("#FromDate, #ToDate").datepicker
+           ({
+               dateFormat: 'dd-MM-yy',
+               showStatus: true,
+               showWeeks: true,
+               changeYear: true,
+               yearRange: '-100:+100',
+               highlightWeek: true,
+               numberOfMonths: 1,
+               showAnim: "scale",
+               showOptions: {
+                   origin: ["top", "left"]
+               }
+           });
+    var searchTempAdvanceURL = 'SearchTempAdvSettlList';
+    function getData(page) {
+        var Projectnumber = $('#srchprojectnumber').val();
+        var TempAdvnumber = $('#srchtempadvnumber').val();
+        var TempAdvSettlnumber = $('#srchtempadvsettlnumber').val();
+        var PIName = $('#srchPIName').val();
+        var FromDate = $('#FromDate').val();
+        var ToDate = $('#ToDate').val();
+
+        if (Projectnumber == "") {
+            Projectnumber = null;
+        }
+        if (TempAdvnumber == "") {
+            TempAdvnumber = null;
+        }
+        if (TempAdvSettlnumber == "") {
+            TempAdvSettlnumber = null;
+        }
+        if (PIName == "") {
+            PIName = null;
+        }
+        if (FromDate == "") {
+            FromDate = null;
+        }
+        if (ToDate == "") {
+            ToDate = null;
+        }
+
+        //  var searchdata = { "__RequestVerificationToken": token, "ProjectType": Projecttype,"ProposalNumber": Proposalnumber, "PIname": PIName, "Searchby": SearchBy, "FromSOdate": FromSODate, "ToSOdate": ToSODate, "Fromdate": FromDate, "Todate": ToDate };
+        var searchdata = {
+            ProjectNumber: Projectnumber,
+            PIName: PIName,
+            TemporaryAdvanceNumber: TempAdvnumber,
+            TempAdvSettlNumber: TempAdvSettlnumber,
+            FromDate: FromDate,
+            ToDate: ToDate,
+        };
+
+        $.ajax({
+            type: "GET",
+            url: searchTempAdvanceURL,
+            data: searchdata,
+            //data: { "ProjectType": Projecttype, "ProposalNumber": Proposalnumber, "FromSOdate": FromSODate, "ToSOdate": ToSODate, },
+            //contentType: "application/x-www-form-urlencoded",
+            dataType: "json",
+            success: function (result) {
+                // dataProposal = result;
+                $("#TempAdvSettlPaymentList").jsGrid({ data: result });
+                //   $('#popupFilter').hide();
+            },
+            error: function (err) {
+                console.log("error : " + err);
+            }
+        });
+    }
+</script>

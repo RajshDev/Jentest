@@ -1,0 +1,390 @@
+﻿@model IOAS.Models.TDSPaymentModel
+
+
+@{
+    ViewBag.Title = "TDSPayment";
+    ViewBag.Subtitle = "TDSPayment List";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+<div class="row hd-tt-bg">
+    <div class="col-md-4">
+        <h3>TDSPayment List</h3>
+    </div>
+    <div id="addnewpage" class="col-md-8 flt-nav-links">
+
+        <a href="Javascript:void(0)" id="btnFilter" class="pull-right"> <i class="ion-android-funnel"></i>Filters</a>
+        <a href="@Url.Action("TDSPayment")"> <i class="ion-plus"></i>Add New</a>
+
+    </div>
+</div>
+
+<div class="row mt30">
+    <div class="page-wrapper">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="custom-jsgrid-normal">
+                    <div id="TDSPaymentList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="popup"></div>
+
+<div id="popupFilter" class="filter-popup">
+    <div class="">
+        <div class="filter-content">
+            <div class="white-bg">
+                <div class="form-group custom-form-group">
+                    <h3>Filter by</h3>
+                </div>
+                <div id="DivCrtdDate" class="form-group custom-form-group">
+                    <label class="full-width">Created Date</label>
+                    @Html.TextBoxFor(m => m.SearchField.FromDate, new { @id = "FromDate", @class = "form-control half-form" })
+                    @Html.TextBoxFor(m => m.SearchField.ToDate, new { @id = "ToDate", @class = "form-control half-form" })
+                </div>
+                <div class="form-group custom-form-group">
+                    @Html.TextBoxFor(m => m.SearchField.TDSPaymentNumber, new { @id = "TDSPaymentNumber", @placeholder = "TDSPayment Number", @class = "form-control" })
+                </div>
+                <div class="form-group custom-form-group">
+                    @Html.TextBoxFor(m => m.SearchField.Status, new { @id = "status", @placeholder = "Status", @autocomplete = "off", @class = "form-control" })
+                </div>
+                <div class="form-group custom-form-group">
+                    @Html.TextBoxFor(m => m.SearchField.Date, new { @id = "Date", @placeholder = "Month", @autocomplete = "off", @class = "form-control" })
+                </div>
+                <div class="form-group custom-form-group">
+                    @Html.TextBoxFor(m => m.SearchField.Amount, new { @id = "amt", @placeholder = "Amount", @autocomplete = "off", @class = "form-control" })
+                </div>
+                <div class="form-group custom-form-group">
+                    @Html.DropDownListFor(m => m.SearchField.Bank, new SelectList(ViewBag.BankList, "id", "name"), "Select Bank", new { @class = "form-control", @placeholder = "Bank", @id = "bankid" })
+                </div>
+                <div class="form-group custom-form-group mt30 text-center">
+                    <a id="btnReset" href="javascript:void(0)">Reset</a>
+                </div>
+                <div class="form-group custom-form-group text-center">
+                    <button id="btnSearch" type="button" class="btn btn-primary mr10">Search</button>
+                    <button name="btnClose" type="button" class="btn btn-default">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <a href="javascript:void(0)" name="btnClose" class="close-btn"><i class="ion-android-cancel"></i></a>
+</div>
+
+<script>
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    $("#FromDate, #ToDate,#Date").datepicker
+         ({
+             dateFormat: 'dd-MM-yy',
+             showStatus: true,
+             showWeeks: true,
+             changeYear: true,
+             yearRange: '-100:+0',
+             highlightWeek: true,
+             numberOfMonths: 1,
+             showAnim: "scale",
+             showOptions: {
+                 origin: ["top", "left"]
+             }
+         });
+    $('a[name="btnClose"],button[name="btnClose"]').click(function () {
+        $('#popupFilter').css("display", "none");
+    });
+    $("#btnFilter").click(function () {
+        $('#popupFilter').css("display", "Block");
+    });
+    $('#btnSearch').on('click', function () {
+        // var token = $("input[name=__RequestVerificationToken]").val();
+        getData();
+
+    });
+    function ResetForm() {
+        $('#TDSPaymentNumber').val('');
+        $('#status').val('');
+        $('#FromDate').val('');
+        $('#ToDate').val('');
+        $('#Date').val('');
+        $('#amt').val('');
+        $('#bankid').val('');
+
+    }
+    $('#btnReset').click(function () {
+        ResetForm();
+        getData();
+    });
+
+    var searchTDSURL = 'SearchTDSPaymentList';
+    function getData() {
+        var input = [];
+        input = {
+            ExTDSPaymentNumber: $('#TDSPaymentNumber').val(),
+            FromDate: $('#FromDate').val() || null,
+            ToDate: $('#ToDate').val() || null,
+            ExStatus: $('#status').val(),
+            Date: $('#Date').val(),
+            Amount: $('#amt').val() || null,
+            Bank: $('#bankid').val() || null,
+        },
+        $("#TDSPaymentList").jsGrid("search", input, pageIndex = 1, pageSize = 5);
+
+    }
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+    });
+    var DateField = function (config) {
+        jsGrid.Field.call(this, config);
+    };
+    DateField.prototype = new jsGrid.Field({
+        sorter: function (date1, date2) {
+            return new Date(date1) - new Date(date2);
+        },
+
+        itemTemplate: function (value) {
+            return new Date(value).toDateString();
+        },
+
+        filterTemplate: function () {
+            var now = new Date();
+            this._fromPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() - 1), changeYear: true });
+            this._toPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() + 1), changeYear: true });
+            return $("<div>").append(this._fromPicker).append(this._toPicker);
+        },
+
+        insertTemplate: function (value) {
+            return this._insertPicker = $("<input>").datepicker({ defaultDate: new Date() });
+        },
+
+        editTemplate: function (value) {
+            return this._editPicker = $("<input>").datepicker().datepicker("setDate", new Date(value));
+        },
+
+        insertValue: function () {
+            return this._insertPicker.datepicker("getDate").toISOString();
+        },
+
+        editValue: function () {
+            return this._editPicker.datepicker("getDate").toISOString();
+        },
+
+        filterValue: function () {
+            return {
+                from: this._fromPicker.datepicker("getDate"),
+                to: this._toPicker.datepicker("getDate")
+            };
+        }
+    });
+    jsGrid.fields.date = DateField;
+    var db;
+
+    $("#TDSPaymentList").jsGrid({
+        paging: true,
+        pageIndex: 1,
+        pageSize: 5,
+        editing: false,
+        filtering: true,
+        pageLoading: true,
+        autoload: true,
+        controller: {
+
+            loadData: function (filter) {
+                var searchData = [];
+                searchData = {
+                    InTDSPaymentNumber: filter.TDSPaymentNumber,
+                    InStatus: filter.Status,
+                    ExTDSPaymentNumber: $('#TDSPaymentNumber').val(),
+                    FromDate: $('#FromDate').val() || null,
+                    ToDate: $('#ToDate').val() || null,
+                    ExStatus: $('#status').val(),
+                    Date: $('#Date').val(),
+                    Amount: $('#amt').val() || null,
+                    Bank: $('#bankid').val() || null,
+                }
+                filter.model = searchData;
+                var deferred = $.Deferred();
+                $.ajax({
+                    type: "post",
+                    url: 'GetTDSPaymentList',
+                    data: JSON.stringify(filter),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (result) {
+                        var da = {
+                            data: result.TDSPaymentlist,
+                            itemsCount: result.TotalRecords
+                        }
+                        deferred.resolve(da);
+                    },
+                    error: function (err) {
+                        console.log("error : " + err);
+                    }
+
+                });
+                return deferred.promise();
+            }
+
+        },
+
+        fields: [
+            { name: "SlNo", title: "S.No", editing: false, width: 10 },
+            { type: "date", name: "TDSPaymentDate", title: "Date", editing: false, align: "left", width: 70 },
+            { type: "number", name: "TDSPaymentId", title: "Id", visible: false, align: "left" },
+            { type: "text", name: "TDSPaymentNumber", title: "TDS Payment Number", editing: false, align: "left", width: 70 },
+             { name: "Month", title: "Month", editing: false, align: "left", width: 70 },
+             { name: "Bank", title: "Bank", editing: false, align: "left", width: 70 },
+            { name: "CategoryName", title: "Category", editing: false, align: "left", width: 70 },
+            { name: "SectionName", title: "Section", editing: false, align: "left", width: 70 },
+            { name: "TotalTDS", title: "Total TDS-IncomeTax", editing: false, align: "left", width: 70 },
+             { name: "TotalGST", title: "Total TDS-GST", editing: false, align: "left", width: 70 },
+            { type: "text", name: "Status", title: "Status", editing: false, align: "left", width: 60 },
+             {
+                 type: "control", editButton: false, deleteButton: false, title: "Action", width: 80,
+                 itemTemplate: function (value, item) {
+                     var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+                     if (item.Status == "Open") {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "Print Bill", name: "Print Bill" }, { id: "Edit", name: "Edit" }, { id: "Submit for approval", name: "Submit for approval" }, { id: "View", name: "View" }, { id: "Report", name: "Report" }]
+                     } else if (item.Status == "Approval Pending") {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "Print Bill", name: "Print Bill" }, { id: "View", name: "View" }, { id: "Approve", name: "Approve" }, { id: "Report", name: "Report" }]
+                     }
+                     else if (item.Status == "Submit for approval") {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "Print Bill", name: "Print Bill" }, { id: "View", name: "View" },  { id: "Report", name: "Report" }]
+
+                     } else if (item.Status == "Approved") {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "Print Bill", name: "Print Bill" }, { id: "View", name: "View" }, { id: "Update Challan", name: "Update Challan" }, { id: "Report", name: "Report" }]
+                     }
+                     else if (item.Status == "Completed") {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "Print Bill", name: "Print Bill" }, { id: "View", name: "View" }, { id: "Report", name: "Report" }]
+                     }
+                     else  {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "Print Bill", name: "Print Bill" }, { id: "View", name: "View" }, { id: "Report", name: "Report" }]
+
+                     }
+                     var $customSelect = $("<select>")
+                         .attr("class", "form-control").prop("selectedIndex", "")
+
+                     $.each(statusList, function (index, itemData) {
+                         $customSelect.append($('<option/>', {
+
+                             value: itemData.id,
+                             text: itemData.name
+                         }));
+                     });
+
+                     $customSelect.change(function (e) {
+                         var selVal = $(this).val();
+                         if (selVal == "Edit") {
+                             var url = '@Url.Action("TDSPayment", "CoreAccounts")?TDSPaymentId=' + item.TDSPaymentId;
+                             window.location.href = url;
+                         } else if (selVal == "Print Bill") {
+                             var url = '@Url.Action("TDSPaymentBill", "ReportMaster")?Id=' + item.TDSPaymentId;
+                             window.open(url, '_blank');
+                         }
+                         else if (selVal == "Submit for approval") {
+                             var choice = confirm("Are you sure, Do you want to submit this bill for approval process?");
+                             if (choice === true) {
+                                 $.ajax({
+                                     type: "POST",
+                                     url: '@Url.Action("TDSPaymentWFInit", "CoreAccounts")',
+                                     data: {
+                                         id: item.TDSPaymentId
+                                     },
+                                     success: function (result) {
+                                         if (result.status == true) {
+                                             $('#alertSuccess').html("TDSPayment has been submitted for approval process successfully.");
+                                             $('#Success').modal('toggle');
+                                             loadDetails();
+                                         } else if (result.status == false) {
+                                             $('#FailedAlert').html(result.msg);
+                                             $('#Failed').modal('toggle');
+                                         }
+                                     },
+                                     error: function (err) {
+                                         console.log("error1 : " + err);
+                                     }
+                                 });
+                             }
+                         } if (selVal == "Report") {
+                             var url = '@Url.Action("TDSPayment", "Reports")?Id=' + item.TDSPaymentNumber;
+                             window.location.href = url;
+                         }
+                         else if (selVal == "View") {
+                             var pay = false;
+                             if (item.Status == "Completed") {
+                                 pay = true;
+                             }
+                             var url = '@Url.Action("TDSPaymentView", "CoreAccounts")?TDSPaymentId=' + item.TDSPaymentId + "&payment=" + pay;
+                            window.location.href = url;
+                         }
+                         else if (selVal == "Update Challan") {
+                             var pay = true;
+                             var url = '@Url.Action("TDSPayment", "CoreAccounts")?TDSPaymentId=' + item.TDSPaymentId + "&payment=" + pay;
+                             window.location.href = url;
+                         }
+                         else if (selVal == "Approve") {
+                             var choice = confirm("Are you sure, Do you want to submit this bill for approval process?");
+                             if (choice === true) {
+                                 $.ajax({
+                                     type: "GET",
+                                     url: '@Url.Action("ApprovalPendingForTDSPayment", "CoreAccounts")',
+                                     data: {
+                                         TDSPaymentId: item.TDSPaymentId
+                                     },
+                                     success: function (result) {
+                                         if (result.status == true) {
+                                             $('#alertSuccess').html("TDSPayment has been submitted for approval process successfully");
+
+                                             $('#Success').modal('toggle');
+                                             loadDetails();
+                                         } else if (result.status == false) {
+
+                                             $('#FailedAlert').html(result.msg);
+                                             $('#Failed').modal('toggle');
+                                         }
+                                     },
+                                     error: function (err) {
+                                         console.log("error1 : " + err);
+                                     }
+                                 });
+                             }
+                         }
+                         $(this).val("");
+                         return false;
+                         e.stopPropagation();
+                     });
+
+                     return $result.add($customSelect);
+                 },
+                 _createFilterSwitchButton: function () {
+                     return this._createOnOffSwitchButton("filtering", this.searchModeButtonClass, false);
+                 }
+             }
+        ],
+
+    });
+
+    $("#TDSPaymentList").jsGrid("option", "filtering", false);
+    loadDetails();
+    function loadDetails() {
+        var input = [];
+        input = {
+            ExTDSPaymentNumber: $('#TDSPaymentNumber').val(),
+            FromDate: $('#FromDate').val() || null,
+            ToDate: $('#ToDate').val() || null,
+            ExStatus: $('#status').val(),
+            Date: $('#Date').val(),
+            Amount: $('#amt').val() || null,
+            Bank: $('#bankid').val() || null,
+        },
+        $("#TDSPaymentList").jsGrid("search", input, pageIndex = 1, pageSize = 5);
+    }
+
+
+</script>

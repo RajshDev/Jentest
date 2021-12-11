@@ -1,0 +1,3708 @@
+﻿@model IOAS.Models.OrderModel
+@using IOAS.GenericServices
+@{
+    ViewBag.Title = "Change of project";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+    <link href="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/css/bootstrap-select.min.css")" rel="stylesheet" />
+    string Remark = RequirementService.GetRejectCommitment(Model.ApplicationNo, Model.OrderID);
+}
+<style>
+    .modal-dialog {
+        width: 850px;
+    }
+
+    .rt-tb-scrl {
+        width: 100%;
+        height: 400px;
+        overflow: auto;
+    }
+
+    .tbl-style table, .tbl-style tr, .tbl-style td, .tbl-style th {
+        border: 1px solid #000;
+    }
+
+    .tbl-style > .table {
+        margin-top: 10px;
+        margin-bottom: 10px;
+        width: 85% !important;
+        max-width: 100% !important;
+        margin-left: 60px;
+    }
+
+    .tbl-style > .table-bordered > thead > tr > th {
+        border: 1px solid #000;
+        border-width: 1px 1px 0px 1px !important;
+        width: 100px;
+    }
+
+    .tbl-style > .table-bordered > tbody > tr > th {
+        border: 1px solid #000;
+        border-width: 1px 1px 0px 1px !important;
+    }
+
+    .tbl-style > .table-bordered > thead > tr > th {
+        border-bottom-width: 0px;
+    }
+
+    .tbl-style > .table.table-bordered > tbody > tr > td {
+        border: 1px solid #000;
+        border-width: 1px 1px 0px 1px !important;
+        width: 100px;
+    }
+
+    .doc-textwht {
+        color: #fff !important;
+    }
+
+    .txt-bold {
+        font-weight: bold;
+    }
+
+
+    .reg-no {
+        z-index: 1 !important;
+    }
+</style>
+@using (Html.BeginForm("RecruitChangeOfProject", "Requirement", FormMethod.Post, new { @class = "", role = "form", @id = "formSTEJuniorApp", enctype = "multipart/form-data" }))
+{
+    <div class="row hd-tt-bg">
+        <div class="col-md-12">
+            <h4><b>Change Project</b></h4>
+            <ul class="nav nav-pills custom-nav-pills custom-spl-nav">
+                <li class="active"><a href="javascript:void(0)"><span>01</span>Application Entry</a></li>
+                <li><a href="javascript:void(0)"><span>02</span>Application Checklist</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="row">
+        <div class="white-bg ad-navbar">
+            <div class="col-md-2 ds-spl-bg">
+            </div>
+            <div class="col-md-3 ds-spl-bg">
+                <div class="ds-icn">
+                    <i class="ion-ios-list-outline "></i>
+                </div>
+                <div class="ds-tt">
+                    @Html.HiddenFor(m => m.ApplicationID)
+                    @Html.HiddenFor(m => m.IsMsPhd)
+                    @Html.HiddenFor(m => m.OrderID)
+                    @Html.HiddenFor(m => m.OrderType)
+                    @Html.HiddenFor(m => m.Status)
+                    @Html.HiddenFor(m => m.VendorId)
+                    @Html.HiddenFor(m => m.TypeCode)
+                    @Html.HiddenFor(M => M.StatutoryId)
+                    <span>Request Reference</span>
+                    @Html.DropDownListFor(m => m.RequestReference, new SelectList(ViewBag.ReferenceType, "id", "name"), "Select", new { @class = "form-control" })
+                    <div>@Html.ValidationMessageFor(m => m.RequestReference)</div>
+                </div>
+            </div>
+            <div class="col-md-3 ds-spl-bg">
+                <div class="ds-icn">
+                    <i class="ion-ios-list-outline "></i>
+                </div>
+                <div class="ds-tt" id="divRefNum">
+                    <span class="required">Ref Number (WF / Tapal)</span>
+                    @Html.TextBoxFor(M => M.ReferenceNo, new { @class = "form-control" })
+                    @*@Html.TextBoxFor(m => m.SourceReferenceNumber, new { @class = "form-control dis-none" })
+                        <div>@Html.ValidationMessageFor(M => M.SourceReferenceNumber)</div>*@
+                    @Html.Hidden("SourceTapalOrWorkflow", "True")
+                </div>
+                <div class="dis-none ds-tt" id="divRefEmailDate">
+                    <span class="required">Email Date</span>
+                    @Html.EditorFor(m => m.SourceEmailDate, new { @class = "form-control" })
+                    <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.SourceEmailDate)</div>
+                </div>
+            </div><div class="col-md-4">
+            </div>
+        </div>
+    </div>
+    <div class="row cust-tab">
+        <div class="page-wrapper mt30">
+            <div>
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="bl-lg-panel-box pb-null">
+                                <div class="cmn-panel-box">
+                                    <div class="row ">
+                                        <div class="col-md-12">
+                                            <div class="form-group custom-form-group">
+                                                <label>Employee Id</label>
+                                                <h4>@Html.DisplayFor(m => m.EmployeeID)</h4>
+                                            </div>
+                                            <div class="form-group custom-form-group">
+                                                <label>Type of appointment </label>
+                                                <h4>@Html.DisplayFor(m => m.Typeofappointment)</h4>
+                                                @if (Model.TypeCode == "OSG")//OSG Calculation purpose
+                                                {
+                                                @Html.DropDownListFor(m => m.TypeofappointmentId, new SelectList(ViewBag.Apptype, "id", "name"), "Select Appointment", new { @class = "form-control dis-none" })
+                                                @Html.DropDownListFor(m => m.PhysicallyChallenged, new SelectList(ViewBag.YesNo, "id", "name"), "Select", new { @class = "form-control dis-none", @id = "PhysicallyChallenged", @data_val = "false" })
+                                                }
+                                                else
+                                                {
+                                                @Html.HiddenFor(m => m.TypeofappointmentId)
+                                                }
+                                            </div>
+                                            <div class="form-group custom-form-group">
+                                                <label>Email ID</label>
+                                                <h4>@Html.DisplayFor(m => m.Email)</h4>
+                                            </div>
+                                            <div class="form-group custom-form-group">
+                                                <label>Name </label>
+                                                <h4 id="CantidateName">@Html.DisplayFor(m => m.Name)</h4>
+                                            </div>
+                                            <div class="form-group custom-form-group mb-sm ">
+                                                <label>Father’s / Husband’s Name</label>
+                                                <h4>@Html.DisplayFor(m => m.Nameoftheguardian)</h4>
+                                            </div>
+                                            <div class="form-group custom-form-group">
+                                                <label>Permanent Address  </label>
+                                                <h4>@Html.DisplayFor(m => m.PermanentAddress)</h4>
+                                            </div>
+                                            <div class="form-group custom-form-group">
+                                                <label>Temporary Address  </label>
+                                                <h4>@Html.DisplayFor(m => m.PresentAddress)</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>Contact No</label>
+                                                <h4>@Html.DisplayFor(m => m.ContactNumber)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label>Date of Birth</label>
+                                                <h4>@Html.DisplayFor(m => m.DateofBirth)</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label>Age</label>
+                                                <h4 id="Age">@Html.DisplayFor(m => m.Age)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label>Sex</label>
+                                                <h4>@Html.DisplayFor(m => m.Sex)</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="form-group custom-form-group">
+                                                <label>Application ReceiveDate</label>
+                                                @Html.EditorFor(m => m.ApplicationReceiveDate, new { @class = "form-control" })
+                                                <div>@Html.ValidationMessageFor(m => m.ApplicationReceiveDate)</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="bl-lg-panel-box  pb-null">
+                                <div class="mb-m-5 pd-null">
+                                    <div class="cmn-panel-box">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <h2>Existing Project details</h2>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Project Number</label>
+                                                    @Html.HiddenFor(m => m.OldPrjDetailModel.ProjectID, new { @id = "Oldproject" })
+                                                    <h4>@Html.DisplayFor(m => m.OldPrjDetailModel.ProjectNumber)</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Project Title</label>
+                                                    <h4>@Html.DisplayFor(m => m.OldPrjDetailModel.ProjectTitle)</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Name of the Client / Sponsoring Agency</label>
+                                                    <h4>@Html.DisplayFor(m => m.OldPrjDetailModel.SponsoringAgency)</h4>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Project Type</label>
+                                                    <h4>@Html.DisplayFor(m => m.OldPrjDetailModel.ProjectType)</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>PI Name</label>
+                                                    <h4>@Html.DisplayFor(m => m.OldPrjDetailModel.PIName)</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Project Start Date</label>
+                                                    <h4>@Html.DisplayFor(m => m.OldPrjDetailModel.ProjectStartDate)</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Project Closure Date</label>
+                                                    <h4>@Html.DisplayFor(m => m.OldPrjDetailModel.ProjectClosureDate)</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>PI Code</label>
+                                                    <h4>@Html.DisplayFor(m => m.OldPrjDetailModel.PICode)</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>PI Email ID</label>
+                                                    <h4>@Html.DisplayFor(m => m.OldPrjDetailModel.Email)</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>PI Phone No</label>
+                                                    <h4>@Html.DisplayFor(m => m.OldPrjDetailModel.Phone)</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Department code </label>
+                                                    <h4>@Html.DisplayFor(m => m.OldPrjDetailModel.PIDepartmentCode)</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Department Name</label>
+                                                    <h4>@Html.DisplayFor(m => m.OldPrjDetailModel.PIDepartmentName)</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Designation Code</label>
+                                                    <h4>@Html.DisplayFor(m => m.OldPrjDetailModel.DesignationCode)</h4>
+                                                    @Html.HiddenFor(m => m.OldPrjDetailModel.DesignationId)
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Designation</label>
+                                                    <h4>@Html.DisplayFor(m => m.OldPrjDetailModel.Designation)</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Medical</label>
+                                                    @Html.HiddenFor(m => m.OldPrjDetailModel.Medical)
+                                                    @Html.HiddenFor(m => m.OldPrjDetailModel.MedicalAmmount)<br>
+                                                    @Html.DisplayFor(m => m.OldPrjDetailModel.MedicalAmmount)
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Appointment start date</label>
+                                                    <h4 id="OldAppointmentStartDate">@Html.DisplayFor(m => m.OldPrjDetailModel.AppointmentStartDate)</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Appointment End date</label>
+                                                    <h4 id="OldAppointmentClosureDate">@Html.DisplayFor(m => m.OldPrjDetailModel.AppointmentClosureDate)</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Salary</label>
+                                                    @Html.HiddenFor(m => m.OldPrjDetailModel.Salary)
+                                                    <h4 id="OldSalary">@Html.DisplayFor(m => m.OldPrjDetailModel.Salary)</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label>HRA</label>
+                                                    @Html.HiddenFor(m => m.OldPrjDetailModel.isHRA)
+                                                    @Html.HiddenFor(m => m.OldPrjDetailModel.HRA)
+                                                    @Html.HiddenFor(m => m.OldPrjDetailModel.HRAPercentage)
+                                                    <h4 id="OldHRA">@Html.DisplayFor(m => m.OldPrjDetailModel.HRA)</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="">Commitment Amount</label>
+                                                    <h4 id="OldCommitmentAmount">@Html.DisplayFor(m => m.OldPrjDetailModel.CommitmentAmmount)</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label>IITM Experience</label>
+                                                    <h4>@Html.DisplayFor(m => m.IITMExperience)</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="col-md-6">
+                                                    <div class="form-group custom-form-group">
+                                                        <label>M.S/Ph.D</label>
+                                                        <h4>@Html.CheckBoxFor(m => m.IsMsPhd, new { @Disabled = "Disabled" })</h4>
+                                                    </div>
+                                                </div>
+                                                @if (Model.IsMsPhd)
+                                                {
+                                                <div class="col-md-6">
+                                                    <div class="form-group custom-form-group">
+                                                        <label>Roll Number</label>
+                                                        <h4>@Html.DisplayFor(m => m.PhdDetail)</h4>
+                                                    </div>
+                                                </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="bl-lg-panel-box  pb-null">
+                                <div class="bl-lg-panel-box-hd mb-m-5 pd-null">
+                                    <div class="cmn-panel-box">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <h2>New Project details</h2>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group custom-form-group mb-sm">
+                                                            <label>Project Title</label>
+                                                            <h4 id="lblProjectTitle"></h4>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group custom-form-group mb-sm">
+                                                            <label>Name of the Client / Sponsoring Agency</label>
+                                                            <h4 id="lblClientAgency"></h4>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group custom-form-group mb-sm">
+                                                            <label>Project Type</label>
+                                                            <h4 id="lblProjectType"></h4>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group custom-form-group mb-sm">
+                                                            <label>PI Name</label>
+                                                            <h4 id="lblPIName"></h4>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group custom-form-group mb-sm">
+                                                            <label>Project Start Date</label>
+                                                            <h4 id="lblProjectStartDate"></h4>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group custom-form-group mb-sm">
+                                                            <label>Project Closure Date</label>
+                                                            <h4 id="lblProjectClosureDate"></h4>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group custom-form-group mb-sm">
+                                                            <label>PI Code</label>
+                                                            <h4 id="lblPICode"></h4>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group custom-form-group mb-sm">
+                                                            <label>PI Email ID</label>
+                                                            <h4 id="lblPIEmailID"></h4>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group custom-form-group mb-sm">
+                                                            <label>PI Phone No</label>
+                                                            <h4 id="lblPIPhone"></h4>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group custom-form-group mb-sm">
+                                                            <label>Department code </label>
+                                                            <h4 id="lblDepartmentCode"></h4>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group custom-form-group mb-sm">
+                                                            <label>Department Name</label>
+                                                            <h4 id="lblDepartmentName"></h4>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group custom-form-group">
+                                                            <label>Medical</label> <br>
+                                                            <h4 id="MedicalText" class="dis-none"></h4>
+                                                            @Html.DropDownListFor(m => m.Medical, new SelectList(ViewBag.Medical, "id", "name"), "Select Medical", new { @class = "form-control", @data_val = "false" })
+                                                            <div>@Html.ValidationMessageFor(m => m.Medical)</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group custom-form-group">
+                                                            <label>Withdrawn Full Amount</label> <br>
+                                                            @Html.CheckBoxFor(M => M.WithdrawnFullAmount)
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6 reg-no custom-reg-no">
+                                                        <div class="form-group custom-form-group">
+                                                            <label>Withdrawn Amount</label>
+                                                            @Html.TextBoxFor(M => M.WithdrawalAmount, new { @class = "form-control", @readonly = "readonly" })
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group custom-form-group">
+                                                            <label>Salary processed till date</label>
+                                                            @Html.EditorFor(m => m.WithdrawTillDate, new { @class = "form-control" })
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-8">
+                                                <div class="row">
+                                                    <div class="col-md-4">
+                                                        <div class="form-group custom-form-group mb-sm">
+                                                            <label>Project Number</label>
+                                                            @Html.TextBoxFor(M => M.ProjectNumber, new { @class = "form-control required" })
+                                                            @Html.HiddenFor(m => m.ProjectId, new { @class = "required" })
+                                                            <div>@Html.ValidationMessageFor(m => m.ProjectId)</div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="form-group custom-form-group">
+                                                            <label>Designation Code</label>
+                                                            @if (Model.OrderID > 0)
+                                                            {
+                                                            <h4>@Html.DisplayFor(m => m.DesignationCode)</h4>
+                                                            }
+                                                            else
+                                                            {
+                                                            <h4>@Html.DisplayFor(m => m.OldPrjDetailModel.DesignationCode)</h4>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="form-group custom-form-group">
+                                                            <label>Designation</label>
+                                                            @if (Model.OrderID > 0)
+                                                            {
+                                                            <h4>@Html.DisplayFor(m => m.Designation)</h4>
+                                                            @Html.HiddenFor(m => m.DesignationId)
+                                                            }
+                                                            else
+                                                            {
+                                                            <h4>@Html.DisplayFor(m => m.OldPrjDetailModel.Designation)</h4>
+                                                            @Html.Hidden("DesignationId", Model.OldPrjDetailModel.DesignationId)
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row">
+                                                    <div class="col-md-4">
+                                                        <div class="form-group custom-form-group">
+                                                            <label class="">Appointment start date</label>
+                                                            @Html.EditorFor(m => m.Appointmentstartdate, new { @class = "form-control required" })
+                                                            <div>@Html.ValidationMessageFor(m => m.Appointmentstartdate)</div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="form-group custom-form-group">
+                                                            <label class="">Appointment End date</label>
+                                                            <h4>@Html.DisplayFor(m => m.OldPrjDetailModel.AppointmentClosureDate)</h4>
+                                                            <div>@Html.HiddenFor(m => m.AppointmentEndDate)</div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="form-group custom-form-group">
+                                                            <label>Medical Amount</label>
+                                                            @Html.TextBoxFor(m => m.MedicalAmmount, new { @class = "form-control", @readonly = "readonly" })
+                                                            @Html.HiddenFor(m => m.isMedical)
+                                                            @Html.Hidden("DesignationMedicalamount", 0)
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-4">
+                                                        <div class="form-group custom-form-group">
+                                                            <label>Salary</label>
+                                                            @if (Model.TypeCode == "OSG")
+                                                            {
+                                                            @Html.TextBoxFor(m => m.Salary, new { @class = "form-control required", @onkeypress = "return isNumberKey(event)", @autocomplete = "off", @onchange = "FillSalaryCalcDetls();" })
+                                                            }
+                                                            else
+                                                            {
+                                                            @Html.TextBoxFor(m => m.Salary, new { @class = "form-control required", @onkeypress = "return isNumberKey(event)", @autocomplete = "off" })
+                                                            }
+                                                            <div>@Html.ValidationMessageFor(m => m.Salary)</div>
+                                                            @if (Model.TypeCode == "OSG")
+                                                            {
+                                                            <a href="#" class="bl-bg-txt" onclick="salarycalcpopup();">Salary Calculation</a>
+                                                            }
+                                                            @Html.Hidden("MinSalary", 0)
+                                                            @Html.Hidden("MaxSalary", 0)
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="form-group custom-form-group">
+                                                            <label>HRA</label>
+                                                            @Html.TextBoxFor(m => m.HRA, new { @class = "form-control", @onkeypress = "return isNumberKey(event)", @autocomplete = "off" })
+                                                            @Html.HiddenFor(m => m.HRAPercentage)
+                                                            @Html.HiddenFor(m => m.isHRA)
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4 reg-no custom-reg-no">
+                                                        <div class="form-group custom-form-group">
+                                                            <label class="required">Commitment Amount</label>
+                                                            @Html.TextBoxFor(m => m.CommitmentAmount, new { @class = "form-control", @readonly = "readonly" })
+                                                            <div>@Html.ValidationMessageFor(m => m.CommitmentAmount)</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-4">
+                                                        <div class="form-group custom-form-group">
+                                                            <input type="button" class="btn btn-success" value="View Staff Allocation" id="btnViewStaffAllocation">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="form-group custom-form-group">
+                                                            <input type="button" class="btn btn-success" value="Project Fund Availability" id="btnViewSummary">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="form-group custom-form-group">
+                                                            <label class="required">PI Letter </label>
+                                                            @if (Model.OrderID > 0 && !string.IsNullOrEmpty(Model.PILetterPath))
+                                                            {
+                                                            <input type="file" id="PILetter" name="PILetter">
+                                                            @Html.ActionLink(Model.PILetterFileName, "ShowDocument", new { Controller = "Account", filepath = "Requirement", file = Model.PILetterPath }, new { @name = "DocDownload", @target = "_blank", @style = "color:white;" })
+                                                            <div>@Html.ValidationMessage("PILetter")</div>
+                                                            }
+                                                            else
+                                                            {
+                                                            <input type="file" id="PILetter" name="PILetter" required>
+                                                            <div>@Html.ValidationMessage("PILetter")</div>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-4">
+                                                        <div class="form-group custom-form-group">
+                                                            <label class="required">Request received from PI</label>
+                                                            @Html.TextBoxFor(m => m.AutoFillRequstedbyPI, new { @class = "form-control required" })
+                                                            @Html.HiddenFor(m => m.RequestedByPI)
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="form-group custom-form-group">
+                                                            <label>Arrear till</label>
+                                                            @Html.EditorFor(m => m.ArrearOrDeductionTillDate, new { @class = "form-control" })
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="form-group custom-form-group">
+                                                            <label>Arrear Amount</label>
+                                                            @Html.TextBoxFor(m => m.ArrearOrDeductionAmount, new { @class = "form-control", @readonly = "readonly" })
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <label>PI Justification Document</label> <br>
+                                                <div id="divPIJustification">
+                                                    <input class="form-control mb-sm" id="PIJustificationFile_0" type="file" name="PIJustificationFile[0]" value="">
+                                                    <a href="javascript:void(0)" class="btn-sm btn btn-danger mb-sm removeFile" style="margin-bottom: 10px;"><i class="ion-android-close"></i></a>
+                                                </div>
+                                                <a href="javascript:void(0)" id="btnAddFile" class="btn btn-success mt-20 mb20">Add New</a>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group custom-form-group">
+                                                    <label>PI Justification / Remarks</label>
+                                                    @Html.TextAreaFor(M => M.PIJustificationRemarks, new { @class = "form-control" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row cust-tab" style="display:none;">
+        <div class="page-wrapper mt30">
+            <div>
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="bl-lg-panel-box pb-null">
+                                <div class="cmn-panel-box">
+                                    <div class="row ">
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label>Application No: </label>
+                                                <h4>@Html.DisplayFor(m => m.ApplicationNo)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label>Candidate Name: </label>
+                                                <h4>@Html.DisplayFor(m => m.Name)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label>PI Name:</label> <br>
+                                                <h4 id="lblPIName"></h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label>Department name:</label> <br>
+                                                <h4 id="lblDepartname"></h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label>M.S/Ph.D</label><br>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group custom-form-group  ">
+                                                            <h4>
+                                                                @Html.CheckBoxFor(m => m.IsMsPhd, new { @Disabled = "Disabled" })
+                                                            </h4>
+                                                        </div>
+                                                    </div>
+                                                    @if (Model.IsMsPhd)
+                                                    {
+                                                    <div class="col-md-6">
+                                                        <div class="form-group custom-form-group  ">
+                                                            <label>Roll Number</label>
+                                                            <h4>@Html.DisplayFor(m => m.PhdDetail)</h4>
+                                                        </div>
+                                                    </div>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label>Designation: </label>
+                                                <h4>@Html.DisplayFor(m => m.OldPrjDetailModel.Designation)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label>Qualification: </label>
+                                                <h4>@Html.Raw(Model.Qualification)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label>Experience: </label>
+                                                <h4>@Html.DisplayFor(m => m.Experience)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label>Pay: </label>
+                                                <h4 id="lblPay"></h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label>Medical:</label> <br>
+                                                <h4 id="lblMedical"></h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label>DOB </label>
+                                                <h4>@Html.DisplayFor(m => m.DateofBirth)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group  ">
+                                                <label>Application Received Date</label>
+                                                <h4 id="lblReceivedDate">@Html.DisplayFor(m => m.ApplicationReceiveDate)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label>Pay Type</label>
+                                                <h4>@Html.DisplayFor(m => m.PayType)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group  mb-sm">
+                                                <label>Staff Category</label>
+                                                <h4>@Html.DisplayFor(m => m.staffcategory)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group ">
+                                                <label>IITM Pensioner / CSIR Staff :</label>
+                                                <h4>@Html.DisplayFor(m => m.IITMPensionerCSIRStaff)</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label>PI Justification Document</label> <br>
+                                                @if (Model.OrderID > 0 && Model.JustificationDoc != null)
+                                                {
+                                                    foreach (var item in Model.JustificationDoc)
+                                                    {
+                                                        if (item.FilePath != null)
+                                                        {
+                                                            if (item.FilePath != "")
+                                                            {
+                                                <h4>
+                                                    @Html.ActionLink(item.FileName, "ShowDocument", new { Controller = "Account", filepath = "Requirement", file = item.FilePath }, new { @name = "DocDownload", @target = "_blank" })
+                                                    @if (Model.Status == "Draft" || Model.Status == "Open" || Model.Status.Contains("Note"))
+                                                                    {
+
+                                                <a class="rct-del-doc" value="@item.FilePath">Delete</a>
+                                                                    }
+                                                </h4><br>
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                <div id="fileAppend">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        @if (string.IsNullOrEmpty(Model.Status) || Model.Status == "Draft" || Model.Status == "Open" || Model.Status.Contains("Note"))
+                                        {
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group  ">
+                                                <label>Comments</label>
+                                                @Html.TextAreaFor(m => m.Comments, new { @class = "form-control" })
+                                            </div>
+                                        </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="bl-lg-panel-box  pb-null">
+                                <div class="bl-lg-panel-box-hd mb-m-5 pd-null">
+                                    <div class="cmn-panel-box">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Project Number</label>
+                                                    <input type="text" class="form-control" name="ProjectNumber" value="" id="txtProjectNumber">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Project Title</label>
+                                                    <h4 id="lblProjectTitle1"></h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Name of the Client / Sponsoring Agency</label>
+                                                    <h4 id="lblClientAgency1"></h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Project Type</label>
+                                                    <h4 id="lblProjectType1"></h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>PI Name</label>
+                                                    <h4 id="lblPIName1"></h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Project Start Date</label>
+                                                    <h4 id="lblProjectStartDate1"></h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Project Closure Date</label>
+                                                    <h4 id="lblProjectClosureDate1"></h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>PI Code</label>
+                                                    <h4 id="lblPICode1"></h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>PI Email ID</label>
+                                                    <h4 id="lblPIEmailID1"></h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>PI Phone No</label>
+                                                    <h4 id="lblPIPhone1"></h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Department code </label>
+                                                    <h4 id="lblDepartmentCode1"></h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Department Name</label>
+                                                    <h4 id="lblDepartmentName1"></h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Medical</label> <br>
+                                                    <h4 id="lblMedical1"></h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Designation Code</label>
+                                                    @if (Model.OrderID > 0)
+                                                    {
+                                                    <h4>@Html.DisplayFor(m => m.DesignationCode)</h4>
+                                                    }
+                                                    else
+                                                    {
+                                                    <h4>@Html.DisplayFor(m => m.OldPrjDetailModel.DesignationCode)</h4>
+                                                    }
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Designation</label>
+                                                    @if (Model.OrderID > 0)
+                                                    {
+                                                    <h4>@Html.DisplayFor(m => m.Designation)</h4>
+                                                    }
+                                                    else
+                                                    {
+                                                    <h4>@Html.DisplayFor(m => m.OldPrjDetailModel.Designation)</h4>
+                                                    }
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Appointment start date</label>
+                                                    <h4 id="lblAppStartDate1"></h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Appointment End date</label>
+                                                    <h4 id="lblAppEndDate1"></h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Commitment Amount</label>
+                                                    <h4 id="lblCommitmentAmt1"></h4>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group custom-form-group">
+                                                    @Html.RadioButtonFor(m => m.FlowofMail, "NP", new { @id = "IsNotePI" })<label class="ml-sm "> Send for PI Justification</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group custom-form-group">
+                                                    @Html.RadioButtonFor(m => m.FlowofMail, "Nd", new { @id = "IsNodeviation" })<label class="ml-sm "> No deviation</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="Deviation">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                        </div>
+                        <div class="col-md-6">
+                            <div class="bl-lg-panel-box pb-null">
+                                <div class="bl-lg-panel-box-hd mb-m-5 pd-null">
+                                    <div class="cmn-panel-box">
+                                        <div class="row">
+                                            <div class="col-md-4" id="devCMAdmin">
+                                                <div class="form-group custom-form-group">
+                                                    @Html.RadioButtonFor(m => m.FlowApprover, "CMAdmin", new { @id = "IsNotetoCMAdmin" }) <label class="ml-sm ">Note to CM Admin</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4" id="devNoteDean">
+                                                <div class="form-group custom-form-group">
+                                                    @Html.RadioButtonFor(m => m.FlowApprover, "NDean", new { @id = "IsNotetoDean" }) <label class="ml-sm " id="lblNoteDean">Note to Dean</label>
+                                                </div>
+                                            </div>
+                                            @if (Model.TypeCode == "OSG")
+                                            {
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    @Html.RadioButtonFor(m => m.SendSalaryStructure, "SST", new { @id = "IsSendSalaryStructure", @onclick = "checkuncheck(this)" }) <label class="ml-sm "> Send Pay Structure</label>
+                                                </div>
+                                            </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center" style="margin-bottom: 50px;">
+        <button type="button" class="btn btn-default" id="prevBtn" onclick="nextPrev(-1)">Previous</button>
+        <button type="button" class="btn btn-primary" id="nextBtn" onclick="nextPrev(1)">Next</button>
+        @Html.HiddenFor(m => m.List_f)
+        <button type="button" class="btn btn-default" onclick="window.location.href='@Url.Action(Model.List_f,"Requirement")';">Close</button>
+    </div>
+
+    <div id="dialogConfirm" class="modal fade" role="dialog" data-backdrop="static" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header brd-bottom">
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                    <h4 class="modal-title">Mail Preview</h4>
+                </div>
+                <div class="modal-body">
+                    <div style="padding:10px;overflow:auto" id="ShowDeviationNP">
+
+                    </div>
+                    <div style="padding:10px;overflow:auto" id="ShowDeviationND">
+
+                    </div>
+                </div>
+                <div class="modal-footer brd-top">
+                    <button type="button" class="btn btn-danger" id="isbtnConfirm">Confirm</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="salarycalc" class="modal fade modal-pr-vw" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <div class="row hd-tt-bg">
+                        <div class="col-md-12">
+                            <h4><b>Salary Calculation: </b></h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="page-wrapper">
+                            <div class="custom-md-bg">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="bl-lg-panel-box pb-null">
+                                                    <div class="cmn-panel-box">
+                                                        <div class="row ">
+                                                            <div class="col-md-6">
+                                                                <div class="form-group custom-form-group">
+                                                                    @*@Html.RadioButtonFor(M => M.EmpType, "Existing Employee", new { @id = "IsExistingEmp", @checked = "checked" })&nbsp;<label>Existing Employee </label> <br>
+                                                                        @Html.RadioButtonFor(M => M.EmpType, "New Employee", new { @id = "IsNewEmp" })&nbsp;<label>New Employee</label> <br>
+                                                                        @Html.RadioButtonFor(M => M.EmpType, "Part time", new { @id = "IsParttime" })&nbsp;<label>Part time</label> <br>*@
+                                                                    @*<input name="pay_norms2" type="radio" checked=""> Existing Employee <br>
+                                                                        <input name="pay_norms2" type="radio"> New Employee <br>
+                                                                        <input name="pay_norms2" type="radio"> Part time <br>
+                                                                        <h4 id="lblEmplType" class="txt-bold"></h4>*@
+                                                                    <label>Employee type: <span id="lblEmplType" class="txt-bold"></span>@Html.HiddenFor(m => m.EmpType, new { @class = "form-control" })</label>
+                                                                    <label>Type of appointment: <span id="lblAppointType" class="txt-bold"></span></label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <div class="form-group custom-form-group">
+                                                                    <label>Recommended Salary</label>
+                                                                    @Html.TextBoxFor(m => m.RecommendedSalary, new { @class = "form-control", @id = "RecommendSalary", @readonly = true })
+                                                                    @*<input type="text" class="form-control">*@
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row ">
+                                                            <div class="col-md-6">
+                                                                <div class="form-group custom-form-group">
+                                                                    <label>Name </label>
+                                                                    @Html.DropDownListFor(m => m.EmpSalutation, new SelectList(ViewBag.Professional, "id", "name"), "Select", new { @disabled = true })
+                                                                    @Html.HiddenFor(m => m.EmpSalutation, new { @class = "form-control" })
+                                                                    @Html.TextBoxFor(m => m.EmpName, new { @class = "form-control", @id = "EmpName", @readonly = true })
+                                                                    @Html.HiddenFor(m => m.LWFAmount, new { @class = "form-control" })
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <div class="form-group custom-form-group">
+                                                                    <label>Designation</label> <br>
+                                                                    @Html.TextBoxFor(m => m.EmpDesig, new { @class = "form-control", @id = "EmpDesig", @readonly = true })
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            @*<div class="col-md-6">
+                                                                    <div class="form-group custom-form-group">
+                                                                        <label>PH</label><br>
+                                                                        @Html.RadioButtonFor(M => M.PhysicalyHandicaped, "Physically Handicapped", new { @id = "IsPH", @readonly = true })&nbsp;<label>Physically Handicapped</label> <br>
+                                                                    </div>
+                                                                </div>*@
+                                                            <div class="col-md-6">
+                                                                <div class="form-group custom-form-group mb-sm ">
+                                                                    <label>PF Basic Wages</label>
+                                                                    @Html.TextBoxFor(m => m.EmpPFBasicWages, new { @class = "form-control", @id = "EmpPFBasicWages" })
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="bl-lg-panel-box pb-null">
+                                                    <div class="cmn-panel-box">
+                                                        <div class="row">
+                                                            <div class="col-md-12">
+                                                                <h4>Deductions</h4>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-md-6">
+                                                                <div class="form-group custom-form-group">
+                                                                    <label>Employee PF</label>
+                                                                    @Html.TextBoxFor(m => m.EmployeePF, new { @class = "form-control", @id = "EmployeePF", @readonly = true })
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <div class="form-group custom-form-group">
+                                                                    <label>Employee ESIC</label>
+                                                                    @Html.TextBoxFor(m => m.EmployeeESIC, new { @class = "form-control", @id = "EmployeeESIC", @readonly = true })
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-md-6">
+                                                                <div class="form-group custom-form-group">
+                                                                    <label>Professional Tax</label>
+                                                                    @Html.TextBoxFor(m => m.EmployeeProfessionalTax, new { @class = "form-control", @id = "EmployeeProfsnlTax" })
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <div class="form-group custom-form-group">
+                                                                    <label>Total Deduction</label>
+                                                                    @Html.TextBoxFor(m => m.EmployeeTtlDeduct, new { @class = "form-control", @id = "EmployeeTtlDeduct", @readonly = true })
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-md-6">
+                                                                <div class="form-group custom-form-group">
+                                                                    <label>Net Salary</label>
+                                                                    @Html.TextBoxFor(m => m.EmployeeNetSalary, new { @class = "form-control", @id = "EmployeeNetSalary", @readonly = true })
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="bl-lg-panel-box pb-null">
+                                                    <div class="cmn-panel-box">
+                                                        <div class="row">
+                                                            <div class="col-md-12">
+                                                                <h4>Contribution</h4>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-md-6">
+                                                                <div class="form-group custom-form-group">
+                                                                    <label>Employer PF</label>
+                                                                    @Html.TextBoxFor(m => m.EmployerPF, new { @class = "form-control", @id = "EmployerPF", @readonly = true })
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <div class="form-group custom-form-group">
+                                                                    <label>
+                                                                        Insurance
+                                                                    </label>
+                                                                    @Html.TextBoxFor(m => m.EmployerIns, new { @class = "form-control", @id = "EmployerIns" })
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-md-6">
+                                                                <div class="form-group custom-form-group">
+                                                                    <label>Employer ESIC</label>
+                                                                    @Html.TextBoxFor(m => m.EmployerESIC, new { @class = "form-control", @id = "EmployerESIC", @readonly = true })
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <div class="form-group custom-form-group">
+                                                                    <label>Total Contribution</label>
+                                                                    @Html.TextBoxFor(m => m.EmployerTtlContribute, new { @class = "form-control", @id = "EmployerttlContribute", @readonly = true })
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-md-6">
+                                                                <div class="form-group custom-form-group">
+                                                                    <label>Cost To Company(CTC) Per Month</label>
+                                                                    @Html.TextBoxFor(m => m.EmployeeCTC, new { @class = "form-control", @id = "EmployeeCTC", @readonly = true })
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <div class="form-group custom-form-group">
+                                                                    <label>Agency Fee</label>
+                                                                    @Html.TextBoxFor(m => m.AgencyFee, new { @class = "form-control", @id = "AgencyFee", @readonly = true })
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-md-6">
+                                                                <div class="form-group custom-form-group">
+                                                                    <label>CTC With Agency Fee</label>
+                                                                    @Html.TextBoxFor(m => m.CTCwithAgencyFee, new { @class = "form-control", @id = "CTCwithAgencyFee", @readonly = true })
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <div class="form-group custom-form-group">
+                                                                    <label>GST</label>
+                                                                    @Html.TextBoxFor(m => m.SalaryGST, new { @class = "form-control", @id = "SalaryGST", @readonly = true })
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-md-6">
+                                                                <div class="form-group custom-form-group">
+                                                                    <label><b>Total Cost per Month</b></label>
+                                                                    @Html.TextBoxFor(m => m.TotalCTC, new { @class = "form-control", @id = "TotalCTC", @readonly = true })
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="btnSubmitSalaryCalc">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="dialogSalaryConfirm" class="modal fade scrl-table scrl-table-po-bl" role="dialog" data-backdrop="static" aria-labelledby="myModalLabel" aria-hidden="true">
+
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header brd-bottom">
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                    <h4 class="modal-title">SALARY STRUCTURE</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="tbl-style">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th colspan="4" class="text-left">
+                                        <center><h4><b>PAY STRUCTURE</b></h4></center>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="text-left">
+                                        <b>Recommended Consolidated Salary</b>
+                                    </td>
+                                    <td class="text-left">
+                                        @*@Model.RecommendedSalary*@
+                                        <h4 id="lblRecommendedSalary" class="txt-bold"></h4>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-left">
+                                        PF Basic wages
+                                    </td>
+                                    <td class="text-left">
+                                        @*@Model.EmpPFBasicWages*@
+                                        <h4 id="lblEmpPFBasicWages"></h4>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-left">
+                                        <b>Gross Salary</b>
+                                    </td>
+                                    <td class="text-left">
+                                        @*@Model.RecommendedSalary*@
+                                        <h4 id="lblGrossSalary" class="txt-bold"></h4>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-left">
+                                        Employee PF
+                                    </td>
+                                    <td class="text-left">
+                                        @*@Model.EmployeePF*@
+                                        <h4 id="lblEmployeePF"></h4>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-left">
+                                        Employee ESIC (0.75% of GP)
+                                    </td>
+                                    <td class="text-left">
+                                        @*@Model.EmployeeESIC*@
+                                        <h4 id="lblEmployeeESIC"></h4>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-left">
+                                        Professional Tax
+                                    </td>
+                                    <td class="text-left">
+                                        @*@Model.EmployeeProfessionalTax*@
+                                        <h4 id="lblEmployeeProfessionalTax"></h4>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-left">
+                                        <b>Total Deduction</b>
+                                    </td>
+                                    <td class="text-left">
+                                        @*@Model.EmployeeTtlDeduct*@
+                                        <h4 id="lblEmployeeTtlDeduct" class="txt-bold"></h4>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-left">
+                                        <b>Net Salary</b>
+                                    </td>
+                                    <td class="text-left">
+                                        @*@Model.EmployeeNetSalary*@
+                                        <h4 id="lblEmployeeNetSalary" class="txt-bold"></h4>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-left">
+                                        Employer PF
+                                    </td>
+                                    <td class="text-left">
+                                        @*@Model.EmployerPF*@
+                                        <h4 id="lblEmployerPF"></h4>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-left">
+                                        Employer ESIC (3.25% of GP)
+                                    </td>
+                                    <td class="text-left">
+                                        @*@Model.EmployerESIC*@
+                                        <h4 id="lblEmployerESIC"></h4>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-left">
+                                        Insurance
+                                    </td>
+                                    <td class="text-left">
+                                        @*@Model.EmployerIns*@
+                                        <h4 id="lblEmployerIns"></h4>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-left">
+                                        <b>Total Employer Contribution</b>
+                                    </td>
+                                    <td class="text-left">
+                                        @*@Model.EmployerTtlContribute*@
+                                        <h4 id="lblEmployerTtlContribute" class="txt-bold"></h4>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-left">
+                                        <b>Cost To Project (CTC) Per Month</b>
+                                    </td>
+                                    <td class="text-left">
+                                        @*@Model.EmployeeCTC*@
+                                        <h4 id="lblEmployeeCTC" class="txt-bold"></h4>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-left">
+                                        ** Agency Fee (1.64%)
+                                    </td>
+                                    <td class="text-left">
+                                        @*@Model.AgencyFee*@
+                                        <h4 id="lblAgencyFee"></h4>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-left">
+                                        CTC with Agency Fee
+                                    </td>
+                                    <td class="text-left">
+                                        @*@Model.CTCwithAgencyFee*@
+                                        <h4 id="lblCTCwithAgencyFee"></h4>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-left">
+                                        ** GST @@ 18%
+                                    </td>
+                                    <td class="text-left">
+                                        @*@Model.CTCwithAgencyFee*@
+                                        <h4 id="lblSalaryGST"></h4>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-left">
+                                        <b>Total cost / Per Month</b>
+                                    </td>
+                                    <td class="text-left">
+                                        @*@Model.TotalCTC*@
+                                        <h4 id="lblTotalCTC" class="txt-bold"></h4>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer brd-top">
+                    <button type="button" class="btn btn-danger" id="issalaryConfirm">Confirm</button>
+                    <button type="button" class="btn btn-default" id="issalaryClose">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+<div class="loading-bg dis-none">
+
+</div>
+<div id="popup">
+
+</div>
+
+<script>
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    var alertMsg = '@TempData["alertMsg"]';
+    var ApplicationID = @Json.Encode(Model.ApplicationID) || 0;
+    var typcategory = @Html.Raw(Json.Encode(Model.TypeCode)) || "";
+    var Typeofappointment = @Json.Encode(Model.TypeofappointmentId) || 0;
+    var IsMsphd = @Html.Raw(Json.Encode(Model.IsMsPhd)) || false;
+    var OrderID = @Json.Encode(Model.OrderID) || 0;
+    var Status = @Html.Raw(Json.Encode(Model.Status)) || "";
+    const monthNames = ["January", "February", "March", "April", "May", "June","July", "August", "September", "October", "November", "December"];
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+        else if (alertMsg != '') {
+            $('#alert').html(alertMsg);
+            $('#Validation').modal('toggle');
+        }
+
+        var CommitmentRemark = '@Remark' || '';
+        if (CommitmentRemark != '') {
+            $('#alertSuccess').html(CommitmentRemark);
+            $('#Success').modal('toggle');
+        }
+
+        $('.selectpicker').selectpicker({
+            liveSearch: true
+        });
+        $('.selectpicker').selectpicker('refresh');
+
+        if(typcategory == "OSG")
+        {
+            //var emppfbasicwages = $('input[name=EmpPFBasicWages]').val() || 0;
+            FillSalaryCalcDetls();
+        }
+
+    });
+
+
+    function salarycalcpopup() {
+        $('#salarycalc').modal('toggle');
+    }
+    $('#EmployeeProfsnlTax').change(function () {
+        var salary = $('#Salary').val();
+        if(salary > 0)
+        {
+            FillSalaryCalcDetls();
+        }
+    });
+
+    $('#EmployerIns').change(function () {
+        var salary = $('#Salary').val();
+        if(salary > 0)
+        {
+            //var emppfbasicwages = $('input[name=EmpPFBasicWages]').val() || 0;
+            FillSalaryCalcDetls();
+        }
+    });
+
+    $('input[name=EmpPFBasicWages]').keyup(function () {
+        FillSalaryCalcDetls();
+    });
+
+    $('input[name=RecommendedSalary]').change(function () {
+        FillSalaryCalcDetls();
+    });
+    $('#btnSubmitSalaryCalc').click(function () {
+        PopupSalaryConfirm();
+    });
+    $('#issalaryConfirm').click(function () {
+        $('#dialogSalaryConfirm').modal('toggle');
+    });
+    $('#issalaryClose').click(function () {
+        $('#dialogSalaryConfirm').modal('toggle');
+    });
+
+
+    function PopupConfirm() {
+        $('#dialogConfirm').modal('toggle');
+    }
+    function PopupSalaryConfirm() {
+        $('#dialogSalaryConfirm').modal('toggle');
+        $('#salarycalc').modal('toggle');
+    }
+
+    var flowApp = @Html.Raw(Json.Encode(Model.FlowApprover));
+
+    if(flowApp == "CMAdmin")
+    {
+        $("input[name=FlowApprover][value=CMAdmin]").prop('checked', true);
+        $("#devNoteDean").hide();
+    }
+
+    if(flowApp == "NDean")
+    {
+        $("input[name=FlowApprover][value=NDean]").prop('checked', true);
+        $("#devCMAdmin").hide();
+    }
+
+
+    @*if(OrderID > 0)
+    {
+        if(@Json.Encode(Model.isMedical) == false || Typeofappointment == 2)
+        {
+            $('#lblMedical1,#MedicalText').text('Not covered under Medical');
+            $('#Medical').val(3);
+            $('#isMedical').val(false);
+            $('#MedicalAmmount').val(0);
+            $('#Medical').addClass('dis-none');
+            $('#MedicalText').removeClass('dis-none');
+        }
+        else
+        {
+            $('#Medical').val(@Json.Encode(Model.Medical));
+        }
+
+
+        if (@Json.Encode(Model.isHRA) == false || Typeofappointment == 2)
+        {
+            $('#HRAPercentage').val(0);
+            $('#isHRA').val(false);
+            $('#HRA').attr('readonly','readonly');
+        }
+    }*@
+
+
+    var addyear = 0;
+    $(document).ready(function () {
+        applyAutoComplete($('#ProjectNumber'), $('#ProjectId'), '@Url.Action("LoadProjectList","CoreAccounts")', 'ProjectSummary', true);
+        applyAutoComplete($('#AutoFillRequstedbyPI'), $('#RequestedByPI'), '@Url.Action("LoadPIList", "Requirement")');
+    });
+
+    if ($("#ProjectId").val() > 0) {
+        ProjectSummary()
+    }
+
+    if ($("#DesignationId").val() > 0) {
+        FillDesignation()
+    }
+
+    function FillDesignation() {
+        var DesignationID = $('#DesignationId').val();
+        if (DesignationID > 0) {
+            $(".loading-bg").removeClass('dis-none');
+            $.getJSON("@Url.Action("LoadDesignationDetails", "Requirement")", { DesignationID: DesignationID },
+                       function (result) {
+                           if (result.DesignationData.DestinationID > 0) {
+                               $("#Designation").val(result.DesignationData.Designation);
+                               $("#MinSalary").val(result.DesignationData.MinSalary);
+                               $("#MaxSalary").val(result.DesignationData.MaxSalary);
+                               if (result.DesignationData.Medical && IsMsphd != true && Typeofappointment != 2)
+                               {
+                                   $('#DesignationMedicalamount').val(result.DesignationData.MedicalAmount);
+                                   if(OrderID > 0) {
+                                       $('#Medical').val(@Json.Encode(Model.Medical));
+                                       $('#MedicalAmmount').val(@Json.Encode(Model.MedicalAmmount));
+                                   }
+                                   else {
+                                       $('#Medical').val(2)
+                                       $('#MedicalAmmount').val(result.DesignationData.MedicalAmount);
+                                   }
+                                   $('#isMedical').val(true)
+                                   $('#Medical').removeClass('dis-none');
+                                   $('#MedicalText').addClass('dis-none');
+                               }
+                               else
+                               {
+                                   $('#lblMedical1,#MedicalText').text('Not covered under Medical')
+                                   $('#Medical').val(3)
+                                   $('#isMedical').val(false)
+                                   $('#MedicalAmmount,#DesignationMedicalamount').val(0);
+                                   $('#Medical').addClass('dis-none');
+                                   $('#MedicalText').removeClass('dis-none');
+                               }
+
+                               if (result.DesignationData.HRA && Typeofappointment != 2) {
+                                   $('#HRAPercentage').val(result.DesignationData.HRAPercentage)
+                                   $('#isHRA').val(true)
+                                   $('#HRA').removeAttr('readonly');
+                               }
+                               else {
+                                   $('#HRA').attr('readonly','readonly');
+                                   $('#HRAPercentage').val(0)
+                                   $('#isHRA').val(false)
+                               }
+
+                               $(".loading-bg").addClass('dis-none');
+
+                               if(OrderID > 0) {
+
+                                   if(typcategory == "OSG")
+                                       FillSalaryCalcDetls();
+                                   else
+                                   {
+                                       calcommitmentamount();
+
+                                       if($('#ArrearOrDeductionTillDate').val() != "") {
+                                           var Arrearamount = calcommitmentamount(true) || 0;
+                                           $('#ArrearOrDeductionAmount').val(Math.round(Arrearamount));
+                                       }
+                                   }
+                               }
+                           }
+                           else
+                               $(".loading-bg").addClass('dis-none');
+                       });
+        }
+    }
+
+    function ProjectSummary() {
+        var projectId = $("#ProjectId").val();
+        var OldprojectId = $('#Oldproject').val();
+        if(OldprojectId == projectId) {
+            $.confirm({
+                title: 'Error!',
+                content: 'Same project is not allowed',
+                type: 'red',
+                buttons: {
+                    Ok: function () {
+                        //close
+                    },
+                },
+            });
+            return;
+        }
+
+        if (projectId != "" || projectId != 0) {
+            $(".loading-bg").removeClass('dis-none');
+            $.getJSON("@Url.Action("LoadProjectDetails", "Requirement")", { ProjectId: projectId },
+             function (result) {
+                 if (result.projectData.ProjectNumber != null) {
+                     $('#txtProjectNumber').val(result.projectData.ProjectNumber);
+                     $('#txtProjectNumber').attr('readonly', 'readonly');
+                     $('#lblProjectTitle,#lblProjectTitle1').text(result.projectData.ProjectTitle);
+                     $('#lblClientAgency,#lblClientAgency1').text(result.projectData.SponsoringAgency);
+                     $('#lblProjectType,#lblProjectType1').text(result.projectData.ProjectType);
+                     $('#lblPIName,#lblPIName1').text(result.projectData.PIName);
+                     $('#lblProjectStartDate,#lblProjectStartDate1').text(result.projectData.ProjectStartDate);
+                     $('#lblProjectClosureDate,#lblProjectClosureDate1').text(result.projectData.ProjectClosureDate);
+                     FillPIDetails(result);
+                     var setappstrdat = "";
+                     var mindt = moment($('#OldAppointmentStartDate').text().split('-').join('/')).toDate();
+                     var maxdt = moment($('#OldAppointmentClosureDate').text().split('-').join('/')).toDate();
+                     var maxdtsub = moment(maxdt).add(-1, 'days').toDate();
+
+                     $('#Appointmentstartdate').datepicker({
+                         dateFormat: 'dd-MM-yy',
+                         changeYear: true
+                     }).datepicker("option", "minDate", mindt).datepicker("option", "maxDate", maxdtsub);
+                     $('#AppointmentEndDate,#ArrearOrDeductionTillDate,#WithdrawTillDate').datepicker({
+                         dateFormat: 'dd-MM-yy',
+                         changeYear: true
+                     }).datepicker("option", "minDate", mindt).datepicker("option", "maxDate", maxdt);
+
+                     if ($('#AppointmentEndDate').val() != "")
+                         $('#AppointmentEndDate').datepicker("setDate", new Date($('#AppointmentEndDate').val().split('-').join('/')));
+                     else
+                         $('#AppointmentEndDate').datepicker("setDate", maxdt);
+
+                     $(".loading-bg").addClass('dis-none');
+                 }
+                 else {
+                     $(".loading-bg").addClass('dis-none');
+                 }
+             });
+        }
+    }
+
+    function FillPIDetails(result) {
+        if (result.projectData.ProjectNumber != null) {
+            $('#lblPICode,#lblPICode1').text(result.projectData.PICode);
+            $('#lblPIEmailID,#lblPIEmailID1').text(result.projectData.Email);
+            $('#lblPIPhone,#lblPIPhone1').text(result.projectData.Phone);
+            $('#lblDepartmentCode,#lblDepartmentCode1').text(result.projectData.PIDepartmentCode);
+            $('#lblDepartmentName,#lblDepartmentName1').text(result.projectData.PIDepartmentName);
+            if($('#AutoFillRequstedbyPI').val() == "") {
+                $('#AutoFillRequstedbyPI').val(result.projectData.PIName);
+                $('#RequestedByPI').val(result.projectData.PIId);
+            }
+        }
+    }
+
+    $('#Salary,#HRA').keyup(function () {
+        if(typcategory == "OSG")
+            FillSalaryCalcDetls();
+        else
+        {
+            calcommitmentamount();
+
+            if($('#ArrearOrDeductionTillDate').val() != "") {
+                var Arrearamount = calcommitmentamount(true) || 0;
+                $('#ArrearOrDeductionAmount').val(Math.round(Arrearamount));
+            }
+        }
+    });
+
+
+    function monthcount(startdate,enddate)
+    {
+        var MonthCount = [];
+        MonthCount = dateRange(startdate.getFullYear() + '-' + parseInt(startdate.getMonth() + 1) + '-' + startdate.getDate(), enddate.getFullYear() + '-' + parseInt(enddate.getMonth() + 1) + '-' + enddate.getDate())
+        var count = 0;
+        for (var i = 0; i < MonthCount.length; i++) {
+            var lastCount = MonthCount.length - 1;
+            if (i != 0 && i != lastCount) {
+                count += 1;
+            }
+        }
+        return count;
+    }
+
+    function calcommitmentamount(isarrearpay)
+    {
+        var appointmentstartdt = $('#Appointmentstartdate').val();
+        var WithdrawTillDate = "";
+        var strWithdrawTillDate = "";
+        if($('#WithdrawTillDate').val() != "") {
+            WithdrawTillDate = new Date($('#WithdrawTillDate').val().split('-').join('/'));
+            WithdrawTillDate.setDate(WithdrawTillDate.getDate() + 1);
+            strWithdrawTillDate =  WithdrawTillDate.getDate() + '-' + monthNames[WithdrawTillDate.getMonth()] + '-' + WithdrawTillDate.getFullYear();
+            appointmentstartdt = strWithdrawTillDate;
+        }
+        var appointmentenddt = $('#AppointmentEndDate').val();
+        if(isarrearpay == true) {
+            appointmentstartdt = $('#OldAppointmentStartDate').text();
+            appointmentenddt = $('#ArrearOrDeductionTillDate').val();
+        }
+        if (appointmentstartdt != "" && appointmentenddt != "") {
+            var startdate = new Date(appointmentstartdt.split('-').join('/'));
+            var enddate = new Date(appointmentenddt.split('-').join('/'));
+            var count = 0;
+            //define moments for the startdate and enddate
+            var startmonthend = parseInt(endOfMonth(startdate).getDate());
+            var enddtmonthend = parseInt(endOfMonth(enddate).getDate());
+            var startworingdays = 0 , endworkingdays = 0;
+
+            if (startdate.getMonth() == enddate.getMonth() && startdate.getFullYear() == enddate.getFullYear()) {
+                startworingdays = parseInt(enddate.getDate()) - parseInt(startdate.getDate()) + 1;
+            }
+            else {
+                startworingdays = startmonthend - parseInt(startdate.getDate()) + 1;
+                endworkingdays = enddate.getDate();
+            }
+            count = monthcount(startdate,enddate);
+            var totaldays = startworingdays + endworkingdays;
+            var months = count || 0;
+            var days = totaldays || 0;
+            var HRAValue = 0 , ttlVal = 0;
+            var Medical = parseFloat($('#MedicalAmmount').val()) || 0;
+            var Salary =  0;
+            var Total = 0;
+            if (typcategory == "OSG")
+            {
+                Salary = parseFloat($('input[name=EmployeeCTC]').val()) || 0;
+                var lwfamt = 0;
+                var startyear = startdate.getFullYear();
+                var endyear = enddate.getFullYear();
+                var startmonth = startdate.getMonth() + 1;
+                var endmonth = enddate.getMonth() + 1;
+                if (startyear < endyear)
+                {
+                    lwfamt = parseFloat($('input[name=LWFAmount]').val()) || 0;
+                    if(lwfamt > 0)
+                    {
+                        Total += lwfamt;
+                    }
+                }
+                if (startmonth == 12 ||  endmonth == 12)
+                {
+                    lwfamt = parseFloat($('input[name=LWFAmount]').val()) || 0;
+                    if(lwfamt > 0)
+                    {
+                        Total += lwfamt;
+                    }
+                }
+            }
+            else
+            {
+                Salary = parseFloat($('#Salary').val()) || 0;
+            }
+
+            var HRA = parseFloat($("#HRA").val()) || 0;
+            var hrapercent = parseFloat($('#HRAPercentage').val()) || 0;
+            var HRAPer = hrapercent / 100;
+            if(HRA > 0)
+            {
+                if (getBoolean($('#isHRA').val())) {
+                    HRAValue = Salary * HRAPer;
+                    if(HRAValue < HRA || HRAValue > HRA)
+                    {
+                        HRA = HRAValue;
+                        $("#HRA").val(HRA.toFixed(2));
+                    }
+                }
+                else {
+                    HRA = 0;
+                }
+            }
+
+            if (getBoolean(IsMsphd) || Typeofappointment == 2) {
+                Medical = 0;
+                if (Typeofappointment == 2) {
+                    HRA = 0;
+                }
+            }
+            else if (parseInt($('#Medical').val()) != 1) {
+                //if Medical include
+                Medical = 0;
+            }
+
+            ttlVal = Medical + Salary + HRA;
+            var startperday = ttlVal / startmonthend;
+            var endperday = ttlVal / enddtmonthend;
+            var MonthlyAmt = ttlVal;
+            if (months > 0) {
+                Total += MonthlyAmt * count;
+            }
+            if (days > 0) {
+                Total += startworingdays * startperday;
+                Total += endworkingdays * endperday;
+            }
+            if(isarrearpay == true)
+                return Total;
+            if (parseInt($('#Medical').val()) != 3) {
+                $('#MedicalAmmount').val(parseFloat($('#DesignationMedicalamount').val()));
+            }
+            else{
+                $('#MedicalAmmount').val(0);
+            }
+            if (getBoolean($('#isHRA').val()) == false){
+                $("#HRA").val(0);
+            }
+
+            $('#CommitmentAmount').val(Math.round(Total));
+            @*var oldCommitmentAmount = @Html.Raw(Json.Encode(Model.OldPrjDetailModel.CommitmentAmmount)) || 0;*@
+            var CommitmentBalance = @Html.Raw(Json.Encode(Model.OldPrjDetailModel.CommitmentBalance)) || 0;
+
+            var AppointmentendDate = @Html.Raw(Json.Encode(Model.OldPrjDetailModel.AppointmentClosureDate));
+            var PreTenureAmount = 0;
+            //if(WithdrawTillDate != appointmentstartdt && WithdrawTillDate != "") {
+            PreTenureAmount = calcoldcommitmentamount(strWithdrawTillDate,AppointmentendDate);
+            //}
+
+            if ($("#WithdrawnFullAmount").is(':checked')) {
+                $('#WithdrawalAmount').val(CommitmentBalance);
+            }
+            else {
+                var WidrawAmt = CommitmentBalance - PreTenureAmount;
+                if(WidrawAmt <= 0)
+                    $('#WithdrawalAmount').val(CommitmentBalance);
+                else
+                    $('#WithdrawalAmount').val(Math.round(PreTenureAmount));
+            }
+        }
+    }
+
+    function calcoldcommitmentamount(startDt,endDt)
+    {
+        if (startDt != "" && endDt != "") {
+            var startdate = new Date(startDt.split('-').join('/'));
+            var enddate = new Date(endDt.split('-').join('/'));
+            //define moments for the startdate and enddate
+            var startmonthend = parseInt(endOfMonth(startdate).getDate());
+            var enddtmonthend = parseInt(endOfMonth(enddate).getDate());
+            var startworingdays = 0 , endworkingdays = 0;
+            if (startdate.getMonth() == enddate.getMonth() && startdate.getFullYear() == enddate.getFullYear()) {
+                startworingdays = parseInt(enddate.getDate()) - parseInt(startdate.getDate()) + 1;
+            }
+            else {
+                startworingdays = startmonthend - parseInt(startdate.getDate()) + 1;
+                endworkingdays = enddate.getDate();
+            }
+
+            var startdateMoment = moment(startdate);
+            var enddateMoment = moment(enddate);
+            var count = 0;
+
+            count = monthcount(startdate,enddate);
+            var years = 0,Woringdays = 0;
+            //getting the difference in years
+            years = enddateMoment.diff(startdateMoment, 'years');//Don't Care
+            totaldays = startworingdays + endworkingdays;
+
+            var months = count || 0;
+            var days = totaldays || 0;
+            var HRAValue = 0;
+            var ttlVal = 0;
+            var Medical = @Html.Raw(Json.Encode(Model.OldPrjDetailModel.MedicalAmmount)) || 0;
+            var Salary = @Html.Raw(Json.Encode(Model.OldPrjDetailModel.Salary)) || 0;
+            if (typcategory == "OSG")
+                Salary = @Html.Raw(Json.Encode(Model.OldPrjDetailModel.EmployeeCTC)) || 0;
+
+            var HRA = @Html.Raw(Json.Encode(Model.OldPrjDetailModel.HRA)) || 0;
+            var HRAPer = @Html.Raw(Json.Encode(Model.OldPrjDetailModel.HRAPercentage)) / 100;
+            if (@Json.Encode(Model.OldPrjDetailModel.isHRA) == false) {
+                HRA = 0;
+            }
+            var Total = 0;
+
+            if (getBoolean(IsMsphd) || Typeofappointment == 2) {
+                Medical = 0;
+                if (Typeofappointment == 2) {
+                    HRA = 0;
+                }
+            }
+            else if (@Html.Raw(Json.Encode(Model.OldPrjDetailModel.Medical)) != 1) {
+                Medical = 0;
+            }
+
+            ttlVal = Medical + Salary + HRA;
+            var startperday = ttlVal / startmonthend;
+            var endperday = ttlVal / enddtmonthend;
+            var MonthlyAmt = ttlVal;
+            if (months > 0) {
+                Total += MonthlyAmt * count;
+            }
+            if (days > 0) {
+                Total += startworingdays * startperday;
+                Total += endworkingdays * endperday;
+            }
+            return Math.ceil(Total);
+        }
+    }
+
+    $('#VendorId').change(function () {
+        FillSalaryCalcDetls();
+    });
+
+
+    function FillSalaryCalcDetls() {
+        var Vendorid = $('#VendorId').val();
+        var salary = $('#Salary').val();
+        var emppfbasicwages = $('input[name=EmpPFBasicWages]').val() || 0;
+        var isemppfwages = true;
+        $.getJSON("@Url.Action("LoadSalCalPercent", "Requirement")", { VendorId: Vendorid, Salary: salary },
+    function (result) {
+        var emppfpercent = result.EmployeePfPercent * (1 / 100);
+        var emplyrpfpercent = result.EmployerPfPercent * (1 / 100);
+        var empESICpercent = result.EmployeeESIC * (1 / 100);
+        var emplyrESICpercent = result.EmployerESIC * (1 / 100);
+        var genESICSlab = result.GenESICSlab || 0;
+        //if(genESICSlab == 0)
+        //{
+        //    genESICSlab = 21000;
+        //}
+        var phESICSlab = result.PhESICSlab || 0;
+        //if(phESICSlab == 0)
+        //{
+        //    phESICSlab = 25000;
+        //}
+        var pfSlab = result.PFSlab;
+        var profesTax = result.ProfessionalTax;
+        var LWFAmount = result.LWFEmlyrAmount;
+        var agncyfee = result.AgencyFee * (1 / 100);
+        var statutoryId = result.StatutoryId;
+        //var gstpercent = result.GSTPercentage * (1 / 100);
+        var gstpercent = 0.18;
+        var ins = result.Insurance || 0;
+        if(emppfbasicwages > pfSlab && pfSlab > 0)
+        {
+            emppfbasicwages = pfSlab;
+        }
+        var name = $('input[name=Name]').val();
+        var salary = Math.round($('input[name=Salary]').val());
+        var designation = $('input[name=Designation]').val();
+        var profesionalId = $('select[name=ProfessionalId]').val();
+        //var typeofappoint = $('select[name=TypeofappointmentId]').selected.text();
+        var typeofappoint = $( "select[name=TypeofappointmentId] option:selected" ).text();
+        var isphysichandc = $( "select[name=PhysicallyChallenged] option:selected" ).text();
+        if(isphysichandc == "Select")
+        {
+            $("#lblPHYHandC").html('No Input');
+        }
+        if(isphysichandc != "Select")
+        {
+            $("#lblPHYHandC").html(isphysichandc);
+        }
+        var emptype = "";
+        if($('#IsNew').is(':checked'))
+        {
+            emptype = $('#IsNew').val();
+        }
+        else if($('#IsOld').is(':checked'))
+        {
+            emptype = $('#IsOld').val();
+        }
+        $('select[name=EmpSalutation]').val(profesionalId);
+        $('input[name=EmpSalutation]').val(profesionalId);
+        $('input[name=EmpName]').val(name);
+        $('input[name=EmpDesig]').val(designation);
+        $('input[name=RecommendedSalary]').val(salary);
+        $('input[name=LWFAmount]').val(LWFAmount);
+        $('input[name=StatutoryId]').val(statutoryId);
+        $("#lblRecommendedSalary").html(salary);
+        $("#lblEmplType").html(emptype);
+        if(typeofappoint != null && typeofappoint != "" && typeofappoint != "Select Appointment")
+        {
+            $("#lblAppointType").html(typeofappoint);
+        }
+        if(typeofappoint == "Select Appointment")
+        {
+            $("#lblAppointType").html('No Input');
+        }
+
+        if(salary <= pfSlab)
+        {
+            $('input[name=EmpPFBasicWages]').val(salary);
+
+            var empPF = Math.round(salary * emppfpercent) || 0;
+            $('input[name=EmployeePF]').val(empPF);
+            $("#lblEmpPFBasicWages").html(salary);
+
+            $("#lblGrossSalary").html(salary);
+            $("#lblEmployeePF").html(empPF);
+            var empESIC = Math.ceil(salary * empESICpercent) || 0;
+            $('input[name=EmployeeESIC]').val(empESIC);
+            $("#lblEmployeeESIC").html(empESIC);
+            //$('input[name=EmpPFBasicWages]').attr('readonly',true);
+            if(isemppfwages == true && emppfbasicwages == 0)
+            {
+                $('input[name=EmpPFBasicWages]').val(emppfbasicwages);
+                $('input[name=EmployeePF]').val(0);
+                $("#lblEmployeePF").html(0);
+                //$('input[name=EmployeeESIC]').val(0);
+                //$("#lblEmployeeESIC").html(0);
+                empPF = 0;
+                // empESIC = 0;
+            }
+            if(isemppfwages == true && emppfbasicwages > 0)
+            {
+                $('input[name=EmpPFBasicWages]').val(emppfbasicwages);
+                //$('input[name=EmployeePF]').val(0);
+                //$("#lblEmployeePF").html(0);
+                //$('input[name=EmployeeESIC]').val(0);
+                //$("#lblEmployeeESIC").html(0);
+                //empPF = 0;
+                //empESIC = 0;
+                empPF = Math.round(emppfbasicwages * emppfpercent) || 0;
+                $('input[name=EmployeePF]').val(empPF);
+                $("#lblEmpPFBasicWages").html(emppfbasicwages);
+
+                $("#lblGrossSalary").html(salary);
+                $("#lblEmployeePF").html(empPF);
+                empESIC = Math.ceil(salary * empESICpercent) || 0;
+                $('input[name=EmployeeESIC]').val(empESIC);
+                $("#lblEmployeeESIC").html(empESIC);
+            }
+            if(typeofappoint == "Part time")
+            {
+                $('input[name=EmpPFBasicWages]').val(0);
+                $('input[name=EmployeePF]').val(0);
+                $("#lblEmployeePF").html(0);
+                $('input[name=EmpPFBasicWages]').attr('readonly',true);
+                empPF = 0;
+            }
+            //var empproftax = parseFloat($('input[name=EmployeeProfessionalTax]').val()) || 0;
+            var empproftax = profesTax || 0;
+            //if(empproftax == 0)
+            //{
+            //    empproftax = 208;
+            //}
+            if(isphysichandc == "Yes")
+            {
+                empproftax = 0;
+            }
+            $('input[name=EmployeeProfessionalTax]').val(empproftax);
+            $("#lblEmployeeProfessionalTax").html(empproftax);
+            var totlempdeduct = empPF + empESIC + empproftax;
+            $('input[name=EmployeeTtlDeduct]').val(totlempdeduct);
+            $("#lblEmployeeTtlDeduct").html(totlempdeduct);
+            var empnetsalary = salary - totlempdeduct
+            $('input[name=EmployeeNetSalary]').val(empnetsalary);
+            $("#lblEmployeeNetSalary").html(empnetsalary);
+            var employerPF = Math.round(salary * emplyrpfpercent) || 0;
+            $('input[name=EmployerPF]').val(employerPF);
+            $("#lblEmployerPF").html(employerPF);
+            var employerESIC = Math.ceil(salary * emplyrESICpercent) || 0;
+            $('input[name=EmployerESIC]').val(employerESIC);
+            $("#lblEmployerESIC").html(employerESIC);
+            if(isemppfwages == true && emppfbasicwages == 0)
+            {
+                $('input[name=EmployerPF]').val(0)
+                $("#lblEmployerPF").html(0);
+                //$('input[name=EmployerESIC]').val(0);
+                //$("#lblEmployerESIC").html(0);
+                employerPF = 0;
+                //employerESIC = 0;
+            }
+            if(isemppfwages == true && emppfbasicwages > 0)
+            {
+                employerPF = Math.round(emppfbasicwages * emplyrpfpercent) || 0;
+                $('input[name=EmployerPF]').val(employerPF);
+                $("#lblEmployerPF").html(employerPF);
+                employerESIC = Math.ceil(salary * emplyrESICpercent) || 0;
+                $('input[name=EmployerESIC]').val(employerESIC);
+                $("#lblEmployerESIC").html(employerESIC);
+            }
+
+            //var employerIns = parseFloat($('input[name=EmployerIns]').val()) || 0;
+            var employerIns = ins;
+            if(employerIns == 0)
+            {
+                employerIns = 250;
+            }
+            if(typeofappoint == "Part time")
+            {
+                //$('input[name=EmpPFBasicWages]').val(0);
+                $('input[name=EmployerPF]').val(0)
+                $("#lblEmployerPF").html(0);
+                $('input[name=EmpPFBasicWages]').attr('readonly',true);
+                employerIns = 0;
+                employerPF = 0;
+            }
+            $('input[name=EmployerIns]').val(employerIns);
+            $("#lblEmployerIns").html(employerIns);
+
+            var ttlemployerContribute = employerPF + employerESIC + employerIns;
+            $('input[name=EmployerTtlContribute]').val(ttlemployerContribute);
+            $("#lblEmployerTtlContribute").html(ttlemployerContribute);
+            var employeeCTC = salary + ttlemployerContribute;
+            $('input[name=EmployeeCTC]').val(employeeCTC);
+            $("#lblEmployeeCTC").html(employeeCTC);
+            var agencyFee = Math.round(employeeCTC * agncyfee) || 0;
+            $('input[name=AgencyFee]').val(agencyFee);
+            $("#lblAgencyFee").html(agencyFee);
+            var ctcwithagencyfee = agencyFee + employeeCTC;
+            $('input[name=CTCwithAgencyFee]').val(ctcwithagencyfee);
+            $("#lblCTCwithAgencyFee").html(ctcwithagencyfee);
+            var salaryGST = Math.round(ctcwithagencyfee * gstpercent) || 0;
+            $('input[name=SalaryGST]').val(salaryGST);
+            $("#lblSalaryGST").html(salaryGST);
+            var totalCTC = ctcwithagencyfee + salaryGST;
+            $('input[name=TotalCTC]').val(totalCTC);
+            $("#lblTotalCTC").html(totalCTC);
+        }
+        //if(salary > 15000 && salary <= 21000 && isphysichandc != "Yes")
+        if(salary > pfSlab && salary <= genESICSlab && isphysichandc != "Yes")
+        {
+            //$('input[name=EmpPFBasicWages]').val(15000);
+            //$("#lblEmpPFBasicWages").html(15000);
+            $('input[name=EmpPFBasicWages]').val(0);
+            $("#lblEmpPFBasicWages").html(0);
+            $("#lblGrossSalary").html(salary);
+            var empbasicwages = $('input[name=EmpPFBasicWages]').val();
+            var empPF = Math.round(empbasicwages * emppfpercent) || 0;
+            $('input[name=EmployeePF]').val(empPF);
+            $("#lblEmployeePF").html(empPF);
+            var empESIC = Math.ceil(salary * empESICpercent) || 0;
+            $('input[name=EmployeeESIC]').val(empESIC);
+            $("#lblEmployeeESIC").html(empESIC);
+            if(isemppfwages == true && emppfbasicwages == 0)
+            {
+                $('input[name=EmpPFBasicWages]').val(emppfbasicwages);
+                $('input[name=EmployeePF]').val(0);
+                $("#lblEmployeePF").html(0);
+                //$('input[name=EmployeeESIC]').val(0);
+                //$("#lblEmployeeESIC").html(0);
+                empPF = 0;
+                //empESIC = 0;
+            }
+            if(isemppfwages == true && emppfbasicwages > 0)
+            {
+                $('input[name=EmpPFBasicWages]').val(emppfbasicwages);
+
+                empPF = Math.round(emppfbasicwages * emppfpercent) || 0;
+                $('input[name=EmployeePF]').val(empPF);
+                $("#lblEmpPFBasicWages").html(emppfbasicwages);
+
+                $("#lblGrossSalary").html(salary);
+                $("#lblEmployeePF").html(empPF);
+                empESIC = Math.ceil(salary * empESICpercent) || 0;
+                $('input[name=EmployeeESIC]').val(empESIC);
+                $("#lblEmployeeESIC").html(empESIC);
+            }
+            if(typeofappoint == "Part time")
+            {
+                $('input[name=EmpPFBasicWages]').val(0);
+                $('input[name=EmployeePF]').val(0);
+                $("#lblEmployeePF").html(0);
+                $('input[name=EmpPFBasicWages]').attr('readonly',true);
+                empPF = 0;
+            }
+            else if(typeofappoint == "Full time")
+            {
+                $('input[name=EmpPFBasicWages]').removeAttr("readonly");
+            }
+            var empproftax = profesTax || 0;
+            //var empproftax = parseFloat($('input[name=EmployeeProfessionalTax]').val()) || 0;
+            //if(empproftax == 0)
+            //{
+            //    empproftax = 208
+            //}
+            if(isphysichandc == "Yes")
+            {
+                empproftax = 0;
+            }
+            $('input[name=EmployeeProfessionalTax]').val(empproftax);
+            $("#lblEmployeeProfessionalTax").html(empproftax);
+            var totlempdeduct = empPF + empESIC + empproftax;
+            $('input[name=EmployeeTtlDeduct]').val(totlempdeduct);
+            $("#lblEmployeeTtlDeduct").html(totlempdeduct);
+            var empnetsalary = salary - totlempdeduct;
+            $('input[name=EmployeeNetSalary]').val(empnetsalary);
+            $("#lblEmployeeNetSalary").html(empnetsalary);
+            var employerPF = Math.round(empbasicwages * emplyrpfpercent) || 0;
+            $('input[name=EmployerPF]').val(employerPF);
+            $("#lblEmployerPF").html(employerPF);
+            var employerESIC = Math.ceil(salary * emplyrESICpercent) || 0;
+            $('input[name=EmployerESIC]').val(employerESIC);
+            $("#lblEmployerESIC").html(employerESIC);
+
+            if(isemppfwages == true && emppfbasicwages == 0)
+            {
+                $('input[name=EmployerPF]').val(0)
+                $("#lblEmployerPF").html(0);
+                //$('input[name=EmployerESIC]').val(0);
+                //$("#lblEmployerESIC").html(0);
+                employerPF = 0;
+                //employerESIC = 0;
+            }
+            if(isemppfwages == true && emppfbasicwages > 0)
+            {
+                employerPF = Math.round(emppfbasicwages * emplyrpfpercent) || 0;
+                $('input[name=EmployerPF]').val(employerPF);
+                $("#lblEmployerPF").html(employerPF);
+                employerESIC = Math.ceil(salary * emplyrESICpercent) || 0;
+                $('input[name=EmployerESIC]').val(employerESIC);
+                $("#lblEmployerESIC").html(employerESIC);
+            }
+            //var employerIns = parseFloat($('input[name=EmployerIns]').val()) || 0;
+            var employerIns = ins || 0;
+
+            if(employerIns == 0)
+            {
+                employerIns = 250
+            }
+            if(typeofappoint == "Part time")
+            {
+                //$('input[name=EmpPFBasicWages]').val(0);
+                $('input[name=EmployerPF]').val(0)
+                $("#lblEmployerPF").html(0);
+                $('input[name=EmpPFBasicWages]').attr('readonly',true);
+                employerIns = 0;
+                employerPF = 0;
+            }
+            else if(typeofappoint == "Full time")
+            {
+                $('input[name=EmpPFBasicWages]').removeAttr("readonly");
+            }
+            $('input[name=EmployerIns]').val(employerIns);
+            $("#lblEmployerIns").html(employerIns);
+            var ttlemployerContribute = employerPF + employerESIC + employerIns;
+            $('input[name=EmployerTtlContribute]').val(ttlemployerContribute);
+            $("#lblEmployerTtlContribute").html(ttlemployerContribute);
+            var employeeCTC = salary + ttlemployerContribute;
+            $('input[name=EmployeeCTC]').val(employeeCTC);
+            $("#lblEmployeeCTC").html(employeeCTC);
+            var agencyFee = Math.round(employeeCTC * agncyfee) || 0;
+            $('input[name=AgencyFee]').val(agencyFee);
+            $("#lblAgencyFee").html(agencyFee);
+            var ctcwithagencyfee = agencyFee + employeeCTC;
+            $('input[name=CTCwithAgencyFee]').val(ctcwithagencyfee);
+            $("#lblCTCwithAgencyFee").html(ctcwithagencyfee);
+            var salaryGST = Math.round(ctcwithagencyfee * gstpercent) || 0;
+            $('input[name=SalaryGST]').val(salaryGST);
+            $("#lblSalaryGST").html(salaryGST);
+            var totalCTC = ctcwithagencyfee + salaryGST;
+            $('input[name=TotalCTC]').val(totalCTC);
+            $("#lblTotalCTC").html(totalCTC);
+        }
+        //if(salary > 15000 && salary <= 25000 && isphysichandc == "Yes")
+        if(salary > pfSlab && salary <= phESICSlab && isphysichandc == "Yes")
+        {
+            $('input[name=EmpPFBasicWages]').val(0);
+            $("#lblEmpPFBasicWages").html(0);
+            $("#lblGrossSalary").html(salary);
+            var empbasicwages = $('input[name=EmpPFBasicWages]').val();
+            var empPF = Math.round(empbasicwages * emppfpercent) || 0;
+            $('input[name=EmployeePF]').val(empPF);
+            $("#lblEmployeePF").html(empPF);
+            var empESIC = Math.ceil(salary * empESICpercent) || 0;
+            $('input[name=EmployeeESIC]').val(empESIC);
+            $("#lblEmployeeESIC").html(empESIC);
+            if(isemppfwages == true && emppfbasicwages == 0)
+            {
+                $('input[name=EmpPFBasicWages]').val(emppfbasicwages);
+                $('input[name=EmployeePF]').val(0);
+                $("#lblEmployeePF").html(0);
+                //$('input[name=EmployeeESIC]').val(0);
+                //$("#lblEmployeeESIC").html(0);
+                empPF = 0;
+                //empESIC = 0;
+            }
+            if(isemppfwages == true && emppfbasicwages > 0)
+            {
+                $('input[name=EmpPFBasicWages]').val(emppfbasicwages);
+
+                empPF = Math.round(emppfbasicwages * emppfpercent) || 0;
+                $('input[name=EmployeePF]').val(empPF);
+                $("#lblEmpPFBasicWages").html(emppfbasicwages);
+
+                $("#lblGrossSalary").html(salary);
+                $("#lblEmployeePF").html(empPF);
+                empESIC = Math.ceil(salary * empESICpercent) || 0;
+                $('input[name=EmployeeESIC]').val(empESIC);
+                $("#lblEmployeeESIC").html(empESIC);
+            }
+            if(typeofappoint == "Part time")
+            {
+                $('input[name=EmpPFBasicWages]').val(0);
+                $('input[name=EmployeePF]').val(0);
+                $("#lblEmployeePF").html(0);
+                $('input[name=EmpPFBasicWages]').attr('readonly',true);
+                empPF = 0;
+            }
+            else if(typeofappoint == "Full time")
+            {
+                $('input[name=EmpPFBasicWages]').removeAttr("readonly");
+            }
+            //var empproftax = parseFloat($('input[name=EmployeeProfessionalTax]').val()) || 0;
+            //if(empproftax == 0)
+            //{
+            //    empproftax = 208
+            //}
+            var empproftax = profesTax || 0;
+            if(isphysichandc == "Yes")
+            {
+                empproftax = 0;
+            }
+            $('input[name=EmployeeProfessionalTax]').val(empproftax);
+            $("#lblEmployeeProfessionalTax").html(empproftax);
+            var totlempdeduct = empPF + empESIC + empproftax;
+            $('input[name=EmployeeTtlDeduct]').val(totlempdeduct);
+            $("#lblEmployeeTtlDeduct").html(totlempdeduct);
+            var empnetsalary = salary - totlempdeduct;
+            $('input[name=EmployeeNetSalary]').val(empnetsalary);
+            $("#lblEmployeeNetSalary").html(empnetsalary);
+            var employerPF = Math.round(empbasicwages * emplyrpfpercent) || 0;
+            $('input[name=EmployerPF]').val(employerPF);
+            $("#lblEmployerPF").html(employerPF);
+            var employerESIC = Math.ceil(salary * emplyrESICpercent) || 0;
+            $('input[name=EmployerESIC]').val(employerESIC);
+            $("#lblEmployerESIC").html(employerESIC);
+
+            if(isemppfwages == true && emppfbasicwages == 0)
+            {
+                $('input[name=EmployerPF]').val(0)
+                $("#lblEmployerPF").html(0);
+                //$('input[name=EmployerESIC]').val(0);
+                //$("#lblEmployerESIC").html(0);
+                employerPF = 0;
+                //employerESIC = 0;
+            }
+            if(isemppfwages == true && emppfbasicwages > 0)
+            {
+                employerPF = Math.round(emppfbasicwages * emplyrpfpercent) || 0;
+                $('input[name=EmployerPF]').val(employerPF);
+                $("#lblEmployerPF").html(employerPF);
+                employerESIC = Math.ceil(salary * emplyrESICpercent) || 0;
+                $('input[name=EmployerESIC]').val(employerESIC);
+                $("#lblEmployerESIC").html(employerESIC);
+            }
+            //var employerIns = parseFloat($('input[name=EmployerIns]').val()) || 0;
+            var employerIns = ins || 0;
+            if(employerIns == 0)
+            {
+                employerIns = 250
+            }
+            if(typeofappoint == "Part time")
+            {
+                //$('input[name=EmpPFBasicWages]').val(0);
+                $('input[name=EmployerPF]').val(0)
+                $("#lblEmployerPF").html(0);
+                $('input[name=EmpPFBasicWages]').attr('readonly',true);
+                employerIns = 0;
+                employerPF = 0;
+            }
+            else if(typeofappoint == "Full time")
+            {
+                $('input[name=EmpPFBasicWages]').removeAttr("readonly");
+            }
+            $('input[name=EmployerIns]').val(employerIns);
+            $("#lblEmployerIns").html(employerIns);
+            var ttlemployerContribute = employerPF + employerESIC + employerIns;
+            $('input[name=EmployerTtlContribute]').val(ttlemployerContribute);
+            $("#lblEmployerTtlContribute").html(ttlemployerContribute);
+            var employeeCTC = salary + ttlemployerContribute;
+            $('input[name=EmployeeCTC]').val(employeeCTC);
+            $("#lblEmployeeCTC").html(employeeCTC);
+            var agencyFee = Math.round(employeeCTC * agncyfee) || 0;
+            //var agencyFee = Math.round(employeeCTC * 0.0194) || 0;
+            $('input[name=AgencyFee]').val(agencyFee);
+            $("#lblAgencyFee").html(agencyFee);
+            var ctcwithagencyfee = agencyFee + employeeCTC;
+            $('input[name=CTCwithAgencyFee]').val(ctcwithagencyfee);
+            $("#lblCTCwithAgencyFee").html(ctcwithagencyfee);
+            var salaryGST = Math.round(ctcwithagencyfee * gstpercent) || 0;
+            $('input[name=SalaryGST]').val(salaryGST);
+            $("#lblSalaryGST").html(salaryGST);
+            var totalCTC = ctcwithagencyfee + salaryGST;
+            $('input[name=TotalCTC]').val(totalCTC);
+            $("#lblTotalCTC").html(totalCTC);
+        }
+        if(salary > genESICSlab && isphysichandc != "Yes")
+        {
+            $('input[name=EmpPFBasicWages]').val(0);
+            $("#lblEmpPFBasicWages").html(0);
+            $("#lblGrossSalary").html(salary);
+            var empbasicwages = $('input[name=EmpPFBasicWages]').val();
+            var empPF = Math.round(empbasicwages * emppfpercent) || 0;
+            $('input[name=EmployeePF]').val(empPF);
+            $("#lblEmployeePF").html(empPF);
+            var empESIC = 0;
+            $('input[name=EmployeeESIC]').val(empESIC);
+            $("#lblEmployeeESIC").html(empESIC);
+            if(isemppfwages == true && emppfbasicwages == 0)
+            {
+                $('input[name=EmpPFBasicWages]').val(emppfbasicwages);
+                $('input[name=EmployeePF]').val(0);
+                $("#lblEmployeePF").html(0);
+                $('input[name=EmployeeESIC]').val(0);
+                $("#lblEmployeeESIC").html(0);
+                empPF = 0;
+                empESIC = 0;
+            }
+            if(isemppfwages == true && emppfbasicwages > 0)
+            {
+                $('input[name=EmpPFBasicWages]').val(emppfbasicwages);
+
+                empPF = Math.round(emppfbasicwages * emppfpercent) || 0;
+                $('input[name=EmployeePF]').val(empPF);
+                $("#lblEmpPFBasicWages").html(emppfbasicwages);
+
+                $("#lblGrossSalary").html(salary);
+                $("#lblEmployeePF").html(empPF);
+                //empESIC = Math.round(salary * 0.0075) || 0;
+                empESIC = 0;
+                $('input[name=EmployeeESIC]').val(empESIC);
+                $("#lblEmployeeESIC").html(empESIC);
+            }
+            if(typeofappoint == "Part time")
+            {
+                $('input[name=EmpPFBasicWages]').val(0);
+                $('input[name=EmployeePF]').val(0);
+                $("#lblEmployeePF").html(0);
+                $('input[name=EmpPFBasicWages]').attr('readonly',true);
+                empPF = 0;
+            }
+            else if(typeofappoint == "Full time")
+            {
+                $('input[name=EmpPFBasicWages]').removeAttr("readonly");
+            }
+            //var empproftax = parseFloat($('input[name=EmployeeProfessionalTax]').val()) || 0;
+            //if(empproftax == 0)
+            //{
+            //    empproftax = 208
+            //}
+            var empproftax = profesTax || 0;
+            if(isphysichandc == "Yes")
+            {
+                empproftax = 0;
+            }
+            $('input[name=EmployeeProfessionalTax]').val(empproftax);
+            $("#lblEmployeeProfessionalTax").html(empproftax);
+            var totlempdeduct = empPF + empESIC + empproftax;
+            $('input[name=EmployeeTtlDeduct]').val(totlempdeduct);
+            $("#lblEmployeeTtlDeduct").html(totlempdeduct);
+            var empnetsalary = salary - totlempdeduct;
+            $('input[name=EmployeeNetSalary]').val(empnetsalary);
+            $("#lblEmployeeNetSalary").html(empnetsalary);
+            var employerPF = Math.round(emppfbasicwages * emplyrpfpercent) || 0;
+            $('input[name=EmployerPF]').val(employerPF);
+            $("#lblEmployerPF").html(employerPF);
+            var employerESIC = 0;
+            $('input[name=EmployerESIC]').val(employerESIC);
+            $("#lblEmployerESIC").html(employerESIC);
+
+            if(isemppfwages == true && emppfbasicwages == 0)
+            {
+                $('input[name=EmployerPF]').val(0)
+                $("#lblEmployerPF").html(0);
+                $('input[name=EmployerESIC]').val(0);
+                $("#lblEmployerESIC").html(0);
+                employerPF = 0;
+                employerESIC = 0;
+            }
+            if(isemppfwages == true && emppfbasicwages > 0)
+            {
+                employerPF = Math.round(emppfbasicwages * emplyrpfpercent) || 0;
+                $('input[name=EmployerPF]').val(employerPF);
+                $("#lblEmployerPF").html(employerPF);
+                //employerESIC = Math.round(salary * 0.0325) || 0;
+                employerESIC = 0;
+                $('input[name=EmployerESIC]').val(employerESIC);
+                $("#lblEmployerESIC").html(employerESIC);
+            }
+            var employerIns = ins || 0;
+            //var employerIns = parseFloat($('input[name=EmployerIns]').val()) || 0;
+            if(employerIns == 0)
+            {
+                employerIns = 250
+            }
+            if(typeofappoint == "Part time")
+            {
+                //$('input[name=EmpPFBasicWages]').val(0);
+                $('input[name=EmployerPF]').val(0)
+                $("#lblEmployerPF").html(0);
+                $('input[name=EmpPFBasicWages]').attr('readonly',true);
+                employerIns = 0;
+                employerPF = 0;
+            }
+            else if(typeofappoint == "Full time")
+            {
+                $('input[name=EmpPFBasicWages]').removeAttr("readonly");
+            }
+            $('input[name=EmployerIns]').val(employerIns);
+            $("#lblEmployerIns").html(employerIns);
+            var ttlemployerContribute = employerPF + employerESIC + employerIns;
+            $('input[name=EmployerTtlContribute]').val(ttlemployerContribute);
+            $("#lblEmployerTtlContribute").html(ttlemployerContribute);
+            var employeeCTC = salary + ttlemployerContribute;
+            $('input[name=EmployeeCTC]').val(employeeCTC);
+            $("#lblEmployeeCTC").html(employeeCTC);
+            //var agencyFee = Math.round(employeeCTC * 0.0194) || 0;
+            var agencyFee = Math.round(employeeCTC * agncyfee) || 0;
+            $('input[name=AgencyFee]').val(agencyFee);
+            $("#lblAgencyFee").html(agencyFee);
+            var ctcwithagencyfee = agencyFee + employeeCTC;
+            $('input[name=CTCwithAgencyFee]').val(ctcwithagencyfee);
+            $("#lblCTCwithAgencyFee").html(ctcwithagencyfee);
+            var salaryGST = Math.round(ctcwithagencyfee * gstpercent) || 0;
+            $('input[name=SalaryGST]').val(salaryGST);
+            $("#lblSalaryGST").html(salaryGST);
+            var totalCTC = ctcwithagencyfee + salaryGST;
+            $('input[name=TotalCTC]').val(totalCTC);
+            $("#lblTotalCTC").html(totalCTC);
+        }
+        if(salary > phESICSlab && isphysichandc == "Yes")
+        {
+            $('input[name=EmpPFBasicWages]').val(0);
+            $("#lblEmpPFBasicWages").html(0);
+            $("#lblGrossSalary").html(salary);
+            var empbasicwages = $('input[name=EmpPFBasicWages]').val();
+            var empPF = Math.round(empbasicwages * emppfpercent) || 0;
+            $('input[name=EmployeePF]').val(empPF);
+            $("#lblEmployeePF").html(empPF);
+            var empESIC = 0;
+            $('input[name=EmployeeESIC]').val(empESIC);
+            $("#lblEmployeeESIC").html(empESIC);
+            if(isemppfwages == true && emppfbasicwages == 0)
+            {
+                $('input[name=EmpPFBasicWages]').val(emppfbasicwages);
+                $('input[name=EmployeePF]').val(0);
+                $("#lblEmployeePF").html(0);
+                $('input[name=EmployeeESIC]').val(0);
+                $("#lblEmployeeESIC").html(0);
+                empPF = 0;
+                empESIC = 0;
+            }
+            if(isemppfwages == true && emppfbasicwages > 0)
+            {
+                $('input[name=EmpPFBasicWages]').val(emppfbasicwages);
+
+                empPF = Math.round(emppfbasicwages * emppfpercent) || 0;
+                $('input[name=EmployeePF]').val(empPF);
+                $("#lblEmpPFBasicWages").html(emppfbasicwages);
+
+                $("#lblGrossSalary").html(salary);
+                $("#lblEmployeePF").html(empPF);
+                //empESIC = Math.round(salary * 0.0075) || 0;
+                empESIC = 0;
+                $('input[name=EmployeeESIC]').val(empESIC);
+                $("#lblEmployeeESIC").html(empESIC);
+            }
+            if(typeofappoint == "Part time")
+            {
+                $('input[name=EmpPFBasicWages]').val(0);
+                $('input[name=EmployeePF]').val(0);
+                $("#lblEmployeePF").html(0);
+                $('input[name=EmpPFBasicWages]').attr('readonly',true);
+                empPF = 0;
+            }
+            else if(typeofappoint == "Full time")
+            {
+                $('input[name=EmpPFBasicWages]').removeAttr("readonly");
+            }
+            //var empproftax = parseFloat($('input[name=EmployeeProfessionalTax]').val()) || 0;
+            //if(empproftax == 0)
+            //{
+            //    empproftax = 208
+            //}
+            var empproftax = profesTax || 0;
+            if(isphysichandc == "Yes")
+            {
+                empproftax = 0;
+            }
+            $('input[name=EmployeeProfessionalTax]').val(empproftax);
+            $("#lblEmployeeProfessionalTax").html(empproftax);
+            var totlempdeduct = empPF + empESIC + empproftax;
+            $('input[name=EmployeeTtlDeduct]').val(totlempdeduct);
+            $("#lblEmployeeTtlDeduct").html(totlempdeduct);
+            var empnetsalary = salary - totlempdeduct;
+            $('input[name=EmployeeNetSalary]').val(empnetsalary);
+            $("#lblEmployeeNetSalary").html(empnetsalary);
+            var employerPF = Math.round(emppfbasicwages * emplyrpfpercent) || 0;
+            $('input[name=EmployerPF]').val(employerPF);
+            $("#lblEmployerPF").html(employerPF);
+            var employerESIC = 0;
+            $('input[name=EmployerESIC]').val(employerESIC);
+            $("#lblEmployerESIC").html(employerESIC);
+
+            if(isemppfwages == true && emppfbasicwages == 0)
+            {
+                $('input[name=EmployerPF]').val(0)
+                $("#lblEmployerPF").html(0);
+                $('input[name=EmployerESIC]').val(0);
+                $("#lblEmployerESIC").html(0);
+                employerPF = 0;
+                employerESIC = 0;
+            }
+            if(isemppfwages == true && emppfbasicwages > 0)
+            {
+                employerPF = Math.round(emppfbasicwages * emplyrpfpercent) || 0;
+                $('input[name=EmployerPF]').val(employerPF);
+                $("#lblEmployerPF").html(employerPF);
+                //employerESIC = Math.round(salary * 0.0325) || 0;
+                employerESIC = 0;
+                $('input[name=EmployerESIC]').val(employerESIC);
+                $("#lblEmployerESIC").html(employerESIC);
+            }
+            //var employerIns = parseFloat($('input[name=EmployerIns]').val()) || 0;
+            var employerIns = ins || 0;
+            if(employerIns == 0)
+            {
+                employerIns = 250
+            }
+            if(typeofappoint == "Part time")
+            {
+                //$('input[name=EmpPFBasicWages]').val(0);
+                $('input[name=EmployerPF]').val(0)
+                $("#lblEmployerPF").html(0);
+                $('input[name=EmpPFBasicWages]').attr('readonly',true);
+                employerIns = 0;
+                employerPF = 0;
+            }
+            else if(typeofappoint == "Full time")
+            {
+                $('input[name=EmpPFBasicWages]').removeAttr("readonly");
+            }
+            $('input[name=EmployerIns]').val(employerIns);
+            $("#lblEmployerIns").html(employerIns);
+            var ttlemployerContribute = employerPF + employerESIC + employerIns;
+            $('input[name=EmployerTtlContribute]').val(ttlemployerContribute);
+            $("#lblEmployerTtlContribute").html(ttlemployerContribute);
+            var employeeCTC = salary + ttlemployerContribute;
+            $('input[name=EmployeeCTC]').val(employeeCTC);
+            $("#lblEmployeeCTC").html(employeeCTC);
+            //var agencyFee = Math.round(employeeCTC * 0.0194) || 0;
+            var agencyFee = Math.round(employeeCTC * agncyfee) || 0;
+            $('input[name=AgencyFee]').val(agencyFee);
+            $("#lblAgencyFee").html(agencyFee);
+            var ctcwithagencyfee = agencyFee + employeeCTC;
+            $('input[name=CTCwithAgencyFee]').val(ctcwithagencyfee);
+            $("#lblCTCwithAgencyFee").html(ctcwithagencyfee);
+            var salaryGST = Math.round(ctcwithagencyfee * gstpercent) || 0;
+            $('input[name=SalaryGST]').val(salaryGST);
+            $("#lblSalaryGST").html(salaryGST);
+            var totalCTC = ctcwithagencyfee + salaryGST;
+            $('input[name=TotalCTC]').val(totalCTC);
+            $("#lblTotalCTC").html(totalCTC);
+        }
+
+        calcommitmentamount();
+
+        if($('#ArrearOrDeductionTillDate').val() != "") {
+            var Arrearamount = calcommitmentamount(true) || 0;
+            $('#ArrearOrDeductionAmount').val(Math.round(Arrearamount));
+        }
+    });
+    }
+
+
+    function dateRange(startDate, endDate) {
+        var start = startDate.split('-');
+        var end = endDate.split('-');
+        var startYear = parseInt(start[0]);
+        var endYear = parseInt(end[0]);
+        var months = [];
+        for (var i = startYear; i <= endYear; i++) {
+            var endMonth = i != endYear ? 11 : parseInt(end[1]) - 1;
+            var startMon = i === startYear ? parseInt(start[1]) - 1 : 0;
+            for (var j = startMon; j <= endMonth; j = j > 12 ? j % 12 || 11 : j + 1) {
+                var month = j + 1;
+                var displayMonth = month < 10 ? '0' + month : month;
+                months.push([displayMonth]);
+            }
+        }
+        return months;
+    }
+
+    function endOfMonth(date) {
+        return new Date(date.getFullYear(), date.getMonth() + 1, 0);
+    }
+
+    $("#Appointmentstartdate, #AppointmentEndDate,#WithdrawTillDate").change(function () {
+        validDateDiff();
+        if(typcategory == "OSG")
+            FillSalaryCalcDetls();
+        else
+            calcommitmentamount();
+
+    });
+
+    $("#ArrearOrDeductionTillDate").change(function () {
+        if(typcategory == "OSG")
+            FillSalaryCalcDetls();
+        else
+        {
+            var Arrearamount = calcommitmentamount(true) || 0;
+            $('#ArrearOrDeductionAmount').val(Math.round(Arrearamount));
+        }
+    });
+
+    $('#Appointmentstartdate').change(function () {
+        $('#AppointmentEndDate').val('');
+        var defaultstartDateDate = moment($('#Appointmentstartdate').val().split('-').join('/')).add(+1,'days').toDate();
+        var defaultendDate = moment($('#OldAppointmentClosureDate').text().split('-').join('/')).toDate();
+        $('#AppointmentEndDate').datepicker({
+            dateFormat: 'dd-MM-yy',
+            changeYear: true
+        }).datepicker("option", "minDate", defaultstartDateDate).datepicker("option", "maxDate", defaultendDate);
+
+        if ($('#AppointmentEndDate').val() != "")
+            $('#AppointmentEndDate').datepicker("setDate", new Date($('#AppointmentEndDate').val().split('-').join('/')));
+        else
+            $('#AppointmentEndDate').datepicker("setDate", defaultendDate);
+
+    });
+
+
+    function validDateDiff() {
+        var strstartdate = $("#Appointmentstartdate").val();
+        var strclosedate = $("#AppointmentEndDate").val();
+        var startdate = new Date(strstartdate.split('-').join('/'));
+        var enddate = new Date(strclosedate.split('-').join('/'));
+        var prjStartDate = $("#lblProjectStartDate").text();
+        if (prjStartDate == "") {
+            $("#Appointmentstartdate").val('')
+            $("#AppointmentEndDate").val('')
+            $.alert('Please enter project number');
+            return;
+        }
+        prjStartDate = new Date(prjStartDate.split('-').join('/'));
+        var prjCloseDate = $("#lblProjectClosureDate").text();
+        prjCloseDate = new Date(prjCloseDate.split('-').join('/'));
+        if (strstartdate != '' && strclosedate != '') {
+            if (!(startdate >= prjStartDate && enddate <= prjCloseDate)) {
+                $("#Appointmentstartdate").val('')
+                $.alert('Appointment date must be between the project start date and project closure date.');
+                return;
+            }
+        }
+    }
+
+    function FillData() {
+        $('#CldivCSIR').removeClass('dis-none');
+        $('#lblPIName').text($('#lblPIName').text());
+        $('#lblDepartname').text($('#lblDepartmentName').text());
+        $('#lblMedical').text($("#Medical option:selected").text());
+        $('#lblPay').text($('#Salary').val());
+        $('#lblReceivedDate').text($('#ApplicationReceiveDate').val());
+        $('#lblAppStartDate1').text($('#Appointmentstartdate').val());
+        $('#lblAppEndDate1').text($('#AppointmentEndDate').val());
+        $('#lblCommitmentAmt1').text($('#CommitmentAmount').val());
+        UpdateUploadedDoc();
+    }
+
+    $('select[name="Medical"]').on('change', function () {
+        var medicalAmt =  parseFloat($('#DesignationMedicalamount').val());
+        if ($(this).val() == 1 || $(this).val() == 2)
+            $('#MedicalAmmount').val(medicalAmt);
+        else
+            $('#MedicalAmmount').val(0);
+        calcommitmentamount();
+
+        if($('#ArrearOrDeductionTillDate').val() != "") {
+            var Arrearamount = calcommitmentamount(true) || 0;
+            $('#ArrearOrDeductionAmount').val(Math.round(Arrearamount));
+        }
+    });
+
+    $(document).ready(function () {
+        var currentdate = moment(new Date()).toDate();
+        if(OrderID > 0)
+        {
+            var DateRD = "@string.Format("{0:dd/MMMM/yyyy}", Model.ApplicationReceiveDate)";
+            var ApplicationRD = moment(DateRD.split('-').join('/')).toDate();
+            var SourceEmailDate = "@string.Format("{0:dd/MMMM/yyyy}", Model.SourceEmailDate)";
+            var SourceOfEmailDt = moment(SourceEmailDate.split('-').join('/')).toDate();
+            $('#ApplicationReceiveDate').datepicker({
+                dateFormat: 'dd-MM-yy',
+                changeYear: true
+            }).datepicker("option", "maxDate", currentdate).datepicker("option", "minDate", ApplicationRD);
+
+            $('#SourceEmailDate').datepicker({
+                dateFormat: 'dd-MM-yy',
+                changeYear: true
+            }).datepicker("option", "maxDate", currentdate).datepicker("option", "minDate", SourceOfEmailDt);
+
+        }
+        else
+        {
+            $('#ApplicationReceiveDate,#SourceEmailDate').datepicker({
+                dateFormat: 'dd-MM-yy',
+                changeYear: true
+            }).datepicker("option", "maxDate", currentdate).datepicker("option", "minDate", -185);
+        }
+
+        $('#DateofBirth').datepicker({
+            dateFormat: 'dd-MM-yy',
+            changeYear: true
+        }).datepicker("option", "maxDate", currentdate);
+    });
+
+    $("#Appointmentstartdate,#AppointmentEndDate,#ArrearOrDeductionTillDate,#WithdrawTillDate").datepicker({
+        dateFormat: 'dd-MM-yy',
+        showStatus: true,
+        showWeeks: true,
+        changeYear: true,
+        yearRange: '1950:+30',
+        highlightWeek: true,
+        numberOfMonths: 1,
+        showAnim: "scale",
+        showOptions: {
+            origin: ["top", "left"]
+        }
+    });
+
+    function checkDevation() {
+        var qualifi = [];
+        var descipid = [];
+        var marks = [];
+        addyear = 0;
+        var TotalExp = 0;
+        var PersonName = $('#CantidateName').text();
+        var InputData = [];
+        InputData = {
+            DesignationId: $('#DesignationId').val() || null,
+            QualificationId: qualifi,
+            DisciplineId: descipid,
+            MarksId: marks,
+            ChekSalary: $('#Salary').val(),
+            AppointmentStartDate: $('#Appointmentstartdate').val(),
+            AppointmentEndDate: $('#AppointmentEndDate').val(),
+            ProjectID: $('#ProjectId').val(),
+            ProjectFund: 0,
+            CommitmentAmount: $('#CommitmentAmount').val() || 0,
+            PersonName: PersonName,
+            OrderType: "Change of project",
+            AppId:ApplicationID,
+            AppType:typcategory,
+            Comments: $('#Comments').val(),
+            SendSalaryStructure : $('input[name="SendSalaryStructure"]:checked').val() || "",
+        }
+        modelData = InputData;
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("OrderCheckDeviation", "Requirement")",
+            data: modelData,
+            contentType: "application/x-www-form-urlencoded",
+            beforeSend: function () {
+                $(".loading-bg").removeClass('dis-none');
+            },
+            success: function (result) {
+                $(".loading-bg").addClass('dis-none');
+                $("input[name=FlowofMail]").prop('checked', false);
+                if (result.isRes) {
+                    $("input[name=FlowofMail][value=NP]").prop('checked', true);
+                    document.getElementById("nextBtn").innerHTML = "Send to clarification";
+                }
+                else {
+                    $("input[name=FlowofMail][value=Nd]").prop('checked', true);
+                    document.getElementById("nextBtn").innerHTML = "Send for approval";
+                }
+
+                //if (Status == "Open" || Status == "" || Status == "Draft" || Status.includes("Note")) {
+                $("#Deviation").html(result.output);
+                $("#ShowDeviationNP").html(result.template);
+                //}
+                //else {
+                //    $("#Deviation").empty();
+                //    $("input[name=FlowofMail][value=Nd]").prop('checked', true);
+                //}
+            },
+            error: function (err) {
+                console.log("error : " + err);
+            }
+        });
+    }
+
+    function AckowleadgementEmail() {
+        var PersonName = $('#CantidateName').text();
+        var InputData = [];
+        InputData = {
+            DesignationId: $('#DesignationId').val() || null,
+            AppointmentReciveDate: $('#ApplicationReceiveDate').val(),
+            PersonName: PersonName,
+            AppointmentStartDate: $('#Appointmentstartdate').val(),
+            AppointmentEndDate: $('#AppointmentEndDate').val(),
+            OrderType: "Change of project",
+            AppointmentReciveDate : $('#ApplicationReceiveDate').val(),
+            BasicPay : $('#Salary').val(),
+            ProjectID : $('#ProjectId').val(),
+            AppId : @Html.Raw(Json.Encode(Model.ApplicationID)) || 0,
+            AppType : @Html.Raw(Json.Encode(Model.TypeCode)) || "",
+            SendSalaryStructure : $('input[name="SendSalaryStructure"]:checked').val() || ""
+        }
+        modelData = InputData;
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("OrderEmailProcess", "Requirement")",
+            data: modelData,
+            contentType: "application/x-www-form-urlencoded",
+            beforeSend: function () {
+                $(".loading-bg").removeClass('dis-none');
+            },
+            success: function (result) {
+                $(".loading-bg").addClass('dis-none');
+                $("#ShowDeviationND").html(result.output.Item2);
+            },
+            error: function (err) {
+                console.log("error : " + err);
+            }
+        });
+    }
+
+    /* Tab Sections Start*/
+    var currentTab = 0; // Current tab is set to be the first tab (0)
+    showTab(currentTab); // Display the crurrent tab
+    function showTab(n) {
+        // This function will display the specified tab of the form...
+        var x = document.getElementsByClassName("cust-tab");
+        x[n].style.display = "block";
+
+        $(".custom-nav-pills li:eq(" + n + ")").addClass("active");
+        //... and fix the Previous/Next buttons:
+        if (n == 0) {
+            document.getElementById("prevBtn").style.display = "none";
+        } else {
+            document.getElementById("prevBtn").style.display = "inline";
+        }
+        if (n == (x.length - 1)) {
+            if ($('#Status').val() == "" || $('#Status').val().includes("Open") || $('#Status').val().includes("Note to PI")) {
+                document.getElementById("nextBtn").style.display = "inline";
+                document.getElementById("nextBtn").innerHTML = "Submit";
+            }
+            else {
+                document.getElementById("nextBtn").style.display = "none";
+                document.getElementById("nextBtn").innerHTML = "Submit";
+            }
+
+        } else {
+            document.getElementById("nextBtn").innerHTML = "Next";
+            document.getElementById("nextBtn").style.display = "inline";
+        }
+    }
+
+    function nextPrev(n) {
+        // This function will figure out which tab to display
+        var x = document.getElementsByClassName("cust-tab");
+        // Exit the function if any field in the current tab is invalid:
+        var v = n;
+        if ($('#nextBtn').text().includes("Send")) {
+            v = 2;
+        }
+        if (n > 0 && !validateForm(v)) {
+            $.confirm({
+                title: 'Warning!',
+                content: 'Invalid data exist',
+                type: 'red',
+                buttons: {
+                    Ok: function () {
+                        //close
+                    },
+                },
+            });
+            return false;
+        }
+
+        if($('#Comments').val() != '') {
+            $('#txt-Comments').text($('#Comments').val());
+        }
+
+        if (currentTab + n < x.length) {
+            // Hide the current tab:
+            x[currentTab].style.display = "none";
+            $(".custom-nav-pills li:eq(" + currentTab + ")").removeClass("active");
+        }
+        else {
+            // ... the form gets submitted:
+            // ... Update checklist in the deviation
+            var CheckedValue = [];
+            $('#tbodyDEVCheckList').find('input[id^="DeviationCheckId_"]').each(function(){
+                if ($(this).is(':checked')) {
+                    var str = $(this).attr('name');
+                    var matches = str.match(/(\d+)/);
+                    var value = ""
+                    if (matches)
+                        value = $('input[name="CheckListDetail[' + matches[0] + '].FunctionCheckListId"]').val();
+                    CheckedValue.push(value);
+                }
+            });
+            $('.CheckListBody').find('tr[class^="Checklist_"]').each(function() {
+                $(this).addClass('dis-none');
+            });
+
+            if(CheckedValue.length > 0) {
+                for(var i = 0;i < CheckedValue.length;i++)
+                {
+                    $('.Checklist_' + CheckedValue[i]).removeClass('dis-none');
+                }
+            }
+            $('.CheckListBody').find('tr:not(.dis-none)').each(function(e) {
+                $(this).find('.dyn-srl-No').text(parseInt(e));
+            });
+
+            if($('input[name="FlowofMail"]:checked').val() != "Nd")
+            {
+                //Deviation mail Preview
+                if($('#Comments').val() != "") {
+                    $('#tr-cmt').removeClass('dis-none');
+                }
+                else {
+                    $('#tr-cmt').addClass('dis-none');
+                }
+                $('#txt-mail-comments').text($('#Comments').val());
+                $('#ShowDeviationND').hide();
+                $('#ShowDeviationNP').show();
+                PopupConfirm()
+            }//Process mail Preview is occur only once for application save
+            else if ($('input[name="FlowofMail"]:checked').val() == "Nd") {
+                $('#divBcc').addClass('dis-none');
+                $('#ShowDeviationND').empty();
+                $('#ShowDeviationNP').hide();
+                $('#ShowDeviationND').show();
+                AckowleadgementEmail()
+                PopupConfirm()
+            }
+            else
+                formSave();
+            return false;
+        }
+        // Increase or decrease the current tab by 1:
+        currentTab = currentTab + n;
+
+        // Otherwise, display the correct tab:
+        showTab(currentTab);
+    }
+
+    function validateForm(n) {
+        // This function deals with validation of the form fields
+        var isValid = false;
+        var hadError = false;
+        var tabs = $(".cust-tab");
+        var currentTabEle = tabs[currentTab];
+        var inputs = $(":input, textarea, select"); // get all the form inputs and selects
+        var stepElements = $(currentTabEle).find(inputs); // get inputs for current step
+        var count = stepElements.length; // check that there are inputs
+        if (count <= 0) {                // if there are not no reason to loop them
+            return true;
+        }
+
+        $(stepElements).each(function (idx) {
+            if (!$(this).is(':radio') && !$(this).is(':checkbox')) {
+                isValid = $(this).valid();//$(document.forms[0]).validate().element($(this)); // check that the input is valid. This can also be used on a per input basis to perform another action if the field is not valid.
+                if (!isValid) {
+                    hadError = true;
+                } // set our flag if there was an error
+            }
+        });
+        if (!hadError && n != 2 && ($('#Status').val() == "" || $('#Status').val().includes("Open") || $('#Status').val().includes("Note to PI"))) {
+            if ($('#DesignationId').val() != null || $('#DesignationId').val() != "") {
+                checkDevation();
+            }
+
+        }
+        if ($('#ProjectId').val() != null || $('#ProjectId').val() != "") {
+            FillData();
+        }
+        return !hadError; // return the valid status
+    }
+
+    function PopupConfirm() {
+        $('#dialogConfirm').modal('toggle');
+    }
+
+    $('#isbtnConfirm').click(function () {
+        $(this).attr("disabled", "disabled");
+        $('.loading-bg').removeClass('dis-none');
+        formSave();
+    });
+
+
+    var radioState = false;
+    function checkuncheck(element)
+    {
+        if(radioState == false) {
+            check();
+            radioState = true;
+        }
+        else {
+            uncheck();
+            radioState = false;
+        }
+    }
+    function check() {
+        document.getElementById("IsSendSalaryStructure").checked = true;
+    }
+    function uncheck() {
+        document.getElementById("IsSendSalaryStructure").checked = false;
+    }
+
+    function formSave() {
+        var isValid = $('#formSTEJuniorApp').valid();
+        if (!isValid)
+            return false;
+
+        if(typcategory == "OSG")
+        {
+            if(document.getElementById("IsSendSalaryStructure").checked = false){
+                $.confirm({
+                    title: 'Alert!',
+                    content: 'Send Pay structure option is not selected. Pay structure will not be sent to PI. To continue click Ok. To change click Close',
+                    type: 'orange',
+                    buttons: {
+                        Ok: function () {
+                            //submit
+                            if (isValid && ($('#Status').val() == "" || $('#Status').val().includes("Open") || $('#Status').val().includes("Note to PI"))){
+                                $('#formSTEJuniorApp').submit();
+                            }
+                            else {
+                                $('#FailedAlert').html('Application in disabled mode, Something went wrong please contact administrator');
+                                $('#Failed').modal('toggle');
+                                return false;
+                            }
+                        },
+                        Close: function(){
+                            //close
+                            $(".loading-bg").addClass('dis-none');
+                        }
+                    },
+                });
+            }
+            else if(document.getElementById("IsSendSalaryStructure").checked = true)
+            {
+                if (isValid && ($('#Status').val() == "" || $('#Status').val().includes("Open") || $('#Status').val().includes("Note to PI"))){
+                    $('#formSTEJuniorApp').submit();
+                }
+                else {
+                    $('#FailedAlert').html('Application in disabled mode, Something went wrong please contact administrator');
+                    $('#Failed').modal('toggle');
+                    return false;
+                }
+            }
+        }
+        else
+        {
+            if (isValid && ($('#Status').val() == "" || $('#Status').val().includes("Open") || $('#Status').val().includes("Note to PI"))){
+                $('#formSTEJuniorApp').submit();
+            }
+            else {
+                $('#FailedAlert').html('Application in disabled mode, Something went wrong please contact administrator');
+                $('#Failed').modal('toggle');
+                return false;
+            }
+        }
+    }
+
+
+    $(document).on('click', '#btnViewSummary', function () {
+        var projNo = $('#ProjectId').val() || 0;
+        if (projNo > 0) {
+            var searchData = { "ProjectId": projNo };
+            $.ajax({
+                url: "@Url.Action("_ProjectSummary", "CoreAccounts")",
+                type: "POST",
+                data: searchData,
+                contentType: "application/x-www-form-urlencoded",
+                beforeSend: function () {
+                    $(".loading-bg").removeClass('dis-none');
+                },
+                success: function (result) {
+                    $(".loading-bg").addClass('dis-none');
+                    $("#popup").html(result);
+                    $("#projectSummaryModal").modal('toggle');
+                },
+                error: function (err) {
+                    console.log("error : " + err);
+                }
+            });
+        }
+    });
+
+    function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode != 46 && charCode > 31
+          && (charCode < 48 || charCode > 57))
+            return false;
+
+        return true;
+    }
+
+    $(document).on('change', 'input[name$=".IsChecked"]', function () {
+        var isUnchecked = false;
+        $('input[name$=".IsChecked"]').each(function () {
+            if ($(this).is(':checked')) {
+                isUnchecked = true;
+            }
+        });
+        $("input[name=FlowofMail]").prop('checked', false);
+
+        if (!isUnchecked) {
+            $("input[name=FlowofMail][value=Nd]").prop('checked', true);
+            $('#nextBtn').text('Send for approval');
+        }
+        else {
+            $("input[name=FlowofMail][value=NP]").prop('checked', true);
+            $('#nextBtn').text('Send for clarification');
+        }
+    });
+
+    $(document).on('change', 'input[name="FlowofMail"]', function () {
+        var isUnchecked = false;
+        var value = $('input[name="FlowofMail"]:checked').val();
+        if (value == "Nd") {
+            $('input[name$=".IsChecked"]').each(function () {
+                $(this).prop('checked', false);
+            });
+            $('#nextBtn').text('Send for approval');
+        }
+        else {
+            $('input[name$=".IsChecked"]').each(function () {
+                $(this).prop('checked', true);
+            });
+            $('#nextBtn').text('Send to clarification');
+        }
+    });
+
+    function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                $('#displayImg')
+                    .attr('src', e.target.result)
+                    .width(30)
+                    .height(30);
+            };
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    $('#WithdrawnFullAmount').change(function () {
+        if(typcategory == "OSG")
+            FillSalaryCalcDetls();
+        else
+            calcommitmentamount()
+    });
+
+
+    var inncPIJus = 1;
+    $("#btnAddFile").click(function () {
+        var cln = $('div#divPIJustification:first').clone().find("input").val("").end();
+        $(cln).find('a').removeClass('dis-none');
+        $(cln).find("input, select").each(function () {
+            $(this).attr("name", $(this).attr("name").replace(/\d+/, inncPIJus));
+            if ($(this).attr("id"))
+                $(this).attr("id", $(this).attr("id").replace(/\d+/, inncPIJus));
+        });
+        $(cln).insertAfter("div#divPIJustification:last");
+        inncPIJus++;
+    });
+
+    $(document).on('click', 'a.removeFile', function () {
+        if ($('div#divPIJustification').length == 1) {
+            $('div#divPIJustification').find("input").val("").end();
+        }
+        else {
+            $(this).closest('div').remove();
+            UpdateUploadedDoc();
+            $(document).find('input[name^="PIJustificationFile"]').each(function(idx,ele) {
+                $(this).attr("name", $(this).attr("name").replace(/\d+/, idx));
+                if ($(this).attr("id"))
+                    $(this).attr("id", $(this).attr("id").replace(/\d+/, idx));
+            });
+            inncPIJus--;
+        }
+    });
+
+    $(document).on('change','input[name^="PIJustificationFile"]', function(event) {
+        var id = $(this).attr('id');
+        id = id.split('_')[1];
+        if($(this).val() != "")
+        {
+            // Read selected files
+            var allowedExtensions =[".pdf", ".doc",".docx"];
+            var fileName = document.getElementById('PIJustificationFile_'+id).files[0].name;
+            var extension = fileName.substr((fileName.lastIndexOf('.') + 1)).toLowerCase();
+            var validFormat=allowedExtensions.includes('.'+extension);
+            if(validFormat){
+                var _size = document.getElementById('PIJustificationFile_'+id).files[0].size;
+                var iSize = (_size / 1024);
+                iSize = (Math.round(iSize * 100) / 100)
+                if (iSize > 5120) {
+                    $('#FailedAlert').html('Documents size should be allow below 5MB');
+                    $('#Failed').modal('toggle');
+                    $(this).val('');
+                    return;
+                }
+                UpdateUploadedDoc();
+            }
+            else {
+                $('#FailedAlert').html('PIJustification allowed document type [pdf,doc,docx]');
+                $('#Failed').modal('toggle');
+                $(this).val('');
+                return;
+            }
+        }
+        else{
+            UpdateUploadedDoc()
+        }
+
+
+    });
+
+    function UpdateUploadedDoc(){
+        var form_data = new FormData();
+        $('#fileAppend').empty();
+        $(document).find('input[name^="PIJustificationFile"]').each(function(idx,ele){
+            var val=$(this).val();
+            var ID=$(this).attr('id');
+            if(val!=""){
+                var tmppath= URL.createObjectURL(document.getElementById(ID).files[0]);
+                var fileN = document.getElementById(ID).files[0].name;
+                var ele = document.createElement('a');
+                var elebr = document.createElement('br');
+                ele.href =tmppath
+                ele.text=fileN;
+                ele.name="DocDownload";
+                document.getElementById('fileAppend').appendChild(ele);
+                document.getElementById('fileAppend').appendChild(elebr);
+            }
+        });
+    }
+
+    $('a[name="DocDownload"]').click(function (p) {
+        p.preventDefault();
+        var ref = $(this).attr('href');
+        var win = window.open('', '_blank');
+        win.location.href = ref;
+    });
+
+    $(document).on('click', '#btnSave', function (e) {
+        e.preventDefault();
+        var isValid = false;
+        var hadError = false;
+        var tabs = $(".cust-tab");
+        var currentTabEle = tabs[0];
+        var inputs = $("input, textarea,select"); // get all the form inputs and selects
+        var stepElements = $(currentTabEle).find(inputs); // get inputs for current step
+        var count = stepElements.length; // check that there are inputs
+        if (count <= 0) {                // if there are not no reason to loop them
+            return true;
+        }
+        //EnableDisableReqClass(false);
+        $(stepElements).each(function (idx) {
+            if (!$(this).is(':radio') && !$(this).is(':checkbox')) {
+                isValid = $(this).valid();//$(document.forms[0]).validate().element($(this)); // check that the input is valid. This can also be used on a per input basis to perform another action if the field is not valid.
+                if (!isValid) {
+                    hadError = true;
+                } // set our flag if there was an error
+            }
+        });
+        if (!hadError)
+            $('#formSTEJuniorApp').submit();
+        else {
+            $.confirm({
+                title: 'Warning!',
+                content: 'Invalid data exist',
+                type: 'red',
+                buttons: {
+                    Ok: function () {
+                        //close
+                    },
+                },
+
+            });
+            return false;
+        }
+        return !hadError;
+    });
+
+    var findtabs = $(".cust-tab");
+    $(findtabs[0]).find('textarea,input[type="text"]').each(function () {
+        var ID = $(this).attr('id');
+        var name = $(this).attr('name').split('.')[1];
+        var NotinID = ["DesignationCode" , "ProjectNumber" , "Comments"];
+        var NotinEndName = ["DesignationautoComplete"];
+        if (!NotinID.includes(ID) && !NotinEndName.includes(name)) {
+            $(this).attr('style', 'text-transform:uppercase');
+        }
+    });
+
+    $(document).on('keyup','textarea,input[type="text"]',function(event) {
+        if($(this).attr('id') != "Comments" && $(this).attr('id') != "Remarks" && $(this).attr('id') != undefined) {
+            var input = event.target;
+            var start = input.selectionStart;
+            var end = input.selectionEnd;
+            input.value = input.value.toLocaleUpperCase();
+            input.setSelectionRange(start, end);
+        }
+    });
+
+    function FormDisabled() {
+        $("#formSTEJuniorApp").find("input, select, textarea").each(function () {
+            var idDisabled = $(this).is(":disabled");
+            var id = $(this).attr('id');
+            if (!idDisabled) {
+                $(this).attr("disabled", "disabled");
+            }
+        });
+    }
+
+
+    $('input[name="PILetter"]').change(function (event) {
+        $('#PILetter').empty();
+        var form_data = new FormData();
+        var _size = this.files[0].size;
+        var iSize = (_size / 1024);
+        iSize = (Math.round(iSize * 100) / 100)
+        // Read selected files
+        var allowedExtensions = [".pdf", ".doc", ".docx"];
+        var totalfiles = document.getElementById('PILetter').files.length;
+        for (var index = 0; index < totalfiles; index++) {
+            var fileName = document.getElementById('PILetter').files[index].name;
+            var extension = fileName.substr((fileName.lastIndexOf('.') + 1)).toLowerCase();
+            var validFormat = allowedExtensions.includes('.' + extension);
+            if (!validFormat) {
+                $('#FailedAlert').html('PI Letter File should be allowed olny document type [pdf,doc,docx]');
+                $('#Failed').modal('toggle');
+                $(this).val('');
+                return;
+            }
+            else {
+                if (iSize > 5120) {
+                    $('#FailedAlert').html('Documents size should be allow below 5MB');
+                    $('#Failed').modal('toggle');
+                    $(this).val('');
+                    return;
+                }
+            }
+        }
+    });
+
+    function getBoolean(value) {
+        switch (value) {
+            case true:
+            case "true":
+            case "True":
+            case 1:
+            case "1":
+            case "on":
+            case "yes":
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    $(document).on('click', '#btnViewStaffAllocation', function () {
+        var projNo = $('#ProjectId').val() || 0;
+        if (projNo > 0) {
+            var searchData = { "ProjectId": projNo };
+            $.ajax({
+                url: "@Url.Action("_ViewStaffAllocation", "Requirement")",
+                type: "POST",
+                data: searchData,
+                contentType: "application/x-www-form-urlencoded",
+                beforeSend: function () {
+                    $(".loading-bg").removeClass('dis-none');
+                },
+                success: function (result) {
+                    $(".loading-bg").addClass('dis-none');
+                    $("#popup").html(result);
+                    $("#myModal1").modal('toggle');
+                },
+                error: function (err) {
+                    console.log("error : " + err);
+                    $(".loading-bg").addClass('dis-none');
+                }
+            });
+        }
+    });
+
+
+    $('#RequestReference').change(function () {
+        var selSource = $(this).val();
+        $("#SourceReferenceNumber,#ReferenceNo").val('');
+        $("#divRefNum, #divRefEmailDate").addClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('False');
+        if (selSource == '1') {
+            applyAutoComplete($('#ReferenceNo'), $('#SourceReferenceNumber'), "@Url.Action("GetACWorkflowRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        } else if (selSource == '3') {
+            applyAutoComplete($('#ReferenceNo'), $('#SourceReferenceNumber'), "@Url.Action("GetACTapalRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        }
+        else if (selSource == '2') {
+            $('#divRefEmailDate').removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('False');
+        } else {
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        }
+    });
+
+
+    var selSource = $('#RequestReference').val();
+    $("#divRefNum, #divRefEmailDate").addClass('dis-none');
+    if (selSource == '1') {
+        applyAutoComplete($('#ReferenceNo'), $('#SourceReferenceNumber'), "@Url.Action("GetACWorkflowRefNumber", "Proposal")");
+        $("#divRefNum").removeClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('True');
+    }
+    else if (selSource == '3') {
+        applyAutoComplete($('#ReferenceNo'), $('#SourceReferenceNumber'), "@Url.Action("GetACTapalRefNumber", "Proposal")");
+        $("#divRefNum").removeClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('True');
+    }
+    else if (selSource == '2') {
+        $('#divRefEmailDate').removeClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('False');
+    }
+    else {
+        $("#divRefNum").removeClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('True');
+    }
+
+    $('#SourceEmailDate').change(function(){
+        var value = $(this).val();
+        $('#ApplicationReceiveDate').val(value);
+    });
+
+    function FormDisabled() {
+        $("#formSTEJuniorApp").find("input, select, textarea").each(function () {
+            var idDisabled = $(this).is(":disabled");
+            var id = $(this).attr('id');
+            if (!idDisabled) {
+                $(this).attr("disabled", "disabled");
+            }
+        });
+    }
+
+    var isDisabledStatus = ["","Open","Note to PI"];
+    if (!isDisabledStatus.includes(Status)) {
+        FormDisabled();
+        $('#btnViewSummary').removeAttr('disabled');
+        $('#btnViewStaffAllocation').removeAttr('disabled');
+    }
+
+    $(document).on('click', 'a[class="rct-del-doc"]', function () {
+        if (OrderID > 0) {
+            var $this = $(this);
+            var Filepath = $this.attr("value");
+            $(".loading-bg").removeClass('dis-none');
+            $.getJSON("@Url.Action("DeleteDocument", "Requirement")", { Appid : ApplicationID, Apptype : typcategory, Doctype : "PI Justification Document", File : Filepath ,Orderid : OrderID},
+            function (result) {
+                if(result == true)
+                {
+                    $this.parent('h4').remove();
+                    $.alert({
+                        title: 'Success Alert!',
+                        content: "PI Justification document deleted.",
+                        type: 'green'
+                    });
+                    $(".loading-bg").addClass('dis-none');
+                }
+                else
+                {
+                    $.alert({
+                        icon: 'ion-close-circled',
+                        title: 'Error Alert!',
+                        content: "PI Justification document not deleted.",
+                        type: 'red'
+                    });
+                    $(".loading-bg").addClass('dis-none');
+                }
+            });
+        }
+    });
+
+
+</script>
+<script src="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/js/bootstrap-select.min.js")"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>
+

@@ -1,0 +1,670 @@
+﻿@model IOAS.Models.OrderModel
+@{
+    ViewBag.Title = "Maternity Leave";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<style>
+    .modal-dialog {
+        width: 850px;
+    }
+</style>
+@using (Html.BeginForm("MaternityLeave", "Requirement", FormMethod.Post, new { @class = "", role = "form", @id = "formMaternityLeave", enctype = "multipart/form-data" }))
+{
+    <div class="row hd-tt-bg">
+        <div class="col-md-12">
+            <h4><b>Maternity Leave</b></h4>
+        </div>
+    </div>
+    <div class="row">
+        <div class="white-bg ad-navbar">
+            <div class="col-md-2 ds-spl-bg">
+
+            </div>
+            <div class="col-md-3 ds-spl-bg">
+                <div class="ds-icn">
+                    <i class="ion-ios-list-outline "></i>
+                </div>
+                <div class="ds-tt">
+                    @Html.HiddenFor(m => m.ApplicationID)
+                    @Html.HiddenFor(m => m.OrderID)
+                    @Html.HiddenFor(m => m.Status)
+                    @Html.HiddenFor(m => m.TypeCode)
+                    @Html.HiddenFor(m => m.ApplicationNo)
+                    <span>Request Reference</span>
+                    @Html.DropDownListFor(m => m.RequestReference, new SelectList(ViewBag.ReferenceType, "id", "name"), "Select", new { @class = "form-control" })
+                    <div>@Html.ValidationMessageFor(m => m.RequestReference)</div>
+                </div>
+            </div>
+            <div class="col-md-3 ds-spl-bg">
+                <div class="ds-icn">
+                    <i class="ion-ios-list-outline "></i>
+                </div>
+                <div class="ds-tt" id="divRefNum">
+                    <span class="required">Ref Number (WF / Tapal)</span>
+                    @Html.TextBoxFor(M => M.ReferenceNo, new { @class = "form-control" })
+                    @*<div>@Html.ValidationMessageFor(M => M.ReferenceNo)</div>*@
+                    @*@Html.TextBoxFor(m => m.SourceReferenceNumber, new { @class = "form-control dis-none" })
+                        <div>@Html.ValidationMessageFor(M => M.SourceReferenceNumber)</div>*@
+                    @Html.Hidden("SourceTapalOrWorkflow", "True")
+                </div>
+                <div class="dis-none ds-tt" id="divRefEmailDate">
+                    <span class="required">Email Date</span>
+                    @Html.EditorFor(m => m.SourceEmailDate, new { @class = "form-control" })
+                    <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.SourceEmailDate)</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+
+            </div>
+
+        </div>
+    </div>
+    <div class="row cts-mn-dts" id="tab-01">
+        <div class="page-wrapper mt30">
+            <div>
+                <div class="col-md-12">
+
+                    <div class="row">
+                        <div class="col-md-12">
+
+                            <div class="bl-lg-panel-box pb-null">
+                                <div class="cmn-panel-box">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label>Employee Id</label>
+                                                <h4>@Html.DisplayFor(m => m.EmployeeID)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label>Name </label>
+                                                <h4 id="CantidateName">@Html.DisplayFor(m => m.Name)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group mb-sm ">
+                                                <label>Contact No</label>
+                                                <h4>@Html.DisplayFor(m => m.ContactNumber)</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row ">
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label>From Date</label>
+                                                @Html.EditorFor(m => m.FromDate, new { @class = "form-control required" })
+                                                <div>@Html.ValidationMessageFor(m => m.FromDate)</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label>To Date</label>
+                                                @Html.EditorFor(m => m.ToDate, new { @class = "form-control required" })
+                                                <div>@Html.ValidationMessageFor(m => m.ToDate)</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label>Approval letter</label><br>
+                                                @if (Model.OrderID > 0)
+                                                {
+                                                    <input type="file" name="PILetter" class="pull-left">
+                                                    <h4>@Html.ActionLink(Model.PILetterFileName, "ShowDocument", new { Controller = "Account", filepath = "Requirement", file = Model.PILetterPath }, new { @name = "DocDownload", @target = "_blank" })</h4>
+                                                }
+                                                else
+                                                {
+                                                    <input type="file" name="PILetter" class="pull-left" required>
+                                                    <div>@Html.ValidationMessage("PILetter")</div>
+                                                }
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="row ">
+                                        @{
+                                            string disNoneClass = "";
+                                            if (Model.Status == "Open" || Model.Status == "Completed")
+                                            {
+                                                disNoneClass = "";
+                                            }
+                                            else
+                                            {
+                                                disNoneClass = "dis-none";
+                                            }
+
+                                        }
+                                        <div class="col-md-2 @disNoneClass">
+                                            <div class="form-group custom-form-group">
+                                                <label>Rejoin order</label><br>
+                                                @if (Model.OrderID == 0)
+                                                {
+                                                    @Html.CheckBoxFor(m => m.Rejoin, new { @disabled = "disabled" })
+                                                    @Html.HiddenFor(m => m.Rejoin)
+                                                }
+                                                else if (Model.OrderID > 0 && Model.Status != "Initiated")
+                                                {
+                                                    @Html.CheckBox("isRejoin", new { @checked = "checked", @disabled = "disabled", @id = "isRejoin" })
+                                                    @Html.HiddenFor(m => m.Rejoin)
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 @disNoneClass" id="">
+                                            <div class="form-group custom-form-group">
+                                                <label>Rejoin Letter</label><br>
+                                                <input type="file" name="RejoiningLetter">
+                                                <div>@Html.ValidationMessageFor(m => m.RejoiningLetter)</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 @disNoneClass" id="divRejoin">
+                                            <div class="form-group custom-form-group">
+                                                <label>Rejoin Date</label><br>
+                                                @Html.EditorFor(m => m.RejoinDate, new { @class = "form-control", @required = "required" })
+                                                <div>@Html.ValidationMessageFor(m => m.RejoinDate)</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group custom-form-group">
+                                                <label>Application Receive Date</label>
+                                                @Html.EditorFor(m => m.ApplicationReceiveDate, new { @class = "form-control", @required = "required" })
+                                                <div>@Html.ValidationMessageFor(m => m.ApplicationReceiveDate)</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="bl-lg-panel-box  pb-null">
+                                <div class="bl-lg-panel-box-hd mb-m-5 pd-null">
+                                    <div class="cmn-panel-box">
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Project Number</label>
+                                                    <h4>@Html.DisplayFor(m => m.OldPrjDetailModel.ProjectNumber)</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Project Title</label>
+                                                    <h4 id="txtProjectTitle">@Html.DisplayFor(m => m.OldPrjDetailModel.ProjectTitle)</h4>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>PI Name</label>
+                                                    <h4 id="txtPIName">@Html.DisplayFor(m => m.OldPrjDetailModel.PIName)</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+                                        <div class="row">
+
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Project Start Date</label>
+                                                    <h4 id="txtProjectStartDate">@Html.DisplayFor(m => m.OldPrjDetailModel.ProjectStartDate)</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Project End Date</label>
+                                                    <h4 id="txtProjectClosureDate">@Html.DisplayFor(m => m.OldPrjDetailModel.ProjectClosureDate)</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Appointment start date</label>
+                                                    <h4 id="txtAppointmentStartDate">@Html.DisplayFor(m => m.OldPrjDetailModel.AppointmentStartDate)</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Appointment End date</label>
+                                                    <h4 id="txtAppointmentEndDate">@Html.DisplayFor(m => m.OldPrjDetailModel.AppointmentClosureDate)</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Designation</label>
+                                                    <h4>@Html.DisplayFor(m => m.OldPrjDetailModel.Designation)</h4>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Designation Code</label>
+                                                    <h4 id="txtDepartmentCode">@Html.DisplayFor(m => m.OldPrjDetailModel.DesignationCode)</h4>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Department Name</label>
+                                                    <h4 id="txtDepartmentName">@Html.DisplayFor(m => m.OldPrjDetailModel.PIDepartmentName)</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Commitment Amount</label>
+                                                    <h4>@Html.DisplayFor(m => m.OldPrjDetailModel.CommitmentAmmount)</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Salary</label>
+                                                    <h4>@Html.DisplayFor(m => m.OldPrjDetailModel.Salary)</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>HRA</label>
+                                                    <h4>@Html.DisplayFor(m => m.OldPrjDetailModel.HRA)</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Medical</label>
+                                                    <h4>@Html.DisplayFor(m => m.OldPrjDetailModel.MedicalAmmount)</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 mb-lg text-center">
+            <button type="button" class="btn btn-primary" id="btnSave">Submit</button>
+            @Html.HiddenFor(m => m.List_f)
+            @if (!string.IsNullOrEmpty(Model.List_f))
+            {
+                <button type="button" class="btn btn-default" onclick="window.location.href='@Url.Action(Model.List_f,"Requirement")';">Close</button>
+            }
+            else
+            {
+                <button type="button" class="btn btn-default" onclick="window.location.href='@Url.Action("EmployeeMaster","Requirement")';">Close</button>
+            }
+        </div>
+    </div>
+                                            }
+
+<div class="loading-bg dis-none">
+</div>
+<div id="popup">
+
+</div>
+<input type="hidden" id="currentRefId" value="@Model.OrderID" />
+<input type="hidden" id="processGuideLineId" value="@ViewBag.processGuideLineId" />
+<div id="act-now">
+    @Html.Partial("_ProcessStatus")
+</div>
+<script>
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    var alertMsg = '@TempData["alertMsg"]';
+    var OrderID = @Html.Raw(Json.Encode(Model.OrderID)) || 0;
+    //var OrderType = @Html.Raw(Json.Encode(Model.OrderType)) || 0;
+    var Status = @Html.Raw(Json.Encode(Model.Status)) || "";
+
+
+
+    $(document).ready(function () {
+
+
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+        else if (alertMsg != '') {
+            $('#alert').html(alertMsg);
+            $('#Validation').modal('toggle');
+        }
+
+        var currentdate = moment(new Date()).toDate();
+
+        if(OrderID > 0)
+        {
+            var DateRD = @Html.Raw(Json.Encode(Model.ApplicationReceiveDate)) || "";
+            var ApplicationRD = moment(DateRD).toDate();
+            var SourceEmailDate = @Html.Raw(Json.Encode(Model.SourceEmailDate)) || "";
+            var SourceOfEmailDt = moment(SourceEmailDate).toDate();
+            $('#ApplicationReceiveDate').datepicker({
+                dateFormat: 'dd-MM-yy',
+                changeYear: true
+            }).datepicker("option", "maxDate", currentdate).datepicker("option", "minDate", ApplicationRD);
+
+            $('#SourceEmailDate').datepicker({
+                dateFormat: 'dd-MM-yy',
+                changeYear: true
+            }).datepicker("option", "maxDate", currentdate).datepicker("option", "minDate", SourceOfEmailDt);
+
+        }
+        else
+        {
+            $('#ApplicationReceiveDate,#SourceEmailDate').datepicker({
+                dateFormat: 'dd-MM-yy',
+                changeYear: true
+            }).datepicker("option", "maxDate", currentdate).datepicker("option", "minDate", -185);
+        }
+
+
+        var startdate = @Html.Raw(Json.Encode(Model.OldPrjDetailModel.AppointmentStartDate)) || "";
+        var enddate = @Html.Raw(Json.Encode(Model.OldPrjDetailModel.AppointmentClosureDate)) || "";
+        if(startdate != "" && enddate != "")
+        {
+            startdate = new Date(startdate.split("-").join("/"));
+            enddate = new Date(enddate.split("-").join("/"));
+            $('#FromDate').datepicker({
+                dateFormat: 'dd-MM-yy',
+                changeYear: true
+            }).datepicker("option", "maxDate", enddate).datepicker("option", "minDate", startdate);
+            if(OrderID > 0)
+            {
+                var minDate = new Date($('#FromDate').val().split('-').join('/'));
+                minDate =  moment(minDate).add(+1,'days').toDate();
+                $('#ToDate').datepicker({
+                    dateFormat: 'dd-MM-yy',
+                    changeYear: true
+                }).datepicker("option", "maxDate", enddate).datepicker("option", "minDate", startdate);
+            }
+        }
+
+        if ($('#FromDate').val() != "")
+        {
+            var FromDate = new Date($('#FromDate').val().split('-').join('/'));
+            var MaxDate = moment(new Date($('#ToDate').val().split('-').join('/'))).toDate();
+            var Currdt = moment(new Date()).toDate();
+            $('#RejoinDate').datepicker({
+                dateFormat: 'dd-MM-yy',
+                changeYear: true,
+            }).datepicker("option", "minDate", FromDate).datepicker("option", "maxDate", Currdt);
+        }
+
+    });
+    var addyear = 0;
+    $('#FromDate').change(function () {
+        $('#ToDate').val('');
+        var addSixMonths = moment($('#FromDate').val().split('-').join('/')).add(+6, 'months').add(-1, 'days').toDate();
+        var endDate = new Date($('#txtAppointmentEndDate').text().split('-').join('/'));
+        if (endDate > addSixMonths)
+            endDate = addSixMonths;
+
+        var defaultstartDateDate = moment($('#FromDate').val().split('-').join('/')).add(+1, 'days').toDate();
+        $('#ToDate').datepicker({
+            dateFormat: 'dd-MM-yy',
+            changeYear: true
+        }).datepicker("option", "minDate", defaultstartDateDate).datepicker("option", "maxDate", endDate);
+    })
+
+    $("#FromDate,#ToDate,#RejoinDate").datepicker
+      ({
+          dateFormat: 'dd-MM-yy',
+          showStatus: true,
+          showWeeks: true,
+          changeYear: true,
+          yearRange: '1950:+30',
+          highlightWeek: true,
+          numberOfMonths: 1,
+          showAnim: "scale",
+          showOptions: {
+              origin: ["top", "left"]
+          }
+      });
+
+    $('#btnSave').click(function () {
+        var isValid = false;
+        var hadError = false;
+        var tabs = $("#formMaternityLeave");
+        var inputs = $(":input, textarea, select"); // get all the form inputs and selects
+        var stepElements = $(tabs).find(inputs); // get inputs for current step
+        var count = stepElements.length; // check that there are inputs
+        if (count <= 0) // if there are not no reason to loop them
+            return true;
+
+        if ($('#FromDate').val() == "" || $('#ToDate').val() == "") {
+            $.confirm({
+                title: 'Warning!',
+                content: 'Please ender From date and To date',
+                type: 'red',
+                buttons: {
+                    Ok: function () {
+                        //close
+                    },
+                },
+            });
+            return;
+        }
+
+        if (OrderID > 0 && Status != "Initiated") {
+            if ($('#isRejoin').is(":checked")) {
+                if ($('#RejoinDate').val() == "") {
+                    $.confirm({
+                        title: 'Warning!',
+                        content: 'Please ender rejoin date',
+                        type: 'red',
+                        buttons: {
+                            Ok: function () {
+                                //close
+                            },
+                        },
+                    });
+                    return;
+                }
+            }
+            else
+            {
+                $.confirm({
+                    title: 'Warning!',
+                    content: 'Please checked rejoin and ender rejoin date',
+                    type: 'red',
+                    buttons: {
+                        Ok: function () {
+                            //close
+                        },
+                    },
+                });
+                return;
+            }
+        }
+
+        var RequestReference = $('#RequestReference').val();
+        if (RequestReference == '3') {
+            if ($('#ReferenceNo').val() == "") {
+                $.confirm({
+                    title: 'Warning!',
+                    content: 'Please ender reference no',
+                    type: 'red',
+                    buttons: {
+                        Ok: function () {
+                            //close
+                        },
+                    },
+                });
+                return;
+            }
+        }
+        else if (RequestReference == '2') {
+            if ($('#SourceEmailDate').val() == "") {
+                $.confirm({
+                    title: 'Warning!',
+                    content: 'Please ender email date',
+                    type: 'red',
+                    buttons: {
+                        Ok: function () {
+                            //close
+                        },
+                    },
+                });
+                return;
+            }
+        }
+
+        $(stepElements).each(function (idx) {
+            if (!$(this).is(':radio') && !$(this).is(':checkbox')) {
+                console.log($(this).attr('id'));
+                isValid = $(this).valid();
+                if (!isValid) {
+                    hadError = true;
+                }
+            }
+        });
+        if (!hadError) {
+            formSave();
+        }
+        else {
+            $.confirm({
+                title: 'Warning!',
+                content: 'Invalid data exist',
+                type: 'red',
+                buttons: {
+                    Ok: function () {
+                        //close
+                    },
+                },
+            });
+            return;
+        }
+
+
+    });
+
+    function formSave() {
+        var isValid = $('#formMaternityLeave').valid();
+        if (!isValid)
+            return false;
+        if (isValid)
+            $('#formMaternityLeave').submit();
+    }
+
+    $('input[name="PILetter"]').change(function (e) {
+        var allowedExtensions = [".pdf", ".doc", ".docx"];
+        var _size = this.files[0].size;
+        var iSize = (_size / 1024);
+        iSize = (Math.round(iSize * 100) / 100)
+        var fileName = e.target.files[0].name;
+        var extension = fileName.substr((fileName.lastIndexOf('.') + 1)).toLowerCase();
+        var validFormat = allowedExtensions.includes('.' + extension);
+        if (validFormat) {
+            if (iSize > 5120) {
+                $('#FailedAlert').html('Documents size should be allow below 5MB');
+                $('#Failed').modal('toggle');
+                $(this).val('');
+                return;
+            }
+        }
+        else {
+            $('#FailedAlert').html('PILetter allowed document type [pdf,doc,docx]');
+            $('#Failed').modal('toggle');
+            $(this).val('');
+            return;
+        }
+    });
+
+    function FormDisabled() {
+        $("#formMaternityLeave").find("input, select, textarea").each(function () {
+            var idDisabled = $(this).is(":disabled");
+            var id = $(this).attr('id');
+            if (!idDisabled) {
+                $(this).attr("disabled", "disabled");
+            }
+        });
+
+    }
+
+
+    if (Status == "Open") {
+        FormDisabled();
+        $('#Rejoin').removeAttr('disabled');
+        $('input[name="RejoiningLetter"]').removeAttr('disabled');
+        $('#RejoinDate').removeAttr('disabled');
+        $('#ApplicationID').removeAttr("disabled");
+        $('#TypeCode').removeAttr("disabled");
+        $('#Status').removeAttr("disabled");
+        $('#OrderID').removeAttr("disabled");
+    }
+    else if (Status == "Completed") {
+        FormDisabled();
+    }
+
+    $(document).on('keyup','textarea,input[type="text"]',function(event) {
+        var input = event.target;
+        var start = input.selectionStart;
+        var end = input.selectionEnd;
+        input.value = input.value.toLocaleUpperCase();
+        input.setSelectionRange(start, end);
+    });
+
+    $('#RequestReference').change(function () {
+        var selSource = $(this).val();
+        $("#SourceReferenceNumber,#ReferenceNo").val('');
+        $("#divRefNum, #divRefEmailDate").addClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('False');
+        if (selSource == '1') {
+            applyAutoComplete($('#ReferenceNo'), $('#SourceReferenceNumber'), "@Url.Action("GetACWorkflowRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        } else if (selSource == '3') {
+            applyAutoComplete($('#ReferenceNo'), $('#SourceReferenceNumber'), "@Url.Action("GetACTapalRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        }
+        else if (selSource == '2') {
+            $('#divRefEmailDate').removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('False');
+        } else {
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        }
+    });
+
+
+    var selSource = $('#RequestReference').val();
+    $("#divRefNum, #divRefEmailDate").addClass('dis-none');
+    if (selSource == '1') {
+        applyAutoComplete($('#ReferenceNo'), $('#SourceReferenceNumber'), "@Url.Action("GetACWorkflowRefNumber", "Proposal")");
+        $("#divRefNum").removeClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('True');
+    }
+    else if (selSource == '3') {
+        applyAutoComplete($('#ReferenceNo'), $('#SourceReferenceNumber'), "@Url.Action("GetACTapalRefNumber", "Proposal")");
+        $("#divRefNum").removeClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('True');
+    }
+    else if (selSource == '2') {
+        $('#divRefEmailDate').removeClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('False');
+    }
+    else {
+        $("#divRefNum").removeClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('True');
+    }
+    $('#SourceEmailDate').change(function(){
+        var value = $(this).val();
+        $('#ApplicationReceiveDate').val(value);
+    });
+</script>
+<script src="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/js/bootstrap-select.min.js")"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>

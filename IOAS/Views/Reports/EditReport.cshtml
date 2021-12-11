@@ -1,0 +1,840 @@
+﻿@model IOAS.Models.SqlReportModel
+@{
+    ViewBag.Title = "Report Builder";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+<aside class="right-side sidebar-offcanvas">
+
+    @using (Html.BeginForm("EditReport", "Reports", FormMethod.Get, new { @class = "form-horizontal", @id = "reportBuilder", @name = "reportBuilder", role = "form" }))
+    {
+        @Html.AntiForgeryToken()
+
+        @Html.ValidationSummary(true, "Please correct the errors and try again.", new { @class = "alert alert-block alert-error" })
+        {
+            if (ViewBag.Msg != "")
+            {
+                <p>@ViewBag.Msg</p>
+            }
+        }
+        <fieldset>
+            <section class="content">
+
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="page-wrapper">
+                            <div class="white-bg">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <h3 class="spl-title">
+                                            Dynamic Report
+                                        </h3>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-5">
+                                        <div class="form-group custom-form-group">
+                                            <label>
+                                                Report Name
+                                            </label>
+                                            @Html.HiddenFor(m => m.ReportID)
+                                            @Html.TextBoxFor(m => m.ReportName, new { @class = "required form-control" })
+                                            @Html.ValidationMessageFor(m => m.ReportName)
+                                        </div>
+
+                                        <div class="form-group custom-form-group">
+                                            <label>
+                                                Module
+                                            </label>
+                                            @Html.DropDownListFor(m => m.ModuleID, new SelectList(ViewBag.Modules, "ModuleID", "ModuleName"), "--- Select ---", new { @class = "required form-control" })
+                                            @Html.ValidationMessageFor(m => m.ModuleID)
+                                        </div>
+                                        <div class="form-group custom-form-group">
+                                            <label>
+                                                Select View
+                                            </label>
+                                            @Html.DropDownListFor(m => m.TableName, new SelectList(ViewBag.Tables, "name", "name"), "--- Select ---", new { @class = "required form-control", onchange = "SelectedTablesChanged()" })
+                                            @Html.ValidationMessageFor(m => m.TableName)
+                                        </div>
+
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group custom-form-group">
+                                            <label>
+                                                Roles
+                                            </label>
+                                            @Html.ListBoxFor(m => m.AvailableRoles, ViewBag.Roles as MultiSelectList, new { @class = "required form-control mn-hgt-230" })
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-1">
+                                        <a href="javascript:void(0)" class="mt-60 swap-btn" id="addRole"><i class="ion-chevron-right"></i></a>
+                                        <a href="javascript:void(0)" class="mt-40 swap-btn" id="removeRole"><i class="ion-chevron-left"></i></a>
+
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group custom-form-group">
+                                            <label>
+                                                Selected Roles
+                                            </label>
+                                            @*<select id="SelectedRoles" multiple class="form-control mn-hgt-230"></select>*@
+                                            @Html.ListBoxFor(m => m.SelectedRoles, new MultiSelectList(ViewBag.SelectedRoles, "RoleId", "RoleName", Model.SelectedRoles), new { @class = "required form-control mn-hgt-230" })
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <h3 class="spl-title">
+                                            Export
+                                        </h3>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    @*<div class="col-md-4">
+                                        <div class="form-group custom-form-group">
+                                            Can Export
+                                            <label class="checkbox">
+                                                @Html.CheckBoxFor(m => m.CanExport, new { @class = "form-control" })
+                                                <span></span>
+                                            </label>
+
+                                        </div>
+                                    </div>*@
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            To PDF
+                                            @*@Html.CheckBoxFor(m => m.ToPDF, new { @class = "form-control" })*@
+                                            <label class="checkbox">
+                                                <input type="checkbox" name="ToPDF" id="ToPDF" />
+                                                <span></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group ">
+                                            To Excel
+                                            <label class="checkbox">
+                                                <input type="checkbox" name="ToExcel" id="ToExcel" />
+                                                <span></span>
+                                            </label>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                            </div>
+
+
+                            <div class="white-bg">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <h3 class="spl-title">
+                                            Summary Field
+                                        </h3>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+
+                                        <div class="form-group custom-form-group">
+                                            <label>
+                                                Report Field
+                                            </label>
+                                            <select id="summaryField" class="form-control"></select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group custom-form-group">
+                                            <label>
+                                                Type
+                                            </label>
+                                            <select id="aggregationFunc" class="form-control">
+                                                <option value="-1">--- Select ---</option>
+                                                <option value="SUM">SUM</option>
+                                                <option value="COUNT">COUNT</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group custom-form-group">
+                                            Group By
+                                            <label class="checkbox">
+                                                <input type="checkbox" name="groupBy" id="groupBy" />
+                                                <span></span>
+                                            </label><br />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group custom-form-group">
+                                            Order By
+                                            <label class="checkbox">
+                                                <input type="checkbox" name="orderBy" id="orderBy" />
+                                                <span></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group custom-form-group">
+                                            <a href="javascript:void(0)" class="mt-md swap-btn" id="addSummary"><i class="ion-android-add"></i></a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div id="jsGridSummary"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="white-bg">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <h3 class="spl-title">
+                                            Filter Field
+                                        </h3>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-5">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="form-group custom-form-group">
+                                                    <label>
+                                                        Report Field
+                                                    </label>
+                                                    <select id="reportField" class="form-control"></select>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="form-group custom-form-group">
+                                                    <label>
+                                                        Ref Table
+                                                    </label>
+                                                    <select id="refTable" class="form-control " placeholder="--- select ---"></select>
+
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                    <div class="col-md-5">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="form-group custom-form-group">
+                                                    <label>
+                                                        Type
+                                                    </label>
+                                                    <select id="fieldType" class="form-control">
+                                                        <option value=-1>--- Select ---</option>
+                                                        <option value="text">Text</option>
+                                                        <option value="dropdown">Dropdown</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="form-group custom-form-group">
+                                                    <label>
+                                                        Ref Field
+                                                    </label>
+                                                    <select id="refField" class="form-control "></select>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-2">
+                                            <div class="form-group custom-form-group">
+                                                Range
+                                                <label class="checkbox">
+                                                    <input type="checkbox" name="range" id="range" />
+                                                    <span></span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <a href="javascript:void(0)" class="mt-md swap-btn" id="addFilter"><i class="ion-android-add"></i></a>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <div class="white-bg">
+                                <div id="jsGridFilter"></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 text-center pd-tb-30">
+                                    <a href='javascript:void(0)' id="SaveReport" name="SaveReport" role="button" class="btn btn-primary  btn-md">Save</a>
+                                    <a href='@Url.Action("List", "Reports")' role="button" class="btn btn-default  btn-md">Back</a>
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </div>
+
+
+
+                </div>
+
+
+            </section>
+        </fieldset>
+    }
+
+
+</aside> <!-- right pane -->
+
+<script type="text/javascript">
+    initLoad();
+    function initLoad() {
+        $("#refTable").append($('<option/>', {
+            value: -1,
+            text: "--- Select ---"
+        }));
+        $("#refField").append($('<option/>', {
+            value: -1,
+            text: "--- Select ---"
+        }));
+
+        $("#reportField").empty();
+        $("#reportField").append($('<option/>', {
+            value: -1,
+            text: "--- Select ---"
+        }));
+        $("#summaryField").append($('<option/>', {
+            value: -1,
+            text: "--- Select ---"
+        }));
+        var RerportID = $("#ReportID").val();
+        getReportDetails(RerportID);
+        SelectedTablesChanged();
+    }
+
+
+    function getReportDetails(ReportID) {
+        var token = $("input[name=__RequestVerificationToken]").val();
+        var searchdata = { "__RequestVerificationToken": token };
+        var headers = {
+            contentType: 'application/json'
+        };
+        headers['__RequestVerificationToken'] = token;
+        searchdata.ReportID = ReportID;
+        var url = '@Url.Action("getReportDetails", "Reports")?ReportID=' + ReportID;
+        $.ajax({
+            url: url,
+            type: "POST",
+            headers: headers,
+            data: searchdata,
+            success: function (response) {
+                var result = response.schema;
+                var reportFields = result.dtReportFields;
+                for (var i = 0; i < reportFields.length; i++) {
+                    reportFields[i]["SNo"] = i + 1;
+                }
+
+                var filterFields = result.dtFilterFields;
+                for (var j = 0; j < filterFields.length; j++) {
+                    filterFields[j]["SNo"] = j + 1;
+                }
+                $("#ToPDF").prop('checked', result.ToPDF);
+                $("#ToExcel").prop('checked', result.ToExcel);
+                $("#jsGridSummary").jsGrid({ data: reportFields });
+                $("#jsGridFilter").jsGrid({ data: filterFields });
+            },
+            error: function (err) {
+                alert(err);
+            }
+        });
+    }
+
+    function SelectedRefTablesChanged() {
+        var tabName = $('#refTable').val();
+        var token = $("input[name=__RequestVerificationToken]").val();
+        var searchdata = { "__RequestVerificationToken": token };
+        var headers = {
+            contentType: 'application/x-www-form-urlencoded'
+        }
+        headers['__RequestVerificationToken'] = token;
+        searchdata.tabName = tabName;
+        $.ajax({
+            url: '@Url.Action("getRefFields", "Reports")?TableName=' + tabName,
+            type: "POST",
+            headers: headers,
+            data: searchdata,
+            success: function (data) {
+                $("#refField").empty();
+                $("#refField").append($('<option/>', {
+                    value: -1,
+                    text: "--- Select ---"
+                }));
+                $.each(data, function (index, itemData) {
+
+                    $("#refField").append($('<option/>', {
+                        value: itemData.ID,
+                        text: itemData.name
+                    }));
+
+                });
+            },
+            error: function (err) {
+                alert(err);
+            }
+        });
+    }
+
+    $("#refTable").change(function () {
+        SelectedRefTablesChanged();
+    });
+    $("#summaryField").change(function () {
+        var fieldId = $("#summaryField option:selected").text();
+        var fieldValue = $("#" + fieldId).val();
+        if (fieldValue != "") {
+            $("#aggregationFunc").removeAttr("disabled");
+        } else {
+            $("#aggregationFunc").attr("disabled", true);
+            $("#aggregationFunc").val(-1);
+        }
+
+    });
+    $("#fieldType").change(function () {
+
+        if ($(this).val() == "text") {
+            ActivateCheckbox($("#refField"), 0);
+            ActivateCheckbox($("#refTable"), 0);
+            $("#refField").val(-1);
+            $("#refTable").val(-1);
+        } else {
+            ActivateCheckbox($("#refField"), 1);
+            ActivateCheckbox($("#refTable"), 1);
+        }
+
+    });
+    $("#aggregationFunc").change(function () {
+
+        if ($("#aggregationFunc").val() !== "-1") {
+            ActivateCheckbox($("#groupBy"), 0);
+            ActivateCheckbox($("#orderBy"), 0);
+        } else {
+            ActivateCheckbox($("#groupBy"), 1);
+            ActivateCheckbox($("#orderBy"), 1);
+        }
+
+    });
+    function ActivateCheckbox(elem, active) {
+        if (active === 1) {
+            elem.removeAttr("disabled");
+        } else {
+            elem.attr("disabled", true);
+            elem.prop('checked', false);
+        }
+    }
+    function SelectedTablesChanged() {
+        //Form post
+        //document.reportBuilder.submit();
+        var tabName = $('#TableName option:selected').val();
+        var token = $("input[name=__RequestVerificationToken]").val();
+        var searchdata = { "__RequestVerificationToken": token };
+        var headers = {
+            contentType: 'application/x-www-form-urlencoded'
+        }
+        headers['__RequestVerificationToken'] = token;
+        searchdata.tabName = tabName;
+        var url = '@Url.Action("getFields", "Reports")?TableName=' + tabName;
+        $.ajax({
+            url: url,
+            type: "POST",
+            headers: headers,
+            data: searchdata,
+            success: function (data) {
+
+                $("#refField").empty();
+                $("#summaryField").empty();
+                $("#summaryField").append($('<option/>', {
+                    value: -1,
+                    text: "--- Select ---"
+                }));
+                $("#refField").append($('<option/>', {
+                    value: -1,
+                    text: "--- Select ---"
+                }));
+
+                $.each(data, function (index, itemData) {
+                    $('<input>').attr({
+                        type: 'hidden',
+                        id: itemData.name,
+                        name: itemData.name,
+                        value: itemData.IsNumber
+                    }).appendTo('form');
+                    $("#reportField").append($('<option/>', {
+                        value: itemData.ID,
+                        text: itemData.name
+                    }));
+                    $("#summaryField").append($('<option/>', {
+                        value: itemData.ID,
+                        text: itemData.name
+                    }));
+                });
+
+            },
+            error: function(err){
+                alert(err);
+            }
+        });
+        
+        $("#refTable").empty();
+        $("#refTable").append($('<option/>', {
+            value: -1,
+            text: "--- Select ---"
+        }));
+    
+            $("#refTable").append($('<option/>', {
+                value: $("#TableName option:selected").val(),
+            text: $("#TableName option:selected").val()
+            }));
+
+        
+        @*$.ajax({
+            url: '@Url.Action("getTablesAndViews", "Reports")',
+            type: "POST",
+            headers: headers,
+            data: searchdata,
+            success: function (data) {
+                $("#refTable").empty();
+                $("#refTable").append($('<option/>', {
+                    value: -1,
+                    text: "--- Select ---"
+                }));
+                $.each(data, function (index, itemData) {
+
+                    $("#refTable").append($('<option/>', {
+                        value: itemData.name,
+                        text: itemData.name
+                    }));
+
+                });
+            },
+            error: function (err) {
+                alert(err);
+            }
+        });*@
+    }
+    $("#addFilter").on("click", function () {
+        insertItem();
+        var items = $("#jsGridFilter").jsGrid("option", "data");
+        console.log(items);
+    });
+
+    $("#addSummary").on("click", function () {
+        insertReportField();
+    });
+    //$(document).ready(function () {
+    //    $.extend({
+    //        alert: function (title, message) {
+    //            $("<div></div>").dialog({
+    //                buttons: { "Ok": function () { $(this).dialog("close"); } },
+    //                close: function (event, ui) { $(this).remove(); },
+    //                resizable: false,
+    //                title: title,
+    //                modal: true
+    //            }).text(message);
+    //        }
+    //    });
+    //});
+
+    function SubmitForm() {
+        //Form post
+        document.reportBuilder.submit();
+    }
+    function insertItem() {
+        var item = {};
+        item.SNo = 1;
+        var msg = "";
+        if ($("#reportField").val() && $("#reportField").val() != -1) {
+            item.ReportField = $("#reportField option:selected").text();
+        }
+        if ($("#fieldType").val() && $("#fieldType").val() != -1) {
+            item.FieldType = $("#fieldType option:selected").text();
+        }
+        if ($("#refTable").val() && $("#refTable").val() != -1) {
+            item.RefTable = $("#refTable option:selected").text();
+        }
+        if ($("#refField").val() && $("#refField").val() != -1) {
+            item.RefField = $("#refField option:selected").text();
+        }
+        item.IsRange = $("#range").prop('checked');
+        if (!item.ReportField) {
+            msg = "Report Field is missing";
+            $("#reportField").focus();
+        } else if (!item.FieldType) {
+            msg = "Type is missing";
+            $("#fieldType").focus();
+        } else if (item.FieldType === 'dropdown' && !item.RefTable) {
+            msg = "Ref Table is missing";
+            $("#refTable").focus();
+        } else if (item.FieldType === 'dropdown' && !item.RefField) {
+            msg = "Ref Field is missing";
+            $("#refField").focus();
+        }
+        if (msg) {
+            //$.alert({
+            //    title: 'Alert!',
+            //    message: msg
+            //});
+            alert(msg);
+            return;
+        }
+        var checkDuplicate = false;
+        var items = $("#jsGridFilter").jsGrid("option", "data");
+        if (items.length > 0) {
+            item.SNo = items.length + 1;
+            for (i = 0; i < items.length; i++) {
+                if (items[i].ReportField === item.ReportField) {
+                    checkDuplicate = true;
+                    break;
+                }
+            }
+        }
+
+        if (checkDuplicate === true) {
+            alert("Duplicate filter");
+        }
+        if (checkDuplicate === false) {
+            // insert item
+            $("#jsGridFilter").jsGrid("insertItem", item).done(function () {
+                console.log("insertion completed");
+                $("#reportField").val(-1);
+                $("#fieldType").val(-1);
+                $("#refTable").val(-1);
+                $("#refField").val(-1);
+                $("#range").prop('checked',false);
+
+            });
+
+        }
+
+    }
+
+    function insertReportField() {
+        var item = {};
+        item.SNo = 1;
+        var msg = "";
+        var selectedFields = []
+        if ($("#summaryField").val() && $("#summaryField").val() != -1) {
+            item.ReportField = $("#summaryField option:selected").text();
+        }
+        if ($("#aggregationFunc").val() && $("#aggregationFunc").val() != -1) {
+            item.Aggregation = $("#aggregationFunc option:selected").text();
+        }
+
+        item.GroupBy = $("#groupBy").is(":checked");
+        item.OrderBy = $("#orderBy").is(":checked");
+
+        if (!item.ReportField) {
+            msg = "Summary Field is missing";
+            $("#summaryField").focus();
+            alert(msg);
+            return
+        //} else if (!item.Aggregation) {
+        //    msg = "Aggregation function is missing";
+        //    $("#aggregationFunc").focus();
+        //    alert(msg);
+        //    return
+        }
+
+        var checkDuplicate = false;
+        var items = $("#jsGridSummary").jsGrid("option", "data");
+        if (items.length > 0) {
+            item.SNo = items.length + 1;
+            for (i = 0; i < items.length; i++) {
+                if (items[i].ReportField === item.ReportField) {
+                    checkDuplicate = true;
+                    break;
+                }
+            }
+        }
+
+        if (checkDuplicate === true) {
+            alert("Duplicate Field");
+            return;
+        }
+        if (checkDuplicate === false) {
+            // insert item
+            $("#jsGridSummary").jsGrid("insertItem", item).done(function () {
+                console.log("insertion completed");
+                $("#summaryField").val(-1);
+                $("#aggregationFunc").val(-1);
+                $("#groupBy").prop('checked', false);
+                $("#orderBy").prop('checked', false);
+                ActivateCheckbox($("#groupBy"), 1);
+                ActivateCheckbox($("#orderBy"), 1);
+            });
+
+        }
+
+    }
+
+    $("#addRole").on("click", function () {
+        $("#AvailableRoles option:selected").appendTo("#SelectedRoles");
+        $("#SelectedRoles").val('');
+    });
+    $("#removeRole").on("click", function () {
+        $("#SelectedRoles option:selected").appendTo("#AvailableRoles");
+        $("#AvailableRoles").val('');
+    });
+
+    $("#jsGridSummary").jsGrid({
+        width: "100%",
+        height: "auto",
+        filtering: false,
+        inserting: false,
+        editing: false,
+        sorting: true,
+        paging: true,
+        pageIndex: 1,
+        pageSize: 5,
+        pageButtonCount: 5,
+        pagerFormat: "Pages: {first} {prev} {pages} {next} {last}    {pageIndex} of {pageCount}",
+        pagePrevText: "Prev",
+        pageNextText: "Next",
+        pageFirstText: "First",
+        pageLastText: "Last",
+        pageNavigatorNextText: "...",
+        pageNavigatorPrevText: "...",
+        //rowClick: function (args) {
+        //    console.log(args.item);
+        //    var $row = this.rowByItem(args.item);
+        //    $row.children('.jsgrid-cell').css('background-color', '#F7B64B');
+        //},
+        //data: clients,
+        deleteButton: true,
+        fields: [
+            { name: "SNo", title: "S.No", type: "number", width: 50, validate: "required" },
+            { name: "ReportField", title: "Field Name", type: "text", width: 150 },
+            { name: "Aggregation", title: "Aggregation", type: "text", width: 50 },
+            { name: "GroupBy", type: "checkbox", title: "Group By", sorting: false },
+            { name: "OrderBy", type: "checkbox", title: "Order By", sorting: false },
+            { type: "control" }
+        ]
+    });
+
+    $("#jsGridFilter").jsGrid({
+        width: "100%",
+        height: "auto",
+        filtering: false,
+        inserting: false,
+        editing: false,
+        sorting: true,
+        paging: true,
+        pageIndex: 1,
+        pageSize: 5,
+        pageButtonCount: 5,
+        pagerFormat: "Pages: {first} {prev} {pages} {next} {last}    {pageIndex} of {pageCount}",
+        pagePrevText: "Prev",
+        pageNextText: "Next",
+        pageFirstText: "First",
+        pageLastText: "Last",
+        pageNavigatorNextText: "...",
+        pageNavigatorPrevText: "...",
+        //data: clients,
+        deleteButton: true,
+        fields: [
+            { name: "SNo", title: "S.No", type: "number", width: 50, validate: "required" },
+            { name: "ReportField", title: "Name", type: "text", width: 150 },
+            { name: "FieldType", title: "Type", type: "text", width: 50 },
+            { name: "RefTable", title: "Ref Table", type: "text" },
+            { name: "RefField", title: "Ref Field", type: "text", sorting: false },
+            { name: "IsRange", type: "checkbox", title: "Range", sorting: false },
+            { type: "control" }
+        ]
+    });
+
+    $("#SaveReport").on("click", function () {
+        SaveReportDetails();
+    });
+
+    function SaveReportDetails() {
+        var token = $("input[name=__RequestVerificationToken]").val();
+        var searchdata = { "__RequestVerificationToken": token };
+        var headers = {
+            contentType: 'application/x-www-form-urlencoded'
+        }
+        headers['__RequestVerificationToken'] = token;
+
+        var SelectedRoles = []
+        $("#SelectedRoles option").each(function () {
+            SelectedRoles.push({ ReportID: $("#ReportID").val(), RoleId: $(this).val()  });
+        });
+        var ReportFields = $("#jsGridSummary").jsGrid("option", "data");
+        var FilterFields = $("#jsGridFilter").jsGrid("option", "data");
+        var reportData = {
+            ReportID: $("#ReportID").val(),
+            ReportName: $("#ReportName").val(),
+            ModuleID: $("#ModuleID option:selected").val(),
+            TableName: $("#TableName option:selected").val(),
+            CanExport: $("#CanExport").prop("checked"),
+            ToPDF: $("#ToPDF").prop("checked"),
+            ToExcel: $("#ToExcel").prop("checked"),
+            SelectedRoles: SelectedRoles,
+            dtReportFields: ReportFields,
+            dtFilterFields: FilterFields
+        };
+        var msg = "";
+        if (!reportData.ReportName) {
+            msg = "Report Name is missing";
+        } else if (!reportData.ModuleID) {
+            msg = "Module Name is missing";
+        } else if (!reportData.TableName) {
+            msg = "Table Name is missing";
+        } else if (!reportData.SelectedRoles || reportData.SelectedRoles.length === 0) {
+            msg = "Please select roles";
+        } else if (!reportData.dtReportFields || reportData.dtReportFields.length === 0) {
+            msg = "Please select report fields(atleast one)";
+        }
+        if (msg !== "") {
+            alert(msg);
+            return;
+        }
+        console.log(reportData);
+        reportData["__RequestVerificationToken"] = token;
+        $.ajax({
+            url: '@Url.Action("SaveReportData", "Reports")',
+            type: "POST",
+            headers: headers,
+            data: reportData,
+            success: function (data) {
+                var msg = "";
+                if (data && data.Report && data.Report.ReportID) {
+                    $("#ReportID").val(data.Report.ReportID);
+                    msg = "Report saved successfully";
+                } else if (data && data.msg) {
+                    msg = data.msg;
+                } else {
+                    msg = "Somthing went wrong";
+                }
+                alert(msg);
+            },
+            error: function (err) {
+                alert(err);
+            }
+        });
+    }
+
+</script>
+
+<style>
+    .jsgrid-cell {
+        overflow: hidden;
+    }
+</style>

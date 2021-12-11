@@ -1,0 +1,726 @@
+﻿@model IOAS.Models.ForeignRemittanceModel
+@{
+    ViewBag.Title = "Foreign Remitance";
+    ViewBag.Subtitle = "Foreign Remitance List";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<div class="row hd-tt-bg">
+    <div class="col-md-4">
+        <h3>Foreign Remitance List</h3>
+    </div>
+    <div id="addnewpage" class="col-md-8 flt-nav-links">
+
+        <a href="Javascript:void(0)" id="btnFilter" class="pull-right"> <i class="ion-android-funnel"></i>Filters</a>
+        <a href="@Url.Action("ForeignRemittance")"> <i class="ion-plus"></i>Add New</a>
+
+    </div>
+</div>
+<div class="row mt30" id="gridlist">
+    <div class="page-wrapper">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="custom-jsgrid-normal">
+                    <div id="ForeignRemittanceList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="popup" ></div>
+<div id="popupFilter" class="filter-popup">
+    <div class="">
+        <div class="filter-content">
+            <div class="white-bg">
+                <div class="form-group custom-form-group">
+                    <h3>Filter by</h3>
+                </div>
+
+                @*<div class="form-group custom-form-group">
+                    @Html.TextBoxFor(m => m.SearchField.ProjectNumber, new { @id = "srchprojectnumber", @placeholder = "Project Number", @class = "form-control" })
+                </div>*@
+
+                <div class="form-group custom-form-group">
+                    @Html.TextBoxFor(m => m.SearchField.ForeignRemitNumber, new { @id = "srchforeignremitnumber", @placeholder = "Foreign Remitance Number", @class = "form-control" })
+                </div>
+                <div class="form-group custom-form-group">
+                    @Html.TextBoxFor(m => m.SearchField.InvoiceNumber, new { @id = "srchInvoiceNumber", @placeholder = "Invoice Number", @class = "form-control" })
+                    @*@Html.DropDownListFor(m => m.SearchField.InvoiceNumber, new SelectList(ViewBag.PI, "id", "name"), "PI Name", new { @id = "srchPIName", @class = "form-control" })*@
+                </div>
+                <div class="form-group custom-form-group">
+                    @Html.TextBoxFor(m => m.SearchField.PONumber, new { @id = "srchPONumber", @placeholder = "PO Number", @class = "form-control" })
+                    @*@Html.DropDownListFor(m => m.SearchField.PIName, new SelectList(ViewBag.PI, "id", "name"), "PI Name", new { @id = "srchPIName", @class = "form-control" })*@
+                </div>
+                <div class="form-group custom-form-group">
+                    @Html.TextBoxFor(m => m.SearchField.BeneficiaryName, new { @id = "srchBeneficiaryName", @placeholder = "Beneficiary Name", @class = "form-control" })
+                    @*@Html.DropDownListFor(m => m.SearchField.PIName, new SelectList(ViewBag.PI, "id", "name"), "PI Name", new { @id = "srchPIName", @class = "form-control" })*@
+                </div>
+                <div class="form-group custom-form-group">
+                    <label>Search by</label><br>
+                    <label class="radio chkbox-adj">
+                        @Html.RadioButtonFor(m => m.SearchField.SearchBy, "RemitanceDate", new { @id = "SearchBy_RemitanceDate", @checked = "checked" })
+                        <span></span>
+                        Remittance Date
+                    </label>
+                    <label class="radio chkbox-adj">
+                        @Html.RadioButtonFor(m => m.SearchField.SearchBy, "CreatedDate", new { @id = "SearchBy_CreatedDate" })
+                        <span></span>
+                        Created Date
+                    </label>
+                </div>
+                <div id="DivSIDate" class="form-group custom-form-group">
+                    <label class="full-width">Remitance Date</label>
+                    @Html.TextBoxFor(m => m.SearchField.FromFRDate, new { @id = "FromFRDate", @class = "form-control half-form" })
+                    @Html.TextBoxFor(m => m.SearchField.ToFRDate, new { @id = "ToFRDate", @class = "form-control half-form" })
+                </div>
+                <div id="DivCrtdDate" class="form-group custom-form-group">
+                    <label class="full-width">Created Date</label>
+                    <label class="half-form">From Date </label>
+                    @Html.TextBoxFor(m => m.SearchField.FromDate, new { @id = "FromDate", @class = "form-control half-form" })
+                    <label class="half-form">To Date </label>
+                    @Html.TextBoxFor(m => m.SearchField.ToDate, new { @id = "ToDate", @class = "form-control half-form" })
+                </div>
+                <div class="form-group custom-form-group mt30 text-center">
+                    <a id="btnReset" href="javascript:void(0)">Reset</a>
+                </div>
+                <div class="form-group custom-form-group mt30 text-center">
+                    <button id="btnSearch" type="button" class="btn btn-primary mr10">Search</button>
+                    <button name="btnClose" type="button" class="btn btn-default">Close</button>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <a href="javascript:void(0)" name="btnClose" class="close-btn"><i class="ion-android-cancel"></i></a>
+
+</div>
+<div class="modal fade" id="popupmodel">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="row">
+
+                    <div class="col-md-offset-4 col-md-4 text-center">
+                        <h3 id="modelheading"></h3>
+                    </div>
+                    <div class="col-md-4">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+
+                    <div class="col-md-offset-1 col-md-10">
+                        <div class="st-md-bg" id="popuplist">
+
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    $(document).ready(function () {
+        var SearchBy = $('input[name^="SearchField.SearchBy"]:checked').val();
+        if (SearchBy == 'RemitanceDate') {
+            $('#DivSIDate').show();
+            $('#DivCrtdDate').hide();
+        }
+        else {
+            $('#DivCrtdDate').show();
+            $('#DivSIDate').hide();
+        }
+        $("#FromFRDate, #ToFRDate, #FromDate, #ToDate").datepicker
+           ({
+               dateFormat: 'dd-MM-yy',
+               showStatus: true,
+               showWeeks: true,
+               changeYear: true,
+               yearRange: '-100:+100',
+               highlightWeek: true,
+               numberOfMonths: 1,
+               showAnim: "scale",
+               showOptions: {
+                   origin: ["top", "left"]
+               }
+           });
+
+    });
+    $('input[id^="SearchBy_"]').change(function () {
+        var value = $(this).val();
+        if (value == 'RemitanceDate') {
+            $('#DivSIDate').show();
+            $('#DivCrtdDate').hide();
+        }
+        else {
+            $('#DivCrtdDate').show();
+            $('#DivSIDate').hide();
+        }
+        $('#FromSIDate').val('');
+        $('#ToSIDate').val('');
+        $('#FromDate').val('');
+        $('#ToDate').val('');
+    });
+    $('a[name="btnClose"],button[name="btnClose"]').click(function () {
+        $('#popupFilter').css("display", "none");
+    });
+    $("#btnFilter").click(function () {
+        $('#popupFilter').css("display", "Block");
+    });
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+    });
+    function ResetForm() {
+        $('#srchprojectnumber').val('');
+        $('#srchforeignremitnumber').val('');
+        $('#srchInvoiceNumber').val('');
+        $('#srchPONumber').val('');
+        $('#srchBeneficiaryName').val('');
+        $('#FromDate').val('');
+        $('#ToDate').val('');
+        $('#FromFRDate').val('');
+        $('#ToFRDate').val('');
+    }
+    $('#btnReset').click(function () {
+        ResetForm();
+        getData(1);
+    });
+    $('#btnSearch').on('click', function () {
+        // var token = $("input[name=__RequestVerificationToken]").val();
+        getData(1);
+    });
+    function getData(page) {
+        var input = [];
+        input = {
+            SearchEXReferencenumber: $('#srchforeignremitnumber').val(),
+            SearchEXPONumber: $('#srchPONumber').val(),
+            SearchEXInvoicenumber: $('#srchInvoiceNumber').val(),
+           // SearchEXProjectNumber: $('#srchprojectnumber').val(),
+            SearchEXBeneficiaryName: $('#srchBeneficiaryName').val(),
+            FromDate: $('#FromDate').val() || null,
+            ToDate: $('#ToDate').val() || null,
+            FromFRDate: $('#FromFRDate').val() || null,
+            ToFRDate: $('#ToFRDate').val() || null
+        },
+         $("#ForeignRemittanceList").jsGrid("search", input, pageIndex = 1, pageSize = 5);
+
+    }
+    var DateField = function (config) {
+        jsGrid.Field.call(this, config);
+    };
+
+    DateField.prototype = new jsGrid.Field({
+        sorter: function (date1, date2) {
+            return new Date(date1) - new Date(date2);
+        },
+
+        itemTemplate: function (value) {
+            return new Date(value).toDateString();
+        },
+
+        filterTemplate: function () {
+            var now = new Date();
+            this._fromPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() - 1), changeYear: true });
+            this._toPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() + 1), changeYear: true });
+            return $("<div>").append(this._fromPicker).append(this._toPicker);
+        },
+
+        insertTemplate: function (value) {
+            return this._insertPicker = $("<input>").datepicker({ defaultDate: new Date() });
+        },
+
+        editTemplate: function (value) {
+            return this._editPicker = $("<input>").datepicker().datepicker("setDate", new Date(value));
+        },
+
+        insertValue: function () {
+            return this._insertPicker.datepicker("getDate").toISOString();
+        },
+
+        editValue: function () {
+            return this._editPicker.datepicker("getDate").toISOString();
+        },
+
+        filterValue: function () {
+            return {
+                from: this._fromPicker.datepicker("getDate"),
+                to: this._toPicker.datepicker("getDate")
+            };
+        }
+    });
+    jsGrid.fields.date = DateField;
+    var db;
+    $("#ForeignRemittanceList").jsGrid({
+        paging: true,
+        pageIndex: 1,
+        pageSize: 5,
+        editing: false,
+        filtering: true,
+        pageLoading: true,
+        autoload: true,
+        controller: {
+
+            loadData: function (filter) {
+                //return $.grep(db, function (ow) {
+                //    return (!filter.ForeignRemitNumber || ow.ForeignRemitNumber.toLowerCase().indexOf(filter.ForeignRemitNumber.toLowerCase()) > -1)
+                //   && (!filter.PONumber || ow.PONumber.toLowerCase().indexOf(filter.PONumber.toLowerCase()) > -1)
+                //   && (!filter.BeneficiaryName || ow.BeneficiaryName.toLowerCase().indexOf(filter.BeneficiaryName.toLowerCase()) > -1)
+                //   && (!filter.ForeignRemittanceAmt || ow.ForeignRemittanceAmt.toLowerCase().indexOf(filter.ForeignRemittanceAmt.toLowerCase()) > -1)
+                //   && (!filter.Status || ow.Status.toLowerCase().indexOf(filter.Status.toLowerCase()) > -1)
+                //   && (!filter.RemitDate.from || new Date(ow.RemitDate) >= filter.RemitDate.from)
+                //   && (!filter.RemitDate.to || new Date(ow.RemitDate) <= filter.RemitDate.to);
+                //});
+                var searchData = [];
+                searchData = {
+
+                    SearchINReferencenumber: filter.ForeignRemitNumber,
+                    //SearchINProjectNumber: filter.ProjectNumber,
+                    SearchINBeneficiaryName: filter.BeneficiaryName,
+                    SearchINPONumber: filter.PONumber,
+                    SearchINAmount: filter.ForeignRemittanceAmt,
+                    SearchINStatus: filter.Status,
+                    SearchEXReferencenumber: $('#srchforeignremitnumber').val(),
+                    SearchEXPONumber: $('#srchPONumber').val(),
+                    SearchEXInvoicenumber: $('#srchInvoiceNumber').val(),
+                    //SearchEXProjectNumber: $('#srchprojectnumber').val(),
+                    SearchEXBeneficiaryName: $('#srchBeneficiaryName').val(),
+                    FromDate: $('#FromDate').val() || null,
+                    ToDate: $('#ToDate').val() || null,
+                    FromFRDate: $('#FromFRDate').val() || null,
+                    ToFRDate: $('#ToFRDate').val() || null,
+                    ProjectNumber: filter.ProjectNo || null,
+                    CommitmentNO: filter.CommitmentNo || null,
+                    TypeofPayment: filter.PaymentType || null,
+                
+                }
+                filter.model = searchData;
+                var deferred = $.Deferred();
+                $.ajax({
+                    type: "post",
+                    url: 'SearchForeignRemittanceList',
+                    data: JSON.stringify(filter),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (result) {
+                        var da = {
+                            data: result.ForeignRemitList,
+                            itemsCount: result.TotalRecords
+                        }
+                        deferred.resolve(da);
+                    },
+                    error: function (err) {
+                        console.log("error : " + err);
+                    }
+
+                });
+                return deferred.promise();
+                //filter.model = searchData;
+                //var deferred = $.Deferred();
+                //$.ajax({
+                //    type: "post",
+                //    url: 'SearchForeignRemittanceList',
+                //    data: JSON.stringify(filter),
+                //    contentType: "application/json; charset=utf-8",
+                //    dataType: "json",
+                //    success: function (result) {
+                //        alert(1);
+                //        // dataProposal = result;
+                //        //$("#gridProposalList").jsGrid({ data: result });
+                //        //$('#projectopening').hide();
+                //        //$('#gridproposal').show();
+                //        //dbProposal = result;
+                //        var da = {
+                //            data: result.ForeignRemitList,
+                //            itemsCount: result.TotalRecords
+                //        }
+                //        deferred.resolve(da);
+                //    },
+                //    error: function (err) {
+                //        console.log("error : " + err);
+                //    }
+
+                //});
+                //return deferred.promise();
+            }
+
+        },
+
+        fields: [
+            { name: "SlNo", title: "S.No", editing: false, width: 10 },
+            { type: "number", name: "ForeignRemittanceId", title: "Id", visible: false, align: "left" },
+            //{ type: "number", name: "Projectid", title: "Project Id", visible: false, align: "left" },
+            { type: "text", name: "PONumber", title: "PO Number", align: "left", width: 70 },
+            { type: "text", name: "BeneficiaryName", title: "Beneficiary Name", editing: false, align: "left", width: 70 },
+            //{ type: "text", name: "College", title: "College / Institute", editing: false, align: "left", width: 70 },
+            { type: "text", name: "ForeignRemitNumber", title: "Foreign remittance Number", editing: false, align: "left", width: 70 },
+            {
+                name: "CommitmentNo", itemTemplate: function (value, item) {
+                    var $customCommitmentNo = $("<a>").addClass("CommitmentGrid").text(value);
+                   
+                    $customCommitmentNo.click(function (e) {
+                        var row = "";
+                        var table;
+                        $.ajax({
+                            type: "POST",
+                            url: '@Url.Action("GetCommonProjectSearch", "CoreAccounts")',
+                            data: {
+                                TypeCode: 'FRM', RefId: item.ForeignRemittanceId, commit_f: true
+                            },                           
+                            success: function (locationdata) {                 
+                                $(locationdata.Project).each(function (i, v) {
+                                    row += "<tr><td> <h3 >" + v.ProjectNumber + "</h3></td> <td><h3>" + v.CommitmentNumber + "</h3></td><td><h3>" + v.AllocationHead + "</h3></td><td><h3 >" + v.Amount + "</h3> </td></tr>"
+                                });
+                                table = "<table class='table table-bordered'> <tbody><tr><td> <label>Project Number :</label></td> <td><label>Commitment Number:</label></td><td><label>Allocation Head:</label></td><td> <label>Amount:</label> </td></tr> " + row + "</tbody> </table>"
+                                $("#modelheading").text('Commitment(s)');
+                                $("#popuplist").empty();
+                                $("#popuplist").append(table);
+                                $("#popupmodel").modal('toggle');
+                            },
+                        })
+                    })
+                    return $customCommitmentNo;
+                }, title: "Commitment number", type: "text", width: 100, align: "center"
+            },
+            {
+                name: "ProjectNo", itemTemplate: function (value, item) {
+                    var $customProjectNo = $("<a>").addClass("ProjectNoGrid").text(value);
+                    $customProjectNo.click(function (e) {
+                        var row = "";
+                        var table;
+                        $.ajax({
+                            type: "POST",
+                            url: '@Url.Action("GetCommonProjectSearch", "CoreAccounts")',
+                            data: {
+                                TypeCode: 'FRM', RefId: item.ForeignRemittanceId, project_f: true
+                            },
+
+                            success: function (locationdata) {
+
+                                $(locationdata.Project).each(function (i, v) {
+                                    row += "<tr><td> <h3 >" + v.ProjectNumber + "</h3></td> <td><h3>" + v.CommitmentNumber + "</h3></td><td><h3>" + v.AllocationHead + "</h3></td><td><h3 >" + v.Amount + "</h3> </td></tr>"
+
+                                });
+                                table = "<table class='table table-bordered'> <tbody><tr><td> <label>Project Number :</label></td> <td><label>Commitment Number:</label></td><td><label>Allocation Head:</label></td><td> <label>Amount:</label> </td></tr> " + row + "</tbody> </table>"
+
+                                $("#modelheading").text('Project Number');
+                                $("#popuplist").empty();
+                                $("#popuplist").append(table);
+                                $("#popupmodel").modal('toggle');
+                            },
+                        })
+                    })
+                    return $customProjectNo;
+                }, title: "Project number", type: "text", width: 100, align: "center"
+            },
+            { type: "text", name: "PaymentType", title: "Type of Payment", editing: false, align: "center", width: 70 },
+
+            { type: "text", name: "ForeignRemittanceAmt", title: "Remittance Amount", editing: false, align: "left", width: 70 },
+            { type: "text", name: "RemitDate", title: "Remittance Date", type: "date", width: 100, align: "center" },
+            { type: "text", name: "Status", title: "Status", editing: false, align: "left", width: 60 },
+        {
+            name: "NewGenerateDoc",
+            title: "Document", width: 120,
+            itemTemplate: function (value, item) {
+                var elementDiv1 = $("<div>");
+                elementDiv1.attr("class", "ls-dts");
+                var $link1 = "";
+                if (value == null) {
+                    $link1 = $("<label>").attr("value", "Nill").html('-');
+                } else {
+                    $link1 = $("<a>").attr("class", "ion-document icn").attr("href", item.Newhref).attr("target", "_blank").html('');
+                }
+                elementDiv1.append($link1);
+                return elementDiv1;
+            }
+        }
+,
+
+             {
+                 type: "control", editButton: false, deleteButton: false, title: "Action", width: 80,
+                 itemTemplate: function (value, item) {
+                     var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+                     if (item.Status == "Open") {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "EditDraft", name: "Edit Draft" }, { id: "Edit", name: "Edit" }, { id: "View", name: "View" }, { id: "Print", name: "Print" }]
+                     } else if (item.Status == "Active") {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "Edit", name: "Edit" }, { id: "Submit for approval", name: "Submit for approval" }, { id: "View", name: "View" }, { id: "Print", name: "Print" }]
+                     } else if (item.Status == "Approval Pending") {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }, { id: "Print", name: "Print" }]
+                     } else if (item.Status == "Approved") {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }, { id: "Print", name: "Print" }]
+                     }
+                     else if (item.Status == "Completed") {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }, { id: "Print", name: "Print" }]
+                     }
+                     else if (item.Status == "Pending Bill of Entry") {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "EditBillofEntry", name: "Edit Bill of Entry" }, { id: "View", name: "View" }, { id: "Print", name: "Print" }]
+                     }
+                     else
+                     {
+                         statusList = [{ id: "", name: "Select Action" },{ id: "View", name: "View" }]
+                     }
+                     var $customSelect = $("<select>")
+                         .attr("class", "form-control").prop("selectedIndex", "")
+
+                     $.each(statusList, function (index, itemData) {
+                         $customSelect.append($('<option/>', {
+
+                             value: itemData.id,
+                             text: itemData.name
+                         }));
+                     });
+
+                     $customSelect.change(function (e) {
+                         var selVal = $(this).val();
+                         @*if (selVal == "Delete") {
+                             var choice = confirm("Are you sure, Do you want to delete this bill?");
+                             if (choice === true) {
+                                 $.ajax({
+                                     type: "POST",
+                                     url: '@Url.Action("DeleteSummerInternship", "CoreAccounts")',
+                                     data: {
+                                         travelBillId: item.TravelBillId
+                                     },
+                                     success: function (result) {
+                                         if (result == true) {
+                                             $('#alertSuccess').html("Advance bill has been deleted successfully.");
+                                             $('#Success').modal('toggle');
+                                             loadDetails();
+                                         } else if (result == false) {
+                                             $('#FailedAlert').html("Something went wrong please contact administrator");
+                                             $('#Failed').modal('toggle');
+                                         }
+                                     },
+                                     error: function (err) {
+                                         console.log("error1 : " + err);
+                                     }
+                                 });
+                             }
+                         } else*@
+                          if (selVal == "Edit") {
+                              var url = '@Url.Action("ForeignRemittance", "CoreAccounts")?foreignRemitId=' + item.ForeignRemittanceId;
+                             window.location.href = url;
+                          } else if (selVal == "Submit for approval") {
+                              var choice = confirm("Are you sure, Do you want to submit this Foreign Remittance for approval process?");
+                              if (choice === true) {
+                                  $.ajax({
+                                      type: "POST",
+                                      url: '@Url.Action("ForeignRemitanceBillWFInit", "CoreAccounts")',
+                                      data: {
+                                          BillId: item.ForeignRemittanceId,
+                                          transCode: "FRM"
+                                      },
+                                      success: function (result) {
+                                          if (result.status == true) {
+                                              $('#alertSuccess').html("Foreign Remittance has been submitted for approval process successfully.");
+                                              $('#Success').modal('toggle');
+                                              loadDetails();
+                                          } else if (result.status == false) {
+                                              $('#FailedAlert').html(result.msg);
+                                              $('#Failed').modal('toggle');
+                                          }
+                                      },
+                                      error: function (err) {
+                                          console.log("error1 : " + err);
+                                      }
+                                  });
+                              }
+                          }
+                          else if (selVal == "EditDraft") {
+                              var url = '@Url.Action("ForeignRemittance", "CoreAccounts")?foreignRemitId=' + item.ForeignRemittanceId + '&iseditdraft=true';
+                              window.location.href = url;
+                          }
+                          else if (selVal == "EditBillofEntry") {
+                              var url = '@Url.Action("ForeignRemittanceBillofEntry", "CoreAccounts")?foreignRemitId=' + item.ForeignRemittanceId + '&iseditbillofentry=true';
+                              window.location.href = url;
+                          }
+                          else if (selVal == "Approve") {
+                             var approveurl = 'ForeignRemittanceApprove';
+                             var choice = confirm("Are you sure that you want to Approve this Foreign Remittance?");
+                             if (choice === true) {
+
+                                     $.ajax({
+                                         type: "GET",
+                                         url: approveurl,
+                                         data: { foreignRemitId: item.ForeignRemittanceId },
+                                         contentType: "application/json; charset=utf-8",
+                                         success: function (result) {
+
+                                             if (result.status == true) {
+                                                 $('#alertSuccess').html("Foreign Remittance has been approved successfully.");
+                                                 $('#Success').modal('toggle');
+                                                 loadDetails();
+                                             } else if (result.status == false) {
+                                                 $('#FailedAlert').html("Something went wrong please contact administrator");
+                                                 $('#Failed').modal('toggle');
+                                             }
+                                         },
+                                         error: function (err) {
+                                             console.log("error1 : " + err);
+                                         }
+                                     });
+                                     //var getForeignRemitList = 'GetForeignRemittanceList'
+                                     //$.ajax({
+                                     //    type: "GET",
+                                     //    url: getForeignRemitList,
+                                     //    data: param = "",
+                                     //    contentType: "application/json; charset=utf-8",
+                                     //    success: function (result) {
+                                     //        // dataProposal = result;
+                                     //        $("#ForeignRemittanceList").jsGrid({ data: result });
+                                     //        $('#gridlist').show();
+                                     //        $('#addnewpage').show();
+                                     //    },
+                                     //    error: function (err) {
+                                     //        console.log("error : " + err);
+                                     //    }
+                                 //});
+                                     getData(1);
+                                 }
+                         }
+                         else if (selVal == "View") {
+                             var url = '@Url.Action("ForeignRemittanceView", "CoreAccounts")?foreignRemitId=' + item.ForeignRemittanceId;
+                             window.location.href = url;
+                         }
+                         else if (selVal == "Print") {
+                             var url = '@Url.Action("FRMCBDirectImportLetterdownload", "ReportMaster")?foreignRemitId=' + item.ForeignRemittanceId;
+                             //window.location.href = url;
+                             window.open(url, '_blank');
+                         }
+                         $(this).val("");
+                         return false;
+                         e.stopPropagation();
+                     });
+
+                     return $result.add($customSelect);
+                 },
+                 _createFilterSwitchButton: function () {
+                     return this._createOnOffSwitchButton("filtering", this.searchModeButtonClass, false);
+                 }
+             }
+
+
+        ],
+
+    });
+    $("#ForeignRemittanceList").jsGrid("option", "filtering", false);
+   // loadDetails();
+    function loadDetails() {
+         var input = [];
+        input = {
+            SearchEXReferencenumber: $('#srchforeignremitnumber').val(),
+            SearchEXPONumber: $('#srchPONumber').val(),
+            SearchEXInvoicenumber: $('#srchInvoiceNumber').val(),
+           // SearchEXProjectNumber: $('#srchprojectnumber').val(),
+            SearchEXBeneficiaryName: $('#srchBeneficiaryName').val(),
+            FromDate: $('#FromDate').val() || null,
+            ToDate: $('#ToDate').val() || null,
+            FromFRDate: $('#FromFRDate').val() || null,
+            ToFRDate: $('#ToFRDate').val() || null
+        },
+         $("#ForeignRemittanceList").jsGrid("search", input, pageIndex = 1, pageSize = 5);
+    }
+    
+
+    //function ResetForm() {
+    //    $('#srchInvoiceNumber').val('');
+    //    $('#srchPONumber').val('');
+    //    $('#srchBeneficiaryName').val('');
+    //    $('#srchforeignremitnumber').val('');
+    //    $('#FromDate').val('');
+    //    $('#ToDate').val('');
+    //    $('#FromFRDate').val('');
+    //    $('#ToFRDate').val('');
+    //}
+    //$('#btnReset').click(function () {
+    //    ResetForm();
+    //    getData(1);
+    //});
+    //$('#btnSearch').on('click', function () {
+    //    // var token = $("input[name=__RequestVerificationToken]").val();
+    //    getData(1);
+    //});
+    //var searchURL = 'SearchForeignRemittanceList';
+    //function getData(page) {
+
+    //    var InvoiceNumber = $('#srchInvoiceNumber').val();
+    //    var PONumber = $('#srchPONumber').val();
+    //    var BeneficiaryName = $('#srchBeneficiaryName').val();
+    //    var RemitNumber = $('#srchforeignremitnumber').val();
+    //    var SearchBy = $('input[name^="SearchField.SearchBy"]:checked').val();
+    //    var FromDate = $('#FromDate').val();
+    //    var ToDate = $('#ToDate').val();
+    //    var FromSIDate = $('#FromFRDate').val();
+    //    var ToSIDate = $('#ToFRDate').val();
+
+    //    if (InvoiceNumber == "") {
+    //        InvoiceNumber = null;
+    //    }
+    //    if (PONumber == "") {
+    //        PONumber = null;
+    //    }
+    //    if (BeneficiaryName == "") {
+    //        BeneficiaryName = null;
+    //    }
+    //    if (RemitNumber == "") {
+    //        RemitNumber = null;
+    //    }
+
+    //    if (FromDate == "") {
+    //        FromDate = null;
+    //    }
+    //    if (ToDate == "") {
+    //        ToDate = null;
+    //    }
+    //    if (FromSIDate == "") {
+    //        FromSIDate = null;
+    //    }
+    //    if (ToSIDate == "") {
+    //        ToSIDate = null;
+    //    }
+    //    //  var searchdata = { "__RequestVerificationToken": token, "ProjectType": Projecttype,"ProposalNumber": Proposalnumber, "PIname": PIName, "Searchby": SearchBy, "FromSOdate": FromSODate, "ToSOdate": ToSODate, "Fromdate": FromDate, "Todate": ToDate };
+    //    var searchdata = {
+    //        InvoiceNumber: InvoiceNumber,
+    //        PONumber: PONumber,
+    //        ForeignRemitNumber: RemitNumber,
+    //        BeneficiaryName: BeneficiaryName,
+    //        FromDate: FromDate,
+    //        ToDate: ToDate,
+    //        FromFRDate: FromSIDate,
+    //        ToFRDate: ToSIDate,
+    //    };
+
+    //    $.ajax({
+    //        type: "GET",
+    //        url: searchURL,
+    //        data: searchdata,
+    //        //data: { "ProjectType": Projecttype, "ProposalNumber": Proposalnumber, "FromSOdate": FromSODate, "ToSOdate": ToSODate, },
+    //        //contentType: "application/x-www-form-urlencoded",
+    //        dataType: "json",
+    //        success: function (result) {
+    //            // dataProposal = result;
+    //            $("#ForeignRemittanceList").jsGrid({ data: result });
+    //            //   $('#popupFilter').hide();
+    //        },
+    //        error: function (err) {
+    //            console.log("error : " + err);
+    //        }
+    //    });
+    //}
+</script>

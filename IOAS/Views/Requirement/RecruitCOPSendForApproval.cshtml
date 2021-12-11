@@ -1,0 +1,1244 @@
+﻿@model IOAS.Models.OrderModel
+@{
+    ViewBag.Title = "Change of project";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+    <link href="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/css/bootstrap-select.min.css")" rel="stylesheet" />
+}
+<style>
+    .modal-dialog {
+        width: 850px;
+    }
+
+    a {
+        color: white;
+    }
+
+    .gd-wht-bg {
+        background: #fff;
+        padding: 15px;
+        border-radius: 4px;
+        box-shadow: 4px 4px 4px rgba(0,0,0,0.2);
+    }
+</style>
+@using (Html.BeginForm("RecruitCOPSendForApproval", "Requirement", FormMethod.Post, new { @class = "", role = "form", @id = "formApp", enctype = "multipart/form-data" }))
+{
+    <div class="row hd-tt-bg">
+        <div class="col-md-12">
+            <h4><b>Change Project</b></h4>
+            <ul class="nav nav-pills custom-nav-pills custom-spl-nav">
+                <li class="active"><a href="javascript:void(0)">Application Approval</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="row cust-tab">
+        <div class="page-wrapper mt30">
+            <div>
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="bl-lg-panel-box pb-null">
+                                <div class="cmn-panel-box">
+                                    <div class="row ">
+                                        <div class="col-md-12">
+                                            @Html.HiddenFor(m => m.ApplicationID)
+                                            @Html.HiddenFor(m => m.OrderID)
+                                            @Html.HiddenFor(m => m.Status)
+                                            @Html.HiddenFor(m => m.TypeCode)
+                                            <div class="form-group custom-form-group">
+                                                <label>Employee Id</label>
+                                                <h4>@Model.EmployeeID</h4>
+                                            </div>
+                                            <div class="form-group custom-form-group">
+                                                <label>Type of appointment </label>
+                                                <h4>@Model.Typeofappointment</h4>
+                                            </div>
+                                            <div class="form-group custom-form-group  ">
+                                                <label>Email ID</label>
+                                                <h4>@Model.Email</h4>
+                                            </div>
+                                            <div class="form-group custom-form-group">
+                                                <label>Name </label>
+                                                <h4 id="CantidateName">@Model.Name</h4>
+                                            </div>
+                                            <div class="form-group custom-form-group mb-sm ">
+                                                <label>Father’s / Husband’s Name</label>
+                                                <h4>@Model.Nameoftheguardian</h4>
+                                            </div>
+                                            <div class="form-group custom-form-group  ">
+                                                <label>Permanent Address  </label>
+                                                <h4>
+                                                    @Model.PermanentAddress
+                                                </h4>
+                                            </div>
+                                            <div class="form-group custom-form-group  ">
+                                                <label>Temporary Address  </label>
+                                                <h4>
+                                                    @Model.PresentAddress
+                                                </h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group mb-sm ">
+                                                <label>Contact No</label>
+                                                <h4>@Model.ContactNumber</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group ">
+                                                <label>Date of Birth</label>
+                                                <h4>@Model.DateofBirth</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group ">
+                                                <label>Age</label>
+                                                <h4 id="Age">@Model.Age</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group  ">
+                                                <label>Sex</label>
+                                                <h4>@Model.Sex</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group ">
+                                                <label>Application ReceiveDate</label>
+                                                <h4>@string.Format("{0:dd-MMMM-yyyy}", Model.ApplicationReceiveDate)</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="bl-lg-panel-box  pb-null">
+                                <div class="mb-m-5 pd-null">
+                                    <div class="cmn-panel-box">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <h2>Existing Project details</h2>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Project Number</label>
+                                                    @Html.HiddenFor(m => m.OldPrjDetailModel.ProjectID)
+                                                    <h4>@Model.OldPrjDetailModel.ProjectNumber</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Project Title</label>
+                                                    <h4>@Model.OldPrjDetailModel.ProjectTitle</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Name of the Client / Sponsoring Agency</label>
+                                                    <h4>@Model.OldPrjDetailModel.SponsoringAgency</h4>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Project Type</label>
+                                                    <h4>@Model.OldPrjDetailModel.ProjectType</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>PI Name</label>
+                                                    <h4>@Model.OldPrjDetailModel.PIName</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Project Start Date</label>
+                                                    <h4>@Model.OldPrjDetailModel.ProjectStartDate</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Project Closure Date</label>
+                                                    <h4>@Model.OldPrjDetailModel.ProjectClosureDate</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>PI Code</label>
+                                                    <h4>@Model.OldPrjDetailModel.PICode</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>PI Email ID</label>
+                                                    <h4>@Model.OldPrjDetailModel.Email</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>PI Phone No</label>
+                                                    <h4>@Model.OldPrjDetailModel.Phone</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Department code </label>
+                                                    <h4>@Model.OldPrjDetailModel.PIDepartmentCode</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Department Name</label>
+                                                    <h4>@Model.OldPrjDetailModel.PIDepartmentName</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Designation Code</label>
+                                                    <h4>@Model.OldPrjDetailModel.DesignationCode</h4>
+                                                    @Html.HiddenFor(m => m.OldPrjDetailModel.DesignationId)
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Designation</label>
+                                                    <h4>@Model.OldPrjDetailModel.Designation</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Medical</label>
+                                                    @Html.HiddenFor(m => m.OldPrjDetailModel.Medical)
+                                                    @Html.HiddenFor(m => m.PhysicallyChanged)
+                                                    <h4>@Model.OldPrjDetailModel.MedicalAmmount</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="">Appointment start date</label>
+                                                    <h4 id="OldAppointmentStartDate">@Model.OldPrjDetailModel.AppointmentStartDate</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="">Appointment End date</label>
+                                                    <h4 id="OldAppointmentClosureDate">@Model.OldPrjDetailModel.AppointmentClosureDate</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Salary</label>
+                                                    <h4 id="OldSalary">@Model.OldPrjDetailModel.Salary</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label>HRA</label>
+                                                    <h4 id="OldHRA">@Model.OldPrjDetailModel.HRA</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="">Commitment Amount</label>
+                                                    <h4 id="OldCommitmentAmount">@Model.OldPrjDetailModel.CommitmentAmmount</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Withdrawn Amount</label>
+                                                    <h4>@Model.WithdrawalAmount</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="col-md-6">
+                                                    <div class="form-group custom-form-group  ">
+                                                        <label>M.S/Ph.D</label>
+                                                        <h4>
+                                                            @Html.CheckBoxFor(m => m.IsMsPhd, new { @Disabled = "Disabled" })
+                                                        </h4>
+                                                    </div>
+                                                </div>
+                                                @if (Model.IsMsPhd)
+                                                {
+                                                <div class="col-md-6">
+                                                    <div class="form-group custom-form-group  ">
+                                                        <label>Details</label>
+                                                        <h4>@Html.DisplayFor(m => m.PhdDetail)</h4>
+                                                    </div>
+                                                </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+
+                            <div class="bl-lg-panel-box  pb-null">
+                                <div class="bl-lg-panel-box-hd mb-m-5 pd-null">
+                                    <div class="cmn-panel-box">
+
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <h2>New Project details</h2>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group custom-form-group mb-sm">
+                                                            <label>Project Title</label>
+                                                            <h4 id="txtProjectTitle"></h4>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group custom-form-group mb-sm">
+                                                            <label>Name of the Client / Sponsoring Agency</label>
+                                                            <h4 id="txtClietAgency"></h4>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group custom-form-group mb-sm">
+                                                            <label>Project Type</label>
+                                                            <h4 id="txtProjectType"></h4>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group custom-form-group mb-sm">
+                                                            <label>PI Name</label>
+                                                            <h4 id="txtPIName"></h4>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group custom-form-group mb-sm">
+                                                            <label>Project Start Date</label>
+                                                            <h4 id="txtProjectStartDate"></h4>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group custom-form-group mb-sm">
+                                                            <label>Project Closure Date</label>
+                                                            <h4 id="txtProjectClosureDate"></h4>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group custom-form-group mb-sm">
+                                                            <label>PI Code</label>
+                                                            <h4 id="txtPICode"></h4>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group custom-form-group mb-sm">
+                                                            <label>PI Email ID</label>
+                                                            <h4 id="txtPIEmailID"></h4>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group custom-form-group mb-sm">
+                                                            <label>PI Phone No</label>
+                                                            <h4 id="txtPIPhone"></h4>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group custom-form-group mb-sm">
+                                                            <label>Department code </label>
+                                                            <h4 id="txtDepartmentCode"></h4>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group custom-form-group mb-sm">
+                                                            <label>Department Name</label>
+                                                            <h4 id="txtDepartmentName"></h4>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group custom-form-group">
+                                                            <label>Medical</label>
+                                                            <h4>@Model.MedicalInclude</h4>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <div class="form-group custom-form-group">
+                                                            <label>DA Comments</label>
+                                                            <h4>@Html.DisplayFor(m => m.Comments)</h4>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-8">
+
+                                                <div class="row">
+                                                    <div class="col-md-4">
+                                                        <div class="form-group custom-form-group mb-sm">
+                                                            <label>Project Number</label>
+                                                            <h4>@Model.ProjectNumber</h4>
+                                                            @Html.HiddenFor(m => m.ProjectId)
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="form-group custom-form-group">
+                                                            <label>Designation Code</label>
+                                                            <h4>@Model.DesignationCode</h4>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="form-group custom-form-group">
+                                                            <label>Designation</label>
+                                                            <h4>@Model.DesignationId</h4>
+                                                            @Html.Hidden("DesignationId", Model.DesignationId)
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row">
+                                                    <div class="col-md-4">
+                                                        <div class="form-group custom-form-group">
+                                                            <label class="">Appointment start date</label>
+                                                            <h4>@string.Format("{0:dd-MMMM-yyyy}", Model.Appointmentstartdate)</h4>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="form-group custom-form-group">
+                                                            <label class="">Appointment End date</label>
+                                                            <h4>@string.Format("{0:dd-MMMM-yyyy}", Model.AppointmentEndDate)</h4>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="form-group custom-form-group">
+                                                            <label>Medical</label>
+                                                            <h4>@Model.MedicalAmmount</h4>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-4">
+                                                        <div class="form-group custom-form-group">
+                                                            <label>Salary</label>
+                                                            <h4>@Model.Salary</h4>
+                                                            @if (Model.TypeCode == "OSG")
+                                                            {
+                                                            <div class="form-group custom-form-group">
+                                                                <a href="#" class="bl-bg-txt" onclick="salarycalcpopup();">View Salary Calculation</a>
+                                                            </div>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="form-group custom-form-group">
+                                                            <label>HRA</label>
+                                                            <h4>@Model.HRA</h4>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4 reg-no custom-reg-no">
+                                                        <div class="form-group custom-form-group">
+                                                            <label class="">Commitment Amount</label>
+                                                            <h4>@Model.CommitmentAmount</h4>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-4">
+                                                        <div class="form-group custom-form-group">
+                                                            <input type="button" class="btn btn-success" value="View Staff Allocation" id="btnViewStaffAllocation">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="form-group custom-form-group">
+                                                            <input type="button" class="btn btn-success" value="Project Fund Availability" id="btnViewSummary">
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-md-4">
+                                                        <div class="form-group custom-form-group">
+                                                            <label class="">PI Letter </label><br />
+                                                            @if (Model.OrderID > 0 && !string.IsNullOrEmpty(Model.PILetterPath))
+                                                            {
+                                                            @Html.ActionLink(Model.PILetterFileName, "ShowDocument", new { Controller = "Account", filepath = "Requirement", file = Model.PILetterPath }, new { @name = "DocDownload", @target = "_blank", @style = "color:white;" })
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-3">
+                                                        <div class="form-group">
+                                                            <label>DA Comments </label>
+                                                            <h4>@Model.Comments</h4>
+                                                        </div>
+                                                    </div>
+                                                    @*<div class="col-md-3">
+                                                            <div class="form-group">
+                                                                <label>Co-ordinator note / Remarks</label>
+                                                                <h4>@Model.Remarks</h4>
+                                                            </div>
+                                                        </div>*@
+                                                    <div class="col-md-3">
+                                                        <label>PI Justification Document</label> <br>
+                                                        <div id="divPIJustification">
+                                                            <input class="form-control mb-sm" id="PIJustificationFile_0" type="file" name="PIJustificationFile[0]" value="">
+                                                            <a href="javascript:void(0)" class="btn-sm btn btn-danger mb-sm removeFile" style="margin-bottom: 10px;"><i class="ion-android-close"></i></a>
+                                                        </div>
+                                                        <a href="javascript:void(0)" id="btnAddFile" class="btn btn-success mt-20 mb20">Add New</a>
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <div class="form-group">
+                                                            <div class="form-group custom-form-group">
+                                                                <label>PI Justification / Remarks</label>
+                                                                @Html.TextAreaFor(M => M.PIJustificationRemarks, new { @class = "form-control" })
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                @if (Model.OrderID > 0 && Model.JustificationDoc != null)
+                                                {
+                                                    if (Model.JustificationDoc.Count > 0)
+                                                    {
+                                                <div class="col-md-3">
+                                                    <div class="form-group custom-form-group">
+                                                        <label>PI Justification Document</label> <br>
+                                                        @{
+                                                                    var SNo = 1;
+                                                                    foreach (var item in Model.JustificationDoc)
+                                                                    {
+                                                                        if (item.FilePath != null)
+                                                                        {
+                                                                            if (item.FilePath != "")
+                                                                            {
+                                                        <h4>@Html.ActionLink(SNo + "." + item.FileName, "ShowDocument", new { Controller = "Account", filepath = "Requirement", file = item.FilePath }, new { @name = "DocDownload", @target = "_blank", @style = "color:white;" })</h4><br>
+                                                                                SNo++;
+                                                                            }
+                                                                        }
+                                                                    }
+                                                        }
+
+                                                    </div>
+                                                </div>
+                                                                        }
+                                                                    }
+                                                @*<div class="row">
+
+                                                        <div class="col-md-6">
+                                                            <div class="form-group custom-form-group">
+                                                                <label>PI Justification / Remarks</label>
+                                                                <h4>@Html.DisplayFor(m=>m.PIJustificationRemarks)</h4>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="form-group custom-form-group">
+                                                                @if (Model.OrderID > 0 && Model.JustificationDoc != null)
+                                                                {
+                                                                    <label>PI Justification Document</label> <br>
+                                                                    var SNo = 1;
+                                                                    foreach (var item in Model.JustificationDoc)
+                                                                    {
+                                                                        if (item.FilePath != null)
+                                                                        {
+                                                                            if (item.FilePath != "")
+                                                                            {
+                                                                                <h4>@Html.ActionLink(SNo + "." + item.FileName, "ShowFile", new { Controller = "Requirement", filepath = "~/Content/Requirement", file = item.FilePath }, new { @name = "DocDownload", @target = "_blank" })</h4><br>
+                                                                                SNo++;
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                    </div>*@
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="col-md-6">
+
+                    </div>
+                    <div class="col-md-6">
+                        @if (Model.Status == "Sent for approval")
+                                            {
+                        <p class="gd-wht-bg"><input type="checkbox" value="" class="mr-sm" id="ReqCommitment"><b>Recommend Commitment Booking</b></p>
+                                            }
+                                            else
+                                            {
+                        <p class="gd-wht-bg"><input type="checkbox" value="" class="mr-sm" id="ReqCommitment" checked disabled><b>Recommend Commitment Booking</b></p>
+                                            }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="text-center" style="margin-bottom: 50px;">
+
+        <button type="button" class="btn btn-default" onclick="window.location.href='@Url.Action("OSGDAApplicationStatus", "Home")';">Close</button>
+        <input type="submit" class="btn btn-primary" value="Send For Approval" id="btnSave" />
+    </div>
+    <div id="dialogConfirm" class="modal fade" role="dialog" data-backdrop="static" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header brd-bottom">
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                    <h4 class="modal-title">PDF Show</h4>
+                </div>
+                <div class="modal-body">
+                    <div style="padding:10px;margin-left: 10px;" id="divBcc">
+                        <label>To mail</label>
+
+                        <h4>@Html.DisplayFor(m => m.ToMail)</h4>
+
+                        <label>Carbon Copy(CC)</label>
+
+                        <h4>@Html.DisplayFor(m => m.CCMail)</h4>
+
+                    </div>
+                    <div style="padding:10px;overflow:auto" id="ShowDeviation">
+                    </div>
+                </div>
+                <div class="modal-footer brd-top">
+                    <button type="submit" class="btn btn-danger" id="isbtnConfirm">Confirm</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                                                            }
+
+<div id="salarycalc" class="modal fade modal-pr-vw" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <div class="row hd-tt-bg">
+                    <div class="col-md-12">
+                        <h4><b>Salary Calculation : </b></h4>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="page-wrapper">
+                        <div class="custom-md-bg">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="bl-lg-panel-box pb-null">
+                                                <div class="cmn-panel-box">
+                                                    <div class="row ">
+                                                        <div class="col-md-6">
+                                                            <div class="form-group custom-form-group">
+                                                                @*@Html.RadioButtonFor(M => M.EmpType, "Existing Employee", new { @id = "IsExistingEmp", @checked = "checked" })&nbsp;<label>Existing Employee </label> <br>
+                                                                    @Html.RadioButtonFor(M => M.EmpType, "New Employee", new { @id = "IsNewEmp" })&nbsp;<label>New Employee</label> <br>
+                                                                    @Html.RadioButtonFor(M => M.EmpType, "Part time", new { @id = "IsParttime" })&nbsp;<label>Part time</label> <br>*@
+                                                                @*<input name="pay_norms2" type="radio" checked=""> Existing Employee <br>
+                                                                    <input name="pay_norms2" type="radio"> New Employee <br>
+                                                                    <input name="pay_norms2" type="radio"> Part time <br>
+                                                                    <h4 id="lblEmplType" class="txt-bold"></h4>*@
+                                                                @*<label>Employee type: <span id="lblEmplType" class="txt-bold"></span>@Html.HiddenFor(m => m.EmpType, new { @class = "form-control" })</label>
+                                                                    <label>Type of appointment: <span id="lblAppointType" class="txt-bold"></span></label>*@
+                                                                <label><b>Employee type:</b> @Html.DisplayFor(M => M.EmpType)</label>
+                                                                <label><b>Type of appointment:</b> @Html.DisplayFor(M => M.Typeofappointment)</label>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="form-group custom-form-group">
+                                                                <label><b>Recommended Salary</b></label>
+                                                                @*@Html.TextBoxFor(m => m.RecommendedSalary, new { @class = "form-control", @id = "RecommendSalary", @readonly = true })*@
+                                                                @*<input type="text" class="form-control">*@
+                                                                @Html.DisplayFor(M => M.RecommendedSalary)
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row ">
+                                                        <div class="col-md-6">
+                                                            <div class="form-group custom-form-group">
+                                                                <label><b>Name</b> </label>
+                                                                @*@Html.DropDownListFor(m => m.EmpSalutation, new SelectList(ViewBag.Professional, "id", "name"), "Select", new { @disabled = true })
+                                                                    @Html.HiddenFor(m => m.EmpSalutation, new { @class = "form-control" })
+                                                                    @Html.TextBoxFor(m => m.EmpName, new { @class = "form-control", @id = "EmpName", @readonly = true })*@
+                                                                @Html.DisplayFor(M => M.Name)
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="form-group custom-form-group">
+                                                                <label><b>Designation</b></label> <br>
+                                                                @*@Html.TextBoxFor(m => m.EmpDesig, new { @class = "form-control", @id = "EmpDesig", @readonly = true })*@
+                                                                @Html.DisplayFor(M => M.EmpDesig)
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <div class="form-group custom-form-group">
+                                                                <label><b>Is Physically Challenged</b></label><br>
+                                                                @*@Html.RadioButtonFor(M => M.PhysicalyHandicaped, "Physically Handicapped", new { @id = "IsPH", @readonly = true })&nbsp;<label>Physically Handicapped</label> <br>*@
+                                                                @*<span id="lblPHYHandC" class="txt-bold"></span>*@
+                                                                @*@Html.DisplayFor(M => M.PhysicallyChallenged)*@
+                                                                @Html.DisplayFor(M => M.PhysicallyChanged)
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="form-group custom-form-group mb-sm ">
+                                                                <label><b>PF Basic Wages</b></label>
+                                                                @*@Html.TextBoxFor(m => m.EmpPFBasicWages, new { @class = "form-control", @id = "EmpPFBasicWages" })*@
+                                                                @Html.DisplayFor(M => M.EmpPFBasicWages)
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="bl-lg-panel-box pb-null">
+                                                <div class="cmn-panel-box">
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <h4><b>Deductions</b></h4>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <div class="form-group custom-form-group">
+                                                                <label><b>Employee PF</b></label>
+                                                                @*@Html.TextBoxFor(m => m.EmployeePF, new { @class = "form-control", @id = "EmployeePF", @readonly = true })*@
+                                                                @Html.DisplayFor(M => M.EmployeePF)
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="form-group custom-form-group">
+                                                                <label><b>Employee ESIC</b></label>
+                                                                @*@Html.TextBoxFor(m => m.EmployeeESIC, new { @class = "form-control", @id = "EmployeeESIC", @readonly = true })*@
+                                                                @Html.DisplayFor(M => M.EmployeeESIC)
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <div class="form-group custom-form-group">
+                                                                <label><b>Professional Tax</b></label>
+                                                                @*@Html.TextBoxFor(m => m.EmployeeProfessionalTax, new { @class = "form-control", @id = "EmployeeProfsnlTax" })*@
+                                                                @Html.DisplayFor(M => M.EmployeeProfessionalTax)
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="form-group custom-form-group">
+                                                                <label><b>Total Deduction</b></label>
+                                                                @*@Html.TextBoxFor(m => m.EmployeeTtlDeduct, new { @class = "form-control", @id = "EmployeeTtlDeduct", @readonly = true })*@
+                                                                @Html.DisplayFor(M => M.EmployeeTtlDeduct)
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <div class="form-group custom-form-group">
+                                                                <label><b>Net Salary</b></label>
+                                                                @*@Html.TextBoxFor(m => m.EmployeeNetSalary, new { @class = "form-control", @id = "EmployeeNetSalary", @readonly = true })*@
+                                                                @Html.DisplayFor(M => M.EmployeeNetSalary)
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="bl-lg-panel-box pb-null">
+                                                <div class="cmn-panel-box">
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <h4><b>Contribution</b></h4>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <div class="form-group custom-form-group">
+                                                                <label><b>Employer PF</b></label>
+                                                                @*@Html.TextBoxFor(m => m.EmployerPF, new { @class = "form-control", @id = "EmployerPF", @readonly = true })*@
+                                                                @Html.DisplayFor(M => M.EmployerPF)
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="form-group custom-form-group">
+                                                                <label>
+                                                                    <b>Insurance</b>
+                                                                </label>
+                                                                @*@Html.TextBoxFor(m => m.EmployerIns, new { @class = "form-control", @id = "EmployerIns" })*@
+                                                                @Html.DisplayFor(M => M.EmployerIns)
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <div class="form-group custom-form-group">
+                                                                <label><b>Employer ESIC</b></label>
+                                                                @*@Html.TextBoxFor(m => m.EmployerESIC, new { @class = "form-control", @id = "EmployerESIC", @readonly = true })*@
+                                                                @Html.DisplayFor(M => M.EmployerESIC)
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="form-group custom-form-group">
+                                                                <label><b>Total Contribution</b></label>
+                                                                @* @Html.TextBoxFor(m => m.EmployerTtlContribute, new { @class = "form-control", @id = "EmployerttlContribute", @readonly = true })*@
+                                                                @Html.DisplayFor(M => M.EmployerTtlContribute)
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <div class="form-group custom-form-group">
+                                                                <label><b>Cost To Company(CTC) Per Month</b></label>
+                                                                @* @Html.TextBoxFor(m => m.EmployeeCTC, new { @class = "form-control", @id = "EmployeeCTC", @readonly = true })*@
+                                                                @Html.DisplayFor(M => M.EmployeeCTC)
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="form-group custom-form-group">
+                                                                <label><b>Agency Fee</b></label>
+                                                                @*@Html.TextBoxFor(m => m.AgencyFee, new { @class = "form-control", @id = "AgencyFee", @readonly = true })*@
+                                                                @Html.DisplayFor(M => M.AgencyFee)
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <div class="form-group custom-form-group">
+                                                                <label><b>CTC With Agency Fee</b></label>
+                                                                @*@Html.TextBoxFor(m => m.CTCwithAgencyFee, new { @class = "form-control", @id = "CTCwithAgencyFee", @readonly = true })*@
+                                                                @Html.DisplayFor(M => M.CTCwithAgencyFee)
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="form-group custom-form-group">
+                                                                <label><b>GST</b></label>
+                                                                @*@Html.TextBoxFor(m => m.SalaryGST, new { @class = "form-control", @id = "SalaryGST", @readonly = true })*@
+                                                                @Html.DisplayFor(M => M.SalaryGST)
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <div class="form-group custom-form-group">
+                                                                <label><b>Total Cost per Month</b></label>
+                                                                @* @Html.TextBoxFor(m => m.TotalCTC, new { @class = "form-control", @id = "TotalCTC", @readonly = true })*@
+                                                                @Html.DisplayFor(M => M.TotalCTC)
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="btnSubmitSalaryCalc">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<input type="hidden" id="currentRefId" value="@Model.OrderID" />
+<input type="hidden" id="processGuideLineId" value="@ViewBag.processGuideLineId" />
+<div id="act-now">
+    @Html.Partial("_ProcessStatus")
+</div>
+<div class="loading-bg dis-none">
+</div>
+<div id="popup">
+
+</div>
+
+<script>
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    var MailSent_f = @Html.Raw(Json.Encode(Model.MailSent_f));
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+        $('.selectpicker').selectpicker({
+            liveSearch: true
+        });
+        $('.selectpicker').selectpicker('refresh');
+    });
+    var addyear = 0;
+    if ($("#ProjectId").val() > 0)
+        ProjectSummary()
+
+
+    if(OrderID > 0)
+    {
+        if(@Json.Encode(Model.isMedical) == false)
+        {
+            $('#Medical').val(3)
+        }
+        else{
+            $('#Medical').val(@Json.Encode(Model.Medical))
+        }
+    }
+
+    function ProjectSummary() {
+        var projectId = $("#ProjectId").val();
+        if (projectId != "" || projectId != 0) {
+            $(".loading-bg").removeClass('dis-none');
+            $.getJSON("@Url.Action("LoadProjectDetails", "Account")", { ProjectId: projectId },
+        function (result) {
+            if (result.projectData.ProjectNo != null) {
+                $('#txtProjectNumber').val(result.projectData.ProjectNo);
+                $('#txtProjectNumber').attr('readonly', 'readonly');
+                $('#txtProjectTitle').text(result.projectData.ProjectTittle);
+                $('#txtProjectTitle1').text(result.projectData.ProjectTittle);
+                $('#txtClietAgency').text(result.projectData.AgencyName);
+                $('#txtClietAgency1').text(result.projectData.AgencyName);
+                $('#txtProjectType').text(result.projectData.ProjectType);
+                $('#txtProjectType1').text(result.projectData.ProjectType);
+                $('#txtPIName').text(result.projectData.PIname);
+                $('#txtPIName1').text(result.projectData.PIname);
+                $('#txtProjectStartDate').text(result.projectData.StartDate);
+                $('#txtProjectStartDate1').text(result.projectData.StartDate);
+                $('#txtProjectClosureDate').text(result.projectData.CloseDate);
+                $('#txtProjectClosureDate1').text(result.projectData.CloseDate);
+                $('#PrjAviAvailableBalance').val(result.projectData.AvailableBalance);
+                FillPIDetails(projectId);
+                $('#txtProjectStartDate').text(result.projectData.StartDate);
+                $('#txtProjectStartDate1').text(result.projectData.StartDate);
+                $('#txtProjectClosureDate').text(result.projectData.CloseDate);
+                $('#txtProjectClosureDate1').text(result.projectData.CloseDate);
+                $(".loading-bg").addClass('dis-none');
+            }
+            else {
+                $(".loading-bg").addClass('dis-none');
+            }
+        });
+        }
+    }
+    function FillPIDetails(PolicyID) {
+        $.getJSON("@Url.Action("LoadProjectDetails", "Requirement")", { ProjectId: PolicyID },
+              function (result) {
+                  if (result.projectData.ProjectNumber != null) {
+                      $('#txtPICode').text(result.projectData.PICode);
+                      $('#txtPICode1').text(result.projectData.PICode);
+                      $('#txtPIEmailID').text(result.projectData.Email);
+                      $('#txtPIEmailID1').text(result.projectData.Email);
+                      $('#txtPIPhone').text(result.projectData.Phone);
+                      $('#txtPIPhone1').text(result.projectData.Phone);
+                      $('#txtDepartmentCode').text(result.projectData.PIDepartmentCode);
+                      $('#txtDepartmentCode1').text(result.projectData.PIDepartmentCode);
+                      $('#txtDepartmentName').text(result.projectData.PIDepartmentName);
+                      $('#txtDepartmentName1').text(result.projectData.PIDepartmentName);
+                  }
+              });
+    }
+
+    $(document).on('click', '#btnViewSummary', function () {
+        var projNo = $('#ProjectId').val() || 0;
+        if (projNo > 0) {
+            var searchData = { "ProjectId": projNo };
+            $.ajax({
+                url: "@Url.Action("_ProjectSummary", "CoreAccounts")",
+                type: "POST",
+                data: searchData,
+                contentType: "application/x-www-form-urlencoded",
+                beforeSend: function () {
+                    $(".loading-bg").removeClass('dis-none');
+                },
+                success: function (result) {
+                    $(".loading-bg").addClass('dis-none');
+                    $("#popup").html(result);
+                    $("#projectSummaryModal").modal('toggle');
+                },
+                error: function (err) {
+                    console.log("error : " + err);
+                }
+            });
+        }
+    });
+    var inncPIJus = 1;
+    $("#btnAddFile").click(function () {
+        var cln = $('div#divPIJustification:first').clone().find("input").val("").end();
+        $(cln).find('a').removeClass('dis-none');
+        $(cln).find("input, select").each(function () {
+            $(this).attr("name", $(this).attr("name").replace(/\d+/, inncPIJus));
+            if ($(this).attr("id"))
+                $(this).attr("id", $(this).attr("id").replace(/\d+/, inncPIJus));
+        });
+        $(cln).insertAfter("div#divPIJustification:last");
+        inncPIJus++;
+    });
+
+    $(document).on('click', 'a.removeFile', function () {
+        if ($('div#divPIJustification').length == 1) {
+            $('div#divPIJustification').find("input").val("").end();
+        }
+        else{
+            $(this).closest('div').remove();
+            UpdateUploadedDoc();
+            $(document).find('input[name^="PIJustificationFile"]').each(function(idx,ele){
+                $(this).attr("name", $(this).attr("name").replace(/\d+/, idx));
+                if ($(this).attr("id"))
+                    $(this).attr("id", $(this).attr("id").replace(/\d+/, idx));
+            });
+            inncPIJus--;
+        }
+    });
+
+    $(document).on('change','input[name^="PIJustificationFile"]', function(event) {
+        var id = $(this).attr('id');
+        id = id.split('_')[1];
+        if($(this).val() != "")
+        {
+            // Read selected files
+            var allowedExtensions =[".pdf", ".doc",".docx"];
+            var fileName = document.getElementById('PIJustificationFile_'+id).files[0].name;
+            var extension = fileName.substr((fileName.lastIndexOf('.') + 1)).toLowerCase();
+            var validFormat=allowedExtensions.includes('.'+extension);
+            if(validFormat){
+                var _size = document.getElementById('PIJustificationFile_'+id).files[0].size;
+                var iSize = (_size / 1024);
+                iSize = (Math.round(iSize * 100) / 100)
+                if (iSize > 5120) {
+                    $('#FailedAlert').html('Documents size should be allow below 5MB');
+                    $('#Failed').modal('toggle');
+                    $(this).val('');
+                    return;
+                }
+                UpdateUploadedDoc();
+            }
+            else {
+                $('#FailedAlert').html('PIJustification allowed document type [pdf,doc,docx]');
+                $('#Failed').modal('toggle');
+                $(this).val('');
+                return;
+            }
+        }
+        else{
+            UpdateUploadedDoc()
+        }
+
+
+    });
+
+    function salarycalcpopup() {
+        // $('#dialogSalaryConfirm').modal('toggle');
+        $('#salarycalc').modal('toggle');
+    }
+
+    function UpdateUploadedDoc(){
+        var form_data = new FormData();
+        $('#fileAppend').empty();
+        $(document).find('input[name^="PIJustificationFile"]').each(function(idx,ele){
+            var val=$(this).val();
+            var ID=$(this).attr('id');
+            if(val!=""){
+                var tmppath= URL.createObjectURL(document.getElementById(ID).files[0]);
+                var fileN = document.getElementById(ID).files[0].name;
+                var ele = document.createElement('a');
+                var elebr = document.createElement('br');
+                ele.href =tmppath
+                ele.text=fileN;
+                ele.name="DocDownload";
+                document.getElementById('fileAppend').appendChild(ele);
+                document.getElementById('fileAppend').appendChild(elebr);
+            }
+        });
+    }
+    function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode != 46 && charCode > 31
+          && (charCode < 48 || charCode > 57))
+            return false;
+
+        return true;
+    }
+
+    $('a[name="DocDownload"]').click(function (p) {
+        p.preventDefault();
+        var ref = $(this).attr('href');
+        var win = window.open('', '_blank');
+        win.location.href = ref;
+    });
+
+
+    var findtabs = $(".cust-tab");
+    $(findtabs[0]).find('textarea,input[type="text"]').each(function () {
+        debugger;
+        var ID = $(this).attr('id');
+        var name = $(this).attr('name').split('.')[1];
+        var NotinID = ["DesignationCode", "ProjectNumber"];
+        var NotinEndName = ["DesignationautoComplete"];
+        if (!NotinID.includes(ID) && !NotinEndName.includes(name)) {
+            $(this).attr('style', 'text-transform:uppercase');
+        }
+    });
+
+
+    $(document).on('keyup','textarea,input[type="text"]',function(event) {
+        if($(this).attr('id') != "Comments" && $(this).attr('id') != undefined) {
+            var input = event.target;
+            var start = input.selectionStart;
+            var end = input.selectionEnd;
+            input.value = input.value.toLocaleUpperCase();
+            input.setSelectionRange(start, end);
+        }
+    });
+
+
+    function FormDisabled() {
+        $("#formApp").find("input, select, textarea").each(function () {
+            var idDisabled = $(this).is(":disabled");
+            var id = $(this).attr('id');
+            if (!idDisabled) {
+                $(this).attr("disabled", "disabled");
+            }
+        });
+        if ("@Model.Status" == "Sent for approval") {
+            $('#ReqCommitment').removeAttr("disabled");
+        }
+        $('input[name^="PIJustificationFile"]').attr("disabled", false);
+        $('textarea[name="PIJustificationRemarks"]').attr("disabled", false);
+        $('#btnSave').attr("disabled", false);
+        $('input[name="ApplicationID"]').attr("disabled", false);
+        $('input[name="OrderID"]').attr("disabled", false);
+        $('input[name="TypeCode"]').attr("disabled", false);
+    }
+    FormDisabled();
+
+    $('#ReqCommitment').click(function () {
+        if ($(this).is(':checked')) {
+            $('#act-now').removeClass('dis-none');
+        }
+        else {
+            $('#act-now').addClass('dis-none');
+        }
+    });
+    if ($('#ReqCommitment').is(':checked')) {
+        $('#act-now').removeClass('dis-none');
+    }
+    else {
+        $('#act-now').addClass('dis-none');
+    }
+    $('#btnViewSummary').removeAttr('disabled');
+    $('#btnViewStaffAllocation').removeAttr('disabled');
+
+
+    function AckowleadgementEmail() {
+        var DesignationId = @Html.Raw(Json.Encode(Model.DesignationId));
+        var PersonName = @Html.Raw(Json.Encode(Model.Name));
+        var From = @Html.Raw(Json.Encode(Model.Appointmentstartdate));
+        var To = @Html.Raw(Json.Encode(Model.AppointmentEndDate));
+        var Salary = @Html.Raw(Json.Encode(Model.Salary));
+        var ProjectId = @Html.Raw(Json.Encode(Model.ProjectId));
+        var InputData = [];
+        InputData = {
+            DesignationId: DesignationId,
+            PersonName: PersonName,
+            AppointmentStartDate: From,
+            AppointmentEndDate: To,
+            OrderType: "Change of project",
+            BasicPay : Salary,
+            ProjectID : ProjectId,
+            AppId : @Html.Raw(Json.Encode(Model.ApplicationID)) || 0,
+            AppType : @Html.Raw(Json.Encode(Model.TypeCode)) || "",
+            SendSalaryStructure : ""
+        }
+        modelData = InputData;
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("OrderEmailProcess", "Requirement")",
+            data: modelData,
+            contentType: "application/x-www-form-urlencoded",
+            beforeSend: function () {
+                $(".loading-bg").removeClass('dis-none');
+            },
+            success: function (result) {
+                $(".loading-bg").addClass('dis-none');
+                $("#ShowDeviation").html(result.output.Item2);
+                $('#dialogConfirm').modal('toggle');
+            },
+            error: function (err) {
+                console.log("error : " + err);
+            }
+        });
+    }
+    $('#btnSave').click(function(e){
+        if(MailSent_f == false)
+            AckowleadgementEmail();
+        else
+            $('#formApp').submit();
+    });
+</script>
+<script src="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/js/bootstrap-select.min.js")"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>

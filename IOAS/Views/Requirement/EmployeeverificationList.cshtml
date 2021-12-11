@@ -1,0 +1,463 @@
+﻿
+@{
+    ViewBag.Title = "EmployeeverificationList";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<div class="row hd-tt-bg">
+    <div class="col-md-4">
+        <h3>Employee Verification Management</h3>
+    </div>
+</div>
+<div class="row mt30">
+    <div class="page-wrapper">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="custom-jsgrid-normal">
+                    <div id="gridEMPVerf">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="popup">
+
+</div>
+<script>
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    var alertMsg = '@TempData["alertMsg"]';
+    $(document).ready(function () {
+        applyAutoComplete($('#ProjectNo'), $('#ProjectID'), '@Url.Action("LoadProjectList","CoreAccounts")');
+    });
+
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+        else if (alertMsg != '') {
+            $('#alert').html(alertMsg);
+            $('#Validation').modal('toggle');
+        }
+        //getData(1);
+
+    });
+    var DateField = function (config) {
+        jsGrid.Field.call(this, config);
+    };
+
+    DateField.prototype = new jsGrid.Field({
+        sorter: function (date1, date2) {
+            return new Date(date1) - new Date(date2);
+        },
+
+        itemTemplate: function (value) {
+            return new Date(value).toDateString();
+        },
+
+        filterTemplate: function () {
+            var now = new Date();
+            this._fromPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() - 1), changeYear: true });
+            this._toPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() + 1), changeYear: true });
+            return $("<div>").append(this._fromPicker).append(this._toPicker);
+        },
+
+        insertTemplate: function (value) {
+            return this._insertPicker = $("<input>").datepicker({ defaultDate: new Date() });
+        },
+
+        editTemplate: function (value) {
+            return this._editPicker = $("<input>").datepicker().datepicker("setDate", new Date(value));
+        },
+
+        insertValue: function () {
+            return this._insertPicker.datepicker("getDate").toISOString();
+        },
+
+        editValue: function () {
+            return this._editPicker.datepicker("getDate").toISOString();
+        },
+
+        filterValue: function () {
+            return {
+                from: this._fromPicker.datepicker("getDate"),
+                to: this._toPicker.datepicker("getDate")
+            };
+        }
+    });
+
+    jsGrid.fields.date = DateField;
+    function getData(page) {
+        var input = [];
+        input = {
+            SearchInName: null,
+            SearchInPAN: null,
+            SearchInProjectId: null,
+            SearchInEmployeeId: null,
+            JoiningFromDate: null,
+            JoiningToDate: null,
+            DOB: null
+        },
+         $("#gridEMPVerf").jsGrid("search", input, pageIndex = 1, pageSize = 5);
+    }
+
+    $("#gridEMPVerf").jsGrid({
+        paging: true,
+        pageIndex: 1,
+        pageSize: 10,
+        editing: false,
+        filtering: true,
+        pageLoading: true,
+        autoload: true,
+        controller: {
+            loadData: function (filter) {
+                var searchData = [];
+                searchData = {
+                    SearchInName: filter.Name || null,
+                    SearchInEmployeeId: filter.EmployeeId || null,
+                    SearchInCategory: filter.CategoryName || null,
+                    SearchInEmail: filter.Email || null,
+                    SearchInNumber: filter.ContactNumber || null,
+                    SearchInProjectNumber: filter.ProjectNumber || null,
+                    SearchDesignationName: filter.DesignationName || null
+                },
+                filter.model = searchData;
+                var deferred = $.Deferred();
+                $.ajax({
+                    type: "post",
+                    url: "GetEmployeeList",
+                    data: JSON.stringify(filter),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (result) {
+                        var da = {
+                            data: result.List,
+                            itemsCount: result.TotalRecords
+                        }
+                        deferred.resolve(da);
+                    },
+                    error: function (err) {
+                        console.log("error : " + err);
+                    }
+
+                });
+                return deferred.promise();
+            }
+        },
+
+        fields: [
+            { name: "SNo", title: "S.No", editing: false, width: 50 },
+            { type: "number", name: "ID", title: "Id", visible: false },
+            { type: "text", name: "EmployeeId", title: "Employee ID", editing: false },
+            { type: "text", name: "Name", title: "Name", editing: false },
+            { type: "text", name: "CategoryName", title: "Category", editing: false },
+            { type: "date", name: "strDateofBirth", title: "DOB", editing: false },
+            { type: "date", name: "strDateofJoining", title: "DOJ", editing: false },
+            { type: "text", name: "Email", title: "Email", editing: false },
+            { type: "text", name: "DesignationName", title: "Designation Name", editing: false },
+            { type: "text", name: "ContactNumber", title: "Contact Number", editing: false },
+            { type: "text", name: "ProjectNumber", title: "Current Project Number", editing: false },
+            { type: "text", name: "Status", title: "Status", editing: false, visible: false },
+             {
+                 type: "control", editButton: false, deleteButton: false, width: 120, title: "Action",
+
+                 itemTemplate: function (value, item) {
+                     var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+                     if (item.Status != "Relieved") {
+                         if (item.gender == 2) {
+                             if (item.CategoryName == "STE") {
+                                 statusList = [{ id: "", name: "Select Action" }, { id: "View Profile", name: "View Profile" }, { id: "Modify Profile", name: "Modify Profile" }, { id: "Generate ID Card", name: "Generate ID Card" }, { id: "Generate Medical Card", name: "Generate Medical Card" }, { id: "Office Order", name: "Office Order" }, { id: "History", name: "History" }]
+                             }
+                             else {
+                                 statusList = [{ id: "", name: "Select Action" }, { id: "View Profile", name: "View Profile" }, { id: "Modify Profile", name: "Modify Profile" }, { id: "Generate ID Card", name: "Generate ID Card" }, { id: "Generate Medical Card", name: "Generate Medical Card" }, { id: "Office Order", name: "Office Order" }, { id: "History", name: "History" }]
+                                 }
+                         }
+                         else {
+                             if (item.CategoryName == "STE") {
+                                 statusList = [{ id: "", name: "Select Action" }, { id: "View Profile", name: "View Profile" }, { id: "Modify Profile", name: "Modify Profile" }, { id: "Generate ID Card", name: "Generate ID Card" }, { id: "Generate Medical Card", name: "Generate Medical Card" }, { id: "Office Order", name: "Office Order" }, { id: "History", name: "History" }]
+                             }
+
+                             else {
+                                 statusList = [{ id: "", name: "Select Action" }, { id: "View Profile", name: "View Profile" }, { id: "Modify Profile", name: "Modify Profile" }, { id: "Generate ID Card", name: "Generate ID Card" }, { id: "Generate Medical Card", name: "Generate Medical Card" }, { id: "Office Order", name: "Office Order" }, { id: "History", name: "History" }]
+                             }
+                         }
+                     }
+                     else {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "View Profile", name: "View Profile" }, { id: "View Documents", name: "View Documents" }, { id: "History", name: "History" }]
+
+                     }
+
+                     var $customSelect;
+                     $customSelect = $("<select>")
+                         .attr("class", "form-control").prop("selectedIndex", "")
+                     $.each(statusList, function (index, itemData) {
+                         $customSelect.append($('<option/>', {
+
+                             value: itemData.id,
+                             text: itemData.name
+                         }));
+                     });
+                     $customSelect.change(function (e) {
+                         var selVal = $(this).val();
+                         if (selVal == "Change Project") {
+                             $.ajax({
+                                 type: "Post",
+                                 url: '@Url.Action("validatePreviousOrder", "Requirement")',
+                                 data: {
+                                     ApplicationID: item.ID,
+                                     Catecory: item.CategoryName,
+                                     OrderType: 1,
+                                 },
+                                 success: function (result) {
+                                     if (result == "True") {
+                                         $('#FailedAlert').html("Previous request for change of project is yet to be approved.");
+                                         $('#Failed').modal('toggle');
+                                     }
+                                     else {
+                                         var url = '@Url.Action("RecruitChangeOfProject", "Requirement")?appid=' + item.ID + '&apptype=' + item.CategoryName;
+                                         window.location.href = url;
+                                     }
+                                 },
+                                 error: function (err) {
+                                     console.log("error1 : " + err);
+                                 }
+                             });
+
+                         }
+                         else if (selVal == "Enhancement") {
+                             $.ajax({
+                                 type: "Post",
+                                 url: '@Url.Action("validatePreviousOrder", "Requirement")',
+                                 data: {
+                                     ApplicationID: item.ID,
+                                     Catecory: item.CategoryName,
+                                     OrderType: 2,
+                                 },
+                                 success: function (result) {
+                                     if (result == "True") {
+                                         $('#FailedAlert').html("Previous enhancement request is not complete");
+                                         $('#Failed').modal('toggle');
+                                     }
+                                     else {
+                                         var url = '@Url.Action("RecruitEnhancement", "Requirement")?appid=' + item.ID + '&apptype=' + item.CategoryName;
+                                         window.location.href = url;
+                                     }
+                                 },
+                                 error: function (err) {
+                                     console.log("error1 : " + err);
+                                 }
+                             });
+
+                         }
+                         else if (selVal == "Extension") {
+                             $.ajax({
+                                 type: "Post",
+                                 url: '@Url.Action("validatePreviousOrder", "Requirement")',
+                                 data: {
+                                     ApplicationID: item.ID,
+                                     Catecory: item.CategoryName,
+                                     OrderType: 3,
+                                 },
+                                 success: function (result) {
+                                     if (result == "True") {
+                                         $('#FailedAlert').html("Previous extension request is not complete");
+                                         $('#Failed').modal('toggle');
+                                     }
+                                     else {
+                                         var url = '@Url.Action("RecruitExtension", "Requirement")?appid=' + item.ID + '&apptype=' + item.CategoryName;
+                                         window.location.href = url;
+                                     }
+                                 },
+                                 error: function (err) {
+                                     console.log("error1 : " + err);
+                                 }
+                             });
+
+                         }
+                         else if (selVal == "Generate ID Card") {
+                            var url = '@Url.Action("GenerateIDCard", "Requirement")?appid=' + item.ID + '&apptype=' + item.CategoryName;
+                             window.open(url, "_blank");
+                         }
+                         else if (selVal == "Maternity Leave Application") {
+                             var url = '@Url.Action("MaternityLeave", "Requirement")?appid=' + item.ID + '&apptype=' + item.CategoryName;
+                             window.open(url, "_blank");
+                         }
+                         else if (selVal == "Maternity Leave Rejoin") {
+                             var url = '@Url.Action("MaternityLeave", "Requirement")?appid=' + item.ID + '&apptype=' item.CategoryName;
+                             window.open(url, "_blank");
+                         }
+                         else if (selVal == "Relieving") {
+                             var url = '@Url.Action("Relieving", "Requirement")?AppId=' + item.ID + '&TypeCode=' + item.CategoryName;
+                             window.open(url, "_blank");
+                         }
+                         else if (selVal == "Loss of Pay") {
+                             var url = '@Url.Action("Stoppayment", "Requirement")?AppId=' + item.ID + '&TypeCode=' + item.CategoryName + '&isLosspay=' + true;
+                             window.location.href = url;
+                         }
+                         else if (selVal == "Stop Payment") {
+                             var url = '@Url.Action("Stoppayment", "Requirement")?AppId=' + item.ID + '&TypeCode=' + item.CategoryName + '&isLosspay=' + false;
+                             window.location.href = url;
+                         }
+                         else if (selVal == "Office Order") {
+                             var url = '@Url.Action("RCTOfficeOrder", "Requirement")?AppId=' + item.ID + '&TypeCode=' + item.CategoryName;
+                             window.open(url, "_blank");
+                         }
+                         else if (selVal == "View Documents") {
+                             $.ajax({
+                                 type: "get",
+                                 url: '@Url.Action("ViewDocuments", "Requirement")',
+                                 data: {
+                                     appid: item.ID,
+                                     apptype: item.CategoryName
+                                 },
+                                 success: function (result) {
+                                     if (result != "") {
+                                         $("#popup").html(result);
+                                         $("#popupViewDoc").modal('toggle');
+                                     }
+                                 },
+                                 error: function (err) {
+                                     console.log("error1 : " + err);
+                                 }
+                             });
+                         }
+                         else if (selVal == "Modify Profile") {
+                             if (item.CategoryName == "STE") {
+                                 var url = '@Url.Action("STEModifyProfile", "Requirement")?STEID=' + item.ID + '&verfiy='+true;
+                                 window.location.href = url;
+                             }
+                             else if (item.CategoryName == "CON") {
+                                 var url = '@Url.Action("CONModifyProfile", "Requirement")?ConsultantAppId=' + item.ID + '&verfiy=' + true;
+                                 window.location.href = url;
+                             }
+                         }
+                         else if (selVal == "HRA Booking") {
+                             if (item.CategoryName == "STE") {
+                                 var url = '@Url.Action("HRABooking", "Requirement")?steid=' + item.ID;
+                                 window.location.href = url;
+                             }
+                         }
+                         else if (selVal == "HRA Cancellation") {
+                             if (item.CategoryName == "STE") {
+                                 var url = '@Url.Action("HRACancellation", "Requirement")?steid=' + item.ID;
+                                 window.location.href = url;
+                             }
+                         }
+                         else if (selVal == "View Profile") {
+                             if (item.CategoryName == "STE") {
+                                 var url = '@Url.Action("STEViewProfile", "Requirement")?STEID=' + item.ID + '&verfiy='+true;
+                                 window.location.href = url;
+                             }
+                             else if (item.CategoryName == "CON") {
+                                 var url = '@Url.Action("CONViewProfile", "Requirement")?ConsultantAppId=' + item.ID + '&verfiy=' + true;
+                                 window.location.href = url;
+                             }
+                         }
+                         else if (selVal == "Cancel") {
+                             //var choice = confirm("Do you want to Cancel the Application");
+                             $.confirm({
+                                 title: 'Do you want to cancel application ?',
+                                 content: '' +
+                                 '<form action="" class="formName">' +
+                                 '<div class="form-group">' +
+                                 '<label>Application No : </label>' +
+                                 '<span>' + item.ApplicationNumber + '</span><br/>' +
+                                 '<label>Candidate Name : </label>' +
+                                 '<span>' + item.Name + '</span>' + '<br/>' +
+                                 '<label class="required">Remarks</label>' +
+                                 '<textarea id="txtResonCancel" name="ReasonCancel" class="form-control" row="2" required></textarea>' +
+                                 '</div>' +
+                                 '</form>',
+                                 buttons: {
+                                     formSubmit: {
+                                         text: 'Submit',
+                                         btnClass: 'btn-blue',
+                                         action: function () {
+                                             //var name = this.$content.find('.name').val();
+                                             var reason = $('#txtResonCancel').val();
+                                             if (reason == "" || reason == null) {
+                                                 $.alert('Remarks Field is Required');
+                                                 return false;
+                                             }
+                                             else if (reason != null || reason != "") {
+                                                 $.ajax({
+                                                     type: "Post",
+                                                     url: '@Url.Action("SendSTECancelEmail", "Requirement")',
+                                                     data: {
+                                                         STEID: item.ID,
+                                                         Category: item.CategoryName,
+                                                         ReasonCancel: $('#txtResonCancel').val(),
+                                                     },
+                                                     success: function (result) {
+
+                                                         if (result == 1) {
+                                                             $('#alertSuccess').html("Application cancelled");
+                                                             $('#Success').modal('toggle');
+                                                             $("#grid").jsGrid("loadData");
+                                                         } else if (result == 0) {
+
+                                                             $('#FailedAlert').html("Something Went to Wrong Please Conatact Administrator");
+                                                             $('#Failed').modal('toggle');
+                                                         }
+                                                     },
+                                                     error: function (err) {
+                                                         console.log("error1 : " + err);
+                                                     }
+                                                 });
+                                             }
+
+                                         }
+                                     },
+                                     cancel: function () {
+                                         //close
+                                     },
+                                 },
+
+                             });
+
+                         }
+                         else if (selVal == "View") {
+                             var url = '@Url.Action("STEView", "Requirement")?STEID=' + item.STEId + '&isView=' + true;
+                             window.location.href = url;
+                         }
+                         else if (selVal == "History") {
+                             $.ajax({
+                                 type: "post",
+                                 url: '@Url.Action("_ViewPopUpEmployeeDetails", "Requirement")',
+                                 data: {
+                                     appid: item.ID,
+                                     apptype: item.CategoryName
+                                 },
+                                 success: function (result) {
+                                     if (result != "") {
+                                         $("#popup").html(result);
+                                         $("#popupService").modal('toggle');
+                                     }
+                                 },
+                                 error: function (err) {
+                                     console.log("error1 : " + err);
+                                 }
+                             });
+                         }
+
+                         $(this).val("");
+                         return false;
+                         e.stopPropagation();
+                     });
+                     return $result.add($customSelect);
+                 },
+                 _createFilterSwitchButton: function () {
+                     return this._createOnOffSwitchButton("filtering", this.searchModeButtonClass, false);
+                 }
+             }
+
+        ],
+    });
+    $("#gridEMPVerf").jsGrid("option", "filtering", false);
+</script>

@@ -1,0 +1,565 @@
+﻿@model IOAS.Models.RegisterModel
+@{
+    ViewBag.Title = "User Management";
+    ViewBag.Subtitle = "Create user";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<style>
+    .lblwarning {
+        background-color: red;
+        font: unset;
+        color: white;
+    }
+</style>
+<script src="@Url.Content("~/Scripts/Account/Createuser.js")"></script>
+<div class="row hd-tt-bg" id="addnewpage">
+    <div class="col-md-4">
+
+        <h3>User Management</h3>
+
+    </div>
+    <div class="col-md-8 flt-nav-links">
+
+
+        <a href="#" id="btnaddnew"> <i class="ion-plus"></i>Add New</a>
+        <a href="Javascript:void(0)" id="btnFilterUser" class="pull-right"> <i class="ion-android-funnel"></i>Filters</a>
+    </div>
+</div>
+<div id="popFilterUser" class="filter-popup">
+    <div class="">
+        <div class="filter-content">
+            <div class="white-bg">
+                <div class="form-group custom-form-group">
+                    <h3>Filter by</h3>
+                </div>
+                <div class="form-group custom-form-group">
+                    <label>User name</label><br>
+                   @Html.TextBoxFor(M=>M.SearchName,new {@class="form-control",@id="txtsrchname" })
+                </div>
+                <div class="form-group custom-form-group">
+                    <label>Role</label><br>
+                    @Html.DropDownListFor(M => M.SearchRoleId, new SelectList(ViewBag.role, "id", "name"), "Select Role", new { @id = "ddlSearchRole", @class = "form-control"})
+                </div>
+                <div class="form-group custom-form-group">
+                    <label>Department</label><br>
+                    @Html.DropDownListFor(M => M.SearchDeptId, new SelectList(ViewBag.dept, "Departmentid", "Departmentname"), "Select Department", new { @id = "ddlSearchDept", @class = "form-control" })
+                </div>
+                <div class="form-group custom-form-group mt30 text-center">
+                    <button id="btnSrchUser" type="button" class="btn btn-primary mr10">Search</button>
+                    <button id="btnResetSrchUser" type="button" class="btn btn-default">Reset</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <a href="javascript:void(0)" name="btnCloseUser" class="close-btn"><i class="ion-android-cancel"></i></a>
+
+</div>
+<div class="row">
+    @using (Html.BeginForm("Createuser", "Account", FormMethod.Post, new { @class = "", role = "form", @id = "formCU", enctype = "multipart/form-data" }))
+    {
+        <div class="col-md-12">
+            <div class="page-wrapper" id="createuser">
+                <div class="white-bg">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group custom-form-group">
+                                <label class="required">First name</label>
+                                @Html.TextBoxFor(M => M.Firstname, new { @class = "form-control", @id = "txtfirstname", @required = "required" })
+                                <div class="txt-error txt-red"> @Html.ValidationMessageFor(M => M.Firstname)</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group custom-form-group">
+                                <label class="required">Last name</label>
+                                @Html.TextBoxFor(M => M.Lastname, new { @class = "form-control", @id = "txtlastname", @required = "required" })
+                                <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Lastname)</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group custom-form-group">
+                                <label class="required">Gender</label>
+                                @Html.DropDownListFor(M => M.Gender, new SelectList(ViewBag.gender, "id", "name"), "Select Gender", new { @id = "ddlgender", @class = "form-control", @required = "required" })
+                                <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Gender)</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group custom-form-group">
+                                <label class="required">Expiry date</label>
+                                @Html.EditorFor(m => m.ExpiryDate, null, "ExpiryDate", new { @class = "form-control" })
+                                <div class="txt-error txt-red">
+                                    @Html.ValidationMessageFor(M => M.ExpiryDate)
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="form-group custom-form-group">
+                                <label class="required">Department</label>
+                                @Html.DropDownListFor(M => M.Department, new SelectList(ViewBag.dept, "Departmentid", "Departmentname"), "Select Department", new { @id = "ddldepartment", @class = "form-control", @onchange = "Fillrole(0)", @required = "required" })
+                                <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Department)</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group custom-form-group">
+                                <label class="required">Default role</label>
+                                @Html.DropDownListFor(M => M.RoleId, new SelectList(Enumerable.Empty<SelectListItem>(), "Roleid", "Rolename"), "Select Role", new { @id = "ddlrolelist", @class = "form-control", @required = "required", @onchange = "Fillrolelist()" })
+                                <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.RoleId)</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+
+                        <div class="col-md-4">
+                            <div class="form-group custom-form-group">
+                                <label id="lbladirole">Additional roles</label>
+
+                                <input value="selected field-0" class="form-control" type="text" id="selectedchkcount" readonly>
+                                <div class="custom-dropdown" id="listboxmain" style="display:none">
+                                    <a href="#" class="pull-right" onclick="listclose()">X</a>
+                                    <div id="listbox">
+                                    </div>
+                                    <div>
+                                        <ul id="listchkbox"></ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group custom-form-group">
+                                <label class="required">Email</label>
+                                @Html.TextBoxFor(M => M.Email, new { @id = "txtEmail", @class = "form-control" })
+                                <div class="txt-error txt-red"> @Html.ValidationMessageFor(M => M.Email) </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group custom-form-group">
+                                <label>Image</label>
+                                <input type="file" id="UserImage" name="UserImage" />
+                                @Html.ValidationMessageFor(M => M.UserImage)
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div id="createuserid">
+                    <div class="white-bg">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group custom-form-group">
+                                    <label class="required">User name</label>
+                                    @Html.TextBoxFor(M => M.Username, new { @id = "txtusername", @class = "form-control", @placeholder = "User Name", @onblur = "userListCheck()" })
+                                    <div class="txt-error txt-red"> @Html.ValidationMessageFor(M => M.Username) </div>
+                                    <span id="lblUserVal" class="lblwarning"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group custom-form-group">
+                                    <label class="required">Password</label>
+                                    @Html.PasswordFor(M => M.Password, new { @id = "txtpassword", @class = "form-control", @placeholder = "Password should be 8-16 characters long" })
+                                    <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Password)</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group custom-form-group">
+                                    <label class="required">Confirm password</label>
+                                    @Html.PasswordFor(M => M.ConfirmPassword, new { @class = "form-control", @id = "txtconfirmpwd" })
+                                    <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.ConfirmPassword)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 text-center pd-tb-30">
+                            <input type="submit" class="btn btn-primary mr10" value="Save" id="btnSave" />
+                            <input type="button" onclick="window.location.href='@Url.Action("Createuser", "Account")';" class="btn btn-default" value="Close" id="btnsaveclose" />
+                        </div>
+                    </div>
+                </div>
+                <div id="updateuserid">
+                    <div class="white-bg">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group custom-form-group">
+                                    <label>User name</label>
+                                    @Html.TextBoxFor(M => M.Username, new { @id = "txtupdateusername", @class = "form-control", @readonly = "readonly" })
+                                    @Html.HiddenFor(M => M.UserId, new { @id = "txtuserid" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 text-center pd-tb-30">
+                            <input type="submit" class="btn btn-primary mr10" value="Update" id="btnupdate" />
+                            <input type="button" onclick="window.location.href='@Url.Action("Createuser", "Account")';" class="btn btn-default" value="Close" id="btnclose" />
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row mt30" id="gridlist">
+
+                <div class="col-md-12">
+                    <div class="page-wrapper">
+                        <div class="custom-jsgrid-normal">
+                            <div id="UserList"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+</div>
+
+<div id="savemodal" class="modal fade modal-success" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-checkmark-circle"></i>
+                <h3 class="modal-title">Created successfully</h3>
+            </div>
+            <div class="modal-body">
+
+                <p>User  created successfully</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<div id="warrningmodal" class="modal fade modal-warning" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-warning"></i>
+                <h3 class="modal-title">User name exists !.</h3>
+            </div>
+            <div class="modal-body">
+
+                <p>@ViewBag.Msg</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<div id="updatemodal" class="modal fade modal-success" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-checkmark-circle"></i>
+                <h3 class="modal-title">Updated successfully</h3>
+            </div>
+            <div class="modal-body">
+
+                <p>User Updated successfully</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="closemodal" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="deletemodal" class="modal fade modal-success" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-checkmark-circle"></i>
+                <h3 class="modal-title">Deleted successfully</h3>
+            </div>
+            <div class="modal-body">
+                <p>User  Deleted successfully</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="Errormodal" class="modal fade modal-error" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-cancel"></i>
+                <h3 class="modal-title">Error Message</h3>
+            </div>
+            <div class="modal-body">
+
+                <p>"Something went to wrong please contact admin."</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script type="text/javascript">
+    $('#txtfirstname').val("");
+    $('#txtlastname').val("");
+    $('#txtusername').val("");
+    $('#ddlgender').prop("selectedIndex", 0);
+    $('#ExpiryDate').val('');
+    $('#ddldepartment').prop("selectedIndex", 0);
+    $('#ddlrolelist').prop("selectedIndex", 0);
+    $('#ddladdtionaldpt').prop("selectedIndex",0);
+    $('#listboxmain li').remove();
+    $('#listbox span').remove();
+    $('#updateuserid').hide();
+    $('#createuser').hide();
+    $('#txtEmail').val('');
+    $('#ExpiryDate').datepicker({  minDate: 0, dateFormat: 'dd-MM-yy', changeYear: true, yearRange: '0:+20'});
+
+    $('#listboxmain').hide();
+    var selroleid= @Html.Raw(Json.Encode(Model.SelectedRoles));
+
+  //To load role in departmentwise
+    function Fillrole(roleid){
+        var ddldept = $('#ddldepartment').val();
+        if(ddldept==0)
+        {
+            var markup = "<option value='0'>Select Role</option>";
+            $("#ddlrolelist").html(markup).show();
+        }
+       $.ajax({
+                url: '@Url.Action("Rolelist","Account")',
+                type: "Post",
+                dataType: "JSON",
+                data: { Depertmentid: ddldept},
+                success: function (result) {
+                   
+                    $("#ddlrolelist").html(""); // clear before appending new list
+                    var markup = "<option value='0'>Select Role</option>";
+                    $("#ddlrolelist").html(markup).show();
+                    $.each(result, function (i, role) {
+                        $("#ddlrolelist").append(
+                            $('<option></option>').val(role.Roleid).html(role.Rolename));
+                    });
+                    if(roleid!=0) //edit mode
+                        $("#ddlrolelist").val(roleid);
+                        Fillrolelist();
+                }
+            });
+
+    }
+    // To fill addtional role and default role
+    function Fillrolelist() {
+        
+            var roleid = $('#ddlrolelist').val();
+        
+            $.ajax({
+                url: '@Url.Action("GetaddtionalRolelist","Account")',
+                type: "Post",
+                dataType: "JSON",
+                data: {Roleid: roleid },
+                success: function (result) {
+                    $('#listboxmain li').remove();
+                    $('#listbox span').remove();
+                    var numberOfChecked = $('input:checkbox:checked').length;
+                    $('#selectedchkcount').val("selected field-"+numberOfChecked+"");
+                   // $('#listboxmain').show();
+
+
+                    // clear before appending new list
+
+
+                    $("#listchkbox").append();
+
+                    $.each(result, function (i, role) {
+                        var index=i+1;
+
+                        var str='<li><a href="#"><input type="checkbox" value=' + role.Roleid + ' name="SelectedRoles" class="checkbox" id="lnkchk_' + index + '" onclick="chkrow('+ index + ')"/><span id="lbl_'+index+'">' + role.Rolename + '</span></a></li>';
+                        $("#listchkbox").append(str);
+
+                    });
+                    
+                        $.each(result,function(j,rolesdata){
+
+                            var indx=j+1;
+                            for(var k=0;k< adl_roles.length;k++){
+
+                                if($('#lnkchk_'+indx+'').val()==adl_roles[k])
+                                    $('#lnkchk_'+indx+'').prop('checked',true);
+
+                            };
+                            chkrow(indx);
+                            
+                        });
+                    
+                }
+
+            });
+
+        }
+
+     function chkrow(indx){
+         var lbl=$("#lbl_"+indx+"").text();
+         var numberOfChecked = $('input:checkbox:checked').length;
+         var countvalue= $('#selectedchkcount').val();
+         var count=countvalue.split('-')[1];
+         if($("#lnkchk_"+indx+"").is(":checked")){
+             $("#listbox").append();
+             var spantxt='<span class="tag" id="lblspan_'+indx+'">'+lbl+' <a href="javascript:void(0)" onclick="spantxt('+indx+')"></a></span>';
+             $("#listbox").append(spantxt);
+             if(count==0)
+             {
+                 $('#selectedchkcount').val("selected field-"+numberOfChecked+"");
+             }
+             else
+             {
+                 var numcount=parseInt(numberOfChecked);
+                 $('#selectedchkcount').val("selected field-"+numcount+"");
+             }
+         }
+         else
+         {
+             $("#lblspan_"+indx+"").remove();
+             var numcount=parseInt(numberOfChecked);
+            $('#selectedchkcount').val("selected field-"+numcount+"");
+         }
+        }
+     function spantxt(spnindx){
+
+         $("#lblspan_"+spnindx+"").remove();
+         $("#lnkchk_"+spnindx+"").prop('checked',false);
+         var numberOfChecked = $('input:checkbox:checked').length;
+         var numcount=parseInt(numberOfChecked);
+         $('#selectedchkcount').val("selected field-"+numcount+"");
+     }
+     function listclose(){
+
+         $("#listboxmain").hide();
+     }
+     $(document).mousedown(function (e) {
+        if ( e.target.id == 'selectedchkcount'  )
+         {
+             if( $("#listboxmain").css("display")=="none")
+             {
+                 $("#listboxmain").show();
+             }
+             else if( $("#listboxmain").css("display")=="block")
+             {
+                 $("#listboxmain").hide();
+             }
+         }
+
+         if ( e.target.id == ''  )
+         {
+
+             if( $("#listboxmain").css("display")=="block")
+             {
+                 $("#listboxmain").hide();
+             }
+         }
+
+     });
+
+
+     $('#btnaddnew').on('click',function(){
+         $('#addnewpage').hide();
+         $('#createuser').show();
+         $('#gridlist').hide();
+         $('#createuserid').show();
+         $('#updateuserid').hide();
+
+     });
+     $('#btnsaveclose').on('click',function(){
+         $('#addnewpage').show();
+         $('#createuser').hide();
+         $('#gridlist').show();
+         $('#createuserid').hide();
+         $('#updateuserid').hide();
+
+     });
+     $('#closemodal').on('click',function(){
+         window.location.href='@Url.Action("Createuser", "Account")';
+     });
+     $(document).ready(function () {
+         var add='@ViewBag.message';
+         if(add!=''){
+             $('#savemodal').modal('show');
+         }
+         var warrning='@ViewBag.Msg';
+         if(warrning!='')
+         {
+             $('#warrningmodal').modal('show');
+         }
+         var update='@ViewBag.update';
+         if(update!=''){
+             $('#updatemodal').modal('show');
+             
+         }
+         var error='@ViewBag.error';
+         if(error!=''){
+             $('#Errormodal').modal('show');
+         }
+
+     });
+    $('#btnFilterUser').off("click").on("click", function () {
+        $('#popFilterUser').css("display", "Block");
+    });
+    $('a[name="btnCloseUser"],button[name="btnCloseUser"]').click(function () {
+        $('#popFilterUser').css("display", "none");
+    });
+  function userListCheck() {
+        var user=$('#txtusername').val();
+        $.ajax({
+            url: '@Url.Action("GetCheckUserList", "Account")',
+            type: "Get",
+            dataType: "JSON",
+            data: { userName: user},
+            success: function (result) {
+                if(result==1)
+                {
+                    $('#lblUserVal').text('This user name alredy in the data base please try another user name');
+                }
+                else
+                {
+                    $('#lblUserVal').text('');
+                }
+            }
+        });
+    }
+    
+</script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")"></script>
+

@@ -1,0 +1,191 @@
+﻿
+@*@model IOAS.Models.PagedData<IOAS.Models.SalaryModel>*@
+
+<div class="col-md-12">
+    <div class="row">
+
+        <div class="col-md-12">
+            <div class="bl-lg-panel-box pb-null">
+                <div class="cmn-panel-box">
+                    <div class="row">
+                        <div class="col-md-12">
+
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label>Mode of Payment</label>
+                                        <select class="form-control">
+                                            <option value="0">All</option>
+                                            <option value="1">Cheque</option>
+                                            <option value="2">RTGS</option>
+                                        </select>
+
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12">
+
+                                    <div class="vh-grid-tb mt-null mb-lg">
+
+                                        <div class="vh-grid-cell grey-bg">
+
+                                            <div>
+                                                <h4 class="vh-grid-tb-dark-hd">Cheque </h4>
+                                            </div>
+
+                                            <div class="grey-bg-adj">
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <table id="tblSalaryCheque" class="table alter-table mb-null">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th style="width:150px;">Employee</th>
+                                                                    <th>Value</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                @*@{
+                                                                    if (Model.Data != null && Model.Data.Any())
+                                                                    {
+                                                                        foreach (var item in Model.Data)
+                                                                        {
+                                                                            <tr>
+                                                                                <td>
+                                                                                    <label>@Html.DisplayFor(modelItem => item.EmployeeName)</label>
+                                                                                </td>
+                                                                                <td>
+                                                                                    <label>@Html.DisplayFor(modelItem => item.MonthSalary)</label>
+                                                                                </td>
+                                                                            </tr>
+                                                                        }
+                                                                    }
+                                                                }*@
+
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                        <div class="vh-grid-cell">
+
+                                            <div>
+                                                <h4 class="vh-grid-tb-light-hd">RTGS</h4>
+                                            </div>
+
+
+                                            <div class="grey-bg-adj">
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <table id="tblSalaryRTGS" class="table alter-table mb-null">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th style="width:150px;">Employee</th>
+                                                                    <th>Value</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                @*@{
+                                                                    if (Model.Data != null && Model.Data.Any())
+                                                                    {
+                                                                        foreach (var item in Model.Data)
+                                                                        {
+                                                                            <tr>
+                                                                                <td>
+                                                                                    <label>@Html.DisplayFor(modelItem => item.EmployeeName)</label>
+                                                                                </td>
+                                                                                <td>
+                                                                                    <label>@Html.DisplayFor(modelItem => item.MonthSalary)</label>
+                                                                                </td>
+                                                                            </tr>
+                                                                        }
+                                                                    }
+                                                                }*@
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+
+                                </div>
+                            </div>
+
+                            <div class="row mb-lg">
+                                <div class="col-md-6">
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="row">
+                                        <div class="text-right ">
+                                            <a href="#" class="btn btn-primary">Proceed</a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+
+
+
+
+
+                        </div>
+
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+
+
+    </div>
+</div>
+<script type="text/javascript">
+    LoadSalaryDetails();
+
+     function LoadSalaryDetails() {
+        var page = $("#page").val() || 1;
+        var pageSize = 10;
+        var token = $("input[name=__RequestVerificationToken]").val();
+        var searchdata = { "__RequestVerificationToken": token };
+        var headers = {
+            contentType: 'application/x-www-form-urlencoded'
+        }
+        headers['__RequestVerificationToken'] = token;
+        var style = 'float: right; text-align:right; width: 100px;';
+        $.ajax({
+            url: '@Url.Action("GetSalaryPayment", "StaffPayment")?page=' + page+'&pageSize='+pageSize,
+            type: "GET",
+            headers: headers,
+            data: searchdata,
+            success: function (response) {
+                console.log(data);
+                var data = response.data;
+                var row = '';
+                if(data) {
+                     
+                    for(var i=0;i<data.length;i++){
+                        var field1 = '<label>'+data[i].EmployeeName+'</label>';
+                        var field2 = '<label>'+data[i].EmployeeName+'</label>';
+                        row = '<tr><td>'+field1+'</td><td>'+field2+'</td></tr>';
+                        $("#tblSalaryCheque tbody").append(row);
+                    }
+                    
+                }
+            },
+            error: function (err) {
+                alert(err);
+            }
+        });
+    }
+</script>

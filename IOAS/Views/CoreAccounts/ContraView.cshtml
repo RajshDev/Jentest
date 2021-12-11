@@ -1,0 +1,481 @@
+﻿@model IOAS.Models.ContraModel
+@{
+    ViewBag.Title = "Contra";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+
+    <div class="row hd-tt-bg">
+        <div class="col-md-12">
+            <h4><b>Contra</b> </h4>
+        </div>
+    </div>
+<div class="row">
+    <div class="white-bg ad-navbar">
+        <div class="col-md-3 ds-spl-bg">
+            <div class="ds-icn">
+                <i class="ion-ios-list-outline "></i>
+            </div>
+            <div class="ds-tt">
+                <span>Request Reference</span><br />
+                <span>@Html.DisplayFor(m => m.SourceName)</span>
+                @Html.HiddenFor(m => m.Source, new { @id = "Source" })
+              
+            </div>
+        </div>
+        <div class="col-md-3 ds-spl-bg">
+            <div class="ds-icn">
+                <i class="ion-ios-calendar-outline"></i>
+            </div>
+            @if (Model.ReferenceNumber != null)
+            {
+                <div class="ds-tt">
+                    <span>Ref Number (WF / Tapal)</span>
+                    <span>@Html.DisplayFor(m => m.ReferenceNumber)</span>
+                    @Html.TextBoxFor(m => m.ReferenceNumber, new { @class = "form-control dis-none" })
+                    @Html.TextBoxFor(m => m.SourceReferenceNumber, new { @class = "form-control dis-none" })
+
+                    @Html.Hidden("SourceTapalOrWorkflow", "True")
+                </div>
+            }
+            else
+            {
+                <div class="ds-tt">
+                    <span>Email Date</span><br />
+                    <span>@Html.DisplayFor(m => m.SourceEmail)</span>
+                </div>
+            }
+
+
+        </div>
+        <div class="col-md-3 col-md-offset-3">
+            <div class="reg-no custom-reg-no">
+                <div class="form-group custom-form-group">
+                    @Html.HiddenFor(m => m.ContraNumber)
+                    <label>Number</label>
+                    <h4>@Html.DisplayFor(m => m.ContraNumber)</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+   
+    <div class="row mt-20">
+        <div class="col-md-12">
+            <div class="page-wrapper mt-md">
+                <div class="col-md-4">
+                    <div class="white-bg">
+                        <label>Remarks</label>
+                        <h4>@Html.DisplayFor(m => m.Narration)</h4>
+                      
+                        @Html.HiddenFor(m => m.ContraId)
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group custom-form-group">
+                        <label class="">Bill Ref. Number</label>
+                        @Html.DisplayFor(m => m.BillRefNoAC)
+                       
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="white-bg">
+                        <label>Attachements</label>
+                        
+                        <a href="@Url.Action("ShowDocument","Project",new { file = Model.DocumentName, filepath = Model.DocumentPath })" target="_blank">@Model.DocumentActualName</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mt-20">
+        <div class="page-wrapper">
+            <div class="col-md-6">
+                <div class="bl-lg-panel-box">
+                    <div class="bl-lg-panel-box-hd mb-null">
+                        <div>
+                            <h3 class="fn-s-bold">Debit details</h3>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <table class="table table-bordered mb-null">
+                                <thead>
+                                    <tr>
+                                        <th>Account Group</th>
+                                        <th>Account Head</th>
+                                        <th>Amount</th>
+                                       
+                                    </tr>
+                                </thead>
+                                <tbody id="tbodyDr">
+                                    @if (Model.DrDetail != null && Model.DrDetail.Count() > 0)
+                                    {
+                                        var count = 0;
+                                        foreach (var item in Model.DrDetail)
+                                        {
+                                            var accountGroup = "DrDetail[" + count + "].AccountGroupId";
+                                            var accountHead = "DrDetail[" + count + "].AccountHeadId";
+                                            var amount = "DrDetail[" + count + "].Amount";
+                                            <tr>
+                                                <td>
+                                                    
+                                                   @item.AccountGroupName
+                                                    @Html.Hidden("DrDetail.Index", @count)
+                                                </td>
+                                                <td>
+                                                    @Html.Hidden(@accountHead,item.AccountHeadId)
+                                                    @item.AccountHeadName
+                                                    <label class="balAmt pull-right"></label>
+                                                </td>
+
+                                                <td>
+                                                    @Html.Hidden(@amount, item.Amount, new { @class = "form-control required", @onblur = "CalculateTotal()", @onkeypress = "return ValidateDecimalOnly(event)" })
+                                                   @item.Amount
+                                                </td>
+                                               
+                                            </tr>
+                                            count++;
+                                        }
+
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td>
+                                              
+                                            </td>
+                                            <td>
+                                               
+                                            </td>
+                                            <td>
+                                               
+                                            </td>
+                                           
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="col-md-6">
+                <div class="bl-lg-panel-box">
+                    <div class="bl-lg-panel-box-hd mb-null">
+                        <div>
+                            <h3 class="fn-s-bold">Credit details</h3>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <table class="table table-bordered mb-null">
+                                <thead>
+                                    <tr>
+                                        <th>Account Group</th>
+                                        <th>Account Head</th>
+                                        <th>Amount</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbodyCr">
+                                    @if (Model.CrDetail != null && Model.CrDetail.Count() > 0)
+                                    {
+                                        var count = 0;
+                                        foreach (var item in Model.CrDetail)
+                                        {
+                                            var accountGroup = "CrDetail[" + count + "].AccountGroupId";
+                                            var accountHead = "CrDetail[" + count + "].AccountHeadId";
+                                            var amount = "CrDetail[" + count + "].Amount";
+                                            <tr>
+                                                <td>
+                                                   @item.AccountGroupName
+                                                    @Html.Hidden("CrDetail.Index", @count)
+                                                </td>
+                                                <td>
+                                                    @Html.Hidden(@accountHead, item.AccountHeadId)
+                                                   @item.AccountHeadName
+                                                    <label class="balAmt pull-right"></label>
+                                                </td>
+                                                <td>
+                                                    @Html.Hidden(@amount, item.Amount, new { @class = "form-control required", @onblur = "CalculateTotal()", @onkeypress = "return ValidateDecimalOnly(event)" })
+                                                    @item.Amount
+                                                </td>
+                                                
+                                            </tr>
+                                            count++;
+                                        }
+
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td>
+                                               
+                                            </td>
+                                            <td>
+                                              
+                                            </td>
+                                            <td>
+                                               
+                                            </td>
+                                          
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                            
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-md-offset-3 col-md-3 mt-md">
+            <div class="reg-no">
+                <label class="lblval">Total Debit <span class="dr">(Dr)</span> :</label>
+                <h4 id="ttlDr" class="tatval"></h4>
+               
+            </div>
+        </div>
+        <div class="col-md-offset-3 col-md-3 mt-md">
+            <div class="reg-no">
+                <label class="lblval">Total Credit <span class="cr">(Cr)</span> :</label>
+                <h4 id="ttlCr" class="tatval"></h4>
+               
+            </div>
+        </div>
+    </div>
+<div class="row">
+    <div class="col-md-12 text-center pd-tb-30">
+        @if (Model.PFInit != true)
+        {
+            <input type="button" onclick="window.location.href='@Url.Action("ContraList", "CoreAccounts")';" class="btn btn-default" value="Close" id="btnclose" />
+        }
+        else
+        {
+            <input type="button" onclick="window.location.href='@Url.Action("Dashboard", "Home")';" class="btn btn-default" value="Close" id="btnclose" />
+        }
+    </div>
+</div>
+    
+
+<input type="hidden" id="currentRefId" value="@Model.ContraId" />
+<input type="hidden" id="processGuideLineId" value="@ViewBag.processGuideLineId" />
+@Html.Partial("_ProcessStatus")
+<script>
+   
+    
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    $('#SourceEmailDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy' }).attr('readonly', 'readonly');
+    $(document).ready(function () {
+        applyAutoComplete($('#BillRefNoAC'), $('#BillRefNo'), '@Url.Action("LoadRefernceNumber", "CoreAccounts")', undefined, false, false);
+
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+        //var form = $('#formContra');
+        //form.removeData('validator');
+        //form.removeData('unobtrusiveValidation');
+        //$.validator.unobtrusive.parse(form);
+        var selSource = $('#Source').val();
+        $("#divRefNum, #divRefEmailDate").addClass('dis-none');
+        if (selSource == '1') {
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACWorkflowRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+        } else if (selSource == '3') {
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACTapalRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+        }
+        else if (selSource == '2') {
+            $('#divRefEmailDate').removeClass('dis-none');
+        } else {
+            $("#divRefNum").removeClass('dis-none');
+        }
+        CalculateTotal();
+        $('input[name$=".AccountHeadId"]').each(function () {
+            var hdId = $(this).val();
+            var ele = $(this).closest('tr');
+            if (hdId != '') {
+                $.getJSON("@Url.Action("GetAccountHeadBalance", "CoreAccounts")", { "hdId": hdId },
+                 function (rmnBal) {
+                     ele.find('.balAmt').text(rmnBal.toLocaleString("hi-IN"));
+                 });
+            }
+        });
+    });
+
+    $('#Source').change(function () {
+        var selSource = $(this).val();
+        $("#SourceReferenceNumber,#ReferenceNumber").val('');
+		$("#divRefNum, #divRefEmailDate").addClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('False');
+		if (selSource == '1') {
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACWorkflowRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        } else if (selSource == '3') {
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACTapalRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        }
+        else if (selSource == '2') {
+            $('#divRefEmailDate').removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('False');
+        } else {
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        }
+    });
+    function CalculateTotal() {
+        var ttlCrVal = 0, ttlDrVal = 0;
+        $('#tbodyDr input[name$=".Amount"]').each(function (i, rowEle) {
+            var parseVal = parseFloat($(this).val()) || 0;
+            ttlDrVal = ttlDrVal + parseVal;
+        });
+        $('#tbodyCr input[name$=".Amount"]').each(function (i, rowEle) {
+            var parseVal = parseFloat($(this).val()) || 0;
+            ttlCrVal = ttlCrVal + parseVal;
+        });
+        $('#ttlDr').text(ttlDrVal);
+        $('#ttlCr').text(ttlCrVal);
+    }
+    $(document).on('change', 'select[name$=".AccountGroupId"]', function () {
+        var groupId = $(this).val();
+        var ele = $(this).closest('tr');
+        var select = ele.find("select[name$='.AccountHeadId']");
+        select.empty();
+        select.append($('<option/>', {
+            value: "",
+            text: "Select any",
+        }));
+        if (groupId != '') {
+            $.getJSON("@Url.Action("GetAccountHead", "CoreAccounts")", { "accountGroupId": groupId },
+             function (locationdata) {
+                 $.each(locationdata, function (index, itemData) {
+                     select.append($('<option/>', {
+                         value: itemData.id,
+                         text: itemData.name,
+                     }));
+                 });
+             });
+        }
+    });
+    $(document).on('change', 'input[name$=".AccountHeadId"]', function () {
+        var hdId = $(this).val();
+        var ele = $(this).closest('tr');
+        if (hdId != '') {
+            $.getJSON("@Url.Action("GetAccountHeadBalance", "CoreAccounts")", { "hdId": hdId },
+             function (rmnBal) {
+                 ele.find('.balAmt').text(rmnBal.toLocaleString("hi-IN"));
+             });
+        }
+    });
+
+    $('#btnSave').click(function () {
+        var isValid = $('#formContra').valid();
+        if (!isValid)
+            return false;
+        var netCrAmt = parseFloat($('#ttlDr').val()) || 0;
+        var netDrAmt = parseFloat($('#ttlCr').val()) || 0;
+        if (netDrAmt != netCrAmt || netCrAmt == 0) {
+            $("#alert").text('Not a valid entry. Credit and Debit value are not equal.');
+            $('#Validation').modal('show');
+            return false;
+        }
+        var crHead = [];
+        var drHead = [];
+        $('#tbodyDr select[name$=".AccountHeadId"]').each(function (idx, val) { drHead.push($(val).val()); });
+        drHead.sort();
+        for (var k = 1; k < drHead.length; ++k) {
+            if (drHead[k] == drHead[k - 1]) {
+                $('#alert').html("Duplicate head exist in Debit details. Please select a different head.");
+                $('#Validation').modal('toggle');
+                return false;
+            }
+        }
+        $('#tbodyCr select[name$=".AccountHeadId"]').each(function (idx, val) { crHead.push($(val).val()); });
+        crHead.sort();
+        for (var k = 1; k < crHead.length; ++k) {
+            if (crHead[k] == crHead[k - 1]) {
+                $('#alert').html("Duplicate head exist in Credit details. Please select a different head.");
+                $('#Validation').modal('toggle');
+                return false;
+            }
+        }
+        $('#tbodyCr input[name$=".Amount"]').each(function () {
+            var ele = $(this).closest('tr');
+            var amt = parseFloat($(this).val()) || 0;
+            var balAmt = parseFloat(ele.find('.balAmt').text()) || 0;
+            if (balAmt < amt) {
+                $('#alert').html("Some of the amount exceed balance amount. Please correct and submit again.");
+                $('#Validation').modal('toggle');
+                amtEle.focus();
+                return false;
+            }
+        });
+        $('#formContra').submit();
+    });
+
+    $('input[name$=".Amount"]').on("copy cut paste drop", function () {
+        return false;
+    });
+
+
+    $('#btnAddDrDetail').click(function () {
+        var cln = $('#tbodyDr tr:first').clone().find("select,input").val("").end();
+        var index = $('#tbodyDr tr:last').find("input[name='DrDetail.Index']").val();
+        index = parseInt(index) + 1;
+        $(cln).find("input[name='DrDetail.Index']").val(index);
+        $(cln).find("input, select").each(function () {
+            $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+            $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+        });
+        $(cln).find("span[data-valmsg-for]").each(function () {
+            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+        });
+        $('#tbodyDr').append(cln);
+    });
+    $(document).on('click', 'a.removeDrDetail', function () {
+        if ($('#tbodyDr tr').length != 1) {
+            $(this).closest('tr').remove();
+            CalculateTotal();
+        }
+    });
+    $('#btnAddCrDetail').click(function () {
+        var cln = $('#tbodyCr tr:first').clone().find("select,input").val("").end();
+        var index = $('#tbodyCr tr:last').find("input[name='CrDetail.Index']").val();
+        index = parseInt(index) + 1;
+        $(cln).find("input[name='CrDetail.Index']").val(index);
+        $(cln).find("input, select").each(function () {
+            $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+            $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+        });
+        $(cln).find("span[data-valmsg-for]").each(function () {
+            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+        });
+        $('#tbodyCr').append(cln);
+    });
+    $(document).on('click', 'a.removeCrDetail', function () {
+        if ($('#tbodyCr tr').length != 1) {
+            $(this).closest('tr').remove();
+            CalculateTotal();
+        }
+    });
+</script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>

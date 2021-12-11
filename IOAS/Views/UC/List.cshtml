@@ -1,0 +1,202 @@
+﻿
+@{
+    ViewBag.Title = "Utilization Certificate";
+    ViewBag.Subtitle = "Utilization Certificate List";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<div class="row hd-tt-bg">
+    <div class="col-md-4">
+        <h3>Utilization Certificate List</h3>
+    </div>
+    <div id="addnewpage" class="col-md-8 flt-nav-links">
+        <a href="@Url.Action("Create")"> <i class="ion-plus"></i>Add New</a>
+    </div>
+</div>
+<div class="row mt30">
+    <div class="page-wrapper">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="custom-jsgrid-normal">
+                    <div id="UCList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+   
+    <script type="text/javascript">
+        
+        var errMsg = '@TempData["errMsg"]';
+        var succMsg = '@TempData["succMsg"]';
+        $(document).ready(function () {
+            if (succMsg != '') {
+                $('#alertSuccess').html(succMsg);
+                $('#Success').modal('toggle');
+            }
+            else if (errMsg != '') {
+                $('#FailedAlert').html(errMsg);
+                $('#Failed').modal('toggle');
+            }
+        });
+        var DateField = function (config) {
+            jsGrid.Field.call(this, config);
+        };
+        DateField.prototype = new jsGrid.Field({
+            sorter: function (date1, date2) {
+                return new Date(date1) - new Date(date2);
+            },
+
+            itemTemplate: function (value) {
+                return value;//new Date(value).toDateString();
+            },
+
+            filterTemplate: function () {
+                var now = new Date();
+                this._fromPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() - 1), dateFormat: 'dd M yy', changeYear: true });
+                this._toPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() + 1), dateFormat: 'dd M yy', changeYear: true });
+                return $("<div>").append(this._fromPicker).append(this._toPicker);
+            },
+
+            insertTemplate: function (value) {
+                return this._insertPicker = $("<input>").datepicker({ defaultDate: new Date() });
+            },
+
+            editTemplate: function (value) {
+                return this._editPicker = $("<input>").datepicker().datepicker("setDate", new Date(value));
+            },
+
+            insertValue: function () {
+                return this._insertPicker.datepicker("getDate").toISOString();
+            },
+
+            editValue: function () {
+                return this._editPicker.datepicker("getDate").toISOString();
+            },
+
+            filterValue: function () {
+                return {
+                    from: this._fromPicker.datepicker("getDate"),
+                    to: this._toPicker.datepicker("getDate")
+                };
+            }
+        });
+        jsGrid.fields.date = DateField;
+        $("#UCList").jsGrid({
+            paging: true,
+            pageIndex: 1,
+            pageSize: 5,
+            editing: false,
+            filtering: true,
+            pageLoading: true,
+            autoload: true,
+            controller: {
+
+                loadData: function (filter) {
+                    var deferred = $.Deferred();
+                    if (filter.UCDate) {
+                        filter.ExpFrom = filter.UCDate.from ? formatDate(filter.UCDate.from) : null;
+                        filter.ExpTo = filter.UCDate.to ? formatDate(filter.UCDate.to) : null;
+                    }
+                    $.ajax({
+                        type: "post",
+                        url: 'GetUCList',
+                        data: JSON.stringify(filter),
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        success: function (result) {
+                            var da = {
+                                data: result.Data,
+                                itemsCount: result.TotalRecords
+                            }
+                            deferred.resolve(da);
+                        },
+                        error: function (err) {
+                            console.log("error : " + err);
+                        }
+
+                    });
+                    return deferred.promise();
+                }
+
+            },
+
+            fields: [
+                { name: "SlNo", title: "S.No", editing: false, width: 50 },
+                { type: "number", name: "UCId", title: "Id", visible: false },
+                { type: "text", name: "UCNumber", title: "UC Number", editing: false },
+                { type: "text", name: "ProjectNumber", title: "Project Number", editing: false },
+                { name: "UCDateStr", title: "UC Date", type: "date", width: 100, align: "center" },
+                { name: "Type", title: "Type of UC", editing: false },
+                 { name: "FinYear", title: "Finance Year", editing: false },
+                { type: "text", name: "Status", title: "Status", editing: false },
+                 {
+                     type: "control", editButton: false, deleteButton: false, width: 120, title: "Action",
+
+                     itemTemplate: function (value, item) {
+                         var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+                         if (item.Status == "Open" && item.IsEditable == true) {
+                             statusList = [{ id: "", name: "Select Action" }, { id: "Edit", name: "Edit" }, { id: "Print", name: "Print" }, { id: "View", name: "View" }]
+
+                         }
+                         else if (item.Status == "Open") {
+                             statusList = [{ id: "", name: "Select Action" }, { id: "Print", name: "Print" }, { id: "View", name: "View" }]
+
+                         }
+                         else {
+                             statusList = [{ id: "", name: "Select Action" }, { id: "Print", name: "Print" }, { id: "View", name: "View" }]
+                         }
+                         var $customSelect = $("<select>")
+                             .attr("class", "form-control").prop("selectedIndex", "")
+                         $.each(statusList, function (index, itemData) {
+                             $customSelect.append($('<option/>', {
+
+                                 value: itemData.id,
+                                 text: itemData.name
+                             }));
+                         });
+                         $customSelect.change(function (e) {
+                             var selVal = $(this).val();
+                             if (selVal == "Edit") {
+                                 var url = '@Url.Action("Create", "UC")?UCId=' + item.UCId;
+                                 window.location.href = url;
+                             }
+                             else if (selVal == "View") {
+                                 var url = '@Url.Action("View", "UC")?UCId=' + item.UCId;
+                                 window.location.href = url;
+                             }
+                             else if (selVal == "Print") {
+                                 var url = '@Url.Action("_TemplateBuilderPrint", "UC")?UCId=' + item.UCId;
+                                 window.open(url, '_blank');
+                            
+                             }
+
+                             $(this).val("");
+                             return false;
+                             e.stopPropagation();
+                         });
+                         return $result.add($customSelect);
+                     },
+                     _createFilterSwitchButton: function () {
+                         return this._createOnOffSwitchButton("filtering", this.searchModeButtonClass, false);
+                     }
+                 }
+            ],
+
+        });
+        $("#UCList").jsGrid("option", "filtering", false);
+
+
+        function loadDetails() {
+            var input = [];
+            input = {
+                SearchBillNumber: null,
+                SearchVendor: null,
+                typeCode: "ADV"
+            },
+            $("#UCList").jsGrid("search", input, pageIndex = 1, pageSize = 5);
+        }
+    </script>
+

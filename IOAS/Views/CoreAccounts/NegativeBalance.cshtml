@@ -1,0 +1,745 @@
+﻿@model IOAS.Models.NegativeBalanceModel
+@{
+    ViewBag.Title = "Negative Balance";
+    ViewBag.Subtitle = "Negative Balance";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<div class="row hd-tt-bg">
+    <div class="col-md-4 pull-left">
+        <h3>Negative Balance</h3>
+    </div>
+</div>
+@using (Html.BeginForm("NegativeBalance", "CoreAccounts", FormMethod.Post, new { role = "form", @id = "formNegativeBalance", @enctype = "multipart/form-data" }))
+{
+    <div class="row">
+        <div class="white-bg ad-navbar">
+            <div class="col-md-3 ds-spl-bg">
+                <div class="ds-icn">
+                    <i class="ion-ios-list-outline "></i>
+                </div>
+                <div class="ds-tt">
+                    <span class="required">Request Reference</span>
+                    @Html.DropDownListFor(m => m.Source, new SelectList(ViewBag.SourceList, "codevalAbbr", "CodeValDetail"), "Select any",
+                        new { @class = "form-control" })
+                    @Html.ValidationMessageFor(m => m.Source)
+                    @Html.HiddenFor(m => m.Source)
+                </div>
+            </div>
+            <div class="col-md-3 ds-spl-bg">
+                <div class="ds-icn">
+                    <i class="ion-ios-calendar-outline"></i>
+                </div>
+                <div class="ds-tt" id="divRefNum">
+                    <span class="required">Ref Number (WF / Tapal)</span>
+                    @Html.TextBoxFor(m => m.ReferenceNumber, new { @class = "form-control" })
+                    @Html.TextBoxFor(m => m.SourceReferenceNumber, new { @class = "form-control dis-none" })
+                    @Html.ValidationMessageFor(m => m.SourceReferenceNumber)
+                    @Html.Hidden("SourceTapalOrWorkflow", "True")
+                    @Html.HiddenFor(m => m.SourceReferenceNumber)
+                </div>
+                <div class="dis-none ds-tt" id="divRefEmailDate">
+                    <span class="required">Email Date</span>
+                    @Html.EditorFor(m => m.SourceEmailDate, new { @class = "form-control", @disabled = true })
+                    <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.SourceEmailDate)</div>
+                </div>
+            </div>
+
+            @*<div class="col-md-3 col-md-offset-3">
+                    <div class="reg-no custom-reg-no">
+                        <div class="form-group custom-form-group">
+                            <label>Number</label>
+                            <h4>@Html.DisplayFor(m => m.TempAdvSettlementNumber)</h4>
+                        </div>
+                    </div>
+                </div>*@
+        </div>
+    </div>
+    <div class="row" id="addCommitment">
+        <div class="page-wrapper">
+            <div class="col-md-12">
+                <div class="white-bg">
+                    <div class="row mb-md">
+                        <div class="col-md-6">
+                            @*<div class="classic-box  mb-md">
+                                <div class="tb-tt">
+                                    <h4 class="required">Commitment Type</h4>
+                                    @Html.DropDownListFor(M => M.selCommitmentType, new SelectList(ViewBag.CommitmentType, "id", "name"), "Select Commitment Type", new { @class = "form-control", @required = "required", @id = "CommitmentType", })
+                                    <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.selCommitmentType)</div>
+                                    @Html.HiddenFor(m => m.commitmentId, new { @id = "hdnCommitId" })
+                                    @Html.Hidden("Committype")
+                                </div>
+                            </div>*@
+                            <div class="bl-lg-panel-box pb-null">
+                                <div class="form-group custom-form-group mb-s-md">
+                                    <div class="col-md-5">
+                                        <label class="required">Project Number</label>
+                                        @*@Html.DropDownListFor(M => M.SelProjectNumber, new SelectList(ViewBag.ProjectNo, "id", "name"), "Select Project Number", new { @id = "SelProjectNumber", @class = "form-control selectpicker", @required = "required" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.SelProjectNumber)</div>*@
+                                        @Html.TextBoxFor(m => m.ProjectNumber, new { @class = "form-control", @id = "txtProjectNumber" })
+                                        @Html.TextBoxFor(m => m.ProjectId, new { @class = "form-control dis-none", @id = "txtProjectId" })
+                                        @Html.ValidationMessageFor(m => m.ProjectNumber)
+                                        @Html.HiddenFor(m => m.selProjectType, new { @id = "hdnProjectType" })
+                                        @Html.HiddenFor(m => m.PIId, new { @id = "txtPIId" })
+                                        @Html.HiddenFor(m => m.prjDetails.SanctionedValue, new { @id = "txtSanctionedAmount" })
+                                        @Html.HiddenFor(m => m.prjDetails.TotalGrantReceived, new { @id = "txtTotalReceiptAmount" })
+                                    </div>
+                                </div>
+                                @if (Model.NegativeBalanceId > 0)
+                                { <div id="prjDetails">
+                                    <div class="form-group custom-form-group mb-s-md mt-md">
+                                        <label class="col-md-4">Project Type</label>
+                                        <span class="col-md-4" id="spanType">@Model.prjDetails.ProjectType</span>
+                                    </div>
+                                    <div class="form-group custom-form-group mb-s-md mt-md">
+                                        <label class="col-md-4">Title</label>
+                                        <span class="col-md-4" id="spanTittle">@Model.prjDetails.ProjectTittle</span>
+                                    </div>
+
+                                    <div class="form-group custom-form-group mb-s-md">
+                                        <label class="col-md-4">PI Name</label>
+                                        <span class="col-md-4" id="spanPIName">@Model.prjDetails.PIname</span>
+                                    </div>
+
+                                    <div class="form-group custom-form-group mb-s-md">
+                                        <label class="col-md-4">Sanctioned Value</label>
+                                        <span class="col-md-4" id="spanSanValue">@Model.prjDetails.SanctionedValue</span>
+                                    </div>
+
+                                    <div class="form-group custom-form-group mb-s-md">
+                                        <label class="col-md-4">Total Receipt</label>
+                                        <span class="col-md-4" id="spanTotReceipt">@Model.prjDetails.TotalGrantReceived</span>
+                                    </div>
+
+                                    <div class="form-group custom-form-group mb-s-md">
+                                        <label class="col-md-4">Amount Spent</label>
+                                        <span class="col-md-4 " id="spanAmtSpt">@Model.prjDetails.AmountSpent</span>
+                                    </div>
+
+                                    <div class="form-group custom-form-group mb-s-md">
+                                        <label class="col-md-4">Available Commitment</label>
+                                        <span class="col-md-4 " id="spanPrevious">@Model.prjDetails.PreviousCommitment</span>
+                                    </div>
+
+                                    <div class="form-group custom-form-group mb-s-md">
+                                        <label class="col-md-4">Available Balance</label>
+                                        <span class="col-md-4" id="spanAvailableBal">@Model.prjDetails.AvailableBalance</span>
+                                    </div>
+
+                                    <div class="form-group custom-form-group mb-s-md">
+                                        <label class="col-md-4">Approved Negative Balance</label>
+                                        <span class="col-md-4 " id="spanNegativeBal">@Model.prjDetails.ApprovedNegativeBalance</span>
+                                    </div>
+
+                                    <div class="form-group custom-form-group">
+                                        <label class="col-md-4 hgt-txt">Net Balance</label>
+                                        <span class="col-md-4 hgt-txt" id="spanNetBal">@Model.prjDetails.NetBalance</span>
+                                    </div>
+
+                                </div>
+                                }
+                                else
+                                {
+                                    <div id="prjDetails" class="menu-hide">
+                                        <div class="form-group custom-form-group mb-s-md mt-md">
+                                            <label class="col-md-4">Project Type</label>
+                                            <span class="col-md-4" id="spanType"></span>
+                                        </div>
+                                        <div class="form-group custom-form-group mb-s-md mt-md">
+                                            <label class="col-md-4">Title</label>
+                                            <span class="col-md-4" id="spanTittle"></span>
+                                        </div>
+
+                                        <div class="form-group custom-form-group mb-s-md">
+                                            <label class="col-md-4">PI Name</label>
+                                            <span class="col-md-4" id="spanPIName"></span>
+                                        </div>
+
+                                        <div class="form-group custom-form-group mb-s-md">
+                                            <label class="col-md-4">Sanctioned Value</label>
+                                            <span class="col-md-4 " id="spanSanValue"></span>
+                                        </div>
+
+                                        <div class="form-group custom-form-group mb-s-md">
+                                            <label class="col-md-4">Total Receipt</label>
+                                            <span class="col-md-4" id="spanTotReceipt"></span>
+                                        </div>
+
+                                        <div class="form-group custom-form-group mb-s-md">
+                                            <label class="col-md-4">Amount Spent</label>
+                                            <span class="col-md-4 " id="spanAmtSpt"></span>
+                                        </div>
+
+                                        <div class="form-group custom-form-group mb-s-md">
+                                            <label class="col-md-4">Available Commitment</label>
+                                            <span class="col-md-4 " id="spanPrevious"></span>
+                                        </div>
+
+                                        <div class="form-group custom-form-group mb-s-md">
+                                            <label class="col-md-4">Available Balance</label>
+                                            <span class="col-md-4 " id="spanAvailableBal"></span>
+                                        </div>
+
+                                        <div class="form-group custom-form-group mb-s-md">
+                                            <label class="col-md-4">Approved Negative Balance</label>
+                                            <span class="col-md-4" id="spanNegativeBal"></span>
+                                        </div>
+
+                                        <div class="form-group custom-form-group">
+                                            <label class="col-md-4 hgt-txt">Net Balance</label>
+                                            <span class="col-md-4 hgt-txt" id="spanNetBal"></span>
+                                        </div>
+
+                                    </div>
+                                }
+
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <div class="row" id="staffCommit">
+                                <div class="col-md-6">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Request Date</label>
+                                        @Html.TextBoxFor(M => M.RequestDate, new { @class = "form-control", @required = "required", @id = "txtRequestDate" })
+
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.RequestDate)</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Negative Balance Amount</label>
+                                        @Html.TextBoxFor(M => M.ClaimAmount, new { @class = "form-control", @required = "required", @id = "txtNegativeBalanceAmount" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.ClaimAmount)</div>
+                                        @Html.HiddenFor(m => m.TotalPrevNegBalAmount, new { @id = "txttotalprevnegbalamt" })
+                                        @Html.HiddenFor(m => m.CurrentClaimAmount, new { @id = "txtcurrclaimamt" }) 
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="row">
+
+                                <div class="col-md-6">
+                                    <div class="form-group custom-form-group">
+                                        <label>Remarks</label>
+                                        @Html.TextAreaFor(m => m.Remarks, new { @class = "form-control", @rows = "3" })
+                                        @Html.ValidationMessageFor(m => m.Remarks)
+                                        @Html.HiddenFor(m => m.NegativeBalanceId)
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group custom-form-group">
+                                        <label>Attachments</label>
+                                        <input type="file" id="Document" name="Document">
+                                        @Html.ValidationMessage("Document")
+                                        <a href="@Url.Action("ShowDocument","Project",new { file = Model.DocumentName, filepath = Model.DocumentPath })" target="_blank">@Model.DocumentActualName</a>
+                                    <br />
+
+                                         <a href="javascript:void(0)" id="lnkBillHistory">View previous bill history</a>
+                                       
+
+                                    
+                                    </div>
+                                </div>
+
+                            </div>
+                           @Html.AntiForgeryToken()
+                          <div id="popup"></div>
+                        </div>
+                    </div>
+                    <input type="submit" class="btn btn-primary pull-right" value="Submit" name="Button" id="btnSave" />
+                    <a href="@Url.Action("NegativeBalanceList", "CoreAccounts")" class="btn btn-primary pull-right">Close</a>
+                </div>
+            </div>           
+        </div>
+    </div>
+}
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        var Validation = '@ViewBag.ValidationMsg';
+        if (Validation) {
+            $('#alert').html(Validation);
+            $('#Validation').modal('toggle');
+        }
+        $('.selectpicker').selectpicker({
+            liveSearch: true
+        });
+        $('.selectpicker').selectpicker('refresh');
+
+        var selSource = $('#Source').val();
+        $("#divRefNum, #divRefEmailDate").addClass('dis-none');
+        if (selSource == '1') {
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACWorkflowRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+        } else if (selSource == '3') {
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACTapalRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+        }
+        else if (selSource == '2') {
+            $('#divRefEmailDate').removeClass('dis-none');
+        } else {
+            $("#divRefNum").removeClass('dis-none');
+        }
+        $('input[name="ProjectId"]').val(@Model.ProjectId);
+
+        var projectId =  $('input[name="ProjectId"]').val(@Model.ProjectId);
+        if (projectId != '') {
+            var token = $("input[name=__RequestVerificationToken]").val();
+            var searchData = { "__RequestVerificationToken": token, "ProjectId": projectId };
+            $.ajax({
+                url: "@Url.Action("PrevNegativeBalance", "CoreAccounts")",
+                type: "POST",
+            data: searchData,
+            contentType: "application/x-www-form-urlencoded",
+            success: function (data) {
+                $("#popup").html(data);
+
+            },
+            error: function (err) {
+                console.log("error : " + err);
+            }
+        });
+    }
+        $("input[name='ProjectNumber']").each(function () {
+            projectChange($(this), 'U');
+        });
+        $('input[name="ProjectNumber"]').each(function () {
+            var projectId = $('input[name="ProjectId"]').val();
+            if (projectId != "") {
+                $.getJSON("@Url.Action("LoadProjectDetails", "Account")", { ProjectId: projectId },
+                            function (result) {
+                                if (result.projectData.ProjectNo != null) {
+                                    $("#prjDetails").removeClass('menu-hide');
+                                    $("#divHeadDetails").addClass('menu-hide')
+                                    $("#spanType").text(result.projectData.ProjectType);
+                                    $("#spanTittle").text(result.projectData.ProjectTittle);
+                                    $("#spanPIName").text(result.projectData.PIname);
+                                    $("#spanSanValue").text(result.projectData.SanctionedValue);
+                                    $("#spanTotReceipt").text(result.projectData.TotalGrantReceived);
+                                    $("#spanAmtSpt").text(result.projectData.TotalExpenditure);
+                                    $("#spanAvailableBal").text(result.projectData.AvailableBalanceinProject);
+                                    $("#spanPrevious").text(result.projectData.PreviousCommitment);
+                                    $("#spanNetBal").text(result.projectData.NetBalance);
+                                    $("#spanNegativeBal").text(result.projectData.ApprovedNegativeBalance);
+                                    $("#commitNo").text(result.CommitNo);
+                                    $("#hdnCommitNo").val(result.CommitNo);
+                                    $("#hdnProjectType").val(result.PrjTypeId);
+                                    $('input[name="SanctionedAmount"]').val(result.projectData.SanctionedValue);
+                                    $('input[name="TotalReceiptValue"]').val(result.projectData.TotalReceipt);
+                                    var select = $("#selAllocationHead");
+                                    select.empty();
+                                    select.append($('<option/>', {
+                                        value: 0,
+                                        text: "Select Allocation Head"
+                                    }));
+                                    $.each(result.Data, function (index, itemData) {
+
+                                        select.append($('<option/>', {
+                                            value: itemData.id,
+                                            text: itemData.name
+                                        }));
+                                    });
+                                    select.selectpicker('refresh');
+                                }
+                                else {
+                                    $("#prjDetails").addClass('menu-hide');
+                                }
+                            });
+
+                $.getJSON("@Url.Action("GetFundingBody", "Account")", { ProjectID: projectId },
+                             function (result) {
+                                 var select = $("#selFundingBody");
+                                 select.empty();
+                                 $.each(result, function (index, itemData) {
+                                     select.append($('<option/>', {
+                                         value: itemData.id,
+                                         text: itemData.name,
+                                     }));
+                                 });
+                             });
+                $.getJSON("@Url.Action("GetPIdetailsbyProject", "CoreAccounts")", { PIId: projectId },
+                             function (result) {
+                                 $('input[name = "PIId"]').val(result.PIId);
+                             });
+                $.getJSON("@Url.Action("GetPrevNBLByProject", "CoreAccounts")", { PjctId: projectId },
+                             function (result) {
+                                 $('input[name = "TotalPrevNegBalAmount"]').val(result.NegBalance);
+                             });
+
+            } {
+                $("#prjDetails").addClass('menu-hide');
+                $("#commitNo").text("");
+            }
+            $('input[name = "ProjectId"]').val(projectId);
+        });
+    });
+    $('#txtNegativeBalanceAmount').change(function () {
+        var negbalamt = $(this).val();
+        var negbalanceid = $("input[name='NegativeBalanceId']").val() || 0;
+        var sancval = parseFloat($("#txtSanctionedAmount").val() || 0);
+        var totreceiptval = parseFloat($("#txtTotalReceiptAmount").val() || 0);
+        var totprevnblamt = parseFloat($("input[name='TotalPrevNegBalAmount']").val() || 0)
+        var currentclaimamount = parseFloat($("input[name='CurrentClaimAmount']").val() || 0)
+
+        var diff = 0;
+        if (negbalanceid > 0) {
+            diff = sancval - totreceiptval - totprevnblamt + currentclaimamount;
+        }
+        else if (negbalanceid == 0) {
+            diff = sancval - totreceiptval - totprevnblamt;
+        }        
+
+        if (negbalamt > diff)
+        {
+            $('#alert').html('Negative Balance amount claimed cannot be greater than available limit. Please update the value.');
+            $('#Validation').modal('toggle');
+            return false;
+        }
+
+    });
+    function aplyProjectAutoComplete(ele, url, setId) {
+        $(ele).autocomplete({
+            select: function (event, ui) {
+                event.preventDefault();
+                $(ele).val(ui.item.label);
+                //$(ele).closest('tr').find(".lblSelId").text(ui.item.label);
+                if (setId == true) {
+                    $("input[name='ProjectId']").val(ui.item.value);
+                    $("input[name='ProjectNumber']").val(ui.item.label);
+                } else {
+                    $(ele).closest('tr').find("input[name='ProjectId']").val('');
+                    $(ele).closest('tr').find("input[name='ProjectNumber']").val('');
+                }
+            },
+            focus: function (event, ui) {
+                event.preventDefault();
+                $(ele).val(ui.item.label);
+            },
+            source: function (request, response) {
+                $.getJSON(url, { term: request.term },
+                 function (locationdata) {
+                     response(locationdata);
+                 });
+            },
+            minLength: 3
+        });
+    }
+    $(document).on('click', '#txtProjectNumber', function () {
+        projectChange($(this), 'U');
+    });
+    function projectChange(el, mode) {
+        var selProj = $("input[name='ProjectNumber']");
+        if (mode != 'U') {
+            $("input[name='ProjectId'], input[name='ProjectNumber']").val('');
+            //$(el).closest('tr').find("input[name='autoComplete'],input[name='UserId'],input[name='Name']").val('');
+        }
+        $("input[name='ProjectId']").addClass('required');
+        $("input[name='ProjectNumber']").addClass('required');
+        aplyProjectAutoComplete(selProj, "../CoreAccounts/LoadProjectList", true)
+
+    }
+    $('#Source').change(function () {
+        var selSource = $(this).val();
+        $("#SourceReferenceNumber,#ReferenceNumber").val('');
+        $("#divRefNum, #divRefEmailDate").addClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('False');
+        if (selSource == '1') {
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACWorkflowRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        } else if (selSource == '3') {
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACTapalRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        }
+        else if (selSource == '2') {
+            $('#divRefEmailDate').removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('False');
+        } else {
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        }
+    });
+   
+    $('#txtRequestDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
+    $('#lnkBillHistory').click(function () {
+        $('.loading-bg').removeClass('dis-none');
+        var projectId = $('input[name="ProjectId"]').val();
+        if (projectId != '') {
+            var token = $("input[name=__RequestVerificationToken]").val();
+            var searchData = { "__RequestVerificationToken": token, "ProjectId": projectId };
+            $.ajax({
+                url: "@Url.Action("PrevNegativeBalance", "CoreAccounts")",
+                type: "POST",
+            data: searchData,
+            contentType: "application/x-www-form-urlencoded",
+            success: function (data) {
+                $("#popup").html(data);
+                $("#prevNegbalHistoryModal").modal('toggle');                
+                $('.loading-bg').addClass('dis-none');
+            },
+            error: function (err) {
+                console.log("error : " + err);
+            }
+        });
+    }
+
+
+    });
+    $('input[name="ProjectNumber"]').change(function () {
+
+        var projectId = $('input[name="ProjectId"]').val();
+        if (projectId != "") {
+            $.getJSON("@Url.Action("LoadProjectDetails", "Account")", { ProjectId: projectId },
+                        function (result) {
+                            if (result.projectData.ProjectNo != null) {
+                                $("#prjDetails").removeClass('menu-hide');
+                                $("#divHeadDetails").addClass('menu-hide')
+                                $("#spanType").text(result.projectData.ProjectType);
+                                $("#spanTittle").text(result.projectData.ProjectTittle);
+                                $("#spanPIName").text(result.projectData.PIname);
+                                $("#spanSanValue").text(result.projectData.SanctionedValue);
+                                $("#spanTotReceipt").text(result.projectData.TotalGrantReceived);
+                                $("#spanAmtSpt").text(result.projectData.TotalExpenditure);
+                                $("#spanAvailableBal").text(result.projectData.AvailableBalanceinProject);
+                                $("#spanPrevious").text(result.projectData.PreviousCommitment);
+                                $("#spanNetBal").text(result.projectData.NetBalance);
+                                $("#spanNegativeBal").text(result.projectData.ApprovedNegativeBalance);
+                                $("#commitNo").text(result.CommitNo);
+                                $("#hdnCommitNo").val(result.CommitNo);
+                                $("#hdnProjectType").val(result.PrjTypeId);
+                                $('input[name="SanctionedAmount"]').val(result.projectData.SanctionedValue);
+                                $('input[name="TotalReceiptValue"]').val(result.projectData.TotalGrantReceived);
+                                $("#txtSanctionedAmount").val(result.projectData.SanctionedValue)
+                                $("#txtTotalReceiptAmount").val(result.projectData.TotalGrantReceived)
+                                var select = $("#selAllocationHead");
+                                select.empty();
+                                select.append($('<option/>', {
+                                    value: 0,
+                                    text: "Select Allocation Head"
+                                }));
+                                $.each(result.Data, function (index, itemData) {
+
+                                    select.append($('<option/>', {
+                                        value: itemData.id,
+                                        text: itemData.name
+                                    }));
+                                });
+                                select.selectpicker('refresh');
+                            }
+                            else {
+                                $("#prjDetails").addClass('menu-hide');
+                            }
+                        });
+
+            $.getJSON("@Url.Action("GetFundingBody", "Account")", { ProjectID: projectId },
+                         function (result) {
+                             var select = $("#selFundingBody");
+                             select.empty();
+                             $.each(result, function (index, itemData) {
+                                 select.append($('<option/>', {
+                                     value: itemData.id,
+                                     text: itemData.name,
+                                 }));
+                             });
+                         });
+            $.getJSON("@Url.Action("GetPIdetailsbyProject", "CoreAccounts")", { PIId: projectId },
+                         function (result) {
+                             $('input[name = "PIId"]').val(result.PIId);
+                         });
+            $.getJSON("@Url.Action("GetPrevNBLByProject", "CoreAccounts")", { PjctId: projectId },
+                             function (result) {
+                                 $('input[name = "TotalPrevNegBalAmount"]').val(result.NegBalance);
+                             });
+
+        } {
+            $("#prjDetails").addClass('menu-hide');
+            $("#commitNo").text("");
+        }
+        $('input[name = "ProjectId"]').val(projectId);
+    });
+
+    $('select[name^="selAllocationHead"]').change(function () {
+
+        var ProjectId = $("#ProjectNumber").val();
+        var AllocationId = $(this).val();
+        if (AllocationId != 0) {
+            $.getJSON("@Url.Action("GetAllocationValue", "Account")", { ProjectID: ProjectId, AllocationID: AllocationId },
+                           function (allocData) {
+                               $("#divHeadDetails").removeClass('menu-hide');
+                               $("#hdnIsYearWise").val(allocData.IsYearWise);
+                               $("#hdnIsAllocation").val(allocData.IsAllocation);
+                               if (allocData.IsAllocation == true) {
+                                   if (allocData.IsYearWise == true) {
+                                       $("#divSpanTSV").addClass('menu-hide');
+                                       $("#divSpanTA").addClass('menu-hide');
+                                       $("#divSpanAFCY").removeClass('menu-hide');
+                                       $("#spanAFCY").text(allocData.AllocationForCurrentYear);
+                                   } else {
+                                       $("#divSpanTSV").addClass('menu-hide');
+                                       $("#divSpanAFCY").addClass('menu-hide');
+                                       $("#divSpanTA").removeClass('menu-hide');
+                                       $("#spanTA").text(allocData.TotalAllocation);
+                                   }
+                               } else {
+                                   $("#divSpanTSV").removeClass('menu-hide');
+                                   $("#divSpanTA").addClass('menu-hide');
+                                   $("#divSpanAFCY").addClass('menu-hide');
+                                   $("#spanTSV").text(allocData.SanctionedValue);
+                               }
+                               $("#spanTC").text(allocData.TotalCommitmentTilDate);
+                               $("#spanTCCY").text(allocData.TotalCommitForCurrentYear);
+                           });
+
+        } else {
+            $("#divHeadDetails").addClass('menu-hide');
+        }
+    });
+
+
+    $("#ReqRef").change(function () {
+        //$("#prjDetails").removeAttr('style');
+        var RefName = $("#ReqRef option:selected").text();
+        $("#SourceTapalOrWorkflow").val('False');
+        var select = $("#RefNo");
+        select.empty();
+        if (RefName != "") {
+            if (RefName == "Email") {
+                $("#divRefEmailDate").removeClass('menu-hide');
+                $("#divRefNo").addClass('menu-hide');
+            }
+            else if (RefName == "Workflow") {
+                $("#divRefEmailDate").addClass('menu-hide');
+                $("#divRefNo").removeClass('menu-hide');
+                $("#SourceTapalOrWorkflow").val('True');
+                $.getJSON("@Url.Action("GetWorkflowRefNumber","Proposal")",
+                 function (locationdata) {
+                     $.each(locationdata, function (index, itemData) {
+                         select.append($('<option/>', {
+                             value: itemData.name,
+                             text: itemData.name,
+                         }));
+                     });
+                 });
+            } else if (RefName == "HardCopy") {
+                $("#divRefEmailDate").addClass('menu-hide');
+                $("#divRefNo").removeClass('menu-hide');
+                $("#SourceTapalOrWorkflow").val('True');
+                $.getJSON("@Url.Action("GetTapalRefNumber","Proposal")",
+                function (locationdata) {
+
+                    $.each(locationdata, function (index, itemData) {
+                        select.append($('<option/>', {
+                            value: itemData.name,
+                            text: itemData.name,
+                        }));
+                    });
+                });
+            }
+        }
+    });
+
+    @*$("#Currency").change(function () {
+
+        var Currency = $("#Currency option:selected").text();
+        if (Currency != "Select Currency") {
+            $.getJSON("@Url.Action("LoadCurrencyRate", "Account")", { Currency: Currency },
+                        function (locationdata) {
+                            $("#currencyRate").val(locationdata);
+                        });
+        } else {
+            $("#currencyRate").val(0);
+        }
+        sumAllocation();
+    });*@
+
+    function sumAllocation(evt) {
+
+        var ttlVal = 0;
+        var commitType = $("#CommitmentType").val();
+        $('.calc').each(function () {
+            var parseVal = parseFloat($(this).val());
+            if (!isNaN(parseVal))
+                ttlVal += parseVal;
+        });
+        if (commitType == 5) {
+            var CurrencyRate = $("#currencyRate").val();
+            var CurrencyVal = $("#ForeignCurrencyValue").val();
+            var ForeginValue = CurrencyVal * CurrencyRate;
+            var addCharge = $("#AdditionalCharge").val();
+            var additionalCharge = ((addCharge / 100)) * ForeginValue;
+            var TotForeginValue = ForeginValue + additionalCharge;
+            $("#AllocationValue").val(TotForeginValue);
+            $("#commitmentValue").val(TotForeginValue);
+        } else {
+            $("#commitmentValue").val(ttlVal);
+        }
+    }
+    function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode != 46 && charCode > 31
+          && (charCode < 48 || charCode > 57))
+            return false;
+
+        return true;
+    }
+    $("#btnSave").on('click', function (e) {
+        e.preventDefault();
+        var isValid = $('#formNegativeBalance').valid();
+        //var negbalamt = $('#txtNegativeBalanceAmount').val();
+        //var sancval = parseFloat($("#txtSanctionedAmount").val() || 0);
+        //var totreceiptval = parseFloat($("#txtTotalReceiptAmount").val() || 0);
+        //var diff = sancval - totreceiptval;
+
+        var negbalamt = $('#txtNegativeBalanceAmount').val();
+        var negbalanceid = $("input[name='NegativeBalanceId']").val() || 0;
+        var sancval = parseFloat($("#txtSanctionedAmount").val() || 0);
+        var totreceiptval = parseFloat($("#txtTotalReceiptAmount").val() || 0);
+        var totprevnblamt = parseFloat($("input[name='TotalPrevNegBalAmount']").val() || 0)
+        var currentclaimamount = parseFloat($("input[name='CurrentClaimAmount']").val() || 0)
+        var diff = 0;
+        if (negbalanceid > 0) {
+            diff = sancval - totreceiptval - totprevnblamt + currentclaimamount;
+        }
+        else if (negbalanceid == 0) {
+            diff = sancval - totreceiptval - totprevnblamt;
+        }
+
+        if (negbalamt > diff) {
+            $('#alert').html('Negative Balance amount claimed cannot be greater than available limit. Please update the value.');
+            $('#Validation').modal('toggle');
+            return false;
+        }
+        if (isValid)
+        {
+            var id = $(this).attr('Id');
+            $('button[type="submit"],#nextBtn,#btnSave').attr('disabled', 'true');
+            $('#formNegativeBalance').submit();
+        }
+
+    });
+
+    function duplicatecheck(isValid) {
+        var values = [];
+        $('select[name="selAllocationHead"]').each(function (idx, val) { values.push($(val).val()); });
+        // Sort it
+        values.sort();
+        // Check whether there are two equal values next to each other
+        for (var k = 1; k < values.length; ++k) {
+            if (values[k] == values[k - 1]) {
+                $('#alert').html("Allocation head field does not allow duplicates");
+                $('#Validation').modal('toggle'); isValid = false;
+                return false;
+            }
+            isValid = true;
+        }
+        return isValid;
+    }
+
+
+
+</script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>

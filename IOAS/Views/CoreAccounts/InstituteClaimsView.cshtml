@@ -1,0 +1,1287 @@
+﻿@model IOAS.Models.InstituteClaims
+
+@{
+    ViewBag.Title = "Institute Claims";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+@using (Html.BeginForm("InstituteClaims", "CoreAccounts", FormMethod.Post, new { @class = "", role = "form", @id = "formINS", @enctype = "multipart/form-data" }))
+{
+    <div class="wrapper">
+        <div class="main-content">
+            <div class="rgt-cnt">
+                <div class="row hd-tt-bg">
+                    <div class="col-md-12">
+                        <h4><b>Institute Claims</b></h4>
+                        <ul class="nav nav-pills custom-nav-pills custom-spl-nav">
+                            <li class="active" id="picDel"><a href="javascript:void(0)" id="firsttab" class="ml-null brd-rd-md firsttab">Institute Claims Details</a></li>
+                            <li id="allOca"><a href="javascript:void(0)" id="secondtab" class="brd-rd-md secondtab">Transaction Details</a></li>
+                            <li id="allOca1" class="dis-none"><a href="javascript:void(0)" id="thirdtab" class="brd-rd-md thirdtab">Receipt Details</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="page-wrapper ">
+                        <div class="col-md-12 mt30 ">
+                            <div id="tab-01" style="display: block;">
+                                <div class="vh-grid-tb mt-null mb-lg">
+                                    <div class="vh-grid-cell grey-bg">
+                                        <div class="grey-bg-adj">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="reg-no custom-reg-no pull-right">
+                                                        <label> Claim Number :</label>
+                                                        <h4>@Html.DisplayFor(m => m.InstituteClaimNumber)</h4>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 ">
+                                                    <div class="col-md-6">
+
+                                                        <div class="form-group custom-form-group">
+                                                            @Html.HiddenFor(m => m.InstituteClaimId, new { @id = "InstituteId" })
+                                                            @Html.HiddenFor(m => m.ReceiptId, new { @id = "recptid" })
+                                                            <label class="required">Claim Type :</label>
+                                                            @Html.DropDownListFor(m => m.ClaimTypeId, new SelectList(ViewBag.ClaimTy, "id", "name"), "Select any", new { @class = "form-control required", @id = "ClaimTy" })<br /><br />
+                                                            @Html.ValidationMessageFor(m => m.ClaimTypeId)
+                                                            <label class="required"> Budget Head :</label>
+                                                            @Html.DropDownListFor(m => m.BudegetHeadId, new SelectList(ViewBag.BudHed, "id", "name"), "Select any", new { @class = "form-control required", @id = "BudHed" })<br /><br />
+                                                            @Html.ValidationMessageFor(m => m.BudegetHeadId)
+                                                            <label> Description :</label>
+                                                            @Html.TextAreaFor(m => m.Description, new { @class = "form-control", @id = "Description" })<br /><br />
+                                                        </div>
+
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group custom-form-group">
+                                                            <label class="required"> Claim Date : </label>
+                                                            @Html.EditorFor(m => m.ClaimDate, new { @class = "form-control required", @id = "ClaimDate" })<br /><br />
+                                                            @Html.ValidationMessageFor(m => m.ClaimDate)
+                                                            <label class="required">Facility Used :</label>
+                                                            @Html.DropDownListFor(m => m.FacilityUsed, new SelectList(ViewBag.FacUsed, "id", "name"), "Select any", new { @class = "form-control required", @id = "FacilityUsed" })<br /><br />
+                                                            @Html.ValidationMessageFor(m => m.FacilityUsed)
+                                                            <label class="required">Attachment: </label>
+                                                            <input type="file" class="required" name="AttachmentFile" id="claimfile" />
+                                                            @Html.ValidationMessageFor(m => m.AttachmentFile)
+                                                            <div class="form-group">
+                                                                <a href="@Url.Action("ShowDocument","Project",new { file = Model.AttachmentName, filepath = Model.AttachmentPath })" target="_blank">@Model.AttachmentActualName</a>
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 ">
+                                                    <div class="col-md-6">
+
+                                                        <div class="form-group custom-form-group">
+
+                                                            @*<label class="required">Project Fund Reversal : </label>
+                                                                @Html.DropDownListFor(m => m.PublicFundR, new List<SelectListItem> { new SelectListItem { Text = "Yes", Value = "1" }, new SelectListItem { Text = "No", Value = "2" } }, "Select any", new { @class = "form-control required", @id = "projectfund" })<br /><br />
+                                                                @Html.ValidationMessageFor(m => m.PublicFundR)*@
+                                                            <label class="required">Project Number : </label>
+                                                            @Html.TextBoxFor(m => m.Projectno, new { @class = "form-control required", @id = "projno" })<br /><br />
+                                                            @Html.TextBoxFor(m => m.Projectid, new { @class = "form-control dis-none required", @id = "projid" })
+                                                            @Html.ValidationMessageFor(m => m.Projectid)
+                                                            <label class="required">Commitment Number</label>
+                                                            @Html.DropDownListFor(m => m.CommitmentId, new SelectList(ViewBag.CommitmentNumbr, "ViewBagCommitId", "ViewBagCommitNo"), "", new { @class = "form-control", @autocomplete = "off", @required = "required", @id = "commitmentno" })
+                                                            @Html.ValidationMessageFor(m => m.CommitmentId)  <br /><br />
+
+                                                            @*<label>Expense Type : </label>
+                                                                @Html.DropDownListFor(m => m.ExpenseId, new SelectList(ViewBag.ExpType, "id", "name"), "Select any", new { @class = "form-control", @id = "exptype", @readonly = true })<br /><br />*@
+                                                            @*@Html.ValidationMessageFor(m => m.ExpenseId)*@
+                                                        </div>
+
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group custom-form-group">
+                                                            <label class="required"> Claim Amount : </label>
+                                                            @Html.TextBoxFor(m => m.ClaimAmount, new { @class = "form-control required", @id = "claimamount", @onkeypress = "return ValidateDecimalOnly(event)" })<br /><br />
+                                                            @Html.ValidationMessageFor(m => m.ClaimAmount)
+                                                            <label class="required">Spend Amount</label>
+                                                            @Html.TextBoxFor(m => m.AvailableBalance, new { @class = "form-control", @autocomplete = "off", @id = "balancevalue", @readonly = true })
+                                                            @*@Html.ValidationMessageFor(m => m.AvailableBalance)*@
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="display: none;" id="tab-02">
+                                @Html.Partial("_TransactionDetails", Model)
+                            </div>
+
+                            <div style="display: none;" id="tab-03">
+
+
+                                <div class="vh-grid-tb mt-null mb-lg">
+                                    <div class="vh-grid-cell grey-bg">
+                                        <div class="grey-bg-adj">
+                                            <div class="row">
+
+
+                                                <div class="col-md-12">
+                                                    <div class="reg-no custom-reg-no pull-right">
+                                                        <label> Receipt Ref.N0 :</label>
+                                                        <h4>@Html.DisplayFor(m => m.ReceiptRefNumber)</h4>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <div class="form-group custom-form-group">
+                                                        <label class="required">Receipt Date :</label>
+                                                        @Html.EditorFor(m => m.ReceiptDate, new { @class = "form-control required ", @autocomplete = "off" })
+                                                        @Html.ValidationMessageFor(m => m.ReceiptDate)
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <div class="form-group custom-form-group">
+                                                        <label> Claim Amount : </label>
+                                                        @Html.TextBoxFor(m => m.ReceiptValue, new { @class = "form-control", @readonly = true, @id = "receipval" })
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <div class="form-group custom-form-group">
+                                                        <label> Comments :</label>
+                                                        @Html.TextAreaFor(m => m.Comments, new { @class = "form-control", @autocomplete = "off" })
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <div class="form-group custom-form-group">
+                                                        <label class="required">Attachment: </label>
+                                                        <input type="file" class="required" name="AttachmentFil" />
+                                                        @Html.ValidationMessageFor(m => m.AttachmentFil)
+                                                        <div class="form-group">
+                                                            <a href="@Url.Action("ShowDocument","Project",new { file = Model.AttachmentNam, filepath = Model.AttachmentPat })" target="_blank">@Model.AttachmentActualNam</a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                @*<div class="col-md-12" >
+                                                        <div class="col-md-3">
+                                                            <div class="form-group custom-form-group">
+                                                                <label class="required">Bank:</label>
+                                                                @Html.DropDownListFor(m => m.BankHeadId, new SelectList(ViewBag.bankachead, "id", "name"), "Select any", new { @class = "form-control required" })
+                                                            </div>
+                                                        </div>
+
+                                                    </div>*@
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <div class="gray-bg br-rd">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="row m-b-sm">
+                                                <div class="col-md-6">
+                                                    <h3 class="mt-xs">Receipt Details</h3>
+                                                </div>
+                                                @*<div class="col-md-6 text-right">
+                                                        <a href="javascript:void(0)" id="btnAddREC" class="btn btn-primary btnAddREC">Add New</a>
+                                                    </div>*@
+                                            </div>
+                                            <div class="m-b-sm scrl-table scrl-table-po-bl">
+                                                <table class="table table-bordered" style="width: 1200px;">
+                                                    <thead>
+
+                                                    </thead>
+                                                    <tbody id="tbodyREC">
+                                                        <tr>
+
+                                                            <td style="width: 200px;" class="required"> Mode Of Receipt</td>
+                                                            <td style="width: 200px;">Cheque No</td>
+                                                            <td style="width: 150px;">Bank Ref.No</td>
+                                                            <td style="width: 200px;" class="required">Date</td>
+                                                            <td style="width: 200px;" class="required">Amount</td>
+
+                                                        </tr>
+                                                        @*@if (Model.REC != null)
+                                                            {
+                                                                var count = 0;
+                                                                foreach (var val in Model.REC)
+                                                                {
+                                                                    var mode = "REC[" + count + "].ModeOfReceipt";
+                                                                    var cheqno = "REC[" + count + "].ChequeNo";
+                                                                    var bankref = "REC[" + count + "].BankRefNo";
+                                                                    var date = "REC[" + count + "].TransDate";
+                                                                    var amount = "REC[" + count + "].RecAmount";
+                                                                    <tr id="pcfdetails" class="p-b-sm">
+
+                                                                        <td>
+                                                                            @Html.DropDownList(@mode, new SelectList(ViewBag.PaymentMode, "id", "name", val.ModeOfReceipt), "Select PaymentMode", new { @class = "form-control", @id = "modeofpayment" })
+
+                                                                            @Html.Hidden("REC.Index", @count)
+                                                                        </td>
+                                                                        <td>
+                                                                            @Html.TextBox(@cheqno, val.ChequeNo, new { @class = "form-control", @autocomplete = "off", @readonly = true })
+
+                                                                        </td>
+                                                                        <td>
+                                                                            @Html.TextBox(@bankref, val.BankRefNo, new { @class = "form-control", @autocomplete = "off", @readonly = true })
+
+                                                                        </td>
+                                                                        <td>
+                                                                            @Html.TextBox(@date, val.TransDate, new { @class = "form-control", @autocomplete = "off" })
+
+                                                                        </td>
+                                                                        <td>
+                                                                            @Html.TextBox(@amount, val.RecAmount, new { @class = "form-control" })
+
+                                                                        </td>
+
+                                                                        <td>
+                                                                            @if (count == 0)
+                                                                            {
+                                                                                <a href="javascript:void(0)" class="btn-circle dis-none removeRECItem"><i class="ion-trash-a"></i></a>
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <a href="javascript:void(0)" class="btn-circle  removeRECItem"><i class="ion-trash-a"></i></a>
+                                                                            }
+                                                                        </td>
+                                                                    </tr>
+                                                                    count++;
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                <tr>
+
+                                                                    <td>
+                                                                        @Html.DropDownList("REC[0].ModeOfReceipt", new SelectList(ViewBag.PaymentMode, "id", "name"), "Select PaymentMode", new { @class = "form-control", @id = "modeofpayment" })
+                                                                        @Html.ValidationMessage("REC[0].ModeOfReceipt")
+                                                                        @Html.Hidden("REC.Index", "0")
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.TextBox("REC[0].ChequeNo", "", new { @class = "form-control", @readonly = true })
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.TextBox("REC[0].BankRefNo", "", new { @class = "form-control", @readonly = true })
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.TextBox("REC[0].TransDate", "", new { @class = "form-control" })
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.TextBox("REC[0].RecAmount", "", new { @class = "form-control" })
+                                                                    </td>
+                                                                    <td>
+                                                                        <a href="javascript:void(0)" class="btn-circle dis-none removeRECItem"><i class="ion-trash-a"></i></a>
+                                                                    </td>
+                                                                </tr>
+
+                                                            }*@
+                                                        <tr>
+                                                            <td>
+                                                                @Html.DropDownListFor(m => m.ModeOfReceipt, new SelectList(ViewBag.PaymentMode, "id", "name"), "Select PaymentMode", new { @class = "form-control required", @id = "modeofpayment" })
+                                                                @Html.ValidationMessageFor(m => m.ModeOfReceipt)
+                                                            </td>
+                                                            <td>
+                                                                @Html.TextBoxFor(m => m.ChequeNo, new { @class = "form-control", @id = "Cheqno", @autocomplete = "off" })
+                                                                @Html.ValidationMessageFor(m => m.ChequeNo)
+                                                            </td>
+                                                            <td>
+                                                                @Html.TextBoxFor(m => m.BankRefNo, new { @class = "form-control", @id = "Bankno", @autocomplete = "off" })
+                                                                @Html.ValidationMessageFor(m => m.BankRefNo)
+                                                            </td>
+                                                            <td>
+                                                                @Html.EditorFor(m => m.TransDate, new { @class = "form-control required", @id = "TransDate", @autocomplete = "off" })
+                                                                @Html.ValidationMessageFor(m => m.TransDate)
+                                                            </td>
+                                                            <td>
+                                                                @Html.TextBoxFor(m => m.RecAmount, new { @class = "form-control", @id = "Recamount", @onkeypress = "return ValidateDecimalOnly(event)", @autocomplete = "off" })
+                                                                @Html.ValidationMessageFor(m => m.RecAmount)
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                @*<div class="row">
+                                        <div class="col-md-3 pull-right">
+                                            <div class="reg-no custom-reg-no">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Total Amount</label>
+                                                    @Html.TextBoxFor(m => m.ReceiptTotalAmount, new { @class = "form-control", @id = "amount", @readonly = true })
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>*@
+
+                                <div class="gray-bg br-rd">
+                                    <h3 class="mt-null col-md-6">Institute Claims Details</h3>
+                                    <div class="col-md-6 text-right mb-md">
+                                        <a href="javascript:void(0)" id="btnAddExpens" class="btn btn-primary">Add New</a>
+                                        <a href="javascript:void(0)" id="btnRese" class="btn btn-primary">Reset</a>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="m-b-sm">
+                                                <table class="table table-bordered">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Account Group</th>
+                                                            <th>Account Head</th>
+                                                            <th>Transaction Type</th>
+                                                            <th style="width:200px;">Amount</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="tbodyExpenseLis">
+                                                        @if (Model.ExpenseDetai != null && Model.ExpenseDetai.Count() > 0)
+                                                        {
+                                                            var count = 0;
+                                                            foreach (var item in Model.ExpenseDetai)
+                                                            {
+                                                                var accountGrou = "ExpenseDetai[" + count + "].AccountGroupI";
+                                                                var accountHea = "ExpenseDetai[" + count + "].AccountHeadI";
+                                                                var expDetailI = "ExpenseDetai[" + count + "].BillExpenseDetailI";
+                                                                var transTyp = "ExpenseDetai[" + count + "].TransactionTyp";
+                                                                var ijv = "ExpenseDetai[" + count + "].IsJ";
+                                                                var am = "ExpenseDetai[" + count + "].Amoun";
+                                                                <tr>
+                                                                    <td>
+                                                                        @Html.DropDownList(@accountGrou, new SelectList(item.AccountGroupLis, "id", "name", item.AccountGroupI), new { @class = "form-control required" })
+                                                                        @Html.ValidationMessage(@accountGrou)
+                                                                        @Html.Hidden("ExpenseDetai.Index", @count)
+                                                                        @Html.Hidden(@expDetailI, item.BillExpenseDetailI)
+                                                                        @Html.Hidden(@ijv, item.IsJ)
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.DropDownList(@accountHea, new SelectList(item.AccountHeadLis, "id", "name", item.AccountHeadI), new { @class = "form-control required" })
+                                                                        @Html.ValidationMessage(@accountHea)
+                                                                    </td>
+                                                                    <td>
+                                                                        <h4 id="lblTransTyp">@item.TransactionTyp</h4>
+                                                                        @Html.Hidden(@transTyp, item.TransactionTyp)
+                                                                        @Html.ValidationMessage(@transTyp)
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.TextBox(@am, item.Amoun, new { @class = "form-control required", @onkeypress = "return ValidateDecimalOnly(event)", @onblur = "CalculateDeductionTota()", @autocomplete = "off" })
+                                                                        @Html.ValidationMessage(@am)
+                                                                    </td>
+                                                                    <td>
+                                                                        <a href="javascript:void(0)" class="removeExpens btn-circle"><i class="ion-close-round"></i></a>
+                                                                    </td>
+                                                                </tr>
+                                                                count++;
+
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            <tr>
+                                                                <td>
+                                                                    @Html.DropDownList("ExpenseDetai[0].AccountGroupI", new SelectList(ViewBag.AccountGroupList, "id", "name"), "Select any", new { @class = "form-control required" })
+                                                                    @Html.ValidationMessage("ExpenseDetai[0].AccountGroupI")
+                                                                    @Html.Hidden("ExpenseDetai.Index", "0")
+                                                                    @Html.Hidden("ExpenseDetai[0].BillExpenseDetailI")
+                                                                    @Html.Hidden("ExpenseDetai[0].IsJ")
+                                                                </td>
+                                                                <td>
+                                                                    @Html.DropDownList("ExpenseDetai[0].AccountHeadI", new SelectList(ViewBag.AccountHeadList, "id", "name"), "Select any", new { @class = "form-control required" })
+                                                                    @Html.ValidationMessage("ExpenseDetai[0].AccountHeadI")
+                                                                </td>
+                                                                <td>
+                                                                    <h4 id="lblTransTyp"></h4>
+                                                                    @Html.Hidden("ExpenseDetai[0].TransactionTyp")
+                                                                    @Html.ValidationMessage("ExpenseDetai[0].TransactionTyp")
+                                                                </td>
+                                                                <td>
+                                                                    @Html.TextBox("ExpenseDetai[0].Amoun", "", new { @class = "form-control required", @onkeypress = "return ValidateDecimalOnly(event)", @onblur = "CalculateDeductionTota()", @autocomplete = "off" })
+                                                                    @Html.ValidationMessage("ExpenseDetai[0].Amoun")
+                                                                </td>
+                                                                <td>
+                                                                    <a href="javascript:void(0)" class="removeExpens btn-circle"><i class="ion-close-round"></i></a>
+                                                                </td>
+                                                            </tr>
+                                                        }
+
+
+                                                    </tbody>
+                                                </table>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @*<div class="row dis-none">
+                                            <div class="col-md-4 col-md-offset-8">
+                                                <div class="form-group custom-form-group ">
+                                                    <label>Total Value <span class="dr">(Dr)</span> :</label>
+                                                    @Html.TextBoxFor(m => m.ExpenseAmnt, new { @class = "form-control", @readonly = "readonly", @autocomplete = "off" })
+                                                    @Html.ValidationMessageFor(m => m.ExpenseAmnt)
+                                                </div>
+                                            </div>
+                                        </div>*@
+                                </div>
+
+                                <div class="gray-bg br-rd">
+                                    <h3 class="mt-null">Taxes</h3>
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="m-b-sm">
+                                                <table class="table table-bordered">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Group</th>
+                                                            <th>Account Head</th>
+                                                            <th>Amount</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="tbodyDeductionLis">
+                                                        @if (Model.DeductionDetai != null && Model.DeductionDetai.Count() > 0)
+                                                        {
+                                                            var count = 0;
+                                                            foreach (var item in Model.DeductionDetai)
+                                                            {
+                                                                var am = "DeductionDetai[" + count + "].Amount";
+                                                                var group = "DeductionDetai[" + count + "].AccountGroupId";
+                                                                var head = "DeductionDetai[" + count + "].DeductionHeadId";
+                                                                var deductDetailI = "DeductionDetai[" + count + "].BillDeductionDetailId";
+                                                                var deductionHea = "DeductionDetai[" + count + "].DeductionHead";
+                                                                var accountGrou = "DeductionDetai[" + count + "].AccountGroup";
+                                                                <tr>
+                                                                    <td>@item.DeductionHead</td>
+                                                                    <td>@item.AccountGroup</td>
+                                                                    <td>
+                                                                        @Html.TextBox(@am, item.Amount, new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)", @onblur = "CalculateDeductionTota()", @autocomplete = "off" })
+                                                                        @Html.Hidden(@group, item.AccountGroupId)
+                                                                        @Html.Hidden(@head, item.DeductionHeadId)
+                                                                        @Html.Hidden(@deductDetailI, item.BillDeductionDetailId)
+                                                                        @Html.Hidden(@deductionHea, item.DeductionHead)
+                                                                        @Html.Hidden(@accountGrou, item.AccountGroup)
+                                                                    </td>
+                                                                </tr>
+                                                                count++;
+
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            <tr>
+
+                                                                <td></td>
+                                                                <td></td>
+                                                                <td>
+                                                                    @Html.TextBox("DeductionDetai[0].Amount", "", new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)", @onblur = "CalculateDeductionTota()", @autocomplete = "off" })
+                                                                    @Html.ValidationMessage("DeductionDetai[0].Amount")
+                                                                    @Html.Hidden("DeductionDetai[0].AccountGroupId")
+                                                                    @Html.Hidden("DeductionDetai[0].DeductionHeadId")
+                                                                    @Html.Hidden("DeductionDetai[0].BillDeductionDetailId")
+                                                                    @Html.Hidden("DeductionDetai[0].DeductionHead")
+                                                                    @Html.Hidden("DeductionDetai[0].AccountGroup")
+                                                                </td>
+                                                            </tr>
+                                                        }
+                                                    </tbody>
+                                                </table>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row dis-none">
+                                        <div class="col-md-4 col-md-offset-8">
+                                            <div class="form-group custom-form-group ">
+                                                <label>Total Value <span class="dr">(Dr)</span> :</label>
+                                                @Html.TextBoxFor(m => m.DeductionAmount, new { @class = "form-control", @readonly = "readonly", @autocomplete = "off" })
+                                                @Html.ValidationMessageFor(m => m.DeductionAmount)
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-3  col-md-offset-6">
+                                        <div class="form-group custom-form-group ">
+                                            <label>Total Credit <span class="cr">(Cr)</span> :</label>
+                                            <input value="" name="CreditAmount" id="ttlC" class="form-control" readonly="readonly" autocomplete="off" type="text">
+                                            @Html.Hidden("ttlJVC")
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 ">
+                                        <div class="form-group custom-form-group ">
+                                            <label>Total Debit <span class="dr">(Dr)</span> :</label>
+                                            <input value="" name="DebitAmount" id="ttlD" class="form-control" readonly="readonly" autocomplete="off" type="text">
+                                            @Html.Hidden("ttlJVD")
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="custom-nav-btn text-right dis-none" id="SubmitBtn">
+                                @*<button type="button" class="btn btn-primary pull-right" onclick="formSave()">Submit</button>*@
+                                <button type="button" class="btn btn-default pull-right" id="CloseBtn" onclick="window.location.href='@Url.Action("InstituteClaimsList", "CoreAccounts")';">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+<script>
+    @*var errMsg = '@TempData["errMsg"]';
+    $(document).ready(function () {
+        if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }*@
+
+    var dis = '@ViewBag.disabled';
+    if (dis != "") {
+        $('.form-control').prop('disabled', true);
+        $('.ion-trash-a').removeClass();
+        $('#btnAddREC').hide();
+        $('#btnAddExpens').hide();
+        $('#btnRese').hide();
+        $("input[type='radio']").prop('disabled', true);
+        $('#selectCommitment').hide();
+        $('#btnReset,#btnbookcommitment,#btnbookcommitment,#btnCollapseSrchCommit').hide();
+        $('input[type="checkbox"]').prop('disabled', true);
+        $('input[type="file"],#btnAddAttachment').hide();
+        $('#ProcessStatusContainer .form-control').prop('disabled', false);
+        $('#btnAddExpense').hide();
+        $('.btn-circle').removeClass();
+        $('.ion-close-round').removeClass();
+    }
+
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+    });
+
+    function modRec() {
+        var e = document.getElementById("modRec");
+        var strcomType = e.options[e.selectedIndex].value;
+        if (strcomType == "0") {
+            document.getElementById("cheQue").style.display = "block";
+            document.getElementById("banTra").style.display = "none";
+            document.getElementById("dd").style.display = "none";
+        }
+        else if (strcomType == "1") {
+            document.getElementById("cheQue").style.display = "none";
+            document.getElementById("banTra").style.display = "block";
+            document.getElementById("dd").style.display = "none";
+        }
+        else if (strcomType == "2") {
+            document.getElementById("cheQue").style.display = "none";
+            document.getElementById("banTra").style.display = "none";
+            document.getElementById("dd").style.display = "block";
+        }
+
+        console.log(strcomType);
+    };
+
+    $("#picDel").on("click", function () {
+        $("#tab-01").css("display", "block");
+        $("#tab-02").css("display", "none");
+        $("#tab-03").css("display", "none");
+        $("#tab-04").css("display", "none");
+        $("#tab-05").css("display", "none");
+        $("#picDel").addClass('active');
+        $("#allOca").removeClass('active');
+        $("#modEof").removeClass('active');
+        $("#modEof1").removeClass('active');
+        $("#allOca1").removeClass('active');
+    });
+
+    $("#allOca").on("click", function () {
+        $("#tab-01").css("display", "none");
+        $("#tab-02").css("display", "block");
+        $("#tab-03").css("display", "none");
+        $("#tab-04").css("display", "none");
+        $("#tab-05").css("display", "none");
+        $("#picDel").removeClass('active');
+        $("#allOca").addClass('active');
+        $("#modEof").removeClass('active');
+        $("#modEof1").removeClass('active');
+        $("#allOca1").removeClass('active');
+    });
+
+    $("#modEof").on("click", function () {
+        $("#tab-01").css("display", "none");
+        $("#tab-02").css("display", "none");
+        $("#tab-03").css("display", "block");
+        $("#tab-04").css("display", "none");
+        $("#tab-05").css("display", "none");
+        $("#picDel").removeClass('active');
+        $("#allOca").removeClass('active');
+        $("#modEof").addClass('active');
+        $("#modEof1").removeClass('active');
+        $("#allOca1").removeClass('active');
+    });
+
+    $("#modEof1").on("click", function () {
+        $("#tab-01").css("display", "none");
+        $("#tab-02").css("display", "none");
+        $("#tab-03").css("display", "none");
+        $("#tab-04").css("display", "block");
+        $("#tab-05").css("display", "none");
+        $("#picDel").removeClass('active');
+        $("#allOca").removeClass('active');
+        $("#modEof").removeClass('active');
+        $("#modEof1").addClass('active');
+        $("#allOca1").removeClass('active');
+    });
+
+    $("#allOca1").on("click", function () {
+        $("#tab-01").css("display", "none");
+        $("#tab-02").css("display", "none");
+        $("#tab-03").css("display", "block");
+        $("#tab-04").css("display", "none");
+        $("#tab-05").css("display", "none");
+        $("#picDel").removeClass('active');
+        $("#allOca").removeClass('active');
+        $("#modEof").removeClass('active');
+        $("#modEof1").removeClass('active');
+        $("#allOca1").addClass('active');
+    });
+    var rec = $("#recptid").val();
+    var insid = $("#InstituteId").val();
+    $(document).ready(function () {
+      //  $("#exptype").prop("disabled", true).val("").removeClass('required');
+        if (rec == 1) {
+            $("#allOca1").removeClass('dis-none');
+            $('select[name$=".AccountGroupId"]').prop('disabled', true);
+            $('select[name$=".AccountHeadId"]').prop('disabled', true);
+            $('input[name$=".Amount"]').prop('disabled', true);
+            $('select[name$=".AccountGroupId"]').prop('readonly', true);
+            $('select[name$=".AccountHeadId"]').prop('readonly', true);
+            $('input[name$=".Amount"]').prop('readonly', true);
+            $("#tab-01,#tab-02").find('input[type="checkbox"]', 'input[type="radio"]', '.form-control', 'input[type="text"]').prop('disabled', true);
+            $("#ClaimTy,#BudHed,#Description,#ClaimDate,#FacilityUsed,#claimamount,#projectfund,#projno,#exptype,#travelbill,#purchno,#travelbill,#commitmentno").prop("readonly", true);
+            $("#ClaimTy,#BudHed,#Description,#ClaimDate,#FacilityUsed,#claimamount,#projectfund,#projno,#exptype,#travelbill,#purchno,#travelbill,#commitmentno").prop("disabled", true);
+            $('.btn-circle').removeClass();
+            $('input[type="checkbox"]').prop('disabled', true);
+            $('#claimfile').hide();
+            $('.ion-close-round').removeClass();
+            $('#selectCommitment').hide();
+            $('#btnReset,#btnbookcommitment,#btnbookcommitment,#btnCollapseSrchCommit').hide();
+            $('#ProcessStatusContainer .form-control').prop('disabled', false);
+            $('#btnAddExpense').hide();
+            $('.btn-circle').removeClass();
+            $('.ion-close-round').removeClass();
+        }
+        //$('select[name$=".ModeOfReceipt"]').each(function () {
+        //    var id = $(this).closest('tr').find('select[name$=".ModeOfReceipt"]').val();
+        //    if (id == 1) {
+        //        $(this).closest('tr').find('input[name$=".ChequeNo"]').addClass('required');
+        //        $(this).closest('tr').find('input[name$=".BankRefNo"]').removeClass('required');
+        //    }
+        //    else {
+        //        $(this).closest('tr').find('input[name$=".ChequeNo"]').addClass('required');
+        //        $(this).closest('tr').find('input[name$=".BankRefNo"]').removeClass('required');
+        //    }
+        //});
+    });
+    $(document).on('change', '#modeofpayment', function () {
+        var modepay = $(this).val();
+        if (modepay==1) {
+            $("#Cheqno").addClass('required');
+            $("#Bankno").removeClass('required');
+        } else {
+            $("#Bankno").addClass('required');
+            $("#Cheqno").removeClass('required');
+        }
+    });
+    $(document).on('change', '#projectfund', function () {
+        var projfun = $(this).val();
+        if (projfun == 1) {
+            $("#projid").prop("readonly", false).addClass('required');
+            $("#projno").prop("readonly", false);
+            $("#exptype").prop("disabled", true).val("").removeClass('required');
+            //$("#travelbill,#oth,#purchno").prop("readonly", true).removeClass('required');
+
+        }
+        else {
+            $("#projid,#projno").prop("readonly", true).val("").addClass('required');
+            $("#exptype").prop("disabled", false).removeClass('required');
+          //  $("#travelbill,#oth,#purchno").prop("readonly", true).removeClass('required');
+        }
+    });
+    $(document).on('change', '#exptype', function () {
+        var expid = $(this).val();
+        if (expid == 1) {
+            $("#travelbill").prop("readonly", false).removeClass('required');
+            $("#oth,#purchno").prop("readonly", true).val("").removeClass('required');
+
+        }
+        else if(expid == 2) {
+            $("#travelbill,#oth").prop("readonly", true).val("").addClass('required');
+            $("#purchno").prop("readonly", false).addClass('required');
+    }
+        else if (expid == 3) {
+            $("#travelbill").prop("readonly", true).val("").addClass('required');
+          //  $("#oth").prop("readonly", false).addClass('required');
+            $("#purchno").prop("readonly", true).val("").addClass('required');
+    }
+    });
+
+    $(document).on('click', '#projno', function () {
+
+        aplyAutoComplete($('#projno'), "../CoreAccounts/LoadProjectNumber");
+    });
+    function aplyAutoComplete(ele, url) {
+        $(ele).autocomplete({
+            select: function (event, ui) {
+                event.preventDefault();
+                $(ele).val(ui.item.label);
+
+                $('#projid').val(ui.item.value);
+                $('#projno').val(ui.item.label);
+            },
+            focus: function (event, ui) {
+                event.preventDefault();
+                $(ele).val(ui.item.label);
+            },
+            source: function (request, response) {
+                $.getJSON(url, { term: request.term },
+                 function (locationdata) {
+                     response(locationdata);
+                 });
+            },
+            minLength: 3
+        }).autocomplete("widget").addClass("your_custom_class");
+        //.autocomplete("widget").addClass("your_custom_class");
+    }
+
+    function GetTransactionDetails() {
+        EmptyExpenseDeductionDetails();
+        $.ajax({
+            type: "GET",
+            url: "@Url.Action("GetTransactionDetails", "CoreAccounts")",
+            data: { "typeCode": "RIC", "tSubCode": "1" },
+        traditional: true,
+        dataType: "json",
+        success: function (result) {
+            $.each(result.ExpenseDetail, function (i, item) {
+                if (i == 0) {
+                    var trEle = $('#tbodyExpenseList tr:first');
+                    $(trEle).find('input[name$=".Amount"]').val('');
+                    $(trEle).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                    $(trEle).find('input[name$=".IsJV"]').val(item.IsJV);
+                    $(trEle).find('#lblTransType').text(item.TransactionType);
+                    $(trEle).find("input[name='ExpenseDetail.Index']").val(i);
+
+                    var selectGroup = $(trEle).find('select[name$=".AccountGroupId"]');
+                    selectGroup.empty();
+                    $.each(item.AccountGroupList, function (index, itemData) {
+                        selectGroup.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+
+                    var selectHead = $(trEle).find('select[name$=".AccountHeadId"]');
+                    selectHead.empty();
+                    $.each(item.AccountHeadList, function (index, itemData) {
+                        selectHead.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+                } else {
+                    var trEleNew = $('#tbodyExpenseList tr:first').clone().find('input').val('').end();
+                    $(trEleNew).find('input[name$=".Amount"]').val('');
+                    $(trEleNew).find("input[name='ExpenseDetail.Index']").val(i);
+                    $(trEleNew).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                    $(trEleNew).find('input[name$=".IsJV"]').val(item.IsJV);
+                    $(trEleNew).find('#lblTransType').text(item.TransactionType);
+                    $(trEleNew).find("input,Select").each(function () {
+                        $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                        $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                    });
+                    $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                        $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                    });
+
+                    var selectGroup = $(trEleNew).find('select[name$=".AccountGroupId"]');
+                    selectGroup.empty();
+                    $.each(item.AccountGroupList, function (index, itemData) {
+                        selectGroup.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+
+                    var selectHead = $(trEleNew).find('select[name$=".AccountHeadId"]');
+                    selectHead.empty();
+                    $.each(item.AccountHeadList, function (index, itemData) {
+                        selectHead.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+                    $('#tbodyExpenseList').append(trEleNew);
+                }
+            });
+            $.each(result.DeductionDetail, function (i, item) {
+                if (i == 0) {
+                    var trEle = $('#tbodyDeductionList tr:first');
+                    $(trEle).find('input').val('');
+                    var amtEle = $(trEle).find('input[name$=".Amount"]');
+                    amtEle.removeClass('required');
+                    $(trEle).find('input[name$=".AccountGroupId"]').val(item.AccountGroupId);
+                    $(trEle).find('input[name$=".DeductionHeadId"]').val(item.DeductionHeadId);
+                    $(trEle).find('input[name$=".DeductionHead"]').val(item.DeductionHead);
+                    $(trEle).find('input[name$=".AccountGroup"]').val(item.AccountGroup);
+                    $(trEle).find('td:nth-child(1)').html(item.AccountGroup);
+                    $(trEle).find('td:nth-child(2)').html(item.DeductionHead);
+                } else {
+                    var trEleNew = $('#tbodyDeductionList tr:first').clone().find('input').val('').end();
+                    $(trEleNew).find("input").each(function () {
+                        $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                        $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                    });
+                    $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                        $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                    });
+                    var amtEle = $(trEleNew).find('input[name$=".Amount"]');
+
+                    amtEle.removeClass('required');
+                    $(trEleNew).find('input[name$=".AccountGroupId"]').val(item.AccountGroupId);
+                    $(trEleNew).find('input[name$=".DeductionHeadId"]').val(item.DeductionHeadId);
+                    $(trEleNew).find('input[name$=".DeductionHead"]').val(item.DeductionHead);
+                    $(trEleNew).find('input[name$=".AccountGroup"]').val(item.AccountGroup);
+                    $(trEleNew).find('td:nth-child(1)').html(item.AccountGroup);
+                    $(trEleNew).find('td:nth-child(2)').html(item.DeductionHead);
+                    $('#tbodyDeductionList').append(trEleNew);
+                }
+            });
+            $('#NeedUpdateTransDetail').val('false');
+            CalculateDeductionTotal();
+
+        },
+        error: function (err) {
+            console.log("error : " + err);
+        }
+    });
+    }
+    function ValidateDecimalOnly(evt) {
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode != 46 && charCode > 31
+          && (charCode < 48 || charCode > 57))
+            return false;
+
+        return true;
+    }
+    function formSave() {
+        var isValid = true;
+        if (rec == 1) {
+         var recipt= $("#receipval").val();
+         var amt = $("#Recamount").val();
+         if (amt > recipt) {
+             $('#alert').html("Receipt Amount Should be Greater than Claim Amount");
+             $('#Validation').modal('toggle');
+             isValid = false;
+         }
+         var credit = $("#ttlC").val();
+         var debit = $("#ttlD").val();
+         if (credit != debit) {
+             $('#alert').html("Not a valid entry. Credit and Debit value are not equal.");
+             $('#Validation').modal('toggle');
+             isValid = false;
+         }
+         else if (credit == "" || debit == "") {
+             $('#alert').html(" Credit and Debit value  are required.");
+             $('#Validation').modal('toggle');
+             isValid = false;
+         }
+        }
+        var credit = $("#ttlCr").val();
+        var debit = $("#ttlDr").val();
+        if (credit != debit) {
+            $('#alert').html("Not a valid entry. Credit and Debit value are not equal.");
+            $('#Validation').modal('toggle');
+            isValid = false;
+        }
+        else if (credit == "" || debit == "") {
+            $('#alert').html(" Credit and Debit value  are required.");
+            $('#Validation').modal('toggle');
+            isValid = false;
+        }
+        if (isValid)
+        $('#formINS').submit();
+
+    }
+
+
+    $("#projno").change(function () {
+        var projid = $("#projid").val();
+        $.getJSON("@Url.Action("GetComitmentNo", "CoreAccounts")", { projid: projid },
+                       function (locationdata) {
+                           var select = $("#commitmentno");
+                           select.empty();
+                           $.each(locationdata, function (index, itemData) {
+                               select.append($('<option/>', {
+                                   value: itemData.ViewBagCommitId,
+                                   text: itemData.ViewBagCommitNo
+                               }));
+                           });
+                           select.selectpicker('refresh');
+                       });
+    });
+    $("#commitmentno").change(function () {
+        var commitmentid = $(this).val();
+        $.getJSON("@Url.Action("GetSpendBalance", "CoreAccounts")", { commitmentid: commitmentid },
+                         function (locationdata) {
+                             var select = $("#balancevalue");
+                             select.empty();
+                             $("#balancevalue").val(locationdata);
+                             select.selectpicker('refresh');
+                         });
+    });
+
+    //////////Receipt//////////////////
+
+    $('#TransDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
+
+    $(document).on('change', '#projectfund', function () {
+        var projfun = $(this).val();
+        if (projfun == 1) {
+            $("#projid").prop("readonly", false).addClass('required');
+            $("#travelbill").prop("readonly", true).val("").removeClass('required');
+            $("#oth").prop("readonly", true).val("").removeClass('required');
+            $("#purchno").prop("readonly", true).val("").removeClass('required');
+        }
+        else {
+            $("#projid").prop("readonly", true).addClass('required');
+            $("#travelbill").prop("readonly", false).val("").addClass('required');
+            $("#oth").prop("readonly", false).val("").addClass('required');
+            $("#purchno").prop("readonly", false).val("").addClass('required');
+        }
+    });
+
+    $(document).on('change', '#modeofpayment', function ()
+    {
+        var id = $('#modeofpayment').val();
+        if (id == 1) {
+            $('#Cheqno').prop("readonly", false);
+            $('#Bankno').prop("readonly", true).val("");
+        }
+        else {
+            $('#Cheqno').prop("readonly", true).val("");
+            $('#Bankno').prop("readonly", false);
+        }
+    });
+
+    /*ReceiptDetails Related ADDNew Function */
+    $('#btnAddREC').click(function () {
+        var cln = $('#tbodyREC tr:nth-child(2)').clone().find("input[type!='checkbox']").val("").end();
+        $(cln).find('select[type="hidden"][name$=".ModeOfReceipt"],select[type="hidden"][name$=".ModeOfReceipt"]').val("").end();
+        $(cln).find('select[name$=".ModeOfReceipt"],select[select=".ModeOfReceipt"]').val("").end();
+
+        $(cln).find('a.dis-none').removeClass('dis-none');
+        var index = $('#tbodyREC tr:last').find("input[name='REC.Index']").val();
+        //var index = $('#tbodyPO tr:last').find("input[name='PODetail.Index']").val();
+        index = parseInt(index) + 1;
+        $(cln).find("input[name='REC.Index']").val(index);
+        // $(cln).find("input[name='PODetail[0].ModeOfPayment']").val(index);
+        $(cln).find("input, select").each(function () {
+            $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+            if ($(this).attr("id"))
+                $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+        });
+        $(cln).find("span[data-valmsg-for]").each(function () {
+            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+        });
+        $(cln).find('.hasDatepicker').attr("id", "").removeClass('hasDatepicker').removeData('datepicker').unbind().datepicker({
+            maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true
+        });
+        $('#tbodyREC').append(cln);
+    });
+
+    $(document).on('click', 'a.removeRECItem', function () {
+        $(this).closest('tr').remove();
+        calculateamount();
+    });
+
+    $(document).on('change', 'input[name$=".RecAmount"]', function () {
+        calculateamount();
+    });
+    CalculateDeductionTotal();
+    CalculateDeductionTota();
+    function GetTransactionDetai() {
+        EmptyExpenseDeductionDetai();
+        $.ajax({
+            type: "GET",
+            url: "@Url.Action("GetTransactionDetails", "CoreAccounts")",
+            data: { "typeCode": "CRE", "tSubCode": "1" },
+        traditional: true,
+        dataType: "json",
+        success: function (result) {
+            $.each(result.ExpenseDetail, function (i, item) {
+                if (i == 0) {
+                    var trEle = $('#tbodyExpenseLis tr:first');
+                    $(trEle).find('input[name$=".Amoun"]').val('');
+                    $(trEle).find('input[name$=".TransactionTyp"]').val(item.TransactionType);
+                    $(trEle).find('input[name$=".IsJ"]').val(item.IsJV);
+                    $(trEle).find('#lblTransTyp').text(item.TransactionType);
+                    $(trEle).find("input[name='ExpenseDetai.Index']").val(i);
+
+                    var selectGroup = $(trEle).find('select[name$=".AccountGroupI"]');
+                    selectGroup.empty();
+                    $.each(item.AccountGroupList, function (index, itemData) {
+                        selectGroup.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+
+                    var selectHead = $(trEle).find('select[name$=".AccountHeadI"]');
+                    selectHead.empty();
+                    $.each(item.AccountHeadList, function (index, itemData) {
+                        selectHead.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+                } else {
+                    var trEleNew = $('#tbodyExpenseLis tr:first').clone().find('input').val('').end();
+                    $(trEleNew).find('input[name$=".Amoun"]').val('');
+                    $(trEleNew).find("input[name='ExpenseDetai.Index']").val(i);
+                    $(trEleNew).find('input[name$=".TransactionTyp"]').val(item.TransactionType);
+                    $(trEleNew).find('input[name$=".IsJ"]').val(item.IsJV);
+                    $(trEleNew).find('#lblTransTyp').text(item.TransactionType);
+                    $(trEleNew).find("input,Select").each(function () {
+                        $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                        $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                    });
+                    $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                        $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                    });
+
+                    var selectGroup = $(trEleNew).find('select[name$=".AccountGroupI"]');
+                    selectGroup.empty();
+                    $.each(item.AccountGroupList, function (index, itemData) {
+                        selectGroup.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+
+                    var selectHead = $(trEleNew).find('select[name$=".AccountHeadI"]');
+                    selectHead.empty();
+                    $.each(item.AccountHeadList, function (index, itemData) {
+                        selectHead.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+                    $('#tbodyExpenseLis').append(trEleNew);
+                }
+            });
+            $.each(result.DeductionDetail, function (i, item) {
+                if (i == 0) {
+                    var trEle = $('#tbodyDeductionLis tr:first');
+                    $(trEle).find('input').val('');
+                    var amtEle = $(trEle).find('input[name$=".Amount"]');
+                    amtEle.removeClass('required');
+                    $(trEle).find('input[name$=".AccountGroupId"]').val(item.AccountGroupId);
+                    $(trEle).find('input[name$=".DeductionHeadId"]').val(item.DeductionHeadId);
+                    $(trEle).find('input[name$=".DeductionHead"]').val(item.DeductionHead);
+                    $(trEle).find('input[name$=".AccountGroup"]').val(item.AccountGroup);
+                    $(trEle).find('td:nth-child(1)').html(item.AccountGroup);
+                    $(trEle).find('td:nth-child(2)').html(item.DeductionHead);
+                } else {
+                    var trEleNew = $('#tbodyDeductionLis tr:first').clone().find('input').val('').end();
+                    $(trEleNew).find("input").each(function () {
+                        $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                        $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                    });
+                    $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                        $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                    });
+                    var amtEle = $(trEleNew).find('input[name$=".Amount"]');
+
+                    amtEle.removeClass('required');
+                    $(trEleNew).find('input[name$=".AccountGroupId"]').val(item.AccountGroupId);
+                    $(trEleNew).find('input[name$=".DeductionHeadId"]').val(item.DeductionHeadId);
+                    $(trEleNew).find('input[name$=".DeductionHead"]').val(item.DeductionHead);
+                    $(trEleNew).find('input[name$=".AccountGroup"]').val(item.AccountGroup);
+                    $(trEleNew).find('td:nth-child(1)').html(item.AccountGroup);
+                    $(trEleNew).find('td:nth-child(2)').html(item.DeductionHead);
+                    $('#tbodyDeductionList').append(trEleNew);
+                }
+            });
+            $('#NeedUpdateTransDetai').val('false');
+            CalculateDeductionTota();
+
+        },
+        error: function (err) {
+            console.log("error : " + err);
+        }
+    });
+    }
+
+    $(document).on('click', 'a.firsttab', function () {
+        $("#SubmitBtn").addClass('dis-none');
+    });
+    $(document).on('click', 'a.secondtab', function () {
+        if (insid == "0") {
+            GetTransactionDetails();
+        }
+        $("#btnAddExpense").addClass('dis-none');
+        if (rec == 1) {
+            $("#SubmitBtn").addClass('dis-none')
+        }else{
+            $("#SubmitBtn").removeClass('dis-none');
+        }
+
+        $("#subledgeramountlabel").text("Total Claim Amount");
+        $("#subledger").hide();
+        $("#CreditorLabel").hide();
+        $("#creditor").hide();
+        $("#ExpenseLabel").text("Institute Claims Details")
+        var clamount = $("#claimamount").val();
+        $("#CreditorAmount").val(parseFloat(clamount));
+    });
+    $(document).on('click', 'a.thirdtab', function () {
+            GetTransactionDetai();
+        if (rec == 1) {
+            $("#SubmitBtn").removeClass('dis-none')
+        } else {
+            $("#SubmitBtn").removeClass('dis-none');
+        }
+
+        $("#btnAddExpens").addClass('dis-none');
+        var clamount = $("#claimamount").val();
+        $("#receipval").val(parseFloat(clamount));
+    });
+    //$(document).on('click', 'a.secondtab', function () {
+    //    $("#SubmitBtn").removeClass('dis-none')
+    //});
+    function ValidateDecimalOnly(evt) {
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode != 46 && charCode > 31
+          && (charCode < 48 || charCode > 57))
+            return false;
+
+        return true;
+    }
+
+    function calculateamount() {
+        var nettotal = 0;
+        $('#tbodyREC tr').each(function (idx, val) {
+            var amount = parseFloat($(this).closest('tr').find('input[name$=".RecAmount"]').val());
+            if (!isNaN(amount))
+            {
+                nettotal += amount;
+            }
+        });
+        if (!isNaN(nettotal)) {
+            $("#amount").val(nettotal.toFixed(0));
+
+        }
+    }
+
+    //////////////////
+    function CalculateDeductionTota() {
+        var ttlExpVa = 0, ttlDrVa = 0, ttlDedtVa = 0,ttlJVExpVa = 0, ttlJVDrVa = 0;
+        $('#tbodyExpenseLis input[name$=".TransactionTyp"]').each(function (i, rowEle) {
+            var jv = $(this).closest('tr').find("input[name$='.IsJ']").val();
+            if ($(this).val() == 'Credit') {
+                var parseVa = parseFloat($(this).closest('tr').find("input[name$='.Amoun']").val());
+                if (!isNaN(parseVa)) {
+                    ttlExpVa = ttlExpVa + parseVa;
+                    if (jv.toLowerCase()== "true")
+                        ttlJVExpVa = ttlJVExpVa + parseVa;
+                }
+            } else if ($(this).val() == 'Debit') {
+                var parseVa = parseFloat($(this).closest('tr').find("input[name$='.Amoun']").val());
+                if (!isNaN(parseVa)) {
+                    ttlDrVa = ttlDrVa + parseVa;
+                    if (jv.toLowerCase()== "true")
+                        ttlJVDrVa = ttlJVDrVa + parseVa;
+                }
+            }
+
+        });
+
+        $('#tbodyDeductionLis input[name$=".Amoun"]').each(function (i, rowEle) {
+            var parseVa = parseFloat($(this).val());
+            if (!isNaN(parseVa))
+                ttlDedtVa = ttlDedtVa + parseVa;
+        });
+        $('#ExpenseAmoun').val(ttlDrVa);
+        $('#DeductionAmoun').val(ttlDedtVa);
+        $('#ttlJVD').val(ttlJVDrVa);
+        $('#ttlJVC').val(ttlJVExpVa);
+        $('#ttlD').val(ttlDrVa + ttlDedtVa);
+        $('#ttlC').val(ttlExpVa);
+    }
+    function EmptyExpenseDeductionDetai() {
+        $('#tbodyDeductionLis tr').not(':first').remove();
+        $('#tbodyDeductionLis tr td').find('input, select').val('');
+        $('#tbodyExpenseLis tr').not(':first').remove();
+        $('#tbodyExpenseLis tr td').find('input').val('');
+        $('#tbodyDeductionLis tr td').not(':last').html('');
+    }
+    $('#btnAddExpens').click(function () {
+        AddNewExpens();
+    });
+    $('#btnRese').click(function () {
+        GetTransactionDetai();
+    });
+    $(document).on('click', 'a.removeExpens', function () {
+        if ($('#tbodyExpenseLis tr').length != 1) {
+            $(this).closest('tr').remove();
+            CalculateDeductionTota();
+        }
+    });
+    $(document).on('change', 'select[name$=".AccountGroupI"]', function () {
+        var groupId = $(this).val();
+        var ele = $(this).closest('tr');
+        var select = ele.find("select[name$='.AccountHeadI']");
+        select.empty();
+        select.append($('<option/>', {
+            value: "",
+            text: "Select any",
+        }));
+        ele.find('input[name$=".TransactionTyp"]').val('');
+        ele.find('input[name$=".IsJ"]').val('false');
+        ele.find('#lblTransTyp').text('');
+        if (groupId != '') {
+            $.getJSON("@Url.Action("GetAccountHead", "CoreAccounts")", { "accountGroupId": groupId },
+             function (locationdata) {
+                 $.each(locationdata, function (index, itemData) {
+                     select.append($('<option/>', {
+                         value: itemData.id,
+                         text: itemData.name,
+                     }));
+                 });
+             });
+        }
+    });
+
+    $(document).on('change', 'select[name$=".AccountHeadI"]', function () {
+        var headId = $(this).val();
+        var sCode = $('#SubCod').val();
+        var tCode = $('#TransactionTypeCod').val();
+        var ele = $(this).closest('tr');
+        var groupId = $(this).closest('tr').find("select[name$='.AccountGroupI']").val();
+        if (headId != '') {
+            $.getJSON("@Url.Action("GetTransactionType", "CoreAccounts")", { "accountGroupId": groupId, "accountHeadId": headId, "typeCode": tCode, "tSubCode": sCode },
+             function (data) {
+                 ele.find('input[name$=".TransactionTyp"]').val(data.tType);
+                 ele.find('input[name$=".IsJ"]').val(data.isJv);
+                 ele.find('#lblTransTyp').text(data.tType);
+                 CalculateDeductionTota();
+             });
+        } else {
+            ele.find('input[name$=".TransactionTyp"]').val('');
+            ele.find('input[name$=".IsJ"]').val('false');
+            ele.find('#lblTransTyp').text('');
+            CalculateDeductionTota();
+        }
+    });
+
+</script>

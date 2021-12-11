@@ -1,0 +1,106 @@
+﻿@model IOAS.Models.ProjSummaryModel
+@{
+    ViewBag.Title = "Report";
+    ViewBag.Subtitle = "Reports";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+
+<div class="row hd-tt-bg">
+    <div class="col-md-12">
+        <h4><b>Day Wise Project Financial</b> </h4>
+    </div>
+</div>
+
+
+<style>
+    .vw-dts-bg .hgt-bg {
+        background: #597df0;
+        color: #fff;
+    }
+
+        .vw-dts-bg .hgt-bg label {
+            font-size: 16px !important;
+            color: #fff !important;
+        }
+
+        .vw-dts-bg .hgt-bg h4 {
+            font-size: 18px !important;
+            color: #fff;
+        }
+
+    .vw-dts-bg .hgt-bg-pl {
+        background: #e11eda;
+        color: #fff;
+    }
+
+        .vw-dts-bg .hgt-bg-pl label {
+            font-size: 16px !important;
+            color: #fff !important;
+        }
+
+        .vw-dts-bg .hgt-bg-pl h4 {
+            font-size: 18px !important;
+            color: #fff;
+        }
+</style>
+<div class="row">
+    <div class="white-bg ad-navbar">
+        <div class="col-md-3 ds-spl-bg">
+            <div class="ds-icn">
+                <i class="ion-ios-list-outline "></i>
+            </div>
+            <div class="ds-tt">
+                <span class="required">Date</span>
+                @Html.TextBoxFor(m => m.Common.CloseDate, new { @class = "form-control", @id = "date" })
+                @*<input type="text" class="form-control" id="date" />*@
+              </div>
+        </div>
+
+        <div class="col-md-3 ds-spl-bg">
+            <div class="ds-icn">
+                <i class="ion-ios-calendar-outline"></i>
+            </div>
+            <div class="ds-tt">
+                <span class="required">Project No</span>
+                @Html.TextBoxFor(m => m.ProjectNo, new { @class = "form-control", @id = "ProjectNo" })
+                @Html.TextBoxFor(m => m.ProjectId, new { @class = "form-control dis-none", @id = "ProjectId" })
+
+            </div>
+        </div>
+
+        <div class="col-md-3 ds-spl-bg">
+            <div class="ds-tt">
+                <input type="button" value="Download" class="btn btn-primary mt-20" id="btnSubmit" />
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+
+<script>
+    $('#date').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
+
+    $(document).on('click', '#ProjectNo', function () {
+
+        applyAutoComplete($('#ProjectNo'), $('#ProjectId'), "../CoreAccounts/LoadProjectNumber", undefined, undefined, undefined);
+    });
+    $('#btnSubmit').click(function () {
+        var ProjectId = $("#ProjectId").val();
+        var date = $("#date").val();
+        if (ProjectId != "" && date != "")
+        {
+            var url = '@Url.Action("DaywiseFinancialReport", "Reports")?ProjectId=' + ProjectId + "&tdate=" + date;
+        window.location.href = url;
+        } else {
+                $('#FailedAlert').html("Project No,Date field required");
+    $('#Failed').modal('toggle');
+    }
+
+    });
+
+  
+</script>
+

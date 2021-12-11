@@ -1,0 +1,254 @@
+﻿@model IEnumerable<IOAS.Models.PaymentBreakUpDetailModel>
+<div class="row">
+    <div class="col-md-12 mb-lg">
+        <table class="table alter-table">
+            <thead>
+                <tr>
+
+                    <th style="width:150px;" class="required">Category</th>
+                    <th class="required">Name</th>
+                    <th class="required">Mode of payment</th>
+                    <th class="required">Payment Amount</th>
+                    <th>Is TDS Applicable</th>
+                    <th>TDS Section</th>
+                    <th>TDS Basic Value</th>
+                    <th>TDS Amount</th>
+                    <th></th>
+
+                </tr>
+            </thead>
+            <tbody id="tbodyPaymentBU">
+                @if (Model.Count() > 0)
+                {
+                    var count = 0;
+                    foreach (var item in Model)
+                    {
+                        var catId = "PaymentBreakDetail[" + count + "].CategoryId";
+                        var uId = "PaymentBreakDetail[" + count + "].UserId";
+                        var name = "PaymentBreakDetail[" + count + "].Name";
+                        var mode = "PaymentBreakDetail[" + count + "].ModeOfPayment";
+                        var pAmt = "PaymentBreakDetail[" + count + "].PaymentAmount";
+                        var detId = "PaymentBreakDetail[" + count + "].PaymentBreakUpDetailId";
+                        var autoComp = "PaymentBreakDetail[" + count + "].autoComplete";
+                        var tds = "PaymentBreakDetail[" + count + "].IsHaveTDS";
+                        var tdsSection = "PaymentBreakDetail[" + count + "].TDSSection";
+                        var tdsAmount = "PaymentBreakDetail[" + count + "].TDSAmount";
+                        var tdsPayable = "PaymentBreakDetail[" + count + "].TDSPayable";
+                        <tr>
+                            <td>
+                                @Html.DropDownList(@catId, new SelectList(ViewBag.PayerCategoryList, "id", "name", item.CategoryId), "Select any", new { @class = "form-control required" })
+                                @Html.ValidationMessage(@catId)
+                                @Html.Hidden("PaymentBreakDetail.Index", @count)
+                                @Html.Hidden(@detId, item.PaymentBreakUpDetailId)
+                            </td>
+                            <td class="tdDDLUser">
+                                @Html.TextBox(@autoComp, item.Name, new { @class = "form-control" })
+                                @Html.TextBox(@uId, item.UserId, new { @class = "form-control dis-none" })
+                                @*<input name="@autoComp" value="@item.Name" class="form-control" />
+                                    <input name="@uId" value="@item.UserId" class="form-control dis-none" />*@
+                                @Html.ValidationMessage(@uId)
+                            </td>
+                            <td class="tdTxtName dis-none">
+                                @Html.TextBox(@name, item.Name, new { @class = "form-control" })
+                                @Html.ValidationMessage(@name)
+                            </td>
+                            <td>
+                                @Html.DropDownList(@mode, new SelectList(ViewBag.ModeOfPaymentList, "id", "name", item.ModeOfPayment), "Select any", new { @class = "form-control required" })
+                                @Html.ValidationMessage(@mode)
+                            </td>
+                            <td>
+                                @Html.TextBox(@pAmt, item.PaymentAmount, new { @class = "form-control required", @onkeypress = "return ValidateDecimalOnly(event)", @onblur = "CalculatePaymentBUTotal()" })
+                                @Html.ValidationMessage(@pAmt)
+                            </td>
+                            <td>
+                                @Html.CheckBox(@tds, item.IsHaveTDS)
+                                @Html.ValidationMessage(@tds)
+                            </td>
+                            <td>
+                                @Html.DropDownList(@tdsSection, new SelectList(ViewBag.TDSSectionList, "id", "name", item.TDSSection), "Select any", new { @class = "form-control", @onblur = "CalculateTDSPayableTotal()" })
+                                @Html.ValidationMessage(@tdsSection)
+                            </td>
+                            <td>
+                                @Html.TextBox(@tdsAmount, item.TDSAmount, new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)", @onblur = "CalculateTDSPayableTotal()", @readonly = true })
+                                @Html.ValidationMessage(@tdsAmount)
+                            </td>
+                            <td>
+                                @Html.TextBox(@tdsPayable, item.TDSPayable, new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)", @readonly = true })
+                                @Html.ValidationMessage(@tdsPayable)
+                            </td>
+                            <td>
+                                <a href="javascript:void(0)" class="btn-sm btn btn-danger removePaymentBUDetail"><i class="ion-android-close"></i></a>
+                            </td>
+                        </tr>
+                        count++;
+                    }
+
+                }
+                else
+                {
+                    <tr>
+                        <td>
+                            @Html.DropDownList("PaymentBreakDetail[0].CategoryId", new SelectList(ViewBag.PayerCategoryList, "id", "name"), "Select any", new { @class = "form-control required" })
+                            @Html.ValidationMessage("PaymentBreakDetail[0].CategoryId")
+                            @Html.Hidden("PaymentBreakDetail.Index", 0)
+                        </td>
+                        <td class="tdDDLUser">
+                            @Html.TextBox("PaymentBreakDetail[0].autoComplete", "", new { @class = "form-control" })
+                            @Html.TextBox("PaymentBreakDetail[0].UserId", "", new { @class = "form-control dis-none" })
+                            @*<input name="PaymentBreakDetail[0].autoComplete" class="form-control" />
+                                <input name="PaymentBreakDetail[0].UserId"  class="form-control dis-none" />*@
+                            @Html.ValidationMessage("PaymentBreakDetail[0].UserId")
+                        </td>
+                        <td class="tdTxtName dis-none">
+                            @Html.TextBox("PaymentBreakDetail[0].Name", "", new { @class = "form-control" })
+                            @Html.ValidationMessage("PaymentBreakDetail[0].Name")
+                        </td>
+                        <td>
+                            @Html.DropDownList("PaymentBreakDetail[0].ModeOfPayment", new SelectList(ViewBag.ModeOfPaymentList, "id", "name"), "Select any", new { @class = "form-control required" })
+                            @Html.ValidationMessage("PaymentBreakDetail[0].ModeOfPayment")
+                        </td>
+                        <td>
+                            @Html.TextBox("PaymentBreakDetail[0].PaymentAmount", "", new { @class = "form-control required", @onkeypress = "return ValidateDecimalOnly(event)", @onblur = "CalculatePaymentBUTotal()" })
+                            @Html.ValidationMessage("PaymentBreakDetail[0].PaymentAmount")
+                        </td>
+                        <td>
+                            @Html.CheckBox("PaymentBreakDetail[0].IsHaveTDS",  new { @id = "PaymentBreakDetail_0_IsHaveTDS" })
+                            @Html.ValidationMessage("PaymentBreakDetail[0].IsHaveTDS")
+                        </td>
+                        <td>
+                            @Html.DropDownList("PaymentBreakDetail[0].TDSSection", new SelectList(ViewBag.TDSSectionList, "id", "name"), "Select any", new { @class = "form-control", @onblur = "CalculateTDSPayableTotal()"})
+                            @Html.ValidationMessage("PaymentBreakDetail[0].TDSSection")
+                        </td>
+                        <td>
+                            @Html.TextBox("PaymentBreakDetail[0].TDSAmount", "", new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)", @onblur = "CalculateTDSPayableTotal()", @readonly = true })
+                            @Html.ValidationMessage("PaymentBreakDetail[0].TDSAmount")
+                        </td>
+                        <td>
+                            @Html.TextBox("PaymentBreakDetail[0].TDSPayable", "", new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)", @readonly = true })
+                            @Html.ValidationMessage("PaymentBreakDetail[0].TDSPayable")
+                        </td>
+                        <td>
+                            <a href="javascript:void(0)" class="btn-sm btn btn-danger removePaymentBUDetail"><i class="ion-android-close"></i></a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <div class="col-md-6 mt-md">
+            <a href="javascript:void(0)" id="btnAddPaymentBU" class="btn btn-primary">Add New</a>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div id="divPaymentTDSAmount" class="col-md-4 col-md-offset-8">
+        <div class="form-group custom-form-group ">
+            <label>Total TDS :</label>
+            @Html.TextBox("PaymentTDSAmount", (string)ViewBag.paymentTDSAmount, new { @class = "form-control", @readonly = "readonly" })
+            @Html.ValidationMessage("PaymentTDSAmount")
+        </div>
+    </div>
+    <div class="col-md-4 col-md-offset-8">
+        <div class="form-group custom-form-group ">
+            <label>Total Value :</label>
+            @Html.TextBox("PaymentBUTotal", "", new { @class = "form-control", @autocomplete = "off", @readonly = "readonly" })
+            @Html.Hidden("PaymentBUWOITAmount", "", new { @class = "form-control" })
+            @Html.ValidationMessage("PaymentBUTotal")
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+
+    $(document).on('change', '#tbodyPaymentBU select[name$=".CategoryId"]', function () {
+        paymentCategoryChange($(this));
+    });
+    $('#tbodyPaymentBU').find('select[name$=".CategoryId"]').each(function () {
+        paymentCategoryChange($(this), 'U');
+    });
+    $('input[name$=".IsHaveTDS"]').each(function () {
+        if ($(this).prop('checked')) {
+            $(this).closest('tr').find('input[name$=".TDSAmount"],input[name$=".TDSPayable"],select[name$=".TDSSection"]').addClass('required');
+            $(this).closest('tr').find('input[name$=".TDSAmount"]').prop("readonly", false);
+            $(this).closest('tr').find('select[name$=".TDSSection"]').prop("disabled", false);
+        }
+        else {
+            $(this).closest('tr').find('input[name$=".TDSAmount"],input[name$=".TDSPayable"],select[name$=".TDSSection"]').removeClass('required');
+            $(this).closest('tr').find('input[name$=".TDSAmount"]').prop("readonly", true);
+            $(this).closest('tr').find('select[name$=".TDSSection"]').prop("disabled", true);
+        }
+    });
+    $(document).on('click', '#tbodyPaymentBU input[name$=".IsHaveTDS"]', function () {
+        if ($(this).prop('checked')) {
+            $(this).closest('tr').find('input[name$=".TDSAmount"],input[name$=".TDSPayable"],select[name$=".TDSSection"]').addClass('required');
+            $(this).closest('tr').find('input[name$=".TDSAmount"]').prop("readonly", false);
+            $(this).closest('tr').find('select[name$=".TDSSection"]').prop("disabled", false);
+        }
+        else {
+            $(this).closest('tr').find('input[name$=".TDSAmount"],input[name$=".TDSPayable"],select[name$=".TDSSection"]').val('').removeClass('required');
+            $(this).closest('tr').find('input[name$=".TDSAmount"]').prop("readonly", true);
+            $(this).closest('tr').find('select[name$=".TDSSection"]').prop("disabled", true);
+        }
+        CalculateTDSPayableTotal();
+    });
+    $(document).on('click', 'a.removePaymentBUDetail', function () {
+        if ($('#tbodyPaymentBU tr').length != 1) {
+            $(this).closest('tr').remove();
+            //CalculatePaymentBUTotal();
+            CalculateTDSPayableTotal();
+        }
+    });
+    $("#PaymentTDSAmount").blur(function () {
+        CalculatePaymentBUTotal();
+    });
+    $("#btnAddPaymentBU").click(function () {
+        var cln = $('#tbodyPaymentBU tr:first').clone().find("select,input[type!='checkbox']").val("").end();
+        var index = $('#tbodyPaymentBU tr:last').find("input[name='PaymentBreakDetail.Index']").val();        
+        index = parseInt(index) + 1;
+        $(cln).find("input[name='PaymentBreakDetail.Index']").val(index);
+        $(cln).find('input[type="hidden"][name$=".IsHaveTDS"]').val('false');
+        $(cln).find('input[name$=".IsHaveTDS"]').attr('checked', false);
+        $(cln).find("input, select").each(function () {
+            $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+            if ($(this).attr("id"))
+                $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+        });
+        $(cln).find("span[data-valmsg-for]").each(function () {
+            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+        });
+        $('#tbodyPaymentBU').append(cln);
+    });
+    function CalculatePaymentBUTotal() {
+        var amt = 0;
+        $('#tbodyPaymentBU input[name$="PaymentAmount"]').each(function () {
+            amt = amt + (parseFloat($(this).val()) || 0);
+        });
+        $('#PaymentBUWOITAmount').val(amt);
+        amt = amt + (parseFloat($('#PaymentTDSAmount').val()) || 0);
+        $('#PaymentBUTotal').val(amt.toFixed(2));
+    }
+    function CalculateTDSPayableTotal() {
+        var amt = 0;
+        $('#tbodyPaymentBU input[name$="TDSPayable"]').each(function () {
+            var selTdsSection = $(this).closest('tr').find("select[name$='.TDSSection'] option:selected").text();
+            var basicAmt = $(this).closest('tr').find('input[name$=".TDSAmount"]').val();
+            var pct = selTdsSection.substring(selTdsSection.lastIndexOf('-') + 1, selTdsSection.lastIndexOf('%'))
+            var pctParse = parseFloat(pct) || 0;
+            var tdsITBasicAmt = parseFloat(basicAmt) || 0;
+            var tdsPayable = 0;
+            if (tdsITBasicAmt > 0 && pctParse > 0)
+                tdsPayable = (tdsITBasicAmt * pctParse) / 100;
+            tdsPayable = Math.ceil(tdsPayable);
+            amt += tdsPayable;
+            $(this).val(tdsPayable.toFixed(2))
+            //amt = amt + (parseFloat($(this).val()) || 0);
+        });
+        $('#PaymentTDSAmount').val(amt.toFixed(2));
+        CalculatePaymentBUTotal();
+    }
+    function EmptyPaymentBU() {
+        $('#tbodyPaymentBU tr').not(':first').remove();
+        $('#tbodyPaymentBU tr').find("input[name!='PaymentBreakDetail.Index'],select").val("");
+        $('#tbodyPaymentBU tr').find("input[type='checkbox']").val('true');
+        $('#tbodyPaymentBU tr').find('input[type="hidden"][name$=".IsHaveTDS"]').val('false');
+        $('#tbodyPaymentBU tr').find('input[name$=".IsHaveTDS"]').attr('checked', false);
+    }
+</script>

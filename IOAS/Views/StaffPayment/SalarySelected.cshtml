@@ -1,0 +1,237 @@
+﻿@model IOAS.Models.PagedData<IOAS.Models.AdhocEmployeeModel>
+
+
+<div class="grey-bg-adj mb-lg">
+    <div class="row">
+        <div class="col-md-12">
+            <div id="gridData">
+
+                <table id="tblEmployee" class="table alter-table mb-null">
+                    <tbody>
+                        <tr>
+                            <th>
+                                Credit
+                            </th>
+                            <th>
+                                Emp No
+                            </th>
+                            <th>
+                                Project No
+                            </th>
+                            <th>
+                                Commitment No
+                            </th>
+                            <th>
+                                Emp Name
+                            </th>
+                            <th>
+                                Dept
+                            </th>
+                            <th>
+                                Basic Salary
+                            </th>
+                            <th>
+                                Current Month Salary
+                            </th>
+                            <th>
+                                Mode of payment
+                            </th>
+                            <th>
+                                Action
+                            </th>
+                        </tr>
+                        @{
+                            if (Model != null && Model.Data.Any())
+                            {
+                                var sno = 1;
+
+                                foreach (var item in Model.Data)
+                                //for (var i = 0; i < Model.Data.AdhocEmployees.Count; i++)
+                                {
+                                    @*@Html.HiddenFor(modelItem => Model.Master.PaymentHeadId)*@
+                                    @Html.HiddenFor(modelItem => item.EmployeeID)
+                                    @Html.HiddenFor(modelItem => item.EmployeeName)
+                                    @Html.HiddenFor(modelItem => item.PROJECTNO)
+                                    @Html.HiddenFor(modelItem => item.SalaryDetail.PaymentId)
+                                    <tr>
+
+                                        <td>
+                                            @{
+                                                if (ViewBag.AllowEdit != "disabled")
+                                                {
+                                                    <label>@Html.CheckBoxFor(modelItem => item.MakePayment)</label>
+                                                }
+                                                else
+                                                {
+                                                    <label>@Html.CheckBoxFor(modelItem => item.MakePayment, new { @disabled = "@ViewBag.AllowEdit" })</label>
+                                                }
+                                            }
+
+                                        </td>
+                                        <td>
+                                            <label>@Html.DisplayFor(modelItem => item.EmployeeID)</label>
+                                        </td>
+                                        <td>
+                                            <label>@Html.DisplayFor(modelItem => item.PROJECTNO)</label>
+                                        </td>
+                                        <td>
+                                            <label>@Html.DisplayFor(modelItem => item.commitmentNo)</label>
+                                        </td>
+                                        <td>
+                                            <label>@Html.DisplayFor(modelItem => item.EmployeeName)</label>
+                                        </td>
+                                        <td>
+                                            <label>@Html.DisplayFor(modelItem => item.DEPARTMENT)</label>
+                                        </td>
+                                        <td>
+                                            <label>@Html.DisplayFor(modelItem => item.SalaryDetail.Basic)</label>
+                                        </td>
+                                        <td>
+                                            <label>@Html.DisplayFor(modelItem => item.SalaryDetail.CurrentMonthSalary)</label>
+                                        </td>
+                                        <td>
+                                            @{
+                                                if (ViewBag.AllowEdit != "disabled")
+                                                {
+                                                    @Html.DropDownListFor(modelItem => item.ModeOfPayment, new SelectList(ViewBag.ModeOfPayment, "CodeValAbbr", "CodeValDetail", item.ModeOfPayment), new { @class = "required form-control" })
+                                                }
+                                                else
+                                                {
+                                                    @Html.DropDownListFor(modelItem => item.ModeOfPayment, new SelectList(ViewBag.ModeOfPayment, "CodeValAbbr", "CodeValDetail", item.ModeOfPayment), new { @class = "required form-control", @disabled = "@ViewBag.AllowEdit" })
+                                                }
+                                            }
+
+                                        </td>
+                                        <td>
+                                            <label>
+                                                @*<button type="button" name="btnViewModal" value="@Model.Data.PaymentHeadId" class="btn btn-default" data-dismiss="modal">View</button>*@
+                                            </label>
+                                        </td>
+                                    </tr>
+
+                                }
+                            }
+
+                        }
+
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="6">
+                                @{
+                                    var maxpage = Model.visiblePages;
+                                    var startpage = 1;
+
+                                    if (Model.TotalPages < Model.visiblePages)
+                                    {
+                                        startpage = 1;
+                                        maxpage = Model.TotalPages;
+                                    }
+                                    else if (Model.CurrentPage >= maxpage)
+                                    {
+                                        startpage = Model.CurrentPage;
+
+                                        if (startpage + Model.visiblePages <= Model.TotalPages)
+                                        {
+                                            maxpage = startpage + Model.visiblePages;
+                                        }
+                                        else
+                                        {
+                                            maxpage = Model.TotalPages;
+                                        }
+
+                                        if (maxpage > Model.TotalPages)
+                                        {
+                                            maxpage = Model.TotalPages;
+                                            startpage = maxpage - (Model.visiblePages - 1);
+                                        }
+
+                                    }
+
+                                    if (Model.TotalPages > Model.visiblePages)
+                                    {
+                                        <a id='firstPage' name="pageButton" class="btn btn-primary  btn-md" href="#" onclick="return false;">First</a>
+                                        <a id='previousPage' name="pageButton" class="btn btn-default  btn-md" href="#" onclick="return false;">Previous</a>
+                                    }
+
+                                    for (int i = startpage; i <= maxpage; i++)
+                                    {
+
+
+                                        if (i == Model.CurrentPage)
+                                        {
+                                            <a id='currentPage' name="pageButton" class="btn btn-primary  btn-md" href="#" onclick="return false;">@i</a>
+                                        }
+                                        else
+                                        {
+                                            <a name="pageButton" class=" btn btn-default  btn-md" href="#" onclick="return false;">@i</a>
+                                        }
+                                    }
+                                    if (Model.TotalPages > Model.visiblePages)
+                                    {
+                                        <a id='nextPage' name="pageButton" class="btn btn-default  btn-md" href="#" onclick="return false;">Next</a>
+                                        <a id='lastPage' name="pageButton" class="btn btn-primary  btn-md" href="#" onclick="return false;">Last</a>
+                                    }
+                                }
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+<script type="text/javascript">
+      $(document).ready(function () {
+        var firstpage = 1
+        var lastpage = '@Model.TotalPages';
+        var currentPage = $('#currentPage').text();
+
+        if (parseInt(currentPage, 10) === parseInt(lastpage, 10)) {
+            $('#lastPage').addClass('disabled');
+            $('#nextPage').addClass('disabled');
+        }
+        else if (parseInt(currentPage, 10) === parseInt(firstpage, 10)) {
+            $('#firstPage').addClass('disabled');
+            $('#previousPage').addClass('disabled');
+        }
+        $('a[name="pageButton"]').click(function () {
+            var pageNo = 1;
+            if ($(this).text() === 'First') {
+                pageNo = 1;
+            }
+            else if ($(this).text() === 'Last') {
+                pageNo = lastpage;
+            }
+            else if ($(this).text() === 'Previous') {
+                if (parseInt($('#currentPage').text(), 10) > 1) {
+                    pageNo = parseInt($('#currentPage').text(), 10) - 1;
+                }
+
+            }
+            else if ($(this).text() === 'Next') {
+
+                pageNo = parseInt($('#currentPage').text(), 10) + 1;
+            }
+            else {
+                pageNo = $(this).text();
+            }
+            var membername = $('#MemberName').val();
+            var companyname = $('#CompanyName').val();
+            var model = {};
+            model.membername = membername;
+            model.companyname = companyname;
+
+            getData(pageNo, model);
+        });
+    });
+    $('div[id^="confirm-delete_"]').on('show.bs.modal', function (e) {
+        $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+    });
+
+
+</script>

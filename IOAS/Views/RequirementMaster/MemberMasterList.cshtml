@@ -1,0 +1,259 @@
+﻿
+@{
+    ViewBag.Title = "MemberMasterList";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<div class="row hd-tt-bg">
+    <div class="col-md-12">
+        <h4 class="pull-left"><b>Committee Master </b></h4>
+        <div class="flt-nav-links pull-right  mt-sm">
+            <a href="@Url.Action("MemberMaster")"> <i class="ion-plus"></i>Add New</a>
+        </div>
+
+    </div>
+</div>
+<div class="row mt30">
+    <div class="page-wrapper">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="custom-jsgrid-normal">
+                    <div id="gridMemList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    var alertMsg = '@TempData["alertMsg"]';
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+        else if (alertMsg != '') {
+            $('#alert').html(alertMsg);
+            $('#Validation').modal('toggle');
+        }
+    });
+    var DateField = function (config) {
+        jsGrid.Field.call(this, config);
+    };
+    DateField.prototype = new jsGrid.Field({
+        sorter: function (date1, date2) {
+            return new Date(date1) - new Date(date2);
+        },
+
+        itemTemplate: function (value) {
+            if (value != "") {
+                return new Date(value).toDateString();
+            }
+        },
+
+        filterTemplate: function () {
+            var now = new Date();
+            this._fromPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() - 1), changeYear: true });
+            this._toPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() + 1), changeYear: true });
+            return $("<div>").append(this._fromPicker).append(this._toPicker);
+        },
+
+        insertTemplate: function (value) {
+            return this._insertPicker = $("<input>").datepicker({ defaultDate: new Date() });
+        },
+
+        editTemplate: function (value) {
+            return this._editPicker = $("<input>").datepicker().datepicker("setDate", new Date(value));
+        },
+
+        insertValue: function () {
+            return this._insertPicker.datepicker("getDate").toISOString();
+        },
+
+        editValue: function () {
+            return this._editPicker.datepicker("getDate").toISOString();
+        },
+
+        filterValue: function () {
+            return {
+                from: this._fromPicker.datepicker("getDate"),
+                to: this._toPicker.datepicker("getDate")
+            };
+        }
+    });
+    jsGrid.fields.date = DateField;
+    $("#gridMemList").jsGrid({
+        paging: true,
+        pageIndex: 1,
+        pageSize: 10,
+        editing: false,
+        filtering: true,
+        pageLoading: true,
+        autoload: true,
+        controller: {
+
+            loadData: function (filter) {
+                var searchData = [];
+                searchData = {
+                    MemberTypeName: filter.MemberTypeName || null,
+                    EmployeeName: filter.EmployeeName || null,
+                    EmployeeCode: filter.EmployeeCode || null,
+                    Status: filter.Status || null,
+
+
+                },
+                filter.model = searchData;
+
+
+                var deferred = $.Deferred();
+                $.ajax({
+                    type: "post",
+                    url: "GetMemberList",
+                    data: JSON.stringify(filter),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (result) {
+                        //db = result;
+                        //$("#AdvanceBillPaymentList").jsGrid({ data: db });
+                        var da = {
+                            data: result.memlist,
+                            itemsCount: result.TotalRecords
+                        }
+                        deferred.resolve(da);
+                    },
+                    error: function (err) {
+                        console.log("error : " + err);
+                    }
+
+                });
+                return deferred.promise();
+            }
+
+        },
+
+        fields: [
+    { name: "SNo", title: "S.No", editing: false, width: 50 },
+    { type: "text", name: "MemberId", title: "Id", visible: false },
+    { type: "text", name: "MemberTypeName", title: "Member Type", editing: false },
+    { type: "text", name: "EmployeeName", title: "Employee Name", editing: false },
+    { type: "text", name: "EmployeeCode", title: "Employee Id", editing: false },
+    { type: "date", name: "FrmDate", title: "From Date", editing: false },
+    { type: "date", name: "TostrDate", title: "End Date", editing: false },
+    { type: "text", name: "Status", title: "Status", editing: false },
+    {
+        type: "control", editButton: false, deleteButton: false, width: 120, title: "Action",
+
+        itemTemplate: function (value, item) {
+            var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+            if (item.Status == "Active") {
+                statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }, { id: "Modify", name: "Modify" }]
+            }
+            else if (item.Status == "Open") {
+                statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }, { id: "Modify", name: "Modify" }]
+            }
+            else if(item.Status == "InActive")
+            {
+                statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }]
+            }
+            else {
+                statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }]
+            }
+            var $customSelect = $("<select>")
+                .attr("class", "form-control").prop("selectedIndex", "")
+            $.each(statusList, function (index, itemData) {
+                $customSelect.append($('<option/>', {
+
+                    value: itemData.id,
+                    text: itemData.name
+                }));
+            });
+            $customSelect.change(function (e) {
+                var selVal = $(this).val();
+                if (selVal == "Modify")
+                {
+                    var url = '@Url.Action("MemberMaster", "RequirementMaster")?MemberId=' + item.MemberId;
+                    window.location.href = url;
+                    @*$.confirm({
+                        title: 'Do you want to InActive Member ?',
+                        content: '' +
+                        '<form action="" class="formName">' +
+                        '<div class="form-group">' +
+                        '<label>Member type : </label>'+
+                        '<span>' + item.MemberTypeName + '</span>' +'<br/>'+
+                        '<label>Employee No : </label>' +'<br/>'+
+                        '<span>' + item.EmployeeName + '</span>' + '<br/>' +
+                        '</div>' +
+                        '</form>',
+                        buttons: {
+                            formSubmit: {
+                                text: 'Submit',
+                                btnClass: 'btn-blue',
+                                action: function () {
+                                   $.ajax({
+                                            type: "Post",
+                                            url: '@Url.Action("MemberInActive", "RequirementMaster")',
+                                            data: {
+                                                MemberId: item.MemberId,
+
+                                            },
+                                            success: function (result) {
+
+                                                if (result == 1) {
+                                                    $('#alertTitle').html("Success");
+                                                    $('#alertSuccessContent').html("Member has been InActive Successfully");
+                                                    $('#SuccessAll').modal('toggle');
+                                                    $("#gridMemList").jsGrid("loadData");
+                                                } else if (result == 2) {
+
+                                                    $('#alert').html("This Member not In Active");
+                                                    $('#Validation').modal('toggle');
+                                                }
+                                                else
+                                                {
+                                                    $('#FailedAlert').html("Something went wrong please contact administrator.");
+                                                    $('#Failed').modal('toggle');
+                                                }
+                                            },
+                                            error: function (err) {
+                                                console.log("error1 : " + err);
+                                            }
+                                        });
+
+
+                                }
+                            },
+                            cancel: function () {
+                                //close
+                            },
+                        },
+
+                    });*@
+                }
+                else if (selVal == "View") {
+                    var url = '@Url.Action("MemberMasterView", "RequirementMaster")?MemberId=' + item.MemberId;
+                    window.location.href = url;
+                }
+
+
+
+                $(this).val("");
+                return false;
+                e.stopPropagation();
+            });
+            return $result.add($customSelect);
+        },
+        _createFilterSwitchButton: function () {
+            return this._createOnOffSwitchButton("filtering", this.searchModeButtonClass, false);
+        }
+    }
+
+
+        ],
+    });
+    $("#gridMemList").jsGrid("option", "filtering", false);
+</script>
+

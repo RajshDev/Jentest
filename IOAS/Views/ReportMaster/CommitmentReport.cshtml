@@ -1,0 +1,179 @@
+﻿@model IOAS.Models.CommitmentReportModel
+
+@{
+    ViewBag.Title = "Report";
+    ViewBag.Subtitle = "Reports";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+<div class="row hd-tt-bg ">
+    <div class="col-md-12">
+        <h4><b>Commitment Report</b></h4>
+    </div>
+</div>
+
+<div class="row">
+    <div class="page-wrapper">
+        <div class="col-md-12 mt30">
+
+
+
+            <div class="row">
+
+                <div class="col-md-12">
+
+                    <div class="vh-tt-bg vh-tt-bg-adj mt-null">
+                        <div class="vh-frm-bg bl-lg-panel-box pb-null br-adj-null">
+                            <div class="row">
+
+                                <div class="">
+                                    <div class="col-md-12">
+                                        <div class="grey-bg-adj mb-lg">
+                                            <div class="row">
+                                                <div class="col-md-12">
+
+
+                                                    <div class="row mt-md">
+
+                                                        <div class="col-md-3 ">
+                                                            <div class="form-group custom-form-group ">
+                                                               
+                                                                <label>From:<label style="color:red">*</label> </label><br />
+                                                                @Html.EditorFor(m => m.FromDate, new { @class = "form-control", @id = "datepicker1" })
+                                                            </div>
+                                                        </div>
+
+
+                                                        <div class="col-md-3">
+                                                            <div class="form-group custom-form-group ">
+                                                                <label>To: <label style="color:red">*</label> </label><br />
+                                                                @Html.EditorFor(m => m.ToDate, new { @class = "form-control", @id = "datepicker2" })
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-md-3">
+                                                            <div class="form-group custom-form-group ">
+                                                                <label>Project Type <label style="color:red">*</label> </label><br />
+                                                                @Html.DropDownListFor(m => m.ProjectType, new List<SelectListItem> { new SelectListItem { Text = "Sponsored", Value = "1" }, new SelectListItem { Text = "Consultancy", Value = "2" } }, "Select ProjectType", new { @class = "form-control", @id = "projtype" })
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <div class="form-group custom-form-group ">
+                                                                <label>Project Number </label>
+                                                                @*@Html.DropDownListFor(m => m.ProjectNumber, new SelectList(ViewBag.ProjectNumber, "ProjectNumber", "ProjectNumber"), "Select ProjectNumber", new { @class = "form-control", @id = "projnum" })*@
+                                                            @Html.TextBoxFor(m => m.ProjectNumber,new { @class = "form-control", @id = "projnum" })
+                                                                @Html.TextBoxFor(m => m.ProjectId, new { @class = "form-control dis-none", @id = "projid" })
+                                                             </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div class="col-md-12 mt-md mb-lg text-center">
+                <input type="submit" value="Generate Report to Pdf" class="btn btn-primary" id="btnSubmit" />
+                <input type="submit" value="Generate Report to Excel" class="btn btn-primary" id="btnSubmit1" />
+            </div>
+        </div>
+    </div>
+
+</div>
+<div id="delsuccess" class="modal fade modal-success" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-checkmark-circle"></i>
+                <h3 class="modal-title">No Record found!...</h3>
+            </div>
+            <div class="modal-body">
+
+                <p> No Record found!...</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script>
+    
+    $(document).on('change', '#projtype', function ()
+    {
+        $("#projnum").val("");
+      
+        var Projecttype = $("#projtype").val();
+        var searchData = {type :Projecttype, classification : 1}
+        applyAutoComplete($('#projnum'), $('#projid'), "@Url.Action("LoadProjectList", "CoreAccounts")", undefined, undefined, undefined, searchData);
+
+    });
+
+    $('#FromDate,#ToDate').datepicker({ dateFormat: 'dd-MM-yy', changeYear: true }).datepicker("setDate", "-30d");
+   // $('#datepicker2').datepicker({ dateFormat: 'dd-MM-yy', changeYear: true }).datepicker("setDate", "0");
+    $('#btnSubmit').click(function () {
+        var fromdate = $('#FromDate').val();
+        var todate = $('#ToDate').val();
+        var projecttype = $('#projtype').val();
+        var projectnumber = $('#projid').val();
+        var format = 1;
+        $.ajax({
+        type: "POST",
+        data: JSON.stringify({ 'fromdate': fromdate, 'todate': todate, 'projecttype': projecttype, 'projectnumber': projectnumber }),
+        url: '@Url.Action("GetDataForCommitmentReport", "ReportMaster")',
+        contentType: "application/json",
+        success: function (result) {
+            if (result.em==1)
+                {
+                    var win = window.open('', '_blank');
+                    var url = "@Url.RouteUrl(new {Controller = "ReportMaster", Action = "Commitment" })?fromdate=" + fromdate + "&todate=" + todate + "&projecttype=" + projecttype
+                    + "&projectnumber=" + projectnumber + "&format=" + format;
+                    win.location.href = url;
+                }
+                else {
+                $("#delsuccess").modal('toggle');
+                }
+        }
+    })
+    });
+    $('#btnSubmit1').click(function () {
+        var fromdate = $('#FromDate').val();
+        var todate = $('#ToDate').val();
+        var projecttype = $('#projtype').val();
+        var projectnumber = $('#projid').val();
+        var format = 2;
+        $.ajax({
+            type: "POST",
+            data: JSON.stringify({ 'fromdate': fromdate, 'todate': todate, 'projecttype': projecttype, 'projectnumber': projectnumber }),
+            url: '@Url.Action("GetDataForCommitmentReport", "ReportMaster")',
+            contentType: "application/json",
+            success: function (result) {
+                if (result.em==1)
+                {
+                    var win = window.open('', '_blank');
+                    var url = "@Url.RouteUrl(new {Controller = "ReportMaster", Action = "Commitment" })?fromdate=" + fromdate + "&todate=" + todate + "&projecttype=" + projecttype
+                    + "&projectnumber=" + projectnumber + "&format=" + format;
+                    win.location.href = url;
+                }
+                else {
+                    $("#delsuccess").modal('toggle');
+                }
+            }
+        })
+    });
+</script>

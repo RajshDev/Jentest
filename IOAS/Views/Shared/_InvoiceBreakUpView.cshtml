@@ -1,0 +1,307 @@
+﻿@model IEnumerable<IOAS.Models.InvoiceBreakUpDetailModel>
+   
+        <div class="row">
+            <div class="col-md-12">
+                <h3>Invoice Details</h3>
+                
+                    
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <td style="width: 200px;">Vendor Name</td>
+                                    <td style="width: 200px;">SAC / HSN</td>
+                                    <td style="width: 200px;">Invoice Number </td>
+                                    <td style="width: 200px;">Invoice Date</td>
+                                    <td style="width: 200px;">Description</td>
+                                    <td style="width: 150px;">Amount</td>
+                                    <td style="width: 90px;">Tax %</td>
+                                    <td style="width: 150px;">Tax Amount</td>
+                                    <td style="width: 220px;">GSTIN</td>
+                                    <td style="width: 20px;">Tax Eligible</td>
+                                    <td style="width: 20px;">Interstate</td>
+                                </tr>
+                            </thead>
+                            <tbody id="tbodyInvoiceBU">
+                                @if (Model.Count() > 0)
+                                {
+                                    var count = 0;
+                                    foreach (var item in Model)
+                                    {
+                                        var invoicenumber = "InvoiceBreakDetail[" + count + "].InvoiceNumber";
+                                        var invoicedate = "InvoiceBreakDetail[" + count + "].InvoiceDate";
+                                        var description = "InvoiceBreakDetail[" + count + "].Description";
+                                        var amount = "InvoiceBreakDetail[" + count + "].Amount";
+                                        var taxpercent = "InvoiceBreakDetail[" + count + "].TaxablePercentage";
+                                        var taxvalue = "InvoiceBreakDetail[" + count + "].TaxValue";
+                                        var gstin = "InvoiceBreakDetail[" + count + "].GSTIN";
+                                        var taxEligible = "InvoiceBreakDetail[" + count + "].IsTaxEligible";
+                                        var interstate = "InvoiceBreakDetail[" + count + "].IsInterstate";
+                                        var hsn = "InvoiceBreakDetail[" + count + "].TypeOfServiceOrCategory";
+                                        var hsnCode = "InvoiceBreakDetail[" + count + "].HSNCode";
+                                        var vendor = "InvoiceBreakDetail[" + count + "].Vendor";
+                                        <tr id="trdetails" class="p-b-sm">
+                                            <td>
+                                                @Html.Hidden(@vendor, item.Vendor, new { @class = "form-control" })
+                                                <h4>@item.Vendor</h4>
+                                            </td>
+                                            <td>
+                                                @Html.Hidden(@hsnCode, item.HSNCode, new { @class = "form-control" })
+                                                @Html.TextBox(@hsn, item.TypeOfServiceOrCategory, new { @class = "form-control dis-none" })
+                                                <h4>@item.HSNCode</h4>
+                                            </td>
+                                            <td>
+                                                @Html.Hidden(@invoicenumber, item.InvoiceNumber, new { @class = "form-control" })
+
+                                                @Html.Hidden("InvoiceBreakDetail.Index", @count)
+                                                <h4>@item.InvoiceNumber</h4>
+                                            </td>
+                                            <td>
+                                                @Html.Hidden(@invoicedate, item.InvoiceDate, new { @class = "form-control", @autocomplete = "off" })
+                                                <h4>@item.InvoiceDate</h4>
+                                            </td>
+                                            <td>
+                                                @*@Html.TextArea(@description, item.Description, new { @class = "form-control" })
+                                @Html.ValidationMessage(@description)*@
+                                                <h4>@item.Description</h4>
+                                            </td>
+                                            <td>
+                                                @Html.Hidden(@amount, item.Amount, new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)" })
+                                                <h4>@item.Amount</h4>
+                                            </td>
+                                            <td>
+                                                @*@Html.DropDownList(@taxpercent, new SelectList(ViewBag.TaxPctList, "name", "name", item.TaxablePercentage), "Select any", new { @class = "form-control" })*@
+                                              @Html.Hidden(@taxpercent,item.TaxablePercentage)
+                                              <h4>@item.TaxablePercentage</h4>
+                                            </td>
+                                            <td>
+                                                @*@Html.TextBox(@taxvalue, item.TaxValue, new { @class = "form-control", @readonly = true })*@
+                                                <h4>@item.TaxValue</h4>
+                                            </td>
+                                            <td>
+                                                <h4>@item.GSTIN</h4>
+
+                                            </td>
+                                            <td>
+                                                @Html.CheckBox(@taxEligible, item.IsTaxEligible, new { @disabled = "disabled",@class="dis-none" })
+                                                @if(item.IsTaxEligible==true)
+                                                {
+                                                    <h4>Yes</h4>
+                                                }
+                                                else
+                                                {
+                                                    <h4>No</h4>
+                                                }
+                                            </td>
+                                            <td>
+                                                @Html.CheckBox(@interstate, item.IsInterstate, new { @disabled = "disabled",@class = "dis-none" })
+                                                @if (item.IsInterstate == true)
+                                                {
+                                                    <h4>Yes</h4>
+                                                }
+                                                else
+                                                {
+                                                    <h4>No</h4>
+                                                }
+                                            </td>
+
+                                        </tr>
+                                        @*<script type="text/javascript">
+                            applyAutoComplete($('input[name="' + @hsnCode +'"]'),$('input[name="' + @hsn +'"]'),'@Url.Action("LoadTypeOfServiceList", "CoreAccounts")');
+                        </script>*@
+                                        count++;
+                                    }
+                                    <tr>
+                                        <td colspan="7"></td>
+                                        <td class="reg-no" colspan="2">
+                                            <label class="lblval">Total Eligible GST :</label>
+                                            @*@Html.TextBox("GSTOffsetTotal", "", new { @class = "form-control", @readonly = "readonly" })*@
+                                            <h4>@Html.Display("GSTOffsetTotal", "")</h4>
+                                            <h4 id="lblGSTOffsetTotal" class="tatval"></h4>
+                                        </td>
+                                        <td class="reg-no" colspan="2">
+                                            <label class="lblval">Total Invoice Amount :</label>
+                                            @*@Html.TextBox("InvoiceBUTotal", "", new { @class = "form-control", @readonly = "readonly" })*@
+                                            <h4>@Html.Display("InvoiceBUTotal", "")</h4>
+                                            <h4 id="lblInvoiceBUTotal" class="tatval"></h4>
+                                        </td>
+                                    </tr>
+                                    
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td>
+                                         
+                                        </td>
+                                        <td>
+                                           
+                                        </td>
+                                        <td>
+                                           
+                                        </td>
+                                        <td>
+                                           
+                                        </td>
+                                        <td>
+                                         
+                                        </td>
+                                        <td>
+                                           
+                                        </td>
+                                        <td>
+                                            
+                                        </td>
+                                        <td>
+                                           
+                                        </td>
+                                        <td>
+                                           
+                                        </td>
+                                        <td>
+                                        
+                                        </td>
+                                        <td>
+                                           
+                                        </td>
+
+                                    </tr>
+                    
+                                }
+                            </tbody>
+                        </table>
+                   
+              
+            </div>
+        </div>
+   
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        //$('#btnAddInvoiceBU').closest('form').removeData("validator");
+        //$("input[name$='.GSTIN']").attr('data-val-maxlength', 'The field GST Number must be a string with a maximum length of 15.')
+        //.attr('data-val-maxlength-max', '15').attr('data-val-regex', 'Invalid GST Number')
+        //.attr('data-val-regex-pattern', '^([0]{1}[1-9]{1}|[1-2]{1}[0-9]{1}|[3]{1}[0-7]{1})([a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[1-9a-zA-Z]{1}[zZ]{1}[0-9a-zA-Z]{1})+$');
+        //$.validator.unobtrusive.parse(document);
+        //$('#btnAddInvoiceBU').closest('form').validate({
+        //     rules: {
+        //         'InvoiceBreakDetail[0].GSTIN':
+        //        {
+        //            regex: "^([0]{1}[1-9]{1}|[1-2]{1}[0-9]{1}|[3]{1}[0-7]{1})([a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[1-9a-zA-Z]{1}[zZ]{1}[0-9a-zA-Z]{1})+$",
+        //        },
+        //    },
+        //    messages: {
+        //        'InvoiceBreakDetail[0].GSTIN':
+        //        {
+        //            'regex': 'Invalid GST Number'
+        //        },
+        //    },
+        //});
+    });
+    $('input[name$=".InvoiceDate"]').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
+    $(document).on('click', 'a.removeInvoiceBUDetail', function () {
+        if ($('#tbodyInvoiceBU tr').length != 1) {
+            $(this).closest('tr').remove();
+            calculateAmount();
+        }
+    });
+    $('#tbodyInvoiceBU tr').each(function () {
+        var index = $(this).find("input[name='InvoiceBreakDetail.Index']").val();
+        var hdEle = $("input[name='InvoiceBreakDetail[" + index + "].TypeOfServiceOrCategory']");
+        var acEle = $("input[name='InvoiceBreakDetail[" + index + "].HSNCode']");
+        applyAutoComplete(acEle, hdEle, '@Url.Action("LoadTypeOfServiceList")');
+    });
+    calculateAmount();
+    $('input[name$=".IsTaxEligible"]').each(function () {
+        if ($(this).prop('checked')) {
+            $(this).closest('tr').find('input[name$=".GSTIN"]').addClass('required');
+        }
+        else {
+            $(this).closest('tr').find('input[name$=".GSTIN"]').removeClass('required');
+        }
+    });
+    $(document).on('click', 'input[name$=".IsTaxEligible"]', function () {
+        if ($(this).prop('checked')) {
+            //$(this).closest('tr').find('input[type="hidden"][name$=".IsTaxEligible"]').val('true');
+            $(this).closest('tr').find('input[name$=".GSTIN"]').addClass('required');
+        }
+        else {
+            //$(this).closest('tr').find('input[type="hidden"][name$=".IsTaxEligible"]').val('false');
+            $(this).closest('tr').find('input[name$=".GSTIN"]').removeClass('required');
+        }
+        calculateAmount();
+    });
+    $('#btnAddInvoiceBU input[name$=".HSNCode"]').each(function () {
+        if ($(this).val() != '') {
+            $(this).closest('tr').find('input').not('input[name$=".Description"],input[name$=".IsTaxEligible"],input[name$=".IsInterstate"],input[name$=".GSTIN"]').addClass('required');
+        } else {
+            $(this).closest('tr').find('input').not('input[name$=".Description"],input[name$=".IsTaxEligible"],input[name$=".IsInterstate"],input[name$=".GSTIN"]').removeClass('required');
+        }
+    });
+    $(document).on('keyup', 'input[name$=".HSNCode"]', function () {
+        if ($(this).val() != '') {
+            $(this).closest('tr').find('input').not('input[name$=".Description"],input[name$=".IsTaxEligible"],input[name$=".IsInterstate"],input[name$=".GSTIN"]').addClass('required');
+        } else {
+            $(this).closest('tr').find('input').not('input[name$=".Description"],input[name$=".IsTaxEligible"],input[name$=".IsInterstate"],input[name$=".GSTIN"]').removeClass('required');
+            $(this).closest('tr').find('input[name$=".IsInterstate"],input[name$=".IsTaxEligible"]').attr("checked", false);
+        }
+    });
+    $(document).on('click',"#btnAddInvoiceBU", function (){
+        var cln = $('#tbodyInvoiceBU tr:first').clone().find("select,input[type!='checkbox'],textarea").val("").end();
+        var index = $('#tbodyInvoiceBU tr:last').find("input[name='InvoiceBreakDetail.Index']").val();
+        index = parseInt(index) + 1;
+        $(cln).find("input[name='InvoiceBreakDetail.Index']").val(index);
+        $(cln).find('input[type="hidden"][name$=".IsInterstate"],input[type="hidden"][name$=".IsTaxEligible"]').val('false');
+        $(cln).find('input[name$=".IsInterstate"],input[name$=".IsTaxEligible"]').prop('checked', false);
+        $(cln).find("input, select,textarea").each(function () {
+            $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+            if($(this).attr("id"))
+             $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+        });
+
+        $(cln).find("span[data-valmsg-for]").each(function () {
+            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+        });
+        $('#tbodyInvoiceBU').append(cln);
+        var hdEle = $("input[name='InvoiceBreakDetail[" + index + "].TypeOfServiceOrCategory']");
+        var acEle = $("input[name='InvoiceBreakDetail[" + index + "].HSNCode']");
+        $(cln).find('.hasDatepicker').attr("id", "").removeClass('hasDatepicker').removeData('datepicker').unbind().datepicker({
+            maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true
+        });
+        applyAutoComplete(acEle, hdEle, '@Url.Action("LoadTypeOfServiceList")')
+    });
+
+    $(document).on('blur', 'input[name$=".Amount"],select[name$=".TaxablePercentage"]', function () {
+        calculateAmount();
+    });
+
+    function calculateAmount() {
+        var totalamount = 0;
+        var totaltax = 0;
+        var eligibletaxtotal = 0;
+        var netpayabletotal = 0;
+        $('#tbodyInvoiceBU tr').each(function (idx, val) {
+            var amount = parseFloat($(this).find('input[name$=".Amount"]').val()) || 0;
+            var taxpercent = parseFloat($(this).find('input[name$=".TaxablePercentage"]').val()) || 0;
+            var taxamount = parseFloat((amount * taxpercent) / 100) || 0;
+            $(this).find('input[name$=".TaxValue"]').val(taxamount);
+            var isEle = $(this).find('input[name$=".IsTaxEligible"]');
+            if (isEle.prop("checked") == true)
+                eligibletaxtotal = eligibletaxtotal + taxamount;
+            totaltax += taxamount;
+            totalamount += amount;
+        });
+        totalamount = Math.round(totalamount);
+        totaltax = Math.round(totaltax);
+        netpayabletotal = totalamount + totaltax;
+        $("#InvoiceBUTotal").val(netpayabletotal);
+        $("#lblInvoiceBUTotal").text(netpayabletotal);
+        $("#GSTOffsetTotal").val(eligibletaxtotal.toFixed(2));
+        $("#lblGSTOffsetTotal").text(eligibletaxtotal.toFixed(2));
+    }
+    function EmptyInvoiceBU() {
+        $('#tbodyInvoiceBU tr').not(':first').remove();
+        $('#tbodyInvoiceBU tr').find("input[name!='InvoiceBreakDetail.Index'],select").val("");
+    }
+</script>
+

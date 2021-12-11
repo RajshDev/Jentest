@@ -1,0 +1,671 @@
+﻿@model IOAS.Models.SalaryPaymentHead
+@{
+    ViewBag.Title = "SalaryInit";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+@using (Html.BeginForm("Salary", "StaffPayment", FormMethod.Post, new { @class = "form-horizontal", @id = "frmPaymentInit", @name = "frmPaymentInit", role = "form" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="wrapper">
+        <div class="row hd-tt-bg">
+            <div class="col-md-12">
+                <h4><b>Salary Processing</b></h4>
+                <ul class="nav nav-pills custom-nav-pills custom-spl-nav">
+                    <li class="active" id="picDel"><a href="javascript:void(0)" class="ml-null brd-rd-md">Salary Initiation</a></li>
+                    <li id="allOca"><a href="javascript:void(0)" class="ml-null brd-rd-md">Commitment</a></li>
+                    <li id="trans"><a href="javascript:void(0)" class="ml-null brd-rd-md">Transaction</a></li>
+                    <li id="modEof1"><a href="javascript:void(0)" class="ml-null brd-rd-md">Payment Process</a></li>
+
+                    @*<li id="modEof1"><a href="javascript:void(0)" class="brd-rd-md">Payment Process</a></li>*@
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="page-wrapper">
+            <div class="col-md-12 mt30">
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+                <div id="tab-01" style="display: block;">
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="bl-lg-panel-box pb-null">
+
+                                    <div class="cmn-panel-box">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="row">
+                                                    <div class="col-md-4">
+                                                        <div class="form-group custom-form-group">
+                                                            <label>Type of Paybill</label>
+                                                            @{
+                                                                if (ViewBag.AllowEdit != "disabled")
+                                                                {
+                                                                    @Html.DropDownListFor(m => m.TypeOfPayBill, new SelectList(ViewBag.PaymentType, "CodeValAbbr", "CodeValDetail"),
+                                                                   "--- Select ---", new { @class = "required form-control", @onchange = "this.form.submit();" })
+                                                                }
+                                                                else
+                                                                {
+                                                                    @Html.DropDownListFor(m => m.TypeOfPayBill, new SelectList(ViewBag.PaymentType, "CodeValAbbr", "CodeValDetail"),
+                                                                   "--- Select ---", new { @class = "required form-control", @onchange = "this.form.submit();", @readonly = "readonly" })
+
+                                                                }
+                                                            }
+                                                            @*@Html.DropDownListFor(m => m.TypeOfPayBill, new SelectList(ViewBag.PaymentType, "CodeValAbbr", "CodeValDetail"),
+                                                                "--- Select ---", new { @class = "required form-control", @onchange = "this.form.submit();", @disabled = "@ViewBag.AllowEdit" })*@
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="form-group custom-form-group">
+                                                            <label>Month Year</label>
+                                                            @{
+                                                                if (ViewBag.AllowEdit != "disabled")
+                                                                {
+                                                                    @Html.DropDownListFor(m => m.PaymentMonthYear, new SelectList(ViewBag.months, "Value", "Value"), "--- Select ---",
+                                                                   new { @class = "required form-control", @onchange = "this.form.submit();" })
+
+                                                                }
+                                                                else
+                                                                {
+                                                                    @Html.DropDownListFor(m => m.PaymentMonthYear, new SelectList(ViewBag.months, "Value", "Value"), "--- Select ---",
+                                                                   new { @class = "required form-control", @onchange = "this.form.submit();", @disabled = "@ViewBag.AllowEdit" })
+
+                                                                }
+                                                            }
+                                                            @*@Html.DropDownListFor(m => m.PaymentMonthYear, new SelectList(ViewBag.months, "Value", "Value"), "--- Select ---",
+                                                                new { @class = "required form-control", @onchange = "this.form.submit();", @disabled = "@ViewBag.AllowEdit" })*@
+
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="form-group custom-form-group">
+                                                            @*<label>Department</label>
+                                                            @{
+                                                                if (ViewBag.AllowEdit != "disabled")
+                                                                {
+                                                                    @Html.DropDownListFor(m => m.DepartmentCode, new SelectList(ViewBag.months, "Value", "Value"), "--- Select ---",
+                                                                   new { @class = "required form-control", @onchange = "this.form.submit();" })
+
+                                                                }
+                                                                else
+                                                                {
+                                                                    @Html.DropDownListFor(m => m.DepartmentCode, new SelectList(ViewBag.months, "Value", "Value"), "--- Select ---",
+                                                                   new { @class = "required form-control", @onchange = "this.form.submit();", @disabled = "@ViewBag.AllowEdit" })
+
+                                                                }
+                                                            }*@
+                                           
+                                                        </div>
+                                                    </div>
+
+
+
+
+
+                                                </div>
+
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <div class="grey-bg-adj mb-lg">
+                                                            <div class="row">
+                                                                <div class="col-md-12">
+                                                                    <div id="gridData">
+
+                                                                        <table id="tblEmployee" class="table alter-table mb-null">
+                                                                            <tbody>
+                                                                                <tr>
+                                                                                    <th>
+                                                                                        Credit
+                                                                                    </th>
+                                                                                    <th>
+                                                                                        Emp No
+                                                                                    </th>
+                                                                                    <th>
+                                                                                        Project No
+                                                                                    </th>
+                                                                                    <th>
+                                                                                        Commitment No
+                                                                                    </th>
+                                                                                    <th>
+                                                                                        Emp Name
+                                                                                    </th>
+                                                                                    <th>
+                                                                                        Dept
+                                                                                    </th>
+                                                                                    <th>
+                                                                                        Basic Salary
+                                                                                    </th>
+                                                                                    <th>
+                                                                                        Current Month Salary
+                                                                                    </th>
+                                                                                    <th>
+                                                                                        Mode of payment
+                                                                                    </th>
+                                                                                    <th>
+                                                                                        Action
+                                                                                    </th>
+                                                                                </tr>
+                                                                                @{
+                                                                                    if (Model != null && Model.AdhocEmployees != null)
+                                                                                    {
+                                                                                        var sno = 1;
+
+                                                                                        //foreach (var item in Model)
+                                                                                        for (var i = 0; i < Model.AdhocEmployees.Count; i++)
+                                                                                        {
+                                                                                            @Html.HiddenFor(modelItem => Model.PaymentHeadId)
+                                                                                            @Html.HiddenFor(modelItem => Model.AdhocEmployees[i].EmployeeID)
+                                                                                            @Html.HiddenFor(modelItem => Model.AdhocEmployees[i].EmployeeName)
+                                                                                            @Html.HiddenFor(modelItem => Model.AdhocEmployees[i].PROJECTNO)
+                                                                                            @Html.HiddenFor(modelItem => Model.AdhocEmployees[i].SalaryDetail.PaymentId)
+                                                                                            <tr>
+
+                                                                                                <td>
+                                                                                                    @{
+                                                                                                        if (ViewBag.AllowEdit != "disabled")
+                                                                                                        {
+                                                                                                            <label>@Html.CheckBoxFor(modelItem => Model.AdhocEmployees[i].MakePayment)</label>
+                                                                                                        }
+                                                                                                        else
+                                                                                                        {
+                                                                                                            <label>@Html.CheckBoxFor(modelItem => Model.AdhocEmployees[i].MakePayment, new { @disabled = "@ViewBag.AllowEdit" })</label>
+                                                                                                        }
+                                                                                                    }
+
+                                                                                                </td>
+                                                                                                <td>
+                                                                                                    <label>@Html.DisplayFor(modelItem => Model.AdhocEmployees[i].EmployeeID)</label>
+                                                                                                </td>
+                                                                                                <td>
+                                                                                                    <label>@Html.DisplayFor(modelItem => Model.AdhocEmployees[i].PROJECTNO)</label>
+                                                                                                </td>
+                                                                                                <td>
+                                                                                                    <label>@Html.DisplayFor(modelItem => Model.AdhocEmployees[i].commitmentNo)</label>
+                                                                                                </td>
+                                                                                                <td>
+                                                                                                    <label>@Html.DisplayFor(modelItem => Model.AdhocEmployees[i].EmployeeName)</label>
+                                                                                                </td>
+                                                                                                <td>
+                                                                                                    <label>@Html.DisplayFor(modelItem => Model.AdhocEmployees[i].DEPARTMENT)</label>
+                                                                                                </td>
+                                                                                                <td>
+                                                                                                    <label>@Html.DisplayFor(modelItem => Model.AdhocEmployees[i].SalaryDetail.Basic)</label>
+                                                                                                </td>
+                                                                                                <td>
+                                                                                                    <label>@Html.DisplayFor(modelItem => Model.AdhocEmployees[i].SalaryDetail.CurrentMonthSalary)</label>
+                                                                                                </td>
+                                                                                                <td>
+                                                                                                    @{
+                                                                                                        if (ViewBag.AllowEdit != "disabled")
+                                                                                                        {
+                                                                                                            @Html.DropDownListFor(modelItem => Model.AdhocEmployees[i].ModeOfPayment, new SelectList(ViewBag.ModeOfPayment, "CodeValAbbr", "CodeValDetail", Model.AdhocEmployees[i].ModeOfPayment), new { @class = "required form-control" })
+                                                                                                        }
+                                                                                                        else
+                                                                                                        {
+                                                                                                            @Html.DropDownListFor(modelItem => Model.AdhocEmployees[i].ModeOfPayment, new SelectList(ViewBag.ModeOfPayment, "CodeValAbbr", "CodeValDetail", Model.AdhocEmployees[i].ModeOfPayment), new { @class = "required form-control", @disabled = "@ViewBag.AllowEdit" })
+                                                                                                        }
+                                                                                                    }
+
+                                                                                                </td>
+                                                                                                <td>
+                                                                                                    <label>
+                                                                                                        <button type="button" name="btnViewModal" value="@Model.PaymentHeadId" class="btn btn-default" data-dismiss="modal">View</button>
+                                                                                                        @*@Html.ActionLink("View", "ViewDetails", new { RefId = item.EmployeeID }, new { @role = "button", @class = "btn btn-primary  btn-md", @name="viewdetails" })*@
+                                                                                                    </label>
+                                                                                                </td>
+                                                                                            </tr>
+
+                                                                                        }
+                                                                                    }
+
+                                                                                }
+
+                                                                            </tbody>
+                                                                            <tfoot>
+                                                                                <tr>
+                                                                                    <td colspan="6">
+
+                                                                                    </td>
+                                                                                </tr>
+                                                                            </tfoot>
+                                                                        </table>
+
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row mb-lg">
+                                                    <div class="col-md-6">
+
+                                                    </div>
+                                                    <div class="col-md-2"></div>
+                                                    <div class="col-md-4">
+                                                        @*<button type="submit" name="btnBack" class="btn btn-default">Back</button>*@
+                                                        <button type="submit" name="btnSave" class="btn btn-primary" @ViewBag.AllowSave>Save</button>
+                                                        <button type="submit" name="btnProceed" class="btn btn-primary" @ViewBag.AllowProceed>Proceed</button>
+                                                        <a href='@Url.Action("List", "StaffPayment")' role="button" class="btn btn-success btn-md">Back To List</a>
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <input type="hidden" id="currentRefId" value="@ViewBag.currentRefId" />
+        <input type="hidden" id="processGuideLineId" value="@ViewBag.processGuideLineId" />
+        @Html.Partial("_ProcessStatus")
+
+        @{
+            if (!String.IsNullOrEmpty(ViewBag.Errors))
+            {
+                @:<script type="text/javascript">$.alert({title:'Validation', content:'@ViewBag.Errors'})</script>
+            }
+            if (!String.IsNullOrEmpty(ViewBag.Message))
+            {
+                @:<script type="text/javascript">$.alert({title:'Message', content:'@ViewBag.Message'})</script>
+            }
+        }
+    </div>
+
+
+    <div id="SalaryDetailsModal" class="modal fade modal-pr-vw" role="dialog">
+
+        <div class="modal-dialog modal-lg">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <div class="row hd-tt-bg">
+                        <div class="col-md-12">
+                            <h4><b>Salary Details</b></h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="row white-bg">
+                        <div class="page-wrapper">
+
+                            <div class="col-md-12">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <h4>Employee No</h4>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label id="lblEmpNo"></label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <h4>Employee Name</h4>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label id="lblEmpName"></label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="page-wrapper">
+
+                            <div class="col-md-12">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="pr-amt-dts">
+                                                    <h4><b>Earnings</b></h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="pr-amt-dts">
+                                                    <h4><b>Deductions</b></h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                                </div>
+                                <input type="hidden" id="hdSelectedRecord" value="" />
+                                <div class="row">
+                                    <div id="empEarnings" class="col-md-6">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="pr-amt-dts">
+                                                    <h4><b>BASIC</b></h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label id="lblBasic"></label>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="pr-amt-dts">
+                                                    <h4><b>HRA</b></h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label id="lblHRA" value=""></label>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="pr-amt-dts">
+                                                    <h4><b>CONVEYANCE</b></h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label id="lblConveyance" value=""></label>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="pr-amt-dts">
+                                                    <h4><b>OTHER ALLOWANCE</b></h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label id="lblOtherAllowance" value=""></label>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="pr-amt-dts">
+                                                    <h4><b>MEDICAL ALLOWANCE</b></h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label id="lblMA" value=""></label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div id="empDeduction" class="col-md-6">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="pr-amt-dts">
+                                                    <h4><b>PF</b></h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label id="lblPF"></label>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="pr-amt-dts">
+                                                    <h4><b>INCOMETAX</b></h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label id="lblIncomeTax" value=""></label>
+                                            </div>
+                                        </div>
+                                        @*<div class="row">
+                                            <div class="col-md-6">
+                                                <div class="pr-amt-dts">
+                                                    <h4><b>PROF TAX</b></h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label id="lblProfTax" value=""></label>
+                                            </div>
+                                        </div>*@
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="pr-amt-dts">
+                                                    <h4><b>INSURANCE PREMIUM</b></h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label id="lblInsurance" value=""></label>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="pr-amt-dts">
+                                                    <h4><b>OTHER DEDUCTION</b></h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label id="lblOtherDeduction" value=""></label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="pr-amt-dts">
+                                                    <h4><b>Total Earnings</b></h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label id="lblTotalEarnings" value=""></label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="pr-amt-dts">
+                                                    <h4><b>Total Deductions</b></h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label id="lblTotalDeduction" value=""></label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+
+}
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $("[name^=btnViewModal]").on("click", function () {
+            $('#SalaryDetailsModal').modal('show');
+        });
+
+        var checkboxes = $( "input[type='checkbox']");
+
+        checkboxes.on("click", function() {
+
+            var control = $(this);
+
+	        console.log('checkbox click');
+	        console.log(control.attr('id'));
+	        var row = control.parent('tr');
+            if (control.prop('checked')) {
+                row.addClass('highlight');
+            } else {
+                row.removeClass('highlight');
+            }
+        });
+    });
+
+
+    function alertBox(title, message) {
+        $.alert({
+            title: title || 'Alert!',
+            content: message || ''
+        });
+    }
+
+      $(document).on('click', '#tblEmployee tr', function () {
+        var tableData = $(this).children("td").map(function () {
+            return $(this).text();
+        }).get();
+         $("#hdSelectedRecord").val($.trim(tableData[1]));
+         //alert("Your data is: " + $.trim(tableData[0]) + " , " + $.trim(tableData[1]));
+          SelectedEmployeeSalary()
+     });
+
+     function SelectedEmployeeSalary() {
+        var EmpNo = $("#hdSelectedRecord").val();
+        var token = $("input[name=__RequestVerificationToken]").val();
+        var searchdata = { "__RequestVerificationToken": token };
+        var headers = {
+            contentType: 'application/x-www-form-urlencoded'
+        }
+        headers['__RequestVerificationToken'] = token;
+        searchdata.EmpNo = EmpNo;
+        var PaymentMonthYear = $('#PaymentMonthYear option:selected').val();
+        var TypeOfPayBill = $('#TypeOfPayBill option:selected').val();
+        var style = 'float: right; text-align:right; width: 100px;';
+        $.ajax({
+            url: '@Url.Action("EmplyeeSalaryDetail", "StaffPayment")?EmpNo=' + EmpNo+'&PaymentMonthYear='+PaymentMonthYear + '&TypeOfPayBill='+TypeOfPayBill,
+            type: "GET",
+            headers: headers,
+            data: searchdata,
+            success: function (data) {
+
+                var salary = data.SalaryDetail;
+                console.log(data);
+                var totalDeduction = 0;
+                var totalEarnings = 0;
+                if (data && data.SalaryDetail){
+                    $("#lblEmpNo").text(data.EmployeeID);
+                    $("#lblEmpName").text(data.EmployeeName);
+
+                    var Basic = parseFloat(data.SalaryDetail.Basic || 0).toFixed(2);
+                    var HRA = parseFloat(data.SalaryDetail.HRA || 0).toFixed(2);
+                    var CA = parseFloat(data.SalaryDetail.CA || 0).toFixed(2);
+                    var OtherAllowance = parseFloat(data.SalaryDetail.OtherAllowanceAmount || 0).toFixed(2);
+                    var MA = parseFloat(data.SalaryDetail.MA || 0).toFixed(2);
+                    var MedicalInsurance = parseFloat(data.SalaryDetail.MedicalInsurance || 0).toFixed(2);
+                    var MonthlyTax = parseFloat(data.SalaryDetail.MonthlyTax || 0).toFixed(2);
+                    var PF = parseFloat(data.SalaryDetail.PF || 0).toFixed(2);
+                    //var ProfTax = parseFloat(data.SalaryDetail.ProfTax || 0).toFixed(2);
+                    var OtherDeduction = parseFloat(data.SalaryDetail.OtherDeduction || 0).toFixed(2);
+                    totalDeduction = parseFloat(MonthlyTax + PF + MedicalInsurance + OtherDeduction).toFixed(2); //+ ProfTax
+                    var total = parseFloat(Basic) + parseFloat(HRA) + parseFloat(CA) + parseFloat(OtherAllowance) + parseFloat(MedicalInsurance);
+                    totalEarnings = parseFloat(total).toFixed(2);
+                }
+                var divStr = '<div class="row"> <div class="col-md-6"> <div class="pr-amt-dts"> <h4><b>__LABEL__</b></h4> </div> </div>'+
+                            ' <div class="col-md-6"> __VALUE__ </div> </div>';
+
+                var id = $("#empEarnings").empty();
+                var idDedcution = $("#empDeduction").empty();
+                var temp = "";
+                if (salary.fellowship > 0) {
+                    addComponent("Fellowship", salary.fellowship, id);
+                } else {
+                    addComponent("Basic", Basic, id);
+                }
+                addComponent("HRA", HRA, id);
+                addComponent("OtherAllowance", OtherAllowance, id);
+                addComponent("MA", MA, id);
+                addComponent("No of days", salary.NoOfDaysPresent, id);
+                addComponent("Current Salary", salary.CurrentMonthSalary, id);
+
+
+                addComponent("Medical Insurance", MedicalInsurance, idDedcution);
+                addComponent("Income Tax", MonthlyTax, idDedcution);
+                addComponent("PF", PF, idDedcution);
+                //addComponent("Prof Tax", ProfTax, idDedcution);
+                addComponent("Other Deduction", OtherDeduction, idDedcution);
+                //if (Basic) {
+                //    temp = divStr.replace("__LABEL__", "Basic").replace("__VALUE__", Basic);
+                //    id.append(temp);
+                //}
+
+                console.log('totalEarnings : ',totalEarnings);
+                console.log('OtherAllowance : ',OtherAllowance);
+                $("#lblBasic").text(Basic).css('style', style);
+                $("#lblHRA").text(HRA).css('style', style);
+                $("#lblConveyance").text(CA).css('style', style);
+                $("#lblOtherAllowance").text(OtherAllowance).css('style', style);
+                $("#lblMA").text(MA).css('style', style);
+
+                $("#lblPF").text(PF).css(style);
+                $("#lblIncomeTax").text(MonthlyTax).css(style);
+                $("#lblInsurance").text(CA).css(style);
+                //$("#lblProfTax").text(ProfTax).css(style);
+                $("#lblTotalEarnings").text(totalEarnings).css(style);
+                $("#lblOtherDeduction").text(OtherDeduction).css(style);
+                $("#lblTotalDeduction").text(totalDeduction).css(style);
+
+            },
+            error: function (err) {
+                alertBox('Error',err.toString());
+            }
+        });
+    }
+    function addComponent(label, value, element) {
+        var divStr = '<div class="row"> <div class="col-md-6"> <div class="pr-amt-dts"> <h4><b>__LABEL__</b></h4> </div> </div>'+
+                ' <div class="col-md-6"> __VALUE__ </div> </div>';
+        var temp = "";
+        if (value) {
+            temp = divStr.replace("__LABEL__", label).replace("__VALUE__", value);
+            element.append(temp);
+        }
+    }
+
+
+</script>

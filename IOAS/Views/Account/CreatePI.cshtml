@@ -1,0 +1,284 @@
+﻿@model IOAS.Models.RegisterModel
+@{
+    ViewBag.Title = "Principle Investigator";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+@Styles.Render("~/bundles/JSGridCss")
+@Scripts.Render("~/bundles/JSGrid")
+<script src="@Url.Content("~/Scripts/Account/CreatePI.js")"></script>
+<div class="row hd-tt-bg" id="addnewpage">
+    <div class="col-md-4">
+
+        <h3>Principal Investigator</h3>
+
+    </div>
+    <div class="col-md-8 flt-nav-links">
+
+
+        <a href="#" id="btnaddnew"> <i class="ion-plus"></i>Add New</a>
+
+    </div>
+</div>
+<div class="row">
+    @using (Html.BeginForm("CreatePI", "Account", FormMethod.Post, new { @class = "", role = "form", @id = "formCU", enctype = "multipart/form-data" }))
+    {
+        <div class="col-md-12">
+            <div class="page-wrapper" id="createuser" style="display:none">
+                <div class="white-bg">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group custom-form-group">
+                                <label>First name</label>
+                                @Html.TextBoxFor(M => M.Firstname, new { @class = "form-control", @id = "txtfirstname", @required = "required" })
+                                <div class="txt-error txt-red"> @Html.ValidationMessageFor(M => M.Firstname)</div>
+                                @Html.HiddenFor(M => M.UserId, new { @id = "txtuserid" })
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group custom-form-group">
+                                <label>Last name</label>
+                                @Html.TextBoxFor(M => M.Lastname, new { @class = "form-control", @id = "txtlastname", @required = "required" })
+                                <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Lastname)</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group custom-form-group">
+                                <label>Gender</label>
+                                @Html.DropDownListFor(M => M.Gender, new SelectList(ViewBag.gender, "id", "name"), "Select Gender", new { @id = "ddlgender", @class = "form-control", @required = "required" })
+                                <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Gender)</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group custom-form-group">
+                                <label>Date of birth</label>
+                                @Html.EditorFor(m => m.Dateofbirth, new { @class = "form-control", @id = "datepickerid"})
+                                @Html.ValidationMessageFor(M => M.Dateofbirth)
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group custom-form-group">
+
+                                <label id="lblinstuite">Institute name</label>
+                                @Html.DropDownListFor(M => M.InstituteId, new SelectList(ViewBag.instute, "id", "name"), "Select Instutite", new { @id = "ddlinstuitelist", @class = "form-control", @required = "required" })
+                                <div class="txt-error txt-red" id="insvalidation">@Html.ValidationMessageFor(M => M.InstituteId)</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group custom-form-group">
+                                <label>Department</label>
+                                @Html.DropDownListFor(M => M.Department, new SelectList(ViewBag.dept, "id", "name"), "Select Department", new { @id = "ddldepartment", @class = "form-control", @required = "required" })
+                                <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Department)</div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group custom-form-group">
+                                <label id="lblempcode">ID</label>
+                                @Html.TextBoxFor(M => M.EMPCode, new { @class = "form-control", @id = "txtempcode", @required = "required" })
+                                @*@Html.DropDownListFor(M => M.RoleId, new SelectList(Enumerable.Empty<SelectListItem>(), "Roleid", "Rolename"), "Select Role", new { @id = "ddlrolelist", @class = "form-control", @required = "required", @onchange = "Fillrolelist()" })*@
+                                @*<div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.RoleId)</div>*@
+                                <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.EMPCode)</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group custom-form-group">
+                                <label id="lbldesignation">Designation</label>
+                                @Html.DropDownListFor(M => M.Designation, new SelectList(ViewBag.designation, "id", "name"), "Select designation", new { @id = "ddldesignation", @class = "form-control", @required = "required" })
+                                <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Designation)</div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="form-group custom-form-group">
+                                <label>Email</label>
+                                @Html.TextBoxFor(M => M.Email, new { @id = "txtemail", @class = "form-control", @placeholder = "Email Id" , @required = "required" })
+                                <div class="txt-error txt-red"> @Html.ValidationMessageFor(M => M.Email) </div>
+                            </div>
+                        </div>
+
+                        
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group custom-form-group">
+                                <label>Image</label>
+                                <input type="file" id="UserImage" name="UserImage" />
+                                @Html.ValidationMessageFor(M => M.UserImage)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 text-center pd-tb-30">
+                        <input type="submit" class="btn btn-primary mr10" value="Save" id="btnSave" />
+                        <input type="submit" class="btn btn-primary mr10" value="Update" id="btnupdate" style="display:none" />
+                        <input type="button" onclick="window.location.href='@Url.Action("CreatePI", "Account")';" class="btn btn-default" value="Close" id="btnsaveclose" />
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="row mt30" id="gridlist">
+
+                <div class="col-md-12">
+                    <div class="page-wrapper">
+                        <div class="custom-jsgrid-normal">
+                            <div id="PIlist"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+</div>
+
+<div id="savemodal" class="modal fade modal-success" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-checkmark-circle"></i>
+                <h3 class="modal-title">Created successfully</h3>
+            </div>
+            <div class="modal-body">
+
+                <p>PI  created successfully</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<div id="warrningmodal" class="modal fade modal-warning" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-warning"></i>
+                <h3 class="modal-title">PI name exists !.</h3>
+            </div>
+            <div class="modal-body">
+
+                <p>@ViewBag.Msg</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<div id="updatemodal" class="modal fade modal-success" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-checkmark-circle"></i>
+                <h3 class="modal-title">Updated successfully</h3>
+            </div>
+            <div class="modal-body">
+
+                <p>PI Updated successfully</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="deletemodal" class="modal fade modal-success" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-checkmark-circle"></i>
+                <h3 class="modal-title">Deleted successfully</h3>
+            </div>
+            <div class="modal-body">
+                <p>PI  Deleted successfully</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="Errormodal" class="modal fade modal-error" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-cancel"></i>
+                <h3 class="modal-title">Error Message</h3>
+            </div>
+            <div class="modal-body">
+
+                <p>"Something went to wrong please contact admin."</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script type="text/javascript">
+   
+    $('#Dateofbirth').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true, yearRange: '-100:+0' });
+    $('#btnaddnew').on('click', function () {
+        $('#createuser').show();
+        $('#gridlist').hide();
+        $('#addnewpage').hide();
+    });
+    $(document).ready(function () {
+      
+        var add = '@ViewBag.message';
+        if (add != '') {
+            $('#savemodal').modal('show');
+        }
+        var warrning = '@ViewBag.Msg';
+        if (warrning != '') {
+            $('#warrningmodal').modal('show');
+        }
+        var update = '@ViewBag.update';
+        if (update != '') {
+            $('#updatemodal').modal('show');
+        }
+        var error = '@ViewBag.error';
+        if (error != '') {
+            $('#Errormodal').modal('show');
+        }
+       
+    });
+</script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>

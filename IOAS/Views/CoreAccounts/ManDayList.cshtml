@@ -1,0 +1,423 @@
+﻿@model IOAS.Models.ManDayModel
+
+@{
+    ViewBag.Title = "Mandays";
+    ViewBag.Subtitle = "Mandays List";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+<div class="row hd-tt-bg">
+    <div class="col-md-4">
+        <h3>Mandays List</h3>
+    </div>
+    <div id="addnewpage" class="col-md-8 flt-nav-links">
+
+        <a href="Javascript:void(0)" id="btnFilter" class="pull-right"> <i class="ion-android-funnel"></i>Filters</a>
+        <a href="@Url.Action("ManDay")"> <i class="ion-plus"></i>Add New</a>
+
+    </div>
+</div>
+
+<div class="row mt30">
+    <div class="page-wrapper">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="custom-jsgrid-normal">
+                    <div id="ManDayList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="popup"></div>
+<div id="popupFilter" class="filter-popup">
+    <div class="">
+        <div class="filter-content">
+            <div class="white-bg">
+                <div class="form-group custom-form-group">
+                    <h3>Filter by</h3>
+                </div>
+                <div id="DivCrtdDate" class="form-group custom-form-group">
+                    <label class="full-width">Created Date</label>
+                    @Html.EditorFor(m => m.SearchField.FromDate, new { @id = "FromDate", @class = "form-control half-form" })
+                    @Html.EditorFor(m => m.SearchField.ToDate, new { @id = "ToDate", @class = "form-control half-form" })
+                </div>
+                <div class="form-group custom-form-group">
+                    <label class="full-width">Mandays Number</label>
+                    @Html.TextBoxFor(m => m.SearchField.ManDayNumber, new { @id = "mandaynumber", @placeholder = "Mandays Number", @class = "form-control" })
+                </div>
+                
+                <div class="form-group custom-form-group">
+                    @Html.TextBoxFor(m => m.SearchField.Status, new { @id = "status", @placeholder = "Status", @class = "form-control" })
+                </div>
+                <div class="form-group custom-form-group mt30 text-center">
+                    <a id="btnReset" href="javascript:void(0)">Reset</a>
+                </div>
+                <div class="form-group custom-form-group text-center">
+                    <button id="btnSearch" type="button" class="btn btn-primary mr10">Search</button>
+                    <button name="btnClose" type="button" class="btn btn-default">Close</button>
+                </div>
+
+
+
+
+
+            </div>
+        </div>
+
+    </div>
+
+    <a href="javascript:void(0)" name="btnClose" class="close-btn"><i class="ion-android-cancel"></i></a>
+
+</div>
+<script type="text/javascript">
+
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    /*Filter Function */
+    $("#FromDate, #ToDate,#reqdate").datepicker
+          ({
+              dateFormat: 'dd-MM-yy',
+              showStatus: true,
+              showWeeks: true,
+              changeYear: true,
+              yearRange: '-100:+0',
+              highlightWeek: true,
+              numberOfMonths: 1,
+              showAnim: "scale",
+              showOptions: {
+                  origin: ["top", "left"]
+              }
+          });
+    $('a[name="btnClose"],button[name="btnClose"]').click(function () {
+        $('#popupFilter').css("display", "none");
+    });
+    $("#btnFilter").click(function () {
+        $('#popupFilter').css("display", "Block");
+    });
+    $('#btnSearch').on('click', function () {
+        // var token = $("input[name=__RequestVerificationToken]").val();
+        getData();
+
+    });
+    function ResetForm() {
+        $('#mandaynumber').val('');
+        $('#reqdate').val('');
+        $('#status').val('');
+        $('#SearchField_FromDate').val('');
+        $('#SearchField_ToDate').val('');
+
+    }
+    $('#btnReset').click(function () {
+        ResetForm();
+        getData();
+    });
+
+    var searchMandayURL = 'SearchManDayList';
+    function getData() {
+        //var MandayNo = $('#mandaynumber').val();
+       
+        //var stat = $('#status').val();
+        //var FromDate = $('#FromDate').val();
+        //var ToDate = $('#ToDate').val();
+
+        //if (MandayNo == "") {
+        //    MandayNo = null;
+        //}
+       
+        //if (stat == "") {
+        //    stat = null;
+        //}
+        //if (FromDate == "") {
+        //    FromDate = null;
+        //}
+        //if (ToDate == "") {
+        //    ToDate = null;
+        //}
+        //var searchdata = {
+        //    ManDayNumber: MandayNo,
+            
+        //    Status: stat,
+        //    FromDate: FromDate,
+        //    ToDate: ToDate
+        //};
+
+        //$.ajax({
+        //    type: "GET",
+        //    url: searchMandayURL,
+        //    data: searchdata,
+        //    dataType: "json",
+        //    success: function (result) {
+        //        $("#ManDayList").jsGrid({ data: result });
+        //       // $('#gridlist').show();
+        //        $('#popupFilter').hide();
+
+        //    },
+        //    error: function (err) {
+        //        console.log("error : " + err);
+        //    }
+        //});
+        var input = [];
+        input = {
+            ExMandaysNumber: $('#mandaynumber').val(),
+            FromDate: $('#FromDate').val() || null,
+            ToDate: $('#ToDate').val() || null,
+            ExStatus: $('#status').val()
+        },
+        $("#ManDayList").jsGrid("search", input, pageIndex = 1, pageSize = 5);
+    }
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+    });
+    var DateField = function (config) {
+        jsGrid.Field.call(this, config);
+    };
+    DateField.prototype = new jsGrid.Field({
+        sorter: function (date1, date2) {
+            return new Date(date1) - new Date(date2);
+        },
+
+        itemTemplate: function (value) {
+            return new Date(value).toDateString();
+        },
+
+        filterTemplate: function () {
+            var now = new Date();
+            this._fromPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() - 1), changeYear: true });
+            this._toPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() + 1), changeYear: true });
+            return $("<div>").append(this._fromPicker).append(this._toPicker);
+        },
+
+        insertTemplate: function (value) {
+            return this._insertPicker = $("<input>").datepicker({ defaultDate: new Date() });
+        },
+
+        editTemplate: function (value) {
+            return this._editPicker = $("<input>").datepicker().datepicker("setDate", new Date(value));
+        },
+
+        insertValue: function () {
+            return this._insertPicker.datepicker("getDate").toISOString();
+        },
+
+        editValue: function () {
+            return this._editPicker.datepicker("getDate").toISOString();
+        },
+
+        filterValue: function () {
+            return {
+                from: this._fromPicker.datepicker("getDate"),
+                to: this._toPicker.datepicker("getDate")
+            };
+        }
+    });
+    jsGrid.fields.date = DateField;
+    var db;
+
+    $("#ManDayList").jsGrid({
+        paging: true,
+        pageIndex: 1,
+        pageSize: 5,
+        editing: false,
+        filtering: true,
+        pageLoading: true,
+        autoload: true,
+        controller: {
+
+            loadData: function (filter) {
+                //return $.grep(db, function (ow) {
+                //    return (!filter.BillNumber || ow.BillNumber.toLowerCase().indexOf(filter.BillNumber.toLowerCase()) > -1)
+                //   && (!filter.RequestedDate.from || new Date(ow.RequestedDate) >= filter.RequestedDate.from)
+                //   && (!filter.RequestedDate.to || new Date(ow.RequestedDate) <= filter.RequestedDate.to);
+                //});
+                var searchData = [];
+                searchData = {
+                    InMandaysNumber: filter.ManDayNumber,
+                    InStatus:filter.Status,
+                    ExMandaysNumber: $('#mandaynumber').val(),
+                    FromDate: $('#SearchField_FromDate').val() || null,
+                    ToDate: $('#SearchField_ToDate').val() || null,
+                    ExStatus: $('#status').val()
+                }
+                filter.model = searchData;
+                var deferred = $.Deferred();
+                $.ajax({
+                    type: "post",
+                    url: 'GetManDayList',
+                    data: JSON.stringify(filter),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (result) {
+                        //db = result;
+                        //$("#AdvanceBillPaymentList").jsGrid({ data: db });
+                        var da = {
+                            data: result.Mandayslist,
+                            itemsCount: result.TotalRecords
+                        }
+                        deferred.resolve(da);
+                    },
+                    error: function (err) {
+                        console.log("error : " + err);
+                    }
+
+                });
+                return deferred.promise();
+
+            }
+
+        },
+
+        fields: [
+            { name: "SlNo", title: "S.No", editing: false, width: 10 },
+            {  name: "ManDayId", title: "Id", visible: false, align: "left" },
+            { type: "text", name: "ManDayNumber", title: "Mandays Number", editing: false, align: "left", width: 70 },
+            { name: "ReDate", title: "Request Date", editing: false, align: "left", width: 70 },
+            { name: "MonYear", title: "Month & Year", editing: false, align: "left", width: 70 },
+             { name: "Amount", title: "Amount", editing: false, align: "left", width: 70 },
+            { type: "text", name: "Date", title: "Date", editing: false, align: "left", width: 70, type: "date" },
+            { type: "text",name: "Status", title: "Status", editing: false, align: "left", width: 60 },
+             {
+                 type: "control", editButton: false, deleteButton: false, title: "Action", width: 80,
+                 itemTemplate: function (value, item) {
+                     var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+                     if (item.Status == "Open") {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "Print Bill", name: "Print Bill" }, { id: "Edit", name: "Edit" }, { id: "Submit for approval", name: "Submit for approval" }, { id: "View", name: "View" }]
+                     } else if (item.Status == "Approval Pending") {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "Print Bill", name: "Print Bill" }, { id: "View", name: "View" }, { id: "Approve", name: "Approve" }]
+                     } else  {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "Print Bill", name: "Print Bill" }, { id: "View", name: "View" }]
+                     }
+
+                     var $customSelect = $("<select>")
+                         .attr("class", "form-control").prop("selectedIndex", "")
+
+                     $.each(statusList, function (index, itemData) {
+                         $customSelect.append($('<option/>', {
+
+                             value: itemData.id,
+                             text: itemData.name
+                         }));
+                     });
+
+                     $customSelect.change(function (e) {
+                         var selVal = $(this).val();
+                         if (selVal == "Edit") {
+                             var url = '@Url.Action("ManDay", "CoreAccounts")?Mandayid=' + item.ManDayId;
+                             window.location.href = url;
+                         } else if (selVal == "Print Bill") {
+                             var url = '@Url.Action("MandaysBill", "ReportMaster")?Id=' + item.ManDayId;
+                             window.open(url, '_blank');
+                         }
+                         else if (selVal == "Submit for approval") {
+                             var choice = confirm("Are you sure, Do you want to submit this bill for approval process?");
+                             if (choice === true) {
+                                 $.ajax({
+                                     type: "POST",
+                                     url: '@Url.Action("ManDayWFInit", "CoreAccounts")',
+                                     data: {
+                                         id: item.ManDayId
+                                     },
+                                     success: function (result) {
+                                         if (result.status == true) {
+                                             $('#alertSuccess').html("Mandays has been submitted for approval process successfully.");
+                                             $('#Success').modal('toggle');
+                                             loadDetails();
+                                         } else if (result.status == false) {
+
+                                             $('#FailedAlert').html(result.msg);
+                                             $('#Failed').modal('toggle');
+                                         }
+                                     },
+                                     error: function (err) {
+                                         console.log("error1 : " + err);
+                                     }
+                                 });
+                             }
+
+                         }
+                         else if (selVal == "View") {
+                             var url = '@Url.Action("ManDayView", "CoreAccounts")?Mandayid=' + item.ManDayId;
+                             window.location.href = url;
+                         }
+                         else if (selVal == "Approve") {
+                             var choice = confirm("Are you sure, Do you want to submit this bill for approval process?");
+                             if (choice === true) {
+                                 $.ajax({
+                                     type: "GET",
+                                     url: '@Url.Action("ApprovalPendingForManDay", "CoreAccounts")',
+                                     data: {
+                                         Mandayid: item.ManDayId
+                                     },
+                                     success: function (result) {
+                                        
+                                         if (result.status == true) {
+                                             $('#alertSuccess').html("Mandays has been submitted for approval process successfully");
+
+                                             $('#Success').modal('toggle');
+                                             loadDetails();
+                                         } else if (result.status == false) {
+
+                                             $('#FailedAlert').html(result.msg);
+                                             $('#Failed').modal('toggle');
+                                         }
+                                     },
+                                     error: function (err) {
+                                         console.log("error1 : " + err);
+                                     }
+                                 });
+                             }
+                         }
+                         $(this).val("");
+                         return false;
+                         e.stopPropagation();
+                     });
+
+                     return $result.add($customSelect);
+                 },
+                 _createFilterSwitchButton: function () {
+                     return this._createOnOffSwitchButton("filtering", this.searchModeButtonClass, false);
+                 }
+             }
+
+
+        ],
+
+    });
+
+    $("#ManDayList").jsGrid("option", "filtering", false);
+    //loadDetails();
+    function loadDetails() {
+        @*$.ajax({
+            type: "GET",
+            url: '@Url.Action("GetManDayList", "CoreAccounts")',
+            data: {},
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (result) {
+                db = result;
+                $("#ManDayList").jsGrid({ data: db });
+            },
+            error: function (err) {
+                console.log("error : " + err);
+            }
+
+        });*@
+        var input = [];
+        input = {
+            ExMandaysNumber: $('#mandaynumber').val(),
+            FromDate: $('#FromDate').val() || null,
+            ToDate: $('#ToDate').val() || null,
+            ExStatus: $('#status').val()
+        },
+        $("#ManDayList").jsGrid("search", input, pageIndex = 1, pageSize = 5);
+    }
+
+</script>

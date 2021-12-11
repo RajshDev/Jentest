@@ -1,0 +1,313 @@
+﻿@model IOAS.Models.RCTPopupModel
+<style>
+    .modal-dialog {
+        width: 100%;
+        padding: 15px 15px;
+    }
+
+    .modal-body {
+        padding: 15px 15px;
+    }
+
+    .scrl-body {
+        height: 500px;
+        overflow: auto;
+    }
+
+    .status {
+        font-size: 30px;
+        /*margin: 2px 2px 0 0;*/
+        margin: 0px 0px 3px 0px;
+        display: inline-block;
+        vertical-align: middle;
+        line-height: 10px;
+    }
+
+    .text-success {
+        color: #28a745 !important;
+    }
+
+    .text-danger {
+        color: #dc3545 !important;
+    }
+
+    .rc-tb-scrl {
+        width: 100%;
+        overflow: auto;
+    }
+
+        .rc-tb-scrl table {
+            max-width: 2100px !important;
+            width: 2000px;
+        }
+</style>
+<div id="popupService" class="modal fade" role="dialog" data-backdrop="static" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header brd-bottom">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">Employee History</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <div class="col-md-4">
+                        <label>Employee Id</label>
+                        <h4>@Model.EmployeeID</h4>
+                    </div>
+                    <div class="col-md-4">
+                        <label>Employee Name</label>
+                        <h4>@Model.CandidateName</h4>
+                    </div>
+                    <div class="col-md-4">
+                        <label>Employee Mode</label>
+                        <h4>@Model.EmployeeMode</h4>
+                    </div>
+                </div>
+                <div class="row mt20">
+                    <div class="col-md-12 scrl-body">
+                        <div class="bl-lg-panel-box pb-null" style="overflow:auto;">
+                            <div class="cmn-panel-box">
+                                <div class="row  mb20">
+                                    <div class="col-md-12">
+                                        <div class="rc-tb-scrl">
+                                            <table class="table alter-table">
+                                                <thead>
+                                                    <tr>
+                                                        @{
+                                                            string[] Apptype = Model.ExperienceList.Select(x => x.AppType).ToArray();
+                                                        }
+                                                        <th></th>
+                                                        <th>Order Type</th>
+                                                        <th>Employee Mode</th>
+                                                        <th>Project Number</th>
+                                                        <th>Designation</th>
+                                                        <th>From Date</th>
+                                                        <th>To Date</th>
+                                                        <th>Commitment Number</th>
+                                                        <th>Salary</th>
+                                                        @if (Apptype.Contains("OSG"))
+                                                        {
+                                                            <th>PF Basic</th>
+                                                        }
+                                                        @if (Apptype.Contains("STE"))
+                                                        {
+                                                            <th>HRA</th>
+                                                        }
+                                                        <th>Offer Letter / Order</th>
+                                                        <th>Office Order</th>
+                                                        <th>Joining Report</th>
+                                                        @if (Apptype.Contains("OSG"))
+                                                        {
+                                                            <th>Salary Structure</th>
+                                                        }
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="tbodyExperience">
+                                                    @if (Model.ExperienceList != null)
+                                                    {
+                                                        if (Model.ExperienceList.Count > 0)
+                                                        {
+                                                            foreach (var item in Model.ExperienceList)
+                                                            {
+                                                                string uptclass = item.isUpdated == true ? "text-success" : "text-danger";
+                                                                string ids = (item.SendOfferLetter_f == true ? "SendOffer_" : item.SendOrder_f == true ? "SendOrder_" : item.SendOfficeOrder_f == true ? "SendOffice_" : "") + item.AppId + "_" + item.AppType + "_" + item.OrderId;
+                                                                <tr>
+                                                                    <td><span class="status @uptclass">•</span></td>
+                                                                    <td>@item.OrderType</td>
+                                                                    <td>@item.TypeofAppointment</td>
+                                                                    <td>@item.ProjectNo</td>
+                                                                    <td>@item.Designation</td>
+                                                                    <td>@item.FromDate</td>
+                                                                    <td>@item.ToDate</td>
+                                                                    <td>@item.CommitmentNumber</td>
+                                                                    <td>@item.Salary</td>
+                                                                    @if (item.AppType == "OSG")
+                                                                    {
+                                                                        <td>@item.PFBasicWages</td>
+                                                                    }
+                                                                    @if (item.AppType == "STE")
+                                                                    {
+                                                                        <td>@item.Hra</td>
+                                                                    }
+                                                                    <td>
+                                                                        @if (!string.IsNullOrEmpty(item.OfferLetter))
+                                                                        {
+                                                                            <a href="@Url.Action("ShowDocument", "Project", new { file = item.OfferLetter, filepath = "RCTOfferLetter" })" target="_blank">@item.OfferLetterActualName</a>
+                                                                        }
+                                                                        else if (item.SendOfferLetter_f && item.AppType == "OSG")
+                                                                        {
+                                                                            <a id='@ids'>Send mail to vendor</a>
+                                                                        }
+                                                                        else if (item.SendOfferLetter_f && item.AppType != "OSG")
+                                                                        {
+                                                                            <a id='@ids'>Send Offer Letter</a>
+                                                                        }
+                                                                        else if (item.SendOrder_f)
+                                                                        {
+                                                                            if (item.AppType == "OSG")
+                                                                            {
+                                                                                <a id='@ids'>Send mail to vendor</a>
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <a id='@ids'>Send Order</a>
+                                                                            }
+                                                                        }
+                                                                    </td>
+                                                                    <td>
+                                                                        @if (!string.IsNullOrEmpty(item.OfficeOrder))
+                                                                        {
+                                                                            <a href="@Url.Action("ShowDocument", "Project", new { file = item.OfficeOrder, filepath = "RCTOfferLetter" })" target="_blank">@item.OfficeOrderActualName</a>
+                                                                        }
+                                                                        else if (item.SendOfficeOrder_f)
+                                                                        {
+                                                                            if (item.AppType == "OSG")
+                                                                            {
+                                                                                <a id='@ids'>Send mail to vendor</a>
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <a id='@ids'>Send Office Order</a>
+                                                                            }
+                                                                        }
+                                                                    </td>
+                                                                    <td>
+                                                                        @if (!string.IsNullOrEmpty(item.JoiningReport))
+                                                                        {
+                                                                            <a href="@Url.Action("ShowDocument", "Project", new { file = item.JoiningReport, filepath = "Requirement" })" target="_blank">@item.JoiningReportActualName</a>
+                                                                        }
+                                                                    </td>
+                                                                    @if (item.AppType == "OSG")
+                                                                    {
+                                                                        <td>
+                                                                            @if (item.OrderType != "Stop Payment" && item.OrderType != "Loss of Pay" && item.OrderType != "Relieving" && item.OrderType != "Maternity Leave Application" && item.OrderType != "Maternity Leave Application" && item.OrderType != "Amendment")
+                                                                            {
+                                                                                <a href="@Url.Action("SalaryStructureBill", "RCTReportMaster", new { OSGID = item.AppId, OrderId = item.OrderId })" target="_blank">Salary Structure</a>
+                                                                            }
+                                                                        </td>
+                                                                    }
+                                                                </tr>
+                                                            }
+                                                        }
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer brd-top">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+
+    $('a[id^="SendOffice_"],a[id^="SendOrder_"],a[id^="SendOffer_"]').click(function (e) {
+        e.preventDefault();
+        var id = $(this).attr('id');
+        id = id.split('_');
+        var OrderId = id[3] || 0;
+        var AppId = id[1] || 0;
+        var Apptype = id[2] || "";
+        var OfferCategory = "";
+        if (id[0] == "SendOffice")
+            OfferCategory = "OfficeOrder";
+        else if (id[0] == "SendOffer")
+            OfferCategory = "OfferLetter";
+        else
+            OfferCategory = "Order";
+
+        $.confirm({
+            title: "Mail Preview",
+            type: 'blue',
+            columnClass: 'col-md-12',
+            content: function () {
+                var self = this;
+                return $.ajax({
+                    type: "Post",
+                    url: '@Url.Action("SendOfferOrder", "Requirement")',
+                    data: {
+                        appid: AppId,
+                        apptype: Apptype,
+                        offercategory: OfferCategory,
+                        isgetbody_f: true,
+                        orderid: OrderId
+                    }
+                }).done(function (response) {
+                    self.setContent(response.Item2);
+                    if (Apptype != "OSG") {
+                        var url = '@Url.Action("ShowOrderDocument", "RCTReportMaster")?appid=' + AppId + '&apptype=' + Apptype + '&offercategory=' + OfferCategory + '&orderid=' + OrderId;
+                        self.setContentAppend('Attachment : <a href=' + url + ' target="_blank">attachment</a>');
+                    }
+                }).fail(function () {
+                    self.setContent('Preview page not loaded.');
+                });
+            },
+            buttons: {
+                Yes: {
+                    text: 'Send',
+                    btnClass: 'btn-blue',
+                    action: function () {
+                        $.ajax({
+                            type: "Post",
+                            url: '@Url.Action("SendOfferOrder", "Requirement")',
+                            data: {
+                                appid: AppId,
+                                apptype: Apptype,
+                                offercategory: OfferCategory,
+                                orderid: OrderId
+                            },
+                            beforeSend: function () {
+                                $(".loading-bg").removeClass('dis-none');
+                            },
+                            success: function (output) {
+                                $(".loading-bg").addClass('dis-none');
+                                if (output.Item1 == 1) {
+                                    $.confirm({
+                                        title: 'Success Message!',
+                                        content: OfferCategory + " mail sent to candidate",
+                                        type: 'green',
+                                        buttons: {
+                                            Ok: function () {
+                                                $("#popupService").modal('toggle');
+                                            },
+                                        },
+                                    });
+                                }
+                                else if (output.Item1 == 0) {
+                                    $.confirm({
+                                        title: 'Warning!',
+                                        content: output.Item2,
+                                        type: 'orange',
+                                        buttons: {
+                                            Ok: function () {
+                                                $("#popupService").modal('toggle');
+                                            },
+                                        },
+                                    });
+                                }
+                            },
+                            error: function (err) {
+                                console.log("error1 : " + err);
+                            }
+                        });
+                    }
+                },
+                No: {
+                    text: 'No',
+                    btnClass: 'btn-red',
+                    action: function () {
+                    }
+                },
+            }
+        });
+    });
+
+</script>

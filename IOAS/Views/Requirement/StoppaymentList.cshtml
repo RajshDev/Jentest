@@ -1,0 +1,489 @@
+﻿@{
+    ViewBag.Title = "Stop payment / Loss of pay";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<div class="row hd-tt-bg">
+    <div class="col-md-12">
+        <h3>Stop payment / Loss of pay</h3>
+        <ul class="nav nav-pills custom-nav-pills custom-spl-nav">
+            <li class="active"><a data-toggle="tab" href="#tabJsLPSTE" class="brd-rd-md">Short term</a></li>
+            <li><a data-toggle="tab" href="#tabJsLPOSG" class="brd-rd-md">OutSourcing</a></li>
+            <li><a data-toggle="tab" href="#tabJsLPCON" class="brd-rd-md">Consultant</a></li>
+        </ul>
+    </div>
+</div>
+
+<div class="tab-content mt30">
+    <div id="tabJsLPSTE" class="tab-pane fade in active">
+        <div class="custom-jsgrid-normal">
+            <div class="" id="gridDataSTE">
+            </div>
+        </div>
+    </div>
+    <div id="tabJsLPOSG" class="tab-pane fade">
+        <div class="custom-jsgrid-normal">
+            <div id="gridDataOSG">
+
+            </div>
+        </div>
+    </div>
+    <div id="tabJsLPCON" class="tab-pane fade">
+        <div class="custom-jsgrid-normal">
+            <div id="gridDataCON">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="popup">
+
+</div>
+<script>
+    loadedList = [];
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    var alertMsg = '@TempData["alertMsg"]';
+    $(document).ready(function () {
+        applyAutoComplete($('#ProjectNo'), $('#ProjectID'), '@Url.Action("LoadProjectList","CoreAccounts")');
+    });
+
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+        else if (alertMsg != '') {
+            $('#alert').html(alertMsg);
+            $('#Validation').modal('toggle');
+        }
+        //getData(1);
+    });
+
+
+
+
+    function searchData(href) {
+        if (loadedList.indexOf(href) > -1)
+            return false;
+        if (href == "#tabJsLPOSG")
+            $("#gridDataOSG").jsGrid("search");
+        else if (href == "#tabJsLPCON")
+            $("#gridDataCON").jsGrid("search");
+    }
+    $('a[href^="#tabJs"]').click(function () {
+        var href = $(this).attr('href');
+        searchData(href);
+    });
+    $("#gridDataSTE").jsGrid({
+        paging: true,
+        pageIndex: 1,
+        pageSize: 10,
+        editing: false,
+        filtering: true,
+        pageLoading: true,
+        autoload: true,
+        controller: {
+            loadData: function (filter) {
+                var searchData = [];
+                searchData = {
+                    SearchInName: filter.Name || null,
+                    SearchInCategory: filter.CategoryName || null,
+                    SearchInDesignation: filter.Designation || null,
+                    SearchInProjectNumber: filter.ProjectNumber || null,
+                    SearchInEmployeeId: filter.EmployeeId || null,
+                    TypeCategory: filter.TypeCategory || null,
+                    SearchInStatus: filter.Status || null
+                },
+                filter.model = searchData;
+                filter.Category = "STE";
+                var deferred = $.Deferred();
+                $.ajax({
+                    type: "post",
+                    url: "getEmployeeStoppaymentList",
+                    data: JSON.stringify(filter),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (result) {
+                        var da = {
+                            data: result.List,
+                            itemsCount: result.TotalRecords
+                        }
+                        if (loadedList.indexOf("#tabJsLPSTE") == -1)
+                            loadedList.push("#tabJsLPSTE");
+                        deferred.resolve(da);
+                    },
+                    error: function (err) {
+                        console.log("error : " + err);
+                    }
+
+                });
+                return deferred.promise();
+            }
+
+        },
+
+        fields: [
+            { name: "SNo", title: "S.No", editing: false, width: 50 },
+            { type: "number", name: "ID", title: "Id", visible: false },
+            {
+                type: "text", name: "EmployeeId", title: "Employee ID", editing: false,
+                itemTemplate: function (item, name) {
+                    return $("<td>").append(name.EmployeeId + "<span class='gd-msg-hgt'>" + name.CategoryName + "</span>");
+                }
+            },
+            {
+                type: "text", name: "Name", title: "Employee Name & Designation", editing: false, width: 150,
+                itemTemplate: function (item, name) {
+                    return $("<td>").append("<b>" + name.Name + "</b>" + "<br/><span>" + name.Designation + "</span>");
+                }
+            },
+            { type: "text", name: "CategoryName", title: "Category", editing: false, visible: false },
+            //{ type: "text", name: "Designation", title: "Designation", editing: false },
+            {
+                type: "text", name: "ProjectNumber", title: "PI Name & Project Number", editing: false, width: 150,
+                itemTemplate: function (item, name) {
+                    return $("<td>").append(name.PIName + "<br/><span class='fn-s-xs'>(" + name.ProjectNumber + ")</span>");
+                }
+            },
+            { type: "text", name: "TypeCategory", title: "Order Type", editing: false },
+            { name: "Salary", title: "Salary", editing: false },
+            {
+                type: "text", name: "Status", title: "Status", editing: false, width: 80,
+                cellRenderer: function (item, value) {
+                    if (value.Status == "Initiated") {
+                        return $("<td>").addClass("txt-bl").append(value.Status);
+                    }
+                    else if (value.Status == "Completed") {
+                        return $("<td>").addClass("txt-gr").append(value.Status);
+                    }
+                    else if (value.Status == "Reversal") {
+                        return $("<td>").addClass("txt-red").append(value.Status);
+                    }
+                    else {
+                        return $("<td>").append(value.Status);
+                    }
+                }
+            },
+             {
+                 type: "control", editButton: false, deleteButton: false, width: 80, title: "Action",
+
+                 itemTemplate: function (value, item) {
+                     var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+                     if (item.Status == "Approved" && item.MaternityOrderID == 0) {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "Modify", name: "Modify" }]
+                     }
+                     else {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }]
+                     }
+
+                     var $customSelect = $("<select>")
+                         .attr("class", "form-control").prop("selectedIndex", "")
+                     $.each(statusList, function (index, itemData) {
+                         $customSelect.append($('<option/>', {
+
+                             value: itemData.id,
+                             text: itemData.name
+                         }));
+                     });
+                     $customSelect.change(function (e) {
+                         var selVal = $(this).val();
+                         if (selVal == "Modify") {
+                             var url = '@Url.Action("Stoppayment", "Requirement")?appid=' + item.ID + '&apptype=' + item.CategoryName + '&orderid=' + item.OrderID + '&listf=SPLOP';
+                             window.location.href = url;
+                         }
+                         else if (selVal == "View") {
+                             var url = '@Url.Action("StoppaymentView", "Requirement")?OrderId=' + item.OrderID + '&listf=SPLOP';;
+                             window.location.href = url;
+                         }
+                         $(this).val("");
+                         return false;
+                         e.stopPropagation();
+                     });
+                     return $result.add($customSelect);
+                 },
+                 _createFilterSwitchButton: function () {
+                     return this._createOnOffSwitchButton("filtering", this.searchModeButtonClass, false);
+                 }
+             }
+
+
+        ],
+
+    });
+    $("#gridDataOSG").jsGrid({
+        paging: true,
+        pageIndex: 1,
+        pageSize: 10,
+        editing: false,
+        filtering: true,
+        pageLoading: true,
+        controller: {
+            loadData: function (filter) {
+                var searchData = [];
+                searchData = {
+                    SearchInName: filter.Name || null,
+                    SearchInCategory: filter.CategoryName || null,
+                    SearchInDesignation: filter.Designation || null,
+                    SearchInProjectNumber: filter.ProjectNumber || null,
+                    SearchInEmployeeId: filter.EmployeeId || null,
+                    TypeCategory: filter.TypeCategory || null,
+                    SearchInStatus: filter.Status || null
+                },
+                filter.model = searchData;
+                filter.Category = "OSG";
+                var deferred = $.Deferred();
+                $.ajax({
+                    type: "post",
+                    url: "getEmployeeStoppaymentList",
+                    data: JSON.stringify(filter),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (result) {
+                        var da = {
+                            data: result.List,
+                            itemsCount: result.TotalRecords
+                        }
+                        if (loadedList.indexOf("#tabJsLPOSG") == -1)
+                            loadedList.push("#tabJsLPOSG");
+                        deferred.resolve(da);
+                    },
+                    error: function (err) {
+                        console.log("error : " + err);
+                    }
+
+                });
+                return deferred.promise();
+            }
+
+        },
+
+        fields: [
+            { name: "SNo", title: "S.No", editing: false, width: 50 },
+            { type: "number", name: "ID", title: "Id", visible: false },
+            {
+                type: "text", name: "EmployeeId", title: "Employee ID", editing: false,
+                itemTemplate: function (item, name) {
+                    return $("<td>").append(name.EmployeeId + "<span class='gd-msg-hgt'>" + name.CategoryName + "</span>");
+                }
+            },
+            {
+                type: "text", name: "Name", title: "Employee Name & Designation", editing: false, width: 150,
+                itemTemplate: function (item, name) {
+                    return $("<td>").append("<b>" + name.Name + "</b>" + "<br/><span>" + name.Designation + "</span>");
+                }
+            },
+            { type: "text", name: "CategoryName", title: "Category", editing: false, visible: false },
+            //{ type: "text", name: "Designation", title: "Designation", editing: false },
+            {
+                type: "text", name: "ProjectNumber", title: "PI Name & Project Number", editing: false, width: 150,
+                itemTemplate: function (item, name) {
+                    return $("<td>").append(name.PIName + "<br/><span class='fn-s-xs'>(" + name.ProjectNumber + ")</span>");
+                }
+            },
+            { type: "text", name: "TypeCategory", title: "Order Type", editing: false },
+            { name: "Salary", title: "Salary", editing: false },
+            {
+                type: "text", name: "Status", title: "Status", editing: false, width: 80,
+                cellRenderer: function (item, value) {
+                    if (value.Status == "Initiated") {
+                        return $("<td>").addClass("txt-bl").append(value.Status);
+                    }
+                    else if (value.Status == "Completed") {
+                        return $("<td>").addClass("txt-gr").append(value.Status);
+                    }
+                    else if (value.Status == "Reversal") {
+                        return $("<td>").addClass("txt-red").append(value.Status);
+                    }
+                    else {
+                        return $("<td>").append(value.Status);
+                    }
+                }
+            },
+             {
+                 type: "control", editButton: false, deleteButton: false, width: 80, title: "Action",
+
+                 itemTemplate: function (value, item) {
+                     var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+                     if (item.Status == "Approved" && item.MaternityOrderID == 0) {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "Modify", name: "Modify" }]
+                     }
+                     else {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }]
+                     }
+
+                     var $customSelect = $("<select>")
+                         .attr("class", "form-control").prop("selectedIndex", "")
+                     $.each(statusList, function (index, itemData) {
+                         $customSelect.append($('<option/>', {
+
+                             value: itemData.id,
+                             text: itemData.name
+                         }));
+                     });
+                     $customSelect.change(function (e) {
+                         var selVal = $(this).val();
+                         if (selVal == "Modify") {
+                             var url = '@Url.Action("Stoppayment", "Requirement")?appid=' + item.ID + '&apptype=' + item.CategoryName + '&orderid=' + item.OrderID + '&listf=SPLOP';
+                             window.location.href = url;
+                         }
+                         else if (selVal == "View") {
+                             var url = '@Url.Action("StoppaymentView", "Requirement")?OrderId=' + item.OrderID + '&listf=SPLOP';
+                             window.location.href = url;
+                         }
+                         $(this).val("");
+                         return false;
+                         e.stopPropagation();
+                     });
+                     return $result.add($customSelect);
+                 },
+                 _createFilterSwitchButton: function () {
+                     return this._createOnOffSwitchButton("filtering", this.searchModeButtonClass, false);
+                 }
+             }
+
+
+        ],
+
+    });
+    $("#gridDataCON").jsGrid({
+        paging: true,
+        pageIndex: 1,
+        pageSize: 10,
+        editing: false,
+        filtering: true,
+        pageLoading: true,
+        controller: {
+            loadData: function (filter) {
+                var searchData = [];
+                searchData = {
+                    SearchInName: filter.Name || null,
+                    SearchInCategory: filter.CategoryName || null,
+                    SearchInDesignation: filter.Designation || null,
+                    SearchInProjectNumber: filter.ProjectNumber || null,
+                    SearchInEmployeeId: filter.EmployeeId || null,
+                    TypeCategory: filter.TypeCategory || null,
+                    SearchInStatus: filter.Status || null
+                },
+                filter.model = searchData;
+                filter.Category = "CON";
+                var deferred = $.Deferred();
+                $.ajax({
+                    type: "post",
+                    url: "getEmployeeStoppaymentList",
+                    data: JSON.stringify(filter),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (result) {
+                        var da = {
+                            data: result.List,
+                            itemsCount: result.TotalRecords
+                        }
+                        if (loadedList.indexOf("#tabJsLPCON") == -1)
+                            loadedList.push("#tabJsLPCON");
+                        deferred.resolve(da);
+                    },
+                    error: function (err) {
+                        console.log("error : " + err);
+                    }
+
+                });
+                return deferred.promise();
+            }
+
+        },
+
+        fields: [
+            { name: "SNo", title: "S.No", editing: false, width: 50 },
+            { type: "number", name: "ID", title: "Id", visible: false },
+            {
+                type: "text", name: "EmployeeId", title: "Employee ID", editing: false,
+                itemTemplate: function (item, name) {
+                    return $("<td>").append(name.EmployeeId + "<span class='gd-msg-hgt'>" + name.CategoryName + "</span>");
+                }
+            },
+            {
+                type: "text", name: "Name", title: "Employee Name & Designation", editing: false, width: 150,
+                itemTemplate: function (item, name) {
+                    return $("<td>").append("<b>" + name.Name + "</b>" + "<br/><span>" + name.Designation + "</span>");
+                }
+            },
+            { type: "text", name: "CategoryName", title: "Category", editing: false, visible: false },
+            //{ type: "text", name: "Designation", title: "Designation", editing: false },
+            {
+                type: "text", name: "ProjectNumber", title: "PI Name & Project Number", editing: false, width: 150,
+                itemTemplate: function (item, name) {
+                    return $("<td>").append(name.PIName + "<br/><span class='fn-s-xs'>(" + name.ProjectNumber + ")</span>");
+                }
+            },
+            { type: "text", name: "TypeCategory", title: "Order Type", editing: false },
+            { name: "Salary", title: "Salary", editing: false },
+            {
+                type: "text", name: "Status", title: "Status", editing: false, width: 80,
+                cellRenderer: function (item, value) {
+                    if (value.Status == "Initiated") {
+                        return $("<td>").addClass("txt-bl").append(value.Status);
+                    }
+                    else if (value.Status == "Completed") {
+                        return $("<td>").addClass("txt-gr").append(value.Status);
+                    }
+                    else if (value.Status == "Reversal") {
+                        return $("<td>").addClass("txt-red").append(value.Status);
+                    }
+                    else {
+                        return $("<td>").append(value.Status);
+                    }
+                }
+            },
+             {
+                 type: "control", editButton: false, deleteButton: false, width: 80, title: "Action",
+
+                 itemTemplate: function (value, item) {
+                     var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+                     if (item.Status == "Approved" && item.MaternityOrderID == 0) {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "Modify", name: "Modify" }]
+                     }
+                     else {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }]
+                     }
+
+                     var $customSelect = $("<select>")
+                         .attr("class", "form-control").prop("selectedIndex", "")
+                     $.each(statusList, function (index, itemData) {
+                         $customSelect.append($('<option/>', {
+
+                             value: itemData.id,
+                             text: itemData.name
+                         }));
+                     });
+                     $customSelect.change(function (e) {
+                         var selVal = $(this).val();
+                         if (selVal == "Modify") {
+                             var url = '@Url.Action("Stoppayment", "Requirement")?appid=' + item.ID + '&apptype=' + item.CategoryName + '&orderid=' + item.OrderID + '&listf=SPLOP';
+                             window.location.href = url;
+                         }
+                         else if (selVal == "View") {
+                             var url = '@Url.Action("StoppaymentView", "Requirement")?OrderId=' + item.OrderID + '&listf=SPLOP';
+                             window.location.href = url;
+                         }
+                         $(this).val("");
+                         return false;
+                         e.stopPropagation();
+                     });
+                     return $result.add($customSelect);
+                 },
+                 _createFilterSwitchButton: function () {
+                     return this._createOnOffSwitchButton("filtering", this.searchModeButtonClass, false);
+                 }
+             }
+
+
+        ],
+
+    });
+    $("#gridDataSTE,#gridDataOSG,#gridDataCON").jsGrid("option", "filtering", false);
+</script>

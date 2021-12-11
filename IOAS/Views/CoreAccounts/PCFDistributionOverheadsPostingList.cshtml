@@ -1,0 +1,380 @@
+﻿@model IOAS.Models.DistributionOHPostingModel
+@{
+    ViewBag.Title = "PCF and Distribution Overheads";
+    ViewBag.Subtitle = "PCF and Distribution Overheads";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<div class="row hd-tt-bg">
+    <div class="col-md-4">
+        <h3>PCF and Distribution Overheads List</h3>
+    </div>
+    <div id="addnewpage" class="col-md-8 flt-nav-links">
+
+        <a href="Javascript:void(0)" id="btnFilter" class="pull-right"> <i class="ion-android-funnel"></i>Filters</a>
+        @*<a href="#" id="btnaddnew" data-toggle="modal" data-target="#AddNewEntryModel"> <i class="ion-plus"></i>Add New</a>*@
+        <a href="@Url.Action("PCFDistributionOverheadsPosting")"> <i class="ion-plus"></i>Add New</a>
+
+    </div>
+</div>
+<div id="popupFilter" class="filter-popup">
+    <div class="">
+        <div class="filter-content">
+            <div class="white-bg">
+                <div class="form-group custom-form-group">
+                    <h3>Filter by</h3>
+                </div>
+
+                <div class="form-group custom-form-group">
+                    @Html.TextBoxFor(m => m.SearchField.DOHNumber, new { @id = "srchDOHnumber", @placeholder = "Reference Number", @class = "form-control" })
+                </div>
+                <div class="form-group custom-form-group">
+                    @Html.TextBoxFor(m => m.SearchField.Paymenttype, new { @id = "srchpaymenttype", @placeholder = "Payment Type", @class = "form-control" })
+                </div>
+                
+                <div id="DivCrtdDate" class="form-group custom-form-group">
+                    <label class="full-width">Request Date</label>
+                    <label class="half-form">From Date </label>
+                    @Html.TextBoxFor(m => m.SearchField.FromDate, new { @id = "FromDate", @class = "form-control half-form" })
+                    <label class="half-form">To Date </label>
+                    @Html.TextBoxFor(m => m.SearchField.ToDate, new { @id = "ToDate", @class = "form-control half-form" })
+                </div>
+                <div class="form-group custom-form-group mt30 text-center">
+                    <a id="btnReset" href="javascript:void(0)">Reset</a>
+                </div>
+                <div class="form-group custom-form-group mt30 text-center">
+                    <button id="btnSearch" type="button" class="btn btn-primary mr10">Search</button>
+                    <button name="btnClose" type="button" class="btn btn-default">Close</button>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <a href="javascript:void(0)" name="btnClose" class="close-btn"><i class="ion-android-cancel"></i></a>
+
+</div>
+<div class="row mt30">
+    <div class="page-wrapper">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="custom-jsgrid-normal">
+                    <div id="OverheadsPostingList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@Html.AntiForgeryToken()
+<div id="popup"></div>
+<script type="text/javascript">
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+    });
+    var DateField = function (config) {
+        jsGrid.Field.call(this, config);
+    };
+    $("#FromDate, #ToDate").datepicker
+         ({
+             dateFormat: 'dd-MM-yy',
+             showStatus: true,
+             showWeeks: true,
+             changeYear: true,
+             yearRange: '-100:+0',
+             highlightWeek: true,
+             numberOfMonths: 1,
+             showAnim: "scale",
+             showOptions: {
+             origin: ["top", "left"]
+                          }
+            });
+    function ResetForm() {
+        //$('#srchprojectnumber').val('');
+        $('#srchDOHnumber').val('');
+        $('#srchpaymenttype').val('');
+        $('#FromDate').val('');
+        $('#ToDate').val('');
+    }
+    $('#btnReset').click(function () {
+        ResetForm();
+        getData();
+    });
+    $('#btnSearch').on('click', function () {
+        // var token = $("input[name=__RequestVerificationToken]").val();
+        getData();
+    });
+    var searchURL = 'GetPCFDistributionOHPostingList';
+    function getData() {
+       
+        var input = [];
+        input = {
+            SearchEXDistributionOHNumber: $('#srchDOHnumber').val(),
+            SearchEXDOHPaymentType: $('#Paymenttype').val(),
+            FromDate: $('#FromDate').val() || null,
+            ToDate: $('#ToDate').val() || null
+        },
+         $("#OverheadsPostingList").jsGrid("search", input, pageIndex = 1, pageSize = 5);
+    }
+    $('a[name="btnClose"],button[name="btnClose"]').click(function () {
+        $('#popupFilter').css("display", "none");
+    });
+    $("#btnFilter").click(function () {
+        $('#popupFilter').css("display", "Block");
+    });
+    DateField.prototype = new jsGrid.Field({
+        sorter: function (date1, date2) {
+            return new Date(date1) - new Date(date2);
+        },
+
+        itemTemplate: function (value) {
+            return new Date(value).toDateString();
+        },
+
+        filterTemplate: function () {
+            var now = new Date();
+            this._fromPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() - 1), changeYear: true });
+            this._toPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() + 1), changeYear: true });
+            return $("<div>").append(this._fromPicker).append(this._toPicker);
+        },
+
+        insertTemplate: function (value) {
+            return this._insertPicker = $("<input>").datepicker({ defaultDate: new Date() });
+        },
+
+        editTemplate: function (value) {
+            return this._editPicker = $("<input>").datepicker().datepicker("setDate", new Date(value));
+        },
+
+        insertValue: function () {
+            return this._insertPicker.datepicker("getDate").toISOString();
+        },
+
+        editValue: function () {
+            return this._editPicker.datepicker("getDate").toISOString();
+        },
+
+        filterValue: function () {
+            return {
+                from: this._fromPicker.datepicker("getDate"),
+                to: this._toPicker.datepicker("getDate")
+            };
+        }
+    });
+    jsGrid.fields.date = DateField;
+    var db;
+    $("#OverheadsPostingList").jsGrid({
+        paging: true,
+        pageIndex: 1,
+        pageSize: 5,
+        editing: false,
+        filtering: true,
+        pageLoading: true,
+        autoload: true,
+        controller: {
+
+            loadData: function (filter) {
+                //return $.grep(db, function (ow) {
+                //    return (!filter.OverheadsPostingNumber || ow.OverheadsPostingNumber.toLowerCase().indexOf(filter.OverheadsPostingNumber.toLowerCase()) > -1)
+                //   //&& (!filter.ProjectNumber || ow.ProjectNumber.toLowerCase().indexOf(filter.ProjectNumber.toLowerCase()) > -1)
+                //   //&& (!filter.PIName || ow.PIName.toLowerCase().indexOf(filter.PIName.toLowerCase()) > -1)
+                //   && (!filter.CRTD_TS.from || new Date(ow.CRTD_TS) >= filter.CRTD_TS.from)
+                //   && (!filter.CRTD_TS.to || new Date(ow.CRTD_TS) <= filter.CRTD_TS.to)
+                //   && (!filter.Status || ow.Status.toLowerCase().indexOf(filter.Status.toLowerCase()) > -1);
+                //});
+                var searchData = [];
+                searchData = {
+                    SearchINDistributionOHNumber: filter.OverheadsPostingNumber,
+                    SearchINDOHPaymentType: filter.PaymentType,
+                    SearchINStatus: filter.Status,
+                    SearchEXDistributionOHNumber: $('#srchDOHnumber').val(),
+                    SearchEXPaymentType: $('#srchpaymenttype').val(),
+                    FromDate:$('#FromDate').val()||null,
+                    ToDate:$('#ToDate').val()||null
+                },
+                filter.model = searchData;
+                var deferred = $.Deferred();
+                $.ajax({
+                    type: "post",
+                    url: 'GetPCFDistributionOHPostingList',
+                    data: JSON.stringify(filter),
+                    contentType: "application/json; charset=utf-8",
+                    success: function (result) {
+                        // dataProposal = result;
+                        //$("#gridProposalList").jsGrid({ data: result });
+                        //$('#projectopening').hide();
+                        //$('#gridproposal').show();
+                        //dbProposal = result;
+                        var da = {
+                            data: result.DOHPList,
+                            itemsCount: result.TotalRecords
+                        }
+                        deferred.resolve(da);
+                    },
+                    error: function (err) {
+                        console.log("error : " + err);
+                    }
+
+                });
+                return deferred.promise();
+            }
+
+        },
+
+        fields: [
+            { name: "SlNo", title: "S.No", editing: false, width: 50 },
+            { type: "number", name: "OverheadsPostingId", title: "Id", visible: false },
+            { type: "text", name: "OverheadsPostingNumber", title: "PCF Distribution Overhead Number", editing: false },
+            { type: "text", name: "PaymentType", title: "Payment Type", editing: false },
+            { name: "PostedDate", title: "Posted Date", type: "date" },
+            //{ name: "TotalAmount", title: "Amount", editing: false },
+            { type: "text", name: "Status", title: "Status", editing: false },
+             {
+                 type: "control", editButton: false, deleteButton: false, width: 120, title: "Action",
+
+                 itemTemplate: function (value, item) {
+                     var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+                     if (item.Status == "Completed") {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }, { id: "Bank Advice", name: "Bank Advice" }]
+                     }
+                     //if (item.Status == "Open") {
+                     //    statusList = [{ id: "", name: "Select Action" }, { id: "Edit", name: "Edit" }, { id: "Approve", name: "Approve" }, { id: "View", name: "View" }]
+                     //}
+                     //else if (item.Status == "Approved") {
+                     //    statusList = [{ id: "", name: "Select Action" }, { id: "Close", name: "Close" }, { id: "View", name: "View" }]
+                     //}
+                     else
+                     {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }]
+                     }
+                     var $customSelect = $("<select>")
+                         .attr("class", "form-control").prop("selectedIndex", "")
+                     $.each(statusList, function (index, itemData) {
+                         $customSelect.append($('<option/>', {
+
+                             value: itemData.id,
+                             text: itemData.name
+                         }));
+                     });
+                     $customSelect.change(function (e) {
+                         var selVal = $(this).val();
+                         @*if (selVal == "Edit") {
+                             var url = '@Url.Action("NegativeBalance", "CoreAccounts")?id=' + item.NegativeBalanceId;
+                             window.location.href = url;
+                         }
+                         else*@
+                         if (selVal == "View") {
+                             var url = '@Url.Action("PCFDistributionOHPostingView", "CoreAccounts")?OverheadsPostingId=' + item.OverheadsPostingId;
+                             window.location.href = url;
+                         }
+                         if (selVal == "Bank Advice") {
+                             var url = '@Url.Action("PCFOverHeadPosting", "Reports")?Id=' + item.OverheadsPostingId;
+                             window.location.href = url;
+                         }
+                         @*else if (selVal == "Close") {
+                             $.ajax({
+                                 type: "GET",
+                                 url: '@Url.Action("_CloseNegativeBalance", "CoreAccounts")',
+                                 data: {
+                                     // Value: value
+                                     id : item.NegativeBalanceId
+                                 },
+                                 contentType: "application/x-www-form-urlencoded",
+                                 success: function (data) {
+                                     $("#popup").html(data);
+                                     $('#TABCModal').modal('toggle');
+                                 }
+                             });
+                         }
+                             else
+                                 if (selVal == "Approve") {                            
+                                 var approveurl = 'ApproveOverheadsPosting';
+                                 var choice = confirm("Are you sure, Do you want to approve this Overheads Posting?");
+                                 if (choice === true) {                                     
+                                     $.ajax({
+                                         type: "GET",
+                                         url: approveurl,
+                                         data: { ohpid: item.OverheadsPostingId },
+                                         contentType: "application/json; charset=utf-8",
+                                         success: function (result) {
+                                             if (result.status == true) {
+                                                 $('#alertSuccess').html("Overheads Posting has been approved successfully.");
+                                                 $('#Success').modal('toggle');
+                                                 loadDetails();
+                                             } else if (result.status == false) {
+                                                 $('#FailedAlert').html("Something went wrong please contact administrator");
+                                                 $('#Failed').modal('toggle');
+                                             }
+                                         },
+                                         error: function (err) {
+                                             console.log("error1 : " + err);
+                                         }
+                                     });
+                                     var getOverheadsPostingList = 'GetPCFDistributionOHPostingList'
+                                     $.ajax({
+                                         type: "POST",
+                                         url: getOverheadsPostingList,
+                                         data: param = "",
+                                         contentType: "application/json; charset=utf-8",
+                                         success: function (result) {
+                                             // dataProposal = result;
+                                             $("#OverheadsPostingList").jsGrid({ data: result });
+                                             $('#gridlist').show();
+                                         },
+                                         error: function (err) {
+                                             console.log("error : " + err);
+                                         }
+                                     });
+                                 }
+                         }*@
+                         $(this).val("");
+                         return false;
+                         e.stopPropagation();
+                     });
+                     return $result.add($customSelect);
+                 },
+                 _createFilterSwitchButton: function () {
+                     return this._createOnOffSwitchButton("filtering", this.searchModeButtonClass, false);
+                 }
+             }
+
+
+        ],
+
+    });
+    $("#OverheadsPostingList").jsGrid("option", "filtering", false);
+    //loadDetails();
+    function loadDetails() {
+        @*$.ajax({
+            type: "GET",
+            url: '@Url.Action("GetPCFDistributionOHPostingList", "CoreAccounts")',
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (result) {
+                    db = result;
+                    $("#OverheadsPostingList").jsGrid({ data: db });
+            },
+            error: function (err) {
+                console.log("error : " + err);
+            }
+
+        });*@
+        var input = [];
+        input = {
+            SearchEXDistributionOHNumber: $('#srchDOHnumber').val(),
+            SearchEXDOHPaymentType: $('#Paymenttype').val(),
+            FromDate: $('#FromDate').val() || null,
+            ToDate: $('#ToDate').val() || null
+        },
+         $("#OverheadsPostingList").jsGrid("search", input, pageIndex = 1, pageSize = 5);
+
+    }
+</script>

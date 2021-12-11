@@ -1,0 +1,227 @@
+﻿@model IOAS.Models.ProjectEnhancementViewModel
+@{
+    ViewBag.Title = "ViewProjectEnhancement";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<div id="popup"></div>
+<input type="hidden" id="currentRefId" value="@Model.EnhanceId" />
+<input type="hidden" id="processGuideLineId" value="@ViewBag.processGuideLineId" />
+@Html.Partial("_ProcessStatus")
+<style>
+    .auto-com-z-index {
+        z-index: 10000;
+    }
+</style>
+
+<div class="row hd-tt-bg" id="addnewpage">
+    <div class="col-md-4">
+
+       <h3>View Project Enhancement</h3>
+
+    </div>
+    <div class="col-md-8 flt-nav-links">
+
+        @*<a href="#"> <i class="ion-android-funnel"></i>Filters</a>*@
+        
+
+    </div>
+</div>
+
+
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="vw-dts-bg">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th colspan="3">Enhancement</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <label> Project Number </label>
+                            <h4>
+                                <a href="javascript:void(0)" data-toggle="modal" id="btnViewSummarydetails">@Html.DisplayFor(M => M.ProjectNumber)</a>
+                            </h4>
+                                
+                                @Html.HiddenFor(M => M.ProjectId, new { @id = "hidnProjectId" })
+</td>
+                        <td>
+                            <label>Project Title</label>
+                            <h4>
+                                @Html.DisplayFor(M => M.ProjectTitle)
+                            </h4>
+                            <a href="javascript:void(0)" data-toggle="modal" id="btnViewEnhancements"> View Details</a>
+                        </td>
+                        <td>
+                            <label> Old Sanction Value </label>
+                            <h4> @Html.DisplayFor(M => M.OldSanctionValue)</h4>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label> Enhanced sanction Value </label>
+                            <h4>@Html.DisplayFor(M => M.EnhancedsanctionValue)</h4>
+                        </td>
+                        <td>
+                            <label> Enhancement Order Number </label>
+                            <h4>@Html.DisplayFor(M => M.EnhancementOrderNumber)</h4>
+                        </td>
+                        <td>
+                            <label> Present Sanction Value </label>
+                            <h4>@Html.DisplayFor(M => M.PresentSanctionValue)</h4>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label>PI Name</label>
+                            <h4>@Html.DisplayFor(M=>M.PIName)</h4>
+                        </td>
+                        <td>
+                            <label>PI Department</label>
+                            <h4>@Html.DisplayFor(M=>M.PIDepartment)</h4>
+                        </td>
+                        <td>
+                            <label>Agency Name</label>
+                            <h4>@Html.DisplayFor(M=>M.AgencyName)</h4>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <h3 >Allocation Details</h3>
+            @if (Model.AllocationHeadList != null)
+            {
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Allocation Head</th>
+                            <th>Present Value</th>
+                            <th>Enhanced Value</th>
+                            <th>Total Allocation Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.AllocationHeadList)
+                        {
+                            <tr>
+                                <td><h4>@item.AllocationHead</h4></td>
+                                <td><h4>@item.PresentValue</h4></td>
+                                <td><h4>@item.EnchancedValue</h4></td>
+                                <td><h4>@item.TotalAllocationValue</h4></td>
+                            </tr>
+                        }
+                        <tr>
+                            <td></td>
+                            <td><label> Total </label></td>
+                            <td class="hgt-bg"><h4>@Html.DisplayFor(M => M.TotalEnchncedValue)</h4></td>
+                            <td class="hgt-bg-pl"><h4>@Html.DisplayFor(M => M.TotalAllocationValue)</h4></td>
+                        </tr>
+                    </tbody>
+                </table>
+            }
+
+            <table class="table table-bordered ">
+                <thead>
+                    <tr>
+                        <th colspan="2">Extension   </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <label>Present Due Date</label>
+                            <h4> @Html.DisplayFor(M => M.PresentDueDate)</h4>
+                        </td>
+                        <td>
+                            <label>Extended Due Date</label>
+                            <h4>@Html.DisplayFor(M => M.ExtendedDueDate)</h4>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th colspan="2">Supporting Documents</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <label> Document Name </label>
+                            <h4>@Html.DisplayFor(M => M.DocumentName)</h4>
+                        </td>
+                        <td>
+                            <label>File Name </label>
+                            @*<a href="#" class="link1" target="_blank">@Html.DisplayFor(M => M.FileName)</a>*@
+                            <a href="@Url.Action("ShowDocument","Project",new { file = Model.AttachmentName, filepath = Model.AttachmentPath })" target="_blank">@Model.FileName</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="row">
+    @if (Model.PFInit != true)
+    {
+    <div class="col-md-12 text-center pd-tb-30">
+        <input type="button" onclick="window.location.href='@Url.Action("ProjectEnhancement", "Project")';" class="btn btn-default" value="Close" id="btnclose" />
+    </div>
+    }
+    else
+    {
+        <div class="col-md-12 text-center pd-tb-30">
+            <input type="button" onclick="window.location.href='@Url.Action("Dashboard", "Home")';" class="btn btn-default" value="Close" id="btnclose" />
+        </div>
+    }
+</div>
+<script>
+    $(document).ready(function () {
+        $('#btnViewEnhancements').on('click', function () {
+            var projectid = $('#hidnProjectId').val();
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("_ExtensionandEnhancementHistory", "Project")',
+                data: {
+                    Projectid: projectid
+                },
+                contentType: "application/x-www-form-urlencoded",
+                success: function (data) {
+                    $("#popup").html(data);
+                    $('#ViewDetailsModal').modal('toggle');
+                }
+            });
+
+        });
+        $('#btnViewSummarydetails').on('click', function () {
+            var projectid = $('#hidnProjectId').val();
+            if (projectid != '') {
+                //var token = $("input[name=__RequestVerificationToken]").val();
+                var searchData = { "ProjectId": projectid };
+                $.ajax({
+                    url: "@Url.Action("_ProjectSummary", "CoreAccounts")",
+                    type: "POST",
+                    data: searchData,
+                    contentType: "application/x-www-form-urlencoded",
+                    success: function (data) {
+                        $("#popup").html(data);
+                        $("#projectSummaryModal").modal('toggle');
+                    },
+                    error: function (err) {
+                        console.log("error : " + err);
+                    }
+                });
+            }
+        });
+        
+    });
+
+</script>
+
+
+
+

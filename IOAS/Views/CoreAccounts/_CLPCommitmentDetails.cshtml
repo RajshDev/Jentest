@@ -1,0 +1,397 @@
+﻿@model IEnumerable<IOAS.Models.BillCommitmentDetailModel>
+<div class="col-md-12 col-sm-12 m-b-sm">
+    <div class="row">
+        <div class="col-md-12">
+            <button type="button" class="btn btn-primary" data-toggle="collapse" data-target="#demo">Select Commitment</button>
+            <a href="javascript:void(0)" class="btn btn-primary" id="btnbookcommitment">  <i class="ios-eye"></i>Book Commitment</a>
+        </div>
+    </div>
+    <div class="row collapse" id="demo">
+
+        <div class="col-md-12">
+            <div class="bl-lg-panel-box pb-null">
+                <div class="cmn-panel-box">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group custom-form-group">
+                                <label class="required">From</label>
+                                @Html.TextBox("srchFromDate", "", new { @class = "form-control" })
+                            </div>
+
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group custom-form-group">
+                                <label class="required">To</label>
+                                @Html.TextBox("srchToDate", "", new { @class = "form-control" })
+                            </div>
+
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group custom-form-group">
+                                <label class="required">Project Type</label>
+                                @Html.DropDownList("srchProjectType", new SelectList(ViewBag.ProjectTypeList, "codevalAbbr", "CodeValDetail"), new { @class = "form-control" })
+                            </div>
+
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group custom-form-group">
+                                <label>Project Number</label>
+                                @Html.DropDownList("srchProjectNumber", new SelectList(ViewBag.ProjectNumberList, "id", "name"), new { @class = "form-control selectpicker" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group custom-form-group">
+                                <label>Keyword</label>
+                                @Html.TextBox("srchKeyword", "", new { @class = "form-control" })
+                            </div>
+
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group custom-form-group">
+                                <a href="javascript:void(0)" id="btnSrchCommitment" class="btn btn-primary mt-lg">Search</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="m-b-sm">
+                                <table class="table alter-table">
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th>Commitment Number</th>
+                                            @*<th>Commitment Type</th>*@
+                                            <th>Project Number</th>
+                                            <th>Value Booked</th>
+                                            <th>Commitment Avail Balance</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbodyCommitmentSrchList">
+                                        <tr>
+                                            <td>
+                                                <input type="checkbox" value="" name="chkCommitmentId">
+                                            </td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+
+                                        </tr>
+
+                                    </tbody>
+                                </table>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row m-b-sm">
+                        <div class="col-md-12 text-center">
+                            <button type="button" id="btnSelCommitment" class="btn btn-primary">Select</button>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="gray-bg br-rd mt-lg">
+        <div class="row">
+
+            <div class="col-md-12">
+
+                <div class="m-b-sm">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Commitment No</th>
+                                <th>Project Number</th>
+                                <th>Available Balance</th>
+                                <th>Head</th>
+                                <th>Payment Value</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbodyCommitmentSelList">
+                            @if (Model.Count() > 0)
+                            {
+                                var count = 0;
+                                foreach (var item in Model)
+                                {
+                                    var amt = "CommitmentDetail[" + count + "].PaymentAmount";
+                                    var billDetailId = "CommitmentDetail[" + count + "].BillCommitmentDetailId";
+                                    var commitmentNo = "CommitmentDetail[" + count + "].CommitmentNumber";
+                                    var detailId = "CommitmentDetail[" + count + "].CommitmentDetailId";
+                                    var commitId = "CommitmentDetail[" + count + "].CommitmentId";
+                                    var projNo = "CommitmentDetail[" + count + "].ProjectNumber";
+                                    var availAmt = "CommitmentDetail[" + count + "].AvailableAmount";
+                                    var headName = "CommitmentDetail[" + count + "].HeadName";
+                                    <tr>
+                                        <td>@item.CommitmentNumber</td>
+                                        <td>@item.ProjectNumber</td>
+                                        <td>@item.AvailableAmount</td>
+                                        <td>@item.HeadName</td>
+                                        <td>
+                                            @Html.TextBox(@amt, item.PaymentAmount, new { @class = "form-control required", @onkeypress = "return ValidateDecimalOnly(event)", @onblur = "CalculatePaymentValue()", @autocomplete = "off" })
+                                            @Html.ValidationMessage(@amt)
+                                            @Html.Hidden(@detailId, item.CommitmentDetailId)
+                                            @Html.Hidden(@commitId, item.CommitmentId)
+                                            @Html.Hidden(@billDetailId, item.BillCommitmentDetailId)
+                                            @Html.Hidden(@commitmentNo, item.CommitmentNumber)
+                                            @Html.Hidden(@projNo, item.ProjectNumber)
+                                            @Html.Hidden(@availAmt, item.AvailableAmount)
+                                            @Html.Hidden(@headName, item.HeadName)
+                                        </td>
+                                    </tr>
+                                    count++;
+
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td>
+                                        @Html.TextBox("CommitmentDetail[0].PaymentAmount", "0", new { @class = "form-control required", @onkeypress = "return ValidateDecimalOnly(event)", @onblur = "CalculatePaymentValue()", @autocomplete = "off" })
+                                        @Html.Hidden("CommitmentDetail.Index", "0")
+                                        @Html.ValidationMessage("CommitmentDetail[0].PaymentAmount")
+                                        @Html.Hidden("CommitmentDetail[0].CommitmentId")
+                                        @Html.Hidden("CommitmentDetail[0].CommitmentDetailId")
+                                        @Html.Hidden("CommitmentDetail[0].BillCommitmentDetailId")
+                                        @Html.Hidden("CommitmentDetail[0].CommitmentNumber")
+                                        @Html.Hidden("CommitmentDetail[0].ProjectNumber")
+                                        @Html.Hidden("CommitmentDetail[0].AvailableAmount")
+                                        @Html.Hidden("CommitmentDetail[0].HeadName")
+                                    </td>
+                                    <td>
+                                        <a href="javascript:void(0)" class="removeCommitment btn-circle"><i class="ion-close-round"></i></a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                </div>
+                <div class="row">
+                    <div class="col-md-4 col-md-offset-8">
+                        <div class="form-group custom-form-group ">
+                            <label>Total Value :</label>
+                            @Html.TextBox("CommitmentAmount", "", new { @class = "form-control", @autocomplete = "off", @readonly = "readonly" })
+                            @Html.ValidationMessage("CommitmentAmount")
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $('#btnSrchCommitment').click(function () {
+        searchCommitment();
+    });
+    function searchCommitment(projectNo) {
+        if (projectNo == undefined) {
+            var keyword = $('#srchKeyword').val();
+            var toDate = $('#srchToDate').val();
+            var fromDate = $('#srchFromDate').val();
+            var projectType = $('#srchProjectType').val();
+            var projectNumber = parseInt($('#srchProjectNumber').val());
+            if (isNaN(projectNumber))
+                projectNumber = 0;
+            if (fromDate == "") {
+                $("#alert").text("From date field is required.");
+                $('#Validation').modal('show');
+                $("#srchFromDate").focus();
+                return false;
+            } else if (toDate == "") {
+                $("#alert").text("To date field is required.");
+                $('#Validation').modal('show');
+                $("#srchToDate").focus();
+                return false;
+            } else if (projectType == "") {
+                $("#alert").text("Project type field is required.");
+                $('#Validation').modal('show');
+                $("#srchProjectType").focus();
+                return false;
+            }
+        } else {
+            projectNumber = projectNo;
+        }
+        
+        EmptyCommitmentSrchList()
+        $.ajax({
+            type: "GET",
+            url: "@Url.Action("SearchCommitments", "CoreAccounts")",
+            data: { "fromDate": fromDate, "toDate": toDate, "projectType": projectType, "projectId": projectNumber, "keyword": keyword },
+            dataType: "json",
+            success: function (result) {
+                $.each(result, function (i, item) {
+                    if (i == 0) {
+                        var trEle = $('#tbodyCommitmentSrchList tr:first');
+                        $(trEle).find('input[name="chkCommitmentId"]').val(item.CommitmentId).prop("checked", false);
+                        $(trEle).find('td:nth-child(2)').html(item.CommitmentNumber);
+                        $(trEle).find('td:nth-child(3)').html(item.ProjectNumber);
+                        $(trEle).find('td:nth-child(4)').html(item.BookedAmount);
+                        $(trEle).find('td:nth-child(5)').html(item.AvailableAmount);
+                    } else {
+                        var trEleNew = $('#tbodyCommitmentSrchList tr:first').clone();
+                        $(trEleNew).find('input[name="chkCommitmentId"]').val(item.CommitmentId).prop("checked", false);
+                        $(trEleNew).find('td:nth-child(2)').html(item.CommitmentNumber);
+                        $(trEleNew).find('td:nth-child(3)').html(item.ProjectNumber);
+                        $(trEleNew).find('td:nth-child(4)').html(item.BookedAmount);
+                        $(trEleNew).find('td:nth-child(5)').html(item.AvailableAmount);
+                        $('#tbodyCommitmentSrchList').append(trEleNew);
+                    }
+                });
+               
+            },
+            error: function (err) {
+                console.log("error : " + err);
+            }
+        });
+    }
+    function FillSelCommitments(result) {
+        $.each(result, function (i, item) {
+            if (i == 0) {
+                var trEle = $('#tbodyCommitmentSelList tr:first');
+                $(trEle).find('td:nth-child(1)').html(item.CommitmentNumber);
+                $(trEle).find('td:nth-child(2)').html(item.ProjectNumber);
+                $(trEle).find('td:nth-child(3)').html(item.AvailableAmount);
+                $(trEle).find('td:nth-child(4)').html(item.HeadName);
+                $(trEle).find("input[name='CommitmentDetail.Index']").val(i);
+                $(trEle).find("input[name$='.PaymentAmount']").val('');
+                $(trEle).find('input[name$=".CommitmentNumber"]').val(item.CommitmentNumber);
+                $(trEle).find('input[name$=".ProjectNumber"]').val(item.ProjectNumber);
+                $(trEle).find('input[name$=".AvailableAmount"]').val(item.AvailableAmount);
+                $(trEle).find('input[name$=".HeadName"]').val(item.HeadName);
+                $(trEle).find('input[name$=".CommitmentDetailId"]').val(item.CommitmentDetailId);
+                $(trEle).find('input[name$=".CommitmentId"]').val(item.CommitmentId);
+            } else {
+                var trEleNew = $('#tbodyCommitmentSelList tr:first').clone();
+                $(trEleNew).find('td:nth-child(1)').html(item.CommitmentNumber);
+                $(trEleNew).find('td:nth-child(2)').html(item.ProjectNumber);
+                $(trEleNew).find('td:nth-child(3)').html(item.AvailableAmount);
+                $(trEleNew).find('td:nth-child(4)').html(item.HeadName);
+                $(trEleNew).find("input[name$='.PaymentAmount']").val('');
+                $(trEleNew).find('input[name$=".CommitmentNumber"]').val(item.CommitmentNumber);
+                $(trEleNew).find('input[name$=".ProjectNumber"]').val(item.ProjectNumber);
+                $(trEleNew).find('input[name$=".AvailableAmount"]').val(item.AvailableAmount);
+                $(trEleNew).find('input[name$=".HeadName"]').val(item.HeadName);
+                $(trEleNew).find("input[name='CommitmentDetail.Index']").val(i);
+                $(trEleNew).find("input").each(function () {
+                    $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                    $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                });
+                $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                    $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                });
+                $(trEleNew).find('input[name$=".CommitmentDetailId"]').val(item.CommitmentDetailId);
+                $(trEleNew).find('input[name$=".CommitmentId"]').val(item.CommitmentId);
+                //$(trEleNew).find('a.dis-none').removeClass('dis-none');
+                $('#tbodyCommitmentSelList').append(trEleNew);
+            }
+        });
+        $('#demo').collapse("hide");
+        //$('#NeedUpdateTransDetail').val('true');
+    }
+    $('#btnSelCommitment').click(function () {
+        var selCommitment = [];
+        $('input[name="chkCommitmentId"]:checked').each(function () {
+            var cmtId = $(this).val();
+            if (cmtId != '') { selCommitment.push(cmtId); }
+        });
+        if (selCommitment.length == 0) {
+            $("#alert").text("Please select at least one commitment from the list.");
+            $('#Validation').modal('show');
+            return false;
+        } else {
+            EmptyCommitmentSelList()
+            $.ajax({
+                type: "GET",
+                url: "@Url.Action("GetSelectedCommitmentDetails", "CoreAccounts")",
+                data: { "selCommitment": selCommitment },
+                traditional: true,
+                dataType: "json",
+                success: function (result) {
+                    FillSelCommitments(result);
+                },
+                error: function (err) {
+                    console.log("error : " + err);
+                }
+            });
+        }
+    });
+    $('#btnbookcommitment').on('click', function () {       
+       // var value = $('input[name="hiddenNetTotalAmt"]').val();
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("_CLPCommitment", "CoreAccounts")',
+            data: {
+               // Value: value
+            },
+            contentType: "application/x-www-form-urlencoded",
+            success: function (data) {
+                $("#popup").html(data);
+                $('#TABCModal').modal('toggle');
+            }
+        });
+
+    });
+    function EmptyCommitmentSelList() {
+        $('#tbodyCommitmentSelList tr').not(':first').remove();
+        $('#tbodyCommitmentSelList tr td').not(':last').not(':nth-last-child(2)').html('');
+        $('#tbodyCommitmentSelList tr td:last').find("input").val("");
+        $('#CommitmentAmount').val('');
+    }
+    function EmptyCommitmentSrchList() {
+        $('#tbodyCommitmentSrchList tr').not(':first').remove();
+        $('#tbodyCommitmentSrchList tr td').not(':first').html('');
+    }
+    $("#srchProjectType").change(function () {
+        var Projecttype = $(this).val();
+        if (Projecttype != '') {
+            $.getJSON("@Url.Action("Loadprojectdetailsbytype", "Project")", { projecttype: Projecttype },
+                        function (locationdata) {
+                            var select = $("#srchProjectNumber");
+                            select.empty();
+
+                            $.each(locationdata, function (index, itemData) {
+
+                                select.append($('<option/>', {
+                                    value: itemData.id,
+                                    text: itemData.name
+
+                                }));
+                            });
+                            select.selectpicker('refresh');
+                        });
+        } else {
+            var select = $("#srchProjectNumber");
+            select.empty();
+            select.selectpicker('refresh');
+        }
+    });
+    $(document).on('click', 'a.removeCommitment', function () {
+        if ($('#tbodyCommitmentSelList tr').length != 1) {
+            $(this).closest('tr').remove();
+            CalculatePaymentValue();
+        }
+    });
+    function CalculatePaymentValue() {
+        var ttlPaymentVal = 0;
+        $('#tbodyCommitmentSelList input[name$=".PaymentAmount"]').each(function (i, rowEle) {
+            var paymentVal = parseFloat($(this).val());
+            if (!isNaN(paymentVal))
+                ttlPaymentVal = ttlPaymentVal + paymentVal;
+        });
+        $('#CommitmentAmount').val(ttlPaymentVal);
+        //$('#NeedUpdateTransDetail').val('true');
+    }
+</script>

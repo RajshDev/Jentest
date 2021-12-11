@@ -1,0 +1,258 @@
+﻿@model IEnumerable<IOAS.Models.BillPODetailModel>
+<div class="row m-b-sm">
+    <div class="col-md-6">
+        <h3 class="mt-xs">PO</h3>
+    </div>
+    <div class="col-md-6 text-right">
+        <a href="javascript:void(0)" id="btnAddPO" class="btn btn-primary">Add New</a>
+    </div>
+</div>
+<div class="m-b-sm scrl-table scrl-table-po-bl">
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th colspan="5" class="text-center">PO Details</th>
+                <th colspan="4" class="text-center bg-blue">Payment Details</th>
+                <th></th>
+
+            </tr>
+        </thead>
+        <tbody id="tbodyPO">
+            <tr>
+                <td style="width: 400px;" class="required">Type of Service / Item Category </td>
+                <td style="width: 300px;">Description</td>
+                <td style="width: 150px;" class="required">Amount</td>
+                <td style="width: 90px;">Tax %</td>
+                <td style="width: 20px;">Tax Eligible</td>
+                <td class="bg-blue">Payment %</td>
+                <td class="bg-blue">Payment Amt</td>
+                <td class="bg-blue">TAX</td>
+                <td class="bg-blue">Total</td>
+                <td></td>
+            </tr>
+            @if (Model.Count() > 0)
+            {
+                var count = 0;
+                foreach (var item in Model)
+                {
+                    var invoicenumber = "PODetail[" + count + "].InvoiceNumber";
+                    var description = "PODetail[" + count + "].Description";
+                    var amount = "PODetail[" + count + "].TotalAmount";
+                    var taxpercent = "PODetail[" + count + "].TaxPct";
+                    var taxvalue = "PODetail[" + count + "].TaxValue";
+                    var taxEligible = "PODetail[" + count + "].IsTaxEligible";
+                    var hsn = "PODetail[" + count + "].TypeOfServiceOrCategory";
+                    var hsnCode = "PODetail[" + count + "].ItemName";
+                    <tr>
+                        <td>
+                            @Html.TextBox(@hsnCode, item.ItemName, new { @class = "form-control" })
+                            @Html.TextBox(@hsn, item.TypeOfServiceOrCategory, new { @class = "form-control required dis-none" })
+                            @Html.ValidationMessage(@hsn)
+                        </td>
+                        <td>
+                            @Html.TextBox(@description, item.Description, new { @class = "form-control" })
+                            @Html.ValidationMessage(@description)
+                            @Html.Hidden("PODetail.Index", @count)
+                        </td>
+                        <td>
+                            @Html.TextBox(@amount, item.TotalAmount, new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)" })
+                            @Html.ValidationMessage(@amount)
+                        </td>
+                        <td>
+                            @Html.DropDownList(@taxpercent, new SelectList(ViewBag.TaxPctList, "name", "name", item.TaxPct), "Select any", new { @class = "form-control" })
+                            @Html.ValidationMessage(@taxpercent)
+                        </td>
+                        <td>
+                            @Html.CheckBox(@taxEligible, item.IsTaxEligible)
+                            @Html.ValidationMessage(@taxEligible)
+                        </td>
+                        <td class="bg-blue tdAdvPct"></td>
+                        <td class="bg-blue tdAdvAmt"></td>
+                        <td class="bg-blue tdTaxAmt"></td>
+                        <td class="bg-blue tdNetAmt"></td>
+                        <td>
+                            <a href="javascript:void(0)" class="btn-circle removePOItem"><i class="ion-trash-a"></i></a>
+                        </td>
+                    </tr>
+                    count++;
+                }
+
+            }
+            else
+            {
+                <tr>
+                    <td>
+                        @Html.TextBox("PODetail[0].ItemName", "", new { @class = "form-control" })
+                        @Html.TextBox("PODetail[0].TypeOfServiceOrCategory", "", new { @class = "form-control required dis-none" })
+                        @Html.ValidationMessage("PODetail[0].TypeOfServiceOrCategory")
+                        @Html.Hidden("PODetail.Index", "0")
+                    </td>
+                    <td>
+                        @Html.TextBox("PODetail[0].Description", "", new { @class = "form-control" })
+                        @Html.ValidationMessage("PODetail[0].Description")
+                    </td>
+
+                    <td>
+                        @Html.TextBox("PODetail[0].TotalAmount", "", new { @class = "form-control required", @onkeypress = "return ValidateDecimalOnly(event)", @onblur = "CalculatePOValue()", @autocomplete = "off" })
+                        @Html.ValidationMessage("PODetail[0].TotalAmount")
+                    </td>
+                    <td>
+                        @Html.DropDownList("PODetail[0].TaxPct", new SelectList(ViewBag.TaxPctList, "name", "name"), "Select any", new { @class = "form-control" })
+                        @Html.ValidationMessage("PODetail[0].TaxPct")
+                    </td>
+                    <td>
+                        @Html.CheckBox("PODetail[0].IsTaxEligible", new { @id = "PODetail_0_IsTaxEligible" })
+                        @Html.ValidationMessage("PODetail[0].IsTaxEligible")
+                    </td>
+                    <td class="bg-blue tdAdvPct"></td>
+                    <td class="bg-blue tdAdvAmt"></td>
+                    <td class="bg-blue tdTaxAmt"></td>
+                    <td class="bg-blue tdNetAmt"></td>
+                    <td>
+                        <a href="javascript:void(0)" class="btn-circle removePOItem"><i class="ion-trash-a"></i></a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+</div>
+
+<script type="text/javascript">
+
+    $(document).on('click', 'a.removePOItem', function () {
+        if ($('#tbodyPO tr').length != 2) {
+            $(this).closest('tr').remove();
+            CalculatePOValue();
+        }
+    });
+    applyACToTypeOfService();
+    function applyACToTypeOfService() {
+        $('#tbodyPO tr').each(function () {
+            var index = $(this).find("input[name='PODetail.Index']").val();
+            var hdEle = $("input[name='PODetail[" + index + "].TypeOfServiceOrCategory']");
+            var acEle = $("input[name='PODetail[" + index + "].ItemName']");
+            var type = $('#BillType').val() || -1;
+            applyAutoComplete(acEle, hdEle, '@Url.Action("LoadTypeOfServiceList")', 'changeTypeOfService', true, type);
+        });
+    }
+    $(document).on('keyup', 'input[name$=".ItemName"]', function () {
+        if ($(this).val() == '') {
+            $(this).closest('tr').find('input[name$=".TypeOfServiceOrCategory"]').val('');
+            //$(this).closest('tr').find('input[name$=".IsTaxEligible"]').attr("checked", false);
+        }
+    });
+    $(document).on('click', "#btnAddPO", function () {
+        var cln = $('#tbodyPO tr:nth-child(2)').clone().find("select,input[type!='checkbox'],textarea").val("").end();
+        $(cln).find('.tdAdvAmt, .tdTaxAmt, .tdNetAmt').text('');
+        var index = $('#tbodyPO tr:last').find("input[name='PODetail.Index']").val();
+        index = parseInt(index) + 1;
+        $(cln).find("input[name='PODetail.Index']").val(index);
+        $(cln).find('input[type="hidden"][name$=".IsTaxEligible"]').val('false');
+        $(cln).find('input[name$=".IsTaxEligible"]').prop('checked', false);
+        $(cln).find("input, select,textarea").each(function () {
+            $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+            if ($(this).attr("id"))
+                $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+        });
+
+        $(cln).find("span[data-valmsg-for]").each(function () {
+            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+        });
+        $('#tbodyPO').append(cln);
+        var hdEle = $("input[name='PODetail[" + index + "].TypeOfServiceOrCategory']");
+        var acEle = $("input[name='PODetail[" + index + "].ItemName']");
+        var type = $('#BillType').val() || -1;
+        applyAutoComplete(acEle, hdEle, '@Url.Action("LoadTypeOfServiceList")', 'changeTypeOfService', true, type);
+    });
+    function changeTypeOfService(ele) {
+        var trEle = $(ele).closest('tr');
+        var serviceType = trEle.find('input[name$=".TypeOfServiceOrCategory"]').val();
+        if (serviceType != '') {
+            $.ajax({
+                type: "GET",
+                url: "@Url.Action("GetServiceTypeDetail", "CoreAccounts")",
+                data: { "serviceType": serviceType },
+                dataType: "json",
+                success: function (result) {
+                    var pct = parseInt(result.TaxRate);
+                    trEle.find('select[name$=".TaxPct"]').val(pct);
+                    if (result.IsTaxEligible) {
+                        trEle.find('input[type="hidden"][name$=".IsTaxEligible"]').val('true');
+                        trEle.find('input[name$=".IsTaxEligible"]').prop('checked', true);
+                    } else {
+                        trEle.find('input[type="hidden"][name$=".IsTaxEligible"]').val('false');
+                        trEle.find('input[name$=".IsTaxEligible"]').prop('checked', false);
+                    }
+                    CalculatePOValue();
+                },
+                error: function (err) {
+                    console.log("error : " + err);
+                }
+            });
+        }
+    }
+    $(document).on('click', 'input[name$=".IsTaxEligible"]', function () {
+        CalculatePOValue();
+    });
+    $(document).on('blur', 'input[name$=".TotalAmount"],select[name$=".TaxPct"]', function () {
+        CalculatePOValue();
+    });
+    function EmptyPODetails() {
+        $('#tbodyPO tr').not(':first,:nth-child(2)').remove();
+        $('#tbodyPO tr').find("input,select").not("input[name='PODetail.Index'],input[name$='.IsTaxEligible']").val("");
+        $('#tbodyPO tr').find('.tdAdvAmt, .tdTaxAmt, .tdNetAmt').text('');
+        $('#tbodyPO tr').find('input[type="hidden"][name$=".IsTaxEligible"]').val('false');
+        $('#tbodyPO tr').find('input[name$=".IsTaxEligible"]').prop('checked', false);
+        CalculatePOValue();
+    }
+    function fillPODetail(poDetials) {
+        $.each(poDetials, function (i, result) {
+            if (i == 0) {
+                var trEle = $('#tbodyPO tr:nth-child(2)');
+                $('#tbodyPO tr').not(':first,:nth-child(2)').remove();
+                
+                $(trEle).find("input[name='PODetail.Index']").val(0);
+                trEle.find('select[name$=".TaxPct"]').val(result.TaxPct);
+                trEle.find('input[name$=".Description"]').val(result.Description);
+                trEle.find('input[name$=".TypeOfServiceOrCategory"]').val(result.TypeOfServiceOrCategory);
+                trEle.find('input[name$=".ItemName"]').val(result.ItemName);
+                trEle.find('input[name$=".TotalAmount"]').val(result.TotalAmount);
+                if (result.IsTaxEligible) {
+                    trEle.find('input[type="hidden"][name$=".IsTaxEligible"]').val('true');
+                    trEle.find('input[name$=".IsTaxEligible"]').prop('checked', true);
+                } else {
+                    trEle.find('input[type="hidden"][name$=".IsTaxEligible"]').val('false');
+                    trEle.find('input[name$=".IsTaxEligible"]').prop('checked', false);
+                }
+            } else {
+                var trEle = $('#tbodyPO tr:nth-child(2)').clone();
+                $(trEle).find("input[name='PODetail.Index']").val(i);
+                $(trEle).find("input, select").each(function () {
+                    $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                    if ($(this).attr("id"))
+                    $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                });
+                $(trEle).find("span[data-valmsg-for]").each(function () {
+                    $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                });
+                
+                trEle.find('select[name$=".TaxPct"]').val(result.TaxPct);
+                trEle.find('input[name$=".Description"]').val(result.Description);
+                trEle.find('input[name$=".TypeOfServiceOrCategory"]').val(result.TypeOfServiceOrCategory);
+                trEle.find('input[name$=".ItemName"]').val(result.ItemName);
+                trEle.find('input[name$=".TotalAmount"]').val(result.TotalAmount);
+                if (result.IsTaxEligible) {
+                    trEle.find('input[type="hidden"][name$=".IsTaxEligible"]').val('true');
+                    trEle.find('input[name$=".IsTaxEligible"]').prop('checked', true);
+                } else {
+                    trEle.find('input[type="hidden"][name$=".IsTaxEligible"]').val('false');
+                    trEle.find('input[name$=".IsTaxEligible"]').prop('checked', false);
+                }
+                $('#tbodyPO').append(trEle);
+            }
+        });
+        CalculatePOValue();
+        applyACToTypeOfService();
+    }
+</script>

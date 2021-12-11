@@ -1,0 +1,1558 @@
+﻿@{
+    ViewBag.Title = "Relieving order";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<div class="row hd-tt-bg">
+    <div class="col-md-12">
+        <h3>Relieving order</h3>
+        <ul class="nav nav-pills custom-nav-pills custom-spl-nav">
+           <li class="active"><a data-toggle="tab" href="#tabJsSTE" class="brd-rd-md">Short term</a></li>
+            <li><a data-toggle="tab" href="#tabJsOSG" class="brd-rd-md">OutSourcing</a></li>
+            <li><a data-toggle="tab" href="#tabJsCON" class="brd-rd-md">Consultant</a></li>
+        </ul>
+</div>
+</div>
+<div class="tab-content mt30">
+    <div id="tabJsSTE" class="tab-pane fade in active">
+        <div class="custom-jsgrid-normal">
+            <div class="" id="gridDataSTE">
+            </div>
+        </div>
+    </div>
+    <div id="tabJsOSG" class="tab-pane fade">
+        <div class="custom-jsgrid-normal">
+            <div id="gridDataOSG">
+
+            </div>
+            </div>
+        </div>
+    <div id="tabJsCON" class="tab-pane fade">
+        <div class="custom-jsgrid-normal">
+            <div id="gridDataCON">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@*<div class="row mt30">
+    <div class="page-wrapper">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="custom-jsgrid-normal">
+                    <div id="grid">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>*@
+<div id="popup">
+
+</div>
+<script>
+    loadedList = [];
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    var alertMsg = '@TempData["alertMsg"]';
+    $(document).ready(function () {
+        applyAutoComplete($('#ProjectNo'), $('#ProjectID'), '@Url.Action("LoadProjectList","CoreAccounts")');
+    });
+
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+        else if (alertMsg != '') {
+            $('#alert').html(alertMsg);
+            $('#Validation').modal('toggle');
+        }
+        //getData(1);
+    });
+
+
+
+    //function getData(page) {
+    //    var input = [];
+    //    input = {
+    //        SearchInName: null,
+    //        SearchInCategory: null,
+    //        SearchInDesignation: null,
+    //        SearchInProjectNumber: null,
+    //        SearchInEmployeeId: null,
+    //        relievingType: null,
+    //    },
+    //     $("#grid").jsGrid("search", input, pageIndex = 1, pageSize = 5);
+    //}
+    function searchData(href) {
+        if (loadedList.indexOf(href) > -1)
+            return false;
+        if (href == "#tabJsOSG")
+            $("#gridDataOSG").jsGrid("search");
+        else if (href == "#tabJsCON")
+            $("#gridDataCON").jsGrid("search");
+    }
+    $('a[href^="#tabJs"]').click(function () {
+        var href = $(this).attr('href');
+        searchData(href);
+    });
+    var DateField = function (config) {
+        jsGrid.Field.call(this, config);
+    };
+
+    DateField.prototype = new jsGrid.Field({
+        sorter: function (date1, date2) {
+            return new Date(date1) - new Date(date2);
+        },
+
+        itemTemplate: function (value) {
+            return new Date(value).toDateString();
+        },
+
+        filterTemplate: function () {
+            var now = new Date();
+            this._fromPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() - 1), changeYear: true });
+            this._toPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() + 1), changeYear: true });
+            return $("<div>").append(this._fromPicker).append(this._toPicker);
+        },
+
+        insertTemplate: function (value) {
+            return this._insertPicker = $("<input>").datepicker({ defaultDate: new Date() });
+        },
+
+        editTemplate: function (value) {
+            return this._editPicker = $("<input>").datepicker().datepicker("setDate", new Date(value));
+        },
+
+        insertValue: function () {
+            return this._insertPicker.datepicker("getDate").toISOString();
+        },
+
+        editValue: function () {
+            return this._editPicker.datepicker("getDate").toISOString();
+        },
+
+        filterValue: function () {
+            return {
+                from: this._fromPicker.datepicker("getDate"),
+                to: this._toPicker.datepicker("getDate")
+            };
+        }
+    });
+    jsGrid.fields.date = DateField;
+    $("#gridDataCON").jsGrid({
+        paging: true,
+        pageIndex: 1,
+        pageSize: 10,
+        editing: false,
+        filtering: true,
+        pageLoading: true,
+        //autoload: true,
+        controller: {
+            loadData: function (filter) {
+                var searchData = [];
+                searchData = {
+                    SearchInName: filter.Name || null,
+                    SearchInCategory: "CON",
+                    SearchInDesignation: filter.Designation || null,
+                    SearchInProjectNumber: filter.ProjectNumber || null,
+                    SearchInEmployeeId: filter.EmployeeId || null,
+                    relievingType: filter.RelievingType || null,
+                    SearchInStatus: filter.Status || null,
+                    
+                    //SearchTypeofAppointment: filter.TypeofAppointmentName || null
+                },
+                filter.model = searchData;
+                filter.Category = "CON";
+                var deferred = $.Deferred();
+                $.ajax({
+                    type: "post",
+                    url: "getEmployeeRelievingList",
+                    data: JSON.stringify(filter),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (result) {
+                        var da = {
+                            data: result.List,
+                            itemsCount: result.TotalRecords
+                        }
+                        if (loadedList.indexOf("#tabJsCON") == -1)
+                            loadedList.push("#tabJsCON");
+                        deferred.resolve(da);
+                    },
+                    error: function (err) {
+                        console.log("error : " + err);
+                    }
+
+                });
+                return deferred.promise();
+            }
+
+        },
+
+        fields: [
+            { name: "SNo", title: "S.No", editing: false, width: 50 },
+            { type: "number", name: "ID", title: "Id", visible: false },
+            {
+                type: "text", name: "EmployeeId", title: "Employee ID", editing: false,
+                itemTemplate: function (item, name) {
+                    return $("<td>").append(name.EmployeeId + "<span class='gd-msg-hgt'>" + name.CategoryName + "</span>" + "<br/>" + "<span>" + name.TypeofAppointmentName + "</span>");
+                }
+            },
+            {
+                type: "text", name: "Name", title: "Employee Name & Designation", editing: false, width: 200,
+                itemTemplate: function (item, name) {
+                    return $("<td>").append("<b>" + name.Name + "</b>" + "<br/>" + "<span>" + name.Designation + "</span>" + "<br/>" + "<span>" + name.EmployeeEmail + "</span>");
+                }
+            },
+             { type: "date", name: "EmployeeDateofBirth", title: "Date of Birth", editing: false },
+            { type: "text", name: "CategoryName", title: "Category", editing: false, visible: false },
+
+
+            {
+                type: "text", name: "ProjectNumber", title: "PI Name & Project Number", editing: false, width: 200,
+                itemTemplate: function (item, name) {
+                    return $("<td>").append(name.PIName + "<span>" + name.ProjectNumber + "</span>");
+                }
+
+            },
+            {
+                type: "text", name: "RelievingType", title: "Relieving Type", editing: false,
+                cellRenderer: function (item, value) {
+                    if (value.RelievingType == "Resignation") {
+                        return $("<td>").addClass("txt-gr").append(value.RelievingType);
+                    }
+                    else if (value.RelievingType == "End of tenure") {
+                        return $("<td>").addClass("txt-gr").append(value.RelievingType);
+                    }
+                    else if (value.RelievingType == "Closure of project") {
+                        return $("<td>").addClass("txt-gr").append(value.RelievingType);
+                    }
+                    else if (value.RelievingType == "Termination") {
+                        return $("<td>").addClass("txt-rd").append(value.RelievingType);
+                    }
+                    else {
+                        return $("<td>").append(value.RelievingType);
+                    }
+                }
+
+            },
+            { type: "text", name: "Status", title: "Status", editing: false, width: 80 },
+             {
+                 type: "control", editButton: false, deleteButton: false, width: 80, title: "Action",
+                 itemTemplate: function (value, item) {
+                     var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+                     var statusList;
+                     if (item.OrderID > 0) {
+                         if (item.Status != "Relieving initiated" && item.Status != "Rejected") {
+                             if (!item.isSubmittedNOC && item.SendMailType != "") {
+                                 statusList = [{ id: "", name: "Action" }, { id: "Edit", name: "Edit" }, { id: "View Profile", name: "View Profile" }, { id: "View Documents", name: "View Documents" }, { id: "History", name: "History" }, { id: "Staff Detail", name: "Staff Detail" }, { id: item.SendMailType, name: item.SendMailType }, { id: "Reset Password", name: "Reset Employee Password" }, { id: "Employee Access", name: "Employee Access" }]
+                             }
+                             else if (!item.isSubmittedNOC) {
+                                 statusList = [{ id: "", name: "Action" }, { id: "Edit", name: "Edit" }, { id: "View Profile", name: "View Profile" }, { id: "View Documents", name: "View Documents" }, { id: "History", name: "History" }, { id: "Staff Detail", name: "Staff Detail" }, { id: "Reset Password", name: "Reset Employee Password" }, { id: "Employee Access", name: "Employee Access" }]
+                             }
+                             else if (item.RelievingType != "Termination" && item.SendMailType != "" && item.TypeCodeID == 3) {
+                                 statusList = [{ id: "", name: "Action" }, { id: "View Profile", name: "View Profile" }, { id: "View Documents", name: "View Documents" }, { id: "History", name: "History" }, { id: "Staff Detail", name: "Staff Detail" }, { id: item.SendMailType, name: item.SendMailType }, { id: "Reset Password", name: "Reset Employee Password" }, { id: "Employee Access", name: "Employee Access" }]
+                             }
+                             else if (item.RelievingType != "Termination" && item.SendMailType != "") {
+                                 statusList = [{ id: "", name: "Action" }, { id: "View Profile", name: "View Profile" }, { id: "View Documents", name: "View Documents" }, { id: "History", name: "History" }, { id: "Staff Detail", name: "Staff Detail" }, { id: "Relieving Order", name: "Relieving Order" }, { id: "Final Settlement Copy", name: "Final Settlement Copy" }, { id: "Service Certificate", name: "Service Certificate" }, { id: item.SendMailType, name: item.SendMailType }, { id: "Reset Password", name: "Reset Employee Password" }, { id: "Employee Access", name: "Employee Access" }]
+                             }
+                             else if (item.RelievingType != "Termination" && item.isSubmittedNOC && item.TypeCodeID == 3) {
+                                 statusList = [{ id: "", name: "Action" }, { id: "View Profile", name: "View Profile" }, { id: "View Documents", name: "View Documents" }, { id: "History", name: "History" }, { id: "Staff Detail", name: "Staff Detail" }, { id: "Reset Password", name: "Reset Employee Password" }, { id: "Employee Access", name: "Employee Access" }]
+                             }
+                             else if (item.RelievingType != "Termination" && item.isSubmittedNOC) {
+                                 statusList = [{ id: "", name: "Action" }, { id: "View Profile", name: "View Profile" }, { id: "View Documents", name: "View Documents" }, { id: "History", name: "History" }, { id: "Staff Detail", name: "Staff Detail" }, { id: "Relieving Order", name: "Relieving Order" }, { id: "Final Settlement Copy", name: "Final Settlement Copy" }, { id: "Service Certificate", name: "Service Certificate" }, { id: "Reset Password", name: "Reset Employee Password" }, { id: "Employee Access", name: "Employee Access" }]
+                             }
+                             else if (item.RelievingType == "Termination" && item.SendMailType != "" && item.TypeCodeID == 3) {
+                                 statusList = [{ id: "", name: "Action" }, { id: "View Profile", name: "View Profile" }, { id: "View Documents", name: "View Documents" }, { id: "History", name: "History" }, { id: "Staff Detail", name: "Staff Detail" }, { id: item.SendMailType, name: item.SendMailType }, { id: "Reset Password", name: "Reset Employee Password" }, { id: "Employee Access", name: "Employee Access" }]
+                             }
+                             else if (item.RelievingType == "Termination" && item.SendMailType != "") {
+                                 statusList = [{ id: "", name: "Action" }, { id: "View Profile", name: "View Profile" }, { id: "View Documents", name: "View Documents" }, { id: "History", name: "History" }, { id: "Staff Detail", name: "Staff Detail" }, { id: "Relieving Order", name: "Relieving Order" }, { id: "Final Settlement Copy", name: "Final Settlement Copy" }, { id: item.SendMailType, name: item.SendMailType }, { id: "Reset Password", name: "Reset Employee Password" }, { id: "Employee Access", name: "Employee Access" }]
+                             }
+                             else if (item.RelievingType == "Termination" && item.isSubmittedNOC && item.TypeCodeID == 3) {
+                                 statusList = [{ id: "", name: "Action" }, { id: "View Profile", name: "View Profile" }, { id: "View Documents", name: "View Documents" }, { id: "History", name: "History" }, { id: "Staff Detail", name: "Staff Detail" }, { id: "Reset Password", name: "Reset Employee Password" }, { id: "Employee Access", name: "Employee Access" }]
+                             }
+                             else if (item.RelievingType == "Termination" && item.isSubmittedNOC) {
+                                 statusList = [{ id: "", name: "Action" }, { id: "View Profile", name: "View Profile" }, { id: "View Documents", name: "View Documents" }, { id: "History", name: "History" }, { id: "Staff Detail", name: "Staff Detail" }, { id: "Relieving Order", name: "Relieving Order" }, { id: "Final Settlement Copy", name: "Final Settlement Copy" }, { id: "Reset Password", name: "Reset Employee Password" }, { id: "Employee Access", name: "Employee Access" }]
+                             }
+                         }
+                         else {
+                             statusList = [{ id: "", name: "Action" }, { id: "View", name: "View" }, { id: "Reset Password", name: "Reset Employee Password" }, { id: "Employee Access", name: "Employee Access" }]
+                         }
+                     }
+                     else {
+                         statusList = [{ id: "", name: "Action" }, { id: "View Profile", name: "View Profile" }, { id: "History", name: "History" }, { id: "Reset Password", name: "Reset Employee Password" }, { id: "Employee Access", name: "Employee Access" }]
+                     }
+
+                     var $customSelect = $("<select>")
+                         .attr("class", "form-control").prop("selectedIndex", "")
+                     if (statusList != undefined) {
+                         $.each(statusList, function (index, itemData) {
+                             $customSelect.append($('<option/>', {
+                                 value: itemData.id,
+                                 text: itemData.name
+                             }));
+                         });
+                     }
+                     $customSelect.change(function (e) {
+                         var selVal = $(this).val();
+                         if (selVal == "Relieving Order") {
+                             if (item.isGenarateRelieveOrder) {
+                                 $.alert({
+                                     title: 'Confirm Message!',
+                                     content: "Report already generated. Do u want to regenerate the report ?",
+                                     type: 'orange',
+                                     animation: 'bottom',
+                                     buttons: {
+                                         Ok: function () {
+                                             var url = '@Url.Action("RelievingOrderPrint", "RCTReportMaster")?orderid=' + item.OrderID;
+                                             window.location.href = url;
+                                         },
+                                         Close: function () {
+                                         }
+                                     }
+                                 });
+                             }
+                             else {
+                                 var url = '@Url.Action("RelievingOrderPrint", "RCTReportMaster")?orderid=' + item.OrderID;
+                                 window.location.href = url;
+                                 $("#gridDataCON").jsGrid("loadData");
+                             }
+
+                         }
+                         else if (selVal == item.SendMailType) {
+                             $.confirm({
+                                 title: "Mail Preview",
+                                 type: 'blue',
+                                 columnClass: 'col-md-12',
+                                 content: function () {
+                                     var self = this;
+                                     return $.ajax({
+                                         type: "Post",
+                                         url: '@Url.Action("SendOfferOrder", "Requirement")',
+                                         data: {
+                                             appid: item.ID,
+                                             apptype: item.CategoryName,
+                                             offercategory: "Order",
+                                             isgetbody_f: true,
+                                             orderid: item.OrderID
+                                         }
+                                     }).done(function (response) {
+                                         self.setContent(response.Item2);
+                                         if (item.CategoryName != "OSG") {
+                                             var url = '@Url.Action("ShowOrderDocument", "RCTReportMaster")?appid=' + item.ID + '&apptype=' + item.CategoryName + '&offercategory=Order&orderid=' + item.OrderID;
+                                             var ServiceCertificateurl = '@Url.Action("ServiceCertificatePrint", "RCTReportMaster")?orderid=' + item.OrderID;
+                                             self.setContentAppend('Attachment : <a href=' + url + ' target="_blank">attachment</a>');
+                                             if (item.SendMailType == "Send Relieve Order / Service Certificate" || item.SendMailType == "Send Service Certificate") {
+                                                 self.setContentAppend('Attachment : <a href=' + ServiceCertificateurl + ' target="_blank">Service Certificate</a>');
+                                             }
+                                         }
+                                     }).fail(function () {
+                                         self.setContent('Preview page not loaded.');
+                                     });
+                                 },
+                                 buttons: {
+                                     Yes: {
+                                         text: 'Send',
+                                         btnClass: 'btn-blue',
+                                         action: function () {
+                                             $.ajax({
+                                                 type: "Post",
+                                                 url: '@Url.Action("SendOfferOrder", "Requirement")',
+                                                 data: {
+                                                     appid: item.ID,
+                                                     apptype: item.CategoryName,
+                                                     offercategory: "Order",
+                                                     orderid: item.OrderID
+                                                 },
+                                                 beforeSend: function () {
+                                                     $(".loading-bg").removeClass('dis-none');
+                                                 },
+                                                 success: function (output) {
+                                                     $(".loading-bg").addClass('dis-none');
+                                                     if (output.Item1 == 1) {
+                                                         $.confirm({
+                                                             title: 'Success Message!',
+                                                             content: "Order mail sent to candidate",
+                                                             type: 'green',
+                                                             buttons: {
+                                                                 Ok: function () {
+                                                                 },
+                                                             },
+                                                         });
+                                                     }
+                                                     else if (output.Item1 == 0) {
+                                                         $.confirm({
+                                                             title: 'Warning!',
+                                                             content: output.Item2,
+                                                             type: 'orange',
+                                                             buttons: {
+                                                                 Ok: function () {
+                                                                 },
+                                                             },
+                                                         });
+                                                     }
+                                                 },
+                                                 error: function (err) {
+                                                     console.log("error1 : " + err);
+                                                 }
+                                             });
+                                         }
+                                     },
+                                     No: {
+                                         text: 'No',
+                                         btnClass: 'btn-red',
+                                         action: function () {
+                                         }
+                                     },
+                                 }
+                             });
+                         }
+                         else if (selVal == "View Profile") {
+                             if (item.TypeCodeID == 2) {
+                                 var url = '@Url.Action("STEViewProfile", "Requirement")?STEID=' + item.ID + '&listf=RL';
+                                 window.location.href = url;
+                             }
+                             else if (item.TypeCodeID == 1) {
+                                 var url = '@Url.Action("CONViewProfile", "Requirement")?ConsultantAppId=' + item.ID + '&listf=RL';
+                                 window.location.href = url;
+                             }
+                             else if (item.TypeCodeID == 3) {
+                                 var url = '@Url.Action("OSGViewProfile", "Requirement")?OSGID=' + item.ID + '&listf=RL';
+                                 window.location.href = url;
+                             }
+                         }
+						 else if (selVal == "Reset Password") {
+                             $.ajax({
+                                 type: "get",
+                                 url: '@Url.Action("_EmployeeResetPassword", "Requirement")',
+                                 data: {
+                                     employeeId: item.EmployeeId
+                                 },
+                                 beforeSend: function () {
+                                     $(".loading-bg").removeClass('dis-none');
+                                 },
+                                 success: function (result) {
+                                     $(".loading-bg").addClass('dis-none');
+                                     if (result != "") {
+                                         $("#popup").html(result);
+                                         $("#popupEmpService").modal('toggle');
+                                     }
+                                 },
+                                 error: function (err) {
+                                     $(".loading-bg").addClass('dis-none');
+                                     console.log("error1 : " + err);
+                                 }
+                             });
+                         }
+                         else if (selVal == "Employee Access") {
+                             $.ajax({
+                                 type: "get",
+                                 url: '@Url.Action("_EmployeePortalAccessModifier", "Requirement")',
+                                 data: {
+                                     employeeId: item.EmployeeId
+                                 },
+                                 beforeSend: function () {
+                                     $(".loading-bg").removeClass('dis-none');
+                                 },
+                                 success: function (result) {
+                                     $(".loading-bg").addClass('dis-none');
+                                     if (result != "") {
+                                         $("#popup").html(result);
+                                         $("#popupEmpStatus").modal('toggle');
+                                     }
+                                 },
+                                 error: function (err) {
+                                     $(".loading-bg").addClass('dis-none');
+                                     console.log("error1 : " + err);
+                                 }
+                             });
+                         }
+                         else if (selVal == "Staff Detail") {
+                             $.ajax({
+                                 type: "post",
+                                 url: '@Url.Action("_ViewPopUpStaffDetails", "Requirement")',
+                                 data: {
+                                     employeeId: item.EmployeeId
+                                 },
+                                 beforeSend: function () {
+                                     $(".loading-bg").removeClass('dis-none');
+                                 },
+                                 success: function (result) {
+                                     $(".loading-bg").addClass('dis-none');
+                                     if (result != "") {
+                                         $("#popup").html(result);
+                                         $("#popupService").modal('toggle');
+                                     }
+                                 },
+                                 error: function (err) {
+                                     $(".loading-bg").addClass('dis-none');
+                                     console.log("error1 : " + err);
+                                 }
+                             });
+                         }
+                         else if (selVal == "View Documents") {
+                             $.ajax({
+                                 type: "get",
+                                 url: '@Url.Action("ViewDocuments", "Requirement")',
+                                 data: {
+                                     employeeNo: item.EmployeeId,
+                                     appid: item.ID,
+                                     apptype: item.CategoryName
+                                 },
+                                 beforeSend: function () {
+                                     $(".loading-bg").removeClass('dis-none');
+                                 },
+                                 success: function (result) {
+                                     $(".loading-bg").addClass('dis-none');
+                                     if (result != "") {
+                                         $("#popup").html(result);
+                                         $("#popupViewDoc").modal('toggle');
+                                     }
+                                 },
+                                 error: function (err) {
+                                     $(".loading-bg").addClass('dis-none');
+                                     console.log("error1 : " + err);
+                                 }
+                             });
+                         }
+                         else if (selVal == "History") {
+                             $.ajax({
+                                 type: "post",
+                                 url: '@Url.Action("_ViewPopUpEmployeeDetails", "Requirement")',
+                                 data: {
+                                     employeeId: item.EmployeeId
+                                 },
+                                 beforeSend: function () {
+                                     $(".loading-bg").removeClass('dis-none');
+                                 },
+                                 success: function (result) {
+                                     $(".loading-bg").addClass('dis-none');
+                                     if (result != "") {
+                                         $("#popup").html(result);
+                                         $("#popupService").modal('toggle');
+                                     }
+                                 },
+                                 error: function (err) {
+                                     $(".loading-bg").addClass('dis-none');
+                                     console.log("error1 : " + err);
+                                 }
+                             });
+                         }
+                         else if (selVal == "Edit") {
+                             var url = '@Url.Action("Relieving", "Requirement")?appid=' + item.ID + '&apptype=' + item.CategoryName + '&orderid=' + item.OrderID + '&listf=RL';
+                             window.location.href = url;
+                         }
+                         else if (selVal == "View") {
+                             var url = '@Url.Action("RelievingView", "Requirement")?OrderId=' + item.OrderID + '&listf=RL';	
+                             window.location.href = url;
+                         }
+                         else if (selVal == "Final Settlement Copy") {
+                             if (item.isGenarateFinalSettlement) {
+                                 $.alert({
+                                     title: 'Confirm Message!',
+                                     content: "Report already generated. Do u want to regenerate the report ?",
+                                     type: 'orange',
+                                     animation: 'bottom',
+                                     buttons: {
+                                         Ok: function () {
+                                             var url = '@Url.Action("FinalSettlementPrint", "RCTReportMaster")?orderid=' + item.OrderID;
+                                             window.location.href = url;
+                                         },
+                                         Close: function () {
+                                         }
+                                     }
+                                 });
+                             }
+                             else {
+                                 var url = '@Url.Action("FinalSettlementPrint", "RCTReportMaster")?orderid=' + item.OrderID;
+                                 window.location.href = url;
+                                 $("#gridDataCON").jsGrid("loadData");
+                             }
+                         }
+                         else if (selVal == "Service Certificate") {
+                             if (item.isGenarateServiceCertificate) {
+                                 $.alert({
+                                     title: 'Confirm Message!',
+                                     content: "Report already generated. Do u want to regenerate the report ?",
+                                     type: 'orange',
+                                     animation: 'bottom',
+                                     buttons: {
+                                         Ok: function () {
+                                             var url = '@Url.Action("ServiceCertificatePrint", "RCTReportMaster")?orderid=' + item.OrderID;
+                                             window.location.href = url;
+                                         },
+                                         Close: function () {
+                                         }
+                                     }
+                                 });
+                             }
+                             else {
+                                 var url = '@Url.Action("ServiceCertificatePrint", "RCTReportMaster")?orderid=' + item.OrderID;
+                                 window.location.href = url;
+                                 $("#gridDataCON").jsGrid("loadData");
+                             }
+                         }
+                         $(this).val("");
+                         return false;
+                         e.stopPropagation();
+                     });
+                     if (statusList != undefined) {
+                         return $result.add($customSelect);
+                     }
+                 },
+                 _createFilterSwitchButton: function () {
+                     return this._createOnOffSwitchButton("filtering", this.searchModeButtonClass, false);
+                 }
+             }
+
+        ],
+
+    });
+    $("#gridDataOSG").jsGrid({
+        paging: true,
+        pageIndex: 1,
+        pageSize: 10,
+        editing: false,
+        filtering: true,
+        pageLoading: true,
+        //autoload: true,
+        controller: {
+            loadData: function (filter) {
+                var searchData = [];
+                searchData = {
+                    SearchInName: filter.Name || null,
+                    SearchInCategory: "OSG",
+                    SearchInDesignation: filter.Designation || null,
+                    SearchInProjectNumber: filter.ProjectNumber || null,
+                    SearchInEmployeeId: filter.EmployeeId || null,
+                    relievingType: filter.RelievingType || null,
+                    SearchInStatus: filter.Status || null,
+                   
+                    //SearchTypeofAppointment: filter.TypeofAppointmentName || null
+                },
+                filter.model = searchData;
+                var deferred = $.Deferred();
+                $.ajax({
+                    type: "post",
+                    url: "getEmployeeRelievingList",
+                    data: JSON.stringify(filter),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (result) {
+                        var da = {
+                            data: result.List,
+                            itemsCount: result.TotalRecords
+                        }
+                        if (loadedList.indexOf("#tabJsOSG") == -1)
+                            loadedList.push("#tabJsOSG");
+                        deferred.resolve(da);
+                    },
+                    error: function (err) {
+                        console.log("error : " + err);
+                    }
+
+                });
+                return deferred.promise();
+            }
+
+        },
+
+        fields: [
+            { name: "SNo", title: "S.No", editing: false, width: 50 },
+            { type: "number", name: "ID", title: "Id", visible: false },
+            {
+                type: "text", name: "EmployeeId", title: "Employee ID", editing: false,
+                itemTemplate: function (item, name) {
+                    return $("<td>").append(name.EmployeeId + "<span class='gd-msg-hgt'>" + name.CategoryName + "</span>" + "<br/>" + "<span>" + name.TypeofAppointmentName + "</span>");
+                }
+            },
+            {
+                type: "text", name: "Name", title: "Employee Name & Designation", editing: false, width: 200,
+                itemTemplate: function (item, name) {
+                    return $("<td>").append("<b>" + name.Name + "</b>" + "<br/>" + "<span>" + name.Designation + "</span>" + "<br/>" + "<span>" + name.EmployeeEmail + "</span>");
+                }
+            },
+             { type: "date", name: "EmployeeDateofBirth", title: "Date of Birth", editing: false },
+            { type: "text", name: "CategoryName", title: "Category", editing: false, visible: false },
+
+
+            {
+                type: "text", name: "ProjectNumber", title: "PI Name & Project Number", editing: false, width: 200,
+                itemTemplate: function (item, name) {
+                    return $("<td>").append(name.PIName + "<span>" + name.ProjectNumber + "</span>");
+                }
+
+            },
+            {
+                type: "text", name: "RelievingType", title: "Relieving Type", editing: false,
+                cellRenderer: function (item, value) {
+                    if (value.RelievingType == "Resignation") {
+                        return $("<td>").addClass("txt-gr").append(value.RelievingType);
+                    }
+                    else if (value.RelievingType == "End of tenure") {
+                        return $("<td>").addClass("txt-gr").append(value.RelievingType);
+                    }
+                    else if (value.RelievingType == "Closure of project") {
+                        return $("<td>").addClass("txt-gr").append(value.RelievingType);
+                    }
+                    else if (value.RelievingType == "Termination") {
+                        return $("<td>").addClass("txt-rd").append(value.RelievingType);
+                    }
+                    else {
+                        return $("<td>").append(value.RelievingType);
+                    }
+                }
+
+            },
+            { type: "text", name: "Status", title: "Status", editing: false, width: 80 },
+             {
+                 type: "control", editButton: false, deleteButton: false, width: 80, title: "Action",
+                 itemTemplate: function (value, item) {
+                     var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+                     var statusList;
+                     if (item.OrderID > 0) {
+                         if (item.Status != "Relieving initiated") {
+                             if (!item.isSubmittedNOC && item.SendMailType != "") {
+                                 statusList = [{ id: "", name: "Action" }, { id: "Edit", name: "Edit" }, { id: "View Profile", name: "View Profile" }, { id: "View Documents", name: "View Documents" }, { id: "History", name: "History" }, { id: "Staff Detail", name: "Staff Detail" }, { id: item.SendMailType, name: item.SendMailType }, { id: "Reset Password", name: "Reset Employee Password" }, { id: "Employee Access", name: "Employee Access" }]
+                             }
+                             else if (!item.isSubmittedNOC) {
+                                 statusList = [{ id: "", name: "Action" }, { id: "Edit", name: "Edit" }, { id: "View Profile", name: "View Profile" }, { id: "View Documents", name: "View Documents" }, { id: "History", name: "History" }, { id: "Staff Detail", name: "Staff Detail" }, { id: "Reset Password", name: "Reset Employee Password" }, { id: "Employee Access", name: "Employee Access" }]
+                             }
+                             else if (item.RelievingType != "Termination" && item.SendMailType != "" && item.TypeCodeID == 3) {
+                                 statusList = [{ id: "", name: "Action" }, { id: "View Profile", name: "View Profile" }, { id: "View Documents", name: "View Documents" }, { id: "History", name: "History" }, { id: "Staff Detail", name: "Staff Detail" }, { id: item.SendMailType, name: item.SendMailType }, { id: "Reset Password", name: "Reset Employee Password" }, { id: "Employee Access", name: "Employee Access" }]
+                             }
+                             else if (item.RelievingType != "Termination" && item.SendMailType != "") {
+                                 statusList = [{ id: "", name: "Action" }, { id: "View Profile", name: "View Profile" }, { id: "View Documents", name: "View Documents" }, { id: "History", name: "History" }, { id: "Staff Detail", name: "Staff Detail" }, { id: "Relieving Order", name: "Relieving Order" }, { id: "Final Settlement Copy", name: "Final Settlement Copy" }, { id: "Service Certificate", name: "Service Certificate" }, { id: item.SendMailType, name: item.SendMailType }, { id: "Reset Password", name: "Reset Employee Password" }, { id: "Employee Access", name: "Employee Access" }]
+                             }
+                             else if (item.RelievingType != "Termination" && item.isSubmittedNOC && item.TypeCodeID == 3) {
+                                 statusList = [{ id: "", name: "Action" }, { id: "View Profile", name: "View Profile" }, { id: "View Documents", name: "View Documents" }, { id: "History", name: "History" }, { id: "Staff Detail", name: "Staff Detail" }, { id: "Reset Password", name: "Reset Employee Password" }, { id: "Employee Access", name: "Employee Access" }]
+                             }
+                             else if (item.RelievingType != "Termination" && item.isSubmittedNOC) {
+                                 statusList = [{ id: "", name: "Action" }, { id: "View Profile", name: "View Profile" }, { id: "View Documents", name: "View Documents" }, { id: "History", name: "History" }, { id: "Staff Detail", name: "Staff Detail" }, { id: "Relieving Order", name: "Relieving Order" }, { id: "Final Settlement Copy", name: "Final Settlement Copy" }, { id: "Service Certificate", name: "Service Certificate" }, { id: "Reset Password", name: "Reset Employee Password" }, { id: "Employee Access", name: "Employee Access" }]
+                             }
+                             else if (item.RelievingType == "Termination" && item.SendMailType != "" && item.TypeCodeID == 3) {
+                                 statusList = [{ id: "", name: "Action" }, { id: "View Profile", name: "View Profile" }, { id: "View Documents", name: "View Documents" }, { id: "History", name: "History" }, { id: "Staff Detail", name: "Staff Detail" }, { id: item.SendMailType, name: item.SendMailType }, { id: "Reset Password", name: "Reset Employee Password" }, { id: "Employee Access", name: "Employee Access" }]
+                             }
+                             else if (item.RelievingType == "Termination" && item.SendMailType != "") {
+                                 statusList = [{ id: "", name: "Action" }, { id: "View Profile", name: "View Profile" }, { id: "View Documents", name: "View Documents" }, { id: "History", name: "History" }, { id: "Staff Detail", name: "Staff Detail" }, { id: "Relieving Order", name: "Relieving Order" }, { id: "Final Settlement Copy", name: "Final Settlement Copy" }, { id: item.SendMailType, name: item.SendMailType }, { id: "Reset Password", name: "Reset Employee Password" }, { id: "Employee Access", name: "Employee Access" }]
+                             }
+                             else if (item.RelievingType == "Termination" && item.isSubmittedNOC && item.TypeCodeID == 3) {
+                                 statusList = [{ id: "", name: "Action" }, { id: "View Profile", name: "View Profile" }, { id: "View Documents", name: "View Documents" }, { id: "History", name: "History" }, { id: "Staff Detail", name: "Staff Detail" }, { id: "Reset Password", name: "Reset Employee Password" }, { id: "Employee Access", name: "Employee Access" }]
+                             }
+                             else if (item.RelievingType == "Termination" && item.isSubmittedNOC) {
+                                 statusList = [{ id: "", name: "Action" }, { id: "View Profile", name: "View Profile" }, { id: "View Documents", name: "View Documents" }, { id: "History", name: "History" }, { id: "Staff Detail", name: "Staff Detail" }, { id: "Relieving Order", name: "Relieving Order" }, { id: "Final Settlement Copy", name: "Final Settlement Copy" }, { id: "Reset Password", name: "Reset Employee Password" }, { id: "Employee Access", name: "Employee Access" }]
+                             }
+                         }
+                         else {
+                             statusList = [{ id: "", name: "Action" }, { id: "View", name: "View" }, { id: "Reset Password", name: "Reset Employee Password" }, { id: "Employee Access", name: "Employee Access" }]
+                         }
+                     }
+                     else {
+                         statusList = [{ id: "", name: "Action" }, { id: "View Profile", name: "View Profile" }, { id: "History", name: "History" }, { id: "Reset Password", name: "Reset Employee Password" }, { id: "Employee Access", name: "Employee Access" }]
+                     }
+
+                     var $customSelect = $("<select>")
+                         .attr("class", "form-control").prop("selectedIndex", "")
+                     if (statusList != undefined) {
+                         $.each(statusList, function (index, itemData) {
+                             $customSelect.append($('<option/>', {
+                                 value: itemData.id,
+                                 text: itemData.name
+                             }));
+                         });
+                     }
+                     $customSelect.change(function (e) {
+                         var selVal = $(this).val();
+                         if (selVal == "Relieving Order") {
+                             if (item.isGenarateRelieveOrder) {
+                                 $.alert({
+                                     title: 'Confirm Message!',
+                                     content: "Report already generated. Do u want to regenerate the report ?",
+                                     type: 'orange',
+                                     animation: 'bottom',
+                                     buttons: {
+                                         Ok: function () {
+                                             var url = '@Url.Action("RelievingOrderPrint", "RCTReportMaster")?orderid=' + item.OrderID;
+                                             window.location.href = url;
+                                         },
+                                         Close: function () {
+                                         }
+                                     }
+                                 });
+                             }
+                             else {
+                                 var url = '@Url.Action("RelievingOrderPrint", "RCTReportMaster")?orderid=' + item.OrderID;
+                                 window.location.href = url;
+                                 $("#gridDataOSG").jsGrid("loadData");
+                             }
+
+                         }
+                         else if (selVal == item.SendMailType) {
+                             $.confirm({
+                                 title: "Mail Preview",
+                                 type: 'blue',
+                                 columnClass: 'col-md-12',
+                                 content: function () {
+                                     var self = this;
+                                     return $.ajax({
+                                         type: "Post",
+                                         url: '@Url.Action("SendOfferOrder", "Requirement")',
+                                         data: {
+                                             appid: item.ID,
+                                             apptype: item.CategoryName,
+                                             offercategory: "Order",
+                                             isgetbody_f: true,
+                                             orderid: item.OrderID
+                                         }
+                                     }).done(function (response) {
+                                         self.setContent(response.Item2);
+                                         if (item.CategoryName != "OSG") {
+                                             var url = '@Url.Action("ShowOrderDocument", "RCTReportMaster")?appid=' + item.ID + '&apptype=' + item.CategoryName + '&offercategory=Order&orderid=' + item.OrderID;
+                                             var ServiceCertificateurl = '@Url.Action("ServiceCertificatePrint", "RCTReportMaster")?orderid=' + item.OrderID;
+                                             self.setContentAppend('Attachment : <a href=' + url + ' target="_blank">attachment</a>');
+                                             if (item.SendMailType == "Send Relieve Order / Service Certificate" || item.SendMailType == "Send Service Certificate") {
+                                                 self.setContentAppend('Attachment : <a href=' + ServiceCertificateurl + ' target="_blank">Service Certificate</a>');
+                                             }
+                                         }
+                                     }).fail(function () {
+                                         self.setContent('Preview page not loaded.');
+                                     });
+                                 },
+                                 buttons: {
+                                     Yes: {
+                                         text: 'Send',
+                                         btnClass: 'btn-blue',
+                                         action: function () {
+                                             $.ajax({
+                                                 type: "Post",
+                                                 url: '@Url.Action("SendOfferOrder", "Requirement")',
+                                                 data: {
+                                                     appid: item.ID,
+                                                     apptype: item.CategoryName,
+                                                     offercategory: "Order",
+                                                     orderid: item.OrderID
+                                                 },
+                                                 beforeSend: function () {
+                                                     $(".loading-bg").removeClass('dis-none');
+                                                 },
+                                                 success: function (output) {
+                                                     $(".loading-bg").addClass('dis-none');
+                                                     if (output.Item1 == 1) {
+                                                         $.confirm({
+                                                             title: 'Success Message!',
+                                                             content: "Order mail sent to candidate",
+                                                             type: 'green',
+                                                             buttons: {
+                                                                 Ok: function () {
+                                                                 },
+                                                             },
+                                                         });
+                                                     }
+                                                     else if (output.Item1 == 0) {
+                                                         $.confirm({
+                                                             title: 'Warning!',
+                                                             content: output.Item2,
+                                                             type: 'orange',
+                                                             buttons: {
+                                                                 Ok: function () {
+                                                                 },
+                                                             },
+                                                         });
+                                                     }
+                                                 },
+                                                 error: function (err) {
+                                                     console.log("error1 : " + err);
+                                                 }
+                                             });
+                                         }
+                                     },
+                                     No: {
+                                         text: 'No',
+                                         btnClass: 'btn-red',
+                                         action: function () {
+                                         }
+                                     },
+                                 }
+                             });
+                         }
+                         else if (selVal == "View Profile") {
+                             if (item.TypeCodeID == 2) {
+                                 var url = '@Url.Action("STEViewProfile", "Requirement")?STEID=' + item.ID + '&listf=RL';
+                                 window.location.href = url;
+                             }
+                             else if (item.TypeCodeID == 1) {
+                                 var url = '@Url.Action("CONViewProfile", "Requirement")?ConsultantAppId=' + item.ID + '&listf=RL';
+                                 window.location.href = url;
+                             }
+                             else if (item.TypeCodeID == 3) {
+                                 var url = '@Url.Action("OSGViewProfile", "Requirement")?OSGID=' + item.ID + '&listf=RL';
+                                 window.location.href = url;
+                             }
+                         }
+						  else if (selVal == "Reset Password") {
+                             $.ajax({
+                                 type: "get",
+                                 url: '@Url.Action("_EmployeeResetPassword", "Requirement")',
+                                 data: {
+                                     employeeId: item.EmployeeId
+                                 },
+                                 beforeSend: function () {
+                                     $(".loading-bg").removeClass('dis-none');
+                                 },
+                                 success: function (result) {
+                                     $(".loading-bg").addClass('dis-none');
+                                     if (result != "") {
+                                         $("#popup").html(result);
+                                         $("#popupEmpService").modal('toggle');
+                                     }
+                                 },
+                                 error: function (err) {
+                                     $(".loading-bg").addClass('dis-none');
+                                     console.log("error1 : " + err);
+                                 }
+                             });
+                         }
+                         else if (selVal == "Employee Access") {
+                             $.ajax({
+                                 type: "get",
+                                 url: '@Url.Action("_EmployeePortalAccessModifier", "Requirement")',
+                                 data: {
+                                     employeeId: item.EmployeeId
+                                 },
+                                 beforeSend: function () {
+                                     $(".loading-bg").removeClass('dis-none');
+                                 },
+                                 success: function (result) {
+                                     $(".loading-bg").addClass('dis-none');
+                                     if (result != "") {
+                                         $("#popup").html(result);
+                                         $("#popupEmpStatus").modal('toggle');
+                                     }
+                                 },
+                                 error: function (err) {
+                                     $(".loading-bg").addClass('dis-none');
+                                     console.log("error1 : " + err);
+                                 }
+                             });
+                         }
+                         else if (selVal == "Staff Detail") {
+                             $.ajax({
+                                 type: "post",
+                                 url: '@Url.Action("_ViewPopUpStaffDetails", "Requirement")',
+                                 data: {
+                                     employeeId: item.EmployeeId
+                                 },
+                                 beforeSend: function () {
+                                     $(".loading-bg").removeClass('dis-none');
+                                 },
+                                 success: function (result) {
+                                     $(".loading-bg").addClass('dis-none');
+                                     if (result != "") {
+                                         $("#popup").html(result);
+                                         $("#popupService").modal('toggle');
+                                     }
+                                 },
+                                 error: function (err) {
+                                     $(".loading-bg").addClass('dis-none');
+                                     console.log("error1 : " + err);
+                                 }
+                             });
+                         }
+                         else if (selVal == "View Documents") {
+                             $.ajax({
+                                 type: "get",
+                                 url: '@Url.Action("ViewDocuments", "Requirement")',
+                                 data: {
+                                     employeeNo: item.EmployeeId,
+                                     appid: item.ID,
+                                     apptype: item.CategoryName
+                                 },
+                                 beforeSend: function () {
+                                     $(".loading-bg").removeClass('dis-none');
+                                 },
+                                 success: function (result) {
+                                     $(".loading-bg").addClass('dis-none');
+                                     if (result != "") {
+                                         $("#popup").html(result);
+                                         $("#popupViewDoc").modal('toggle');
+                                     }
+                                 },
+                                 error: function (err) {
+                                     $(".loading-bg").addClass('dis-none');
+                                     console.log("error1 : " + err);
+                                 }
+                             });
+                         }
+                         else if (selVal == "History") {
+                             $.ajax({
+                                 type: "post",
+                                 url: '@Url.Action("_ViewPopUpEmployeeDetails", "Requirement")',
+                                 data: {
+                                     employeeId: item.EmployeeId
+                                 },
+                                 beforeSend: function () {
+                                     $(".loading-bg").removeClass('dis-none');
+                                 },
+                                 success: function (result) {
+                                     $(".loading-bg").addClass('dis-none');
+                                     if (result != "") {
+                                         $("#popup").html(result);
+                                         $("#popupService").modal('toggle');
+                                     }
+                                 },
+                                 error: function (err) {
+                                     $(".loading-bg").addClass('dis-none');
+                                     console.log("error1 : " + err);
+                                 }
+                             });
+                         }
+                         else if (selVal == "Edit") {
+                             var url = '@Url.Action("Relieving", "Requirement")?appid=' + item.ID + '&apptype=' + item.CategoryName + '&orderid=' + item.OrderID + '&listf=RL';
+                             window.location.href = url;
+                         }
+                         else if (selVal == "View") {
+                             var url = '@Url.Action("RelievingView", "Requirement")?OrderId=' + item.OrderID + '&listf=RL';
+                             window.location.href = url;
+                         }
+                         else if (selVal == "Final Settlement Copy") {
+                             if (item.isGenarateFinalSettlement) {
+                                 $.alert({
+                                     title: 'Confirm Message!',
+                                     content: "Report already generated. Do u want to regenerate the report ?",
+                                     type: 'orange',
+                                     animation: 'bottom',
+                                     buttons: {
+                                         Ok: function () {
+                                             var url = '@Url.Action("FinalSettlementPrint", "RCTReportMaster")?orderid=' + item.OrderID;
+                                             window.location.href = url;
+                                         },
+                                         Close: function () {
+                                         }
+                                     }
+                                 });
+                             }
+                             else {
+                                 var url = '@Url.Action("FinalSettlementPrint", "RCTReportMaster")?orderid=' + item.OrderID;
+                                 window.location.href = url;
+                                 $("#gridDataOSG").jsGrid("loadData");
+                             }
+                         }
+                         else if (selVal == "Service Certificate") {
+                             if (item.isGenarateServiceCertificate) {
+                                 $.alert({
+                                     title: 'Confirm Message!',
+                                     content: "Report already generated. Do u want to regenerate the report ?",
+                                     type: 'orange',
+                                     animation: 'bottom',
+                                     buttons: {
+                                         Ok: function () {
+                                             var url = '@Url.Action("ServiceCertificatePrint", "RCTReportMaster")?orderid=' + item.OrderID;
+                                             window.location.href = url;
+                                         },
+                                         Close: function () {
+                                         }
+                                     }
+                                 });
+                             }
+                             else {
+                                 var url = '@Url.Action("ServiceCertificatePrint", "RCTReportMaster")?orderid=' + item.OrderID;
+                                 window.location.href = url;
+                                 $("#gridDataOSG").jsGrid("loadData");
+                             }
+                         }
+                         $(this).val("");
+                         return false;
+                         e.stopPropagation();
+                     });
+                     if (statusList != undefined) {
+                         return $result.add($customSelect);
+                     }
+                 },
+                 _createFilterSwitchButton: function () {
+                     return this._createOnOffSwitchButton("filtering", this.searchModeButtonClass, false);
+                 }
+             }
+
+        ],
+
+    });
+    $("#gridDataSTE").jsGrid({
+        paging: true,
+        pageIndex: 1,
+        pageSize: 10,
+        editing: false,
+        filtering: true,
+        pageLoading: true,
+        autoload: true,
+        controller: {
+            loadData: function (filter) {
+                var searchData = [];
+                searchData = {
+                    SearchInName: filter.Name || null,
+                    SearchInCategory: "STE",
+                    SearchInDesignation: filter.Designation || null,
+                    SearchInProjectNumber: filter.ProjectNumber || null,
+                    SearchInEmployeeId: filter.EmployeeId || null,
+                    relievingType: filter.RelievingType || null,
+                    SearchInStatus: filter.Status || null,
+                    
+                    //SearchTypeofAppointment: filter.TypeofAppointmentName || null
+                },
+                filter.model = searchData;
+                filter.Category = "STE";
+                var deferred = $.Deferred();
+                $.ajax({
+                    type: "post",
+                    url: "getEmployeeRelievingList",
+                    data: JSON.stringify(filter),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (result) {
+                        var da = {
+                            data: result.List,
+                            itemsCount: result.TotalRecords
+                        }
+                        if (loadedList.indexOf("#tabJsSTE") == -1)
+                            loadedList.push("#tabJsSTE");
+                        deferred.resolve(da);
+                    },
+                    error: function (err) {
+                        console.log("error : " + err);
+                    }
+
+                });
+                return deferred.promise();
+            }
+
+        },
+
+        fields: [
+            { name: "SNo", title: "S.No", editing: false, width: 50 },
+            { type: "number", name: "ID", title: "Id", visible: false },
+            {
+                type: "text", name: "EmployeeId", title: "Employee ID", editing: false,
+                itemTemplate: function (item, name) {
+                    return $("<td>").append(name.EmployeeId + "<span class='gd-msg-hgt'>" + name.CategoryName + "</span>" + "<br/>" + "<span>" + name.TypeofAppointmentName + "</span>");
+                }
+            },
+            {
+                type: "text", name: "Name", title: "Employee Name & Designation", editing: false, width: 200,
+                itemTemplate: function (item, name) {
+                    return $("<td>").append("<b>" + name.Name + "</b>" + "<br/>" + "<span>" + name.Designation + "</span>" + "<br/>" + "<span>" + name.EmployeeEmail + "</span>");
+                }
+            },
+             { type: "date", name: "EmployeeDateofBirth", title: "Date of Birth", editing: false },
+            { type: "text", name: "CategoryName", title: "Category", editing: false, visible: false },
+
+
+            {
+                type: "text", name: "ProjectNumber", title: "PI Name & Project Number", editing: false, width: 200,
+                itemTemplate: function (item, name) {
+                    return $("<td>").append(name.PIName + "<span>" + name.ProjectNumber + "</span>");
+                }
+
+            },
+            {
+                type: "text", name: "RelievingType", title: "Relieving Type", editing: false,
+                cellRenderer: function (item, value) {
+                    if (value.RelievingType == "Resignation") {
+                        return $("<td>").addClass("txt-gr").append(value.RelievingType);
+                    }
+                    else if (value.RelievingType == "End of tenure") {
+                        return $("<td>").addClass("txt-gr").append(value.RelievingType);
+                    }
+                    else if (value.RelievingType == "Closure of project") {
+                        return $("<td>").addClass("txt-gr").append(value.RelievingType);
+                    }
+                    else if (value.RelievingType == "Termination") {
+                        return $("<td>").addClass("txt-rd").append(value.RelievingType);
+                    }
+                    else {
+                        return $("<td>").append(value.RelievingType);
+                    }
+                }
+
+            },
+            { type: "text", name: "Status", title: "Status", editing: false, width: 80 },
+             {
+                 type: "control", editButton: false, deleteButton: false, width: 80, title: "Action",
+                 itemTemplate: function (value, item) {
+                     var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+                     var statusList;
+                     if (item.OrderID > 0) {
+                         if (item.Status != "Relieving initiated") {
+                             if (!item.isSubmittedNOC && item.SendMailType != "") {
+                                 statusList = [{ id: "", name: "Action" }, { id: "Edit", name: "Edit" }, { id: "View Profile", name: "View Profile" }, { id: "View Documents", name: "View Documents" }, { id: "History", name: "History" }, { id: "Staff Detail", name: "Staff Detail" }, { id: item.SendMailType, name: item.SendMailType }, { id: "Reset Password", name: "Reset Employee Password" }, { id: "Employee Access", name: "Employee Access" }]
+                             }
+                             else if (!item.isSubmittedNOC) {
+                                 statusList = [{ id: "", name: "Action" }, { id: "Edit", name: "Edit" }, { id: "View Profile", name: "View Profile" }, { id: "View Documents", name: "View Documents" }, { id: "History", name: "History" }, { id: "Staff Detail", name: "Staff Detail" }, { id: "Reset Password", name: "Reset Employee Password" }, { id: "Employee Access", name: "Employee Access" }]
+                             }
+                             else if (item.RelievingType != "Termination" && item.SendMailType != "" && item.TypeCodeID == 3) {
+                                 statusList = [{ id: "", name: "Action" }, { id: "View Profile", name: "View Profile" }, { id: "View Documents", name: "View Documents" }, { id: "History", name: "History" }, { id: "Staff Detail", name: "Staff Detail" }, { id: item.SendMailType, name: item.SendMailType }, { id: "Reset Password", name: "Reset Employee Password" }, { id: "Employee Access", name: "Employee Access" }]
+                             }
+                             else if (item.RelievingType != "Termination" && item.SendMailType != "") {
+                                 statusList = [{ id: "", name: "Action" }, { id: "View Profile", name: "View Profile" }, { id: "View Documents", name: "View Documents" }, { id: "History", name: "History" }, { id: "Staff Detail", name: "Staff Detail" }, { id: "Relieving Order", name: "Relieving Order" }, { id: "Final Settlement Copy", name: "Final Settlement Copy" }, { id: "Service Certificate", name: "Service Certificate" }, { id: item.SendMailType, name: item.SendMailType }, { id: "Reset Password", name: "Reset Employee Password" }, { id: "Employee Access", name: "Employee Access" }]
+                             }
+                             else if (item.RelievingType != "Termination" && item.isSubmittedNOC && item.TypeCodeID == 3) {
+                                 statusList = [{ id: "", name: "Action" }, { id: "View Profile", name: "View Profile" }, { id: "View Documents", name: "View Documents" }, { id: "History", name: "History" }, { id: "Staff Detail", name: "Staff Detail" }, { id: "Reset Password", name: "Reset Employee Password" }, { id: "Employee Access", name: "Employee Access" }]
+                             }
+                             else if (item.RelievingType != "Termination" && item.isSubmittedNOC) {
+                                 statusList = [{ id: "", name: "Action" }, { id: "View Profile", name: "View Profile" }, { id: "View Documents", name: "View Documents" }, { id: "History", name: "History" }, { id: "Staff Detail", name: "Staff Detail" }, { id: "Relieving Order", name: "Relieving Order" }, { id: "Final Settlement Copy", name: "Final Settlement Copy" }, { id: "Service Certificate", name: "Service Certificate" }, { id: "Reset Password", name: "Reset Employee Password" }, { id: "Employee Access", name: "Employee Access" }]
+                             }
+                             else if (item.RelievingType == "Termination" && item.SendMailType != "" && item.TypeCodeID == 3) {
+                                 statusList = [{ id: "", name: "Action" }, { id: "View Profile", name: "View Profile" }, { id: "View Documents", name: "View Documents" }, { id: "History", name: "History" }, { id: "Staff Detail", name: "Staff Detail" }, { id: item.SendMailType, name: item.SendMailType }, { id: "Reset Password", name: "Reset Employee Password" }, { id: "Employee Access", name: "Employee Access" }]
+                             }
+                             else if (item.RelievingType == "Termination" && item.SendMailType != "") {
+                                 statusList = [{ id: "", name: "Action" }, { id: "View Profile", name: "View Profile" }, { id: "View Documents", name: "View Documents" }, { id: "History", name: "History" }, { id: "Staff Detail", name: "Staff Detail" }, { id: "Relieving Order", name: "Relieving Order" }, { id: "Final Settlement Copy", name: "Final Settlement Copy" }, { id: item.SendMailType, name: item.SendMailType }, { id: "Reset Password", name: "Reset Employee Password" }, { id: "Employee Access", name: "Employee Access" }]
+                             }
+                             else if (item.RelievingType == "Termination" && item.isSubmittedNOC && item.TypeCodeID == 3) {
+                                 statusList = [{ id: "", name: "Action" }, { id: "View Profile", name: "View Profile" }, { id: "View Documents", name: "View Documents" }, { id: "History", name: "History" }, { id: "Staff Detail", name: "Staff Detail" }, { id: "Reset Password", name: "Reset Employee Password" }, { id: "Employee Access", name: "Employee Access" }]
+                             }
+                             else if (item.RelievingType == "Termination" && item.isSubmittedNOC) {
+                                 statusList = [{ id: "", name: "Action" }, { id: "View Profile", name: "View Profile" }, { id: "View Documents", name: "View Documents" }, { id: "History", name: "History" }, { id: "Staff Detail", name: "Staff Detail" }, { id: "Relieving Order", name: "Relieving Order" }, { id: "Final Settlement Copy", name: "Final Settlement Copy" }, { id: "Reset Password", name: "Reset Employee Password" }, { id: "Employee Access", name: "Employee Access" }]
+                             }
+                         }
+                         else {
+                             statusList = [{ id: "", name: "Action" }, { id: "View", name: "View" }, { id: "Reset Password", name: "Reset Employee Password" }, { id: "Employee Access", name: "Employee Access" }]
+                         }
+                     }
+                     else {
+                         statusList = [{ id: "", name: "Action" }, { id: "View Profile", name: "View Profile" }, { id: "History", name: "History" }, { id: "Reset Password", name: "Reset Employee Password" }, { id: "Employee Access", name: "Employee Access" }]
+                     }
+
+                     var $customSelect = $("<select>")
+                         .attr("class", "form-control").prop("selectedIndex", "")
+                     if (statusList != undefined) {
+                         $.each(statusList, function (index, itemData) {
+                             $customSelect.append($('<option/>', {
+                                 value: itemData.id,
+                                 text: itemData.name
+                             }));
+                         });
+                     }
+                     $customSelect.change(function (e) {
+                         var selVal = $(this).val();
+                         if (selVal == "Relieving Order") {
+                             if (item.isGenarateRelieveOrder) {
+                                 $.alert({
+                                     title: 'Confirm Message!',
+                                     content: "Report already generated. Do u want to regenerate the report ?",
+                                     type: 'orange',
+                                     animation: 'bottom',
+                                     buttons: {
+                                         Ok: function () {
+                                             var url = '@Url.Action("RelievingOrderPrint", "RCTReportMaster")?orderid=' + item.OrderID;
+                                             window.location.href = url;
+                                         },
+                                         Close: function () {
+                                         }
+                                     }
+                                 });
+                             }
+                             else {
+                                 var url = '@Url.Action("RelievingOrderPrint", "RCTReportMaster")?orderid=' + item.OrderID;
+                                 window.location.href = url;
+                                 $("#gridDataSTE").jsGrid("loadData");
+                             }
+
+                         }
+                         else if (selVal == item.SendMailType) {
+                             $.confirm({
+                                 title: "Mail Preview",
+                                 type: 'blue',
+                                 columnClass: 'col-md-12',
+                                 content: function () {
+                                     var self = this;
+                                     return $.ajax({
+                                         type: "Post",
+                                         url: '@Url.Action("SendOfferOrder", "Requirement")',
+                                         data: {
+                                             appid: item.ID,
+                                             apptype: item.CategoryName,
+                                             offercategory: "Order",
+                                             isgetbody_f: true,
+                                             orderid: item.OrderID
+                                         }
+                                     }).done(function (response) {
+                                         self.setContent(response.Item2);
+                                         if (item.CategoryName != "OSG") {
+                                             var url = '@Url.Action("ShowOrderDocument", "RCTReportMaster")?appid=' + item.ID + '&apptype=' + item.CategoryName + '&offercategory=Order&orderid=' + item.OrderID;
+                                             var ServiceCertificateurl = '@Url.Action("ServiceCertificatePrint", "RCTReportMaster")?orderid=' + item.OrderID;
+                                             self.setContentAppend('Attachment : <a href=' + url + ' target="_blank">attachment</a>');
+                                             if (item.SendMailType == "Send Relieve Order / Service Certificate" || item.SendMailType == "Send Service Certificate") {
+                                                 self.setContentAppend('Attachment : <a href=' + ServiceCertificateurl + ' target="_blank">Service Certificate</a>');
+                                             }
+                                         }
+                                     }).fail(function () {
+                                         self.setContent('Preview page not loaded.');
+                                     });
+                                 },
+                                 buttons: {
+                                     Yes: {
+                                         text: 'Send',
+                                         btnClass: 'btn-blue',
+                                         action: function () {
+                                             $.ajax({
+                                                 type: "Post",
+                                                 url: '@Url.Action("SendOfferOrder", "Requirement")',
+                                                 data: {
+                                                     appid: item.ID,
+                                                     apptype: item.CategoryName,
+                                                     offercategory: "Order",
+                                                     orderid: item.OrderID
+                                                 },
+                                                 beforeSend: function () {
+                                                     $(".loading-bg").removeClass('dis-none');
+                                                 },
+                                                 success: function (output) {
+                                                     $(".loading-bg").addClass('dis-none');
+                                                     if (output.Item1 == 1) {
+                                                         $.confirm({
+                                                             title: 'Success Message!',
+                                                             content: "Order mail sent to candidate",
+                                                             type: 'green',
+                                                             buttons: {
+                                                                 Ok: function () {
+                                                                 },
+                                                             },
+                                                         });
+                                                     }
+                                                     else if (output.Item1 == 0) {
+                                                         $.confirm({
+                                                             title: 'Warning!',
+                                                             content: output.Item2,
+                                                             type: 'orange',
+                                                             buttons: {
+                                                                 Ok: function () {
+                                                                 },
+                                                             },
+                                                         });
+                                                     }
+                                                 },
+                                                 error: function (err) {
+                                                     console.log("error1 : " + err);
+                                                 }
+                                             });
+                                         }
+                                     },
+                                     No: {
+                                         text: 'No',
+                                         btnClass: 'btn-red',
+                                         action: function () {
+                                         }
+                                     },
+                                 }
+                             });
+                         }
+                         else if (selVal == "View Profile") {
+                             if (item.TypeCodeID == 2) {
+                                 var url = '@Url.Action("STEViewProfile", "Requirement")?STEID=' + item.ID + '&listf=RL';
+                                 window.location.href = url;
+                             }
+                             else if (item.TypeCodeID == 1) {
+                                 var url = '@Url.Action("CONViewProfile", "Requirement")?ConsultantAppId=' + item.ID + '&listf=RL';
+                                 window.location.href = url;
+                             }
+                             else if (item.TypeCodeID == 3) {
+                                 var url = '@Url.Action("OSGViewProfile", "Requirement")?OSGID=' + item.ID + '&listf=RL';
+                                 window.location.href = url;
+                             }
+                         }
+						  else if (selVal == "Reset Password") {
+                             $.ajax({
+                                 type: "get",
+                                 url: '@Url.Action("_EmployeeResetPassword", "Requirement")',
+                                 data: {
+                                     employeeId: item.EmployeeId
+                                 },
+                                 beforeSend: function () {
+                                     $(".loading-bg").removeClass('dis-none');
+                                 },
+                                 success: function (result) {
+                                     $(".loading-bg").addClass('dis-none');
+                                     if (result != "") {
+                                         $("#popup").html(result);
+                                         $("#popupEmpService").modal('toggle');
+                                     }
+                                 },
+                                 error: function (err) {
+                                     $(".loading-bg").addClass('dis-none');
+                                     console.log("error1 : " + err);
+                                 }
+                             });
+                         }
+                         else if (selVal == "Employee Access") {
+                             $.ajax({
+                                 type: "get",
+                                 url: '@Url.Action("_EmployeePortalAccessModifier", "Requirement")',
+                                 data: {
+                                     employeeId: item.EmployeeId
+                                 },
+                                 beforeSend: function () {
+                                     $(".loading-bg").removeClass('dis-none');
+                                 },
+                                 success: function (result) {
+                                     $(".loading-bg").addClass('dis-none');
+                                     if (result != "") {
+                                         $("#popup").html(result);
+                                         $("#popupEmpStatus").modal('toggle');
+                                     }
+                                 },
+                                 error: function (err) {
+                                     $(".loading-bg").addClass('dis-none');
+                                     console.log("error1 : " + err);
+                                 }
+                             });
+                         }
+                         else if (selVal == "Staff Detail") {
+                             $.ajax({
+                                 type: "post",
+                                 url: '@Url.Action("_ViewPopUpStaffDetails", "Requirement")',
+                                 data: {
+                                     employeeId: item.EmployeeId
+                                 },
+                                 beforeSend: function () {
+                                     $(".loading-bg").removeClass('dis-none');
+                                 },
+                                 success: function (result) {
+                                     $(".loading-bg").addClass('dis-none');
+                                     if (result != "") {
+                                         $("#popup").html(result);
+                                         $("#popupService").modal('toggle');
+                                     }
+                                 },
+                                 error: function (err) {
+                                     $(".loading-bg").addClass('dis-none');
+                                     console.log("error1 : " + err);
+                                 }
+                             });
+                         }
+                         else if (selVal == "View Documents") {
+                             $.ajax({
+                                 type: "get",
+                                 url: '@Url.Action("ViewDocuments", "Requirement")',
+                                 data: {
+                                     employeeNo: item.EmployeeId,
+                                     appid: item.ID,
+                                     apptype: item.CategoryName
+                                 },
+                                 beforeSend: function () {
+                                     $(".loading-bg").removeClass('dis-none');
+                                 },
+                                 success: function (result) {
+                                     $(".loading-bg").addClass('dis-none');
+                                     if (result != "") {
+                                         $("#popup").html(result);
+                                         $("#popupViewDoc").modal('toggle');
+                                     }
+                                 },
+                                 error: function (err) {
+                                     $(".loading-bg").addClass('dis-none');
+                                     console.log("error1 : " + err);
+                                 }
+                             });
+                         }
+                         else if (selVal == "History") {
+                             $.ajax({
+                                 type: "post",
+                                 url: '@Url.Action("_ViewPopUpEmployeeDetails", "Requirement")',
+                                 data: {
+                                     employeeId: item.EmployeeId
+                                 },
+                                 beforeSend: function () {
+                                     $(".loading-bg").removeClass('dis-none');
+                                 },
+                                 success: function (result) {
+                                     $(".loading-bg").addClass('dis-none');
+                                     if (result != "") {
+                                         $("#popup").html(result);
+                                         $("#popupService").modal('toggle');
+                                     }
+                                 },
+                                 error: function (err) {
+                                     $(".loading-bg").addClass('dis-none');
+                                     console.log("error1 : " + err);
+                                 }
+                             });
+                         }
+                         else if (selVal == "Edit") {
+                             var url = '@Url.Action("Relieving", "Requirement")?appid=' + item.ID + '&apptype=' + item.CategoryName + '&orderid=' + item.OrderID + '&listf=RL';
+                             window.location.href = url;
+                         }
+                         else if (selVal == "View") {
+                             var url = '@Url.Action("RelievingView", "Requirement")?OrderId=' + item.OrderID + '&listf=RL';
+                             window.location.href = url;
+                         }
+                         else if (selVal == "Final Settlement Copy") {
+                             if (item.isGenarateFinalSettlement) {
+                                 $.alert({
+                                     title: 'Confirm Message!',
+                                     content: "Report already generated. Do u want to regenerate the report ?",
+                                     type: 'orange',
+                                     animation: 'bottom',
+                                     buttons: {
+                                         Ok: function () {
+                                             var url = '@Url.Action("FinalSettlementPrint", "RCTReportMaster")?orderid=' + item.OrderID;
+                                             window.location.href = url;
+                                         },
+                                         Close: function () {
+                                         }
+                                     }
+                                 });
+                             }
+                             else {
+                                 var url = '@Url.Action("FinalSettlementPrint", "RCTReportMaster")?orderid=' + item.OrderID;
+                                 window.location.href = url;
+                                 $("#gridDataSTE").jsGrid("loadData");
+                             }
+                         }
+                         else if (selVal == "Service Certificate") {
+                             if (item.isGenarateServiceCertificate) {
+                                 $.alert({
+                                     title: 'Confirm Message!',
+                                     content: "Report already generated. Do u want to regenerate the report ?",
+                                     type: 'orange',
+                                     animation: 'bottom',
+                                     buttons: {
+                                         Ok: function () {
+                                             var url = '@Url.Action("ServiceCertificatePrint", "RCTReportMaster")?orderid=' + item.OrderID;
+                                             window.location.href = url;
+                                         },
+                                         Close: function () {
+                                         }
+                                     }
+                                 });
+                             }
+                             else {
+                                 var url = '@Url.Action("ServiceCertificatePrint", "RCTReportMaster")?orderid=' + item.OrderID;
+                                 window.location.href = url;
+                                 $("#gridDataSTE").jsGrid("loadData");
+                             }
+                         }
+                         $(this).val("");
+                         return false;
+                         e.stopPropagation();
+                     });
+                     if (statusList != undefined) {
+                         return $result.add($customSelect);
+                     }
+                 },
+                 _createFilterSwitchButton: function () {
+                     return this._createOnOffSwitchButton("filtering", this.searchModeButtonClass, false);
+                 }
+             }
+
+        ],
+
+    });
+
+    $("#gridDataSTE,#gridDataOSG,#gridDataCON").jsGrid("option", "filtering", false);
+</script>
+

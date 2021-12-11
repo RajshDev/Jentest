@@ -1,0 +1,177 @@
+﻿@model IOAS.Models.AgencySalaryModel
+
+<table id="tblEmployee" class="table alter-table mb-null">
+    <tbody>
+        <tr>
+            <th>
+               Sl.No
+            </th>
+            <th>
+                Employee Id
+            </th>
+            <th>
+                Name
+            </th>
+        </tr>
+        @{
+            if (Model.VerifiedDetails != null && Model.VerifiedDetails.Data.Any())
+            {
+                var sno = Model.VerifiedDetails.CurrentPage == 1 ? 1 : ((Model.VerifiedDetails.CurrentPage - 1) * Model.VerifiedDetails.pageSize) + 1;
+
+                foreach (var item in Model.VerifiedDetails.Data)
+                {
+
+                    <tr>
+
+                  <td>
+                      @sno
+                      @{
+                      sno = sno + 1;
+                      }
+                  </td>
+                        <td>
+                            <label>@Html.DisplayFor(modelItem => item.EmployeeId)</label>
+                        </td>
+                        <td>
+                            <label>@Html.DisplayFor(modelItem => item.Name)</label>
+                        </td> 
+                    </tr>
+
+                                    }
+                                }
+                                else
+                                {
+                                    <tr class="text-center"> <td colspan="3">No data to display! </td></tr>
+                                }
+
+        }
+
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="3">
+                @{
+                    var maxpage = Model.VerifiedDetails.visiblePages;
+                    var startpage = 1;
+
+                    if (Model.VerifiedDetails.TotalPages < Model.VerifiedDetails.visiblePages)
+                    {
+                        startpage = 1;
+                        maxpage = Model.VerifiedDetails.TotalPages;
+                    }
+                    else if (Model.VerifiedDetails.CurrentPage >= maxpage)
+                    {
+                        startpage = Model.VerifiedDetails.CurrentPage;
+
+                        if (startpage + Model.VerifiedDetails.visiblePages <= Model.VerifiedDetails.TotalPages)
+                        {
+                            maxpage = startpage + Model.VerifiedDetails.visiblePages;
+                        }
+                        else
+                        {
+                            maxpage = Model.VerifiedDetails.TotalPages;
+                        }
+
+                        if (maxpage > Model.VerifiedDetails.TotalPages)
+                        {
+                            maxpage = Model.VerifiedDetails.TotalPages;
+                            startpage = maxpage - (Model.VerifiedDetails.visiblePages - 1);
+                        }
+
+                    }
+
+                    if (Model.VerifiedDetails.TotalPages > Model.VerifiedDetails.visiblePages)
+                    {
+                        <a id='firstPage' name="pageButton" class="btn btn-primary  btn-md" href="#" onclick="return false;">First</a>
+                        <a id='previousPage' name="pageButton" class="btn btn-default  btn-md" href="#" onclick="return false;">
+                            Previous
+                        </a>
+                    }
+
+                    for (int i = startpage; i <= maxpage; i++)
+                    {
+
+
+                        if (i == Model.VerifiedDetails.CurrentPage)
+                        {
+                            if (Model.VerifiedDetails.TotalPages > 1)
+                            {
+                                <a id='currentPage' name="pageButton" class="btn btn-primary  btn-md" href="#" onclick="return false;">@i</a>
+                            }
+                        }
+                        else
+                        {
+                            <a name="pageButton" class="btn btn-default  btn-md" href="#" onclick="return false;">@i</a>
+                        }
+                    }
+                    if (Model.VerifiedDetails.TotalPages > Model.VerifiedDetails.visiblePages)
+                    {
+                        <a id='nextPage' name="pageButton" class="btn btn-default  btn-md" href="#" onclick="return false;">
+                            Next
+                        </a>
+                        <a id='lastPage' name="pageButton" class="btn btn-primary  btn-md" href="#" onclick="return false;">
+                            Last
+                        </a>
+                    }
+                }
+                @{if (Model.VerifiedDetails.TotalPages > 1)
+                    {
+                        <h6 class="color-white" style="float: right; color: Red;">
+                            Displaying page <span>@Model.VerifiedDetails.CurrentPage</span> of <span>
+                                @Model.VerifiedDetails.TotalPages
+                            </span>
+                        </h6>
+                    }
+                }
+            </td>
+        </tr>       
+    </tfoot>
+
+</table>
+
+
+<script type="text/javascript">
+
+
+   var lastpage = '@Model.VerifiedDetails.TotalPages';
+    $(document).ready(function () {
+        var firstpage = 1
+        var currentPage = $('#currentPage').text();
+        if (parseInt(currentPage, 10) === parseInt(lastpage, 10)) {
+            $('#lastPage').addClass('disabled');
+            $('#nextPage').addClass('disabled');
+        }
+        else if (parseInt(currentPage, 10) === parseInt(firstpage, 10)) {
+            $('#firstPage').addClass('disabled');
+            $('#previousPage').addClass('disabled');
+        }
+    });
+
+    $('a[name="pageButton"]').click(function () {
+
+        var pageNo = $(this).text();
+
+        if ($(this).text().trim() === 'First') {
+            pageNo = 1;
+        }
+        else if ($(this).text().trim() === 'Last') {
+            pageNo = lastpage;
+        }
+        else if ($(this).text().trim() === 'Previous') {
+            if (parseInt($('#currentPage').text(), 10) > 1) {
+                pageNo = parseInt($('#currentPage').text(), 10) - 1;
+            }
+
+        }
+        else if ($(this).text().trim() === 'Next') {
+
+            pageNo = parseInt($('#currentPage').text(), 10) + 1;
+        }
+        else {
+            pageNo = $(this).text();
+        }
+        getDataVerified(pageNo)
+    });
+
+   
+</script>

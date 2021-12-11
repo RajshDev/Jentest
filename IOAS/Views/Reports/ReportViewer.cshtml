@@ -1,0 +1,382 @@
+﻿@model IOAS.Models.SqlReportModel
+@{
+    ViewBag.Title = "Report Viewer";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+
+<aside class="right-side sidebar-offcanvas">
+
+    @using (Html.BeginForm("ReportViewer", "Reports", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+    {
+        @Html.ValidationSummary(true, "Please correct the errors and try again.", new { @class = "alert alert-block alert-error" })
+        @Html.AntiForgeryToken()
+        <fieldset>
+            <section class="content">
+                <div class="row" style="display:none;">
+                    <div class="col-md-12">
+                        <div class="page-wrapper">
+                            <div class="white-bg">
+                                <div class="row">
+                                    <div class="col-md-5">
+                                        <div class="form-group custom-form-group">
+                                            <label>
+                                                Report Name
+                                            </label>
+                                            @Html.DropDownListFor(m => m.ReportID, new SelectList(ViewBag.Reports, "ReportID", "ReportName", ViewBag.TableRef), "--- Select ---", new { @class = "required form-control" })
+                                            @Html.ValidationMessageFor(m => m.ReportID)
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row hd-tt-bg ">
+                    <div class="col-md-12">
+                        <h4><b>@ViewBag.ReportName </b></h4>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="page-wrapper">
+                            <div class="white-bg">
+                                <div class="row" id="searchbox">
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-wrapper">
+                    <div class="white-bg">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div id="export" class="dropdown">
+                                    <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+                                        Export
+                                        <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a href="javascript:void(0)" id="topdf" onclick="exportData(this);">To PDF</a></li>
+                                        <li><a href="javascript:void(0)" id="toexcel" onclick="exportData(this);">To Excel</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="custom-jsgrid-normal">
+                                    <div id="reportGrid"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+        </fieldset>
+
+
+    }
+
+
+</aside> <!-- right pane -->
+
+
+<script type="text/javascript" language="javascript">
+
+    var qString = {};
+    var queryString = document.location.search;
+    if (queryString) {
+        $.each(document.location.search.substr(1).split('&'), function (c, q) {
+            var i = q.split('=');
+            qString[i[0].toString()] = i[1].toString();
+        });
+    }
+
+    if (qString.ReportID) {
+        SelectedTablesChanged();
+    }
+    $("#ReportID").change(function () {
+        SelectedTablesChanged();
+    });
+    $("#export").hide();
+       function SelectedTablesChanged() {
+        var token = $("input[name=__RequestVerificationToken]").val();
+        var searchdata = { "__RequestVerificationToken": token };
+        var headers = {
+            contentType: 'application/x-www-form-urlencoded'
+        }
+        headers['__RequestVerificationToken'] = token;
+
+        var reportId = $('#ReportID option:selected').val();
+        searchdata.ReportID = qString.ReportID || reportId;
+        $.ajax({
+            url: '@Url.Action("getReportDetailByUser", "Reports")',
+            type: "POST",
+            headers: headers,
+            data: searchdata,
+            success: function (response) {
+                var data = response.result;
+                var schema = response.schema;
+                var filters = response.filters;
+                if (schema && (schema.ToPDF || schema.ToExcel)) {
+                    $("#export").show();
+                    if (schema && schema.ToPDF) {
+                        $("#topdf").show();
+                    } else {
+                        $("#topdf").hide();
+                    }
+                    if (schema && schema.ToExcel) {
+                        $("#toexcel").show();
+                    } else {
+                        $("#toexcel").hide();
+                    }
+                } else {
+                    $("#export").hide();
+                }
+
+                $("#searchbox").html("");
+                var fields = [];
+                var filterFields = schema.dtFilterFields;
+                var searchHeader = '<div class="row"> <div class="col-md-12"> <h3 class="spl-title">Search</h3></div></div>';
+                $("#searchbox").append(searchHeader);
+                if (filterFields && filterFields.length > 0) {
+                    var searchData = {};
+                    for(var i = 0; i < filterFields.length; i++) {
+                        var key = filterFields[i].ReportField;
+						var RefField = filterFields[i].RefField;
+                        var formClass = '<div class="form-group custom-form-group">';
+                        var formClassEnd = '</div>';
+                        var label = "";
+
+                        label = '<label>' + key + '</label>'
+                        if (filterFields[i].FieldType == 'Text' && filterFields[i].IsRange && filterFields[i].DType === 'datetime') {
+                            label = '<label>' + key + '(From)</label>'
+                            $("#searchbox").append('<div class="col-md-5 " >' + formClass + label + '<input class="form-control" placeholder="yyyy/mm/dd" type="text" id="txt' + key + '_from" name="' + key + '"/></div>' + formClassEnd); //add input box
+                            label = '<label>' + key + '(To)</label>'
+                            $("#searchbox").append('<div class="col-md-5 " >' + formClass + label + '<input class="form-control" placeholder="yyyy/mm/dd" type="text" id="txt' + key + '_to" name="' + key + '"/></div>' + formClassEnd); //add input box
+                        }
+                        else if (filterFields[i].FieldType == 'Text' && filterFields[i].IsRange) {
+                            label = '<label>' + key + '(From)</label>'
+                            $("#searchbox").append('<div class="col-md-5 " >' + formClass + label + '<input class="form-control" type="text" id="txt' + key + '_from" name="' + key + '"/></div>' + formClassEnd); //add input box
+                            label = '<label>' + key + '(To)</label>'
+                            $("#searchbox").append('<div class="col-md-5 " >' + formClass + label + '<input class="form-control" type="text" id="txt' + key + '_to" name="' + key + '"/></div>' + formClassEnd); //add input box
+                        }
+                        else if (filterFields[i].FieldType == 'Dropdown') {
+                            $("#searchbox").append('<div class="col-md-5" >' + formClass + label + '<select id="ddl-' + key + '" name="' + key + '" class="form-control"></select></div>' + formClassEnd); //add select box
+                            $("#ddl-" + key).append($('<option/>', {
+                                value: -1,
+                                text: "--- Select ---"
+                            }));
+							if (Array.isArray(filters[key])) {
+								var filterArray = filters[key] || [];
+								$.each(filterArray, function (index, itemData) {
+									var opt = filterArray[index] || {};
+									$("#ddl-"+key).append($('<option/>', {
+									    //value: RefField,
+									    value: opt[RefField],
+										text: opt[RefField]
+									}));
+								});
+							} else {
+								$.each(filters[key], function (index, itemData) {
+									$("#ddl-"+key).append($('<option/>', {
+										value: itemData[key],
+										text: itemData[key]
+									}));
+								});
+							}
+
+                        } else {
+                            $("#searchbox").append('<div class="col-md-5 " >' + formClass + label + '<input class="form-control" type="text" id="txt' + key + '" name="'+key+'"/></div>' + formClassEnd); //add input box
+                        }
+
+                    }
+
+                }
+                if (formClass) {
+                    $("#searchbox").append('<div class="col-md-12" ></div>' + formClassEnd); //add Clear button
+
+                    $("#searchbox").append('<div class="col-md-6 text-center" >' + formClass + '<a href="javascript:void(0)" id="butClear" role="button" class="btn btn-default  btn-md" onclick="InputClear()">Reset<a/></div>' + formClassEnd); //add Clear button
+                    $("#searchbox").append('<div class="col-md-6" >' + formClass + '<a href="javascript:void(0)" id="butSearch" role="button" class="btn btn-default  btn-md" onclick="searchGrid()">Search<a/></div>' + formClassEnd); //add search button
+                } else {
+                    $("#searchbox").hide();
+                }
+
+                if (data && data.length > 0) {
+                    var obj = data[0];
+                    Object.keys(obj).forEach(function (key) {
+                        fields.push({ name: key, type: "text", width: "50" });
+                    });
+                }
+                createGrid(fields, data);
+            },
+            error: function (err) {
+                console.log(err);
+                //alert(JSON.stringify(err));
+            }
+        });
+    }
+
+
+    function exportData(obj) {
+        var id = $(obj).prop('id');
+
+        var reportId = $('#ReportID option:selected').val();
+        var condition = "";
+        var filter = {};
+        var dropdowns = $("[id^=ddl-]");
+        for (var i = 0; i < dropdowns.length; i++) {
+            var id = dropdowns[i].id;
+            if ($("#" + id).val() != -1) {
+                filter['ddl_'+dropdowns[i].name] = $("#" + id).val();
+            }
+        }
+
+        var txtBoxes = $("[id^=txt]");
+        //for (var i = 0; i < txtBoxes.length; i++) {
+        //    var id = txtBoxes[i].id;
+        //    if ($("#" + id).val() != -1 && $("#" + id).val() != "") {
+        //        filter['txt_'+txtBoxes[i].name] = $("#" + id).val() ;
+        //    }
+        //}
+        for (var i = 0; i < txtBoxes.length; i++) {
+            var id = txtBoxes[i].id;
+            if ($("#" + id).val() != -1 && $("#" + id).val() != "") {
+                filter[txtBoxes[i].id] = $("#" + id).val();
+            }
+        }
+        var token = $("input[name=__RequestVerificationToken]").val();
+        var searchdata = { "__RequestVerificationToken": token };
+        var headers = {
+            contentType: 'application/json; charset=utf-8'
+        }
+        headers['__RequestVerificationToken'] = token;
+
+        var reportId = qString.ReportID || $('#ReportID option:selected').val();
+        searchdata.ReportId = reportId;
+        searchdata.filter = JSON.stringify(filter);
+        var qs = '?ReportID=' + reportId + '&filter=' + JSON.stringify(filter) + '&filetype=' + $(obj).prop('id');
+        var url = '@Url.Action("ExportData", "Reports")' +qs;
+        var w = window.open(url);
+    }
+    function InputClear() {
+        $('#searchbox').children().find('input,select').each(function () {
+            $(this).val('');
+        });
+    }
+    function searchGrid() {
+        var searchData = {};
+
+        var filter = {};
+        var dropdowns = $("[id^=ddl-]");
+        for (var i = 0; i < dropdowns.length; i++) {
+            var id = dropdowns[i].id;
+            if ($("#" + id).val() != -1) {
+                //filter['ddl_' + dropdowns[i].name] = $("#" + id).val();
+                searchData['ddl_' + dropdowns[i].name] = $("#" + id).val();
+            }
+        }
+
+        var txtBoxes = $("[id^=txt]");
+        for (var i = 0; i < txtBoxes.length; i++) {
+            var id = txtBoxes[i].id;
+            if ($("#" + id).val() != -1 && $("#" + id).val() != "") {
+                //filter[txtBoxes[i].id] = $("#" + id).val();
+                searchData[txtBoxes[i].id] = $("#" + id).val();
+            }
+        }
+        searchData["pageIndex"] = 1;
+        //searchData.filter = filter;
+        if (searchData && Object.keys(searchData).length > 0) {
+            $("#reportGrid").jsGrid("search", searchData);
+        }
+
+    }
+    function createGrid(fields, reportJson) {
+        var db = (function () {
+            return {
+                data: reportJson,
+                loadData: function (filter) {
+                    var condition = "";
+                    var data = $.Deferred();
+                    var token = $("input[name=__RequestVerificationToken]").val();
+                    var searchdata = { "__RequestVerificationToken": token };
+                    var headers = {
+                        contentType: 'application/x-www-form-urlencoded'
+                    }
+                    headers['__RequestVerificationToken'] = token;
+                    var reportId = $('#ReportID option:selected').val();
+                    searchdata.ReportID = qString.ReportID || reportId;
+                    searchdata.condition = condition;
+
+                    var dropdowns = $("[id^=ddl-]");
+                    for (var i = 0; i < dropdowns.length; i++) {
+                        var id = dropdowns[i].id;
+                        if ($("#" + id).val() != -1) {
+                            filter['ddl_' + dropdowns[i].name] = $("#" + id).val();
+                        }
+                    }
+
+                    var txtBoxes = $("[id^=txt]");
+                    for (var i = 0; i < txtBoxes.length; i++) {
+                        var id = txtBoxes[i].id;
+                        if ($("#" + id).val() != -1 && $("#" + id).val() != "") {
+                            filter[txtBoxes[i].id] = $("#" + id).val();
+                        }
+                    }
+
+                    searchdata.condition = JSON.stringify(filter);
+                    $.ajax({
+                        type: "POST",
+                        //contentType: "application/json; charset=utf-8",
+                        url: '@Url.Action("searchReportDetails", "Reports")',
+                        dataType: "json",
+                        headers: headers,
+                        data: searchdata,
+                    }).done(function (resultData) {
+                        //var response = resultData.result;
+                        var response = {
+                            data: resultData.result,
+                            itemsCount: resultData.recordCount
+                        }
+                        data.resolve(response);
+                    });
+                    return data.promise();
+                }
+            };
+        }());
+
+        $("#reportGrid").jsGrid({
+            width: "100%",
+            height: "auto",
+            filtering: false,
+            inserting: false,
+            editing: false,
+            sorting: true,
+            paging: true,
+            autoload: true,
+            pageIndex: 1,
+            pageSize: 10,
+            pageButtonCount: 10,
+            pagerFormat: "Pages: {first} {prev} {pages} {next} {last}    {pageIndex} of {pageCount}",
+            pagePrevText: "Prev",
+            pageNextText: "Next",
+            pageFirstText: "First",
+            pageLastText: "Last",
+            pageNavigatorNextText: "...",
+            pageNavigatorPrevText: "...",
+            pageLoading: true,
+            //data: reportJson,
+            controller: db,
+            deleteButton: true,
+            fields: fields
+        });
+
+    }
+
+
+</script>

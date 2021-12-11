@@ -1,0 +1,224 @@
+﻿@{
+    ViewBag.Title = "Approval Flow Mapping";
+    ViewBag.Subtitle = "Approval Flow Mapping";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+<script src="@Url.Content("~/Scripts/Process/ProcessGuideline.js")"></script>
+
+@*Temp solution for modal popup. to be work*@
+
+
+
+<div class="row hd-tt-bg">
+    <div class="col-md-4">
+        <h3>Approval Flow Mapping</h3>
+    </div>
+    <div class="col-md-8 flt-nav-links">
+        <a href="Javascript:void(0)" id="btnFilterPGL" class="pull-right"> <i class="ion-android-funnel"></i>Filters</a>
+        <a href="#" id="btnAddNew"> <i class="ion-plus"></i>Add New</a>
+        <a href="#" id="btnClosePGL"> <i class="ion-chevron-left"></i>Back</a>
+    </div>
+    <div id="popupFilterPGL" class="filter-popup">
+        <div class="">
+            <div class="filter-content">
+                <div class="white-bg">
+                    <div class="form-group custom-form-group">
+                        <h3>Filter by</h3>
+                    </div>
+                    <div class="form-group custom-form-group">
+                        <label>Function</label><br>
+                        <select id="selectFunctionSrch" class="form-control"></select>
+                    </div>
+                    <div class="form-group custom-form-group">
+                        <label>Process</label><br>
+                        <input type="text" class="form-control" id="txtProcessSrch">
+                    </div>
+                    <div class="form-group custom-form-group mt30 text-center">
+                        <button id="btnSearchPGL" type="button" class="btn btn-primary mr10">Search</button>
+                        <button id="btnResetSrchPGL" type="button" class="btn btn-default">Reset</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <a href="javascript:void(0)" name="btnClosePopupPGL" class="close-btn"><i class="ion-android-cancel"></i></a>
+
+    </div>
+</div>
+<div class="">
+    <div class="sb-cnt-bg" id="divOuterPGL">
+        <div class="">
+            <div class="page-wrapper">
+                <div class="row mt30">
+                    <div class="custom-jsgrid-normal">
+                        <div class="col-md-12">
+                            <div id="gridProcessGuidelineSearch"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div  id="divInnerPGL" style="display:none">
+        <div class="row">
+            <div class="white-bg ad-navbar">
+                <div class="col-md-3 ds-spl-bg">
+                    
+                    <div class="ds-tt">
+                        <span>Process Guide Name</span>
+                        <input type="text" class="form-control" id="txtProcess">
+                    </div>
+                </div>
+
+                <div class="col-md-3 ds-spl-bg">
+                    
+                    <div class="ds-tt">
+                        <span>Function Name</span>
+                        <select id="selectFunction" class="form-control"></select>
+                    </div>
+                </div>
+
+                <div class="col-md-6 ds-spl-bg mt-20 ">
+                    <button type="button" value="" class="btn btn-primary mr10" id="btnSave">Save and Proceed</button>
+                    @*<button type="button" value="" class="btn btn-default " id="btnResetSave">Reset</button>*@
+                </div>
+
+
+            </div>
+        </div>
+        <div class="row">
+            <div class="white-bg ad-navbar mt-m-xs adj">
+                <div class="col-md-4 ds-spl-bg">
+                    <div class="ds-icn">
+                        <b> Flow</b>
+                    </div>
+                    <div class="ds-tt">
+                        <!--<span>Flow Title</span>-->
+                        <select class="form-control" id="selectFlow">
+                            
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <a href="#" class="vm-btn" data-toggle="modal" data-target="#addFlowModal">+ Add Flow</a>
+                </div>
+                <div class="col-md-2 ">
+                    <h4><span class="brd-sb-tt">No of users</span><b id="numUsersCount"></b></h4>
+                </div>
+                <div class="col-md-2">
+                    <h4><span class="brd-sb-tt">No of Approvers</span><b id="numApproverCount"></b></h4>
+                </div>
+                
+
+
+            </div>
+        </div>
+        <div class="row">
+            <div class="page-wrapper">
+                <div class="col-md-4 mt30">
+                   
+                    <div>
+
+                        <div class="grd-box bg-green">
+
+                            <h3>Un Assigned User for : <span id="spanAssignedUser"></span></h3>
+                            <div class="form-group frm-sp-txt text-center">
+                                <a href="#" class="btn btn-default" data-toggle="modal" data-target="#myModal">Assign More User</a>&nbsp;&nbsp;
+                                <a href="#" class="btn btn-default" id="btnUnmapUser">Unmap</a>
+                            </div>
+                            <div class="custom-jsgrid-bg">
+                                <div id="gridAssignedUser"></div>
+                            </div>
+
+
+
+
+                        </div>
+
+                    </div>
+                </div>
+                <div class="col-md-8 mt30">
+                    <h3>Approval list : <span id="spanApprover"></span></h3>
+                    <div class="custom-jsgrid-normal">
+                        <div>
+                            <div id="gridApproverList"></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        @*<div class="row">
+            <div class="col-md-12">
+                <div class="grd-boxdsd">
+                    <h3>Approval list : <span id="spanApprover"></span></h3>
+                    <div class="custom-jsgrid-normal">
+                        <div>
+                            <div id="gridApproverList"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>*@
+
+    </div>
+
+</div>
+
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h3 class="modal-title">Assign More User</h3>
+            </div>
+            <div class="modal-body pd-null">
+                <div class="custom-jsgrid-normal">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div id="gridUnassigneduser"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="btn btn-default" id="btnMapUser">Map</a>&nbsp;&nbsp;<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div id="addFlowModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h3 class="modal-title">Add Flow</h3>
+            </div>
+            <div class="modal-body">
+                <div class="pr-gd-ln">
+                    <div class="row">
+                        <div class="col-md-8 col-md-offset-2">
+                            <div class="form-group custom-form-group">
+                                <label class="required">Flow</label>
+                                <input type="text" class="form-control" id="txtAddFlow">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="btn btn-default" id="btnAddFlow">Save</a>&nbsp;&nbsp;
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>

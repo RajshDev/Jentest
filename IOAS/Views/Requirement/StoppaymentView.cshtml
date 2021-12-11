@@ -1,0 +1,531 @@
+﻿@model IOAS.Models.StopaymentlosspayModel
+@{
+    ViewBag.Title = "Stop payment / Loss of pay ";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<style>
+    .modal-dialog {
+        width: 850px;
+    }
+</style>
+@using (Html.BeginForm("Stoppayment", "Requirement", FormMethod.Post, new { @class = "", role = "form", @id = "formRelieving", enctype = "multipart/form-data" }))
+{
+    @Html.HiddenFor(m => m.OrderType)
+    <div class="row hd-tt-bg">
+        <div class="col-md-12">
+            @if (Model.OrderType == 7)
+            {
+                <h4><b>Stop payment</b></h4>
+            }
+            else
+            {
+                <h4><b>Loss of pay</b></h4>
+            }
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="white-bg ad-navbar">
+            <div class="col-md-2 ds-spl-bg">
+
+            </div>
+            <div class="col-md-3 ds-spl-bg">
+                <div class="ds-icn">
+                    <i class="ion-ios-list-outline "></i>
+                </div>
+                <div class="ds-tt">
+                    @Html.HiddenFor(m => m.ApplicationID)
+                    @Html.HiddenFor(m => m.OrderID)
+                    @Html.HiddenFor(m => m.Status)
+                    @Html.HiddenFor(m => m.TypeCode)
+                    @Html.HiddenFor(m => m.ApplicationNo)
+                    <span>Request Reference</span>
+                    @Html.DropDownListFor(m => m.RequestReference, new SelectList(ViewBag.ReferenceType, "id", "name"), "Select", new { @class = "form-control" })
+                    <div>@Html.ValidationMessageFor(m => m.RequestReference)</div>
+                </div>
+            </div>
+            <div class="col-md-3 ds-spl-bg">
+                <div class="ds-icn">
+                    <i class="ion-ios-list-outline "></i>
+                </div>
+                <div class="ds-tt" id="divRefNum">
+                    <span class="required">Ref Number (WF / Tapal)</span>
+                    @Html.TextBoxFor(M => M.ReferenceNo, new { @class = "form-control" })
+                    <div>@Html.ValidationMessageFor(M => M.ReferenceNo)</div>
+                    @*@Html.TextBoxFor(m => m.SourceReferenceNumber, new { @class = "form-control dis-none" })
+                        <div>@Html.ValidationMessageFor(M => M.SourceReferenceNumber)</div>*@
+                    @Html.Hidden("SourceTapalOrWorkflow", "True")
+                </div>
+                <div class="dis-none ds-tt" id="divRefEmailDate">
+                    <span class="required">Email Date</span>
+                    @Html.EditorFor(m => m.SourceEmailDate, new { @class = "form-control" })
+                    <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.SourceEmailDate)</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+
+            </div>
+
+        </div>
+    </div>
+    <div class="row cts-mn-dts" id="tab-01">
+        <div class="page-wrapper mt30">
+            <div>
+                <div class="col-md-12">
+
+                    <div class="row">
+                        <div class="col-md-12">
+
+                            <div class="bl-lg-panel-box pb-null">
+                                <div class="cmn-panel-box">
+                                    <div class="row ">
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label>Order Type</label>
+                                                @if (Model.OrderID > 0 && Model.OrderType == 7)
+                                                {
+                                                    <h4>Stop payment</h4>
+                                                }
+                                                else
+                                                {
+                                                    <h4>Loss of pay</h4>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group custom-form-group">
+                                                <label class="required">From Date</label>
+                                                <h4 id="FromDate">@Html.DisplayFor(m => m.FromDateStr)</h4>
+                                                @Html.HiddenFor(m => m.FromDate)
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1 pdl-null">
+                                            <div class="form-group custom-form-group mt-mlg">
+                                                <label></label>
+                                                <h4>@Model.lblFromMeridiem</h4>
+                                                <div>@Html.HiddenFor(m => m.FromMeridiem)</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group custom-form-group">
+                                                <label class="required">To Date</label>
+                                                <h4 id="ToDate">@Html.DisplayFor(m => m.ToDateStr)</h4>
+                                                @Html.HiddenFor(m => m.ToDate)
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1 pdl-null">
+                                            <div class="form-group custom-form-group mt-mlg">
+                                                <label></label>
+                                                <h4>@Html.DisplayFor(m => m.lblToMeridiem)</h4>
+                                                <div>@Html.HiddenFor(m => m.ToMeridiem)</div>
+                                            </div>
+                                        </div>
+                                        @*<div class="col-md-2">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="required">Signature</label>
+                                                    <h4>@Html.DisplayFor(m => m.lblSignature)</h4>
+                                                </div>
+                                            </div>*@
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label>Employee Id</label>
+                                                <h4>@Html.DisplayFor(m => m.EmployeeID)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label>Name </label>
+                                                <h4 id="CantidateName">@Html.DisplayFor(m => m.Name)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group mb-sm ">
+                                                <label>Contact No</label>
+                                                <h4>@Html.DisplayFor(m => m.ContactNumber)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group mb-sm ">
+                                                <label>No.of Leave Days </label>
+                                                <h4 id="NoLeave"></h4>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row ">
+                                        @if (Model.Status == "Approved" || Model.Status == "Reversal" || Model.Status == "Completed")
+                                        {
+                                            @Html.CheckBoxFor(m => m.Rejoin, new { @checked = "checked", @class = "dis-none" })
+                                            <div class="col-md-3" id="">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="required">Release of payment w.e.f</label><br>
+                                                    @Html.EditorFor(m => m.RejoinDate, new { @class = "form-control" })
+                                                    <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.RejoinDate)</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3" id="">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="required">Release of payment proof</label><br>
+                                                    @if (Model.RejoiningLetterPath != null)
+                                                    {
+                                                        <b>@Html.ActionLink(Model.RejoiningLetterName, "ShowDocument", new { Controller = "Account", filepath = "Requirement", file = Model.RejoiningLetterPath }, new { @name = "DocDownload", @target = "_blank" })</b>
+                                                    }
+                                                    else
+                                                    {
+                                                        <b>-</b>
+                                                    }
+                                                </div>
+                                            </div>
+                                        }
+                                        <div class="col-md-3" id="">
+                                            <div class="form-group custom-form-group">
+                                                <label class="required">PI Approval Letter</label><br>
+                                                @if (Model.OrderID > 0)
+                                                {
+                                                    if (!string.IsNullOrEmpty(Model.PILetterPath))
+                                                    {
+                                                        <b>@Html.ActionLink(Model.PILetterFileName, "ShowDocument", new { Controller = "Account", filepath = "Requirement", file = Model.PILetterPath }, new { @name = "DocDownload", @target = "_blank" })</b>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <b>-</b>
+                                                }
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label class="required">Application Receive Date</label>
+                                                @Html.EditorFor(m => m.ApplicationReceiveDate, new { @class = "form-control", @required = "required" })
+                                                <div>@Html.ValidationMessageFor(m => m.ApplicationReceiveDate)</div>
+                                            </div>
+                                        </div>                                        
+                                        <div class="col-md-2 reg-no">
+                                            <div class="form-group custom-form-group">
+                                                <label class="required">Withdraw amount</label>
+                                                <h4 id="WithdrawalAmount">@Html.DisplayFor(m => m.WithdrawalAmount)</h4>
+                                            </div>
+                                        </div>   
+                                        @if (Model.Status == "Approved" || Model.Status == "Reversal" || Model.Status == "Completed")
+                                        {
+                                            <div class="col-md-2">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Arrear till</label>
+                                                    @Html.EditorFor(m => m.ArrearOrDeductionTillDate, new { @class = "form-control" })
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Arrear Amount</label>
+                                                    @Html.TextBoxFor(m => m.ArrearOrDeductionAmount, new { @class = "form-control", @readonly = "readonly" })
+                                                </div>
+                                            </div>
+                                        }                                     
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="bl-lg-panel-box  pb-null">
+                                <div class="bl-lg-panel-box-hd mb-m-5 pd-null">
+                                    <div class="cmn-panel-box">
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Project Number</label>
+                                                    <h4>@Html.DisplayFor(m => m.Appointmentdetails.ProjectNumber)</h4>
+                                                    @Html.HiddenFor(m => m.ProjectId)
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Project Title</label>
+                                                    <h4 id="txtProjectTitle">@Html.DisplayFor(m => m.Appointmentdetails.ProjectTitle)</h4>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>PI Name</label>
+                                                    <h4 id="txtPIName">@Html.DisplayFor(m => m.Appointmentdetails.PIName)</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Project Start Date</label>
+                                                    <h4 id="txtProjectStartDate">@Html.DisplayFor(m => m.Appointmentdetails.ProjectStartDate)</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Project End Date</label>
+                                                    <h4 id="txtProjectClosureDate">@Html.DisplayFor(m => m.Appointmentdetails.ProjectClosureDate)</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Appointment start date</label>
+                                                    <h4 id="txtAppointmentStartDate">@Html.DisplayFor(m => m.Appointmentdetails.AppointmentStartDate)</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Appointment End date</label>
+                                                    <h4 id="txtAppointmentEndDate">@Html.DisplayFor(m => m.Appointmentdetails.AppointmentClosureDate)</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Designation</label>
+                                                    <h4>@Html.DisplayFor(m => m.Appointmentdetails.Designation)</h4>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Designation Code</label>
+                                                    <h4 id="txtDepartmentCode">@Html.DisplayFor(m => m.Appointmentdetails.DesignationCode)</h4>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group mb-sm">
+                                                    <label>Department Name</label>
+                                                    <h4 id="txtDepartmentName">@Html.DisplayFor(m => m.Appointmentdetails.PIDepartmentName)</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Commitment Amount</label>
+                                                    <h4>@Html.DisplayFor(m => m.Appointmentdetails.CommitmentAmmount)</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Salary</label>
+                                                    <h4>@Html.DisplayFor(m => m.Appointmentdetails.Salary)</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>HRA</label>
+                                                    <h4>@Html.DisplayFor(m => m.Appointmentdetails.HRA)</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Medical</label>
+                                                    <h4>@Html.DisplayFor(m => m.Appointmentdetails.MedicalAmmount)</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 mb-lg text-center">
+            <button type="button" class="btn btn-default" onclick="window.location.href='@Url.Action("StoppaymentList","Requirement")';">Close</button>
+        </div>
+    </div>
+}
+
+<div class="loading-bg dis-none">
+</div>
+<div id="popup">
+
+</div>
+<input type="hidden" id="currentRefId" value="@Model.OrderID" />
+<input type="hidden" id="processGuideLineId" value="@ViewBag.processGuideLineId" />
+<div id="act-now">
+    @Html.Partial("_ProcessStatus")
+</div>
+<script>
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    var Status = @Html.Raw(Json.Encode(Model.Status)) || "";
+
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+        $('.selectpicker').selectpicker({
+            liveSearch: true
+        });
+        $('.selectpicker').selectpicker('refresh');
+
+        var currentdate = moment(new Date()).toDate();
+
+        $('#ApplicationReceiveDate').datepicker({
+            dateFormat: 'dd-MM-yy',
+            changeYear: true
+        }).datepicker("option", "maxDate", currentdate).datepicker("option", "minDate", -185);
+
+        var defaultappstrToDate = moment($('#txtAppointmentEndDate').text().split('-').join('/')).add(-1, 'days').toDate();
+        $('#FromDate').datepicker({
+            dateFormat: 'dd-MM-yy',
+            changeYear: true
+        }).datepicker("option", "minDate", currentdate).datepicker("option", "maxDate", defaultappstrToDate);
+
+    });
+    var addyear = 0;
+
+
+    $("#RelievingDate,#ApplicationReceiveDate").datepicker
+        ({
+            dateFormat: 'dd-MM-yy',
+            showStatus: true,
+            showWeeks: true,
+            changeYear: true,
+            yearRange: '1950:+30',
+            highlightWeek: true,
+            numberOfMonths: 1,
+            showAnim: "scale",
+            showOptions: {
+                origin: ["top", "left"]
+            }
+        });
+
+    function FormDisabled() {
+        $("#formRelieving").find("input, select, textarea").each(function () {
+            var idDisabled = $(this).is(":disabled");
+            var id = $(this).attr('id');
+            if (!idDisabled) {
+                $(this).attr("disabled", "disabled");
+            }
+        });
+
+    }
+    var isDisabledInput = @*@Html.Raw(Json.Encode(Model.isDisabledInput)) ||*@ false;
+
+    FormDisabled();
+
+    $(document).on('keyup', 'textarea,input[type="text"]', function () {
+        this.value = this.value.toUpperCase();
+    });
+
+
+    $('#RequestReference').change(function () {
+        var selSource = $(this).val();
+        $("#SourceReferenceNumber,#ReferenceNo").val('');
+        $("#divRefNum, #divRefEmailDate").addClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('False');
+        if (selSource == '1') {
+            applyAutoComplete($('#ReferenceNo'), $('#SourceReferenceNumber'), "@Url.Action("GetACWorkflowRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        } else if (selSource == '3') {
+            applyAutoComplete($('#ReferenceNo'), $('#SourceReferenceNumber'), "@Url.Action("GetACTapalRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        }
+        else if (selSource == '2') {
+            $('#divRefEmailDate').removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('False');
+        } else {
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        }
+    });
+
+
+    var selSource = $('#RequestReference').val();
+    $("#divRefNum, #divRefEmailDate").addClass('dis-none');
+    if (selSource == '1') {
+        applyAutoComplete($('#ReferenceNo'), $('#SourceReferenceNumber'), "@Url.Action("GetACWorkflowRefNumber", "Proposal")");
+        $("#divRefNum").removeClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('True');
+    }
+    else if (selSource == '3') {
+        applyAutoComplete($('#ReferenceNo'), $('#SourceReferenceNumber'), "@Url.Action("GetACTapalRefNumber", "Proposal")");
+        $("#divRefNum").removeClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('True');
+    }
+    else if (selSource == '2') {
+        $('#divRefEmailDate').removeClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('False');
+    }
+    else {
+        $("#divRefNum").removeClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('True');
+    }
+
+    if($("#FromDate").text() != "" && $("#ToDate").text() != ""){
+        LoadCalculateLeave();
+    }
+
+    if($("#FromMeridiem").val() != "" && $("#ToMeridiem").val() != "") {
+        LoadCalculateLeave();
+        var days = parseFloat($('#NoLeave').text());
+        if($("#FromMeridiem").val() == $("#ToMeridiem").val())
+            days -= 0.5;
+        else if($("#FromMeridiem").val() != $("#ToMeridiem").val() && $("#FromMeridiem").val() != 1 && $("#ToMeridiem").val() != 2)
+            days -= 1;
+        $('#NoLeave').text(days);
+    }
+
+    function LoadCalculateLeave(){
+        var start = new Date($("#FromDate").text().split("-").join('/'));
+        var end   = new Date($("#ToDate").text().split("-").join('/'));
+        var days = (end - start) / (1000 * 60 * 60 * 24);
+        days = parseInt(days) + 1;
+        $('#NoLeave').text(Math.round(days));
+    }
+
+
+    function endOfMonth(date)
+    {
+        return new Date(date.getFullYear(), date.getMonth() + 1, 0);
+    }
+   
+    $("#FromDate,#ToDate").datepicker({
+        dateFormat: 'dd-MM-yy',
+        showStatus: true,
+        showWeeks: true,
+        changeYear: true,
+        yearRange: '1950:+30',
+        highlightWeek: true,
+        numberOfMonths: 1,
+        showAnim: "scale",
+        showOptions: {
+            origin: ["top", "left"]
+        }
+    });
+    $('#FromDate').change(function () {
+        $('#ToDate').val('');
+        var endDate = moment($('#txtAppointmentEndDate').text().split('-').join('/')).toDate();
+        var defaultstartDateDate = moment($('#FromDate').val().split('-').join('/')).add(+1, 'days').toDate();
+        $('#ToDate').datepicker({
+            dateFormat: 'dd-MM-yy',
+            changeYear: true
+        }).datepicker("option", "minDate", defaultstartDateDate).datepicker("option", "maxDate", endDate);
+    })
+
+
+</script>
+<script src="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/js/bootstrap-select.min.js")"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>
+

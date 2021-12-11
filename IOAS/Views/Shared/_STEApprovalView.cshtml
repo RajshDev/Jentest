@@ -1,0 +1,461 @@
+﻿@model IOAS.Models.STEViewModel
+@{
+    ViewBag.Title = "Short Term Engagement";
+    <link href="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/css/bootstrap-select.min.css")" rel="stylesheet" />
+    bool isCommitteeApproval = Convert.ToBoolean(Request.Params["isCommitteeApproval"]);
+    if (isCommitteeApproval)
+    {
+        Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+    }
+}
+<style>
+    .gd-wht-bg {
+        background: #fff;
+        padding: 15px;
+        border-radius: 4px;
+        box-shadow: 4px 4px 4px rgba(0,0,0,0.2);
+    }
+</style>
+<div class="row hd-tt-bg">
+    <div class="col-md-12">
+        <h4><b>Short Term Engagement</b></h4>
+        @if (!isCommitteeApproval)
+        {
+            <ul class="nav nav-pills custom-nav-pills custom-spl-nav">
+                <li class="active"><a href="javascript:void(0)"><span>01</span>Application Approval</a></li>
+            </ul>
+        }
+    </div>
+</div>
+<div class="row cust-tab">
+    <div class="page-wrapper mt30">
+        <div>
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="bl-lg-panel-box pb-null">
+                            <div class="cmn-panel-box">
+                                <div class="row">
+
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            @Html.HiddenFor(m => m.ProjectId)
+                                            @Html.HiddenFor(m => m.STEId)
+                                            @Html.HiddenFor(m => m.Status)
+                                            @Html.HiddenFor(M => M.DesignationId)
+                                            <label>Application No: </label>
+                                            <h4 id="ClApplicationNo">@Model.ApplicationNo</h4>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>Candidate Name: </label>
+                                            <h4 id="ClCandidate">@Model.Name</h4>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>PI Name:</label> <br>
+                                            <h4 id="ClPIName">@Model.ProjectDetailsModel.PIName</h4>
+
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>Department name:</label> <br>
+                                            <h4 id="ClDepartname">@Model.ProjectDetailsModel.PIDepartmentName</h4>
+                                        </div>
+                                    </div>
+                                    @if (Model.PhdDetail != null)
+                                    {
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label>MS/Phd:</label> <br>
+                                                <h4 id="ClMSPhd">@Model.PhdDetail</h4>
+                                            </div>
+                                        </div>
+                                    }
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>Designation: </label>
+                                            <h4 id="ClDesignation"></h4>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>Qualification: </label>
+                                            <h4 id="ClQualification">@Html.Raw(Model.Qualification)</h4>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>Experience: </label>
+                                            <h4 id="ClExperience">@Model.Experience</h4>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>Pay: </label>
+                                            <h4 id="ClPay">@Model.BasicPay</h4>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>Medical:</label> <br>
+                                            <h4 id="ClMedical">@Model.MedicalAmmount</h4>
+
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>DOB </label>
+                                            <h4>@Model.DateofBrith</h4>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group  ">
+                                            <label>Application Received Date</label>
+                                            <h4>@Model.ApplicationReceiveDate</h4>
+                                        </div>
+                                    </div>
+                                    @if (Model.ConsolidatedPay || Model.Fellowship)
+                                    {
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label>Pay category:</label>
+                                                @if (Model.ConsolidatedPay && !Model.Fellowship)
+                                                {
+                                                    <h4 id="ClPayCategory">Consolidated Pay</h4>
+                                                }
+                                                else if (!Model.ConsolidatedPay && Model.Fellowship)
+                                                {
+                                                    <h4 id="ClPayCategory">Fellowship</h4>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+                                    <div class="col-md-6" id="CldivCSIR">
+                                        <div class="form-group custom-form-group">
+                                            <label>IITM Pensioner / CSIR Staff :</label>
+                                            <h4>@Model.IITMPensionerOrCSIRStaff</h4>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group  mb-sm">
+                                            <label>Staff category:</label>
+                                            <h4 id="ClStaffCategory">@Model.StaffCategory</h4>
+                                        </div>
+                                    </div>
+                                    @if (Model.STEId > 0 && Model.PIJustificationDocuments != null)
+                                    {
+                                        if (Model.PIJustificationDocuments.Count > 0)
+                                        {
+                                            <div class="col-md-6">
+                                                <div class="form-group custom-form-group">
+                                                    <label>PI Justification Document</label> <br>
+
+                                                    @foreach (var item in Model.PIJustificationDocuments)
+                                                    {
+                                                        if (item.FilePath != null)
+                                                        {
+                                                            if (item.FilePath != "")
+                                                            {
+                                                                <b>@Html.ActionLink(item.FileName, "ShowFile", new { Controller = "Requirement", filepath = "~/Content/Requirement", file = item.FilePath }, new { @name = "DocDownload", @target = "_blank" })</b>
+                                                            }
+                                                        }
+                                                    }
+                                                </div>
+                                            </div>
+                                        }
+                                    }
+
+                                </div>
+                                <div class="row">
+                                    @if (!string.IsNullOrEmpty(Model.Comments))
+                                    {
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group ">
+                                                <label>Comments</label>
+                                                <h4>@Model.Comments</h4>
+                                            </div>
+                                        </div>
+                                    }
+                                    @if (isCommitteeApproval)
+                                    {
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group ">
+                                                <label>Committee Comments</label>
+                                                <h4>@Model.CommitteeRemark</h4>
+                                                <em>@Model.CommitteeApprovedBy</em>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="bl-lg-panel-box  pb-null">
+                            <div class="bl-lg-panel-box-hd mb-m-5 pd-null">
+                                <div class="cmn-panel-box">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>Project Number</label>
+                                                <h4 id="txtProjectNumber">@Model.ProjectNumber</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>Project Title</label>
+                                                <h4 id="txtProjectTitle1">@Model.ProjectDetailsModel.ProjectTitle</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>Name of the Client / Sponsoring Agency</label>
+                                                <h4 id="txtClietAgency1">@Model.ProjectDetailsModel.SponsoringAgency</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>Project Type</label>
+                                                <h4 id="txtProjectType1">@Model.ProjectDetailsModel.ProjectType</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>PI Name</label>
+                                                <h4 id="txtPIName1">@Model.ProjectDetailsModel.PIName</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>Project Start Date</label>
+                                                <h4 id="txtProjectStartDate1">@Model.ProjectDetailsModel.ProjectStartDate</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>Project Closure Date</label>
+                                                <h4 id="txtProjectClosureDate1">@Model.ProjectDetailsModel.ProjectClosureDate</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>PI Code</label>
+                                                <h4 id="txtPICode1">@Model.ProjectDetailsModel.PICode</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>PI Email ID</label>
+                                                <h4 id="txtPIEmailID1">@Model.ProjectDetailsModel.Email</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>PI Phone No</label>
+                                                <h4 id="txtPIPhone1">@Model.ProjectDetailsModel.Phone</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>Department code </label>
+                                                <h4 id="txtDepartmentCode1">@Model.ProjectDetailsModel.PIDepartmentCode</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>Department Name</label>
+                                                <h4 id="txtDepartmentName1">@Model.ProjectDetailsModel.PIDepartmentName</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label>Medical</label>
+                                                <h4>@Model.MedicalINWordings</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label>Designation Code</label>
+                                                <h4 id="lblDesignationCode1"></h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label class="required">Designation</label>
+                                                <h4 id="lblDesignationName1"></h4>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label>Appointment start date</label>
+                                                <h4>@Model.Appointmentstartdate</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label>Appointment End date</label>
+                                                <h4>@Model.AppointmentEndDate</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label>Commitment Amount</label>
+                                                <h4>@Model.CommitmentAmount</h4>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label>Committee member</label>
+                                                <h4>@Model.CommiteeMember1</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label>Committee member</label>
+                                                <h4>@Model.CommiteeMember2</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label> Chairperson</label>
+                                                <h4>@Model.ChairpersonName</h4>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            @if (isCommitteeApproval)
+                                            {
+                                                <label>Comments</label>
+                                                @Html.TextArea("Comments", "", new { @class = "form-control mb20" })
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="text-center" style="margin-bottom: 50px;">
+    @if (isCommitteeApproval)
+    {
+        <button type="button" class="btn btn-primary" id="btnResend">Re-Send</button>
+        <button type="button" class="btn btn-default" onclick="window.location.href='@Url.Action("STEList", "Requirement")';">Close</button>
+    }
+</div>
+<script>
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+
+    $(document).ready(function () {
+        if(@Model.STEId>0){
+            $('#Medical').val(@Model.Medical);
+        }
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+    });
+    if ($("#DesignationId").val() != 0) {
+        LoadFillDesignation()
+    }
+    $('#ReqCommitment').click(function(){
+        if($(this).is(':checked')){
+            $('#act-now').removeClass('dis-none');
+        }
+        else{
+            $('#act-now').addClass('dis-none');
+        }
+    });
+    if($('#ReqCommitment').is(':checked')){
+        $('#act-now').removeClass('dis-none');
+    }
+    else{
+        $('#act-now').addClass('dis-none');
+    }
+    function LoadFillDesignation() {
+        var DesignationID = $('#DesignationId').val();
+        if (DesignationID > 0) {
+            $.getJSON("@Url.Action("LoadDesignationDetails", "Requirement")", { DesignationID: DesignationID },
+        function (result) {
+            if (result.DesignationData.DestinationID > 0) {
+                $('#lblDesignationCode1').text(result.DesignationData.DesignationCode);
+                $('#lblDesignationName1').text(result.DesignationData.Designation);
+                $('#ClDesignation').text(result.DesignationData.Designation);
+            }
+        });
+        }
+    }
+    $('a[name="DocDownload"]').click(function (p) {
+        p.preventDefault();
+        var ref = $(this).attr('href');
+        var win = window.open('', '_blank');
+        win.location.href = ref;
+    });
+    $('#btnResend').click(function(){
+        var ID=@Model.STEId;
+        if(ID>0){
+            $.ajax({
+                type: "Post",
+                url: '@Url.Action("CommitteeReApproval", "Requirement")',
+                data: {
+                    ApplicationID: ID,
+                    Category: "STE",
+                },
+                success: function (result) {
+                    if (result) {
+                        $('#alertSuccess').html("Application re-send for committee approval");
+                        $('#Success').modal('toggle');
+                        var url = '@Url.Action("STEList", "Requirement")';
+                        window.location.href = url;
+                    }
+                    else{
+                        $('#FailedAlert').html("Something Went to Wrong Please Conatact Administrator");
+                        $('#Failed').modal('toggle');
+                    }
+                },
+                error: function (err) {
+                    console.log("error1 : " + err);
+                }
+            });
+        }
+    });
+</script>
+<script src="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/js/bootstrap-select.min.js")"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>

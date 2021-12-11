@@ -1,0 +1,132 @@
+﻿
+@model IOAS.Models.CloseNegativeBalanceModel
+
+<div class="row mt30">
+    <div id="TABCModal" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            @using (Html.BeginForm("_CloseNegativeBalance", "CoreAccounts", FormMethod.Post, new { role = "form", @id = "formComitment" }))
+            {
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" id="btnInvardClose" class="close" data-dismiss="modal">&times;</button>
+                        <h3 class="modal-title">Close Negative Balance</h3>
+                    </div>
+                    <div class="modal-body">
+                        <div class="custom-jsgrid-normal">
+
+                            <div class="row" id="closeNBL">
+                                <div class="page-wrapper">
+                                    <div class="col-md-12">
+                                        <div class="white-bg">                                            
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <div class="form-group custom-form-group">
+                                                        <label>Negative Balance Number</label>
+                                                        @Html.TextBoxFor(m => m.NegativeBalanceNumber, new { @class = "form-control", @id = "txtNegativeBalanceNumber", @readonly = "true" })
+                                                        @Html.ValidationMessageFor(m => m.NegativeBalanceNumber)
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="form-group custom-form-group">
+                                                        <label>Claim Amount</label>
+                                                        @Html.TextBoxFor(m => m.ClaimAmount, new { @class = "form-control", @id = "txtClaimAmount", @readonly = "true" })
+                                                        @Html.ValidationMessageFor(m => m.ClaimAmount)
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="form-group custom-form-group">
+                                                        <label>Balance Available</label>
+                                                        @Html.TextBoxFor(m => m.NegativeBalanceAmount, new { @class = "form-control", @id = "txtNegativeBalanceAmount", @readonly = "true" })
+                                                        @Html.ValidationMessageFor(m => m.NegativeBalanceAmount)
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <div class="form-group custom-form-group">
+                                                        <label class="required">Reason for Close</label>
+                                                        @Html.TextAreaFor(m => m.ReasonforClose, new { @class = "form-control", @rows = "3", @id = "txtReasonforclose", @required = true })
+                                                        @Html.ValidationMessageFor(m => m.ReasonforClose)
+                                                        @Html.HiddenFor(m => m.NegativeBalanceId)
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <div class="form-group custom-form-group">
+                                                        <label>Remarks</label>
+                                                        @Html.TextAreaFor(m => m.RemarksforClose, new { @class = "form-control", @rows = "3" })
+                                                        @Html.ValidationMessageFor(m => m.RemarksforClose)
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group custom-form-group">
+                                                        <label>Attachments</label>
+                                                        <input type="file" id="Document" name="Document">
+                                                        @Html.ValidationMessage("Document")
+                                                        @*<a href="@Url.Action("ShowDocument","Project",new { file = Model.CloseDocumentName, filepath = Model.NegativeBalanceCloseDocPath })" target="_blank">@Model.DocumentActualName</a>*@
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="submit" name="Button" value="Close this Negative Balance" class="btn btn-primary" id="btnSave" />
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+
+                    </div>
+
+                </div>
+            }
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    var requestRunning = false;
+    $(document).ready(function () {
+        var errMsg = '@ViewBag.errMsg';
+        if (errMsg) {
+            messageBox(Validation, "error");
+        }
+        //$("#prjDetails").hide();
+        //$("#divComRefEmailDate").addClass('menu-hide');
+        var Validation = '@ViewBag.ValidationMsg';
+        if (Validation) {
+            messageBox(Validation, "warning");
+        }
+    });
+
+    $('.selectpicker').selectpicker({
+        liveSearch: true
+    });
+
+    
+    function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode != 46 && charCode > 31
+          && (charCode < 48 || charCode > 57))
+            return false;
+
+        return true;
+    }
+    
+    function duplicatecheck(isValid) {
+        var values = [];
+        $('select[name="selAllocationHead"]').each(function (idx, val) { values.push($(val).val()); });
+        // Sort it
+        values.sort();
+        // Check whether there are two equal values next to each other
+        for (var k = 1; k < values.length; ++k) {
+            if (values[k] == values[k - 1]) {
+                messageBox("Allocation head field does not allow duplicates", "warning");
+                isValid = false;
+                return false;
+            }
+            isValid = true;
+        }
+        return isValid;
+    }
+
+</script>

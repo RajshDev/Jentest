@@ -1,0 +1,133 @@
+﻿@model IOAS.Models.PagedData<IOAS.Models.ProcessEngineModel>
+
+
+<table class="table table-user-information">
+    <tbody>
+        <tr>
+
+
+            <th>
+                STATUS
+            </th>
+            <th>
+                REFERENCE NAME
+            </th>
+            <th>
+                ACTION NAME
+            </th>
+            <th>
+                FUNCTION NAME
+            </th>
+            <th>
+
+            </th>
+            <th>
+
+            </th>
+            <th></th>
+        </tr>
+        @{
+            if (Model.Data.Any())
+            {
+                var sno = Model.CurrentPage == 1 ? 1 : ((Model.CurrentPage - 1) * Model.pageSize) + 1;
+
+                foreach (var item in Model.Data)
+                {
+
+                    <tr>
+
+                        <td>
+                            <label>@Html.DisplayFor(modelItem => item.ActionStatus)</label>
+                        </td>
+                        <td>
+                            <label>@Html.DisplayFor(modelItem => item.RefFieldName)</label>
+                        </td>
+                        <td>
+                            <label>@Html.DisplayFor(modelItem => item.ActionName)</label>
+                        </td>
+                        <td>
+                            <label>@Html.DisplayFor(modelItem => item.ControllerName)</label>
+                        </td>
+                        @*<td>
+                                <label>@Html.DisplayFor(modelItem => item.companyprofile.Email)</label>
+                            </td>
+                            <td>
+                                <label>@Html.DisplayFor(modelItem => item.companyprofile.CountryName)</label>
+                            </td>*@
+                        <td>
+                            <label>
+                                @Html.ActionLink("View", "ViewDetails", new { RefId = item.RefId }, new { @role = "button", @class = "btn btn-primary  btn-md" })
+                            </label>
+                        </td>
+                    </tr>
+
+                }
+            }
+
+        }
+
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="6">
+                @{
+                    var maxpage = Model.visiblePages;
+                    var startpage = 1;
+
+                    if (Model.TotalPages < Model.visiblePages)
+                    {
+                        startpage = 1;
+                        maxpage = Model.TotalPages;
+                    }
+                    else if (Model.CurrentPage >= maxpage)
+                    {
+                        startpage = Model.CurrentPage;
+
+                        if (startpage + Model.visiblePages <= Model.TotalPages)
+                        {
+                            maxpage = startpage + Model.visiblePages;
+                        }
+                        else
+                        {
+                            maxpage = Model.TotalPages;
+                        }
+
+                        if (maxpage > Model.TotalPages)
+                        {
+                            maxpage = Model.TotalPages;
+                            startpage = maxpage - (Model.visiblePages - 1);
+                        }
+
+                    }
+
+                    if (Model.TotalPages > Model.visiblePages)
+                    {
+                        <a id='firstPage' name="pageButton" class="btn btn-primary  btn-md" href="#" onclick="return false;">First</a>
+                        <a id='previousPage' name="pageButton" class="btn btn-default  btn-md" href="#" onclick="return false;">Previous</a>
+                    }
+
+                    for (int i = startpage; i <= maxpage; i++)
+                    {
+
+
+                        if (i == Model.CurrentPage)
+                        {
+                            <a id='currentPage' name="pageButton" class="btn btn-primary  btn-md" href="#" onclick="return false;">@i</a>
+                        }
+                        else
+                        {
+                            <a name="pageButton" class=" btn btn-default  btn-md" href="#" onclick="return false;">@i</a>
+                        }
+                    }
+                    if (Model.TotalPages > Model.visiblePages)
+                    {
+                        <a id='nextPage' name="pageButton" class="btn btn-default  btn-md" href="#" onclick="return false;">Next</a>
+                        <a id='lastPage' name="pageButton" class="btn btn-primary  btn-md" href="#" onclick="return false;">Last</a>
+                    }
+                }
+            </td>
+        </tr>
+    </tfoot>
+</table>
+
+

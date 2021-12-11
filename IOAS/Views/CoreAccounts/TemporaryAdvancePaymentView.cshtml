@@ -1,0 +1,1120 @@
+﻿@model IOAS.Models.TemporaryAdvanceModel
+@{
+    ViewBag.Title = "Temporary Advance";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+<div class="row hd-tt-bg">
+    <div class="col-md-12">
+        <h4><b>Temporary Advance</b> </h4>
+    </div>
+</div>
+<div class="row">
+    <div class="white-bg ad-navbar">
+        <div class="col-md-3 ds-spl-bg">
+            <div class="ds-icn">
+                <i class="ion-ios-list-outline "></i>
+            </div>
+            <div class="ds-tt">
+                <span>Request Reference</span><br />
+                <span>@Model.SourceName</span>
+                @Html.HiddenFor(m => m.Source, new { @id = "Source" })
+                @Html.HiddenFor(m => m.NeedUpdateTransDetail)
+                @Html.HiddenFor(m => m.TemporaryAdvanceId)
+            </div>
+        </div>
+        <div class="col-md-3 ds-spl-bg">
+            <div class="ds-icn">
+                <i class="ion-ios-calendar-outline"></i>
+            </div>
+            @if (Model.ReferenceNumber != null)
+            {
+                <div class="ds-tt">
+                    <span>Ref Number (WF / Tapal)</span>
+                    <span>@Html.DisplayFor(m => m.ReferenceNumber)</span>
+                    @Html.TextBoxFor(m => m.ReferenceNumber, new { @class = "form-control dis-none" })
+                    @Html.TextBoxFor(m => m.SourceReferenceNumber, new { @class = "form-control dis-none" })
+                    @Html.Hidden("SourceTapalOrWorkflow", "True")
+                    @Html.HiddenFor(m => m.SubCode)
+                    @Html.Hidden("TransactionTypeCode", "TMP")
+                </div>
+            }
+            @if (Model.SourceEmailDate != null)
+            {
+                <div class="ds-tt">
+                    <span>Email Date</span>
+                    <span>@Html.DisplayFor(m => m.SourceEmail)</span>
+                </div>
+            }
+        </div>
+
+
+        <div class="col-md-3 col-md-offset-3">
+            <div class="reg-no custom-reg-no">
+                <div class="form-group custom-form-group">
+                    <label>Number</label>
+                    <h4>@Html.DisplayFor(m => m.TemporaryAdvanceNumber)</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="vw-dts-bg">
+    <div class="row">
+
+        <div class="col-md-12">
+            <h3>Advance Settlement Details</h3>
+            <table class="table table-bordered mb-null">
+                <tbody>
+                    <tr>
+                        <td>
+                            <label>PI</label>
+                            <h4>@Model.PINames</h4>
+                        </td>
+                        <td>
+                            <label>Department</label>
+                            <h4>@Model.ClaimingDepartment</h4>
+                        </td>
+                        <td>
+                            <label>Advance Amount</label>
+                            <h4>@Model.TemporaryAdvanceValue</h4>
+                        </td>
+                        <td>
+                            <label>Name of Receiver</label>
+                            <h4>@Model.NameofReceiver</h4>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">
+                            <label>Project</label>
+                            <h4>@Model.ProjectNumberandtitle</h4>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label>Project type</label>
+                            <h4>@Model.ProjectTypeName</h4>
+                        </td>
+                        <td>
+                            <label>No. of Pending Settlement</label>
+                            <h4>@Model.NoofUnsettledAdvance</h4>
+                        </td>
+                        <td>
+                            <label>Total Pending Settlement Amount</label>
+                            <h4>@Model.PendingSettlementAmount</h4>
+                        </td>
+                        <td>
+                            <label>Pending Settlement Advance Number</label>
+                            <h4>@Model.PendingSettlementAdvanceNumber</h4>
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td colspan="4">
+                            <label>Remarks</label>
+                            <h4>@Model.Remarks</h4>
+                        </td>
+
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="vw-dts-bg">
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table table-bordered mb-null">
+                <thead>
+                    <tr>
+                        <th>Particulars</th>
+
+                        <th>Amount</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.DetailsID != null)
+                    {
+                        for (int i = 0; i < Model.DetailsID.Count(); i++)
+                        {
+                            <tr>
+                                <td>
+                                    <h4>@Model.Particulars[i]</h4>
+                                </td>
+                                <td>
+                                    <h4>@Model.AmountofItem[i]</h4>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="vw-dts-bg">
+    <div class="row">
+        <div class="col-md-12">
+            @Html.Partial("_CommitmentDetailsView", Model.CommitmentDetail)
+            @Html.Partial("_TransactionDetailsView", Model)
+
+        </div>
+    </div>
+</div>
+<div class="vw-dts-bg">
+    <div class="row">
+        <div class="col-md-12">
+            @Html.Partial("_CheckListDetailView", Model.CheckListDetail)
+            <table class="table table-bordered mb-null">
+                <tbody>
+                    <tr>
+
+                        <td>
+                            @Html.HiddenFor(m => m.CheckListVerified_By, new { @disabled = "disabled" })
+                            @Html.HiddenFor(m => m.CheckListVerifierName, new { @disabled = "disabled" })
+                            <label>Verified by</label>
+                            <h4 id="Verified_ByName">@Html.DisplayFor(m => m.CheckListVerifierName)</h4>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="vw-dts-bg">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="">
+                @Html.Partial("_DocumentDetailView", Model.DocumentDetail)
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12 text-center pd-tb-30">
+        @if (Model.PFInit != true)
+        {
+            <input type="button" onclick="window.location.href='@Url.Action("TemporaryAdvancePaymentList", "CoreAccounts")';" class="btn btn-default" value="Close" id="btnclose" />
+        }
+        else
+        {
+            <input type="button" onclick="window.location.href='@Url.Action("Dashboard", "Home")';" class="btn btn-default" value="Close" id="btnclose" />
+        }
+    </div>
+</div>
+<div id="ValidationModal" class="modal fade modal-warning" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-warning"></i>
+                <h3 class="modal-title">Warning</h3>
+            </div>
+            <div class="modal-body">
+
+                <p id="MsgValidation"></p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div class="row mt30">
+
+    <div id="ViewDetailsModal" class="modal fade modal-pr-vw" role="dialog">
+        <div class="modal-dialog modal-lg">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <div class="row hd-tt-bg">
+                        <div class="col-md-12">
+                            <h4><b>Pending Settlement for Temporary Advance details</b></h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="page-wrapper">
+                            <div class="col-md-12">
+
+                                <div class="">
+                                    <div class="row">
+                                        <div class="col-md-12">
+
+                                            <div class="m-b-sm">
+                                                <table class="table table-bordered">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Temporary Advance Date</th>
+                                                            <th>Temporary Advance Number</th>
+                                                            <th>Temporary Advance Amount</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="gridViewDetailsdata">
+                                                        @Html.AntiForgeryToken()
+                                                        @Html.Partial("_PendingSettlementDetails")
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@Html.AntiForgeryToken()
+<div id="popup"></div>
+<input type="hidden" id="currentRefId" value="@Model.TemporaryAdvanceId" />
+<input type="hidden" id="processGuideLineId" value="@ViewBag.processGuideLineId" />
+@Html.Partial("_ProcessStatus")
+<script>
+   
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    $('#SourceEmailDate, #srchFromDate, #srchToDate,#InvoiceDate,#PODate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
+    $('#srchToDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true }).datepicker("setDate", "0");
+    var defaultFromDate = moment(new Date()).add(-10, 'days').toDate();
+    $('#srchFromDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true }).datepicker("setDate", defaultFromDate);
+    $('#TravelToDate, #TravelFromDate').datepicker({ minDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+        $('.selectpicker').selectpicker({
+            liveSearch: true
+        });
+        var selSource = $('#Source').val();
+        $("#divRefNum, #divRefEmailDate").addClass('dis-none');
+        if (selSource == '1') {
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACWorkflowRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+        } else if (selSource == '3') {
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACTapalRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+        }
+        else if (selSource == '2') {
+            $('#divRefEmailDate').removeClass('dis-none');
+        } else {
+            $("#divRefNum").removeClass('dis-none');
+        }
+        calculatetotalamount();
+        var receivername =  $('#txtReceiverName').val();
+        $('#lblVendorName').html(receivername)
+        var advanceAmt = parseFloat($('#txtTemporaryAdvanceAmount').val());
+        $("#CreditorAmount").val(advanceAmt);
+        CalculatePaymentValue();
+        CalculateDeductionTotal();
+        $('#NeedUpdateTransDetail').val('false');
+        $("input[name='ProjectNumber']").each(function () {
+            projectChange($(this), 'U');
+        });
+        $("input[name='Name']").each(function () {
+            piChange($(this), 'U');
+        });
+
+    });
+    $(document).on('click', 'a.removeTempAdvance', function () {
+        $(this).closest('tr').remove();
+        calculatetotalamount();
+    });
+    $('#btnAddTempAdv').click(function () {
+        var cln = $('#tempAdvance tr:first').clone().find("input,select").val("").end();
+        $(cln).find('a.dis-none').removeClass('dis-none');
+        //$(cln).find('td.tdDDLTraveler').removeClass('dis-none');
+        //$(cln).find('td.tdTxtTraveler').addClass('dis-none');
+        $('#tempAdvance').append(cln);
+        CalculateNoOfTraveller();
+    });
+    function aplyProjectAutoComplete(ele, url, setId) {
+        $(ele).autocomplete({
+            select: function (event, ui) {
+                event.preventDefault();
+                $(ele).val(ui.item.label);
+                //$(ele).closest('tr').find(".lblSelId").text(ui.item.label);
+                if (setId == true) {
+                    $("input[name='ProjectId']").val(ui.item.value);
+                    $("input[name='ProjectNumber']").val(ui.item.label);
+                } else {
+                    $(ele).closest('tr').find("input[name='ProjectId']").val('');
+                    $(ele).closest('tr').find("input[name='ProjectNumber']").val('');
+                }
+            },
+            focus: function (event, ui) {
+                event.preventDefault();
+                $(ele).val(ui.item.label);
+            },
+            source: function (request, response) {
+                $.getJSON(url, { term: request.term },
+                 function (locationdata) {
+                     response(locationdata);
+                 });
+            },
+            minLength: 3
+        });
+    }
+    function projectChange(el, mode) {
+        var selProj = $("input[name='ProjectNumber']");
+        if (mode != 'U') {
+            $("input[name='ProjectId'], input[name='ProjectNumber']").val('');
+            //$(el).closest('tr').find("input[name='autoComplete'],input[name='UserId'],input[name='Name']").val('');
+        }
+        $("input[name='ProjectId']").addClass('required');
+        $("input[name='ProjectNumber']").addClass('required');
+        aplyProjectAutoComplete(selProj, "../CoreAccounts/LoadProjectList", true)
+
+    }
+    $('#Source').change(function () {
+        var selSource = $(this).val();
+        $("#SourceReferenceNumber,#ReferenceNumber").val('');
+        $("#divRefNum, #divRefEmailDate").addClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('False');
+        if (selSource == '1') {
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACWorkflowRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        } else if (selSource == '3') {
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACTapalRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        }
+        else if (selSource == '2') {
+            $('#divRefEmailDate').removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('False');
+        } else {
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        }
+    });
+    $('#txtTemporaryAdvanceAmount').change(function () {
+        var TempAdvAmt = $(this).val();
+        $("#CreditorAmount").val(TempAdvAmt);
+    });
+    function calculatetotalamount() {
+        //var rate = [];
+        //var quantity = [];
+        var amount = [];
+
+        //$('input[name="RateofItem"]').each(function (idx, val) { rate.push($(val).val()); });
+        $('input[name="AmountofItem"]').each(function (idx, val) { amount.push($(val).val()); });
+
+        amount.sort();
+        var total = 0;
+        $.each(amount, function (i, val) {
+            var amtofitem = parseFloat(document.getElementsByName('AmountofItem')[i].value);
+            if (!isNaN(amtofitem))
+                total += amtofitem;
+        });
+        if (!isNaN(total)) {
+            $("#txtTemporaryAdvanceAmount").val(total.toFixed(0));
+            $("#CreditorAmount").val(total.toFixed(0));
+            //$('#lblTempAdvAmt').html(total.toFixed(0))
+        }
+    }
+    function formSave(){
+        var isValid = $('#formADV').valid();
+        if (!isValid)
+            return false;
+        var doctypevalues = [];
+        $('select[name$=".DocumentType"]').each(function (idx, val) { doctypevalues.push($(val).val()); });
+        doctypevalues.sort();
+        // duplicate check
+        for (var k = 1; k < doctypevalues.length; ++k) {
+            if (doctypevalues[k] == doctypevalues[k - 1]) {
+                $('#alert').html("Selected attachment type already exist. Please select a different attachment type.");
+                $('#Validation').modal('toggle');
+                return false;
+            }
+            isValid = true;
+        }
+        if (isValid)
+        $('#formADV').submit();
+    }
+
+    function parseDate(s) {
+        var months = {
+            january: 0, february: 1, march: 2, april: 3, may: 4, june: 5,
+            july: 6, august: 7, september: 8, october: 9, november: 10, december: 11
+        };
+        var p = s.split('-');
+        return new Date(p[2], months[p[1].toLowerCase()], p[0]);
+    }
+
+
+    //var detailsId = @Html.Raw(Json.Encode(Model.DetailsID));
+    var particulars = @Html.Raw(Json.Encode(Model.Particulars));
+    @*var rate = @Html.Raw(Json.Encode(Model.RateofItem));
+    var quantity = @Html.Raw(Json.Encode(Model.QuantityofItem));*@
+    var amount = @Html.Raw(Json.Encode(Model.AmountofItem));
+
+    //$.each(detailsId, function (i, val) {
+    //    if (i == 0) {
+    //        document.getElementsByName('DetailsID')[0].value = detailsId[0];
+    //        document.getElementsByName('Particulars')[0].value = particulars[0];
+    //        //document.getElementsByName('RateofItem')[0].value = rate[0];
+    //        //document.getElementsByName('QuantityofItem')[0].value = quantity[0];
+    //        document.getElementsByName('AmountofItem')[0].value = amount[0];
+
+    //    } else {
+
+    //        var cln = $('#tempAdvance tr:first').clone().find("input,select").val("").end();
+    //        $(cln).find('a.dis-none').removeClass('dis-none');
+    //        $('#tempAdvance').append(cln);
+    //        document.getElementsByName('DetailsID')[i].value = detailsId[i];
+    //        document.getElementsByName('Particulars')[i].value = particulars[i];
+    //        //document.getElementsByName('RateofItem')[i].value = rate[i];
+    //        //document.getElementsByName('QuantityofItem')[i].value = quantity[i];
+    //        document.getElementsByName('AmountofItem')[i].value = amount[i];
+    //    }
+    //});
+    //function calculateamount() {
+    //    var rate = [];
+    //    var quantity = [];
+    //    var amount = [];
+
+    //    $('input[name="RateofItem"]').each(function (idx, val) { rate.push($(val).val()); });
+    //    $('input[name="QuantityofItem"]').each(function (idx, val) { quantity.push($(val).val()); });
+
+    //    rate.sort();
+    //    quantity.sort();
+    //    //alert(oldallocatevalue);
+    //    $.each(rate, function (i, val) {
+
+    //        if (i == 0) {
+
+    //            var txtrateValue = document.getElementsByName('RateofItem')[0].value;
+    //            var txtquantityValue = document.getElementsByName('QuantityofItem')[0].value;
+    //            var result = parseInt(txtrateValue) * parseInt(txtquantityValue);
+    //            if (!isNaN(result)) {
+    //                document.getElementsByName('AmountofItem')[0].value = result;
+    //            }
+
+    //        } else {
+
+    //            var txtrateValue = document.getElementsByName('RateofItem')[i].value;
+    //            var txtquantityValue = document.getElementsByName('QuantityofItem')[i].value;
+    //            var result = parseInt(txtrateValue) * parseInt(txtquantityValue);
+    //            if (!isNaN(result)) {
+    //                document.getElementsByName('AmountofItem')[i].value = result;
+    //            }
+    //        }
+    //    });
+    //    $.each(quantity, function (i, val) {
+    //        if (i == 0) {
+
+    //            var txtrateValue = document.getElementsByName('RateofItem')[0].value;
+    //            var txtquantityValue = document.getElementsByName('QuantityofItem')[0].value;
+    //            if(txtrateValue != "" && txtquantityValue != "")
+    //            {
+    //                var result = parseInt(txtrateValue) * parseInt(txtquantityValue);
+    //            }
+    //            else
+    //            {
+    //                var result = 0;
+    //            }
+
+    //            if (!isNaN(result)) {
+    //                document.getElementsByName('AmountofItem')[0].value = result;
+    //            }
+
+    //        } else {
+
+    //            var txtrateValue = document.getElementsByName('RateofItem')[i].value;
+    //            var txtquantityValue = document.getElementsByName('QuantityofItem')[i].value;
+    //            if(txtrateValue != "" && txtquantityValue != "")
+    //            {
+    //                var result = parseInt(txtrateValue) * parseInt(txtquantityValue);
+    //            }
+    //            else
+    //            {
+    //                var result = 0;
+    //            }
+    //            if (!isNaN(result)) {
+    //                document.getElementsByName('AmountofItem')[i].value = result;
+    //            }
+    //        }
+    //    });
+    //}
+    $('#AdvanceValue, #AdvanceValue, #NoOfTraveller').on("copy cut paste drop", function () {
+        return false;
+    });
+    function piChange(el, mode) {
+
+        if (mode != 'U') {
+            $("input[name='UserId'],input[name='Name']").val('');
+            //$(el).closest('tr').find("input[name='autoComplete'],input[name='UserId'],input[name='Name']").val('');
+        }
+            $("input[name='UserId']").addClass('required');
+            var ele = $("input[name='Name']");
+            // $(el).addClass('required');
+            $("input[name='Name']").addClass('required');
+            aplyAutoComplete(ele, "../CoreAccounts/LoadPIList", true)
+
+    }
+    function aplyAutoComplete(ele, url, setId) {
+        $(ele).autocomplete({
+            select: function (event, ui) {
+                event.preventDefault();
+                $(ele).val(ui.item.label);
+                //$(ele).closest('tr').find(".lblSelId").text(ui.item.label);
+                if (setId == true) {
+                    $("input[name='UserId']").val(ui.item.value);
+                    $("input[name='Name']").val(ui.item.label);
+                } else {
+                    $("input[name='UserId']").val('0');
+                    $("input[name='Name']").val(ui.item.label);
+                }
+            },
+            focus: function (event, ui) {
+                event.preventDefault();
+                $(ele).val(ui.item.label);
+            },
+            source: function (request, response) {
+                $.getJSON(url, { term: request.term },
+                 function (locationdata) {
+                     response(locationdata);
+                 });
+            },
+            minLength: 3
+        });
+    }
+
+   // $(document).on('change', 'input[name="Name"]', function () {
+    $('input[name="Name"]').change(function () {
+        var name = $(this).val();
+        var user = $('input[name="UserId"]');
+        var userid = $('input[name="UserId"]').val();
+        var piname = $('input[name="Name"]');
+
+            if(userid != "")
+            {
+                $.getJSON("@Url.Action("LoadPIDetailsbyName", "CoreAccounts")", { Name: name },
+                            function (locationdata) {
+                                // $(select).selectpicker("destroy");
+                                $.each(locationdata, function (index, itemData) {
+                                    if(itemData.code == "")
+                                    {
+                                        user.val('');
+                                        $(this).val('');
+                                        piChange(piname);
+                                        $('#MsgValidation').html("Name does not exist. Please select a valid name");
+                                        $('#ValidationModal').modal('toggle');
+                                        return false;
+                                    }
+                                });
+
+                            });
+            }
+            else if (userid == "")
+            {
+                $(this).val('');
+                piChange(piname);
+                $('#MsgValidation').html("Name does not exist. Please select a valid name");
+                $('#ValidationModal').modal('toggle');
+                return false;
+            }
+        $('#NeedUpdateTransDetail').val('true');
+        //var PIID = $(this).val();
+        $.getJSON("@Url.Action("LoadPIProject", "CoreAccounts")", { PIId: userid },
+                    function (locationdata) {
+                        var select = $("#selectproject");
+                        select.empty();
+
+                        $.each(locationdata, function (index, itemData) {
+                            select.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name
+                            }));
+                            $('#txtReceiverName').val(itemData.code);
+                            $('#txtClaimingDept').val(itemData.pidepartment);
+                        });
+                        select.selectpicker('refresh');
+                    });
+        var Name =  $("input[name='Name']").val();
+        // $("#CreditorAmount").val(StipendAmt);
+        $('#lblVendorName').html(Name);
+    });
+
+    $('#txtPI').change(function () {
+        $('#NeedUpdateTransDetail').val('true');
+        var PIID = $(this).val();
+        $.getJSON("@Url.Action("LoadPIProject", "CoreAccounts")", { PIId: PIID },
+                    function (locationdata) {
+                        var select = $("#selectproject");
+                        select.empty();
+
+                        $.each(locationdata, function (index, itemData) {
+                            select.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name
+                            }));
+                            $('#txtReceiverName').val(itemData.code);
+                            $('#txtClaimingDept').val(itemData.pidepartment);
+                        });
+                        select.selectpicker('refresh');
+                    });
+
+    });
+
+
+    //$('#selectproject').change(function () {
+    $('input[name="ProjectNumber"]').change(function () {
+        $('#NeedUpdateTransDetail').val('true');
+        var projectid = $('input[name="ProjectId"]').val();
+         $.getJSON("@Url.Action("LoadProjectDetails", "CoreAccounts")", { ProjectId: projectid },
+                   function (locationdata) {
+                       $("#txtprojecttype").val(locationdata.ProjectType);
+                       //if(locationdata.ProjectType == "Sponsored")
+                       //{
+                       //    $("#txtprojecttype").val(locationdata.ProjectType + " - " + locationdata.SponProjectCategory + " - " + locationdata.SponSchemeName);
+                       //}
+                       //if(locationdata.ProjectType == "Consultancy")
+                       //{
+                       //    $("#txtprojecttype").val(locationdata.ProjectType + " - " + locationdata.ConsFundingCategory);
+                       //}
+
+                   });
+        $.getJSON("@Url.Action("LoadAdvanceDetails", "CoreAccounts")", { ProjectId: projectid },
+                    function (locationdata) {
+                        var pendingamount = 0;
+                        var i = 0;
+                        if (locationdata.length == 0)
+                        {
+                                $("#txtPendingSettlementamt").val(0);
+                                $("#txtNoofUnsettledAdv").val(0);
+                                $("#txtPendingSettlementAdvNum").val('Nil');
+                                $("#Pendsettlemntnos").find('a').addClass('dis-none');
+                        }
+                        if (locationdata.length == 1)
+                        {
+                            $.each(locationdata, function (index, itemData) {
+                                pendingamount += parseFloat(itemData.amount);
+                                $("#txtPendingSettlementamt").val(pendingamount.toFixed(0));
+                                $("#txtNoofUnsettledAdv").val(itemData.count);
+                                $("#txtPendingSettlementAdvNum").val(locationdata[0].name);
+                                i++
+                            });
+                            $("#Pendsettlemntnos").find('a.dis-none').removeClass('dis-none');
+                        }
+                        if(locationdata.length >= 2)
+                        {
+                            $.each(locationdata, function (index, itemData) {
+                                pendingamount += parseFloat(itemData.amount);
+                                $("#txtPendingSettlementamt").val(pendingamount.toFixed(0));
+                                $("#txtNoofUnsettledAdv").val(itemData.count);
+                                $("#txtPendingSettlementAdvNum").val(locationdata[0].name + ", " + locationdata[1].name);
+                                i++
+                            });
+                            $("#Pendsettlemntnos").find('a.dis-none').removeClass('dis-none');
+                            $('#MsgValidation').html("There are two or more settlements pending for Temporary Advance got earlier for the selected project. Please do atleast one settlement to proceed with next Temporary Advance");
+                            $('#ValidationModal').modal('toggle');
+                            return false;
+                        }
+                    });
+        var token = $("input[name=__RequestVerificationToken]").val();
+        var searchdata = { "__RequestVerificationToken": token, "Projectid": projectid, };
+        $.ajax({
+            url: '@Url.Action("_PendingSettlementDetails", "CoreAccounts")?projectid=' + projectid,
+            type: "POST",
+            contentType: "application/x-www-form-urlencoded",
+            data: searchdata,
+            success: function (data) {
+                $("#gridViewDetailsdata").html(data);
+                // $('#ViewDetailsModal').css("display", "none");
+            }
+        });
+    });
+
+    function fillMasterDropDown(ele, data, fillDafaultText,valueAsName) {
+        if (fillDafaultText !== undefined) {
+            ele.append($('<option/>', {
+                value: '',
+                text: 'Select any',
+            }));
+        }
+        if(valueAsName !== undefined) {
+            $.each(data, function (index, itemData) {
+                ele.append($('<option/>', {
+                    value: itemData.name,
+                    text: itemData.name,
+                }));
+            });
+        }else{
+            $.each(data, function (index, itemData) {
+                ele.append($('<option/>', {
+                    value: itemData.id,
+                    text: itemData.name,
+                }));
+            });
+        }
+    }
+    function GetTransactionDetails() {
+        //var commitmentDetailIds = [];
+        //var stateCode = $('#lblStateCode').html();
+        //var BillType = $('#BillType').val();
+       // var tdsDetailId = $('#VendorTDSDetailId').val() || null;
+        var interstate_f = false;
+        //if ($('#lblStateCode').html() == '33')
+        //    interstate_f = true;
+       // var ttlAdvTax = parseFloat($('#lblAdvTtlAmt').html());
+       // var eligibilityCheck_f = deductionEligibilityCheck(ttlAdvTax);
+        //$('#tbodyCommitmentSelList input[name$=".CommitmentDetailId"]').each(function () {
+        //    var cmtDetId = $(this).val();
+        //    if (cmtDetId != '') { commitmentDetailIds.push(cmtDetId); }
+        //});
+        //if (commitmentDetailIds.length == 0) {
+        //    $("#alert").text("Please select at least one commitment from the list.");
+        //    $('#Validation').modal('show');
+        //    return false;
+        //} else {
+        EmptyExpenseDeductionDetails();
+        $.ajax({
+            type: "GET",
+            url: "@Url.Action("GetTempAdvTransactionDetails", "CoreAccounts")",
+            data: { "typeCode": "TMP","tSubCode" : "1", },
+        traditional: true,
+        dataType: "json",
+        success: function (result) {
+            $.each(result.ExpenseDetail, function (i, item) {
+                //var amt = 0;
+                //$("#tbodyCommitmentSelList [name$='.HeadName'][value='"+item.BudgetHeadName+"']").each(function(){
+                //    var elePayment = $(this).closest('td').find("input[name$='.PaymentAmount']");
+                //    var parseVal = parseFloat($(elePayment).val());
+                //    if (!isNaN(parseVal))
+                //        amt = amt + parseVal;
+                //});
+                if (i == 0) {
+                    var trEle = $('#tbodyExpenseList tr:first');
+                    $(trEle).find('input[name$=".Amount"]').val('');
+                    $(trEle).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                    $(trEle).find('#lblTransType').text(item.TransactionType);
+                    $(trEle).find('input[name$=".IsJV"]').val(item.IsJV);
+                    $(trEle).find("input[name='ExpenseDetail.Index']").val(i);
+
+                    var selectGroup = $(trEle).find('select[name$=".AccountGroupId"]');
+                    selectGroup.empty();
+                    $.each(item.AccountGroupList, function (index, itemData) {
+                        selectGroup.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+
+                    var selectHead = $(trEle).find('select[name$=".AccountHeadId"]');
+                    selectHead.empty();
+                    $.each(item.AccountHeadList, function (index, itemData) {
+                        selectHead.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+                } else {
+                    var trEleNew = $('#tbodyExpenseList tr:first').clone().find('input').val('').end();
+                    $(trEleNew).find('input[name$=".Amount"]').val('');
+                    $(trEleNew).find("input[name='ExpenseDetail.Index']").val(i);
+                    $(trEleNew).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                    $(trEleNew).find('input[name$=".IsJV"]').val(item.IsJV);
+                    $(trEleNew).find('#lblTransType').text(item.TransactionType);
+                    $(trEleNew).find("input,Select").each(function () {
+                        $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                        $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                    });
+                    $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                        $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                    });
+
+                    var selectGroup = $(trEleNew).find('select[name$=".AccountGroupId"]');
+                    selectGroup.empty();
+                    $.each(item.AccountGroupList, function (index, itemData) {
+                        selectGroup.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+
+                    var selectHead = $(trEleNew).find('select[name$=".AccountHeadId"]');
+                    selectHead.empty();
+                    $.each(item.AccountHeadList, function (index, itemData) {
+                        selectHead.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+                    $('#tbodyExpenseList').append(trEleNew);
+                }
+            });
+            $.each(result.DeductionDetail, function (i, item) {
+                if (i == 0) {
+                    var trEle = $('#tbodyDeductionList tr:first');
+                    var amtEle = $(trEle).find('input[name$=".Amount"]');
+                    if(item.TDSPercentage == null){
+                        amtEle.val('');
+                    }else{
+                        tds = ttlAdvTax * item.TDSPercentage / 100;
+                        amtEle.val(tds);
+                    }
+
+                    amtEle.addClass('required');
+                    $(trEle).find('input[name$=".AccountGroupId"]').val(item.AccountGroupId);
+                    $(trEle).find('input[name$=".DeductionHeadId"]').val(item.DeductionHeadId);
+                    $(trEle).find('input[name$=".DeductionHead"]').val(item.DeductionHead);
+                    $(trEle).find('input[name$=".AccountGroup"]').val(item.AccountGroup);
+                    $(trEle).find('td:nth-child(1)').html(item.AccountGroup);
+                    $(trEle).find('td:nth-child(2)').html(item.DeductionHead);
+                } else {
+                    var trEleNew = $('#tbodyDeductionList tr:first').clone().find('input').val('').end();
+                    //$(trEleNew).find("input[name='DeductionDetail.Index']").val(i);
+                    $(trEleNew).find("input").each(function () {
+                        $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                        $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                    });
+                    $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                        $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                    });
+                    var amtEle = $(trEleNew).find('input[name$=".Amount"]');
+                    amtEle.addClass('required');
+                    if(item.TDSPercentage != null){
+                        tds = ttlAdvTax * item.TDSPercentage / 100;
+                        amtEle.val(tds);
+                    }
+                    $(trEleNew).find('input[name$=".AccountGroupId"]').val(item.AccountGroupId);
+                    $(trEleNew).find('input[name$=".DeductionHeadId"]').val(item.DeductionHeadId);
+                    $(trEleNew).find('input[name$=".DeductionHead"]').val(item.DeductionHead);
+                    $(trEleNew).find('input[name$=".AccountGroup"]').val(item.AccountGroup);
+                    $(trEleNew).find('td:nth-child(1)').html(item.AccountGroup);
+                    $(trEleNew).find('td:nth-child(2)').html(item.DeductionHead);
+                    $('#tbodyDeductionList').append(trEleNew);
+                }
+            });
+                var TempAdvAmt =  $('#txtTemporaryAdvanceAmount').val();
+                $("#CreditorAmount").val(TempAdvAmt);
+                var receivername =  $('#txtReceiverName').val();
+                $('#lblVendorName').html(receivername)
+            $('#NeedUpdateTransDetail').val('false');
+            CalculateDeductionTotal();
+        },
+        error: function (err) {
+            console.log("error : " + err);
+        }
+    });
+    //}
+    }
+
+    $('#CreditorAmount, #ExpenseAmount, #CreditorAmount, input[name $=".PaymentAmount"], input[name $=".Quantity"], input[name $=".TotalAmount"], input[name $=".Amount"], #ttlCr, #ttlDr').on("copy cut paste drop", function () {
+        return false;
+    });
+
+    function AddNewExpense(){
+        //var stateCode = $('#lblStateCode').html();
+        //var BillType = $('#BillType').val();
+        $.ajax({
+            type: "GET",
+            url: "@Url.Action("GetAddNewExpenseDetails", "CoreAccounts")",
+            data: { "typeCode": "TMP","tSubCode" : "1"},
+        traditional: true,
+        dataType: "json",
+        success: function (result) {
+            $.each(result.ExpenseDetail, function (i, item) {
+                var cln = $('#tbodyExpenseList tr:first').clone().find("select,input").val("").end();
+                $(cln).find('a.dis-none').removeClass('dis-none');
+                var index = $('#tbodyExpenseList tr:last').find("input[name='ExpenseDetail.Index']").val();
+                index = parseInt(index) + 1;
+                $(cln).find("input[name='ExpenseDetail.Index']").val(index);
+                $(cln).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                $(cln).find('#lblTransType').text(item.TransactionType);
+                $(cln).find('input[name$=".IsJV"]').val(item.IsJV);
+                $(cln).find("input, select").each(function () {
+                    $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+                    $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+                });
+                $(cln).find("span[data-valmsg-for]").each(function () {
+                    $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+                });
+
+                var selectGroup = $(cln).find("select[name$='.AccountGroupId']");
+                selectGroup.empty();
+                $.each(item.AccountGroupList, function (index, itemData) {
+                    selectGroup.append($('<option/>', {
+                        value: itemData.id,
+                        text: itemData.name,
+                    }));
+                });
+
+                var selectHead = $(cln).find("select[name$='.AccountHeadId']");
+                selectHead.empty();
+                $.each(item.AccountHeadList, function (index, itemData) {
+                    selectHead.append($('<option/>', {
+                        value: itemData.id,
+                        text: itemData.name,
+                    }));
+                });
+                $('#tbodyExpenseList').append(cln);
+            });
+        },
+        error: function (err) {
+            console.log("error : " + err);
+        }
+    });
+    }
+    //function ValidateTransaction() {
+    //    var msg = 'valid';
+    //    var netCrAmt = parseFloat($('#CreditorAmount').val());
+    //    var advanceAmt = parseFloat($('#txtTemporaryAdvanceAmount').val());
+    //    var ttlExpAmt = parseFloat($('#ExpenseAmount').val());
+    //    var ttldeductAmt = parseFloat($('#DeductionAmount').val());
+    //    var ttlAdvAmt = parseFloat($('#lblAdvTtlAmt').html());
+    //    if(isNaN(ttlExpAmt))
+    //        ttlExpAmt = 0;
+    //    if(isNaN(ttldeductAmt))
+    //        ttldeductAmt = 0;
+    //    var netDrAmt = ttlExpAmt + ttldeductAmt;
+    //    var offsetValue = $("input[name='GST']:checked").val();
+    //    if (isNaN(netCrAmt)) {
+    //        return 'The Credit value is not a valid entry.';
+    //    }
+    //    if(netCrAmt != netDrAmt) {
+    //        msg = 'Not a valid entry. Credit and Debit value are not equal.';
+    //    }
+    //    if (isNaN(ttlExpAmt)) {
+    //        msg = 'The requested advance value / Transaction value is not a valid entry.';
+    //    }
+    //    else if (ttlExpAmt != advanceAmt) {
+    //        msg = 'There is a mismatch between the requested advance value and transaction value. Please update the value to continue.';
+    //    }
+
+    //    var hdList = [];
+    //    $('#tbodyExpenseList tr').find('select[name$=".AccountHeadId"]').each(function (idx, val) { hdList.push($(val).val()); });
+    //    hdList.sort();
+    //    // duplicate check
+    //    for (var k = 1; k < hdList.length; ++k) {
+    //        if (hdList[k] == hdList[k - 1]) {
+    //            msg = "Duplicate account head exist in expense details. Please select a different head.";
+    //        }
+    //    }
+    //    return msg;
+    //}
+    function ValidateCommitment() {
+        var msg = 'valid';
+        var commitmentAmt = parseFloat($('#CommitmentAmount').val());
+        // var netAdvAmt = parseFloat($('#lblAdvNetAmt').html());
+        var ttlAdvAmt = parseFloat($('#txtTemporaryAdvanceAmount').val());
+        var advPct = parseInt($("#AdvancePercentage").val());
+        var offsetValue = $("input[name='GST']:checked").val();
+        $("#tbodyCommitmentSelList tr").each(function(){
+            var elePayment = $(this).find("input[name$='.PaymentAmount']");
+            var eleAvlBal = $(this).find('input[name$=".AvailableAmount"]');
+            var parseVal = parseFloat($(elePayment).val()) || 0;
+            var avlBal = parseFloat($(eleAvlBal).val()) || 0;
+            if (parseVal > avlBal)
+                msg = "Commitment payment value should not be greater than available balance."
+        });
+        if (isNaN(ttlAdvAmt) || isNaN(commitmentAmt)) {
+            msg = 'The requested advance value / allocated commitment value is not a valid entry.';
+        } else if (ttlAdvAmt != commitmentAmt) {
+            msg = 'There is a mismatch between the requested advance value and allocated commitment value. Please update the value to continue.';
+        }
+
+        return msg;
+    }
+    function ValidateTransaction() {
+        var msg = 'valid';
+        var netCrAmt = parseFloat($('#CreditorAmount').val());
+        var commitmentAmt = parseFloat($('#CommitmentAmount').val());
+        var ttlExpAmt = parseFloat($('#ExpenseAmount').val()) || 0;
+        var ttldeductAmt = parseFloat($('#ttlCr').val()) || 0;
+        var ttlAdvAmt = parseFloat($('#txtTemporaryAdvanceAmount').val());
+        //var netDrAmt = ttlExpAmt + ttldeductAmt;
+        //var offsetValue = $("input[name='GST']:checked").val();
+        if (isNaN(netCrAmt)) {
+            return 'The Credit value is not a valid entry.';
+        }
+        if(netCrAmt != ttlExpAmt || netCrAmt != ttldeductAmt) {
+            msg = 'Not a valid entry. Credit and Debit value are not equal.';
+        }
+        if (isNaN(ttlExpAmt) || isNaN(commitmentAmt)) {
+            msg = 'The requested advance value / Transaction value is not a valid entry.';
+        } else if (ttlExpAmt != commitmentAmt) {
+            msg = 'There is a mismatch between allocated commitment value and transaction value. Please update the value to continue.';
+        }
+
+        //var groupNames = [];
+        //$('#tbodyCommitmentSelList tr').find('input[name$=".HeadName"]').each(function () {
+        //    var commitmentAmt = 0;
+        //    var groupName = $(this).val();
+        //    if(groupNames.indexOf(groupName) == -1){
+        //        $("#tbodyCommitmentSelList [name$='.HeadName'][value='"+groupName+"']").each(function(){
+        //            var elePayment = $(this).closest('td').find("input[name$='.PaymentAmount']");
+        //            var parseVal = parseFloat($(elePayment).val());
+        //            if (!isNaN(parseVal))
+        //                commitmentAmt = commitmentAmt + parseVal;
+        //        });
+        //        var sumOfAmt = 0;
+        //        if(!isNaN(commitmentAmt)){
+        //            $('#tbodyExpenseList tr select[name$=".AccountGroupId"]').each(function () {
+        //                if($(this).find("option:selected").text() == groupName){
+        //                    var individualVal = $(this).closest('tr').find("input[name$='.Amount']").val();
+        //                    individualVal = parseFloat(individualVal);
+        //                    if(!isNaN(individualVal))
+        //                        sumOfAmt = sumOfAmt + individualVal;
+        //                }
+        //            });
+        //            if(commitmentAmt != sumOfAmt){
+        //                msg = 'The amount enter for ' +groupName+ ' is not equal to commitment value.';
+        //                return false;
+        //            }
+        //            groupNames.push(groupName)
+        //        }else{
+        //            msg = 'Commitment Payment Value is not valid.';
+        //            return false;
+        //        }
+        //    }
+        //});
+        var hdList = [];
+        $('#tbodyExpenseList tr').find('select[name$=".AccountHeadId"]').each(function (idx, val) { hdList.push($(val).val()); });
+        hdList.sort();
+        // duplicate check
+        for (var k = 1; k < hdList.length; ++k) {
+            if (hdList[k] == hdList[k - 1]) {
+                msg = "Duplicate account head exist in expense details. Please select a different head.";
+            }
+        }
+        return msg;
+    }
+
+    
+</script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>

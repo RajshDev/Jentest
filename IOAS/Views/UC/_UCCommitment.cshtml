@@ -1,0 +1,314 @@
+﻿@model IEnumerable<IOAS.Models.UCCommitmentModel>
+
+    <div class="row">
+        <div class="col-md-12">
+            <h3 class="mt-null">Commitment <a id="btnSelComPopup" href="#" class="btn btn-default btn-sm pull-right mb-md" data-toggle="modal" data-target="#UCSelectCommitModal">Select Commitment</a> </h3>
+        </div>
+    </div>
+    <div class="grey-bg-adj mb-lg">
+        <div class="row">
+            <div class="scrl-table scrl-table-po-bl">
+                <table class="table alter-table mb-null">
+
+                    <thead>
+                        <tr>
+                            <th>Commitment No.</th>
+                            <th>Head</th>
+                            <th>Booked Amount</th>
+                            <th>Commitment Balance </th>
+                            <th style="width:50px;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyUCCommitment">
+
+                        @if (Model.Count() > 0)
+                        {
+                            var count = 0;
+                            foreach (var item in Model)
+                            {
+                                var cId = "CommitDetails[" + count + "].CommitmentId";
+                                var availBal = "CommitDetails[" + count + "].AvailableBalance";
+                                var hdId = "CommitDetails[" + count + "].AllocationHeadId";
+                                <tr>
+                                    <td>
+                                        @item.CommitmentNumber                                      
+                                    </td>
+                                    <td>@item.AllocationHead</td>
+                                    <td>@item.CommitmentAmount</td>
+                                    <td>@item.AvailableBalance</td>
+                                    <td class="dis-none">
+                                        @Html.Hidden(@cId, item.CommitmentId)
+                                        @Html.Hidden(@availBal, item.AvailableBalance)
+                                        @Html.Hidden(@hdId, item.AllocationHeadId)
+                                        @Html.Hidden("CommitDetails.Index", count)
+                                    </td>
+                                    <td>
+
+                                        <a href="javascript:void(0)" class="removeCommitment btn-circle"><i class="ion-close-round"></i></a>
+
+                                    </td>
+                                </tr>
+                                count++;
+
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td class="dis-none">
+                                    @Html.Hidden("CommitDetails[0].CommitmentId", "0")
+                                    @Html.Hidden("CommitDetails[0].AllocationHeadId", "0")
+                                    @Html.Hidden("CommitDetails[0].AvailableBalance", "0")
+                                    @Html.Hidden("CommitDetails.Index", "0")
+                                </td>
+                                <td>
+                                    <a href="javascript:void(0)" class="removeCommitment btn-circle"><i class="ion-close-round"></i></a>
+                                </td>
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4 col-md-offset-8">
+                <div class="form-group custom-form-group ">
+                    <label>Total Value :</label>
+                    @Html.TextBox("CommitmentAmount", "", new { @class = "form-control", @readonly = "readonly" })
+                    @Html.ValidationMessage("CommitmentAmount")
+                </div>
+            </div>
+        </div>
+    </div>
+
+<div id="UCSelectCommitModal" class="modal fade modal-pr-vw" role="dialog" style="display: none;">
+
+
+    <div class="modal-dialog modal-lg">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" >×</button>
+                <div class="row hd-tt-bg">
+                    <div class="col-md-12">
+                        <h4><b>Select Commitment</b></h4>
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="modal-body pdt-null">
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="cmn-panel-box">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="grey-bg-adj  mb-lg">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div>
+                                                    <table class="table table-bordered mb-null">
+                                                        <thead>
+                                                            <tr>
+                                                                <th></th>
+                                                                <th>Commitment Number</th>
+                                                                <th>Head</th>
+                                                                <th>Value Booked</th>
+                                                                <th>Commitment Avail Balance</th>
+                                                                <th>PO Number</th>
+                                                                <th>Vendor Name</th>
+                                                                <th>Types of Commitment</th>
+                                                                <th>Booked Date</th>
+                                                                <th>Ref. UC Number</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="tbodyProjectCommitmentList">
+                                                            <tr>
+                                                                <td>
+                                                                    <input type="checkbox" value="" name="chkCommitmentId">
+                                                                </td>
+                                                                <td></td>
+                                                                <td></td>
+                                                                <td></td>
+                                                                <td></td>
+                                                                <td></td>
+                                                                <td></td>
+                                                                <td></td>
+                                                                <td></td>
+                                                                <td></td>
+                                                            </tr>
+
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+        <div class="modal-footer">
+            <button id="btnSelCommitment" type="button" class="btn btn-primary" data-dismiss="modal" >Select</button>
+            <button type="button" class="btn btn-default" data-dismiss="modal" >Close</button>
+        </div>
+    </div>
+
+
+
+</div>
+<script type="text/javascript">
+    
+
+    function searchCommitment(projId,UCId) {
+        EmptyCommitmentSrchList()
+        $.ajax({
+            type: "GET",
+            url: "@Url.Action("SearchUCCommitments", "UC")",
+            data: { "projectId": projId, "UCId": UCId },
+            dataType: "json",
+            success: function (result) {
+                $.each(result, function (i, item) {
+                    if (i == 0) {
+                        var trEle = $('#tbodyProjectCommitmentList tr:first');
+                        $(trEle).find('input[name="chkCommitmentId"]').val(item.CommitmentId).prop("checked", false);
+                        $(trEle).find('td:nth-child(2)').html(item.CommitmentNumber);
+                        $(trEle).find('td:nth-child(3)').html(item.HeadName);
+                        $(trEle).find('td:nth-child(4)').html(item.BookedAmount);
+                        $(trEle).find('td:nth-child(5)').html(item.AvailableAmount);
+                        $(trEle).find('td:nth-child(6)').html(item.PONumber);
+                        $(trEle).find('td:nth-child(7)').html(item.VendorName);
+                        $(trEle).find('td:nth-child(8)').html(item.TypeOfCommitment);
+                        $(trEle).find('td:nth-child(9)').html(item.BookedDate);
+                        $(trEle).find('td:nth-child(9)').html(item.RefUCNumber);
+                    } else {
+                        var trEleNew = $('#tbodyProjectCommitmentList tr:first').clone();
+                        $(trEleNew).find('input[name="chkCommitmentId"]').val(item.CommitmentId).prop("checked", false);
+                        $(trEleNew).find('td:nth-child(2)').html(item.CommitmentNumber);
+                        $(trEleNew).find('td:nth-child(3)').html(item.HeadName);
+                        $(trEleNew).find('td:nth-child(4)').html(item.BookedAmount);
+                        $(trEleNew).find('td:nth-child(5)').html(item.AvailableAmount);
+                        $(trEleNew).find('td:nth-child(6)').html(item.PONumber);
+                        $(trEleNew).find('td:nth-child(7)').html(item.VendorName);
+                        $(trEleNew).find('td:nth-child(8)').html(item.TypeOfCommitment);
+                        $(trEleNew).find('td:nth-child(9)').html(item.BookedDate);
+                        $(trEleNew).find('td:nth-child(9)').html(item.RefUCNumber);
+                        $('#tbodyProjectCommitmentList').append(trEleNew);
+                    }
+                });
+
+            },
+            error: function (err) {
+                console.log("error : " + err);
+            }
+        });
+    }
+    function FillSelCommitments(result) {
+        $.each(result, function (i, item) {
+           if (i == 0) {
+                var trEle = $('#tbodyUCCommitment tr:first');
+                $(trEle).find('td:nth-child(1)').html(item.CommitmentNumber);
+                $(trEle).find('td:nth-child(2)').html(item.HeadName);
+                $(trEle).find('td:nth-child(3)').html(item.BookedAmount);
+                $(trEle).find('td:nth-child(4)').html(item.AvailableAmount);
+                $(trEle).find("input[name='CommitDetails.Index']").val(i);
+                $(trEle).find('input[name$=".CommitmentId"]').val(item.CommitmentId);
+                $(trEle).find('input[name$=".AllocationHeadId"]').val(item.AllocationHeadId);
+                $(trEle).find('input[name$=".AvailableBalance"]').val(item.AvailableAmount);
+            } else {
+                var trEleNew = $('#tbodyUCCommitment tr:first').clone();
+                $(trEleNew).find('td:nth-child(1)').html(item.CommitmentNumber);
+                $(trEleNew).find('td:nth-child(2)').html(item.HeadName);
+                $(trEleNew).find('td:nth-child(3)').html(item.BookedAmount);
+                $(trEleNew).find('td:nth-child(4)').html(item.AvailableAmount);
+                $(trEleNew).find("input[name='CommitDetails.Index']").val(i);
+                $(trEleNew).find('input[name$=".CommitmentId"]').val(item.CommitmentId);
+                $(trEleNew).find('input[name$=".AllocationHeadId"]').val(item.AllocationHeadId);
+                $(trEleNew).find('input[name$=".AvailableBalance"]').val(item.AvailableAmount);
+                $(trEleNew).find("input").each(function () {
+                    $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                    $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                });
+                $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                    $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                });
+                $('#tbodyUCCommitment').append(trEleNew);
+            }
+        });
+        CalculatePaymentValue();
+    }
+    $('#btnSelCommitment').click(function () {
+        var selCommitment = [];
+        $('input[name="chkCommitmentId"]:checked').each(function () {
+            var cmtId = $(this).val();
+            if (cmtId != '') { selCommitment.push(cmtId); }
+        });
+        if (selCommitment.length == 0) {
+            $("#alert").text("Please select at least one commitment from the list.");
+            $('#Validation').modal('show');
+            return false;
+        } else {
+            EmptyCommitmentSelList()
+            $.ajax({
+                type: "GET",
+                url: "@Url.Action("GetSelectedCommitmentDetails", "CoreAccounts")",
+                data: { "selCommitment": selCommitment },
+                traditional: true,
+                dataType: "json",
+                success: function (result) {
+                    FillSelCommitments(result);
+                },
+                error: function (err) {
+                    console.log("error : " + err);
+                }
+            });
+        }
+    });
+    function EmptyCommitmentSelList() {
+        $('#tbodyUCCommitment tr').not(':first').remove();
+        $('#tbodyUCCommitment tr td').not(':last').not(':nth-last-child(2)').html('');
+        //$('#tbodyUCCommitment tr td:last').find("input").val("");
+        $('#tbodyUCCommitment tr').find("input[name!='CommitDetails.Index']").val("");
+    }
+    function EmptyCommitmentSrchList() {
+        $('#tbodyProjectCommitmentList tr').not(':first').remove();
+        $('#tbodyProjectCommitmentList tr td').not(':first').html('');
+    }
+
+    $(document).on('click', 'a.removeCommitment', function () {
+        if ($('#tbodyUCCommitment tr').length != 1) {
+            $(this).closest('tr').remove();
+        } else {
+            $('#tbodyUCCommitment tr td').not(':last').not(':nth-last-child(2)').html('');
+            $('#tbodyUCCommitment tr').find("input[name!='CommitDetails.Index']").val("");
+        }
+        CalculatePaymentValue();
+    });
+
+    function CalculatePaymentValue() {
+        var ttlPaymentVal = 0;
+        $('#tbodyUCCommitment input[name$=".AvailableBalance"]').each(function (i, rowEle) {
+            var paymentVal = parseFloat($(this).val());
+            if (!isNaN(paymentVal))
+                ttlPaymentVal = ttlPaymentVal + paymentVal;
+        });
+        $('#CommitmentAmount').val(ttlPaymentVal);
+        calcUCAmount();
+    }
+
+</script>

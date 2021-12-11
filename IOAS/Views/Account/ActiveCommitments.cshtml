@@ -1,0 +1,404 @@
+﻿@model IOAS.Models.CommitmentStatusModel
+
+@{
+    ViewBag.Title = "Active Commitments";
+    ViewBag.Subtitle = "Active Commitments";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<script src="~/Scripts/Account/ActiveCommitment.js"></script>
+<div class="row hd-tt-bg" id="addnewpage">
+    <div class="col-md-4">
+        <h3>Active Commitments</h3>
+    </div>
+    <div class="col-md-8 flt-nav-links">
+        <a href="Javascript:void(0)" id="btnShowFilter" class="pull-right"> <i class="ion-android-funnel"></i>Filters</a>
+    </div>
+</div>
+<div class="row mt30">
+    <div class="page-wrapper">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="custom-jsgrid-normal">
+                    <div id="ActiveCommitList">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="popup"></div>
+<div id="popupCommitmentFilter" class="filter-popup">
+    <div class="">
+        <div class="filter-content">
+            <div class="white-bg">
+                <div class="form-group custom-form-group">
+                    <h3>Filter by</h3>
+                </div>
+                <div class="form-group custom-form-group">
+                    @Html.DropDownListFor(m => m.searchField.ProjectType, new SelectList(ViewBag.projecttype, "codevalAbbr", "CodeValDetail"), "Select project type", new { @id = "intPrjType", @class = "form-control" })
+                </div>
+                <div class="form-group custom-form-group">
+                    @*@Html.DropDownListFor(m => m.searchField.ProjectNumber, new SelectList(ViewBag.ProjectNo, "id", "name"), "Select project no", new { @id = "intPrjNo", @class = "form-control" })*@
+                    @Html.TextBoxFor(m => m.searchField.ProjectNo, new { @class = "form-control", @id = "txtsearchproject" })
+                    @Html.TextBoxFor(m => m.searchField.ProjectNumber, new { @class = "form-control dis-none", @id = "intPrjNo", @placeholder = "Project Number" })
+
+                </div>
+                <div class="form-group custom-form-group">
+                    @Html.TextBoxFor(m => m.searchField.Keyword, new { @id = "Keyword", @placeholder = "Commitment No/Status", @class = "form-control" })
+                </div>
+
+                <div class="form-group custom-form-group">
+                    <label class="full-width">Created Date</label>
+                </div>
+                <div id="DivSRBDate" class="form-group custom-form-group">
+                    <label class="half-form">From</label>
+                    <label class="half-form">To</label>
+                    @Html.TextBoxFor(m => m.searchField.FromCreatedDate, new { @id = "FromCreatedDate", @class = "form-control half-form" })
+                    @Html.TextBoxFor(m => m.searchField.ToCreatedDate, new { @id = "ToCreatedDate", @class = "form-control half-form" })
+                </div>
+                <div class="form-group custom-form-group mt30 text-center">
+                    <a id="btnReset" href="javascript:void(0)">Reset</a>
+                </div>
+                <div class="form-group custom-form-group mt30 text-center">
+                    <button id="btnSearch" type="button" class="btn btn-primary mr10">Search</button>
+                    <button name="btnClose" type="button" class="btn btn-default">Close</button>
+                </div>
+
+
+            </div>
+        </div>
+
+    </div>
+
+    <a href="javascript:void(0)" name="btnClose" class="close-btn"><i class="ion-android-cancel"></i></a>
+
+</div>
+@if (ViewBag.SuccMsg != null)
+{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#myModal').modal('show');
+
+        });
+
+    </script>
+    <div id="myModal" class="modal fade modal-success" role="dialog">
+        <div class="modal-dialog modal-sm">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <i class="ion-android-checkmark-circle"></i>
+                    <h3 class="modal-title">Saved successfully</h3>
+                </div>
+                <div class="modal-body">
+
+                    <p id="alertSuccess">@ViewBag.SuccMsg</p>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" id="btnClose">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+}
+
+@if (ViewBag.ErrMsg != null)
+{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#myModal2').modal('show');
+        });
+    </script>
+    <div id="myModal2" class="modal fade modal-error" role="dialog">
+        <div class="modal-dialog modal-sm">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <i class="ion-android-cancel"></i>
+                    <h3 class="modal-title">Error Message</h3>
+                </div>
+                <div class="modal-body">
+
+                    <p>@ViewBag.ErrMsg</p>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+}
+<script type="text/javascript">
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+    });
+    $(document).on('change', '#intPrjType', function () {
+        $("#txtsearchproject").val("");
+        $("#intPrjNo").val("");
+        var Projecttype = $("#intPrjType").val();
+        var searchData = { type: Projecttype }
+        applyAutoComplete($('#txtsearchproject'), $('#intPrjNo'), "@Url.Action("LoadProjectList", "CoreAccounts")", undefined, undefined, undefined, searchData);
+
+    });
+    $(document).on('change', '#LogTypeId', function () {
+        var LogType = $('#LogTypeId').val();
+        if (LogType == 1) {
+
+        } else if (LogType == 2) {
+            var AvlBalance = parseFloat($('#hdnAvlBalance').val()) || 0;
+        }
+    });
+    function validateCommitmentLog() {
+        var LogType = $('#LogTypeId').val();
+        var Reason = $('#Reason').val();
+        var Remarks = $('#strRemarks').val();
+        var isHaveAllocation = $("#hdnIsAllocation").val();
+        var isYearwise = $("#hdnIsYearWise").val();
+        var AllocationForCurretYear = parseFloat($("#hdnTotalCommitForCurrentYear").val()) || 0;
+        var BalCommitForCurYear = parseFloat($("#hdnTotalCommitForCurrentYear").val()) || 0;
+        var AllocationAmount = parseFloat($('#AddCloseAmt').val()) || 0;
+        var AvailBalance = parseFloat($('#hdnAvlBalance').val()) || 0;
+        var Exp = parseFloat($('#hdnExp').val()) || 0;
+        var SanctVal = parseFloat($('#hdnSan').val()) || 0;
+        if (LogType == "") {
+            messageBox("Commitment action type is required", "warning");
+            return false;
+        }
+        if (AllocationAmount == "" || AllocationAmount == 0) {
+            messageBox("Amount is required", "warning");
+            return false;
+        } if (Reason == "") {
+            messageBox("Reason is required", "warning");
+            return false;
+        }
+        if (Remarks == "") {
+            messageBox("Remarks is required", "warning");
+            return false;
+        }
+
+        if (LogType == 1) {
+            if (AllocationAmount > AvailBalance) {
+                messageBox("Total commitment value cannot be above net balance", "warning");
+                return false;
+            }
+            var allowNR_f = $('#AllocationNR_f').val() || 'false';
+            allowNR_f = allowNR_f.toLowerCase();
+            if (allowNR_f != "true") {
+                if (AllocationAmount > parseFloat(BalCommitForCurYear)) {
+                    messageBox("Balance commitment allowed for this year " + BalCommitForCurYear + "(INR)", "warning");
+                    return false;
+                } else
+                    return true;
+            }
+            return true;
+         
+        }
+        else if (LogType == 2) {
+            var AvlBalance = parseFloat($('#hdnCommitAvlBalance').val()) || 0;
+            var Amt = parseFloat($('#AddCloseAmt').val()) || 0;
+            if (AvlBalance < Amt) {
+                messageBox("Withdraw amount should not be greater than Commitment Available Balance.", "warning");
+                isValid = false;
+                return false;
+            }
+            //else if (AvlBalance == 0) {
+            //    messageBox("you should not close this Commitment.The Commitment Available Balance is Zero.", "warning");
+            //    isValid = false;
+            //    return false;
+            //}
+            else {
+                return true;
+            }
+        }
+        else if (LogType == 3) {
+            var AvlBalance = parseFloat($('#hdnCommitAvlBalance').val()) || 0;
+            var Amt = parseFloat($('#AddCloseAmt').val()) || 0;
+            if (AvlBalance != Amt) {
+                messageBox("Mismatch between with closed amount and  Commitment Available Balance.", "warning");
+                isValid = false;
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+        else
+            return false;
+    }
+    //$("#btnClosed").click(function () {
+    $(document).on('click', '#btnClosed', function () {
+        @*var commitId = $("#hdnCommitId").val();
+        var Action = $("#hdnAction").val();
+        var Status = $("#hdnStatus").val();
+        var reason = $("#Reason").val();
+        var remarks = $("#strRemarks").val();
+        var data = { "CommitmentId": commitId, "Action": Action, "Status": Status, "Reason": reason, "Remarks": remarks }
+        $.ajax({
+            url: '@Url.Action("CloseCommitment", "Account")',
+            type: 'POST',
+            contentType: 'application/x-www-form-urlencoded',
+            dataType: 'json',
+            data: data,
+            success: function (data) {
+                if (data == 1) {
+                    $("#alertSuccessPop").html("Successfully closed this commitment");
+                    $('#SuccessPop').modal('show');
+                } else {
+                    $("#FailedAlert").text('Something went wrong, Please contact administrator');
+                    $('#Failed').modal('show');
+                }
+            }
+        });*@
+
+        if (validateCommitmentLog()) {
+            $('#formClose').submit();
+        }
+
+    });
+    $(document).ready(function () {
+        $("#FromCreatedDate").datepicker
+        ({
+            dateFormat: 'dd-MM-yy',
+            showStatus: true,
+            showWeeks: true,
+            changeYear: true,
+            yearRange: '-100:+0',
+            highlightWeek: true,
+            numberOfMonths: 1,
+            showAnim: "scale",
+            showOptions: {
+                origin: ["top", "left"]
+            }
+        });
+        $("#ToCreatedDate").datepicker
+       ({
+           dateFormat: 'dd-MM-yy',
+           showStatus: true,
+           showWeeks: true,
+           changeYear: true,
+           yearRange: '-100:+0',
+           highlightWeek: true,
+           numberOfMonths: 1,
+           showAnim: "scale",
+           showOptions: {
+               origin: ["top", "left"]
+           }
+       });
+    });
+    @*$("#intPrjType").change(function () {
+        var projectType = $(this).val();
+            $.getJSON("@Url.Action("LoadProjectNumber", "Account")", { projecttype: projectType },
+        function (locationdata) {
+            var select = $("#intPrjNo");
+            select.empty();
+            select.append($('<option/>', {
+                value: 0,
+                text: "Select Project Number"
+            }));
+            $.each(locationdata.Item1, function (index, itemData) {
+
+                select.append($('<option/>', {
+                    value: itemData.id,
+                    text: itemData.name
+                }));
+            });
+        });
+
+    });*@
+
+
+    $("#btnShowFilter").click(function () {
+        $('#popupCommitmentFilter').css("display", "Block");
+    });
+    //$('a[name="btnClose"],button[name="btnClose"]').click(function () {
+    //    $('#popupCommitmentFilter').css("display", "none");
+    //    $('#intPrjType').prop('selectedIndex', 0);
+    //    $('#intPrjNo').val('');
+    //    $('#Keyword').val('');
+    //    $('#txtsearchproject').val('');
+    //    $('#FromCreatedDate').val('');
+    //    $('#ToCreatedDate').val('');
+    //    loadDetails();
+    //});
+    $('a[name="btnClose"],button[name="btnClose"]').click(function () {
+        $('#popupCommitmentFilter').css("display", "none");
+        //$('#intPrjType').prop('selectedIndex', 0);
+        //$('#intPrjNo').val('');
+        //$('#Keyword').val('');
+        //$('#txtsearchproject').val('');
+        //$('#FromCreatedDate').val('');
+        //$('#ToCreatedDate').val('');
+        //loadDetails();
+    });
+    $('#btnReset').click(function () {
+        // $('#popupCommitmentFilter').css("display", "none");
+        $('#intPrjType').prop('selectedIndex', 0);
+        $('#intPrjNo').val('');
+        $('#Keyword').val('');
+        $('#txtsearchproject').val('');
+        $('#FromCreatedDate').val('');
+        $('#ToCreatedDate').val('');
+        loadDetails();
+    });
+    var searchCommitment = 'SearchActiveCommitments';
+    $("#btnSearch").click(function () {
+
+        var PrjType = 0, PrjNo = 0;
+        PrjType = $("#intPrjType").val();
+        PrjNo = $("#intPrjNo").val();
+        if (PrjType == null || PrjType == "" || PrjType == 0) {
+            PrjType = null;
+        }
+        if (PrjNo == null || PrjNo == "") {
+            PrjNo = null;
+        }
+        var KW = $("#Keyword").val();
+        var FCreateD = $("#FromCreatedDate").val();
+        var TCreateD = $("#ToCreatedDate").val();
+        //var searchdata = {"Keyword": KW, "ProjectType": PrjType, "ProjectNo": PrjNo, "FromDate": FCreateD, "ToDate": TCreateD};
+        var searchdata = [];
+        searchdata = {
+            ProjectType: PrjType,
+            ProjectNumber: PrjNo,
+            Keyword: KW,
+            FromCreatedDate: FCreateD,
+            ToCreatedDate: TCreateD
+        }
+        //$.ajax({
+        //    type: "GET",
+        //    url: searchCommitment,
+        //    data: searchdata,
+        //    //data: { "ProjectType": Projecttype, "ProposalNumber": Proposalnumber, "FromSOdate": FromSODate, "ToSOdate": ToSODate, },
+        //    //contentType: "application/x-www-form-urlencoded",
+        //    dataType: "json",
+        //    success: function (result) {
+        //        $("#ActiveCommitList").jsGrid({ data: result });
+        //        $('#popupCommitmentFilter').hide();
+        //    }
+        //});
+        $("#ActiveCommitList").jsGrid("search", searchdata, pageIndex = 1, pageSize = 5);
+    });
+
+
+</script>
+@*<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>*@

@@ -1,0 +1,1116 @@
+﻿@model IEnumerable<IOAS.Models.TravelDetailModel>
+<div id="divTDetail" class="row">
+    <div class="col-md-12">
+        <div class="bl-lg-panel-box pb-null">
+            <div class="cmn-panel-box">
+                <div class="row">
+                    <div class="col-md-9">
+
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group custom-form-group">
+                                    <label class="required">Country</label>
+                                    @Html.DropDownList("CountryId", new SelectList(ViewBag.CountryList, "CountryID", "CountryName"), "Select any", new { @class = "required form-control selectpicker" })
+                                    @Html.ValidationMessage("CountryId")
+                                    <label id="lblPerDayAllow" class="dis-none"></label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group custom-form-group">
+                                    <label class="required">Place</label>
+                                    @Html.TextBox("Place", "", new { @class = "form-control required" })
+                                    @Html.ValidationMessage("Place")
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group custom-form-group">
+                                    <label class="required">Purpose & Visit</label>
+                                    @Html.TextBox("Purpose", "", new { @class = "form-control required" })
+                                    @Html.ValidationMessage("Purpose")
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group custom-form-group">
+                                    <label class="">Invoice No</label>
+                                    @Html.TextBox("InvoiceNumber", "", new { @class = "form-control" })
+                                    @Html.ValidationMessage("InvoiceNumber")
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+
+
+
+                            <div class="col-md-3">
+                                <div class="form-group custom-form-group">
+                                    <label class="required">Invoice Attachements</label>
+                                    <input type="file" id="InvoiceAttachment" name="InvoiceAttachment" class="required">
+                                    @Html.ValidationMessage("InvoiceAttachment")
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group custom-form-group">
+                                    <label class="required">Duration</label>
+                                    <div class="row">
+                                        <div class="col-md-6 pdr-null">
+                                            @Html.TextBox("TravelFromDate", "", new { @class = "form-control frm-adj required" })
+                                            @Html.ValidationMessage("TravelFromDate")
+                                        </div>
+                                        <div class="col-md-6 pdr-null">
+                                            @Html.TextBox("TravelToDate", "", new { @class = "form-control frm-adj required" })
+                                            @Html.ValidationMessage("TravelToDate")
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="form-group custom-form-group">
+                                    <label>Total Duration</label>
+                                    <h4 id="lblDuration"></h4>
+                                </div>
+                            </div>
+
+
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12 mb-lg">
+                                <table class="table alter-table">
+                                    <thead>
+                                        <tr>
+
+                                            <th style="width:150px;">Category</th>
+                                            <th>Name</th>
+                                            <th>Boarding</th>
+                                            <th>Per diem</th>
+                                            <th></th>
+
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbodyTraveller">
+                                        <tr>
+                                            <td>
+                                                @Html.DropDownList("CategoryId", new SelectList(ViewBag.CategoryList, "id", "name"), "Select any", new { @class = "required form-control required" })
+                                                @Html.ValidationMessage("CategoryId")
+                                                @Html.Hidden("TravellerDetailId")
+                                            </td>
+                                            <td class="tdDDLTraveler">
+                                                <input id="autoComplete" name="autoComplete" class="form-control" />
+                                                @Html.ValidationMessage("autoComplete")
+                                                <label id="lblSelTravellerId" class="dis-none"></label>
+                                                <input id="TravellerId" name="TravellerId"  class="form-control dis-none" />
+                                                @*@Html.DropDownList("TravellerId", new SelectList(ViewBag.TravellerList, "id", "name"), "Select any", new { @class = "form-control selectpicker required" })*@
+                                                @Html.ValidationMessage("TravellerId")
+                                            </td>
+                                            <td class="tdTxtTraveler dis-none">
+                                                @Html.TextBox("TravellerName", "", new { @class = "form-control" })
+                                                @Html.ValidationMessage("TravellerName")
+                                            </td>
+                                            <td>
+                                                @Html.TextBox("Boarding", "", new { @class = "form-control required" })
+                                                @Html.ValidationMessage("Boarding")
+                                            </td>
+                                            <td>
+                                                @Html.TextBox("PerDiem", "", new { @class = "form-control",@onblur = "calcTtlAllowance()" })
+                                                @Html.ValidationMessage("PerDiem")
+                                            </td>
+                                            <td>
+                                                <a href="javascript:void(0)" class="btn-sm btn btn-danger removeTravellerDetail dis-none"><i class="ion-android-close"></i></a>
+                                            </td>
+
+                                        </tr>
+                                        <tr>
+                                            <td colspan="4"></td>
+                                            <td><a href="javascript:void(0)" id="btnAddTraveller" class="btn-circle"><i class="ion-plus-round"></i></a></td>
+                                        </tr>
+
+
+                                    </tbody>
+                                </table>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="wht-lg-panel">
+                            <div class="form-group custom-form-group">
+                                <label>Total Allowance</label>
+                                <h4 id="lblTtlAllowance">0.00</h4>
+
+                            </div>
+                            <div class="form-group custom-form-group">
+                                <label>Other Expense</label>
+                                <h4 id="lblOtherExpense">0.00</h4>
+                                <a href="javascript:void(0)" class="btn btn-warning " data-toggle="modal" data-target="#breakUpModal"><i class="ion-alert"></i>Break Up</a>
+                            </div>
+                            <div class="form-group custom-form-group">
+                                <label>Total Expense</label>
+                                <h4 id="lblTtlExpense">0.00</h4>
+                            </div>
+                            <div class="form-group custom-form-group">
+                                <a href="javascript:void(0)" id="btnSaveDetail" class="btn btn-primary ">Save this entry</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="breakUpModal" class="modal fade modal-pr-vw" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <div class="row hd-tt-bg">
+                        <div class="col-md-12">
+                            <h4><b>Travel Details : </b></h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="page-wrapper">
+                            <div class="custom-md-bg">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <table class="table grey-alter-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Type of Expense</th>
+                                                    <th colspan="4" class="bg-blue text-center">Claimed  as per the Claim Statement</th>
+                                                    <th colspan="3" class="bg-lg-blue text-center">Processed as per Policy</th>
+                                                    <th>Difference</th>
+                                                    <th>Remarks</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="tbodyBreakUpDetails">
+                                                <tr>
+                                                    <td></td>
+                                                    <td class="bg-blue">Currency  Spent</td>
+                                                    <td class="bg-blue">Forex Amt</td>
+                                                    <td class="bg-blue">Conv. Rate</td>
+                                                    <td class="bg-blue">INR Amount</td>
+                                                    <td class="bg-lg-blue">Forex Amt</td>
+                                                    <td class="bg-lg-blue">Conv. Rate</td>
+                                                    <td class="bg-lg-blue">INR Amount</td>
+                                                    <td></td>
+                                                    <td></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        @Html.DropDownList("ExpenseTypeId", new SelectList(ViewBag.ExpenseTypeList, "id", "name"), "Select any", new { @class = "form-control  required" })
+                                                        @Html.ValidationMessage("ExpenseTypeId")
+                                                        @Html.Hidden("BreakUpDetailId")
+                                                    </td>
+                                                    <td class="bg-blue">
+                                                        @Html.DropDownList("ClaimedCurrencySpent", new SelectList(ViewBag.CurrencyList, "id", "name"), "Select any", new { @class = "form-control  required" })
+                                                        @Html.ValidationMessage("ClaimedCurrencySpent")
+                                                    </td>
+                                                    <td class="bg-blue">
+                                                        @Html.TextBox("ClaimedForexAmt", "", new { @class = "form-control required", @onblur = "calcBreakUpByRow(this)", @onkeypress = "return ValidateDecimalOnly(event)" })
+                                                        @Html.ValidationMessage("ClaimedForexAmt")
+                                                    </td>
+                                                    <td class="bg-blue">
+                                                        @Html.TextBox("ClaimedConvRate", "", new { @class = "form-control required", @onblur = "calcBreakUpByRow(this)", @onkeypress = "return ValidateDecimalOnly(event)" })
+                                                        @Html.ValidationMessage("ClaimedConvRate")
+                                                    </td>
+                                                    <td class="bg-blue">
+                                                        @Html.TextBox("ClaimedTotalAmount", "", new { @class = "form-control", @readonly = "readonly" })
+                                                        @Html.ValidationMessage("ClaimedTotalAmount")
+                                                    </td>
+                                                    <td class="bg-lg-blue">
+                                                        @Html.TextBox("ProcessedForexAmt", "", new { @class = "form-control required", @onblur = "calcBreakUpByRow(this)", @onkeypress = "return ValidateDecimalOnly(event)" })
+                                                        @Html.ValidationMessage("ProcessedForexAmt")
+                                                    </td>
+                                                    <td class="bg-lg-blue">
+                                                        @Html.TextBox("ProcessedConvRate", "", new { @class = "form-control required", @onblur = "calcBreakUpByRow(this)", @onkeypress = "return ValidateDecimalOnly(event)" })
+                                                        @Html.ValidationMessage("ProcessedConvRate")
+                                                    </td>
+                                                    <td class="bg-lg-blue">
+                                                        @Html.TextBox("ProcessedTotalAmount", "", new { @class = "form-control", @readonly = "readonly" })
+                                                        @Html.ValidationMessage("ProcessedTotalAmount")
+                                                    </td>
+                                                    <td>
+                                                        @Html.TextBox("DifferenceAmt", "", new { @class = "form-control", @readonly = "readonly" })
+                                                        @Html.ValidationMessage("DifferenceAmt")
+                                                    </td>
+                                                    <td>
+                                                        @Html.TextBox("Remarks", "", new { @class = "form-control" })
+                                                        @Html.ValidationMessage("Remarks")
+                                                    </td>
+                                                    <td>
+                                                        <a href="javascript:void(0)" class="btn-sm btn btn-danger removeBreakUpDetail dis-none"><i class="ion-android-close"></i></a>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="10"></td>
+                                                    <td><a href="javascript:void(0)" id="btnAddBreakUp" class="btn-circle"><i class="ion-plus-round"></i></a></td>
+                                                </tr>
+
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<div id="tdList" class="gray-bg br-rd">
+    <div class="row dis-none divDetail">
+        <div class="col-md-12 mb-md">
+            <div class="cmn-frm-bg gr-adj">
+                <div class="col-md-12 ls-dts-bg">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <div class="ls-dts">
+                                <p>
+                                    <span>Invoice No</span>
+                                    <b id="lblDetInvoiceNo"></b>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                            <div class="ls-dts">
+                                <p>
+                                    <span>Country</span>
+                                    <b id="lblDetCountry"></b>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="ls-dts">
+                                <p>
+                                    <span>Place</span>
+                                    <b id="lblDetPlace"></b>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="ls-dts">
+                                <p>
+                                    <span>Purpose &amp; Visit</span>
+                                    <b id="lblDetPurpose"></b>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="ls-dts">
+                                <p>
+                                    <span>Total Expense</span>
+                                    <b id="lblDetTtlExp"></b>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="ls-dts">
+                                <p>
+                                    <span>
+                                        <a href="javascript:void(0)" name="removeTDetails" class="view-mr-btn"><i class="ion-trash-a"></i> Delete </a>
+                                        <a href="javascript:void(0)" id="btnMoreDetail" class="view-mr-btn" data-toggle="collapse" data-target="#demo"> <i class="ion-compose"></i> View More </a>
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="collapse ac-bg" id="demo_1">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="ls-dts">
+                            <p>
+                                <span>Duration</span>
+                                <b>From: <em id="lblDetFromDate"></em></b>
+                                <b>To: <em id="lblDetToDate"></em></b>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="ls-dts">
+                            <p>
+                                <span>Total Duration</span>
+                                <b id="lblDetDuration"></b>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="ls-dts">
+                            <p>
+                                <span>Total Allowance</span>
+                                <b id="lblDetTtlAllowance"></b>
+                                <span id="lblDetAllowancePerDay"></span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="ls-dts">
+                            <p>
+                                <span>Invoice Attachement </span>
+                                <b id="lblDetAttachementName"></b>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 mb-lg">
+                        <table class="table alter-table">
+                            <thead>
+                                <tr>
+
+                                    <th style="width:150px;">Category</th>
+                                    <th>Name</th>
+                                    <th>Boarding</th>
+                                    <th>Per diem</th>
+                                    <th></th>
+
+                                </tr>
+                            </thead>
+                            <tbody id="tbodyViewTDet">
+                                <tr>
+                                    <td id="lblDetTravellerCategory"></td>
+                                    <td id="lblDetTravellerName"></td>
+                                    <td id="lblDetBoarding"></td>
+                                    <td id="lblDetPerDiem"></td>
+
+                                </tr>
+
+
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <table class="table grey-alter-table">
+                            <thead>
+                                <tr>
+                                    <th>Type of Expense</th>
+                                    <th colspan="4" class="bg-blue text-center">Claimed  as per the Claim Statement</th>
+                                    <th colspan="3" class="bg-lg-blue text-center">Processed as per Policy</th>
+                                    <th>Difference</th>
+                                    <th>Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbodyViewBU">
+                                <tr>
+                                    <td></td>
+                                    <td class="bg-blue">Currency  Spent</td>
+                                    <td class="bg-blue">Forex Amt</td>
+                                    <td class="bg-blue">Conv. Rate</td>
+                                    <td class="bg-blue">INR Amount</td>
+                                    <td class="bg-lg-blue">Forex Amt</td>
+                                    <td class="bg-lg-blue">Conv. Rate</td>
+                                    <td class="bg-lg-blue">INR Amount</td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td id="lblDetExpType"></td>
+                                    <td id="lblDetCCurrencySpent" class="bg-blue"></td>
+                                    <td id="lblDetCForexAmt" class="bg-blue"></td>
+                                    <td id="lblDetCConvRate" class="bg-blue"></td>
+                                    <td id="lblDetCTtlRate" class="bg-blue"></td>
+                                    <td id="lblDetPForexAmt" class="bg-lg-blue"></td>
+                                    <td id="lblDetPConvRate" class="bg-lg-blue"></td>
+                                    <td id="lblDetPTtlRate" class="bg-lg-blue"></td>
+                                    <td id="lblDetdiffAmt"></td>
+                                    <td id="lblDetBreakUpComments"></td>
+                                </tr>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    @if (Model != null && Model.Count() > 0)
+    {
+        var index = 0;
+        foreach (var item in Model)
+        {
+            var ttlAllow = item.PerDiem.Sum();// * (Decimal)((item.TravelToDate.Value.Date - item.TravelFromDate.Value.Date).TotalDays);
+            var ttlExp = ttlAllow + item.ProcessedTotalAmount.Sum();
+            index = index + 1;
+            var btnLink = "viewDet_" + index;
+            var hrefLink = "#" + btnLink;
+            var detIndex = "TravelDetail[" + index + "].";
+            var country = (ViewBag.CountryList as IEnumerable<IOAS.Models.CountryListViewModel>).FirstOrDefault(m => m.CountryID == item.CountryId).CountryName;
+            var dur = (item.TravelToDate.Value.Date - item.TravelFromDate.Value.Date).TotalDays;
+            <div class="row divDetail">
+                <div class="col-md-12 mb-md">
+                    <div class="cmn-frm-bg gr-adj">
+                        <div class="col-md-12 ls-dts-bg">
+                            <div class="row">
+                                <div class="col-md-2">
+                                    <div class="ls-dts">
+                                        <p>
+                                            <span>Invoice No</span>
+                                            <b id="lblDetInvoiceNo">@item.InvoiceNumber</b>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-md-1">
+                                    <div class="ls-dts">
+                                        <p>
+                                            <span>Country</span>
+                                            <b id="lblDetCountry">
+                                                @country
+                                            </b>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="ls-dts">
+                                        <p>
+                                            <span>Place</span>
+                                            <b id="lblDetPlace">@item.Place</b>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="ls-dts">
+                                        <p>
+                                            <span>Purpose &amp; Visit</span>
+                                            <b id="lblDetPurpose">@item.Purpose</b>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="ls-dts">
+                                        <p>
+                                            <span>Total Expense</span>
+                                            <b id="lblDetTtlExp">@ttlExp</b>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="ls-dts">
+                                        <p>
+                                            <span>
+                                                <a href="javascript:void(0)" name="removeTDetails" class="view-mr-btn"><i class="ion-trash-a"></i> Delete </a>
+                                                <a href="javascript:void(0)" id="btnMoreDetail" class="view-mr-btn" data-toggle="collapse" data-target="@hrefLink"> <i class="ion-compose"></i> View More </a>
+                                            </span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="collapse ac-bg" id="@btnLink">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="ls-dts">
+                                    <p>
+                                        <span>Duration</span>
+                                        <b>From: <em id="lblDetFromDate">@item.TravelFromDate.Value.Date</em></b>
+                                        <b>To: <em id="lblDetToDate">@item.TravelToDate.Value.Date</em></b>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="ls-dts">
+                                    <p>
+                                        <span>Total Duration</span>
+                                        <b id="lblDetDuration"> @dur</b>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="ls-dts">
+                                    <p>
+                                        <span>Total Allowance</span>
+                                        <b id="lblDetTtlAllowance">@ttlAllow</b>
+                                        <span id="lblDetAllowancePerDay"> @item.PerDiem[0] Per day @Html.Raw("@")INR</span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="ls-dts">
+                                    <p>
+                                        <span>Invoice Attachement </span>
+                                        @if (item.TravelBillDetailId != null)
+                                        {
+                                            <a href="@Url.Action("ShowDocument","Project",new { file = item.DocumentName, filepath = item.DocumentPath })" target="_blank">@item.DocumentActualName</a>
+                                        }
+                                        else if (item.InvoiceAttachment != null)
+                                        {
+                                            <b id="lblDetAttachementName">@item.InvoiceAttachment.FileName</b>
+                                        }
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 mb-lg">
+                                <table class="table alter-table">
+                                    <thead>
+                                        <tr>
+
+                                            <th style="width:150px;">Category</th>
+                                            <th>Name</th>
+                                            <th>Boarding</th>
+                                            <th>Per diem</th>
+                                            <th></th>
+
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbodyViewTDet">
+                                        @for (int i = 0; i < item.CategoryId.Length; i++)
+                                        {
+                                            var category = (ViewBag.CategoryList as IEnumerable<IOAS.Models.MasterlistviewModel>).FirstOrDefault(m => m.id == item.CategoryId[i]).name;
+                                            var travellerName = item.TravellerName[i];
+                                            if (item.CategoryId[i] == 1)
+                                            {
+                                                var tId = Convert.ToInt32(item.TravellerId[i]);
+                                                travellerName = (ViewBag.TravellerList as IEnumerable<IOAS.Models.MasterlistviewModel>).FirstOrDefault(m => m.id == tId).name;
+                                            }
+                                            <tr>
+                                                <td id="lblDetTravellerCategory">@category</td>
+                                                <td id="lblDetTravellerName">@item.TravellerName[i]</td>
+                                                <td id="lblDetBoarding">@item.Boarding[i]</td>
+                                                <td id="lblDetPerDiem">@item.PerDiem[i]</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table class="table grey-alter-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Type of Expense</th>
+                                            <th colspan="4" class="bg-blue text-center">Claimed  as per the Claim Statement</th>
+                                            <th colspan="3" class="bg-lg-blue text-center">Processed as per Policy</th>
+                                            <th>Difference</th>
+                                            <th>Remarks</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbodyViewBU">
+                                        <tr>
+                                            <td></td>
+                                            <td class="bg-blue">Currency  Spent</td>
+                                            <td class="bg-blue">Forex Amt</td>
+                                            <td class="bg-blue">Conv. Rate</td>
+                                            <td class="bg-blue">INR Amount</td>
+                                            <td class="bg-lg-blue">Forex Amt</td>
+                                            <td class="bg-lg-blue">Conv. Rate</td>
+                                            <td class="bg-lg-blue">INR Amount</td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                        @for (int i = 0; i < item.ExpenseTypeId.Length; i++)
+                                        {
+                                            var diff = item.ClaimedTotalAmount[i] - item.ProcessedTotalAmount[i];
+                                            var expType = (ViewBag.ExpenseTypeList as IEnumerable<IOAS.Models.MasterlistviewModel>).FirstOrDefault(m => m.id == item.ExpenseTypeId[i]).name;
+                                            var cSpent = (ViewBag.CurrencyList as IEnumerable<IOAS.Models.MasterlistviewModel>).FirstOrDefault(m => m.id == item.ClaimedCurrencySpent[i]).name;
+                                            <tr>
+                                                <td id="lblDetExpType">@expType</td>
+                                                <td id="lblDetCCurrencySpent" class="bg-blue">@cSpent</td>
+                                                <td id="lblDetCForexAmt" class="bg-blue">@item.ClaimedForexAmt[i]</td>
+                                                <td id="lblDetCConvRate" class="bg-blue">@item.ClaimedConvRate[i]</td>
+                                                <td id="lblDetCTtlRate" class="bg-blue">@item.ClaimedTotalAmount[i]</td>
+                                                <td id="lblDetPForexAmt" class="bg-lg-blue">@item.ProcessedForexAmt[i]</td>
+                                                <td id="lblDetPConvRate" class="bg-lg-blue">@item.ProcessedConvRate[i]</td>
+                                                <td id="lblDetPTtlRate" class="bg-lg-blue">@item.ProcessedTotalAmount[i]</td>
+                                                <td id="lblDetdiffAmt">@diff</td>
+                                                <td id="lblDetBreakUpComments">@item.Remarks[i]</td>
+                                            </tr>
+                                        }
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="dis-none">
+
+                    <input name="TravelDetail.Index" value="@index" />
+                    @Html.TextBox(@detIndex + "TravelBillDetailId", @item.TravelBillDetailId)
+                    @Html.TextBox(@detIndex + "CountryId", @item.CountryId)
+                    @Html.TextBox(@detIndex + "Place", @item.Place)
+                    @Html.TextBox(@detIndex + "Purpose", @item.Purpose)
+                    @Html.TextBox(@detIndex + "InvoiceNumber", @item.InvoiceNumber)
+                    @Html.TextBox(@detIndex + "TravelFromDate", @item.TravelFromDate)
+                    @Html.TextBox(@detIndex + "TravelToDate", @item.TravelToDate)
+                    @Html.TextBox(@detIndex + "InvoiceAttachment", @item.InvoiceAttachment)
+                    @Html.TextBox(@detIndex + "DocumentName", @item.DocumentName)
+                    @Html.TextBox(@detIndex + "DocumentPath", @item.DocumentPath)
+                    @Html.TextBox(@detIndex + "DocumentActualName", @item.DocumentActualName)
+                    @for (int i = 0; i < item.CategoryId.Length; i++)
+                    {
+                        @Html.TextBox(@detIndex + "TravellerDetailId", @item.TravellerDetailId.ElementAtOrDefault(i))
+                        @Html.TextBox(@detIndex + "CategoryId", @item.CategoryId[i])
+                        @Html.TextBox(@detIndex + "TravellerName", @item.TravellerName[i])
+                        @Html.TextBox(@detIndex + "TravellerId", @item.TravellerId[i])
+                        @Html.TextBox(@detIndex + "Boarding", @item.Boarding[i])
+                        @Html.TextBox(@detIndex + "PerDiem", @item.PerDiem[i])
+                    }
+                    @for (int i = 0; i < item.ExpenseTypeId.Length; i++)
+                    {
+                        var diff = item.ClaimedTotalAmount[i] - item.ProcessedTotalAmount[i];
+                        @Html.TextBox(@detIndex + "BreakUpDetailId", @item.BreakUpDetailId.ElementAtOrDefault(i))
+                        @Html.TextBox(@detIndex + "ExpenseTypeId", @item.ExpenseTypeId[i])
+                        @Html.TextBox(@detIndex + "ClaimedCurrencySpent", @item.ClaimedCurrencySpent[i])
+                        @Html.TextBox(@detIndex + "ClaimedForexAmt", @item.ClaimedForexAmt[i])
+                        @Html.TextBox(@detIndex + "ClaimedConvRate", @item.ClaimedConvRate[i])
+                        @Html.TextBox(@detIndex + "ClaimedTotalAmount", @item.ClaimedTotalAmount[i])
+                        @Html.TextBox(@detIndex + "ProcessedForexAmt", @item.ProcessedForexAmt[i])
+                        @Html.TextBox(@detIndex + "ProcessedConvRate", @item.ProcessedConvRate[i])
+                        @Html.TextBox(@detIndex + "ProcessedTotalAmount", @item.ProcessedTotalAmount[i])
+                        @Html.TextBox(@detIndex + "DifferenceAmt", @diff)
+                        @Html.TextBox(@detIndex + "Remarks", @item.Remarks[i])
+                    }
+                </div>
+            </div>
+            
+        }
+    }
+</div>
+
+
+<script type="text/javascript">
+
+    $('#btnSaveDetail').click(function () {
+        if (!validateTravelDetail()) return false;
+        var detLen = $('#tdList > div').length;
+        var viewEles = $('#tdList div:first').clone();
+        var targetId = "viewDet_" + detLen;
+        $(viewEles).removeClass('dis-none');
+        $(viewEles).find('#btnMoreDetail').attr('data-target', "#" + targetId);
+        $(viewEles).find('#demo_1').attr('id', targetId)
+        $(viewEles).find('#lblDetInvoiceNo').text($('#InvoiceNumber').val());
+        $(viewEles).find('#lblDetCountry').text($('#CountryId option:selected').text());
+        $(viewEles).find('#lblDetPlace').text($('#Place').val());
+        $(viewEles).find('#lblDetPurpose').text($('#Purpose').val());
+        $(viewEles).find('#lblDetTtlExp').text($('#lblTtlExpense').text());
+        $(viewEles).find('#lblDetFromDate').text($('#TravelFromDate').val());
+        $(viewEles).find('#lblDetToDate').text($('#TravelToDate').val());
+        $(viewEles).find('#lblDetDuration').text($('#lblDuration').text());
+        $(viewEles).find('#lblDetTtlAllowance').text($('#lblTtlAllowance').text());
+        $(viewEles).find('#lblDetAllowancePerDay').text($('#lblPerDayAllow').text() + ' Per day @Html.Raw("@")INR');
+        $(viewEles).find('#lblDetAttachementName').text($('#InvoiceAttachment').val());
+
+        var index = $('#tdList > div:last').find("input[name='TravelDetail.Index']").val() || '0';
+        index = parseInt(index) + 1;
+        var newDiv = $('<div class="dis-none">');
+        var detailIndex = "TravelDetail[" + index + "].";
+        $('<input>').attr('type', 'hidden').attr('name', 'TravelDetail.Index').val(index).appendTo(newDiv);
+        $('<input>').attr('name', detailIndex + 'CountryId').val($('#CountryId').val()).appendTo(newDiv);
+        var tDetTr = $(viewEles).find('#tbodyViewTDet tr:first');        
+        $('#tbodyTraveller tr:not(:last-child)').each(function (i, ele) {
+            var clnTDetTr = $(tDetTr).clone();
+            var cat = $(ele).find('#CategoryId').val();
+            $('<input>').attr('name', detailIndex + 'CategoryId').val(cat).appendTo(newDiv);
+            //$('<input>').attr('name', detailIndex + 'TravellerName').val($(ele).find('#TravellerName').val()).appendTo(newDiv);
+            $('<input>').attr('name', detailIndex + 'TravellerId').val($(ele).find('#TravellerId').val()).appendTo(newDiv);
+            if (i == 0) {
+                $(tDetTr).find('#lblDetTravellerCategory').text($(ele).find('#CategoryId option:selected').text());
+                if (cat == 3) {
+                    $(tDetTr).find('#lblDetTravellerName').text($(ele).find('#TravellerName').val());
+                } else{
+                    //$(tDetTr).find('#lblDetTravellerName').text($(ele).find('#TravellerId option:selected').text());
+                    $(tDetTr).find('#lblDetTravellerName').text($(ele).find('#lblSelTravellerId').text());
+                }
+                $(tDetTr).find('#lblDetBoarding').text($(ele).find('#Boarding').val());
+                $(tDetTr).find('#lblDetPerDiem').text($(ele).find('#PerDiem').val());
+            } else {
+                $(clnTDetTr).find('#lblDetTravellerCategory').text($(ele).find('#CategoryId option:selected').text());
+                if (cat == 3) {
+                    $(clnTDetTr).find('#lblDetTravellerName').text($(ele).find('#TravellerName').val());
+                } else{
+                    //$(clnTDetTr).find('#lblDetTravellerName').text($(ele).find('#TravellerId option:selected').text());
+                    $(clnTDetTr).find('#lblDetTravellerName').text($(ele).find('#lblSelTravellerId').text());
+                }
+                $(clnTDetTr).find('#lblDetBoarding').text($(ele).find('#Boarding').val());
+                $(clnTDetTr).find('#lblDetPerDiem').text($(ele).find('#PerDiem').val());
+                $(viewEles).find('#tbodyViewTDet').append(clnTDetTr);
+            }
+        });
+        var tBUDetTr = $(viewEles).find('#tbodyViewBU tr:nth-child(2)');
+        var clnTBUDetTr = $(tBUDetTr).clone();
+        $('#tbodyBreakUpDetails tr:not(:last-child,:first-child)').each(function (i, ele) {
+            $('<input>').attr('name', detailIndex + 'ExpenseTypeId').val($(ele).find('#ExpenseTypeId').val()).appendTo(newDiv);
+            $('<input>').attr('name', detailIndex + 'ClaimedCurrencySpent').val($(ele).find('#ClaimedCurrencySpent').val()).appendTo(newDiv);
+            if (i == 0) {
+                $(tBUDetTr).find('#lblDetExpType').text($(ele).find('#ExpenseTypeId option:selected').text());
+                $(tBUDetTr).find('#lblDetCCurrencySpent').text($(ele).find('#ClaimedCurrencySpent option:selected').text());
+                $(tBUDetTr).find('#lblDetCForexAmt').text($(ele).find('#ClaimedForexAmt').val());
+                $(tBUDetTr).find('#lblDetCConvRate').text($(ele).find('#ClaimedConvRate').val());
+                $(tBUDetTr).find('#lblDetCTtlRate').text($(ele).find('#ClaimedTotalAmount').val());
+                $(tBUDetTr).find('#lblDetPForexAmt').text($(ele).find('#ProcessedForexAmt').val());
+                $(tBUDetTr).find('#lblDetPConvRate').text($(ele).find('#ProcessedConvRate').val());
+                $(tBUDetTr).find('#lblDetPTtlRate').text($(ele).find('#ProcessedTotalAmount').val());
+                $(tBUDetTr).find('#lblDetdiffAmt').text($(ele).find('#DifferenceAmt').val());
+                $(tBUDetTr).find('#lblDetBreakUpComments').text($(ele).find('#Remarks').val());
+            } else {
+                $(clnTBUDetTr).find('#lblDetExpType').text($(ele).find('#ExpenseTypeId option:selected').text());
+                $(clnTBUDetTr).find('#lblDetCCurrencySpent').text($(ele).find('#ClaimedCurrencySpent option:selected').text());
+                $(clnTBUDetTr).find('#lblDetCForexAmt').text($(ele).find('#ClaimedForexAmt').val());
+                $(clnTBUDetTr).find('#lblDetCConvRate').text($(ele).find('#ClaimedConvRate').val());
+                $(clnTBUDetTr).find('#lblDetCTtlRate').text($(ele).find('#ClaimedTotalAmount').val());
+                $(clnTBUDetTr).find('#lblDetPForexAmt').text($(ele).find('#ProcessedForexAmt').val());
+                $(clnTBUDetTr).find('#lblDetPConvRate').text($(ele).find('#ProcessedConvRate').val());
+                $(clnTBUDetTr).find('#lblDetPTtlRate').text($(ele).find('#ProcessedTotalAmount').val());
+                $(clnTBUDetTr).find('#lblDetdiffAmt').text($(ele).find('#DifferenceAmt').val());
+                $(clnTBUDetTr).find('#lblDetBreakUpComments').text($(ele).find('#Remarks').val());
+                $(viewEles).find('#tbodyViewBU').append(clnTBUDetTr);
+            }
+        });
+
+        var stepElements = $('#divTDetail').find("input").clone();
+        $(stepElements).each(function (idx, ele) {
+            var eleName = $(ele).attr("name");
+            $(ele).attr("name", detailIndex + eleName);
+            $(ele).attr("id", detailIndex + eleName);
+            $(newDiv).append(ele);
+        });
+        $(viewEles).append(newDiv);
+        $('#tdList').append(viewEles);
+        resetTravelDetails();
+    });
+
+    function resetTravelDetails() {
+        $('#divTDetail').find("input,select").val("");
+        //$('#CountryId option,#TravellerId option').attr('selected', false);
+        //$('#CountryId,#TravellerId').selectpicker('refresh');
+        $('#CountryId option').attr('selected', false);
+        $('#CountryId').selectpicker('refresh');
+
+        $("#lblDuration,#lblSelTravellerId").text('');
+        $("#lblPerDayAllow,#lblTtlAllowance,#lblOtherExpense,#lblTtlExpense").text('0.00');
+        $('#tbodyBreakUpDetails tr:not(:last-child,:first-child,:nth-child(2))').remove();
+        $('#tbodyTraveller tr:not(:last-child,:first)').remove();
+    }
+    function validateTravelDetail() {
+        var isValid = false;
+        var hadError = false;
+        var inputs = $(":input, textarea, select");
+        var stepElements = $('#divTDetail').find(inputs);
+        $(stepElements).each(function (idx, ele) {
+            if (!$(ele).is(':radio') && !$(ele).is(':checkbox') && !$(ele).is(':password')) {
+                isValid = $(ele).valid();
+                if (!isValid) { hadError = true; }
+            }
+        });
+        var travellerList = [];
+        var expTypeList = [];
+        $('input[name="TravellerId"]').each(function (idx, val) { travellerList.push($(val).val()); });
+        travellerList.sort();
+        for (var k = 1; k < travellerList.length; ++k) {
+            if (travellerList[k] == travellerList[k - 1]) {
+                $('#alert').html("Selected traveller already exist. Please select a different traveller.");
+                $('#Validation').modal('toggle');
+                return false;
+                hadError = true;
+            }
+        }
+        //$('select[name="ExpenseTypeId"]').each(function (idx, val) { expTypeList.push($(val).val()); });
+        //expTypeList.sort();
+        //for (var k = 1; k < expTypeList.length; ++k) {
+        //    if (expTypeList[k] == expTypeList[k - 1]) {
+        //        $('#alert').html("Selected expense type already exist. Please select a different expense type.");
+        //        $('#Validation').modal('toggle');
+        //        return false;
+        //        hadError = true;
+        //    }
+        //}
+        return !hadError;
+    }
+    $('#btnAddTraveller').click(function () {
+        var cln = $('#tbodyTraveller tr:first').clone().find("input[name!='PerDiem'],select").val("").end();
+        //$(cln).find('#TravellerId').parent().replaceWith(bootstrapSelect($(cln).find('#TravellerId').parent().clone(), "empty", '', '', false));
+        $(cln).find('a.dis-none').removeClass('dis-none');
+        $('#tbodyTraveller tr:last').before(cln);
+        calcTtlAllowance();
+    });
+    $('#btnAddBreakUp').click(function () {
+        var cln = $('#tbodyBreakUpDetails tr:nth-child(2)').clone().find("input,select").val("").end();
+        $(cln).find('a.dis-none').removeClass('dis-none');
+        $(cln).find('td.tdDDLTraveler').removeClass('dis-none');
+        $(cln).find('td.tdTxtTraveler').addClass('dis-none');
+        $('#tbodyBreakUpDetails tr:last').before(cln);
+    });
+    function setAutoComplete(ele,url,setId) {
+        $(ele).autocomplete({
+            select: function (event, ui) {
+                event.preventDefault();
+                $(ele).val(ui.item.label);
+                $(ele).closest('tr').find("#lblSelTravellerId").text(ui.item.label);
+                if (setId == true) {
+                    $(ele).closest('tr').find("input[name='TravellerId']").val(ui.item.value);
+                } else {
+                    $(ele).closest('tr').find("input[name='TravellerId']").val(ui.item.label);
+                }
+            },
+            focus: function (event, ui) {
+                event.preventDefault();
+                $(ele).val(ui.item.label);
+            },
+            source: function (request, response) {
+                $.getJSON(url,{ term: request.term },
+                 function (locationdata) {
+                     response(locationdata);
+                 });
+            },
+            minLength: 3
+        });
+    }
+    $(document).on('change', 'select[name="CategoryId"]', function () {
+        var selVal = $(this).val();
+        $(this).closest('tr').find("input[name='TravellerId']").val('');
+        $(this).closest('tr').find("input[name='autoComplete']").val('');
+        $(this).closest('tr').find("input[name='TravellerName']").val('');
+        if (selVal == 1) {
+            $(this).closest('tr').find("td.tdDDLTraveler").removeClass('dis-none');
+            $(this).closest('tr').find("td.tdTxtTraveler").addClass('dis-none');
+            $(this).closest('tr').find("input[name='TravellerId']").addClass('required');
+            var ele = $(this).closest('tr').find("input[name='autoComplete']");
+            $(ele).addClass('required');
+            $(this).closest('tr').find("input[name='TravellerName']").removeClass('required');
+            @*$.getJSON("@Url.Action("LoadPIList", "CoreAccounts")",
+             function (locationdata) {
+                 ele.parent().replaceWith(bootstrapSelect(ele.parent().clone(), "all", locationdata, '', true));
+             });*@
+            setAutoComplete(ele, "@Url.Action("LoadPIList", "CoreAccounts")", true)
+        } else if (selVal == 2) {
+            $(this).closest('tr').find("td.tdDDLTraveler").removeClass('dis-none');
+            $(this).closest('tr').find("td.tdTxtTraveler").addClass('dis-none');
+            $(this).closest('tr').find("input[name='TravellerId']").addClass('required');
+            var ele = $(this).closest('tr').find("input[name='autoComplete']");
+            $(ele).addClass('required');
+            $(this).closest('tr').find("input[name='TravellerName']").removeClass('required');
+            setAutoComplete(ele, "@Url.Action("LoadStudentList", "CoreAccounts")", false);
+            @*$.getJSON("@Url.Action("LoadStudentList", "CoreAccounts")",
+             function (locationdata) {
+                 ele.parent().replaceWith(bootstrapSelect(ele.parent().clone(), "all", locationdata, '', true, true));
+             });*@
+        }  else if (selVal == 4) {
+            $(this).closest('tr').find("td.tdDDLTraveler").removeClass('dis-none');
+            $(this).closest('tr').find("td.tdTxtTraveler").addClass('dis-none');
+            $(this).closest('tr').find("input[name='TravellerId']").addClass('required');
+            var ele = $(this).closest('tr').find("input[name='autoComplete']");
+            $(ele).addClass('required');
+            $(this).closest('tr').find("input[name='TravellerName']").removeClass('required');
+            setAutoComplete(ele, "@Url.Action("LoadACProjectStaff", "CoreAccounts")", true);
+        }
+        else if (selVal == 5) {
+            $(this).closest('tr').find("td.tdDDLTraveler").removeClass('dis-none');
+            $(this).closest('tr').find("td.tdTxtTraveler").addClass('dis-none');
+            $(this).closest('tr').find("input[name='TravellerId']").addClass('required');
+            var ele = $(this).closest('tr').find("input[name='autoComplete']");
+            $(ele).addClass('required');
+            $(this).closest('tr').find("input[name='TravellerName']").removeClass('required');
+            setAutoComplete(ele, "@Url.Action("LoadInstituteStaffList", "CoreAccounts")", true);
+        }else if (selVal == 6) {
+            $(this).closest('tr').find("td.tdDDLTraveler").removeClass('dis-none');
+            $(this).closest('tr').find("td.tdTxtTraveler").addClass('dis-none');
+            $(this).closest('tr').find("input[name='TravellerId']").addClass('required');
+            var ele = $(this).closest('tr').find("input[name='autoComplete']");
+            $(ele).addClass('required');
+            $(this).closest('tr').find("input[name='TravellerName']").removeClass('required');
+            setAutoComplete(ele, "@Url.Action("LoadAdhocStaffList", "CoreAccounts")", true);
+        }else if (selVal == 3) {
+            $(this).closest('tr').find("td.tdDDLTraveler").addClass('dis-none');
+            $(this).closest('tr').find("td.tdTxtTraveler").removeClass('dis-none');
+            $(this).closest('tr').find("input[name='autoComplete']").removeClass('required');
+            var ele = $(this).closest('tr').find("input[name='TravellerId']");
+            $(ele).removeClass('required');
+            $(this).closest('tr').find("input[name='TravellerName']").addClass('required');
+
+        }
+    });
+    $(document).on('change', 'input[name="InvoiceAttachment"]', function () {
+        var file = $(this).val();
+        if (file != "") {
+            var file_size = $(this)[0].files[0].size;
+            var extension = file.substr((file.lastIndexOf('.') + 1)).toLowerCase();
+            switch (extension) {
+                case 'doc':
+                case 'docx':
+                case 'pdf':
+                    isValidExten = true;
+                    break;
+                default:
+                    isValidExten = false;
+            }
+            if (isValidExten == false) {
+                $('#alert').html("Please upload any one of these type file [doc, docx, pdf].");
+                $('#Validation').modal('toggle');
+                $(this).val('');
+                return false;
+            }
+            else if (file_size > 5242880) {
+                $('#alert').html("You can upload the file up to 5 MB.");
+                $('#Validation').modal('toggle');
+                $(this).val('');
+                return false;
+            }
+        }
+    });
+    $(document).on('click', 'a.removeBreakUpDetail', function () {
+        $(this).closest('tr').remove();
+        calcOtherExpnse();
+    });
+    $(document).on('click', 'a.removeTravellerDetail', function () {
+        $(this).closest('tr').remove();
+        calcTtlAllowance();
+    });
+    $(document).on('click', 'a[name="removeTDetails"]', function () {
+        $(this).closest('div.divDetail').remove();
+        calcOverallExpense();
+    });
+    $('#CountryId').change(function () {
+        var selVal = $(this).val();
+        $('#lblPerDayAllow').text('');
+        $('#tbodyTraveller input[name="PerDiem"]').val('');
+        if (selVal != '') {
+            $.getJSON("@Url.Action("GetTravellerDailyAllowance", "CoreAccounts")", { countryId: selVal },
+             function (allow) {
+                 $('#lblPerDayAllow').text(allow);
+                 $('#tbodyTraveller input[name="PerDiem"]').val(allow);
+             });
+        }
+    });
+    $("#TravelFromDate, #TravelToDate").change(function () {
+        calcDateDiff();
+        calcTtlAllowance();
+    });
+    function calcBreakUpByRow(ele) {
+        var tr = $(ele).closest('tr');
+        var cForex = parseFloat($(tr).find('input[name="ClaimedForexAmt"]').val()) || 0;
+        var cConvR = parseFloat($(tr).find('input[name="ClaimedConvRate"]').val()) || 0;
+        var cTtl = (cForex * cConvR).toFixed(2);
+        $(tr).find('input[name="ClaimedTotalAmount"]').val(cTtl);
+        var pForex = parseFloat($(tr).find('input[name="ProcessedForexAmt"]').val()) || 0;
+        var pConvR = parseFloat($(tr).find('input[name="ProcessedConvRate"]').val()) || 0;
+        var pTtl = (pForex * pConvR).toFixed(2);
+        $(tr).find('input[name="ProcessedTotalAmount"]').val(pTtl);
+        $(tr).find('input[name="DifferenceAmt"]').val((cTtl - pTtl).toFixed(2));
+        calcOtherExpnse();
+    }
+    function calcOtherExpnse() {
+        var otherExp = 0;
+        $('#tbodyBreakUpDetails input[name="ProcessedTotalAmount"]').each(function () {
+            otherExp = otherExp + (parseFloat($(this).val()) || 0);
+        });
+        $('#lblOtherExpense').text(otherExp.toFixed(2));
+        calcTtlExpense();
+    }
+    function calcDateDiff() {
+        var strDate = $("#TravelFromDate").val();
+        var clsDate = $("#TravelToDate").val();
+        if (strDate != '' && clsDate != '') {
+            var startDate = moment(parseDate(strDate));
+            var closeDate = moment(parseDate(clsDate));
+
+            var mins = closeDate.diff(startDate, 'minutes');
+            if (mins < 0) {
+                $('#alert').html("To Date must be greater than from date.");
+                $('#Validation').modal('toggle');
+                $("#TravelToDate").val('');
+                return false;
+            }
+            var result = '';
+            var years = closeDate.diff(startDate, 'year');
+            startDate.add(years, 'years');
+
+            var months = closeDate.diff(startDate, 'months');
+            startDate.add(months, 'months');
+
+            var days = closeDate.diff(startDate, 'days');
+            if (years > 1) {
+                result = years + ' years ';
+            } else if (years == 1) {
+                result = years + ' year ';
+            }
+            if (months > 1) {
+                result = result + months + ' months ';
+            } else if (months == 1) {
+                result = result + months + ' month ';
+            }
+            if (days > 1) {
+                result = result + days + ' days';
+            } else if (days == 1) {
+                result = result + days + ' day';
+            }
+            $('#lblDuration').html(result);
+        }
+    }
+    function calcTtlAllowance() {
+        var strDate = $("#TravelFromDate").val();
+        var clsDate = $("#TravelToDate").val();
+        //var perDayAllow = parseFloat($('#lblPerDayAllow').html());
+        //var ttlTraveller = $('#tbodyTraveller tr').length - 1;
+        var ttlPerdiem = 0;
+        $('#tbodyTraveller input[name="PerDiem"]').each(function () {
+            ttlPerdiem = ttlPerdiem + (parseFloat($(this).val()) || 0);
+        });
+        //if (strDate != '' && clsDate != '') {
+        //    var startDate = moment(parseDate(strDate));
+        //    var closeDate = moment(parseDate(clsDate));
+        //    var days = closeDate.diff(startDate, 'days');
+        //    $('#lblTtlAllowance').text((ttlPerdiem * days).toFixed(2));
+        //}
+        $('#lblTtlAllowance').text(ttlPerdiem.toFixed(2));
+        calcTtlExpense();
+    }
+    function calcTtlExpense() {
+        var ttlAllw = parseFloat($('#lblTtlAllowance').html()) || 0;
+        var otherExp = parseFloat($('#lblOtherExpense').html()) || 0;
+        $('#lblTtlExpense').text((ttlAllw + otherExp).toFixed(2));
+        calcOverallExpense();
+    }
+    function calcOverallExpense() {
+        var overallExp = parseFloat($('#lblTtlExpense').html()) || 0;
+        //var advPaid = parseFloat($('#AdvanceAmount').val()) || 0;
+        var piAdvAmt = parseFloat($('#AdvanceValueWOClearanceAgent').val()) || 0;
+        $('#tdList #lblDetTtlExp').each(function () {
+            overallExp = overallExp + (parseFloat($(this).text()) || 0);
+        });
+        var payableVal = 0;
+        if (overallExp > piAdvAmt){
+            payableVal = overallExp;
+            $('#lblPayRecHd').text('Payable');
+            $('#lblPayRecValue').text((overallExp - piAdvAmt).toFixed(2));
+        }else{
+            payableVal = piAdvAmt;
+            $('#lblPayRecHd').text('Receivable');
+            $('#lblPayRecValue').text((piAdvAmt - overallExp).toFixed(2));
+        }
+        $('#lblOverallExp').text(overallExp.toFixed(2));
+        $('#OverallExpense').val(overallExp.toFixed(2));
+        $('#PayableValue').val(payableVal.toFixed(2));
+        $('#lblPayableValue').text(payableVal.toFixed(2));
+        $('#GetADVCommitment_f').val('true');
+        showCommitmentAmount();
+        //$('#NeedUpdateTransDetail').val('true');
+    }
+</script>

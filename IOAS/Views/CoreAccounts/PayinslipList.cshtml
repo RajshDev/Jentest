@@ -1,0 +1,196 @@
+﻿
+@{
+    ViewBag.Title = "Pay in Slip";
+    ViewBag.Subtitle = "Ad hoc Payment List";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<div class="row hd-tt-bg">
+    <div class="col-md-4">
+        <h3>Pay in Slip List</h3>
+    </div>
+
+</div>
+<div class="row mt30" id="gridlist">
+    <div class="page-wrapper">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="custom-jsgrid-normal">
+                    <div id="PayinSlipList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="popup"></div>
+
+<script type="text/javascript">
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+    });
+    var DateField = function (config) {
+        jsGrid.Field.call(this, config);
+    };
+
+    DateField.prototype = new jsGrid.Field({
+        sorter: function (date1, date2) {
+            return new Date(date1) - new Date(date2);
+        },
+
+        itemTemplate: function (value) {
+            return new Date(value).toDateString();
+        },
+
+        filterTemplate: function () {
+            var now = new Date();
+            this._fromPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() - 1), changeYear: true });
+            this._toPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() + 1), changeYear: true });
+            return $("<div>").append(this._fromPicker).append(this._toPicker);
+        },
+
+        insertTemplate: function (value) {
+            return this._insertPicker = $("<input>").datepicker({ defaultDate: new Date() });
+        },
+
+        editTemplate: function (value) {
+            return this._editPicker = $("<input>").datepicker().datepicker("setDate", new Date(value));
+        },
+
+        insertValue: function () {
+            return this._insertPicker.datepicker("getDate").toISOString();
+        },
+
+        editValue: function () {
+            return this._editPicker.datepicker("getDate").toISOString();
+        },
+
+        filterValue: function () {
+            return {
+                from: this._fromPicker.datepicker("getDate"),
+                to: this._toPicker.datepicker("getDate")
+            };
+        }
+    });
+    jsGrid.fields.date = DateField;
+    var db;
+    $("#PayinSlipList").jsGrid({
+        paging: true,
+        pageIndex: 1,
+        pageSize: 10,
+        editing: false,
+        filtering: true,
+        pageLoading: true,
+        autoload: true,
+        controller: {
+
+            loadData: function (filter) {
+                var searchData = [];
+                searchData = {
+                    pageIndex: filter.pageIndex,
+                    pageSize: filter.pageSize,
+                    SearchINInvoiceNumber: filter.InvoiceNumber,
+                    SearchINAgency: filter.SponsoringAgencyName,
+                    SearchINProjectNumber: filter.ProjectNumber,
+                    SearchINPayslipNumber: filter.PaySlipReferenceNumber,
+                    SearchINStatus: filter.Status,
+                    AmountReceived: filter.AmountReceived,
+                    FromDate: $('#FromDate').val() || null,
+                    ToDate: $('#ToDate').val() || null
+                },
+                filter.model = searchData;
+                var deferred = $.Deferred();
+                $.ajax({
+                    type: "post",
+                    url: 'GetPayinslipList',
+                    data: JSON.stringify(filter),
+                    contentType: "application/json; charset=utf-8",
+                    success: function (result) {
+                        var da = {
+                            data: result.Data,
+                            itemsCount: result.TotalRecords
+                        }
+                        deferred.resolve(da);
+                    },
+                    error: function (err) {
+                        console.log("error : " + err);
+                    }
+
+                });
+                return deferred.promise();
+            }
+
+        },
+
+        fields: [
+            { name: "Sno", title: "S.No", editing: false, width: 40 },
+            { type: "number", name: "InvoiceId", title: "Invoice Id", visible: false, align: "left" },
+            { type: "number", name: "ProjectID", title: "Project Id", visible: false, align: "left" },
+            { type: "number", name: "PayinslipId", title: "Pay in slip Id", visible: false, align: "left" },
+           // { type: "number", name: "Projectid", title: "Invoice Id", visible: false, align: "left" },
+            { type: "text", name: "PaySlipReferenceNumber", title: "Pay in Slip Number", align: "left" },
+            { type: "text", name: "InvoiceNumber", title: "Invoice Number", editing: false, align: "left" },
+            { type: "text", name: "SponsoringAgencyName", title: "Agency Name", align: "left" },
+            //{ type: "text", name: "NameofPI", title: "PI Name", editing: false, align: "left" },
+            //{ type: "text", name: "TypeofInvoice", title: "Invoice Type", editing: false, align: "left" },
+            //{ name: "TotalInvoiceValue", title: "Invoice Value", editing: false, align: "left"},
+            { name: "Invoicedatestrng", title: "Invoice Date", editing: false, align: "left", type: "date" },
+            { name: "PayinslipDate", title: "Pay in Slip Date", editing: false, align: "left", type: "date" },
+            { type: "text", name: "AmountReceived", title: "Amount Received", editing: false, align: "left" },
+            { type: "text", name: "Status", title: "Status", editing: false, align: "left" },
+             {
+                 type: "control", editButton: false, deleteButton: false, title: "Action",
+                 itemTemplate: function (value, item) {
+                     var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+
+                     statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }, { id: "Print", name: "Print" }]
+
+                     var $customSelect = $("<select>")
+                         .attr("class", "form-control").prop("selectedIndex", "")
+
+                     $.each(statusList, function (index, itemData) {
+                         $customSelect.append($('<option/>', {
+
+                             value: itemData.id,
+                             text: itemData.name
+                         }));
+                     });
+
+                     $customSelect.change(function (e) {
+                         var selVal = $(this).val();
+                         if (selVal == "View") {
+                             var url = '@Url.Action("PayinslipView", "CoreAccounts")?Payinslipid=' + item.PayinslipId;
+                             window.location.href = url;
+                         }
+                         else if (selVal == "Print") {
+                              var url = '@Url.Action("Payinslipdownload", "ReportMaster")?PayinslipId=' + item.PayinslipId;
+                             window.open(url, '_blank');
+                         }
+
+                         $(this).val("");
+                         return false;
+                         e.stopPropagation();
+                     });
+
+                     return $result.add($customSelect);
+                 },
+                 _createFilterSwitchButton: function () {
+                     return this._createOnOffSwitchButton("filtering", this.searchModeButtonClass, false);
+                 }
+             }
+
+
+        ],
+
+    });
+    $("#PayinSlipList").jsGrid("option", "filtering", false);
+
+</script>

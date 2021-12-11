@@ -1,0 +1,107 @@
+﻿@model IOAS.Models.CashBookModel
+@{
+    ViewBag.Title = "Committee Consolidate report";
+    ViewBag.Subtitle = "Committee Consolidate report";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+<div class="row hd-tt-bg ">
+    <div class="col-md-12">
+        <h4><b>Committee Consolidate report</b></h4>
+    </div>
+</div>
+
+<div class="row">
+    <div class="page-wrapper">
+        <div class="col-md-12 mt30">
+            <div class="row">
+                <div class="col-md-12">
+
+                    <div class="vh-tt-bg vh-tt-bg-adj mt-null">
+                        <div class="vh-frm-bg bl-lg-panel-box pb-null br-adj-null">
+                            <div class="row">
+
+                                <div class="">
+                                    <div class="col-md-12">
+                                        <div class="grey-bg-adj mb-lg">
+                                            <div class="row">
+                                                <div class="col-md-12">
+
+
+                                                    <div class="row mt-md">
+
+                                                        <div class="col-md-3 ">
+                                                            <div class="form-group custom-form-group ">
+
+                                                                <label>From:<label style="color:red">*</label> </label><br />
+                                                                @Html.EditorFor(m => m.FromDate, new { @class = "form-control", @id = "datepicker1" })
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <div class="form-group custom-form-group ">
+                                                                <label>To: <label style="color:red">*</label> </label><br />
+                                                                @Html.EditorFor(m => m.ToDate, new { @class = "form-control", @id = "datepicker2" })
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div class="col-md-12 mt-md mb-lg text-center">
+                <input type="submit" value="Download PDF" class="btn btn-primary" id="btnSubmit" />
+                <input type="submit" value="Download Excel" class="btn btn-primary" id="btnExcelSubmit" />
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    var errMsg = '@TempData["errMsg"]';
+    if (errMsg != '') {
+        $('#FailedAlert').html(errMsg);
+        $('#Failed').modal('toggle');
+    }
+    $('#FromDate,#ToDate').datepicker({ dateFormat: 'dd-MM-yy', changeYear: true });
+    $('#btnSubmit').click(function () {
+        var fdate = $('#FromDate').val();
+        var tdate = $('#ToDate').val();
+        if (fdate != "" && tdate != "") {
+            var url = "@Url.Action("GetApprovedApplicationsReport", "RCTReportMaster")?fromdate=" + fdate + "&todate=" + tdate;
+            window.location.href = url;
+        }
+        else {
+            $.alert('Please enter from date and to date');
+            return;
+        }
+
+        //  $("#myModal").modal('toggle');
+    });
+    $('#btnExcelSubmit').click(function () {
+        var fdate = $('#FromDate').val();
+        var tdate = $('#ToDate').val();
+        if (fdate != "" && tdate != "") {
+            var url = "@Url.Action("GetApprovedApplicationsReportExcel", "RCTReportMaster")?fromdate=" + fdate + "&todate=" + tdate;
+            window.location.href = url;
+        }
+        else {
+            $.alert('Please enter from date and to date');
+            return;
+        }
+
+        //  $("#myModal").modal('toggle');
+    });
+</script>

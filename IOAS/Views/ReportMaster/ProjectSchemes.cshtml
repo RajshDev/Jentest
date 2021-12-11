@@ -1,0 +1,119 @@
+﻿@model IOAS.Models.AgencyReportModel
+
+@{
+    ViewBag.Title = "ProjectSchemes";
+    ViewBag.Subtitle = "Reports";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+
+<div class="row hd-tt-bg ">
+    <div class="col-md-12">
+        <h4><b>Project Schemes</b></h4>
+    </div>
+</div>
+
+<div class="row">
+    <div class="page-wrapper">
+        <div class="col-md-12 mt30">
+
+
+
+            <div class="row">
+
+                <div class="col-md-12">
+
+                    <div class="vh-tt-bg vh-tt-bg-adj mt-null">
+                        <div class="vh-frm-bg bl-lg-panel-box pb-null br-adj-null">
+                            <div class="row">
+
+                                <div class="">
+                                    <div class="col-md-12">
+                                        <div class="grey-bg-adj mb-lg">
+                                            <div class="row">
+                                                <div class="col-md-12">
+
+
+                                                    <div class="row mt-md">
+
+
+                                                        <div class="col-md-3 ">
+                                                            <div class="form-group custom-form-group ">
+                                                                <label class="required">From Date </label><br />
+                                                                @Html.TextBoxFor(m => m.FromDate, new { @class = "form-control", @id = "FromDate", @autocomplete = "off" })
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-md-3 ">
+                                                            <div class="form-group custom-form-group ">
+                                                                <label class="required">To Date </label><br />
+                                                                @Html.TextBoxFor(m => m.ToDate, new { @class = "form-control", @id = "ToDate", @autocomplete = "off" })
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div class="col-md-12 mt-md mb-lg text-center">
+                <input type="submit" value="Get Report" class="btn btn-primary" id="btnSubmit" />
+
+            </div>
+        </div>
+    </div>
+
+</div>
+<div id="ValidationModal" class="modal fade modal-warning" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-warning"></i>
+                <h3 class="modal-title">Warning</h3>
+            </div>
+            <div class="modal-body">
+
+                <p id="MsgValidation">Category field is required </p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div id="popup"></div>
+<script>
+
+    $('#FromDate, #ToDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
+    $('#btnSubmit').click(function () {
+        var FromDate=$("#FromDate").val();
+        var ToDate = $("#ToDate").val();
+
+        if (FromDate != null && FromDate != "" && ToDate != null && ToDate != "") {
+            var url = '@Url.Action("ProjectScheme", "Reports")?fdate=' + FromDate + "&tdate=" + ToDate;
+            window.location.href = url;
+        } else {
+            $('#FailedAlert').html("From Date,To Date field required");
+            $('#Failed').modal('toggle');
+        }
+
+
+    });
+</script>

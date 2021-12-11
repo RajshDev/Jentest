@@ -1,0 +1,516 @@
+﻿@model IOAS.Models.AnnouncementMasterModel
+@{
+    Layout = null;
+}
+
+<div class="cust-tab row" style="display:none;">
+    <div class="page-wrapper mt30">
+        <div class="col-md-12">
+            <div class="row">
+                <div class="col-md-12" id="divCommonWiseShortlist">
+                    <div class="bl-lg-panel-box pb-null">
+                        <div class="cmn-panel-box">
+                            <div class="row ">
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Announcement Title</label><br />
+                                        @Html.DisplayFor(M => M.AnnouncementTitle)
+                                    </div>
+                                </div>
+                                @*<div class="col-md-4">
+                                        <div class="form-group custom-form-group">
+                                            <label class="required">Announcement </label><br />
+                                            @Html.DisplayFor(M => M.AnnouncementType)
+                                        </div>
+                                    </div>*@
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Announcement Category</label>
+                                        @Html.DisplayFor(M => M.AnnouncementCategory)
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">DA Comments  </label>
+                                        <br>
+                                        @Html.DisplayFor(M => M.DAComments)
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label>Mode of request</label><br>
+                                        @Html.DisplayFor(m => Model.ModeOfRequest)
+                                    </div>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="form-group custom-form-group">
+                                        <label>Requested By</label><br>
+                                        @Html.DisplayFor(m => Model.AnnouncementRequestBy)
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Request Receive Date  </label>
+                                        <br>
+                                        @Html.DisplayFor(M => M.strRequestReceiveDate)
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group  ">
+                                        <label class="required">Announcement Closure Date</label>
+                                        <br>
+                                        @Html.DisplayFor(M => M.strAnnouncementClosureDate)
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group  ">
+                                        <label class="required">Announcement Publish</label> <br>
+                                        @if (Model.Naukri)
+                                        {
+                                            @Html.CheckBox("isNaukri", true, new { @id = "AnnouncementPlatFormView", @Disabled = "Disabled" })@:&nbsp; Naukri<br>
+                                         }
+                                        else
+                                        {
+                                            @Html.CheckBox("isNaukri", false, new { @id = "AnnouncementPlatFormView", @Disabled = "Disabled" })@:&nbsp; Naukri<br>
+                                        }
+                                        @if (Model.indeed)
+                                        {
+                                            @Html.CheckBox("isindeed", true, new { @id = "AnnouncementPlatFormView", @Disabled = "Disabled" })@:&nbsp; indeed<br>
+                                        }
+                                        else
+                                        {
+                                            @Html.CheckBox("isindeed", false, new { @id = "AnnouncementPlatFormView", @Disabled = "Disabled" })@:&nbsp; indeed<br>
+                                        }
+
+                                        @if (Model.linkedin)
+                                        {
+                                            @Html.CheckBox("islinkedin", true, new { @id = "AnnouncementPlatFormView", @Disabled = "Disabled" })@:&nbsp; linkedin<br>
+                                        }
+                                        else
+                                        {
+                                            @Html.CheckBox("islinkedin", false, new { @id = "AnnouncementPlatFormView", @Disabled = "Disabled" })@:&nbsp; linkedin<br>
+                                        }
+                                        @if (Model.Recruitmentportal)
+                                        {
+                                            @Html.CheckBox("isRecruitmentportal", true, new { @id = "AnnouncementPlatFormView", @Disabled = "Disabled" })@:&nbsp; Recruitment portal <br>
+                                        }
+                                        else
+                                        {
+                                            @Html.CheckBox("isRecruitmentportal", false, new { @id = "AnnouncementPlatFormView", @Disabled = "Disabled" })@:&nbsp; Recruitment portal <br>
+                                        }
+                                        @if (Model.Others)
+                                        {
+                                            @Html.CheckBox("isOthers", true, new { @id = "AnnouncementPlatFormView", @Disabled = "Disabled" })@:&nbsp; Others<br>
+                                         }
+                                        else
+                                        {
+                                            @Html.CheckBox("isOthers", false, new { @id = "AnnouncementPlatFormView", @Disabled = "Disabled" })@:&nbsp; Others<br>
+                                         }
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group  ">
+                                        <label class="required">Interview schedule date</label>
+                                        <br />
+                                        @if (Model.AnnouncementID > 0 && Model.StatusID == 6)
+                                        {
+                                            @Html.EditorFor(m => m.InterviewDate, new { @class = "form-control cm-dt-fd", @id = "InterviewScheduleDate", @autocomplete = "off", @readonly = true })
+                                            <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.InterviewDate)</div>
+                                        }
+                                        else
+                                        {
+                                            @Html.DisplayFor(m => m.strInterviewDate)
+                                            @Html.HiddenFor(m => m.InterviewDate)
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6" id="divProjectWiseShortlist" style="display:none">
+
+
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="bl-lg-panel-box pb-null" id="DesignationTab2">
+                        <div class="cmn-panel-box">
+                            <div class="grey-bg-adj mb-lg">
+                                <div class="row rc-tb-scrl">
+                                    <div class="col-md-12">
+                                        <table class="table alter-table mb-null scrl-table">
+                                            <thead>
+                                                <tr>
+                                                    <th style="width:150px;">Designation Code</th>
+                                                    <th style="width:250px;">Designation</th>
+                                                    <th style="width:250px;">Project Number</th>
+                                                    <th style="width:150px;">Vacancies </th>
+                                                    <th style="width:400px;">Qualification / Experience</th>
+                                                    <th style="width:250px;">Pay Range</th>
+                                                    <th style="width:250px;">Total Applicants<br> Number</th>
+                                                    <th style="width:250px;">Shortlisted Applicants<br> Number</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+
+                                                @for (int i = 0; i < Model.DesignationDetails.Count; i++)
+                                                {
+                                                    var Classrequired = string.Empty;
+                                                    <tr>
+                                                        <td>
+                                                            @Html.TextBoxFor(m => Model.DesignationDetails[i].DesignationCode, new { @class = "form-control", @id = "DesignationCode_" + i, @autocomplete = "off", @Disabled = "Disabled" })
+                                                        </td>
+                                                        <td>
+                                                            @Html.TextBoxFor(m => Model.DesignationDetails[i].Designation, new { @class = "form-control", @id = "Designation_" + i, @autocomplete = "off", @Disabled = "Disabled" })
+                                                        </td>
+                                                        <td>
+                                                            @Html.TextBoxFor(m => Model.DesignationDetails[i].ProjectNumber, new { @class = "form-control", @id = "ProjectNumber_" + i, @autocomplete = "off", @Disabled = "Disabled" })
+                                                            @Html.HiddenFor(m => Model.DesignationDetails[i].ProjectID, new { @class = "form-control", @id = "ProjectID_" + i, @Disabled = "Disabled" })
+                                                        </td>
+                                                        <td>
+                                                            @Html.TextBoxFor(m => m.DesignationDetails[i].Vacancies, new { @class = "form-control", @id = "Vacancies_" + i, @autocomplete = "off", @onkeypress = "return isNumberKey(event)", @Disabled = "Disabled" })
+                                                        </td>
+                                                        <td>
+                                                            @Html.TextAreaFor(m => m.DesignationDetails[i].Qualification, new { @class = "form-control", @id = "Qualification_" + i, @autocomplete = "off", @Disabled = "Disabled" })
+                                                        </td>
+                                                        <td>
+                                                            <table>
+                                                                <tbody>
+                                                                    <tr>
+                                                                        <td class="mr-sm">Minimum @Html.TextBoxFor(m => m.DesignationDetails[i].MinSalary, new { @class = "form-control", @id = "MinSalary_" + i, @autocomplete = "off", @onkeypress = "return isNumberKey(event)", @Disabled = "Disabled" })</td>
+                                                                        <td>Maximum @Html.TextBoxFor(m => m.DesignationDetails[i].MaxSalary, new { @class = "form-control", @id = "MaxSalary_" + i, @autocomplete = "off", @onkeypress = "return isNumberKey(event)", @Disabled = "Disabled" })</td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </td>
+                                                        <td>
+                                                            @if (Model.StatusID > 6)
+                                                            {
+                                                                @Html.TextBoxFor(m => m.DesignationDetails[i].TotalApplicant, new { @class = "form-control", @id = "TotalApplicant_" + i, @autocomplete = "off", @onkeypress = "return isNumberKey(event)", @style = "width:70%", @Disabled = "Disabled" })
+                                                                @Html.HiddenFor(m => m.DesignationDetails[i].TotalApplicant, new { @id = "HdnTotalApplicant_" + i })
+                                                                if (Model.DesignationDetails[i].TotalApplicantDoc != null)
+                                                                {
+                                                                    @Html.ActionLink(Model.DesignationDetails[i].TotalApplicantDoc.Split('_').LastOrDefault(), "ShowDocument", new { Controller = "Account", filepath = "RCTAnnouncementDocuments", file = Model.DesignationDetails[i].TotalApplicantDoc }, new { @target = "_blank" })
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                if (Model.DesignationDetails[i].TotalApplicantDoc != null)
+                                                                {
+                                                                    @Html.ActionLink(Model.DesignationDetails[i].TotalApplicantDoc.Split('_').LastOrDefault(), "ShowDocument", new { Controller = "Account", filepath = "RCTAnnouncementDocuments", file = Model.DesignationDetails[i].TotalApplicantDoc }, new { @target = "_blank" })
+
+                                                                }
+                                                                else
+                                                                {
+                                                                    //Classrequired = " required";
+                                                                    Classrequired = "";
+                                                                }
+                                                                @Html.TextBoxFor(m => m.DesignationDetails[i].TotalApplicant, new { @class = "form-control", @id = "TotalApplicant_" + i, @autocomplete = "off", @onkeypress = "return isNumberKey(event)", @style = "width:70%" })
+                                                                if (!string.IsNullOrEmpty(Classrequired))
+                                                                {
+                                                                    <input class=@Classrequired type="file" name="DesignationDetails[@i].TotalApplicantFile" id="TotalApplicatsFile_@i" />
+                                                                }
+                                                                else
+                                                                {
+                                                                    <input type="file" name="DesignationDetails[@i].TotalApplicantFile" id="TotalApplicatsFile_@i" />
+                                                                }
+                                                                @Html.ValidationMessage("DesignationDetails[" + i + "].TotalApplicantFile")
+                                                                Classrequired = "";
+                                                            }
+
+                                                        </td>
+                                                        <td>
+                                                            @if (Model.StatusID > 6)
+                                                            {
+                                                                @Html.TextBoxFor(m => m.DesignationDetails[i].ShortlistedApplicant, new { @class = "form-control", @id = "ShortlistedApplicant_" + i, @autocomplete = "off", @onkeypress = "return isNumberKey(event)", @style = "width:70%", @Disabled = "Disabled" })
+                                                                @Html.HiddenFor(m => m.DesignationDetails[i].ShortlistedApplicant, new { @id = "HdnShortlistedApplicant_" + i })
+                                                                if (Model.DesignationDetails[i].ShortlistedApplicantDoc != null)
+                                                                {
+                                                                    @Html.ActionLink(Model.DesignationDetails[i].ShortlistedApplicantDoc.Split('_').LastOrDefault(), "ShowDocument", new { Controller = "Account", filepath = "RCTAnnouncementDocuments", file = Model.DesignationDetails[i].ShortlistedApplicantDoc }, new { @target = "_blank" })
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                if (Model.DesignationDetails[i].ShortlistedApplicantDoc != null)
+                                                                {
+                                                                    @Html.ActionLink(Model.DesignationDetails[i].ShortlistedApplicantDoc.Split('_').LastOrDefault(), "ShowDocument", new { Controller = "Account", filepath = "RCTAnnouncementDocuments", file = Model.DesignationDetails[i].ShortlistedApplicantDoc }, new { @target = "_blank" })
+                                                                }
+                                                                else
+                                                                {
+                                                                    //Classrequired = " required";
+                                                                    Classrequired = "";
+                                                                }
+                                                                @Html.TextBoxFor(m => m.DesignationDetails[i].ShortlistedApplicant, new { @class = "form-control" + @Classrequired, @id = "ShortlistedApplicant_" + i, @autocomplete = "off", @onkeypress = "return isNumberKey(event)", @style = "width:70%", @readonly = "readonly" })
+                                                                if (!string.IsNullOrEmpty(Classrequired))
+                                                                {
+                                                                    <input class=@Classrequired type="file" name="DesignationDetails[@i].ShortlistedApplicantFile" id="ShortlistedApplicantFile_@i" />
+                                                                }
+                                                                else
+                                                                {
+                                                                    <input type="file" name="DesignationDetails[@i].ShortlistedApplicantFile" id="ShortlistedApplicantFile_@i" />
+
+                                                                }
+                                                                @Html.ValidationMessage("DesignationDetails[" + i + "].ShortlistedApplicantFile")
+                                                                Classrequired = "";
+                                                            }
+
+                                                        </td>
+                                                    </tr>
+                                                }
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="bl-lg-panel-box pb-null" id="CommitteeDetailsDiv">
+                        <div class="cmn-panel-box">
+                            <div class="grey-bg-adj mb-lg">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <h4>Proposed Committee Members</h4>
+                                        <table class="table alter-table mb-null">
+                                            <thead>
+                                                <tr>
+                                                    <th>Name</th>
+                                                    <th>Designation</th>
+                                                    <th>Department </th>
+                                                    <th>Institution</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @if (Model.StatusID > 6 && Model.CommiteeMemberDetails != null && Model.CommiteeMemberDetails.Count > 0)
+                                                {
+
+                                                    foreach (var item in Model.CommiteeMemberDetails)
+                                                    {
+                                                        <tr>
+                                                            <td>
+                                                                @item.PIName
+                                                            </td>
+                                                            <td>
+                                                                @item.PIDesignation
+                                                            </td>
+                                                            <td>
+                                                                @item.PIDepartment
+                                                            </td>
+                                                            <td>
+                                                                @item.PIInstitution
+                                                            </td>
+                                                        </tr>
+                                                    }
+                                                }
+                                                else if (Model.CommiteeMemberDetails != null && Model.CommiteeMemberDetails.Count > 0)
+                                                {
+
+                                                    for (int i = 0; i < Model.CommiteeMemberDetails.Count; i++)
+                                                    {
+                                                        <tr>
+                                                            <td>
+                                                                @Html.TextBoxFor(m => m.CommiteeMemberDetails[i].PIName, new { @class = "form-control required", @id = "PIName_" + i, @autocomplete = "off" })
+                                                                @Html.HiddenFor(m => m.CommiteeMemberDetails[i].UserID, new { @id = "HdnPIUserID_" + i })
+                                                                @Html.ValidationMessageFor(m => m.CommiteeMemberDetails[i].PIName)
+                                                            </td>
+                                                            <td>
+                                                                @Html.TextBoxFor(m => m.CommiteeMemberDetails[i].PIDesignation, new { @class = "form-control required", @id = "PIDesignation_" + i, @autocomplete = "off" })
+                                                                @Html.ValidationMessageFor(m => m.CommiteeMemberDetails[i].PIDesignation)
+                                                            </td>
+                                                            <td>
+                                                                @Html.TextBoxFor(m => m.CommiteeMemberDetails[i].PIDepartment, new { @class = "form-control required", @id = "PIDepartment_" + i, @autocomplete = "off" })
+                                                                @Html.ValidationMessageFor(m => m.CommiteeMemberDetails[i].PIDepartment)
+                                                            </td>
+                                                            <td>
+                                                                @Html.DropDownListFor(m => m.CommiteeMemberDetails[i].PIInstitution, new SelectList(ViewBag.Institution, "name", "name", Model.CommiteeMemberDetails[i].PIInstitution), "Select Institution", new { @class = "form-control required", @id = "PIInstitution_" + i, @autocomplete = "off" })
+                                                                @Html.ValidationMessageFor(m => m.CommiteeMemberDetails[i].PIInstitution)
+                                                            </td>
+                                                            <td>
+                                                                @if (i > 0)
+                                                                {
+                                                                    <a id="btnRemove01" class="btn-circle"><i class="ion-android-close"></i></a>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <a id="btnRemove01" class="dis-none btn-circle"><i class="ion-android-close"></i></a>
+                                                                }
+                                                            </td>
+                                                        </tr>
+                                                    }
+                                                    <tr class="Commitee-btnAdd">
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td><a id="btnAddCommitee" class="btn-circle"><i class="ion-plus-round"></i></a></td>
+                                                    </tr>
+                                                }
+                                                else
+                                                {
+                                                    <tr>
+                                                        <td>
+                                                            @Html.TextBox("CommiteeMemberDetails[0].PIName", null, new { @class = "form-control required", @id = "PIName_0", @autocomplete = "off" })
+                                                            @Html.Hidden("CommiteeMemberDetails[0].UserID", null, new { @id = "HdnPIUserID_0" })
+                                                            @Html.ValidationMessage("CommiteeMemberDetails[0].PIName")
+                                                        </td>
+                                                        <td>
+                                                            @Html.TextBox("CommiteeMemberDetails[0].PIDesignation", null, new { @class = "form-control required", @id = "PIDesignation_0", @autocomplete = "off" })
+                                                            @Html.ValidationMessage("CommiteeMemberDetails[0].PIDesignation")
+                                                        </td>
+                                                        <td>
+                                                            @Html.TextBox("CommiteeMemberDetails[0].PIDepartment", null, new { @class = "form-control required", @id = "PIDepartment_0", @autocomplete = "off" })
+                                                            @Html.ValidationMessage("CommiteeMemberDetails[0].PIDepartment")
+                                                        </td>
+                                                        <td>
+                                                            @Html.DropDownList("CommiteeMemberDetails[0].PIInstitution", new SelectList(ViewBag.Institution, "name", "name"), "Select Institution", new { @class = "form-control required", @id = "PIInstitution_0", @autocomplete = "off" })
+                                                            @Html.ValidationMessage("CommiteeMemberDetails[0].PIInstitution")
+                                                        </td>
+                                                        <td>
+                                                            <a id="btnRemove01" class="dis-none btn-circle"><i class="ion-android-close"></i></a>
+                                                        </td>
+                                                    </tr>
+                                                    <tr class="Commitee-btnAdd">
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td><a id="btnAddCommitee" class="btn-circle"><i class="ion-plus-round"></i></a></td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="bl-lg-panel-box pb-null">
+                        <div class="cmn-panel-box">
+                            <div class="grey-bg-adj mb-lg">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label>Remarks</label>
+                                        @Html.TextAreaFor(m => m.Remarks, new { @class = "form-control", @id = "Remarks", @autocomplete = "off", @row = "3" })
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label>Upload Document</label>
+                                        <br />
+                                        @if (!string.IsNullOrEmpty(Model.RemarkDocumentDoc))
+                                        {
+                                            @Html.ActionLink(Model.RemarkDocumentDoc.Split('_').LastOrDefault(), "ShowDocument", new { Controller = "Account", filepath = "RCTAnnouncementDocuments", file = Model.RemarkDocumentDoc }, new { @target = "_blank" })
+                                        }
+                                        @if (Model.StatusID == 6)
+                                        {
+                                            <input class="form-control" type="file" name="RemarkDocument" id="RemarkDocumentID" />
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="bl-lg-panel-box pb-null">
+                        <div class="cmn-panel-box">
+                            <div class="grey-bg-adj mb-lg">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <label>Supporting Document</label>
+                                        <br />
+                                        @if (!string.IsNullOrEmpty(Model.ShortlistDeanNoteDocPath))
+                                        {
+                                            @Html.ActionLink(Model.ShortlistDeanNoteDocPath.Split('_').LastOrDefault(), "ShowDocument", new { Controller = "Account", filepath = "RCTAnnouncementDocuments", file = Model.ShortlistDeanNoteDocPath }, new { @target = "_blank" })
+                                        }
+                                        @if (Model.StatusID == 6)
+                                        {
+                                            <input type="file" name="ShortlistDeanNote" />
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="bl-lg-panel-box pb-null">
+                        <div class="cmn-panel-box">
+                            <div class="grey-bg-adj mb-lg">
+                                <div class="row">
+                                    <div class="col-md-4" id="devCMAdmin2">
+                                        <div class="form-group custom-form-group">
+                                            @Html.RadioButtonFor(m => m.FlowApprover2, "CMAdmin", new { @id = "IsNotetoCMAdmin" }) <label class="ml-sm ">Note to CM Admin</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4" id="devNoteDean2">
+                                        <div class="form-group custom-form-group">
+                                            @Html.RadioButtonFor(m => m.FlowApprover2, "DeanFlow", new { @id = "IsNotetoDean" }) <label class="ml-sm ">Note to Dean</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12 mb-lg text-center">
+                    <input type="submit" class="btn btn-primary" value="Send for approval" name="Button" id="isbtnShortlistDeanNote" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $('#InterviewDate').datepicker({
+        dateFormat: 'dd-MM-yy',
+        changeYear: true
+    }).datepicker("option", "maxDate", +30).datepicker("option", "minDate", -60);
+
+    var annonceshortId = @Html.Raw(Json.Encode(Model.AnnouncementID)) || 0;
+    var isShortlist = @Html.Raw(Json.Encode(Model.isShortlist)) || false;
+    var StatusID = @Html.Raw(Json.Encode(Model.StatusID)) || 0;
+    if(annonceshortId > 0 && StatusID == 6){
+        $('#isbtnShortlistDeanNote').removeClass('dis-none');
+    }
+    else{
+        $('#isbtnShortlistDeanNote').addClass('dis-none');
+    }
+
+    var flowApp2 = @Html.Raw(Json.Encode(Model.FlowApprover2)) || '';
+    if(flowApp2 == "CMAdmin")
+    {
+        $("input[name=FlowApprover2][value=CMAdmin]").prop('checked', true);
+        $("#devNoteDean2").hide();
+    }
+    if(flowApp2 == "DeanFlow")
+    {
+        $("input[name=FlowApprover2][value=DeanFlow]").prop('checked', true);
+        $("#devCMAdmin2").hide();
+    }
+</script>
+

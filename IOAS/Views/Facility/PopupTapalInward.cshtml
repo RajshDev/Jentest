@@ -1,0 +1,423 @@
+﻿@model IOAS.Models.CreateTapalModel
+
+<div class="row mt30">
+    <div id="InwardIUModal" class="modal fade" role="dialog">
+        @using (Html.BeginForm("TapalIU", "Facility", FormMethod.Post, new { @id = "frmTapal", role = "form", enctype = "multipart/form-data" }))
+        {
+            <div class="modal-dialog">
+
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" id="btnInvardClose" class="close" data-dismiss="modal">&times;</button>
+                        @if (Model.TapalId == 0)
+                        {
+                            <h3 class="modal-title">Create Inward</h3>
+                        }
+                        else
+                        {
+                            <h3 class="modal-title">Edit Inward</h3>
+                        }
+                    </div>
+                    <div class="modal-body">
+                        <div class="custom-jsgrid-normal">
+                            <div class="row">
+                                <div class="col-md-12 col-sm-12">
+                                    <div class="col-md-6">
+                                        @Html.HiddenFor(m => m.TapalId, new { @id = "tapalID" })
+                                        <div class="form-group custom-form-group">
+                                            <label class="required">Tapal Catagory</label>
+                                            @Html.DropDownListFor(m => m.selTapalType, new SelectList(ViewBag.TapalCatagory, "id", "name"), "Select Catagory", new { @class = "form-control", @id = "TapalCatagory" })
+                                            <div class="txt-error txt-red"> @Html.ValidationMessageFor(M => M.selTapalType)</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label class="required">Sender Detail</label>
+                                            @Html.TextBoxFor(m => m.SenderDetails, new { @class = "form-control", @id = "SenderDetails" })
+                                            <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.SenderDetails)</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12 col-sm-12">
+
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label class="required">Receipt Date</label>
+                                            @Html.EditorFor(m => m.ReceiptDate, new { @class = "form-control", @id = "ReceiptDate" })
+                                            <div class="txt-error txt-red"> @Html.ValidationMessageFor(M => M.ReceiptDate)</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <p><label class="required">Project Tapal</label></p>
+                                            <b>
+
+                                                @if (!String.IsNullOrWhiteSpace(Model.tapalType) && Model.tapalType == "No")
+                                                {
+                                                    <label class="radio chkbox-adj">
+                                                        @Html.RadioButtonFor(m => m.tapalType, "Yes", new { @id = "ProjectTabal" })
+                                                        <span></span> Yes
+                                                    </label>
+                                                    <label class="radio chkbox-adj">
+                                                        @Html.RadioButtonFor(m => m.tapalType, "No", new { @id = "ProjectTabal", @checked = "checked" })
+                                                        <span></span> No
+                                                    </label>
+                                                }
+                                                else
+                                                {
+                                                    <label class="radio chkbox-adj">
+                                                        @Html.RadioButtonFor(m => m.tapalType, "Yes", new { @id = "ProjectTabal", @checked = "checked" })
+                                                        <span></span> Yes
+
+                                                    </label>
+                                                    <label class="radio chkbox-adj">
+                                                        @Html.RadioButtonFor(m => m.tapalType, "No", new { @id = "ProjectTabal" })
+                                                        <span></span> No
+                                                    </label>
+                                                }
+
+
+
+                                            </b>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12 col-sm-12" id="PIDiv">
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label class="required">PI Name</label>
+                                            @Html.DropDownListFor(M => M.PIName, new SelectList(ViewBag.PIList, "id", "name"), "Select PI", new { @id = "User", @class = "form-control selectpicker" })
+                                            <div class="txt-error txt-red"> @Html.ValidationMessageFor(M => M.PIName)</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label class="required">Project Number</label>
+                                            @Html.DropDownListFor(M => M.ProjectNo, new SelectList(ViewBag.PIProject, "id", "name"), "Select Project", new { @id = "HandItOverTo", @class = "form-control" })
+                                            <div class="txt-error txt-red"> @Html.ValidationMessageFor(M => M.ProjectNo)</div>
+                                        </div>
+                                    </div>
+
+                                    <div id="ProjectDetails" class="col-md-12 col-sm-12 well ls-dts">
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label>Project Tittle:</label>
+                                                @if (@Model.ProjectTittle != null)
+                                                {
+                                                    <b id="prjTittle">@Html.DisplayFor(m => m.ProjectTittle)</b>
+                                                }
+                                                else
+                                                {
+                                                    <b id="prjTittle"></b>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label>Project Type:</label>
+                                                @if (@Model.ProjectType != null)
+                                                {
+                                                    <b id="prjType">@Html.DisplayFor(m => m.ProjectType)</b>
+                                                }
+                                                else
+                                                {
+                                                    <b id="prjType"></b>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label>Project SubType:</label>
+                                                @if (@Model.ProjectSubType != null)
+                                                {
+                                                    <b id="prjSubType">@Html.DisplayFor(m => m.ProjectSubType)</b>
+                                                }
+                                                else
+                                                {
+                                                    <b id="prjSubType"></b>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label>Project Category:</label>
+                                                @if (@Model.ProjectCategory != null)
+                                                {
+                                                    <b id="prjCategory">@Html.DisplayFor(m => m.ProjectType)</b>
+                                                }
+                                                else
+                                                {
+                                                    <b id="prjCategory"></b>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                @*<div id="ProjectDetails">
+
+                                    </div>*@
+                                <div class="col-md-12 col-sm-12">                                  
+                                    <div class="col-md-6 display-none">
+                                        <div class="form-group custom-form-group">
+                                            <label class="required">Documents</label>
+                                            @Html.TextBoxFor(model => model.files, new { type = "file", @class = "txt-wrap" })
+                                            <div class="txt-error txt-red">@Html.ValidationMessageFor(model => model.files)</div>
+                                            <label>(upload any one of these type files doc,docx,pdf)</label>
+                                            <label class="txt-red" id="lblerror"></label>
+                                            @*@Html.HiddenFor(m => m.DocDetail, new { @id = "DocDetails" })*@
+                                            @if (Model.DocDetail != null && Model.DocDetail.Count > 0)
+                                            {
+                                                foreach (var item in Model.DocDetail)
+                                                {
+
+                                                    <div class="col-md-12">
+                                                        <p class="mt-sm">
+                                                            <a href="@Url.Action("ShowDocument", "Facility", new { TapalDocId = item.TapalDocDetailId, TapalId = item.TabalId })" target="_blank"> @item.FileName</a>
+                                                        </p>
+                                                        <p>
+                                                            @{
+                                                                var detail = item.TapalDocDetailId + "_" + item.TabalId;
+                                                                var delete = "delete_" + detail;
+                                                            }
+                                                            <a href="#" id="@delete" class="close-btn">
+                                                                <i class="ion-android-cancel"></i>
+                                                            </a>
+                                                        </p>
+                                                    </div>
+                                                                    }
+                                                                }
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label class="required">Notes</label>
+                                            @Html.TextAreaFor(m => m.Notes, new { @class = "form-control", @id = "strNotes" })
+                                            <div class="txt-error txt-red"> @Html.ValidationMessageFor(M => M.Notes)</div>
+                                            @*<div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.SenderDetails)</div>*@
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        @if (Model.TapalId == 0)
+                        {
+                            <input type="submit" name="Button" value="Add" class="btn btn-primary" id="btnSave" />@:&nbsp; &nbsp;<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        }
+                        else
+                        {
+                            <input type="submit" name="Button" value="Update" class="btn btn-primary" id="btnSave" />@:&nbsp; &nbsp;<button type="button" id="btnInvardClose1" class="btn btn-default" data-dismiss="modal">Close</button>
+                        }
+
+                    </div>
+                </div>
+
+            </div>
+                                                                }
+    </div>
+
+</div>
+<div id="Success1" class="modal fade modal-success" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" id="btnClose" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-checkmark-circle"></i>
+                <h3 class="modal-title">Saved successfully</h3>
+            </div>
+            <div class="modal-body">
+
+                <p id="alertSuccess1"></p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnClose1" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<link href="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/css/bootstrap-select.min.css")" rel="stylesheet" />
+<script src="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/js/bootstrap-select.min.js")"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var Tittle = '@Model.ProjectTittle';
+        if (Tittle == null || Tittle == "") {
+            $("#ProjectDetails").hide();
+        } else {
+            $("#ProjectDetails").show();
+        }
+        //get the relevant form
+        var form = $('#frmTapal');
+        $('.selectpicker').selectpicker({
+            liveSearch: true
+        });
+        // delete validator in case someone called form.validate()
+        $(form).removeData("validator");
+        $.validator.unobtrusive.parse(form);
+
+        var pTapal = $("input[name='tapalType']:checked").val();
+        if (pTapal == 'Yes') {
+            $('#PIDiv').show();
+            //$('#ProjectDetails').show();
+        }
+        else {
+            $('#PIDiv').hide();
+            //$('#ProjectDetails').hide();
+        }
+    });
+
+    $(':radio[name=tapalType]').change(function () {
+        var value = $(this).val();
+        if (value == 'Yes') {
+            //$("#ProjectDetails").show();
+            $('#PIDiv').show();
+
+        }
+        else {
+            $("#ProjectDetails").hide();
+            $('#PIDiv').hide();
+
+        }
+    });
+
+    $("#files").change(function () {
+        var file_size = $('#files')[0].files[0].size;
+        if (file_size > 26214400) {
+            $("#lblerror").show();
+            $("#lblerror").text('You can upload files up to 20 MB');
+            return false;
+        }
+        $("#lblerror").hide();
+        return true;
+    });
+
+    $("#User").change(function () {
+        var PIId = $(this).val();
+        if (PIId != "") {
+            $.getJSON("@Url.Action("LoadPIProject", "Facility")", { PIId: PIId },
+                       function (locationdata) {
+                           var select = $("#HandItOverTo");
+                           select.empty();
+                           select.append($('<option/>', {
+                               value:"",
+                               text:"Select Project"
+                           }));
+                           $.each(locationdata, function (index, itemData) {
+                               select.append($('<option/>', {
+                                   value: itemData.id,
+                                   text: itemData.name
+                               }));
+                           });
+                       });
+        }
+    });
+
+    $("#HandItOverTo").change(function () {
+        
+        var projectId = $(this).val();
+        if (projectId != "Select Project") {
+            $("#ProjectDetails").show();
+            $.getJSON("@Url.Action("LoadProjectDetails", "Facility")", { ProjectId: projectId },
+                       function (data) {
+                           $("#prjTittle").text(data.ProjectTittle);
+                           $("#prjType").text(data.ProjectType);
+                           $("#prjSubType").text(data.ProjectSubType);
+                           $("#prjCategory").text(data.ProjectCategory);
+                       });
+            @*window.location.href = '@Url.Action("PopupProjectDetails", "Facility")?ProjectId='+ projectId + '';*@
+        } else {
+            $("#ProjectDetails").hide();
+        }
+    });
+
+    $("#btnSave").click(function (e) {
+        
+        e.preventDefault();
+        var isValid = $('#frmTapal').valid();
+        var file = $('#files').val();
+        var isValidExten = false;
+        if (file != "") {
+            var file_size = $('#files')[0].files[0].size;
+            var extension = file.substr((file.lastIndexOf('.') + 1)).toLowerCase();
+            switch (extension) {
+                case 'doc':
+                case 'docx':
+                case 'pdf':
+                    isValidExten = true;
+                    break;
+                default:
+                    isValidExten = false;
+            }
+            if (isValidExten == false) {
+                $('#alert').html("Please upload any one of these type file [doc, docx, pdf].");
+                $('#Validation').modal('toggle');
+                return false;
+            }
+            else if (file_size > 26214400) {
+                $('#alert').html("You can upload the file up to 20 MB.");
+                $('#Validation').modal('toggle');
+                return false;
+            }
+        } else {
+            var ID = $("#tapalID").val();
+            if(ID>0){
+                if (@Model.DocDetail.Count == 0 ){
+                    $('#alert').html("Please upload any one of these type file [doc, docx, pdf].");
+                    $('#Validation').modal('toggle');
+                    return false;
+                }
+            }
+        }
+        //if
+        if (isValid)
+            $('#frmTapal').submit();
+
+    });
+
+    $('[id^="delete_"]').click(function () {
+        
+        var ID = $(this).attr("id");
+        var start_pos = ID.indexOf('_') + 1;
+        var end_pos = ID.indexOf('_', start_pos);
+        var TapalDocId = ID.substring(start_pos, end_pos);
+        var TapalId = parseInt(ID.substr(ID.lastIndexOf("_") + 1));
+        $.getJSON("@Url.Action("DeleteDocument", "Facility")", { TapalDocId: TapalDocId, TapalId: TapalId },
+                      function (data) {
+                          if (data == 1) {
+                              $("#alertSuccess1").text("Document has been deleted successfully");
+                              $("#Success1").modal('toggle');
+                          } else {
+                              $("#FailedAlert").text("Error. Try again!");
+                              $("#Failed").modal('toggle');
+                          }
+                      });
+    });
+
+    $("#btnClose").click(function () {
+        var ID = $("#tapalID").val();
+        TapalIU(ID);
+    });
+    $("#btnClose1").click(function () {
+        var ID = $("#tapalID").val();
+        TapalIU(ID);
+    });
+
+    $("#btnInvardClose").click(function () {
+        window.location.href = '@Url.Action("Tapal","Facility")';
+    });
+    $("#btnInvardClose1").click(function () {
+        window.location.href = '@Url.Action("Tapal","Facility")';
+    });
+</script>

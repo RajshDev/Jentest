@@ -1,0 +1,575 @@
+﻿@model IOAS.Models.ProjectEnhancementModel
+@{
+    ViewBag.Title = "Project Extension";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+@Styles.Render("~/bundles/JSGridCss")
+@Scripts.Render("~/bundles/JSGrid")
+<script src="@Url.Content("~/Scripts/Project/ProjectEnhancement.js")"></script>
+
+<div class="row hd-tt-bg" id="addnewpage">
+    <div class="col-md-4">
+
+        <div class="search-btn">
+            <input type="text" value="" placeholder="Search" class="form-control">
+            <a href="#" id="btnsearch" class="btn"> <i class="ion-search"></i></a>
+        </div>
+
+    </div>
+    <div class="col-md-8 flt-nav-links">
+
+        @*<a href="#"> <i class="ion-android-funnel"></i>Filters</a>*@
+        <a href="#" id="btnaddnew" data-toggle="modal" data-target="#AddNewEntryModel"> <i class="ion-plus"></i>Add New</a>
+
+    </div>
+</div>
+<div class="row">
+@using (Html.BeginForm("ProjectExtension", "Project", FormMethod.Post, new { @class = "", role = "form", @id = "formPE", enctype = "multipart/form-data" }))
+
+{
+    <div class="col-md-12">
+        
+        <div class="page-wrapper" id="projectextension">
+           
+            <div class="white-bg">
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group ">
+                            <label class="required"> Project Number </label>
+                            @Html.TextBoxFor(m => m.ProjectNumber, new { @class = "form-control", @required = "required", @id = "projectnum", @onkeypress = "return noedit();" })
+                            @Html.ValidationMessageFor(m => m.ProjectNumber)
+                            @Html.Hidden("ProjectID")
+                            @Html.Hidden("ProjectEnhancementID")
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="form-group custom-form-group">
+                            <label class="required">Project Title</label>
+                            @Html.TextBoxFor(m => m.Projecttitle, new { @class = "form-control", @required = "required", @id = "projecttitle", @readonly = true })
+                            @Html.ValidationMessageFor(m => m.Projecttitle)
+
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="row">
+
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group ">
+                            <label class="required"> Present Sanction Value </label>
+                            @Html.TextBoxFor(m => m.OldSanctionValue, new { @class = "form-control", @required = "required", @id = "oldsanctndvalue", @onkeypress = "return noedit();" })
+
+                            @Html.ValidationMessageFor(m => m.OldSanctionValue)
+
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group ">
+                            <label class="required"> Extension Order Number </label>
+                            @Html.TextBoxFor(m => m.DocumentReferenceNumber, new { @class = "form-control", @required = "required", @id = "docrefnum" })
+
+                            @Html.ValidationMessageFor(m => m.DocumentReferenceNumber)
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="white-bg">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h3 class="spl-title">
+                            Extension
+                        </h3>
+                    </div>
+                </div>
+                <div class="row">
+
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label>Present Due Date</label>
+                            @Html.EditorFor(m => m.PresentDueDate, new { @class = "form-control", @required = "required", @id = "oldduedatepickerid" })                            
+                            @Html.ValidationMessageFor(m => m.PresentDueDate)
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label>Extended Due Date</label>
+                            @Html.EditorFor(m => m.ExtendedDueDate, new { @class = "form-control", @required = "required", @id = "extendduedatepickerid" })                            
+                            @Html.ValidationMessageFor(m => m.ExtendedDueDate)
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="white-bg">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h3 class="spl-title">Supporting Documents</h3>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group ">
+                            <label> Document Name </label>
+                            @Html.TextBoxFor(m => m.AttachmentName, new { @class = "form-control", @id = "docname" })
+
+                            @Html.ValidationMessageFor(m => m.AttachmentName)
+
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group mt5">
+                            <label> Attach Approval document </label>
+                            <input type="file" name="file" id="ApprovalDocument" />&nbsp;&nbsp;&nbsp;
+                            @Html.ValidationMessageFor(m => m.AttachmentPath)
+                        </div>
+                    </div>
+                    <div class="col-md-4 doclink mt6" id="doclink">
+                        <div class="form-group custom-form-group mt10">
+                            <label> Attached Approval Document </label> <br />
+                            @*<a href="@Url.Action("ShowDocument", new { Controller = "Manage", file = Model.DocPath, filepath = "~/Content/ProposalDocuments/", link=Model.DocPath })"> </a>*@
+                            <a href="#" class="link1" target="_blank"></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            
+
+                <div class="row" id="saveproject">
+                    <div class="col-md-12 text-center pd-tb-30">
+                        <input type="submit" class="btn btn-primary mr10" value="Save" name="Button" id="btnSave" />
+                        <input type="button" onclick="window.location.href='@Url.Action("ProjectExtension", "Project")';" class="btn btn-default" value="Close" id="btnclose" />
+                    </div>
+                </div>
+                <div class="row" id="updateproject">
+                    <div class="col-md-12 text-center pd-tb-30">
+                        <input type="submit" class="btn btn-primary mr10" value="Update" name="Button" id="btnupdate" />
+                        <input type="button" onclick="window.location.href='@Url.Action("ProjectExtension", "Project")';" class="btn btn-default" value="Close" id="btnclose" />
+                    </div>
+                </div>
+            </div>
+
+        <div class="row mt30" id="gridlist">
+
+            <div class="col-md-12">
+                <div class="page-wrapper">
+                    <div class="custom-jsgrid-normal">
+                        <div id="gridextendProjectList"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt30" id="gridproject">
+            <div id="AddNewEntryModel" class="modal fade" role="dialog">
+                <div class="modal-dialog wdth80">
+
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" onclick="window.location.href='@Url.Action("ProjectExtension", "Project")';">&times;</button>
+                            <h3 class="modal-title">Select Project</h3>
+                        </div>
+                        <div class="modal-body">
+
+                            <!-- Modal content-->
+                            <div class="col-md-12">
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Project Type</label>
+                                        @Html.DropDownListFor(m => m.Projecttype, new SelectList(ViewBag.projecttype, "CodeValAbbr", "CodeValDetail"), "Select Project Type",
+                                           new { @class = "form-control", @id = "selectProjecttype" })
+
+                                        <div> @Html.ValidationMessageFor(m => m.Projecttype)</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required"> Project  </label>
+                                        @Html.DropDownListFor(m => m.SelectProject, new SelectList(ViewBag.Project, "id", "name"), "Select Project",
+                                           new { @class = "form-control selectpicker", @id = "Projectlist" })
+
+                                        @Html.ValidationMessageFor(m => m.SelectProject)
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                          
+                            <button type="button" class="btn btn-primary mt10" data-dismiss="modal" id="btnselectproject">Ok</button>
+                         
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+}
+</div>
+
+@if (ViewBag.succMsg != null)
+{
+<div id="myModal" class="modal fade modal-success" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" onclick="window.location.href='@Url.Action("ProjectExtension", "Project")';">&times;</button>
+                <i class="ion-android-checkmark-circle"></i>
+                <h3 class="modal-title">Saved successfully</h3>
+            </div>
+            <div class="modal-body">
+
+                <p>@ViewBag.succMsg</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal" onclick="window.location.href='@Url.Action("ProjectExtension", "Project")';">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+    <script>
+        $(document).ready(function () {
+            $('#myModal').modal('show');
+        });
+
+    </script>    
+    
+}
+@if (ViewBag.errMsg != null)
+{
+    <div id="myModal1" class="modal fade modal-error" role="dialog">
+        <div class="modal-dialog modal-sm">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" onclick="window.location.href='@Url.Action("ProjectExtension", "Project")';">&times;</button>
+                    <i class="ion-android-cancel"></i>
+                    <h3 class="modal-title">Error Message</h3>
+                </div>
+                <div class="modal-body">
+
+                    <p>@ViewBag.errMsg</p>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" onclick="window.location.href='@Url.Action("ProjectExtension", "Project")';" >Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            $('#myModal1').modal('show');
+        });
+
+    </script>
+}
+
+<div id="myModal2" class="modal fade modal-success" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times; onclick="window.location.href='@Url.Action("ProjectExtension", "Project")';"</button>
+                <i class="ion-android-checkmark-circle"></i>
+                <h3 class="modal-title">Deleted successfully</h3>
+            </div>
+            <div class="modal-body">
+
+                <p>The Proposal has been Deleted successfully.</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal" onclick="window.location.href='@Url.Action("ProjectExtension", "Project")';">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div id="ValidationModal" class="modal fade modal-warning" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-warning"></i>
+                <h3 class="modal-title">Warning</h3>
+            </div>
+            <div class="modal-body">
+
+                <p id="MsgValidation"></p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<link href="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/css/bootstrap-select.min.css")" rel="stylesheet" />
+<script src="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/js/bootstrap-select.min.js")"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>
+<script>
+    $('#projectextension').hide();
+    $('#saveproject').hide();
+    $('#updateproject').hide();
+    // $('#gridsearchlist').hide();
+    $('#viewdoc').hide();
+    $('#selectProjecttype').prop("selectedIndex", 0);
+    $('#oldduedatepickerid').val("");
+    $('#extendduedatepickerid').val("");
+    $('#Projectlist').prop("selectedIndex", 0);
+    
+    $('#PresentDueDate').datepicker({ dateFormat: 'dd-MM-yy', changeYear: true });
+    $('#ExtendedDueDate').datepicker({ dateFormat: 'dd-MM-yy', changeYear: true });
+    
+   
+    $(document).ready(function () {
+        //get the relevant form
+      //  var form = $('#frmSRB');
+        $('.selectpicker').selectpicker({
+            liveSearch: true
+        });
+
+    });
+
+    $("#selectProjecttype").change(function () {
+        var Projecttype = $(this).val();
+        $.getJSON("../Project/Loadprojectdetailsbytype", { projecttype: Projecttype },
+                    function (locationdata) {
+                        var select = $("#Projectlist");
+                        select.empty();
+
+                        $.each(locationdata, function (index, itemData) {
+
+                            select.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name
+
+                            }));
+                            $(".selectpicker").selectpicker("refresh");
+                        });
+                    });
+
+    });
+   // $(".selectpicker").selectpicker("refresh");
+    $("#btnselectproject").click(function () {
+        
+        var PrjType = $("#selectProjecttype").val();
+        var projectid = $("#Projectlist").val();
+        var IsValid = true;
+        if (!IsValid)
+            return
+        if (PrjType == "") {
+            IsValid = false;
+            $("#alert").text("Please select project type");
+            $('#Validation').modal('show');
+            $("#selectProjecttype").focus();
+            return false;
+        }
+        if (!IsValid)
+            return
+        if (projectid == "Select Any") {
+            IsValid = false;
+            $("#alert").text("Please select project");
+            $('#Validation').modal('show');
+            $("#Projectlist").focus();
+            return false;
+        }
+        //var projectid = $("#Projectlist").val();
+        var ProjectextendDetails = 'LoadProjectdetailsforextend';
+        if (IsValid == true)
+        $.ajax({
+
+            type: "POST",
+            url: ProjectextendDetails,
+            data: { ProjectId: projectid },
+            //contentType: "application/json; charset=utf-8",
+            //dataType: "json",
+
+            success: function (result) {
+                
+                $('input[name="ProjectID"]').val(result.ProjectID);
+                $("#projectnum").val(result.ProjectNumber);
+                $("#projecttitle").val(result.Projecttitle);
+                $('#PresentDueDate').val(result.PrsntDueDate);
+                $('#oldsanctndvalue').val(result.OldSanctionValue);
+                            
+
+            },
+            error: function (err) {
+                console.log("error1 : " + err);
+            }
+        });
+        $("#AddNewEntryModel").modal('hide');
+        $("#projectextension").show();
+        $("#gridlist").hide();
+    });
+
+    $(document).ready(function () {
+        var alocatesum = [];
+        //iterate through each textboxes and add keyup
+        //handler to trigger sum event
+
+        $(".newalloc").each(function () {
+
+            $(this).change(function () {
+                calculateallocationSum();
+            });
+        });
+
+    });
+
+    function calculateallocationSum() {
+
+        // to validate if copi department or copiname is left unselected when either one of them is selected
+        var oldallocatevalue = [];
+        var enhanceallocatevalue = [];
+        var headwisetotalvalue = [];
+
+        $('input[name="OldAllocationvalue"]').each(function (idx, val) { oldallocatevalue.push($(val).val()); });
+        $('input[name="EnhancedAllocationvalue"]').each(function (idx, val) { enhanceallocatevalue.push($(val).val()); });
+        $('input[name="HeadwiseTotalAllocationvalue"]').each(function (idx, val) { headwisetotalvalue.push($(val).val()); });
+        //// Sort it
+        oldallocatevalue.sort();
+        enhanceallocatevalue.sort();
+        headwisetotalvalue.sort();
+        var alocatesum = [];
+        for (var k = 0; k < oldallocatevalue.length; ++k) {
+
+            var oldvalue = oldallocatevalue[k].val();
+            var enhancvalue = EnhancedAllocationvalue[k].val();
+            var headtotalvalue = headwisetotalvalue[k].val();
+          
+            if ((oldallocatevalue[k] > 0) && (EnhancedAllocationvalue[k] > 0))   {
+                $("#EnhancedAllocationvalue").change(function () {
+                   if (!isNaN(this.value) && this.value.length != 0) {
+                        alocatesum == parseFloat(oldvalue) + parseFloat(enhancvalue);
+                    }
+                });
+                headtotalvalue(alocatesum.toFixed(0));
+            }
+
+        }
+
+
+    }
+
+
+    $('#btnAddAllocationhead').click(function () {
+        var cln = $("#primaryAllocateDiv").clone().find("input").val("").end();
+        $(cln).find('.dis-none').removeClass('dis-none');
+        $('#divAllocateContent').append(cln)
+
+    });
+    $(document).on('click', '#divAllocateContent button', function () {
+        $(this).parent().parent("Div").remove();
+    });
+
+
+
+    $('[id^="Extension_"]').change(function () {
+        var ID = $(this).attr("id");
+        var qustType = ID.substr(ID.lastIndexOf("_") + 1);
+        var qustNo = ID.substring(ID.indexOf("_") + 1, ID.lastIndexOf("_"));
+
+        if (qustType === "yes") {
+            $('#extensiondetail').css("display", "block");
+        }
+        if (qustType === "no") {
+            $('#extensiondetail').css("display", "none");
+        }
+    });
+
+    
+    $('#btnaddnew').on('click',function(){
+        //$('#propslnum').val();
+        //$('#prpslid').hide();
+        //$('#docid').hide();
+        //$('#copiid').hide();
+        $('#addnewpage').hide();
+        $('#projectextension').hide();
+        $('#gridlist').hide();
+      //  $('#gridsearchlist').hide();
+        $('#saveproject').show();
+        $('#updateproject').hide();
+        $('#viewdoc').hide();
+       // $('#createuserid').show();
+       // $('#editproposal').hide();
+    });
+
+
+    $('#btnSave').on('click',function(d){
+
+        d.preventDefault();
+        var isValid = $('#formPE').valid();
+        if (!isValid)
+            return false;
+
+        $('#addnewpage').hide();
+        $('#projectextension').hide();
+        $('#gridlist').hide();
+        //$('#createuserid').hide();
+
+        if (isValid)
+            $('#formPE').submit();
+
+    });
+
+    $('#btnupdate').on('click', function (d) {
+
+        d.preventDefault();
+        var isValid = $('#formPE').valid();
+        if (!isValid)
+            return false;
+
+        $('#addnewpage').hide();
+        $('#projectextension').hide();
+        $('#gridlist').hide();
+        //$('#createuserid').hide();
+
+        if (isValid)
+            $('#formPE').submit();
+
+    });
+
+    $(document).on('click', '#divContent button[name="removeButton"]', function () {
+        $(this).parent().parent("Div").remove();
+    });
+
+
+    function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode != 46 && charCode > 31
+          && (charCode < 48 || charCode > 57))
+            return false;
+
+        return true;
+    }
+    function noedit() {
+        return false;
+    }
+
+
+</script>

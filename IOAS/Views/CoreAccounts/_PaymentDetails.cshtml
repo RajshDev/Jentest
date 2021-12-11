@@ -1,0 +1,169 @@
+﻿@model  IOAS.Models.VerifyPaymentProcessModel
+<div class="row mt30">
+    <div id="paymentDetailModal" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            @using (Html.BeginForm("VerifyPaymentProcess", "CoreAccounts", FormMethod.Post, new { @class = "", role = "form", @id = "formVPP", enctype = "multipart/form-data" }))
+            {
+        <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">×</button>
+                        <h3 class="modal-title">Payment Details</h3>
+                    </div>
+                    <div class="modal-body">
+                        @if (ViewBag.ViewType != "Group")
+                        {
+                            <div class="page-wrapper">
+                                <div class="col-md-12">
+                                    <div class="row mb-md">
+
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label>Reference Number</label>
+                                                <h4>@Html.DisplayFor(m => m.ReferenceNumber)</h4>
+                                                @Html.HiddenFor(m => m.PaymentMode)
+                                                @Html.HiddenFor(m => m.PaymentPayeeId)
+                                                @Html.HiddenFor(m => m.BankHead)
+                                                @Html.HiddenFor(m => m.DraftId)
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label class="required">Payee Bank</label>
+                                                @Html.TextBoxFor(m => m.PayeeBank, new { @class = "form-control" })
+                                                @Html.ValidationMessageFor(M => M.PayeeBank)
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-md">
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label class="required">Account Number</label>
+                                                @Html.TextBoxFor(m => m.AccountNumber, new { @class = "form-control" })
+                                                @Html.ValidationMessageFor(M => M.AccountNumber)
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label class="required">IFSC</label>
+                                                @Html.TextBoxFor(m => m.IFSC, new { @class = "form-control" })
+                                                @Html.ValidationMessageFor(M => M.IFSC)
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-md">
+                                        <div class="col-md-12">
+                                            <div class="form-group custom-form-group">
+                                                <label>Narration</label>
+                                                @Html.TextAreaFor(m => m.Narration, new { @class = "form-control", @rows = "2" })
+                                                @Html.ValidationMessageFor(M => M.Narration)
+                                            </div>
+                                        </div>                                       
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        <div class="row">
+                            <div class="page-wrapper">
+                                <div class="col-md-12">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="bl-lg-panel-box pb-null mb-null">
+                                                <div class="cmn-panel-box mb-lg">
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <table class="table alter-table">
+                                                                <thead>
+                                                                    <tr>
+                                                                        @if (ViewBag.ViewType == "Group")
+                                                                        {
+                                                                        <th>Payment Type </th>
+                                                                        <th>Reference Number </th>
+                                                                        }
+                                                                        <th>Account Group </th>
+                                                                        <th>Account Head</th>
+                                                                        <th>Debit <span class="dr">(Dr)</span></th>
+                                                                        <th>Credit <span class="cr">(Cr)</span></th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    @foreach (var item in Model.transDetail)
+                                                                    {
+                                                                    <tr>
+                                                                        @if (ViewBag.ViewType == "Group")
+                                                                            {
+                                                                            <td>@Html.DisplayFor(m => item.TransactionTypeCode)</td>
+                                                                            <td>@Html.DisplayFor(m => item.ReferenceNumber)</td>
+                                                                            }
+                                                                        <td>@Html.DisplayFor(m => item.AccountGroup)</td>
+                                                                        <td>@Html.DisplayFor(m => item.AccountHead)</td>
+                                                                        @if (item.TransactionType == "Credit")
+                                                                            {
+                                                                            <td></td>
+                                                                            <td>@Html.DisplayFor(m => item.Amount)</td>
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                            <td>@Html.DisplayFor(m => item.Amount)</td>
+                                                                            <td></td>
+                                                                            }
+
+                                                                    </tr>
+                                                                    }
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                    @*<div class="row mt-md">
+                                                            <div class="col-md-4 col-md-offset-8">
+                                                                <div class="form-group custom-form-group text-right ">
+                                                                    <label>Total Value</label>
+                                                                    @{ var ttlAmt = Model.Where(m => m.IsJV == false && m.TransactionType == "Credit").Select(m => m.Amount).Sum();}
+                                                                    <h4 class="fn-s-lg">@ttlAmt</h4>
+                                                                </div>
+                                                            </div>
+                                                        </div>*@
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        @if (ViewBag.ViewType == "Verify")
+                        {
+                            <button id="btnVerify" type="submit" class="btn btn-default">Verify</button>
+                        }
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    var viewMode = '@ViewBag.ViewMode';
+    
+   
+    if (viewMode == 'true')
+        $('#formVPP .form-control').attr('readonly', true);
+    $(document).ready(function () {
+        var formVPP = $('#formVPP');
+        formVPP.removeData('validator');
+        formVPP.removeData('unobtrusiveValidation');
+        $.validator.unobtrusive.parse(formVPP);
+    });
+    $("#btnVerify").on('click', function (e) {
+        e.preventDefault();
+        var formVPP = $('#formVPP');
+        //formVPP.removeData('validator');
+        //formVPP.removeData('unobtrusiveValidation');
+        //$.validator.unobtrusive.parse(formVPP);
+        var isValid = formVPP.valid();
+        if (isValid)
+            formVPP.submit();
+    });
+</script>

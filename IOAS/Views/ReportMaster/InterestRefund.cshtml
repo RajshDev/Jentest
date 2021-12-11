@@ -1,0 +1,218 @@
+﻿@model IOAS.Models.InterestRefundMonthReport
+
+@{
+    ViewBag.Title = "Report";
+    ViewBag.Subtitle = "FellowShip List";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+<style>
+    .vw-dts-bg .hgt-bg {
+        background: #597df0;
+        color: #fff;
+    }
+
+        .vw-dts-bg .hgt-bg label {
+            font-size: 16px !important;
+            color: #fff !important;
+        }
+
+        .vw-dts-bg .hgt-bg h4 {
+            font-size: 18px !important;
+            color: #fff;
+        }
+
+    .vw-dts-bg .hgt-bg-pl {
+        background: #e11eda;
+        color: #fff;
+    }
+
+        .vw-dts-bg .hgt-bg-pl label {
+            font-size: 16px !important;
+            color: #fff !important;
+        }
+
+        .vw-dts-bg .hgt-bg-pl h4 {
+            font-size: 18px !important;
+            color: #fff;
+        }
+</style>
+
+<div class="row hd-tt-bg">
+    <div class="col-md-12">
+        <h4><b>Interest Refund</b> </h4>
+    </div>
+</div>
+@using (Html.BeginForm("InterestRefund", "ReportMaster", FormMethod.Post, new { @class = "", role = "form", @id = "formIR", enctype = "multipart/form-data" }))
+{
+<div class="row">
+    <div class="white-bg ad-navbar">
+        <div class="col-md-3 ds-spl-bg">
+            <div class="ds-icn">
+                <i class="ion-ios-list-outline "></i>
+            </div>
+            <div class="ds-tt">
+                <span class="required">Year List</span>
+                @Html.DropDownListFor(m => m.FinYear, new SelectList(ViewBag.FinYear, "id", "name"), "Select Fin Year", new { @class = "form-control", @autocomplete = "off", @required = "required", @id = "year" })
+                @Html.ValidationMessageFor(m => m.FinYear)
+              </div>           
+        </div>
+
+  
+        <div class="col-md-3 ds-spl-bg " id="divDownload">
+            <div class="ds-tt">
+                <span></span>
+                <button class="btn btn-primary mt-20" id="interestView" >View Status</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="row vw-dts-bg">
+    <div class="col-xs-offset-2 col-md-8">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th colspan="4">Interest Refund Calculation Status :</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td colspan="2">
+                        <label>No Of Projects :</label>
+                        <h4 id="typename"></h4>
+                    </td>
+                    <td colspan="2">
+                        <label></label>
+                        <h4 id="noOfProj"> </h4>
+                    </td>
+                    
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <label>No Of Projects Calculated:</label>
+                        <h4 id="tlreceipt"></h4>
+                    </td >
+                    <td colspan="2">
+                        <label></label>
+                        <h4 id="noOfProjCal"></h4>
+                    </td>
+                    
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <label>No Of Projects to be Calculate:</label>
+                        <h4 id="tlavailbalance"></h4>
+                    </td>
+                    <td colspan="2">
+                        <label></label>
+                        <h4 id="noOfProjToCal"> </h4>
+                    </td>
+                   
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <label>Interest Refund Calculation Status:</label>
+                        <h4 id="tlavailbalance"></h4>
+                    </td>
+                    <td colspan="2">
+                        <label></label>
+                        <h4 id="status"></h4>
+                    </td>
+
+                </tr>
+                <tr>
+                    <td id="calculatetd" colspan="4" class="text-center dis-none">
+                        <button class="btn btn-primary mt-20 text-center" id="calculateInterest"> Calculate</button>
+                    </td>
+                    <td id="Downloadtd" colspan="4" class="text-center dis-none">
+                        <button class="btn btn-primary mt-20 text-center" id="DownloadInterest"> Download</button>
+                    </td>
+                    <td id="Restarttd" colspan="4" class="text-center dis-none">
+                        <button class="btn btn-primary mt-20 text-center" id="RestartInterest"> Restart</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+
+
+
+
+</div>
+
+}
+<script>
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+    });
+    $('#calculateInterest,#RestartInterest').click(function (e)
+    {
+        e.preventDefault();
+        var FinId = $("#year").val();
+        if(FinId != "" || FinId == 0)
+        $('#formIR').submit();
+    });
+    $('#DownloadInterest').click(function (e) {
+        e.preventDefault();
+        var FinId = $("#year").val();
+        if (FinId != "" || FinId == 0) {
+            var url = '@Url.Action("InterestRefund", "Reports")?Year=' + FinId ;
+            window.location.href = url;
+        } else {
+            $('#FailedAlert').html("Financial Year required");
+            $('#Failed').modal('toggle');
+        }
+    });
+  
+    $('#interestView').click(function (e) {
+        e.preventDefault();
+        var FinId = $("#year").val();
+        if(FinId!=""||FinId==0){
+
+        $.ajax({
+            type: "POST",
+            data: JSON.stringify({ 'FinId': FinId}),
+            url: '@Url.Action("GetInterestRefund", "ReportMaster")',
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (result) {
+                $("#noOfProj,#noOfProjCal,#noOfProjToCal,#status").text("");
+                $("#status").text(result.Item1);
+                $("#noOfProj").text(result.Item2);
+                $("#noOfProjCal").text(result.Item3);
+                $("#noOfProjToCal").text(result.Item4);
+                if(result.Item1=="Not Running")
+                    $("#calculatetd").removeClass('dis-none');
+              else  if (result.Item1 == "Completed")
+                    $("#Downloadtd").removeClass('dis-none');
+              else  if (result.Item1 == "Error")
+                  $("#Restarttd").removeClass('dis-none');
+               
+            },
+        })        
+    }else{
+       $('#FailedAlert').html("Financial Year required");
+    $('#Failed').modal('toggle');
+        }
+    })
+</script>
+
+
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>
+
+
+

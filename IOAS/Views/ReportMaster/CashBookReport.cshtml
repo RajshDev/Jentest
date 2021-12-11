@@ -1,0 +1,164 @@
+﻿@model IOAS.Models.CashBookModel
+
+@{
+    ViewBag.Title = "Report";
+    ViewBag.Subtitle = "Reports";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+<div class="row hd-tt-bg ">
+    <div class="col-md-12">
+        <h4><b>Cash Book</b></h4>
+    </div>
+</div>
+
+<div class="row">
+    <div class="page-wrapper">
+        <div class="col-md-12 mt30">
+
+
+
+            <div class="row">
+
+                <div class="col-md-12">
+
+                    <div class="vh-tt-bg vh-tt-bg-adj mt-null">
+                        <div class="vh-frm-bg bl-lg-panel-box pb-null br-adj-null">
+                            <div class="row">
+
+                                <div class="">
+                                    <div class="col-md-12">
+                                        <div class="grey-bg-adj mb-lg">
+                                            <div class="row">
+                                                <div class="col-md-12">
+
+
+                                                    <div class="row mt-md">
+
+                                                        <div class="col-md-3 ">
+                                                            <div class="form-group custom-form-group ">
+
+                                                                <label>From:<label style="color:red">*</label> </label><br />
+                                                                @Html.EditorFor(m => m.FromDate, new { @class = "form-control", @id = "datepicker1" })
+                                                            </div>
+                                                        </div>
+
+
+                                                        <div class="col-md-3">
+                                                            <div class="form-group custom-form-group ">
+                                                                <label>To: <label style="color:red">*</label> </label><br />
+                                                                @Html.EditorFor(m => m.ToDate, new { @class = "form-control", @id = "datepicker2" })
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-md-3">
+                                                            <div class="form-group custom-form-group ">
+                                                                <label class="required">Bank</label><br />
+                                                                @Html.TextBoxFor(m => m.BankHeadName, new { @class = "form-control", @id = "BankHeadName", @autocomplete = "off" })
+                                                                @Html.TextBoxFor(m => m.BankId, new { @class = "form-control dis-none", @id = "Bankid" })
+
+
+  </div>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div class="col-md-12 mt-md mb-lg text-center">
+                <input type="submit" value="Generate Report" class="btn btn-primary" id="btnSubmit" />
+                @*<input type="submit" value="Generate Report to Excel" class="btn btn-primary" id="btnSubmit1" />*@
+             </div>
+        </div>
+    </div>
+
+</div>
+<div id="delsuccess" class="modal fade modal-success" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-checkmark-circle"></i>
+                <h3 class="modal-title">No Record found!...</h3>
+            </div>
+            <div class="modal-body">
+
+                <p> No Record found!...</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+
+    $(document).on('click', '#BankHeadName', function () {
+
+        applyAutoComplete($('#BankHeadName'), $('#Bankid'), "../CoreAccounts/LoadBankAccountHead", undefined, undefined, undefined);
+    });
+    $('#FromDate,#ToDate').datepicker({ dateFormat: 'dd-MM-yy', changeYear: true });
+    $('#FromDate').change(function () {
+        $('#ToDate').val('');
+        if ($(this).val() != "") {
+            var StartDate = moment($(this).val().split('-').join('/')).toDate();
+            $('#ToDate').datepicker({
+                dateFormat: 'dd-MM-yy',
+                changeYear: true
+            }).datepicker("option", "minDate", StartDate).datepicker("option", "maxDate", 0);
+        }
+
+    });
+    @*$('#btnSubmit').click(function () {
+        var fromdate = $('#FromDate').val();
+        var todate = $('#ToDate').val();
+        var BankId = $("#Bankid").val();
+        var format = 1;
+        var win = window.open('', '_blank');
+        var url = "@Url.RouteUrl(new {Controller = "ReportMaster", Action = "CashBook" })?fromdate=" + fromdate + "&todate=" + todate + "&BankId=" + BankId + "&format=" + format;
+        win.location.href = url;
+    });
+
+    $('#btnSubmit1').click(function () {
+        var fromdate = $('#FromDate').val();
+        var todate = $('#ToDate').val();
+        var BankId = $("#Bankid").val();
+        var format = 2;
+        var win = window.open('', '_blank');
+        var url = "@Url.RouteUrl(new {Controller = "ReportMaster", Action = "CashBook" })?fromdate=" + fromdate + "&todate=" + todate + "&BankId=" + BankId + "&format=" + format;
+        win.location.href = url;
+    });*@
+    $('#btnSubmit').click(function () {
+
+        var fdate = $('#FromDate').val();
+        var tdate = $('#ToDate').val();
+        var BankId = $("#Bankid").val();
+        @*var url = "@Url.Action("CashBook", "Reports")?fdate=" + fdate + "&tdate=" + tdate + "&BankId=" + BankId;
+        window.location.href = url;*@
+        if (fdate != "" && tdate != "" && BankId != "") {
+          var url = "@Url.Action("CashBook", "Reports")?fdate=" + fdate + "&tdate=" + tdate + "&BankId=" + BankId;
+        window.location.href = url;
+        } else {
+            $('#FailedAlert').html("Bank,From Date,To Date fields are required");
+            $('#Failed').modal('toggle');
+        }
+    });
+</script>

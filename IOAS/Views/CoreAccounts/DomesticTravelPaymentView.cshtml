@@ -1,0 +1,943 @@
+﻿@model IOAS.Models.DomesticTravelBillEntryModel
+@{
+    ViewBag.Title = "Domestic Travel Bill Entry";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<div class="row hd-tt-bg">
+        <div class="col-md-12">
+            <h4><b>Domestic Travel Bill Entry</b> </h4>
+        </div>
+    </div>
+<div class="row">
+    <div class="white-bg ad-navbar">
+        <div class="col-md-3 ds-spl-bg">
+            <div class="ds-icn">
+                <i class="ion-ios-list-outline "></i>
+            </div>
+            <div class="ds-tt">
+                <span>Request Reference</span><br />
+                <span>@Html.DisplayFor(m => m.SoureceName)</span>
+                @Html.HiddenFor(m => m.TravelBillId)
+                @Html.HiddenFor(m => m.NeedUpdateTransDetail)
+                @Html.HiddenFor(m => m.Source, new { @id = "Source" })
+            </div>
+        </div>
+        <div class="col-md-3 ds-spl-bg">
+            <div class="ds-icn">
+                <i class="ion-ios-calendar-outline"></i>
+            </div>
+            @if (Model.ReferenceNumber != null)
+            {
+                <div class="ds-tt">
+                    <span>Ref Number (WF / Tapal)</span>
+                    <span>@Html.DisplayFor(m => m.ReferenceNumber)</span>
+                       @Html.Hidden("SourceTapalOrWorkflow", "True")
+                    @Html.TextBoxFor(m => m.ReferenceNumber, new { @class = "form-control dis-none" })
+                    @Html.TextBoxFor(m => m.SourceReferenceNumber, new { @class = "form-control dis-none" })
+                </div>
+            }
+            else
+            {
+                <div class="ds-tt">
+                    <span>Email Date</span><br />
+                    <span>@Html.DisplayFor(m => m.SourceEmail)</span>
+                </div>
+            }
+        </div>
+        <div class="col-md-3 col-md-offset-3">
+            <div class="reg-no custom-reg-no vw-reg-no">
+                <div class="form-group custom-form-group">
+                    <label>Number</label>
+                    <h4>@Html.DisplayFor(m => m.BillNumber)</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+   
+<div class="vw-dts-bg">
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table table-bordered">
+                <tbody>
+                    <tr>
+                        <td>
+                            <label>PI</label>
+                            <h4>@Html.DisplayFor(m => m.PIName)</h4>
+                        @Html.TextBoxFor(m => m.PI, new { @class = "form-control dis-none" })
+                      </td>
+                        <td>
+                            <label>Place</label>
+                            <h4>@Html.DisplayFor(m=>m.Place)</h4>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label>From Date</label>
+                           <h4>@Html.DisplayFor(m=>m.TravelFrmDate)</h4>
+                            <label id="lblDuration"></label>
+                        </td>
+                        <td>
+                            <label>To Date</label>
+                           <h4>@Html.DisplayFor(m=>m.TravelToDates)</h4>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label>Purpose</label>
+                            @Html.HiddenFor(m => m.Purpose, new { @class = "form-control" })
+                            <h4>@Html.DisplayFor(m=>m.Purpose)</h4>
+                        </td>
+                        <td>
+                            <label>No. of Travelers</label>
+                            @Html.HiddenFor(m => m.NoOfTraveller, new { @value = "1", @class = "form-control", @readonly = "readonly" })
+                            <h4>@Html.DisplayFor(m=>m.NoOfTraveller)</h4>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><label>Remarks</label>
+                        <h4>@Html.DisplayFor(m=>m.Remarks)</h4>
+                        </td>
+                        <td>
+                            <label>Invoice Attachements</label>
+                           <a href="@Url.Action("ShowDocument","Project",new { file = Model.DocumentName, filepath = Model.DocumentPath })" target="_blank">@Model.DocumentActualName</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <h3>Traveller Details</h3>
+            <table class="table table-bordered mb-null">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Name</th>
+                       
+                    </tr>
+                </thead>
+                <tbody id="tbodyTraveller">
+                    @if (Model.TravelerDetail.Count() > 0)
+                    {
+                        var count = 0;
+                        foreach (var item in Model.TravelerDetail)
+                        {
+                            var catname = "TravelerDetail[" + count + "].CategoryName";
+                            var catId = "TravelerDetail[" + count + "].CategoryId";
+                            var uId = "TravelerDetail[" + count + "].UserId";
+                            var name = "TravelerDetail[" + count + "].Name";
+                            var autoComp = "TravelerDetail[" + count + "].autoComplete";
+                            <tr>
+                                <td>
+                                   
+                                    @Html.Hidden(@catId, item.CategoryId)
+                                    <h4>@item.CategoryName</h4>
+                                </td>
+                                <td class="tdDDLUser">
+                                    <h4>@Html.Display(@autoComp, item.Name)</h4>
+
+                                    @Html.Hidden(@uId, item.UserId, new { @class = "form-control dis-none" })
+                                    <h4>@item.Name</h4>
+
+                                </td>
+                                <td class="tdTxtName dis-none">
+                                    <h4>@item.Name</h4>
+                                    @Html.Hidden(@name, item.Name, new { @class = "form-control dis-none" })
+
+                                </td>
+
+                            </tr>
+                          
+                            count++;
+                        }
+
+                    }
+                    else
+                    {
+                        <tr>
+                            <td>
+                            </td>
+                            <td>
+                            </td>
+                            <td>
+                            </td>
+
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <h3>Break Up Details</h3>
+            <table class="table table-bordered mb-null">
+                <thead>
+                    <tr>
+                        <td>Type of Expense</td>
+                        <td class="bg-blue">Claimed as per the Claim Statement Amount</td>
+                        <td class="bg-lg-blue">Processed as per Policy Amount</td>
+                        <td>Difference</td>
+                        <td>Remarks</td>
+                    </tr>
+                </thead>
+                <tbody id="tbodyBreakUpDetails">
+                    @if (Model.TravelerDetail.Count() > 0)
+                    {
+                        var count = 0;
+                        foreach (var item in Model.BreakUpDetail)
+                        {
+                            var exname = "BreakUpDetail[" + count + "].ExpanseCategory";
+                            var expId = "BreakUpDetail[" + count + "].ExpenseTypeId";
+                            var cAmt = "BreakUpDetail[" + count + "].ClaimedAmount";
+                            var pAmt = "BreakUpDetail[" + count + "].ProcessedAmount";
+                            var diffAmt = "BreakUpDetail[" + count + "].DifferenceAmt";
+                            var remarks = "BreakUpDetail[" + count + "].Remarks";
+                            <tr>
+                                <td>
+                                 
+                                    <h4>@item.ExpanseCategory</h4>
+                                </td>
+                                <td class="bg-blue">
+                                    @Html.Hidden(@cAmt, item.ClaimedAmount, new { @class = "form-control required", @onblur = "calcBreakUpByRow(this)", @onkeypress = "return ValidateDecimalOnly(event)" })
+                                    <h4>@item.ClaimedAmount</h4>
+                                </td>
+
+                                <td class="bg-lg-blue">
+                                    @Html.Hidden(@pAmt, item.ProcessedAmount, new { @class = "form-control required", @onblur = "calcBreakUpByRow(this)", @onkeypress = "return ValidateDecimalOnly(event)" })
+                                    <h4>@item.ProcessedAmount</h4>
+                                </td>
+                                <td>
+                                    @Html.Hidden(@diffAmt, item.DifferenceAmt, new { @class = "form-control required", @readonly = "readonly" })
+                                    <h4>@item.DifferenceAmt</h4>
+                                </td>
+                                <td>
+                                    @Html.Hidden(@remarks, item.Remarks, new { @class = "form-control" })
+                                    <h4>@item.Remarks</h4>
+                                </td>
+
+                            </tr>
+
+                            count++;
+                        }
+
+                    }
+                    else
+                    {
+                        <tr>
+                            <td>
+                              
+                            </td>
+                            <td>
+                            </td>
+
+                            <td>
+                             </td>
+                            <td>
+                               
+
+                            </td>
+                            <td>
+                              
+</td>
+
+                        </tr>
+                    }
+                    
+                    <tr>
+                        <td colspan="3"></td>
+                        <td class="reg-no" colspan="2">
+                            <h4 class="tatval">@Html.DisplayFor(m => m.OverallExpense)</h4>
+                            @Html.HiddenFor(m => m.OverallExpense, new { @class = "form-control", @readonly = "readonly" })
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+   
+</div>
+<div class="vw-dts-bg">
+<div class="row">
+    <div class="col-md-12">
+        @Html.Partial("_InvoiceBreakUpView", Model.InvoiceBreakDetail)
+        @Html.Partial("_PaymentBreakUpView", Model.PaymentBreakDetail)
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-md-12">
+
+        @Html.Partial("_CommitmentDetailsView", Model.CommitmentDetail)
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+
+        @Html.Partial("_TransactionDetailsView", Model)
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+
+        @Html.Partial("_CheckListDetailView", Model.CheckListDetail)
+    </div>
+    <div>
+        @Html.HiddenFor(m => m.CheckListVerified_By, new { @disabled = "disabled" })
+        @Html.HiddenFor(m => m.CheckListVerifierName, new { @disabled = "disabled" })
+        <div class="col-md-3 col-md-offset-9">
+            <div class="form-group custom-form-group">
+                <label>Verified by</label>
+                <h4 id="Verified_ByName">@Html.DisplayFor(m => m.CheckListVerifierName)</h4>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        @Html.Partial("_DocumentDetailView", Model.DocumentDetail)
+    </div>
+</div>
+</div>
+
+<div class="row mb20">
+    @if (Model.PFInit != true)
+    {
+        <div class="col-md-12 text-center pd-tb-30">
+
+            <input type="button" onclick="window.location.href='@Url.Action("DomesticTravelPaymentList", "CoreAccounts")';" class="btn btn-default" value="Close" id="btnclose" />
+        </div>
+    }
+    else
+    {
+        <div class="col-md-12 text-center pd-tb-30">
+
+            <input type="button" onclick="window.location.href='@Url.Action("Dashboard", "Home")';" class="btn btn-default" value="Close" id="btnclose" />
+        </div>
+    }
+</div>
+
+
+
+
+
+@Html.AntiForgeryToken()
+<div id="popup"></div>
+<input type="hidden" id="currentRefId" value="@Model.TravelBillId" />
+<input type="hidden" id="processGuideLineId" value="@ViewBag.processGuideLineId" />
+@Html.Partial("_ProcessStatus")
+
+<script>
+
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    $('#TravelToDate, #TravelFromDate,#SourceEmailDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy' }).attr('readonly', 'readonly');
+    $('#srchToDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true }).datepicker("setDate", "0");
+    var defaultFromDate = moment(new Date()).add(-10, 'days').toDate();
+    $('#srchFromDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true }).datepicker("setDate", defaultFromDate);
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+        $('.selectpicker').selectpicker({
+            liveSearch: true,
+
+        });
+        //var comDTV = $('#formDTV');
+        //comDTV.removeData('validator');
+        //comDTV.removeData('unobtrusiveValidation');
+        //$.validator.unobtrusive.parse(comDTV);
+        $("#CreditorAmount").val($('#OverallExpense').val());
+        $("#lblcrdAmount").text($('#OverallExpense').val())
+        var selSource = $('#Source').val();
+        $("#divRefNum, #divRefEmailDate").addClass('dis-none');
+        if (selSource == '1') {
+            $("#divRefNum").removeClass('dis-none');
+        } else if (selSource == '3') {
+            $("#divRefNum").removeClass('dis-none');
+        }
+        else if (selSource == '2') {
+            $('#divRefEmailDate').removeClass('dis-none');
+        } else {
+            $("#divRefNum").removeClass('dis-none');
+        }
+        $('#tbodyTraveller').find('select[name$=".CategoryId"]').each(function () {
+            travelerCategoryChange($(this), 'U');
+        });
+        $('#lblVendorName').html('PI');
+        CalculatePaymentBUTotal();
+        CalculateDeductionTotal();
+        CalculateNoOfTraveller();
+        CalculatePaymentValue();
+        calcDateDiff();
+    });
+    $('#btnAddBreakUp').click(function () {
+        var cln = $('#tbodyBreakUpDetails tr:first').clone().find("select,input").val("").end();
+        var index = $('#tbodyBreakUpDetails tr:last').find("input[name='BreakUpDetail.Index']").val();
+        index = parseInt(index) + 1;
+        $(cln).find("input[name='BreakUpDetail.Index']").val(index);
+        $(cln).find("input, select").each(function () {
+            $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+            $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+        });
+        $(cln).find("span[data-valmsg-for]").each(function () {
+            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+        });
+        $('#tbodyBreakUpDetails tr:last').before(cln);
+    });
+    $(document).on('click', 'a.removeBreakUpDetail', function () {
+        if ($('#tbodyBreakUpDetails tr').length != 2) {
+            $(this).closest('tr').remove();
+            calcOtherExpnse();
+        }
+    });
+    function calcBreakUpByRow(ele) {
+        var tr = $(ele).closest('tr');
+        var cAmt = parseFloat($(tr).find('input[name$=".ClaimedAmount"]').val()) || 0;
+        var pAmt = parseFloat($(tr).find('input[name$=".ProcessedAmount"]').val()) || 0;
+        $(tr).find('input[name$=".DifferenceAmt"]').val((cAmt - pAmt).toFixed(2));
+        $('#NeedUpdateTransDetail').val('true')
+        calcOtherExpnse();
+    }
+    function calcOtherExpnse() {
+        var ttlExp = 0;
+        $('#tbodyBreakUpDetails input[name$=".ProcessedAmount"]').each(function () {
+            ttlExp = ttlExp + (parseFloat($(this).val()) || 0);
+        });
+        $('#OverallExpense').val(ttlExp.toFixed(2));
+    }
+    $(document).on('click', 'a.removeTravelerDetail', function () {
+        if ($('#tbodyTraveller tr').length != 1) {
+            $(this).closest('tr').remove();
+            CalculateNoOfTraveller();
+        }
+    });
+    $('#btnAddTraveller').click(function () {
+        var cln = $('#tbodyTraveller tr:first').clone().find("input,select").val("").end();
+        var index = $('#tbodyTraveller tr:last').find("input[name='TravelerDetail.Index']").val();
+        index = parseInt(index) + 1;
+        $(cln).find("input[name='TravelerDetail.Index']").val(index);
+        $(cln).find("input, select").each(function () {
+            $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+            $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+        });
+        $(cln).find("span[data-valmsg-for]").each(function () {
+            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+        });
+        $(cln).find('td.tdDDLUser').removeClass('dis-none');
+        $(cln).find('td.tdTxtName').addClass('dis-none');
+        $('#tbodyTraveller').append(cln);
+        CalculateNoOfTraveller();
+    });
+    $('#Source').change(function () {
+        var selSource = $(this).val();
+        var select = $("#SourceReferenceNumber");
+        select.empty();
+        $("#divRefNum, #divRefEmailDate").addClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('False');
+        if (selSource == '1') {
+            $.getJSON("@Url.Action("GetWorkflowRefNumber","Proposal")",
+             function (locationdata) {
+                 fillMasterDropDown(select, locationdata);
+             });
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        } else if (selSource == '3') {
+            $.getJSON("@Url.Action("GetTapalRefNumber","Proposal")",
+            function (locationdata) {
+                fillMasterDropDown(select, locationdata);
+            });
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        }
+        else if (selSource == '2') {
+            $('#divRefEmailDate').removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('False');
+        } else {
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        }
+    });
+    function formSave() {
+        var isValid = $('#formDTV').valid();
+        if (!isValid)
+            return false;
+
+        $('#formDTV').submit();
+    }
+    //$("#TravelToDate, #TravelFromDate").change(function () {
+    //    calcDateDiff();
+    //});
+    function calcDateDiff() {
+        var strDate = '@Model.TravelFrmDate';
+        var clsDate = '@Model.TravelToDates';
+        if (strDate != '' && clsDate != '') {
+            var startDate = moment(parseDate(strDate));
+            var closeDate = moment(parseDate(clsDate));
+
+            var mins = closeDate.diff(startDate, 'minutes');
+            if (mins < 0) {
+                $('#alert').html("To Date must be greater than from date.");
+                $('#Validation').modal('toggle');
+                return false;
+            }
+            var result = '';
+            var years = closeDate.diff(startDate, 'year');
+            startDate.add(years, 'years');
+
+            var months = closeDate.diff(startDate, 'months');
+            startDate.add(months, 'months');
+
+            var days = closeDate.diff(startDate, 'days');
+            if (years > 1) {
+                result = years + ' years ';
+            } else if (years == 1) {
+                result = years + ' year ';
+            }
+            if (months > 1) {
+                result = result + months + ' months ';
+            } else if (months == 1) {
+                result = result + months + ' month ';
+            }
+            if (days > 1) {
+                result = result + days + ' days';
+            } else if (days == 1) {
+                result = result + days + ' day';
+            }
+            $('#lblDuration').html(result);
+        }
+    }
+    function parseDate(s) {
+        var months = {
+            january: 0, february: 1, march: 2, april: 3, may: 4, june: 5,
+            july: 6, august: 7, september: 8, october: 9, november: 10, december: 11
+        };
+        var p = s.split('-');
+        return new Date(p[2], months[p[1].toLowerCase()], p[0]);
+    }
+
+    function CalculateNoOfTraveller() {
+        var len = $('#tbodyTraveller tr').length;
+        $('#NoOfTraveller').val(len);
+    }
+    $('#CommitmentAmount, #CreditorAmount, #ExpenseAmount, #CreditorAmount, input[name $=".PaymentAmount"], input[name $=".Amount"], #ttlCr, #ttlDr, #NoOfTraveller').on("copy cut paste drop", function () {
+        return false;
+    });
+
+
+    function AddNewExpense() {
+        //var stateCode = $('#lblStateCode').html();
+        //var BillType = $('#BillType').val();
+        $.ajax({
+            type: "GET",
+            url: "@Url.Action("GetAddNewExpenseDetails", "CoreAccounts")",
+            data: { "typeCode": "DTV", "tSubCode": "1" },
+            traditional: true,
+            dataType: "json",
+            success: function (result) {
+                $.each(result.ExpenseDetail, function (i, item) {
+                    var cln = $('#tbodyExpenseList tr:first').clone().find("select,input").val("").end();
+                    $(cln).find('a.dis-none').removeClass('dis-none');
+                    var index = $('#tbodyExpenseList tr:last').find("input[name='ExpenseDetail.Index']").val();
+                    index = parseInt(index) + 1;
+                    $(cln).find("input[name='ExpenseDetail.Index']").val(index);
+                    $(cln).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                    $(cln).find('input[name$=".IsJV"]').val(item.IsJV);
+                    $(cln).find('#lblTransType').text(item.TransactionType);
+                    $(cln).find("input, select").each(function () {
+                        $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+                        $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+                    });
+                    $(cln).find("span[data-valmsg-for]").each(function () {
+                        $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+                    });
+
+                    var selectGroup = $(cln).find("select[name$='.AccountGroupId']");
+                    selectGroup.empty();
+                    $.each(item.AccountGroupList, function (index, itemData) {
+                        selectGroup.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+
+                    var selectHead = $(cln).find("select[name$='.AccountHeadId']");
+                    selectHead.empty();
+                    $.each(item.AccountHeadList, function (index, itemData) {
+                        selectHead.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+                    $('#tbodyExpenseList').append(cln);
+                });
+            },
+            error: function (err) {
+                console.log("error : " + err);
+            }
+        });
+    }
+    function GetTransactionDetails() {
+        //var stateCode = $('#lblStateCode').html();
+        //var BillType = $('#BillType').val();
+        EmptyExpenseDeductionDetails();
+        $.ajax({
+            type: "GET",
+            url: "@Url.Action("GetTransactionDetails", "CoreAccounts")",
+            data: { "typeCode": "DTV", "tSubCode": "1" },
+            traditional: true,
+            dataType: "json",
+            success: function (result) {
+                $.each(result.ExpenseDetail, function (i, item) {
+                    //var amt = 0;
+                    //$("#tbodyCommitmentSelList [name$='.HeadName'][value='"+item.BudgetHeadName+"']").each(function(){
+                    //    var elePayment = $(this).closest('td').find("input[name$='.PaymentAmount']");
+                    //    var parseVal = parseFloat($(elePayment).val());
+                    //    if (!isNaN(parseVal))
+                    //        amt = amt + parseVal;
+                    //});
+                    if (i == 0) {
+                        var trEle = $('#tbodyExpenseList tr:first');
+                        $(trEle).find('input[name$=".Amount"]').val('');
+                        $(trEle).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                        $(trEle).find('input[name$=".IsJV"]').val(item.IsJV);
+                        $(trEle).find('#lblTransType').text(item.TransactionType);
+                        $(trEle).find("input[name='ExpenseDetail.Index']").val(i);
+
+                        var selectGroup = $(trEle).find('select[name$=".AccountGroupId"]');
+                        selectGroup.empty();
+                        $.each(item.AccountGroupList, function (index, itemData) {
+                            selectGroup.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name,
+                            }));
+                        });
+
+                        var selectHead = $(trEle).find('select[name$=".AccountHeadId"]');
+                        selectHead.empty();
+                        $.each(item.AccountHeadList, function (index, itemData) {
+                            selectHead.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name,
+                            }));
+                        });
+                    } else {
+                        var trEleNew = $('#tbodyExpenseList tr:first').clone().find('input').val('').end();
+                        $(trEleNew).find('input[name$=".Amount"]').val('');
+                        $(trEleNew).find("input[name='ExpenseDetail.Index']").val(i);
+                        $(trEleNew).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                        $(trEleNew).find('input[name$=".IsJV"]').val(item.IsJV);
+                        $(trEleNew).find('#lblTransType').text(item.TransactionType);
+                        $(trEleNew).find("input,Select").each(function () {
+                            $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                            $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                        });
+                        $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                        });
+
+                        var selectGroup = $(trEleNew).find('select[name$=".AccountGroupId"]');
+                        selectGroup.empty();
+                        $.each(item.AccountGroupList, function (index, itemData) {
+                            selectGroup.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name,
+                            }));
+                        });
+
+                        var selectHead = $(trEleNew).find('select[name$=".AccountHeadId"]');
+                        selectHead.empty();
+                        $.each(item.AccountHeadList, function (index, itemData) {
+                            selectHead.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name,
+                            }));
+                        });
+                        $('#tbodyExpenseList').append(trEleNew);
+                    }
+                });
+                $.each(result.DeductionDetail, function (i, item) {
+                    if (i == 0) {
+                        var trEle = $('#tbodyDeductionList tr:first');
+                        var amtEle = $(trEle).find('input[name$=".Amount"]');
+                        if (item.TDSPercentage == null) {
+                            amtEle.val('');
+                        } else {
+                            tds = ttlAdvTax * item.TDSPercentage / 100;
+                            amtEle.val(tds);
+                        }
+
+                        amtEle.addClass('required');
+                        $(trEle).find('input[name$=".AccountGroupId"]').val(item.AccountGroupId);
+                        $(trEle).find('input[name$=".DeductionHeadId"]').val(item.DeductionHeadId);
+                        $(trEle).find('input[name$=".DeductionHead"]').val(item.DeductionHead);
+                        $(trEle).find('input[name$=".AccountGroup"]').val(item.AccountGroup);
+                        $(trEle).find('td:nth-child(1)').html(item.AccountGroup);
+                        $(trEle).find('td:nth-child(2)').html(item.DeductionHead);
+                    } else {
+                        var trEleNew = $('#tbodyDeductionList tr:first').clone().find('input').val('').end();
+                        //$(trEleNew).find("input[name='DeductionDetail.Index']").val(i);
+                        $(trEleNew).find("input").each(function () {
+                            $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                            $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                        });
+                        $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                        });
+                        var amtEle = $(trEleNew).find('input[name$=".Amount"]');
+                        amtEle.addClass('required');
+                        if (item.TDSPercentage != null) {
+                            tds = ttlAdvTax * item.TDSPercentage / 100;
+                            amtEle.val(tds);
+                        }
+                        $(trEleNew).find('input[name$=".AccountGroupId"]').val(item.AccountGroupId);
+                        $(trEleNew).find('input[name$=".DeductionHeadId"]').val(item.DeductionHeadId);
+                        $(trEleNew).find('input[name$=".DeductionHead"]').val(item.DeductionHead);
+                        $(trEleNew).find('input[name$=".AccountGroup"]').val(item.AccountGroup);
+                        $(trEleNew).find('td:nth-child(1)').html(item.AccountGroup);
+                        $(trEleNew).find('td:nth-child(2)').html(item.DeductionHead);
+                        $('#tbodyDeductionList').append(trEleNew);
+                    }
+                });
+                $('#NeedUpdateTransDetail').val('false');
+                CalculateDeductionTotal();
+            },
+            error: function (err) {
+                console.log("error : " + err);
+            }
+        });
+    }
+
+
+
+    /* Tab Sections Start*/
+    //var currentTab = 0; // Current tab is set to be the first tab (0)
+    //showTab(currentTab); // Display the crurrent tab
+    //function showTab(n) {
+    //    // This function will display the specified tab of the form...
+    //    var x = document.getElementsByClassName("tab");
+    //    x[n].style.display = "block";
+    //    $(".custom-nav-pills li:eq(" + n + ")").addClass("active");
+    //    //... and fix the Previous/Next buttons:
+    //    if (n == 0) {
+    //        document.getElementById("prevBtn").style.display = "none";
+    //    } else {
+    //        document.getElementById("prevBtn").style.display = "inline";
+    //    }
+    //    if (n == (x.length - 1)) {
+    //        document.getElementById("nextBtn").innerHTML = "Submit";
+    //        $('#nextBtn').hide();
+    //    } else {
+    //        document.getElementById("nextBtn").innerHTML = "Next";
+    //        $('#nextBtn').show();
+    //    }
+    //    //... and run a function that will display the correct step indicator:
+    //    //fixStepIndicator(n)
+    //}
+
+    //function nextPrev(n) {
+    //    // This function will figure out which tab to display
+    //    var x = document.getElementsByClassName("tab");
+    //    // Exit the function if any field in the current tab is invalid:
+    //    //if (n > 0 && !validateForm(n)) return false;
+    //    if (currentTab + n < x.length) {
+    //        // Hide the current tab:
+    //        x[currentTab].style.display = "none";
+    //        $(".custom-nav-pills li:eq(" + currentTab + ")").removeClass("active");
+    //    } else {
+    //        // ... the form gets submitted:
+    //        formSave();
+    //        return false;
+    //    }
+    //    // Increase or decrease the current tab by 1:
+    //    currentTab = currentTab + n;
+
+    //    // Otherwise, display the correct tab:
+    //    showTab(currentTab);
+    //}
+    //function validatePaymentBU(){
+    //    var msg = 'valid';
+    //    var payVal = parseFloat($('#OverallExpense').val()) || 0;
+    //    var payBUTtl = parseFloat($('#PaymentBUTotal').val()) || 0;
+    //    var payeeList = [];
+    //    if (payVal != payBUTtl) {
+    //        msg ="Not a valid entry.The Payable value and Payment Break Up Total value are not equal.";
+    //    }
+    //    $('#tbodyPaymentBU input[name$=".UserId"]').each(function (idx, val) { payeeList.push($(val).val()); });
+    //    payeeList.sort();
+    //    for (var k = 1; k < payeeList.length; ++k) {
+    //        if (payeeList[k] == payeeList[k - 1]) {
+    //            msg ="Selected payee already exist. Please select a different payee.";
+    //        }
+    //    }
+    //    return msg;
+    //}
+    //function validateTravelDetail() {
+    //    var msg = 'valid';
+    //    var travellerList = [];
+    //    var expTypeList = [];
+    //    var strDate = $("#TravelFromDate").val();
+    //    var clsDate = $("#TravelToDate").val();
+    //    if (strDate != '' && clsDate != '') {
+    //        var startDate = moment(parseDate(strDate));
+    //        var closeDate = moment(parseDate(clsDate));
+
+    //        var mins = closeDate.diff(startDate, 'minutes');
+    //        if (mins <= 0) {
+    //            msg = "To Date must be greater than from date.";
+    //        }
+    //    }
+    //    $('#tbodyTraveller input[name$=".UserId"]').each(function (idx, val) { travellerList.push($(val).val()); });
+    //    travellerList.sort();
+    //    for (var k = 1; k < travellerList.length; ++k) {
+    //        if (travellerList[k] == travellerList[k - 1]) {
+    //            msg ="Selected traveller already exist. Please select a different traveller.";
+    //        }
+    //    }
+    //    //$('#tbodyBreakUpDetails select[name$=".ExpenseTypeId"]').each(function (idx, val) { expTypeList.push($(val).val()); });
+    //    //expTypeList.sort();
+    //    //for (var k = 1; k < expTypeList.length; ++k) {
+    //    //    if (expTypeList[k] == expTypeList[k - 1]) {
+    //    //        msg ="Selected expense type already exist. Please select a different expense type.";
+    //    //    }
+    //    //}
+    //    return msg;
+    //}
+    //function ValidateCommitment() {
+    //    var msg = 'valid';
+    //    var commitmentAmt = parseFloat($('#CommitmentAmount').val());
+    //    var overallExp = parseFloat($('#OverallExpense').val()) || 0;
+    //    $("#tbodyCommitmentSelList tr").each(function () {
+    //        var elePayment = $(this).find("input[name$='.PaymentAmount']");
+    //        var eleAvlBal = $(this).find('input[name$=".AvailableAmount"]');
+    //        var parseVal = parseFloat($(elePayment).val()) || 0;
+    //        var avlBal = parseFloat($(eleAvlBal).val()) || 0;
+    //        if (parseVal > avlBal)
+    //            msg = "Commitment payment value should not be greater than available balance."
+    //    });
+    //    if (isNaN(overallExp) || isNaN(commitmentAmt)) {
+    //        msg = 'The Payable value / allocated commitment value is not a valid entry.';
+    //    } else if (overallExp != commitmentAmt || overallExp == 0) {
+    //        msg = 'There is a mismatch between the payable value and allocated commitment value. Please update the value to continue.';
+    //    }
+
+    //    return msg;
+    //}
+    //function ValidateTransaction() {
+    //    var msg = 'valid';
+    //    var netCrAmt = parseFloat($('#CreditorAmount').val());
+    //    var commitmentAmt = parseFloat($('#CommitmentAmount').val());
+    //    var ttlExpAmt = parseFloat($('#ExpenseAmount').val()) || 0;
+    //    var ttldeductAmt = parseFloat($('#DeductionAmount').val()) || 0;
+    //    var crAmt = parseFloat($('#ttlCr').val()) || 0;
+    //    var overallExp = parseFloat($('#OverallExpense').val()) || 0;
+    //    var netDrAmt = ttlExpAmt + ttldeductAmt;
+    //    if (isNaN(netCrAmt)) {
+    //        return 'The Credit value is not a valid entry.';
+    //    }
+    //    if (netDrAmt != crAmt || netCrAmt != crAmt) {
+    //        msg = 'Not a valid entry. Credit and Debit value are not equal.';
+    //    }
+    //    if (isNaN(netCrAmt) || isNaN(overallExp)) {
+    //        msg = 'The credit value / overall expenses is not a valid entry.';
+    //    } else if (netCrAmt != overallExp) {
+    //        msg = 'There is a mismatch between the credit value and overall expenses value. Please update the value to continue.';
+    //    }
+
+    //    var hdList = [];
+    //    $('#tbodyExpenseList tr').find('select[name$=".AccountHeadId"]').each(function (idx, val) { hdList.push($(val).val()); });
+    //    hdList.sort();
+    //    // duplicate check
+    //    for (var k = 1; k < hdList.length; ++k) {
+    //        if (hdList[k] == hdList[k - 1]) {
+    //            msg = "Duplicate account head exist in expense details. Please select a different head.";
+    //        }
+    //    }
+    //    return msg;
+    //}
+    //function validateForm(n) {
+    //    // This function deals with validation of the form fields
+    //    var isValid = false;
+    //    var hadError = false;
+    //    var tabs = $(".tab");
+    //    var currentTabEle = tabs[currentTab];
+    //    var inputs = $(":input, textarea, select"); // get all the form inputs and selects
+    //    var stepElements = $(currentTabEle).find(inputs); // get inputs for current step
+    //    var count = stepElements.length; // check that there are inputs
+    //    if (count <= 0) {                // if there are not no reason to loop them
+    //        return true;                 // this can be used to perform other action if there are no steps
+    //    } else if (currentTab == 0) {
+    //        var validationMsg = validateTravelDetail();
+    //        if (validationMsg != 'valid') {
+    //            hadError = true;
+    //            $("#alert").text(validationMsg);
+    //            $('#Validation').modal('show');
+    //        }
+    //        var content = $('#tbodyCommitmentSrchList tr td:last').html();
+    //        if (content == '') {
+    //            searchCommitment();
+    //        }
+    //    }else if (currentTab == 1) {
+    //        var validationMsg = validatePaymentBU();
+    //        if (validationMsg != 'valid') {
+    //            hadError = true;
+    //            $("#alert").text(validationMsg);
+    //            $('#Validation').modal('show');
+    //        }
+    //    }else if (currentTab == 2) {
+    //        var validationMsg = ValidateCommitment()
+    //        if (validationMsg != 'valid') {
+    //            hadError = true;
+    //            $("#alert").text(validationMsg);
+    //            $('#Validation').modal('show');
+    //        } else {
+    //            if($('#NeedUpdateTransDetail').val().toLowerCase() == 'true'){
+    //                GetTransactionDetails();
+    //            }
+
+    //            $("#CreditorAmount").val($('#OverallExpense').val());
+    //            //$("#DeductionAmount, #ttlDr, #ExpenseAmount").val('');
+    //        }
+    //    } else if (currentTab == 3) {
+    //        var validationMsg = ValidateTransaction()
+    //        if (validationMsg != 'valid') {
+    //            hadError = true;
+    //            $("#alert").text(validationMsg);
+    //            $('#Validation').modal('show');
+    //        }
+    //    }else if (currentTab == 4) {
+    //        if ($('#CheckListVerified_By').val() == '') {
+    //            hadError = true;
+    //            $("#alert").text('Checklist is not verified.');
+    //            $('#Validation').modal('show');
+    //        }
+    //    }
+    //    $(stepElements).each(function (idx, ele) {
+
+    //        if (!$(ele).is(':radio') && !$(ele).is(':checkbox') && !$(ele).is(':password')) {
+    //            isValid = $(ele).valid();//$(document.forms[0]).validate().element($(this)); // check that the input is valid. This can also be used on a per input basis to perform another action if the field is not valid.
+    //            if (!isValid) { hadError = true; } // set our flag if there was an error
+    //        }
+
+    //    });
+    //    return !hadError; // return the valid status
+
+    //}
+</script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>
+

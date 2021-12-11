@@ -1,0 +1,328 @@
+﻿@model IOAS.Models.CreateTapalModel
+@using IOAS.Infrastructure
+@{
+    ViewBag.Title = "Tapal";
+    ViewBag.Subtitle = "Tapal";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+    var UserId = Common.GetUserid(User.Identity.Name);
+    var AccessRole = Common.GetRoleAccess(UserId, 14);
+}
+
+<script src="~/Scripts/Facility/TapalOutwardList.js"></script>
+<script src="~/Scripts/Facility/AcceptedTapalList.js"></script>
+<style>
+    .txt-red {
+        color: red;
+    }
+
+    .txt-green {
+        color: green;
+    }
+</style>
+
+<div class="row hd-tt-bg">
+
+    <div class="col-md-4">
+        @*<div class="search-btn">
+                @*<input type="text" placeholder="Keywords" id="txtSearch" class="form-control">
+                @*<a href="javascript:void()" class="btn" id="btnSearch"> <i class="ion-search"></i></a>
+                <a href="Javascript:void(0)" id="btnShowFilter" class="pull-right"> <i class="ion-android-funnel"></i>Filters</a>
+            </div>*@
+        <h3>Tapal</h3>
+    </div>
+    <div class="col-md-8 flt-nav-links">
+        @*<a href="#"> <i class="ion-android-funnel"></i>Filters</a>*@
+        @*@if (AccessRole.Count > 0)
+        {
+            var AccessIsAdd = AccessRole.Select(m => m.IsAdd).Distinct().ToArray();
+            for (int i = 0; i < AccessIsAdd.Length; i++)
+            {
+                if (AccessIsAdd[i] == true)
+                {*@
+                    <a href="javascript:void(0)" id="btnAddNew"> <i class="ion-plus"></i>Add New Entry </a>
+                          @*}
+                    }
+                   }*@
+        <a href="Javascript:void(0)" id="btnShowFilter" class="pull-right search-btn"> <i class="ion-android-funnel"></i>Filters</a>
+    </div>
+</div>
+
+<div class="row mt30">
+    <div class="page-wrapper">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="custom-tab-nav">
+                    <ul class="nav nav-tabs">
+                        <li class="active"><a id="tab_inward" data-toggle="tab" href="#inward">Inward</a></li>
+                        <li><a id="tab_outward" data-toggle="tab" href="#outward">Outward</a></li>
+                        <li><a id="tab_mytabal" data-toggle="tab" href="#mytabal">My Tapal</a></li>
+                    </ul>
+                    <div class="tab-content">
+
+                        <div id="inward" class="tab-pane fade in active">
+                            @Html.AntiForgeryToken()
+                            <div id="gridData" class="row mt30">
+                                @Html.Partial("SearchTapal")
+                            </div>              
+                                        </div>
+
+                                        <div id="outward" class="tab-pane fade">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="custom-jsgrid-normal">
+                                                        <div id="OutwardList"></div>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div id="mytabal" class="tab-pane fade">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="custom-jsgrid-normal">
+                                                        <div id="AcceptedTapalList"></div>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                @if (TempData["SuccMsg"] != null)
+                {
+                    <script type="text/javascript">
+                        $(document).ready(function () {
+                            $('#myModal').modal('show');
+                        });
+                    </script>
+                    <div id="myModal" class="modal fade modal-success" role="dialog">
+                        <div class="modal-dialog modal-sm">
+
+                            <!-- Modal content-->
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                    <i class="ion-android-checkmark-circle"></i>
+                                    <h3 class="modal-title">Saved successfully</h3>
+                                </div>
+                                <div class="modal-body">
+
+                                    <p id="alertSuccess">@TempData["SuccMsg"]</p>
+
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal" id="btnClose">Close</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                }
+
+                @if (TempData["errMsg"] != null)
+                {
+                    <script type="text/javascript">
+                        $(document).ready(function () {
+                            $('#myModal2').modal('show');
+                        });
+                    </script>
+                    <div id="myModal2" class="modal fade modal-error" role="dialog">
+                        <div class="modal-dialog modal-sm">
+
+                            <!-- Modal content-->
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                    <i class="ion-android-cancel"></i>
+                                    <h3 class="modal-title">Error Message</h3>
+                                </div>
+                                <div class="modal-body">
+
+                                    <p>@TempData["errMsg"]</p>
+
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                }
+
+
+
+                <div id="popup"></div>
+                <div id="popupTapalFilter" class="filter-popup">
+                    <div class="">
+                        <div class="filter-content">
+                            <div class="white-bg">
+                                <div class="form-group custom-form-group">
+                                    <h3>Filter by</h3>
+                                </div>
+                                <div class="form-group custom-form-group">
+                                    @Html.DropDownListFor(m => m.searchField.selTapalType, new SelectList(ViewBag.TapalCatagory, "id", "name"), "Select Catagory", new { @class = "form-control", @id = "intTapalCatagory" })
+                </div>
+                <div class="form-group custom-form-group">
+                    @Html.DropDownListFor(m => m.searchField.selPIName, new SelectList(ViewBag.PIList, "id", "name"), "Select PI", new { @class = "form-control", @id = "intPI" })
+                </div>
+                <div class="form-group custom-form-group">
+                    @Html.TextBoxFor(m => m.searchField.Keyword, new { @id = "Keyword", @placeholder = "Tapal No", @class = "form-control" })
+                </div>
+
+                <div class="form-group custom-form-group">
+                    <label class="full-width">Created Date</label>
+                </div>
+                <div id="DivSRBDate" class="form-group custom-form-group">
+                    <label class="half-form">From</label>
+                    <label class="half-form">To</label>
+                    @Html.TextBoxFor(m => m.searchField.FromCreatedDate, new { @id = "FromCreatedDate", @class = "form-control half-form" })
+                    @Html.TextBoxFor(m => m.searchField.ToCreatedDate, new { @id = "ToCreatedDate", @class = "form-control half-form" })
+                </div>
+                <div class="form-group custom-form-group mt30 text-center">
+                    <input id="btnSearch" type="button" class="btn btn-primary mr10" value="Search" />
+                    <button name="btnClose" type="button" class="btn btn-default">Close</button>
+                </div>
+
+
+            </div>
+        </div>
+
+    </div>
+
+    <a href="javascript:void(0)" name="btnClose" class="close-btn"><i class="ion-android-cancel"></i></a>
+
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#ProjectDetails").hide();
+        $('[data-toggle="tooltip"]').tooltip();
+        $("#btnSearchOut").hide();
+        $("#FromCreatedDate").datepicker
+            ({
+                dateFormat: 'dd-MM-yy',
+                showStatus: true,
+                showWeeks: true,
+                changeYear: true,
+                yearRange: '-100:+0',
+                highlightWeek: true,
+                numberOfMonths: 1,
+                showAnim: "scale",
+                showOptions: {
+                    origin: ["top", "left"]
+                }
+            });
+        $("#ToCreatedDate").datepicker
+            ({
+                dateFormat: 'dd-MM-yy',
+                showStatus: true,
+                showWeeks: true,
+                changeYear: true,
+                yearRange: '-100:+0',
+                highlightWeek: true,
+                numberOfMonths: 1,
+                showAnim: "scale",
+                showOptions: {
+                    origin: ["top", "left"]
+                }
+            });
+    });
+    $('#btnAddNew').click(function () {
+        TapalIU(0);
+    });
+   
+    $('[id^="tab_"]').click(function () {
+        var tab = $(this).attr("id");
+        tab = tab.substr(tab.lastIndexOf("_") + 1);
+        if (tab == "outward" || tab == "mytabal") {
+            $('.search-btn').css("display", "none");
+        } else {
+            $('.search-btn').css("display", "block");
+        }
+    });
+    function reloadOutwart() {
+        loadOutwart();
+    }
+    function TapalIU(ID) {
+        var searchdata = { "TapalId": ID };
+
+        $.ajax({
+            url: '@Url.Action("GetInwardForEdit", "Facility")',
+            type: "GET",
+            contentType: "application/x-www-form-urlencoded",
+            data: searchdata,
+            success: function (data) {
+                if (data == -1) {
+                    $("#FailedAlert").text('Error. Try again!');
+                    $('#Failed').modal('show');
+                } else {
+                    $('#popup').html(data);
+                    $('#InwardIUModal').modal('toggle');
+                }
+            }
+        });
+    }
+
+   
+    $("#btnClose").click(function () {
+        window.location.href = '@Url.Action("Tapal","Facility")';
+    });
+
+    //$('#Validation').on('show', function () {
+    //    location.reload();
+    //}, 3000);
+    @*$("#btnSearch").click(function () {
+        var Search = $("#txtSearch").val();
+        window.location.href = '@Url.Action("Tapal", "Facility")?Search=' + Search;
+    });*@
+
+   
+    $(window).click(function (e) {
+        $('Div').remove(".popup-dts")
+    });
+    $("#btnShowFilter").click(function () {
+        $('#popupTapalFilter').css("display", "Block");
+    });
+    $('a[name="btnClose"],button[name="btnClose"]').click(function () {
+        $('#popupTapalFilter').css("display", "none");
+    });
+    $("#btnSearch").click(function () {
+        getData(1);
+    });
+        function getData(page) {
+        
+        var token = $("input[name=__RequestVerificationToken]").val();
+        var PrjType = 0, PrjNo = 0;
+        PrjType = $("#intTapalCatagory").val();
+        PrjNo = $("#intPI").val();
+        if (PrjType == null || PrjType == "") {
+            PrjType = 0;
+        }
+        if (PrjNo == null || PrjNo == "") {
+            PrjNo = 0;
+        }
+        var KW = $("#Keyword").val();
+        var FCreateD = $("#FromCreatedDate").val();
+        var TCreateD = $("#ToCreatedDate").val();
+        var searchdata = { "__RequestVerificationToken": token, "Keyword": KW, "selTapalType": PrjType, "selPIName": PrjNo, "FromCreatedDate": FCreateD, "ToCreatedDate": TCreateD, "page": page };
+        $.ajax({
+           url: '@Url.Action("SearchTapal", "Facility")',
+            type: "POST",
+            contentType: "application/x-www-form-urlencoded",
+            data: searchdata,
+            success: function (data) {
+                
+                $("#gridData").html(data);
+            }
+        });
+    }
+   
+</script>

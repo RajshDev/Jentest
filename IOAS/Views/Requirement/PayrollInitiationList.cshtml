@@ -1,0 +1,767 @@
+﻿
+@{
+    ViewBag.Title = "PayrollInitiationList";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<div class="row hd-tt-bg">
+    <div class="col-md-12">
+        <h4><b>Payroll Initiation</b></h4>
+        <ul class="nav nav-pills custom-nav-pills custom-spl-nav">
+            <li class="active"><a data-toggle="tab" href="#tabJsAdhoc" class="brd-rd-md">Adhoc</a></li>
+            <li><a data-toggle="tab" href="#tabJsOSG" class="brd-rd-md">OutSourcing</a></li>
+
+        </ul>
+        <div class="flt-nav-links pull-right  mt-sm">
+            <a href="@Url.Action("PayrollInitiation")"> <i class="ion-plus"></i>Add New</a>
+        </div>
+
+    </div>
+</div>
+<div class="tab-content mt30">
+    <div id="tabJsAdhoc" class="tab-pane fade in active">
+        <div class="custom-jsgrid-normal">
+            <div class="" id="gridDataAdhoc">
+            </div>
+        </div>
+    </div>
+    <div id="tabJsOSG" class="tab-pane fade">
+        <div class="custom-jsgrid-normal">
+            <div id="gridDataOSG">
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="loading-bg dis-none">
+</div>
+<script>
+    loadedList = [];
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    var alertMsg = '@TempData["alertMsg"]';
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertTitle').html("Success");
+            $('#alertSuccessContent').html(succMsg);
+            $('#SuccessAll').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+        else if (alertMsg != '') {
+            $('#alert').html(alertMsg);
+            $('#Validation').modal('toggle');
+        }
+    });
+    function searchData(href) {
+        if (loadedList.indexOf(href) > -1)
+            return false;
+        if (href == "#tabJsOSG")
+            $("#gridDataOSG").jsGrid("search");
+
+    }
+    $('a[href^="#tabJs"]').click(function () {
+        var href = $(this).attr('href');
+        searchData(href);
+    });
+    var DateField = function (config) {
+        jsGrid.Field.call(this, config);
+    };
+    DateField.prototype = new jsGrid.Field({
+        sorter: function (date1, date2) {
+            return new Date(date1) - new Date(date2);
+        },
+
+        itemTemplate: function (value) {
+            if (value != "") {
+                return new Date(value).toDateString();
+            }
+        },
+
+        filterTemplate: function () {
+            var now = new Date();
+            this._fromPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() - 1), changeYear: true });
+            this._toPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() + 1), changeYear: true });
+            return $("<div>").append(this._fromPicker).append(this._toPicker);
+        },
+
+        insertTemplate: function (value) {
+            return this._insertPicker = $("<input>").datepicker({ defaultDate: new Date() });
+        },
+
+        editTemplate: function (value) {
+            return this._editPicker = $("<input>").datepicker().datepicker("setDate", new Date(value));
+        },
+
+        insertValue: function () {
+            return this._insertPicker.datepicker("getDate").toISOString();
+        },
+
+        editValue: function () {
+            return this._editPicker.datepicker("getDate").toISOString();
+        },
+
+        filterValue: function () {
+            return {
+                from: this._fromPicker.datepicker("getDate"),
+                to: this._toPicker.datepicker("getDate")
+            };
+        }
+    });
+    jsGrid.fields.date = DateField;
+
+    $("#gridDataAdhoc").jsGrid({
+        paging: true,
+        pageIndex: 1,
+        pageSize: 10,
+        editing: false,
+        filtering: true,
+        pageLoading: true,
+        autoload: true,
+        controller: {
+
+            loadData: function (filter) {
+                var searchData = [];
+                searchData = {
+                    SearchSalaryMonth: filter.SalaryMonth || null,
+                    SearchSalaryType: filter.PayrollSalaryType || null,
+                    //EmployeeCode: filter.Appointmenttype || null,
+                    SearchSalaryStaus: filter.SalaryStatus || null,
+                },
+                filter.model = searchData;
+                filter.Category = "Adhoc";
+
+                var deferred = $.Deferred();
+                $.ajax({
+                    type: "post",
+                    url: "GetEmployeePayrollInitiation",
+                    data: JSON.stringify(filter),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (result) {
+                        //db = result;
+                        //$("#AdvanceBillPaymentList").jsGrid({ data: db });
+                        var da = {
+                            data: result.Payrolllist,
+                            itemsCount: result.TotalRecords
+                        }
+                        if (loadedList.indexOf("#tabJsAdhoc") == -1)
+                            loadedList.push("#tabJsAdhoc");
+                        deferred.resolve(da);
+
+                    },
+                    error: function (err) {
+                        console.log("error : " + err);
+                    }
+
+                });
+                return deferred.promise();
+            }
+
+        },
+
+        fields: [
+    { name: "SNo", title: "S.No", editing: false, width: 50 },
+    { type: "text", name: "PayrollId", title: "Id", visible: false },
+    { type: "text", name: "SalaryMonth", title: "Salary Month", editing: false },
+    { type: "date", name: "MonthStartDate", title: "Month Start Date", editing: false },
+    { type: "date", name: "MonthEndDate", title: "Month End Date", editing: false },
+    { type: "text", name: "PayrollSalaryType", title: "Salary Type", editing: false },
+    { type: "text", name: "SalaryStatus", title: "Status", editing: false },
+    { type: "text", name: "RoleId", title: "RoleId", visible: false },
+    { type: "text", name: "UserId", title: "UserId", visible: false },
+     { type: "text", name: "Appointmenttype", title: "Appointmenttype", visible: false },
+     { type: "text", name: "PayrollmenuProcessId", title: "PayrollmenuProcessId", visible: false },
+    {
+        type: "control", editButton: false, deleteButton: false, width: 120, title: "Action",
+
+        itemTemplate: function (value, item) {
+            var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+            if (item.PayrollmenuProcessId == 1 && item.SalaryStatus == "Init") {
+                //statusList = [{ id: "", name: "Select Action" }, { id: "OverWrite", name: "OverWrite Salary Process" }, { id: "mailsend", name: "Send to Accounts" }, { id: "Download", name: "Download" }]
+                statusList = [{ id: "", name: "Select Action" }, { id: "OverWrite", name: "OverWrite Salary Process" }, { id: "Download", name: "Download" }]
+            }
+            else if (item.PayrollmenuProcessId == 2 && item.SalaryStatus == "Init") { //Requested for salary processing sublimantry
+                //statusList = [{ id: "", name: "Select Action" }, { id: "OverWrite", name: "OverWrite Salary Process" }, { id: "mailsend", name: "Send to Accounts" }, { id: "Download", name: "Download" }]
+                statusList = [{ id: "", name: "Select Action" }, { id: "OverWrite", name: "OverWrite Salary Process" }, { id: "Download", name: "Download" }]
+            }
+            else if (item.PayrollmenuProcessId == 0 && item.SalaryStatus == "Requested for salary processing") {
+                //statusList = [{ id: "", name: "Select Action" }, { id: "mailsend", name: "Send to Accounts" }, { id: "Download", name: "Download" }]
+                statusList = [{ id: "", name: "Select Action" }, { id: "Download", name: "Download" }]
+            }
+            else if (item.PayrollmenuProcessId == 0 && item.SalaryStatus == "Overwritten") {
+                statusList = [{ id: "", name: "Select Action" }, { id: "Download", name: "Download" }]
+            }
+            else {
+                statusList = [{ id: "", name: "Select Action" }, { id: "StartProcess", name: "Start Processing" }, { id: "mailsend", name: "Send to Accounts" }, { id: "Download", name: "Download" }]
+            }
+            var $customSelect = $("<select>")
+                .attr("class", "form-control").prop("selectedIndex", "")
+            $.each(statusList, function (index, itemData) {
+                $customSelect.append($('<option/>', {
+
+                    value: itemData.id,
+                    text: itemData.name
+                }));
+            });
+            $customSelect.change(function (e) {
+                var selVal = $(this).val();
+                if (selVal == "mailsend") {
+                    var choice = confirm("Do you want to send Mail");
+                    if (choice == true) {
+                        $('.loading-bg').removeClass('dis-none');
+                        $.ajax({
+                            type: "Post",
+                            url: '@Url.Action("SendMailPayrollAdhoc", "Requirement")',
+                            data: {
+                                PayrollId: item.PayrollId
+                            },
+                            success: function (result) {
+                                $('.loading-bg').addClass('dis-none');
+                                if (result == 1) {
+
+                                    $.confirm({
+                                        title: 'Success Message',
+                                        content: 'Mail send to Accounts',
+                                        type: 'green',
+                                        buttons: {
+                                            Ok: function () {
+                                                $("#gridDataAdhoc").jsGrid("loadData");
+                                            },
+                                        },
+                                    });
+                                }
+                                else if (result == 2) {
+
+                                    $.confirm({
+                                        title: 'Error!',
+                                        content: 'Mail not Send Please Conatact Administrator',
+                                        type: 'red',
+                                        buttons: {
+                                            Ok: function () {
+                                                $("#gridDataAdhoc").jsGrid("loadData");
+                                            },
+                                        },
+                                    });
+                                }
+                                else {
+
+                                    $.confirm({
+                                        title: 'Error!',
+                                        content: 'Something went to wrong please Contact administrator',
+                                        type: 'red',
+                                        buttons: {
+                                            Ok: function () {
+                                                $("#gridDataAdhoc").jsGrid("loadData");
+                                            },
+                                        },
+                                    });
+                                }
+                            },
+                            error: function (err) {
+                                $('.loading-bg').addClass('dis-none');
+                                console.log("error1 : " + err);
+                            }
+                        });
+                    }
+
+                }
+                else if (selVal == "Download") {
+                    var url = '@Url.Action("DownloadExportAdhocPayrollDetails", "RCTReportMaster")?PayrollId=' + item.PayrollId;
+                    window.open(url, "_blank");
+                }
+                else if (selVal == "StartProcess") {
+                    var choice = confirm("Are Sure do you want Start Processing Salary");
+                    if (choice == true) {
+                        $('.loading-bg').removeClass('dis-none');
+                        $.ajax({
+                            type: "Post",
+                            url: '@Url.Action("StartProcessingPayroll", "Requirement")',
+                            data: {
+                                PayrollId: item.PayrollId
+                            },
+                            success: function (result) {
+                                $('.loading-bg').addClass('dis-none');
+                                if (result.msg == 1) {
+                                    @*var url = '@Url.Action("DownloadStartProcessingPayroll", "RCTReportMaster")?PayrollId=' + item.PayrollId;
+                                    window.open(url, "_blank");*@
+
+                                    exceldownload(result);
+
+                                    $.confirm({
+                                        title: 'Success Message',
+                                        content: 'Start Processing Sucessfully',
+                                        type: 'green',
+                                        buttons: {
+                                            Ok: function () {
+                                                $("#gridDataAdhoc").jsGrid("loadData");
+                                            },
+                                        },
+                                    });
+                                }
+                                else if (result.msg == -2) {
+
+                                    $.confirm({
+                                        title: 'Error!',
+                                        content: 'Salary Processing Already Completed For This Month',
+                                        type: 'red',
+                                        buttons: {
+                                            Ok: function () {
+                                                $("#gridDataAdhoc").jsGrid("loadData");
+                                            },
+                                        },
+                                    });
+                                }
+                                else {
+
+                                    $.confirm({
+                                        title: 'Error!',
+                                        content: 'Something went to wrong Please Contact Administrator',
+                                        type: 'red',
+                                        buttons: {
+                                            Ok: function () {
+                                                $("#gridDataAdhoc").jsGrid("loadData");
+                                            },
+                                        },
+                                    });
+                                }
+                            },
+                            error: function (err) {
+                                $('.loading-bg').addClass('dis-none');
+                                console.log("error1 : " + err);
+                            }
+                        });
+                    }
+                }
+                else if (selVal == "OverWrite") {
+                    var choice = confirm("Are Sure do you want over write salary Processing");
+                    if (choice == true) {
+                        $('.loading-bg').removeClass('dis-none');
+                        $.ajax({
+                            type: "Post",
+                            url: '@Url.Action("StartProcessingPayroll", "Requirement")',
+                            data: {
+                                PayrollId: item.PayrollId
+                            },
+                            success: function (result) {
+                                $('.loading-bg').addClass('dis-none');
+                                if (result.msg == 1) {
+                                    @*var url = '@Url.Action("DownloadStartProcessingPayroll", "RCTReportMaster")?PayrollId=' + item.PayrollId;
+                                    window.open(url, "_blank");*@
+
+                                    exceldownload(result);
+
+                                    $.confirm({
+                                        title: 'Success Message',
+                                        content: 'Over write Processing Sucessfully',
+                                        type: 'green',
+                                        buttons: {
+                                            Ok: function () {
+                                                $("#gridDataAdhoc").jsGrid("loadData");
+                                            },
+                                        },
+                                    });
+                                }
+                                else if (result.msg == -2) {
+
+                                    $.confirm({
+                                        title: 'Error!',
+                                        content: 'Salary Processing Already Completed For This Month',
+                                        type: 'red',
+                                        buttons: {
+                                            Ok: function () {
+                                                $("#gridDataAdhoc").jsGrid("loadData");
+                                            },
+                                        },
+                                    });
+                                }
+                                else {
+
+                                    $.confirm({
+                                        title: 'Error!',
+                                        content: 'Something went to wrong Please Contact Administrator',
+                                        type: 'red',
+                                        buttons: {
+                                            Ok: function () {
+                                                $("#gridDataAdhoc").jsGrid("loadData");
+                                            },
+                                        },
+                                    });
+                                }
+                            },
+                            error: function (err) {
+                                $('.loading-bg').addClass('dis-none');
+                                console.log("error1 : " + err);
+                            }
+                        });
+                    }
+                }
+
+                $(this).val("");
+                return false;
+                e.stopPropagation();
+            });
+            return $result.add($customSelect);
+        },
+        _createFilterSwitchButton: function () {
+            return this._createOnOffSwitchButton("filtering", this.searchModeButtonClass, false);
+        }
+    }
+        ],
+    });
+
+
+    $("#gridDataOSG").jsGrid({
+        paging: true,
+        pageIndex: 1,
+        pageSize: 10,
+        editing: false,
+        filtering: true,
+        pageLoading: true,
+        controller: {
+
+            loadData: function (filter) {
+                var searchData = [];
+                searchData = {
+                    SearchSalaryMonth: filter.SalaryMonth || null,
+                    SearchSalaryType: filter.PayrollSalaryType || null,
+                    //EmployeeCode: filter.Appointmenttype || null,
+                    SearchSalaryStaus: filter.SalaryStatus || null,
+                },
+                filter.model = searchData;
+                filter.Category = "OSG";
+
+                var deferred = $.Deferred();
+                $.ajax({
+                    type: "post",
+                    url: "GetEmployeePayrollInitiation",
+                    data: JSON.stringify(filter),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (result) {
+                        //db = result;
+                        //$("#AdvanceBillPaymentList").jsGrid({ data: db });
+                        var da = {
+                            data: result.Payrolllist,
+                            itemsCount: result.TotalRecords
+                        }
+                        if (loadedList.indexOf("#tabJsOSG") == -1)
+                            loadedList.push("#tabJsOSG");
+                        deferred.resolve(da);
+
+                    },
+                    error: function (err) {
+                        console.log("error : " + err);
+                    }
+
+                });
+                return deferred.promise();
+            }
+
+        },
+
+        fields: [
+    { name: "SNo", title: "S.No", editing: false, width: 50 },
+    { type: "text", name: "PayrollId", title: "Id", visible: false },
+    { type: "text", name: "SalaryMonth", title: "Salary Month", editing: false },
+    { type: "date", name: "MonthStartDate", title: "Month Start Date", editing: false },
+    { type: "date", name: "MonthEndDate", title: "Month End Date", editing: false },
+    { type: "text", name: "PayrollSalaryType", title: "Salary Type", editing: false },
+    { type: "text", name: "SalaryStatus", title: "Status", editing: false },
+    { type: "text", name: "RoleId", title: "RoleId", visible: false },
+    { type: "text", name: "UserId", title: "UserId", visible: false },
+     { type: "text", name: "Appointmenttype", title: "Appointmenttype", visible: false },
+     { type: "text", name: "PayrollmenuProcessId", title: "PayrollmenuProcessId", visible: false },
+    {
+        type: "control", editButton: false, deleteButton: false, width: 120, title: "Action",
+
+        itemTemplate: function (value, item) {
+            var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+            if (item.PayrollmenuProcessId == 1 && item.SalaryStatus == "Init") {
+                //statusList = [{ id: "", name: "Select Action" }, { id: "OverWrite", name: "OverWrite Salary Process" }, { id: "mailsend", name: "Send to Accounts" }, { id: "Download", name: "Download" }]
+                statusList = [{ id: "", name: "Select Action" }, { id: "OverWrite", name: "OverWrite Salary Process" }, { id: "Download", name: "Download" }]
+            }                
+            else if (item.PayrollmenuProcessId == 2 && item.SalaryStatus == "Init") { //Requested for salary processing sublimantry
+                //statusList = [{ id: "", name: "Select Action" }, { id: "OverWrite", name: "OverWrite Salary Process" }, { id: "mailsend", name: "Send to Accounts" }, { id: "Download", name: "Download" }]
+                statusList = [{ id: "", name: "Select Action" }, { id: "OverWrite", name: "OverWrite Salary Process" }, { id: "Download", name: "Download" }]
+            }
+            else if (item.PayrollmenuProcessId == 0 && item.SalaryStatus == "Requested for salary processing") {
+                statusList = [{ id: "", name: "Select Action" }, { id: "vendor mail", name: "Send to Vendor" }, { id: "Download", name: "Download" }]
+            }
+            else if (item.PayrollmenuProcessId == 0 && item.SalaryStatus == "Overwritten") {
+                statusList = [{ id: "", name: "Select Action" }, { id: "Download", name: "Download" }]
+            }
+
+            else {
+                statusList = [{ id: "", name: "Select Action" }, { id: "StartProcess", name: "Start Processing" }, { id: "vendor mail", name: "Send to Vendor" }, { id: "Download", name: "Download" }]
+            }
+            //statusList = [{ id: "", name: "Select Action" },{ id: "mailsend", name: "Send to Vendor" }, { id: "Download", name: "Download" }]
+
+            var $customSelect = $("<select>")
+                .attr("class", "form-control").prop("selectedIndex", "")
+            $.each(statusList, function (index, itemData) {
+                $customSelect.append($('<option/>', {
+
+                    value: itemData.id,
+                    text: itemData.name
+                }));
+            });
+            $customSelect.change(function (e) {
+                var selVal = $(this).val();
+                if (selVal == "mailsend") {
+                    var choice = confirm("Do you want to send Mail");
+                    if (choice == true) {
+                        $('.loading-bg').removeClass('dis-none');
+                        $.ajax({
+                            type: "Post",
+                            url: '@Url.Action("SendMailOSGPayroll", "Requirement")',
+                            data: {
+                                PayrollId: item.PayrollId
+                            },
+                            success: function (result) {
+                                $('.loading-bg').addClass('dis-none');
+                                if (result == 1) {
+
+                                    $.confirm({
+                                        title: 'Success Message',
+                                        content: 'Mail send to Accounts',
+                                        type: 'green',
+                                        buttons: {
+                                            Ok: function () {
+                                                $("#gridDataOSG").jsGrid("loadData");
+                                            },
+                                        },
+                                    });
+                                }
+                                else if (result == 2) {
+
+                                    $.confirm({
+                                        title: 'Error!',
+                                        content: 'Mail not Send Please Conatact Administrator',
+                                        type: 'red',
+                                        buttons: {
+                                            Ok: function () {
+                                                $("#gridDataOSG").jsGrid("loadData");
+                                            },
+                                        },
+                                    });
+                                }
+                                else {
+
+                                    $.confirm({
+                                        title: 'Error!',
+                                        content: 'Something went to wrong please Contact administrator',
+                                        type: 'red',
+                                        buttons: {
+                                            Ok: function () {
+                                                $("#gridDataOSG").jsGrid("loadData");
+                                            },
+                                        },
+                                    });
+                                }
+                            },
+                            error: function (err) {
+                                $('.loading-bg').addClass('dis-none');
+                                console.log("error1 : " + err);
+                            }
+                        });
+                    }
+
+
+                }
+                else if (selVal == "Download") {
+                    var url = '@Url.Action("DownloadExportOSGPayrollDetail", "RCTReportMaster")?PayrollId=' + item.PayrollId;
+                    window.open(url, "_blank");
+                }
+                else if (selVal == "StartProcess") {
+                    var choice = confirm("Are Sure do you want Start Processing Salary");
+
+                    if (choice == true) {
+                        $('.loading-bg').removeClass('dis-none');
+                        $.ajax({
+                            type: "Post",
+                            url: '@Url.Action("ChangProcessStatusOSG", "Requirement")',
+                            data: {
+                                PayrollId: item.PayrollId
+                            },
+                            success: function (result) {
+                                $('.loading-bg').addClass('dis-none');
+                                if (result == 1) {
+                                    @*var url = '@Url.Action("DownloadOSGStartProcessingPayroll", "RCTReportMaster")?PayrollId=' + item.PayrollId;
+                                    window.open(url, "_blank");*@
+
+                                    exceldownload(result);
+
+                                    $.confirm({
+                                        title: 'Success Message',
+                                        content: 'Start Processing Sucessfully',
+                                        type: 'green',
+                                        buttons: {
+                                            Ok: function () {
+                                                $("#gridDataOSG").jsGrid("loadData");
+                                            },
+                                        },
+                                    });
+                                }
+                                else {
+
+                                    $.confirm({
+                                        title: 'Error!',
+                                        content: 'Something went to wrong Please Contact Administrator',
+                                        type: 'red',
+                                        buttons: {
+                                            Ok: function () {
+                                                $("#gridDataAdhoc").jsGrid("loadData");
+                                            },
+                                        },
+                                    });
+                                }
+                            },
+                            error: function (err) {
+                                $('.loading-bg').addClass('dis-none');
+                                console.log("error1 : " + err);
+                            }
+
+                        });
+
+                    }
+                }
+                else if (selVal == "OverWrite") {
+                    var choice = confirm("Are Sure do you want over write salary Processing");
+                    if (choice == true) {
+                        $('.loading-bg').removeClass('dis-none');
+                        $.ajax({
+                            type: "Post",
+                            url: '@Url.Action("ChangProcessStatusOSG", "Requirement")',
+                            data: {
+                                PayrollId: item.PayrollId
+                            },
+                            success: function (result) {
+                                $('.loading-bg').addClass('dis-none');
+                                if (result == 1) {
+                                    @*var url = '@Url.Action("DownloadOSGStartProcessingPayroll", "RCTReportMaster")?PayrollId=' + item.PayrollId;
+                                    window.open(url, "_blank");*@
+
+                                    exceldownload(result);
+
+                                    $.confirm({
+                                        title: 'Success Message',
+                                        content: 'Over write Processing Sucessfully',
+                                        type: 'green',
+                                        buttons: {
+                                            Ok: function () {
+                                                $("#gridDataAdhoc").jsGrid("loadData");
+                                            },
+                                        },
+                                    });
+                                }
+                                else {
+
+                                    $.confirm({
+                                        title: 'Error!',
+                                        content: 'Something went to wrong Please Contact Administrator',
+                                        type: 'red',
+                                        buttons: {
+                                            Ok: function () {
+                                                $("#gridDataAdhoc").jsGrid("loadData");
+                                            },
+                                        },
+                                    });
+                                }
+                            },
+                            error: function (err) {
+                                $('.loading-bg').addClass('dis-none');
+                                console.log("error1 : " + err);
+                            }
+                        });
+                    }
+
+                }
+                else if (selVal == "vendor mail") {
+                    var choice = confirm("Do you want to send Mail");
+                    if (choice == true) {
+                        $('.loading-bg').removeClass('dis-none');
+                        $.ajax({
+                            type: "Post",
+                            url: '@Url.Action("SendMailOSGPayrollVendor", "Requirement")',
+                            data: {
+                                PayrollId: item.PayrollId
+                            },
+                            success: function (result) {
+                                $('.loading-bg').addClass('dis-none');
+                                if (result == 1) {
+                                    $.confirm({
+                                        title: 'Success Message',
+                                        content: 'Mail send to Vendor',
+                                        type: 'green',
+                                        buttons: {
+                                            Ok: function () {
+                                                $("#gridDataOSG").jsGrid("loadData");
+                                            },
+                                        },
+                                    });
+                                }
+                                else if (result == 2) {
+                                    $.confirm({
+                                        title: 'Error!',
+                                        content: 'Mail not Send Please Conatact Administrator',
+                                        type: 'red',
+                                        buttons: {
+                                            Ok: function () {
+                                                $("#gridDataOSG").jsGrid("loadData");
+                                            },
+                                        },
+                                    });
+                                }
+                                else {
+                                    $.confirm({
+                                        title: 'Error!',
+                                        content: 'Something went to wrong please Contact administrator',
+                                        type: 'red',
+                                        buttons: {
+                                            Ok: function () {
+                                                $("#gridDataOSG").jsGrid("loadData");
+                                            },
+                                        },
+                                    });
+                                }
+                            },
+                            error: function (err) {
+                                $('.loading-bg').addClass('dis-none');
+                                console.log("error1 : " + err);
+                            }
+                        });
+                    }
+                }
+
+                $(this).val("");
+                return false;
+                e.stopPropagation();
+            });
+            return $result.add($customSelect);
+        },
+        _createFilterSwitchButton: function () {
+            return this._createOnOffSwitchButton("filtering", this.searchModeButtonClass, false);
+        }
+    }
+
+
+        ],
+    });
+    $("#gridDataAdhoc,#gridDataOSG").jsGrid("option", "filtering", false);
+
+    function exceldownload(result) {
+        var byteArray = new Uint8Array(result.bytefile);
+        var a = window.document.createElement('a');
+        a.href = window.URL.createObjectURL(new Blob([byteArray], { type: result.fileType }));
+        a.download = result.fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+
+</script>
+

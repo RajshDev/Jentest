@@ -1,0 +1,858 @@
+﻿@model IOAS.Models.ManDayModel
+
+@{
+    ViewBag.Title = "Mandays";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<div class="row hd-tt-bg">
+    <div class="col-md-12">
+        <h4><b>Mandays</b> </h4>
+    </div>
+</div>
+<div class="row">
+    <div class="white-bg ad-navbar">
+        <div class="col-md-3 ds-spl-bg">
+            <div class="ds-icn">
+                <i class="ion-ios-list-outline "></i>
+            </div>
+            <div class="ds-tt">
+                <span>Request Reference</span><br />
+                <span>@Html.DisplayFor(m=>m.SourceName)</span>
+                @Html.HiddenFor(m => m.Source, new { @id = "Source" })
+                @Html.HiddenFor(m => m.NeedUpdateTransDetail)
+                @Html.TextBoxFor(m => m.ManDayId, new { @id = "manid", @class = "dis-none" })
+                @Html.Hidden("TransactionTypeCode", "MDY")
+            </div>
+        </div>
+        <div class="col-md-3 ds-spl-bg">
+            <div class="ds-icn">
+                <i class="ion-ios-calendar-outline"></i>
+            </div>
+            @if (Model.ReferenceNumber != null)
+            {
+            <div class="ds-tt">
+                <span>Ref Number (WF / Tapal)</span>
+                <span>@Html.DisplayFor(m => m.ReferenceNumber)</span>
+                @Html.TextBoxFor(m => m.ReferenceNumber, new { @class = "form-control dis-none" })
+                @Html.TextBoxFor(m => m.SourceReferenceNumber, new { @class = "form-control dis-none" })
+                @Html.ValidationMessageFor(m => m.SourceReferenceNumber)
+                @Html.Hidden("SourceTapalOrWorkflow", "True")
+
+            </div>
+            }
+           @if (Model.SourceEmail != null)
+            {
+            <div class="ds-tt">
+                <span>Email Date :</span><br />
+                <span>@Html.DisplayFor(m => m.SourceEmail)</span>
+            </div>
+           }
+        </div>
+
+        <div class="col-md-3 col-md-offset-3">
+            <div class="reg-no custom-reg-no">
+                <div class="form-group custom-form-group">
+                    <label>Number</label>
+                    <h4>@Html.DisplayFor(m => m.ManDayNumber)</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="vw-dts-bg">
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th colspan="4">Beneficiary Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <label>Req Date</label>
+                            <h4>@Html.DisplayFor(m=>m.ReqstDate)</h4>
+                        </td>
+                        <td>
+                            <label>Month & Year</label>
+                            <h4>@Html.DisplayFor(m => m.monthsyear)</h4>
+                        </td>
+                        <td colspan="2">
+                            <label>Remarks</label>
+                            <h4>@Html.DisplayFor(m => m.Remark)</h4>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th colspan="10">Mandays Details</th>
+                    </tr>
+                </thead>
+                <tbody id="tbodyMan">
+                    <tr>
+                      
+                        <td>Staff Name</td>
+                        <td>Dept</td>
+                        <td>No Of Days</td>
+                        <td>Grade Pay</td>
+                        <td>Total Mandays Value</td>
+                        <td id="tdbank">Mode Of Payment</td>
+                        <td id="tdbank">Bank Name</td>
+                        <td id="tdbranch">Branch</td>
+                        <td id="tdacc">Account Number</td>
+                        <td id="tdifsc">IFSC</td>
+                    </tr>
+                    @if (Model.MDY != null)
+                    {
+                        var count = 0;
+                        foreach (var item in Model.MDY)
+                        {
+                            //var projno = "MDY[" + count + "].ProjectNumber";
+                            //var projid = "MDY[" + count + "].ProjectId";
+                            var staffid = "MDY[" + count + "].StaffId";
+                            var staffname = "MDY[" + count + "].StaffName";
+                            var dept = "MDY[" + count + "].Department";
+                            var depcode = "MDY[" + count + "].DeptCode";
+                            var days = "MDY[" + count + "].NoOfDays";
+                            var amtprday = "MDY[" + count + "].AmountPerDay";
+                            var amount = "MDY[" + count + "].Amount";
+                            var modeofpayment = "MDY[" + count + "].PaymentMode";
+                            var bankname = "MDY[" + count + "].BankName";
+                            var branch = "MDY[" + count + "].Branch";
+                            var accno = "MDY[" + count + "].AccountNo";
+                            var ifsc = "MDY[" + count + "].IFSC";
+                            <tr id="trdetails" class="p-b-sm">
+                              
+                                <td>
+                                    @*@Html.TextBox(@staffname, item.StaffName, new { @class = "form-control ", @id = "staffname", @autocomplete = "off" })
+                                    @Html.TextBox(@staffid, item.StaffId, new { @class = "form-control dis-none required" })
+                                    @Html.ValidationMessage(@staffid)*@
+                                    <h4>@item.StaffName</h4>
+                                    @Html.Hidden("MDY.Index", @count)
+                                </td>
+                                <td>
+                                   
+                                    @Html.TextBox(@depcode, item.DeptCode, new { @class = "form-control dis-none required" })
+                                   <h4>@item.Department</h4>
+                                </td>
+                                <td>
+                                    @*@Html.TextBox(@days, item.NoOfDays, new { @class = "form-control required", @onkeypress = "return ValidateNumberOnly(event)", @autocomplete = "off" })
+                                    @Html.ValidationMessage(@days)*@
+                                    <h4>@item.NoOfDays</h4>
+                                </td>
+                                <td>
+                                    @*@Html.TextBox(@amtprday, item.AmountPerDay, new { @class = "form-control required", @id = "amtperday", @autocomplete = "off", @onkeypress = "return ValidateDecimalOnly(event)" })
+                                    @Html.ValidationMessage(@amtprday)*@
+                                    <h4>@item.AmountPerDay</h4>
+                                </td>
+                                <td>
+                                    @Html.Hidden(@amount, item.Amount, new { @class = "form-control required", @readonly = true, @id = "amt" })
+                                    @Html.ValidationMessage(@amtprday)
+                                    <h4>@item.Amount</h4>
+                                </td>
+                                <td>
+                                    @*@Html.DropDownList(@modeofpayment, new SelectList(ViewBag.PaymtMode, "id", "name", item.PaymentMode), "Select PaymentMode", new { @class = "form-control required", @id = "modeofpayment" })
+                                    @Html.ValidationMessage(@modeofpayment)*@
+                                    <h4>@item.PaymentModeName</h4>
+                                </td>
+                                <td id="bankname">
+                                    @*@Html.TextBox(@bankname, item.BankName, new { @class = "form-control", @readonly = true, @autocomplete = "off" })
+                                    @Html.ValidationMessage(@bankname)*@
+                                    <h4>@item.BankName</h4>
+                                </td>
+                                <td id="branch">
+                                    @*@Html.TextBox(@branch, item.Branch, new { @class = "form-control", @readonly = true, @autocomplete = "off" })
+                                    @Html.ValidationMessage(@branch)*@
+                                    <h4>@item.Branch</h4>
+                                </td>
+                                <td id="accno">
+                                    @*@Html.TextBox(@accno, item.AccountNo, new { @class = "form-control", @readonly = true, @autocomplete = "off" })
+                                    @Html.ValidationMessage(@accno)*@
+                                    <h4>@item.AccountNo</h4>
+                                </td>
+                                <td id="ifsc">
+                                    @*@Html.TextBox(@ifsc, item.IFSC, new { @class = "form-control", @readonly = true, @autocomplete = "off" })
+                                    @Html.ValidationMessage(@ifsc)*@
+                                    <h4>@item.IFSC</h4>
+                                </td>
+                                
+                            </tr>
+                            count++;
+                        }
+
+                    }
+
+                    else
+                    {
+                       
+                    }
+                </tbody>
+                <tr>
+                    <td colspan="8"></td>
+                    <td colspan="2" class="reg-no">
+                        <label class="lblval">Total Amount</label>
+                        @Html.HiddenFor(m => m.TotalAmount, new { @class = "form-control tdAmt", @id = "totalamount", @readonly = true })
+                        <h4 class="tatval">@Html.DisplayFor(m=>m.TotalAmount)</h4>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <h3>Commitment Details</h3>
+            @Html.Partial("_CommitmentDetailsView", Model.CommitmentDetail)
+            @Html.Partial("_TransactionDetailsView", Model)
+        </div>
+    </div>
+    <div class="row">
+
+        <div class="col-md-12">
+            <div>
+                @Html.Partial("_CheckListDetailView", Model.CheckListDetail)
+            </div>
+            <table class="table table-bordered mb-null">
+                <tbody>
+                    <tr>
+
+                        <td>
+                            @Html.HiddenFor(m => m.CheckListVerified_By, new { @disabled = "disabled" })
+                            @Html.HiddenFor(m => m.CheckListVerifierName, new { @disabled = "disabled" })
+                            <label>Verified by</label>
+                            <h4 id="Verified_ByName">@Html.DisplayFor(m => m.CheckListVerifierName)</h4>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            @Html.Partial("_DocumentDetailView", Model.DocumentDetail)
+        </div>
+    </div>
+</div>
+<input type="hidden" id="currentRefId" value="@Model.ManDayId" />
+<input type="hidden" id="processGuideLineId" value="@ViewBag.processGuideLineId" />
+@Html.Partial("_ProcessStatus")
+<div class="row">
+    <div class="col-md-12 text-center pd-tb-30">
+        @if (Model.PFInit != true)
+        {
+            <input type="button" onclick="window.location.href='@Url.Action("ManDayList", "CoreAccounts")';" class="btn btn-default" value="Close" id="btnclose" />
+        }
+        else
+        {
+            <input type="button" onclick="window.location.href='@Url.Action("Dashboard", "Home")';" class="btn btn-default" value="Close" id="btnclose" />
+        }
+    </div>
+</div>
+
+@Html.AntiForgeryToken()
+<div id="popup"></div>
+
+<script>
+    var dis = '@ViewBag.disabled';
+    //if (dis != "") {
+    //    $('.form-control').prop('disabled', true);
+    //    $('.ion-trash-a').removeClass();
+    //    $('#btnAddPO').hide();
+    //    $('#btnAddMan').hide();
+    //    $('#btnAddStudent').hide();
+    //    $("input[type='radio']").prop('disabled', true);
+    //    $('#selectCommitment').hide();
+    //    $('#btnReset,#btnbookcommitment,#btnbookcommitment,#btnCollapseSrchCommit').hide();
+    //    $('input[type="checkbox"]').prop('disabled', true);
+    //    $('input[type="file"],#btnAddAttachment').hide();
+    //    $('#ProcessStatusContainer .form-control').prop('disabled', false);
+    //    $('#btnAddExpense').hide();
+    //    $('.btn-circle').removeClass();
+    //    $('.ion-close-round').removeClass();
+    //}
+
+
+    $('input[name$=".InvDate"]').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
+    $('#SourceEmailDate, #srchFromDate, #srchToDate,#InvoiceDate,#PODate,#ReqDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
+    $('#srchToDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true }).datepicker("setDate", "0");
+    var defaultFromDate = moment(new Date()).add(-10, 'days').toDate();
+    $('#srchFromDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true }).datepicker("setDate", defaultFromDate);
+    $('#MonthYear').datepicker({ dateFormat: 'mm/yy' });
+    var errMsg = '@TempData["errMsg"]';
+    $(document).on('change', '#MonthYear', function ()
+    {
+        $('input[name$=".NoOfDays"]').val("");
+    });
+    $(document).ready(function ()
+    {
+        if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+        CalculatePaymentValue();
+        $('.selectpicker').selectpicker({
+            liveSearch: true
+        });
+        var selSource = $('#Source').val();
+        $("#divRefNum, #divRefEmailDate").addClass('dis-none');
+        if (selSource == '1') {
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACWorkflowRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+        } else if (selSource == '3') {
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACTapalRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+        }
+        else if (selSource == '2') {
+            $('#divRefEmailDate').removeClass('dis-none');
+        } else {
+            $("#divRefNum").removeClass('dis-none');
+        }
+        $('#Source').change(function () {
+            var selSource = $(this).val();
+            $("#SourceReferenceNumber,#ReferenceNumber").val('');
+		    $("#divRefNum, #divRefEmailDate").addClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('False');
+		    if (selSource == '1') {
+                applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACWorkflowRefNumber", "Proposal")");
+                $("#divRefNum").removeClass('dis-none');
+                $("#SourceTapalOrWorkflow").val('True');
+            } else if (selSource == '3') {
+                applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACTapalRefNumber", "Proposal")");
+                $("#divRefNum").removeClass('dis-none');
+                $("#SourceTapalOrWorkflow").val('True');
+            }
+            else if (selSource == '2') {
+                $('#divRefEmailDate').removeClass('dis-none');
+                $("#SourceTapalOrWorkflow").val('False');
+            } else {
+                $("#divRefNum").removeClass('dis-none');
+                $("#SourceTapalOrWorkflow").val('True');
+            }
+        });
+        var credit = parseFloat($('#totalamount').val());
+        $("#CreditorAmount").val(credit);
+        $('select[name$=".PaymentMode"]').each(function () {
+            var id = $(this).closest('tr').find('select[name$=".PaymentMode"]').val();
+            if (id == 2) {
+                $(this).closest('tr').find('input[name$=".BankName"],input[name$=".Branch"],input[name$=".AccountNo"],input[name$=".IFSC"]').addClass('required');
+            }
+            else {
+                $(this).closest('tr').find('input[name$=".BankName"],input[name$=".Branch"],input[name$=".AccountNo"],input[name$=".IFSC"]').removeClass('required');
+            }
+        });
+        $('#tbodyMan').find(' input[name$=".StaffName"]').each(function () {
+            $(this).closest('tr').find('input[name$=".StaffId"]').addClass('required');
+            var ele = $(this).closest('tr').find('input[name$=".StaffName"]');
+            aplyAutoComplete(ele, "../CoreAccounts/GetStaffname");
+
+        });
+
+    });
+
+    $(document).on('click', 'input[name$=".StaffName"]', function ()
+    {
+        var ele = $(this).closest('tr').find('input[name$=".StaffName"]').val();
+        var projid = $(this).closest('tr').find('input[name$=".StaffId"]').val();
+        aplyAutoComplete($(this).closest('tr').find('input[name$=".StaffName"]'), "../CoreAccounts/GetStaffname");
+       // applyAutoComplete(projno, projid, "../CoreAccounts/LoadProjectNumber", undefined, undefined, undefined);
+    });
+    function aplyAutoComplete(ele, url) {
+        $(ele).autocomplete({
+            select: function (event, ui) {
+                event.preventDefault();
+                $(ele).val(ui.item.label);
+                $(ele).closest('tr').find('input[name$=".StaffId"]').val(ui.item.value);
+                $(ele).closest('tr').find('input[name$=".StaffName"]').val(ui.item.label);
+                $(ele).closest('tr').find('input[name$=".Department"]').val(ui.item.desc);
+                $(ele).closest('tr').find('input[name$=".DeptCode"]').val(ui.item.icon);
+            },
+            focus: function (event, ui) {
+                event.preventDefault();
+                $(ele).val(ui.item.label);
+            },
+            source: function (request, response) {
+                $.getJSON(url, { term: request.term },
+                 function (locationdata) {
+                     response(locationdata);
+                 });
+            },
+            minLength: 3
+        }).autocomplete("widget").addClass("your_custom_class");
+        //.autocomplete("widget").addClass("your_custom_class");
+    }
+    @*$(document).on('change', 'input[name$=".ProjectNumber"]', function ()
+    {
+        var projid = $(this).closest('tr').find('input[name$=".ProjectId"]').val();
+        $(this).closest('tr').find('input[name$=".NoOfDays"]').val("");
+        var eleTr = $(this).closest('tr');
+        $.getJSON("@Url.Action("GetStaffname", "CoreAccounts")", { projid: projid },
+                   function (locationdata)
+                   {
+                       eleTr.find('input[name$=".StaffName"]').val(locationdata.StaffName);
+                       eleTr.find('input[name$=".StaffId"]').val(locationdata.StaffId);
+                       eleTr.find('input[name$=".Department"]').val(locationdata.Department);
+                       eleTr.find('input[name$=".DeptCode"]').val(locationdata.DeptCode);
+                    });
+
+    });*@
+    /* Man-DayDetails PaymentMode Realted Function */
+    $(document).on('change', 'select[name$=".PaymentMode"]', function () {
+        var id = $(this).closest('tr').find('select[name$=".PaymentMode"]').val();
+        if (id == 2) {
+            $(this).closest('tr').find('input[name$=".BankName"]').prop("readonly", false).addClass('required');
+            $(this).closest('tr').find('input[name$=".Branch"]').prop("readonly", false).addClass('required');
+            $(this).closest('tr').find('input[name$=".AccountNo"]').prop("readonly", false).addClass('required');
+            $(this).closest('tr').find('input[name$=".IFSC"]').prop("readonly", false).addClass('required');
+
+        }
+        else {
+            $(this).closest('tr').find('input[name$=".BankName"]').prop("readonly", true).val("").removeClass('required');
+            $(this).closest('tr').find('input[name$=".Branch"]').prop("readonly", true).val("").removeClass('required');
+            $(this).closest('tr').find('input[name$=".AccountNo"]').prop("readonly", true).val("").removeClass('required');
+            $(this).closest('tr').find('input[name$=".IFSC"]').prop("readonly", true).val("").removeClass('required');
+
+
+        }
+    });
+
+    /* Man-DayDetails Related ADDNew Function */
+    $('#btnAddMan').click(function () {
+        var cln = $('#tbodyMan tr:nth-child(2)').clone().find("input[type!='checkbox']").val("").end();
+        $(cln).find('select[type="hidden"][name$=".PaymentMode"],select[type="hidden"][name$=".PaymentMode"]').val("").end();
+        $(cln).find('select[name$=".PaymentMode"],select[select=".PaymentMode"]').val("").end();
+        $(cln).find('.tdAmt').text('');
+        $(cln).find('a.dis-none').removeClass('dis-none');
+        var index = $('#tbodyMan tr:last').find("input[name='MDY.Index']").val();
+        index = parseInt(index) + 1;
+        $(cln).find("input[name='MDY.Index']").val(index);
+        $(cln).find("input, select").each(function () {
+            $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+            if ($(this).attr("id"))
+                $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+        });
+        $(cln).find("span[data-valmsg-for]").each(function () {
+            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+        });
+
+        $('#tbodyMan').append(cln);
+    });
+
+    $(document).on('keyup', 'input[name$=".StaffName"]', function () {
+        if ($(this).val() == '') {
+            $(this).closest('tr').find('input[name$=".StaffId"]').val("");
+        }
+    });
+    //$(document).on('keyup', 'input[name$=".ProjectNumber"]', function () {
+    //    if ($(this).val() == '') {
+    //        $(this).closest('tr').find('input[name$=".ProjectId"]').val("");
+    //    }
+    //});
+    $(document).on('click', 'a.removeHOItem', function () {
+        $(this).closest('tr').remove();
+        calculateamount();
+    });
+    $(document).on('change', 'input[name$=".NoOfDays"]', function () {
+        var days = parseFloat($(this).val());
+        var noofday = $(this);
+        var projid = $(this).closest('tr').find('input[name$=".StaffId"]').val();
+        var monyr = $("#MonthYear").val();
+        var mandayid = $("#manid").val();
+        if (monyr == "")
+        {
+            $('#alert').html("First Select month and Year For Mandays");
+            $('#Validation').modal('toggle');
+            noofday.val("");
+        }
+        else {
+            $.getJSON("@Url.Action("ValidateManDay", "CoreAccounts")", { projid: projid, days: days, monyr: monyr, mandayid: mandayid },
+                       function (locationdata)
+                       {
+                           var day = 0;
+                           var tldday = 0;
+                           var avldate = 0;
+                           var errmsg=0;
+                           $.each(locationdata, function (index, itemData) {
+                               errmsg += itemData.errmsgid;
+                           });
+                           if (errmsg != 0)
+                           {
+                               var isValid = true;
+                               if (days > 7) {
+                                   $('#alert').html("No of Days should not be greater than 7");
+                                   $('#Validation').modal('toggle');
+                                   noofday.val("");
+                                   isValid = false;
+                               }
+                               if (isValid) {
+                                   calculateamount();
+                               }
+                           }
+                           else
+                           {
+                           $.each(locationdata, function (index, itemData) {
+                               day += itemData.NoOfDays;
+                           });
+                           tldday = days + day;
+                           avldate = 7 - day;
+                            if (tldday > 7)
+                            {
+                                $('#alert').html("Mandays exceeded entitled limit of 7 days for the current month. Availed days : "+day+" . Remaining days that can be availed for this month : "+avldate );
+                                $('#Validation').modal('toggle');
+                                noofday.val("");
+                            }
+
+                            else {
+                                calculateamount();
+                            }
+                           }
+                           });
+
+
+        }
+    });
+    $(document).on('change', 'input[name$=".AmountPerDay"]', function () {
+        var isValid = true;
+        if (($(this).val() > 500) || ($(this).val() < 300))
+        {
+            $('#alert').html("Grand Pay max is 500 and min is 300");
+            $('#Validation').modal('toggle');
+            $(this).val("");
+            isValid = false;
+        }
+        if (isValid) {
+            calculateamount();
+        }
+    });
+    function calculateamount() {
+        var nettotal = 0;
+        $('#tbodyMan tr').each(function (idx, val) {
+            var day = parseFloat($(this).closest('tr').find('input[name$=".NoOfDays"]').val());
+            var amtperday = parseFloat($(this).closest('tr').find('input[name$=".AmountPerDay"]').val());
+            var amount = parseFloat($(this).closest('tr').find('input[name$=".Amount"]').val());
+            var amt = parseFloat((day * amtperday));
+            if (!isNaN(amt)) {
+                $(this).find('input[name$=".Amount"]').val(amt);
+                nettotal += amt;
+            }
+        });
+        if (!isNaN(nettotal)) {
+            //$("#totalamount").val(nettotal.toFixed(0));
+            //$("#lblTatAmt").text(nettotal.toFixed(0));
+            var credit = parseFloat($('#totalamount').val());
+            $("#CreditorAmount").val(credit);
+        }
+    }
+
+    function ValidateTransaction() {
+        var msg = 'valid';
+        var netCrAmt = parseFloat($('#CreditorAmount').val());
+        var commitmentAmt = parseFloat($('#CommitmentAmount').val());
+        var ttlExpAmt = parseFloat($('#ExpenseAmount').val()) || 0;
+        var ttldeductAmt = parseFloat($('#DeductionAmount').val()) || 0;
+        var crAmt = parseFloat($('#ttlCr').val()) || 0;
+        var overallExp = parseFloat($('#OverallExpense').val()) || 0;
+        var netDrAmt = ttlExpAmt + ttldeductAmt;
+        if (isNaN(netCrAmt)) {
+            return 'The Credit value is not a valid entry.';
+        }
+        if (netDrAmt != crAmt || netCrAmt != crAmt) {
+            msg = 'Not a valid entry. Credit and Debit value are not equal.';
+        }
+        //if (isNaN(netCrAmt) || isNaN(overallExp)) {
+        //    msg = 'The credit value / overall expenses is not a valid entry.';
+        //} else if (netCrAmt != overallExp) {
+        //    msg = 'There is a mismatch between the credit value and overall expenses value. Please update the value to continue.';
+        //}
+
+        var hdList = [];
+        $('#tbodyExpenseList tr').find('select[name$=".AccountHeadId"]').each(function (idx, val) { hdList.push($(val).val()); });
+        hdList.sort();
+        // duplicate check
+        for (var k = 1; k < hdList.length; ++k) {
+            if (hdList[k] == hdList[k - 1]) {
+                msg = "Duplicate account head exist in expense details. Please select a different head.";
+            }
+        }
+        return msg;
+    }
+    function ValidateCommitment() {
+        var msg = 'valid';
+        CalculatePaymentValue();
+        var commitmentAmt = parseFloat($('#CommitmentAmount').val());
+        var totalpayable = parseFloat($('#totalamount').val());
+        //var eligtax = parseFloat($('#txtEligibleTaxValue').val());
+        // var ttlAdvAmt = netPayAmt - eligtax;
+        // var advPct = parseInt($("#AdvancePercentage").val());
+        //  var offsetValue = $("input[name='GST']:checked").val();
+        $("#tbodyCommitmentSelList tr").each(function () {
+            var elePayment = $(this).find("input[name$='.PaymentAmount']");
+            var eleAvlBal = $(this).find('input[name$=".AvailableAmount"]');
+            var parseVal = parseFloat($(elePayment).val()) || 0;
+            var avlBal = parseFloat($(eleAvlBal).val()) || 0;
+            if (parseVal > avlBal)
+                msg = "Commitment payment value should not be greater than available balance."
+        });
+        if (isNaN(totalpayable) || isNaN(commitmentAmt)) {
+            msg = 'The requested advance value / allocated commitment value is not a valid entry.';
+        } else if (totalpayable != commitmentAmt) {
+            msg = 'There is a mismatch between the payable amount and allocated commitment value. Commitment value should be equal to Net Total. Please update the value to continue.';
+        }
+
+        return msg;
+    }
+    $('#Source').change(function () {
+        var selSource = $(this).val();
+        var select = $("#SourceReferenceNumber");
+        select.empty();
+        $("#divRefNum, #divRefEmailDate").addClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('False');
+        if (selSource == '1') {
+            $.getJSON("@Url.Action("GetWorkflowRefNumber","Proposal")",
+             function (locationdata) {
+                 fillMasterDropDown(select, locationdata);
+             });
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        } else if (selSource == '3') {
+            $.getJSON("@Url.Action("GetTapalRefNumber","Proposal")",
+            function (locationdata) {
+                fillMasterDropDown(select, locationdata);
+            });
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        }
+        else if (selSource == '2') {
+            $('#divRefEmailDate').removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('False');
+        } else {
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        }
+    });
+    function formSave() {
+        var isValid = $('#formMan').valid();
+        if (!isValid)
+            return false;
+        var doctypevalues = [];
+        $('select[name$=".DocumentType"]').each(function (idx, val) { doctypevalues.push($(val).val()); });
+        doctypevalues.sort();
+        // duplicate check
+        for (var k = 1; k < doctypevalues.length; ++k) {
+            if (doctypevalues[k] == doctypevalues[k - 1]) {
+                $('#alert').html("Selected attachment type already exist. Please select a different attachment type.");
+                $('#Validation').modal('toggle');
+                return false;
+            }
+            isValid = true;
+        }
+
+
+        $('#formMan').submit();
+
+    }
+
+    function AddNewExpense() {
+        //var stateCode = $('#lblStateCode').html();
+        //var BillType = $('#BillType').val();
+        $.ajax({
+            type: "GET",
+            url: "@Url.Action("GetAddNewExpenseDetails", "CoreAccounts")",
+            data: { "typeCode": "MDY", "tSubCode": "1" },
+        traditional: true,
+        dataType: "json",
+        success: function (result) {
+            $.each(result.ExpenseDetail, function (i, item) {
+                var cln = $('#tbodyExpenseList tr:first').clone().find("select,input").val("").end();
+                $(cln).find('a.dis-none').removeClass('dis-none');
+                var index = $('#tbodyExpenseList tr:last').find("input[name='ExpenseDetail.Index']").val();
+                index = parseInt(index) + 1;
+                $(cln).find("input[name='ExpenseDetail.Index']").val(index);
+                $(cln).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                $(cln).find('#lblTransType').text(item.TransactionType);
+                $(cln).find('input[name$=".IsJV"]').val(item.IsJV);
+                $(cln).find("input, select").each(function () {
+                    $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+                    $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+                });
+                $(cln).find("span[data-valmsg-for]").each(function () {
+                    $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+                });
+
+                var selectGroup = $(cln).find("select[name$='.AccountGroupId']");
+                selectGroup.empty();
+                $.each(item.AccountGroupList, function (index, itemData) {
+                    selectGroup.append($('<option/>', {
+                        value: itemData.id,
+                        text: itemData.name,
+                    }));
+                });
+
+                var selectHead = $(cln).find("select[name$='.AccountHeadId']");
+                selectHead.empty();
+                $.each(item.AccountHeadList, function (index, itemData) {
+                    selectHead.append($('<option/>', {
+                        value: itemData.id,
+                        text: itemData.name,
+                    }));
+                });
+                $('#tbodyExpenseList').append(cln);
+            });
+        },
+        error: function (err) {
+            console.log("error : " + err);
+        }
+    });
+    }
+
+    function fillMasterDropDown(ele, data, fillDafaultText, valueAsName) {
+        if (fillDafaultText !== undefined) {
+            ele.append($('<option/>', {
+                value: '',
+                text: 'Select any',
+            }));
+        }
+        if (valueAsName !== undefined) {
+            $.each(data, function (index, itemData) {
+                ele.append($('<option/>', {
+                    value: itemData.name,
+                    text: itemData.name,
+                }));
+            });
+        } else {
+            $.each(data, function (index, itemData) {
+                ele.append($('<option/>', {
+                    value: itemData.id,
+                    text: itemData.name,
+                }));
+            });
+        }
+    }
+    function GetTransactionDetails() {
+        EmptyExpenseDeductionDetails();
+        $.ajax({
+            type: "GET",
+            url: "@Url.Action("GetTransactionDetails", "CoreAccounts")",
+            data: { "typeCode": "MDY", "tSubCode": "1" },
+        traditional: true,
+        dataType: "json",
+        success: function (result) {
+            $.each(result.ExpenseDetail, function (i, item) {
+                if (i == 0) {
+                    var trEle = $('#tbodyExpenseList tr:first');
+                    $(trEle).find('input[name$=".Amount"]').val('');
+                    $(trEle).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                    $(trEle).find('input[name$=".IsJV"]').val(item.IsJV);
+                    $(trEle).find('#lblTransType').text(item.TransactionType);
+                    $(trEle).find("input[name='ExpenseDetail.Index']").val(i);
+
+                    var selectGroup = $(trEle).find('select[name$=".AccountGroupId"]');
+                    selectGroup.empty();
+                    $.each(item.AccountGroupList, function (index, itemData) {
+                        selectGroup.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+
+                    var selectHead = $(trEle).find('select[name$=".AccountHeadId"]');
+                    selectHead.empty();
+                    $.each(item.AccountHeadList, function (index, itemData) {
+                        selectHead.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+                } else {
+                    var trEleNew = $('#tbodyExpenseList tr:first').clone().find('input').val('').end();
+                    $(trEleNew).find('input[name$=".Amount"]').val('');
+                    $(trEleNew).find("input[name='ExpenseDetail.Index']").val(i);
+                    $(trEleNew).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                    $(trEleNew).find('input[name$=".IsJV"]').val(item.IsJV);
+                    $(trEleNew).find('#lblTransType').text(item.TransactionType);
+                    $(trEleNew).find("input,Select").each(function () {
+                        $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                        $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                    });
+                    $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                        $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                    });
+
+                    var selectGroup = $(trEleNew).find('select[name$=".AccountGroupId"]');
+                    selectGroup.empty();
+                    $.each(item.AccountGroupList, function (index, itemData) {
+                        selectGroup.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+
+                    var selectHead = $(trEleNew).find('select[name$=".AccountHeadId"]');
+                    selectHead.empty();
+                    $.each(item.AccountHeadList, function (index, itemData) {
+                        selectHead.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+                    $('#tbodyExpenseList').append(trEleNew);
+                }
+            });
+            $.each(result.DeductionDetail, function (i, item) {
+                if (i == 0) {
+                    var trEle = $('#tbodyDeductionList tr:first');
+                    $(trEle).find('input').val('');
+                    var amtEle = $(trEle).find('input[name$=".Amount"]');
+                    amtEle.removeClass('required');
+                    $(trEle).find('input[name$=".AccountGroupId"]').val(item.AccountGroupId);
+                    $(trEle).find('input[name$=".DeductionHeadId"]').val(item.DeductionHeadId);
+                    $(trEle).find('input[name$=".DeductionHead"]').val(item.DeductionHead);
+                    $(trEle).find('input[name$=".AccountGroup"]').val(item.AccountGroup);
+                    $(trEle).find('td:nth-child(1)').html(item.AccountGroup);
+                    $(trEle).find('td:nth-child(2)').html(item.DeductionHead);
+                } else {
+                    var trEleNew = $('#tbodyDeductionList tr:first').clone().find('input').val('').end();
+                    $(trEleNew).find("input").each(function () {
+                        $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                        $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                    });
+                    $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                        $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                    });
+                    var amtEle = $(trEleNew).find('input[name$=".Amount"]');
+
+                    amtEle.removeClass('required');
+                    $(trEleNew).find('input[name$=".AccountGroupId"]').val(item.AccountGroupId);
+                    $(trEleNew).find('input[name$=".DeductionHeadId"]').val(item.DeductionHeadId);
+                    $(trEleNew).find('input[name$=".DeductionHead"]').val(item.DeductionHead);
+                    $(trEleNew).find('input[name$=".AccountGroup"]').val(item.AccountGroup);
+                    $(trEleNew).find('td:nth-child(1)').html(item.AccountGroup);
+                    $(trEleNew).find('td:nth-child(2)').html(item.DeductionHead);
+                    $('#tbodyDeductionList').append(trEleNew);
+                }
+            });
+            $('#NeedUpdateTransDetail').val('false');
+            CalculateDeductionTotal();
+
+        },
+        error: function (err) {
+            console.log("error : " + err);
+        }
+    });
+    }
+    
+
+
+</script>
+
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>
+

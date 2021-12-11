@@ -1,0 +1,1 @@
+Alter table dbo.tblAgencyMaster Add AgencyCode nvarchar(200)

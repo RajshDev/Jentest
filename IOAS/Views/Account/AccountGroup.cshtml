@@ -1,0 +1,582 @@
+﻿@model IOAS.Models.Accountgroupmodel
+@{
+    ViewBag.Title = "AccountGroup";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+@Styles.Render("~/bundles/JSGridCss")
+@Scripts.Render("~/bundles/JSGrid")
+<script src="@Url.Content("~/Scripts/Account/Accountgroup.js")"></script>
+<div class="row hd-tt-bg" id="addnewpage">
+    <div class="col-md-4">
+        <h3>Account Group</h3>
+    </div>
+    <div class="col-md-8 flt-nav-links">
+        <a href="#" id="btnaddnew"> <i class="ion-plus"></i>Add New</a>
+        <a href="Javascript:void(0)" id="btnFilterGrp" class="pull-right"> <i class="ion-android-funnel"></i>Filters</a>
+    </div>
+</div>
+<div id="popFilterGrp" class="filter-popup">
+    <div class="">
+        <div class="filter-content">
+            <div class="white-bg">
+                <div class="form-group custom-form-group">
+                    <h3>Filter by</h3>
+                </div>
+                <div class="form-group custom-form-group">
+                    <label>Account Group</label><br>
+                    @Html.TextBoxFor(M => M.AccountGroupSearch, new { @class = "form-control", @id = "txtAcctGroupSearch" })
+                </div>
+                <div class="form-group custom-form-group">
+                    <label>Account Group Code</label><br>
+                    @Html.TextBoxFor(M => M.AccountGroupCodeSearch, new { @class = "form-control", @id = "txtAcctGroupCodeSearch" })
+                </div>
+                <div class="form-group custom-form-group">
+                    <label>Account Type</label><br>
+                    @Html.DropDownListFor(M => M.AccountTypeSearch, new SelectList(ViewBag.account, "id", "name"), "Select Account Type", new { @class = "form-control", @id = "ddlAcctTypeSearch" })
+                </div>
+                <div class="form-group custom-form-group mt30 text-center">
+                    <button id="btnSrchGrp" type="button" class="btn btn-primary mr10">Search</button>
+                    <button id="btnResetSrchGrp" type="button" class="btn btn-default">Reset</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <a href="javascript:void(0)" name="btnClosGrp" class="close-btn"><i class="ion-android-cancel"></i></a>
+
+</div>
+<div class="row">
+@*@using (Html.BeginForm("AccountGroup", "Account", FormMethod.Post, new { @class = "", role = "form", @id = "formCU", enctype = "multipart/form-data" }))
+{*@
+    <div class="col-md-12">
+        <div class="page-wrapper" id="createacctgroup" style="display:none">
+                <div class="white-bg">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h3 class="spl-title">Account Group</h3>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group custom-form-group">
+                                <label>Sub Group</label>
+                               @Html.CheckBoxFor(M=>M.Issubgroup,new {@id="chkgroup" })
+                            </div>
+                      </div>
+                    </div>
+                    <div class="row" style="display:none" id="subgrp">
+                        <div class="col-md-4">
+                            <div class="form-group custom-form-group">
+                                <label class="required">Parent group</label>
+                                @*@Html.DropDownListFor(M => M.parentgroupId, new SelectList(ViewBag.paraccount, "id", "name"), "Select Parent group", new { @id = "ddlparentgrp", @class = "form-control selectpicker", @onchange = "Parentgroup()" })*@
+                                @Html.DropDownListFor(M => M.parentgroupId, new SelectList(Enumerable.Empty<SelectListItem>(), "id", "name"), "Select Parent group", new { @id = "ddlparentgrp", @class = "form-control selectpicker", @onchange = "Parentgroup()" })
+                            </div>
+                        </div>
+                        
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group custom-form-group">
+                                <label class="required">Account group</label>
+                                @Html.TextBoxFor(M => M.AccountGroup, new { @class = "form-control", @id = "txtaccountgroup", @required = "required" })
+                                <div class="txt-error txt-red"> @Html.ValidationMessageFor(M => M.AccountGroup)</div>
+                                @Html.HiddenFor(M => M.AccountGroupId, new { @id = "txtaccountgroupid" })
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group custom-form-group">
+                                <label class="required" id="lblacttype">Account type</label>
+                                @Html.DropDownListFor(M => M.AccountType, new SelectList(ViewBag.account, "id", "name"), "Select Account type", new { @id = "ddlaccounttype", @class = "form-control",@onchange = "Accttype()" })
+                                <div class="txt-error txt-red"> @Html.ValidationMessageFor(M => M.AccountGroup)</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group custom-form-group">
+                                <label class="required">Account group code</label>
+                                @Html.TextBoxFor(M => M.AccountGroupCode, new { @id = "txtaccountgroupcode", @class = "form-control", @readonly = "readonly" })
+                                <div class="txt-error txt-red"> @Html.ValidationMessageFor(M => M.AccountGroupCode)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <div class="row">
+                <div class="col-md-12 text-center pd-tb-30">
+                    <input type="button" class="btn btn-primary mr10" value="Save" name="Button" id="btnSave" />
+                    <input type="button" class="btn btn-primary mr10" value="Update" name="Button" id="btnUpdate" style="display:none" />
+                    <input type="button" onclick="window.location.href='@Url.Action("AccountGroup", "Account")';" class="btn btn-default" value="Close" name="Button" id="btnReset" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mt30" id="gridlist">
+        <div class="col-md-12">
+            <div class="page-wrapper">
+                <div class="custom-jsgrid-normal">
+                    <div id="acctgrouplist"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+@*}*@
+</div>
+<div id="savemodal" class="modal fade modal-success" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-checkmark-circle"></i>
+                <h3 class="modal-title">Created successfully</h3>
+            </div>
+            <div class="modal-body">
+
+                <p>Account group created successfully</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<div id="warrningmodal" class="modal fade modal-warning" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-warning"></i>
+                <h3 class="modal-title"> Account group name exists !.</h3>
+            </div>
+            <div class="modal-body">
+
+                <p>This type of record alredy in database check the records and submit again!</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="deletewarrning" class="modal fade modal-warning" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-warning"></i>
+                <h3 class="modal-title"> Account Group not Deleted !.</h3>
+            </div>
+            <div class="modal-body">
+
+                <p>This accountgroup Mapped in Parent group!</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="updatemodal" class="modal fade modal-success" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-checkmark-circle"></i>
+                <h3 class="modal-title">Updated successfully</h3>
+            </div>
+            <div class="modal-body">
+
+                <p>Account group Updated successfully</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div id="deletemodal" class="modal fade modal-success" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-checkmark-circle"></i>
+                <h3 class="modal-title">Deleted successfully</h3>
+            </div>
+            <div class="modal-body">
+
+                <p>Account group deleted successfully</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div id="Errormodal" class="modal fade modal-error" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-cancel"></i>
+                <h3 class="modal-title">Error Message</h3>
+            </div>
+            <div class="modal-body">
+
+                <p>Somthing went to worng please contact Admin!.</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div id="Actgroup" class="modal fade modal-error" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-cancel"></i>
+                <h3 class="modal-title">Error Message</h3>
+            </div>
+            <div class="modal-body">
+
+                <p>Account Group name field Required</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div id="Acttype" class="modal fade modal-error" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-cancel"></i>
+                <h3 class="modal-title">Error Message</h3>
+            </div>
+            <div class="modal-body">
+
+                <p>Account type field Required</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div id="Actgroupcode" class="modal fade modal-error" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-cancel"></i>
+                <h3 class="modal-title">Error Message</h3>
+            </div>
+            <div class="modal-body">
+
+                <p>Account group code field Required</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div id="Partentgroupcode" class="modal fade modal-error" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-cancel"></i>
+                <h3 class="modal-title">Error Message</h3>
+            </div>
+            <div class="modal-body">
+
+                <p>Parent Group field is Requried</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+       
+       //This select picker load dropdown in search
+        $('.selectpicker').selectpicker({
+            liveSearch: true
+        });
+        $('.selectpicker').selectpicker('refresh');
+        FillParentGroup();
+    });
+   
+    $('#btnaddnew').on('click', function () {
+        $('#chkgroup').prop('checked', false);
+        $('#subgrp').hide();
+        $('#ddlaccounttype').show();
+        $('#lblacttype').show();
+        $('#createacctgroup,#btnSave').show();
+        $('#gridlist').hide();
+        $('#addnewpage').hide();
+        reset();
+    });
+    function reset(){
+        $('#txtaccountgroup,#txtaccountgroupcode').val('');
+        $('#ddlaccounttype').prop('selectedIndex', 0);
+        $('#ddlparentgrp').selectpicker('refresh').val(0);
+    }
+
+   $('#btnSave').on('click', function () {
+     
+       if (Validation() == true) {
+           
+            var input={
+                AccountGroupId: $('#txtaccountgroupid').val(),
+                AccountGroup: $('#txtaccountgroup').val(),
+                AccountType: $('#ddlaccounttype').val(),
+                AccountGroupCode: $('#txtaccountgroupcode').val(),
+                parentgroupId: $('#ddlparentgrp').val()
+               
+            }
+           
+            $.ajax({
+                type: "Post",
+                url: '@Url.Action("AccountGroup", "Account")',
+                data: { model: input },
+                dataType: "json",
+                success: function (data) {
+                    if (data == 1) {
+                        $('#savemodal').modal('show');
+                        reset();
+                        $('#createacctgroup,#btnUpdate,#btnSave').hide();
+                        $('#gridlist,#addnewpage').show();
+                        Getacctgroup();
+                        FillParentGroup();
+                    }
+                    else if(data==2)
+                    {
+                        $('#warrningmodal').modal('show');
+                        reset();
+                        $('#createacctgroup,#btnUpdate,#btnSave').hide();
+                        $('#gridlist,#addnewpage').show();
+                        Getacctgroup();
+                        FillParentGroup();
+                    }
+                    else
+                    {
+                        $('#Errormodal').modal('show');
+                        reset();
+                        $('#createacctgroup,#btnUpdate,#btnSave').hide();
+                        $('#gridlist,#addnewpage').show();
+                        Getacctgroup();
+                        FillParentGroup();
+                    }
+                }
+            });
+        }
+    });
+    $('#btnUpdate').on('click', function () {
+
+       if (Validation() == true) {
+            var input = {
+                AccountGroupId: $('#txtaccountgroupid').val(),
+                AccountGroup: $('#txtaccountgroup').val(),
+                AccountType: $('#ddlaccounttype').val(),
+                AccountGroupCode: $('#txtaccountgroupcode').val()
+            }
+            $.ajax({
+                type: "Post",
+                url: '@Url.Action("AccountGroup", "Account")',
+                data: { model: input },
+                dataType: "json",
+                success: function (data) {
+                    if (data == 3) {
+                        $('#updatemodal').modal('show');
+                        reset();
+                        $('#createacctgroup,#btnUpdate,#btnSave').hide();
+                        $('#gridlist,#addnewpage').show();
+                        Getacctgroup();
+                    }
+                    else if(data==2)
+                    {
+                        reset();
+                        $('#warrningmodal').modal('show');
+                        $('#createacctgroup,#btnUpdate,#btnSave').hide();
+                        $('#gridlist,#addnewpage').show();
+                        Getacctgroup();
+                    }
+                    else {
+                        $('#Errormodal').modal('show');
+                        $('#createacctgroup,#btnUpdate,#btnSave').hide();
+                        $('#gridlist,#addnewpage').show();
+                        reset();
+                        Getacctgroup();
+                    }
+                }
+            });
+        }
+    });
+    function Validation() {
+       
+        if ($('#txtaccountgroup').val() == '') {
+            $('#Actgroup').modal('show');
+            return false;
+        }
+        else if ($('#chkgroup').prop('checked') == false) {
+            if ($('#ddlaccounttype').val() == '') {
+                $('#Acttype').modal('show');
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+        else if ($('#txtaccountgroupcode').val() == '') {
+            $('#Actgroupcode').modal('show');
+            return false;
+        }
+        else if ($('#chkgroup').prop('checked') == true) {
+            if ($('#ddlparentgrp').val() == '') {
+                $('#Partentgroupcode').modal('show');
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+       
+        else {
+            return true;
+        }
+    }
+    $('#chkgroup').click(function () {
+        if ($(this).is(":checked"))
+    {
+            $('#subgrp').show();
+            $('#lblacttype').hide();
+            $('#ddlaccounttype').hide();
+            
+
+    }
+    else {
+            $('#subgrp').hide();
+            $('#ddlaccounttype').show();
+            $('#lblacttype').show();
+    }
+    });
+    function Accttype() {
+        var acttype = $('#ddlaccounttype').val();
+       $.ajax({
+                type: "Post",
+                url: '@Url.Action("Getaccounttypecode", "Account")',
+                data: { accttypeid: acttype },
+                dataType: "json",
+                success: function (result) {
+                    if (result != "") {
+                        $('#txtaccountgroupcode').val(result);
+                    }
+                    else {
+                        $('#Errormodal').modal('show');
+                    }
+                }
+            });
+        
+    }
+    function Parentgroup()
+    {
+        if ($('#chkgroup').prop('checked') == true) {
+        var partentgrpid = $('#ddlparentgrp').val();
+        
+            $.ajax({
+                type: "Post",
+                url: '@Url.Action("Getparentgroupcode", "Account")',
+                data: { parentgrpId: partentgrpid },
+                dataType: "json",
+                success: function (result) {
+                    if (result != "") {
+                        $('#txtaccountgroupcode').val(result);
+                    }
+                    else {
+                        $('#Errormodal').modal('show');
+                    }
+                }
+            });
+        }
+    }
+    function FillParentGroup()
+    {
+        $.ajax({
+            url: '@Url.Action("PrentGroupList", "Account")',
+            type: "GET",
+            dataType: "JSON",
+            data: "",
+            success: function (result) {
+
+                $("#ddlparentgrp").html(""); // clear before appending new list
+                var markup = "<option value='0'>Select Parent group</option>";
+                $("#ddlparentgrp").html(markup).show();
+                $.each(result, function (i, parent) {
+                    $("#ddlparentgrp").append(
+                        $('<option></option>').val(parent.id).html(parent.name));
+                });
+               
+            }
+        });
+    }
+    $('#btnFilterGrp').off("click").on("click", function () {
+        $('#popFilterGrp').css("display", "Block");
+    });
+    $('a[name="btnClosGrp"],button[name="btnClosGrp"]').click(function () {
+        $('#popFilterGrp').css("display", "none");
+    });
+</script>
+<link href="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/css/bootstrap-select.min.css")" rel="stylesheet" />
+<script src="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/js/bootstrap-select.min.js")"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>

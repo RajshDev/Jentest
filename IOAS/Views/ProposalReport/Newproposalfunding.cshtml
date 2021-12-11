@@ -1,0 +1,118 @@
+﻿@model IOAS.Models.ProposalReportViewModel
+@{
+    ViewBag.Title = "New Proposal Funding";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+
+
+
+}
+<div class="row hd-tt-bg" id="addnewpage">
+    <div class="col-md-4">
+        <h3>New Proposal Funding Sent Report</h3>
+    </div>
+
+</div>
+<div class="row">
+    @using (Html.BeginForm("Proposalfundingreport", "ProposalReport", FormMethod.Post, new { @class = "", role = "form", @id = "formReport", enctype = "multipart/form-data" }))
+            {
+        <div class="col-md-12">
+            <div class="page-wrapper">
+                <div class="white-bg">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group custom-form-group">
+                                <label class="required">Month / Year</label><br />
+                                <div>
+                                    @Html.DropDownListFor(M => M.Month, new SelectList(ViewBag.month, "id", "id"), "M", new { @id = "ddlmonth", @class = "form-control half-form" })
+                                    @Html.DropDownListFor(M => M.Year, new SelectList(ViewBag.year, "id", "id"), "Y", new { @id = "ddlyear", @class = "form-control half-form" })
+                                </div>
+                                <div>
+                                    <div class="txt-error txt-red half-form"> @Html.ValidationMessageFor(M => M.Month)</div>
+                                    <div class="txt-error txt-red half-form"> @Html.ValidationMessageFor(M => M.Year)</div>
+                                </div>
+                            </div>
+                            
+                        </div>
+
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 text-center pd-tb-30">
+                        <input type="submit" class="btn btn-primary mr10" value="Show report" name="Button" id="btnreport" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+<div id="warrningmodal" class="modal fade modal-warning" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-warning"></i>
+                <h3 class="modal-title">Records not founds</h3>
+            </div>
+            <div class="modal-body">
+
+                <p>@ViewBag.msg</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div id="Errormodal" class="modal fade modal-error" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-cancel"></i>
+                <h3 class="modal-title">Error Message</h3>
+            </div>
+            <div class="modal-body">
+
+                <p>@ViewBag.error</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script>
+    $('#btnreport').click(function (e) {
+        
+        e.preventDefault();
+        var isValid = $('#formReport').valid();
+        if (isValid) {
+            var win = window.open('', '_blank');
+            var url = "@Url.RouteUrl(new
+            { Controller = "ProposalReport", Action = "Proposalfundingreport" })?Projecttype=" + $('#ddlproject').val();
+            win.location.href = url + "&Month=" + $('#ddlmonth').val() + "&year=" + $('#ddlyear').val() + "&Reportname=" + $('#ddlreport').val();
+        }
+    });
+
+
+    var error = '@ViewBag.error';
+    var msg = '@ViewBag.msg';
+    if (msg != '') {
+        $('#warrningmodal').modal('show');
+    }
+    if (error != '') {
+        $('#Errormodal').modal('show');
+    }
+</script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+
+

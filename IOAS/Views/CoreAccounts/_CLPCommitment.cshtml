@@ -1,0 +1,747 @@
+﻿@{
+    string parentAction = ViewBag.ParentAction;
+}
+@model IOAS.Models.CommitmentModel
+<div class="row mt30">
+    <div id="TABCModal" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            @using (Html.BeginForm("_CLPCommitment", "CoreAccounts", FormMethod.Post, new { role = "form", @id = "formComitment" }))
+            {
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" id="btnInvardClose" class="close" data-dismiss="modal">&times;</button>
+                        <h3 class="modal-title">Book Commitment</h3>
+                    </div>
+                    <div class="modal-body">
+                        <div class="custom-jsgrid-normal">
+
+                            <div class="row" id="addCommitment">
+                                <div class="page-wrapper">
+                                    <div class="col-md-12">
+                                        <div class="white-bg">
+                                            <div class="row mb-md">
+
+                                                <div class="col-md-6">
+
+                                                    <div class="classic-box  mb-md">
+                                                        <div class="tb-tt">
+                                                            <h4 class="required">Commitment Type</h4>
+                                                            @Html.DropDownListFor(M => M.selCommitmentType, new SelectList(ViewBag.CommitmentType, "id", "name"), "Select Commitment Type", new { @class = "form-control", @required = "required", @id = "CommitmentType", })
+                                                            <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.selCommitmentType)</div>
+                                                            @Html.HiddenFor(m => m.commitmentId, new { @id = "hdnCommitId" })
+                                                            @Html.Hidden("Committype")
+                                                            @Html.HiddenFor(m=>m.selRequestRefrence)
+                                                            @Html.HiddenFor(m => m.selRefNo)
+                                                            @Html.HiddenFor(m => m.EmailDate)
+                                                            @Html.HiddenFor(m => m.TemporaryAdvanceId)
+                                                            @Html.Hidden("returnAction", parentAction)
+                                                        </div>
+                                                    </div>
+
+
+                                                    <div class="row menu-hide" id="staffCommit">
+                                                        <div class="col-md-12">
+                                                            <div class="form-group custom-form-group">
+                                                                <label class="required">Purpose</label>
+                                                                @Html.DropDownListFor(M => M.selPurpose, new SelectList(ViewBag.Purpose, "id", "name"), "Select Purpose", new { @class = "form-control", @required = "required" })
+                                                                <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.selPurpose)</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row menu-hide" id="geneCommit">
+                                                        <div class="col-md-12">
+                                                            <div class="form-group custom-form-group">
+                                                                <label class="required">Remarks</label>
+                                                                @Html.TextAreaFor(m => m.Remarks, new { @text = "multiline", @class = "form-control", @required = "required" })
+                                                                <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Remarks)</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row menu-hide" id="purchaseCommit">
+                                                        <div class="col-md-12">
+                                                            <div class="form-group custom-form-group">
+                                                                <label class="required">PO number</label>
+                                                                @Html.TextBoxFor(M => M.PONumber, new { @class = "form-control", @required = "required" })
+                                                                <div class="txt-error txt-red"> @Html.ValidationMessageFor(M => M.PONumber)</div>
+                                                            </div>
+                                                            <div class="form-group custom-form-group">
+                                                                <label class="required">Clearance Agent</label>
+                                                                @Html.DropDownListFor(M => M.selVendor, new SelectList(ViewBag.ClearanceAgent, "id", "name"), "Select Clearance Agent", new { @class = "form-control", @required = "required" })
+                                                                <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.selVendor)</div>
+
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div id="ForeginCommit" class="row menu-hide">
+                                                        <div class="col-md-12">
+                                                            <div class="form-group custom-form-group">
+                                                                <label class="required">Currency</label>
+                                                                @Html.DropDownListFor(M => M.selCurrency, new SelectList(ViewBag.Currency, "id", "name"), "Select Currency", new { @id = "Currency", @class = "form-control", @required = "required" })
+                                                                <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.selCurrency)</div>
+
+                                                            </div>
+
+                                                            <div class="form-group custom-form-group">
+                                                                <label>Conversion Rate: (As on date booked)</label>
+                                                                @Html.TextBoxFor(M => M.currencyRate, new { @class = "form-control", @readonly = "readonly" })
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <div name="divAllocateContent" class="gray-lg-bg-md mb20">
+                                                                <div class="row">
+                                                                    <label class="col-md-5">Allocation Head</label>
+                                                                    <label class="col-md-5"> Allocation Value </label>
+                                                                </div>
+
+                                                                <div name="primaryAllocateDiv" class="row m-b-sm">
+                                                                    <div class="col-md-5 mb20">
+
+                                                                        @Html.DropDownListFor(m => m.selAllocationHead, new SelectList(ViewBag.BudgetHead, "id", "name"), "Select Allocation head", new { @class = "form-control", @required = "required" })
+                                                                        <div class="txt-error txt-red"> @Html.ValidationMessageFor(M => M.selAllocationHead)</div>
+                                                                    </div>
+                                                                    <div class="col-md-5">
+                                                                        @Html.TextBoxFor(m => m.AllocationValue, new { @class = "form-control calc", @onkeypress = "return isNumberKey(event)", @onkeyup = "sumAllocation(this);", @autocomplete = "off", @required = "required" })
+                                                                        <div class="txt-error txt-red"> @Html.ValidationMessageFor(M => M.AllocationValue)</div>
+
+                                                                    </div>
+
+                                                                    <div class="col-md-2">
+                                                                        <button class="dis-none btn-sm btn btn-danger" type="button" name="removeButton"><i class="ion-android-close"></i></button>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row p-b-sm hidden">
+                                                                    <div class="col-md-11">
+                                                                        <h4 class="text-right">
+                                                                            <button type="button" name="btnAddAllocation" class="btn-primary btn pull-left"><i class="ion-android-add"></i>Add</button>
+                                                                        </h4>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-6">
+                                                    <div class="form-group custom-form-group cm-bl-box">
+                                                        <label class="col-md-12">Commitment Value</label>
+                                                        <div class="col-md-12 text-right">
+                                                            @Html.TextBoxFor(M => M.commitmentValue, new { @class = "form-control", @readonly = "readonly" })
+                                                        </div>
+                                                    </div>
+                                                    <div class="bl-lg-panel-box   pb-null">
+                                                        <div class="form-group custom-form-group mt-md mb-s-md">
+                                                            <div class="col-md-12">
+                                                                <label class="required">Project Type</label>
+                                                                @Html.DropDownListFor(M => M.selProjectType, new SelectList(ViewBag.ProjectType, "CodeValAbbr", "CodeValDetail"), "Select Project Type", new { @class = "form-control", @id = "ProjectType", @required = "required" })
+                                                                <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.selProjectType)</div>
+                                                                @Html.HiddenFor(m=>m.selProjectType)
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="form-group custom-form-group mb-s-md">
+                                                            <div class="col-md-12">
+                                                                <label class="required">Project Number</label>
+                                                                @Html.DropDownListFor(M => M.SelProjectNumber, new SelectList(ViewBag.ProjectNo, "id", "name"), "Select Project Number", new { @id = "SelProjectNumber", @class = "form-control", @required = "required" })
+                                                                <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.SelProjectNumber)</div>
+                                                                @Html.HiddenFor(m => m.SelProjectNumber)
+                                                            </div>
+                                                        </div>
+                                                        <div id="prjDetails">
+                                                            <div class="form-group custom-form-group mb-s-md mt-md">
+                                                                <label class="col-md-6">Title</label>
+                                                                <span class="col-md-6" id="spanTittle"></span>
+                                                            </div>
+
+                                                            <div class="form-group custom-form-group mb-s-md">
+                                                                <label class="col-md-6">PI Name</label>
+                                                                <span class="col-md-6" id="spanPIName"></span>
+                                                            </div>
+
+                                                            <div class="form-group custom-form-group mb-s-md">
+                                                                <label class="col-md-6">Sanctioned Value</label>
+                                                                <span class="col-md-6 " id="spanSanValue"></span>
+                                                            </div>
+
+                                                            <div class="form-group custom-form-group mb-s-md">
+                                                                <label class="col-md-6">Total Receipt</label>
+                                                                <span class="col-md-6 " id="spanTotReceipt"></span>
+                                                            </div>
+
+                                                            <div class="form-group custom-form-group mb-s-md">
+                                                                <label class="col-md-6">Amount Spent</label>
+                                                                <span class="col-md-6 " id="spanAmtSpt"></span>
+                                                            </div>
+
+                                                            <div class="form-group custom-form-group mb-s-md">
+                                                                <label class="col-md-6">Available Balance</label>
+                                                                <span class="col-md-6 " id="spanAvailableBal"></span>
+                                                            </div>
+
+                                                            <div class="form-group custom-form-group mb-s-md">
+                                                                <label class="col-md-6">Previous Commitment</label>
+                                                                <span class="col-md-6 " id="spanPrevious"></span>
+                                                            </div>
+
+                                                            <div class="form-group custom-form-group">
+                                                                <label class="col-md-6 hgt-txt">Net Balance</label>
+                                                                <span class="col-md-6 hgt-txt" id="spanNetBal"></span>
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="button" name="Button" value="Save" class="btn btn-primary" id="btnSave" />
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+
+                    </div>
+
+                </div>
+            }
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        var errMsg = '@ViewBag.errMsg';
+        if (errMsg) {
+            $("#FailedAlert").html(errMsg);
+            $('#Failed').modal('show');
+        }
+        $("#prjDetails").hide();
+        $.getJSON("@Url.Action("LoadProjectDetails", "Account")", { ProjectId: $('#SelProjectNumber').val() },
+                    function (locationdata) {
+                        if (locationdata.ProjectTittle != null) {
+                            $("#prjDetails").show();
+                            $("#spanTittle").text(locationdata.ProjectTittle);
+                            $("#spanPIName").text(locationdata.PIname);
+                            $("#spanSanValue").text(locationdata.SanctionedValue);
+                            $("#spanTotReceipt").text(locationdata.TotalReceipt);
+                            $("#spanAmtSpt").text(locationdata.AmountSpent);
+                            $("#spanAvailableBal").text(locationdata.AvailableBalance);
+                            $("#spanPrevious").text(locationdata.PreviousCommitment);
+                            $("#spanNetBal").text(locationdata.NetBalance);
+                        }
+                        else {
+                            $("#prjDetails").hide();
+                        }
+                    });
+    });
+
+
+    $("#CommitmentType").change(function () {
+        var Value = $("#CommitmentType").val();
+        //Staff Commitment
+        if (Value == 1) {
+            $("#staffCommit").removeClass('menu-hide'); $("#geneCommit").removeClass('menu-hide');
+            $("#purchaseCommit").addClass('menu-hide'); //$("#negativeCommit").addClass('menu-hide');
+            $("#ForeginCommit").addClass('menu-hide');
+        }
+            //General Commitment
+        else if (Value == 2) {
+            $("#staffCommit").addClass('menu-hide'); $("#geneCommit").removeClass('menu-hide');
+            $("#purchaseCommit").addClass('menu-hide');// $("#negativeCommit").addClass('menu-hide');
+            $("#ForeginCommit").addClass('menu-hide');
+        }
+            //Purchase Commitment
+        else if (Value == 3) {
+            $("#staffCommit").addClass('menu-hide'); $("#geneCommit").addClass('menu-hide');
+            $("#purchaseCommit").removeClass('menu-hide');// $("#negativeCommit").addClass('menu-hide');
+            $("#ForeginCommit").addClass('menu-hide');
+        }
+            //Negative Balance Commitment
+        else if (Value == 4) {
+            $("#staffCommit").addClass('menu-hide'); $("#geneCommit").removeClass('menu-hide');
+            $("#purchaseCommit").addClass('menu-hide'); //$("#negativeCommit").removeClass('menu-hide');
+            $("#ForeginCommit").addClass('menu-hide');
+        }
+            //Commitment in Foreign Currency with exchange
+        else if (Value == 5) {
+            $("#staffCommit").addClass('menu-hide'); $("#geneCommit").addClass('menu-hide');
+            $("#purchaseCommit").addClass('menu-hide'); //$("#negativeCommit").addClass('menu-hide');
+            $("#ForeginCommit").removeClass('menu-hide');
+        } else {
+            $("#staffCommit").addClass('menu-hide'); $("#geneCommit").addClass('menu-hide');
+            $("#purchaseCommit").addClass('menu-hide'); //$("#negativeCommit").addClass('menu-hide');
+            $("#ForeginCommit").addClass('menu-hide');
+        }
+    });
+
+    $("#ProjectType").change(function () {
+
+        $("#prjDetails").hide();
+        var projectType = $(this).val();
+        LoadProjectNumber(projectType);
+    });
+
+    function LoadProjectNumber(projectType) {
+        $("#prjDetails").hide();
+        if (projectType != "") {
+            $.getJSON("@Url.Action("LoadProjectNumber", "Account")", { projecttype: projectType },
+        function (projectData) {
+            var select = $("#SelProjectNumber");
+            select.empty();
+            select.append($('<option/>', {
+                value: 0,
+                text: "Select Project Number"
+            }));
+            $.each(projectData.Item1, function (index, itemData) {
+
+                select.append($('<option/>', {
+                    value: itemData.id,
+                    text: itemData.name
+                }));
+            });
+            select.selectpicker('refresh');
+            $("#commitNo").text(projectData.Item2);
+            $("#hdnCommitNo").val(projectData.Item2);
+        });
+        } else {
+            $("#commitNo").text("");
+        }
+    }
+
+    $("#SelProjectNumber").change(function () {
+
+        var projectId = $(this).val();
+        $.getJSON("@Url.Action("LoadProjectDetails", "Account")", { ProjectId: projectId },
+                    function (locationdata) {
+                        if (locationdata.ProjectTittle != null) {
+                            $("#prjDetails").show();
+                            $("#spanTittle").text(locationdata.ProjectTittle);
+                            $("#spanPIName").text(locationdata.PIname);
+                            $("#spanSanValue").text(locationdata.SanctionedValue);
+                            $("#spanTotReceipt").text(locationdata.TotalReceipt);
+                            $("#spanAmtSpt").text(locationdata.AmountSpent);
+                            $("#spanAvailableBal").text(locationdata.AvailableBalance);
+                            $("#spanPrevious").text(locationdata.PreviousCommitment);
+                            $("#spanNetBal").text(locationdata.NetBalance);
+                        }
+                        else {
+                            $("#prjDetails").hide();
+                        }
+                    });
+    });
+
+
+
+    $("#Currency").change(function () {
+        var Currency = $("#Currency option:selected").text();
+        if (Currency != "Select Currency") {
+            $.getJSON("@Url.Action("LoadCurrencyRate", "Account")", { Currency: Currency },
+                        function (locationdata) {
+                            $("#currencyRate").val(locationdata);
+                        });
+        } else {
+            $("#currencyRate").val(0);
+        }
+    });
+
+
+    $(document).on('click', 'button[name="btnAddAllocation"]', function () {
+        var cln = $(this).closest('div[name="divAllocateContent"]').find('div[name="primaryAllocateDiv"]:first').clone().find(" select,input").val("").end();
+        $(cln).find('.dis-none').removeClass('dis-none');
+        $(cln).insertBefore($(this).closest('div[name="divAllocateContent"]').find('.p-b-sm'));
+    });
+    $(document).on('click', 'div[name="primaryAllocateDiv"] button[name="removeButton"]', function () {
+        $(this).closest('div[name="primaryAllocateDiv"]').remove();
+        sumAllocation();
+    });
+
+    function sumAllocation(evt) {
+        var ttlVal = 0;
+        $('.calc').each(function () {
+            var parseVal = parseFloat($(this).val());
+            if (!isNaN(parseVal))
+                ttlVal += parseVal;
+        });
+        //$(this).find('input[name ="commitmentValue"]').html(ttlVal);
+        $("#commitmentValue").val(ttlVal);
+    }
+    function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode != 46 && charCode > 31
+          && (charCode < 48 || charCode > 57))
+            return false;
+
+        return true;
+    }
+   
+    $("#btnSave").on('click', function (e) {
+        e.preventDefault();
+        var isValid = $('#formComitment').valid();
+        var CommitType = $("#CommitmentType").val();
+        var staffPurpose = $("#selPurpose").val();
+        var Remarks = $("#Remarks").val();
+        var poNumber = $("#PONumber").val();
+        var agent = $("#selVendor option:selected").text();
+        var agentid = $("#selVendor").val();
+        var allocationhead = $("#selAllocationHead").val();
+        var allocatevalue = $("#AllocationValue").val();
+        var currency = $("#Currency").val();
+        var Currate = $("#currencyRate").val();
+        var prjType = $("#ProjectType").val();
+        var prjNumber = $("#SelProjectNumber").val();
+        var CommitmentNo = $("#commitNo").text();
+        var CommitmentValue = $("#commitmentValue").val();
+        var NetBalance = $("#spanNetBal").val();
+        var EmailDate = $("#EmailDate").val();
+        var AllocatinHead = [];
+        var Amount = [];
+        if (CommitType == "") {
+            isValid = false;
+            $('#alert').html('Commitment type field is required');
+            $('#Validation').modal('toggle');
+            return false;
+        }
+        if (CommitType == 1) {
+            if (staffPurpose == "") {
+                isValid = false;
+                $('#alert').html('Purpose field is required');
+                $('#Validation').modal('toggle');
+                return false;
+            }
+            else if (Remarks == "") {
+                isValid = false;
+                $('#alert').html('Remarks field is required');
+                $('#Validation').modal('toggle');
+                return false;
+            }
+        }
+        else if (CommitType == 2) {
+            if (Remarks == "") {
+                isValid = false;
+                $('#alert').html('Remarks field is required');
+                $('#Validation').modal('toggle');
+                return false;
+            }
+        }
+        else if (CommitType == 3) {
+            if (poNumber == "") {
+                isValid = false;
+                $('#alert').html('PO number field is required');
+                $('#Validation').modal('toggle');
+                return false;
+            }
+            else if (agent == "Select Clearance Agent") {
+                isValid = false;
+                $('#alert').html('Clearance Agent field is required');
+                $('#Validation').modal('toggle');
+                return false;
+            }
+        }
+        else if (CommitType == 4) {
+            if (Remarks == "") {
+                isValid = false;
+                $('#alert').html('Remarks field is required');
+                $('#Validation').modal('toggle');
+                return false;
+            }
+        }
+        else if (CommitType == 5) {
+            if (currency == "") {
+                isValid = false;
+                $('#alert').html('Currency field is required');
+                $('#Validation').modal('toggle');
+                return false;
+            }
+
+        }
+
+        $('select[name="selAllocationHead"]').each(function (idx, val) { AllocatinHead.push($(val).val()); });
+        $('input[name="AllocationValue"]').each(function (idx, val) { Amount.push($(val).val()); });
+
+        //// Sort it
+        AllocatinHead.sort();
+        Amount.sort();
+
+        for (var k = 0; k < AllocatinHead.length; ++k) {
+
+            if (AllocatinHead[k] = 0 || AllocatinHead[k] == null || AllocatinHead[k] == "") {
+                $('#alert').html('Allocation Head field is required');
+                $('#Validation').modal('toggle');
+                return false;
+            }
+
+            isValid = true;
+        }
+        for (var k = 0; k < Amount.length; ++k) {
+            if (Amount[k] == 0 || Amount[k] == null || Amount == "") {
+                $('#alert').html('Allocation value field is required');
+                $('#Validation').modal('toggle');
+                return false;
+            }
+            isValid = true;
+        }
+        // duplicate check
+        var AllowHead = [];
+        $('select[name="selAllocationHead"]').each(function (idx, val) { AllowHead.push($(val).val()); });
+        AllowHead.sort();
+        for (var k = 1; k < AllowHead.length; ++k) {
+            if (AllowHead[k] == AllowHead[k - 1]) {
+                isValid = false;
+                $('#alert').html("Allocation head field does not allow duplicates");
+                $('#Validation').modal('toggle'); isValid = false;
+                return false;
+            }
+            isValid = true;
+        }
+
+        //for (var k = 1; k < AllocatinHead.length; ++k) {
+        //    if (AllocatinHead[k] == AllocatinHead[k - 1]) {
+        //        $('#alert').html("Allocation head field does not allow duplicates");
+        //        $('#Validation').modal('toggle'); isValid = false;
+        //        return false;
+        //    }
+        //}
+        // if (!isvalid)
+        //     return;
+        // $('select[name="selAllocationHead"]').each(function (i) {
+        //     if ($(this).val() == "") {
+        //         isValid = false;
+        //         $('#alert').html('Allocation Head field is required');
+        //         $('#Validation').modal('toggle');
+        //         return false;
+        //     }
+        //     else {
+        //         AllocatinHead[i] = $(this).val();
+        //     }
+        // });
+        // if (!isvalid)
+        //     return;
+        // $('input[name="AllocationValue"]').each(function (i) {
+        //     if ($(this).val() == "") {
+        //         isValid = false;
+        //         $('#alert').html('Allocation value field is required');
+        //         $('#Validation').modal('toggle');
+        //         return false;
+        //     }
+        //     else {
+        //         Amount[i] = $(this).val();
+        //     }
+
+        // });
+
+        //isvalid = duplicatecheck(isValid);
+
+        if (prjType == "") {
+            isValid = false;
+            $('#alert').html('Project type field is required');
+            $('#Validation').modal('toggle');
+            return false;
+        }
+        if (prjNumber == "") {
+            isValid = false;
+            $('#alert').html('Project number field is required');
+            $('#Validation').modal('toggle');
+            return false;
+        }
+
+        if (CommitmentValue != 0) {
+            if (NetBalance >= CommitmentValue) {
+                isValid = false;
+                $('#alert').html('Commitment amount is not greater then net balance, Please check it');
+                $('#Validation').modal('toggle');
+                return false;
+            }
+        }
+        if (isValid == true) {
+
+                var clpbookcommitmentURL = '_CLPSaveCommitment';           
+                var CommitType = $("#CommitmentType").val();
+                var staffPurpose = $("#selPurpose").val();
+                var Remarks = $("#Remarks").val();
+                var poNumber = $("#PONumber").val();
+                var agent = $("#selVendor option:selected").text();
+                var agentid = $("#selVendor").val();
+                var allocationhead = $("#selAllocationHead").val();
+                var allocatevalue = $("#AllocationValue").val();
+                var currency = $("#Currency").val();
+                var Currate = $("#currencyRate").val();
+                var prjType = $("#ProjectType").val();
+                var prjNumber = $("#SelProjectNumber").val();
+                var CommitmentNo = $("#commitNo").text();
+                var CommitmentValue = $("#commitmentValue").val();
+                var NetBalance = $("#spanNetBal").val();
+                var EmailDate = $("#EmailDate").val();
+                
+                if (CommitType == "") {
+                    CommitType = null;
+                }
+                if (staffPurpose == "") {
+                    staffPurpose = null;
+                }
+                if (Remarks == "") {
+                    Remarks = null;
+                }
+                if (poNumber == "") {
+                    poNumber = null;
+                }
+                if (agent == "") {
+                    agent = null;
+                }
+                if (agentid == "") {
+                    agentid = null;
+                }
+                if (currency == "") {
+                    currency = null;
+                }
+                if (Currate == "") {
+                    Currate = null;
+                }
+                if (prjType == "") {
+                    prjType = null;
+                }
+                if (prjNumber == "") {
+                    prjNumber = null;
+                }
+                if (allocationhead == "") {
+                    allocationhead = null;
+                }
+                if (allocatevalue == "") {
+                    allocatevalue = null;
+                }
+                if (CommitmentNo == "") {
+                    CommitmentNo = null;
+                }
+                if (CommitmentValue == "") {
+                    CommitmentValue = null;
+                }
+                if (NetBalance == "") {
+                    NetBalance = null;
+                }
+                if (EmailDate == "") {
+                    EmailDate = null;
+                }
+                //  var searchdata = { "__RequestVerificationToken": token, "ProjectType": Projecttype,"ProposalNumber": Proposalnumber, "PIname": PIName, "Searchby": SearchBy, "FromSOdate": FromSODate, "ToSOdate": ToSODate, "Fromdate": FromDate, "Todate": ToDate };
+                var searchdata = {
+                    selCommitmentType: CommitType,
+                    selPurpose: staffPurpose,
+                    Remarks: Remarks,
+                    PONumber: poNumber,
+                    VendorName: agent,
+                    selVendor: agentid,
+                    selCurrency: currency,
+                    currencyRate: Currate,
+                    selProjectType: prjType,
+                    SelProjectNumber: prjNumber,
+                    EmailDate: EmailDate,
+                    commitmentValue: CommitmentValue,
+                    CommitmentNo: CommitmentNo,
+                    CommitmentBalance: NetBalance,
+                    AllocationHead: allocationhead,
+                    AllocatedValue: allocatevalue,
+                    selAllocationHead: allocationhead,
+                    AllocationValue: allocatevalue,
+                   // selRequestRefrence: StudentName,                    
+                };
+
+                $.ajax({
+                    type: "GET",
+                    url: clpbookcommitmentURL,
+                    data: searchdata,
+                    //data: { "ProjectType": Projecttype, "ProposalNumber": Proposalnumber, "FromSOdate": FromSODate, "ToSOdate": ToSODate, },
+                    //contentType: "application/x-www-form-urlencoded",
+                    dataType: "json",
+                    success: function (result) {
+                        
+                        // dataProposal = result;
+                        var commitmentid = result
+                        var selCommitment = [];
+                        $('input[name="chkCommitmentId"]:checked').each(function () {
+                            var cmtId = $(this).val();
+                            if (cmtId != '') { selCommitment.push(cmtId); }                            
+                        });
+                        if (commitmentid != '') { selCommitment.push(commitmentid); }
+                        $('#TABCModal').hide();
+                        $('body').removeClass('modal-open');
+                        $(".modal-backdrop").remove();
+                      //  $('.modal-backdrop').remove();
+                        //  EmptyCommitmentSrchList()
+                        EmptyCommitmentSelList()
+                        $.ajax({
+                            type: "GET",
+                            url: "@Url.Action("LoadCommitmentList", "CoreAccounts")",
+                            data: { "CommitmentId": selCommitment },
+                        traditional: true,
+                        dataType: "json",
+                        success: function (result) {
+                            
+                            $.each(result, function (i, item) {
+                                if (i == 0) {
+                                    
+                                    var trEle = $('#tbodyCommitmentSrchList tr:first').clone();
+                                    $(trEle).find('input[name="chkCommitmentId"]').val(item.CommitmentId).prop("checked", true);
+                                    $(trEle).find('td:nth-child(2)').html(item.CommitmentNumber);
+                                    $(trEle).find('td:nth-child(3)').html(item.ProjectNumber);
+                                    $(trEle).find('td:nth-child(4)').html(item.BookedAmount);
+                                    $(trEle).find('td:nth-child(5)').html(item.AvailableAmount);
+                                    $('#tbodyCommitmentSrchList').append(trEle);
+
+                                } else {
+                                    
+                                    var trEleNew = $('#tbodyCommitmentSrchList tr:first').clone();
+                                    $(trEleNew).find('input[name="chkCommitmentId"]').val(item.CommitmentId).prop("checked", true);
+                                    $(trEleNew).find('td:nth-child(2)').html(item.CommitmentNumber);
+                                    $(trEleNew).find('td:nth-child(3)').html(item.ProjectNumber);
+                                    $(trEleNew).find('td:nth-child(4)').html(item.BookedAmount);
+                                    $(trEleNew).find('td:nth-child(5)').html(item.AvailableAmount);
+                                    //$('#tbodyCommitmentSrchList').append(trEleNew);                                                                      
+                                }
+                            });
+                            FillSelCommitments(result);
+                        },
+                        error: function (err) {
+                            console.log("error : " + err);
+                        }
+                    });
+                       
+                        
+                        //   $('#popupFilter').hide();
+                    },
+                    error: function (err) {
+                        console.log("error : " + err);
+                    }
+                });
+          
+        }
+    });
+
+
+
+    function duplicatecheck(isValid) {
+        var values = [];
+        $('select[name="selAllocationHead"]').each(function (idx, val) { values.push($(val).val()); });
+        // Sort it
+        values.sort();
+        // Check whether there are two equal values next to each other
+        for (var k = 1; k < values.length; ++k) {
+            if (values[k] == values[k - 1]) {
+                $('#alert').html("Allocation head field does not allow duplicates");
+                $('#Validation').modal('toggle'); isValid = false;
+                return false;
+            }
+            isValid = true;
+        }
+        return isValid;
+    }
+
+</script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>

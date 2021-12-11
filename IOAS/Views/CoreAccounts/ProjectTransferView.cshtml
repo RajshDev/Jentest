@@ -1,0 +1,356 @@
+﻿@model IOAS.Models.ProjectTransferModel
+@{
+    ViewBag.Title = "Direct Fund Transfer";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+
+<div class="row hd-tt-bg">
+    <div class="col-md-12">
+        <h4><b>Direct Fund Transfer</b> </h4>
+    </div>
+</div>
+<div class="row">
+    <div class="white-bg ad-navbar">
+        <div class="col-md-3 ds-spl-bg">
+            <div class="ds-icn">
+                <i class="ion-ios-list-outline "></i>
+            </div>
+            <div class="ds-tt">
+                <span>Request Reference</span><br />
+                <span>@Html.DisplayFor(m => m.SourceName)</span>
+                @Html.HiddenFor(m => m.Source, new { @id = "Source" })
+
+            </div>
+        </div>
+        <div class="col-md-3 ds-spl-bg">
+            <div class="ds-icn">
+                <i class="ion-ios-calendar-outline"></i>
+            </div>
+            @if (Model.ReferenceNumber != null)
+            {
+                <div class="ds-tt">
+                    <span>Ref Number (WF / Tapal)</span>
+                    <span>@Html.DisplayFor(m => m.ReferenceNumber)</span>
+                    @Html.TextBoxFor(m => m.ReferenceNumber, new { @class = "form-control dis-none" })
+                    @Html.TextBoxFor(m => m.SourceReferenceNumber, new { @class = "form-control dis-none" })
+
+                    @Html.Hidden("SourceTapalOrWorkflow", "True")
+                </div>
+            }
+            else
+            {
+                <div class="ds-tt">
+                    <span>Email Date</span><br />
+                    <span>@Html.DisplayFor(m => m.SourceEmail)</span>
+                </div>
+            }
+
+
+        </div>
+        <div class="col-md-3 col-md-offset-3">
+            <div class="reg-no custom-reg-no">
+                <div class="form-group custom-form-group">
+                    <label>Number</label>
+                    <h4>@Html.DisplayFor(m => m.TransferNumber)</h4>
+                    @Html.HiddenFor(m => m.ProjectTransferId)
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="vw-dts-bg">
+    <div class="row">
+       
+        <div class="col-md-12">
+            <h3>Payment Details</h3>
+        </div> 
+                <div class="col-md-6">
+                    
+                    <table class="table table-bordered mb-null">
+                        <thead>
+                            <tr>
+                                <th colspan="2">From details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <label>Project</label>
+                                    <h4>@Model.DebitProject</h4>
+                                </td>
+                                <td>
+                                    <label>Bank</label>
+                                    <h4>@Model.DebitBankName</h4>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label>Debit Ledger</label>
+                                    <h4>@Model.CreditLedgerName</h4>
+                                </td>
+                                <td class="reg-no">
+                                    <label class="lblval">Amount</label>
+                                    <h4 class="tatval">@Model.CreditAmount</h4>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <table class="table table-bordered mb-null">
+                        <thead>
+                            <tr>
+                                <th colspan="2">To Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <label>Project</label>
+                                    <h4>@Model.CreditProject</h4>
+                                </td>
+                                <td>
+                                    <label>Bank</label>
+                                    <h4>@Model.CreditBankName</h4>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label>Credit Ledger</label>
+                                    <h4>@Model.DebitLedgerName</h4>
+                                </td>
+                                <td class="reg-no">
+                                    <label class="lblval">Amount</label>
+                                    <h4 class="tatval">@Model.DebitAmount</h4>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            
+           
+       
+    </div>
+    <div class="row">
+       
+            <div class="col-md-6">
+                <table class="table table-bordered mb-null">
+                    <tbody>
+                        <tr>
+                            <td colspan="2">
+                                <label>Remarks</label>
+                                <h4>@Model.Remarks</h4>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-md-6">
+                <table class="table table-bordered mb-null">
+                    <tbody>
+                        <tr>
+                            <td colspan="2">
+                                <label>Attachement</label>
+                                <a href="@Url.Action("ShowDocument","Project",new { file = Model.DocumentName, filepath = Model.DocumentPath })" target="_blank">@Model.DocumentActualName</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <h3>Commitment Details</h3>
+            @Html.Partial("_CommitmentDetailsView", Model.CommitmentDetail)
+
+        </div>
+    </div>
+
+</div>
+
+   
+
+
+    <div class="row">
+        @if (Model.PFInit != true)
+        {
+            <div class="col-md-12 text-center pd-tb-30">
+                <button type="button" class="btn btn-default" onclick="window.location.href='@Url.Action("ProjectTransferList", "CoreAccounts")';">Close</button>
+            </div>
+        }
+        else
+        {
+            <div class="col-md-12 text-center pd-tb-30">
+                <button type="button" class="btn btn-default" onclick="window.location.href='@Url.Action("Dashboard", "Home")';">Close</button>
+            </div>
+        }
+    </div>
+
+
+
+
+<input type="hidden" id="currentRefId" value="@Model.ProjectTransferId" />
+<input type="hidden" id="processGuideLineId" value="@ViewBag.processGuideLineId" />
+@Html.Partial("_ProcessStatus")
+<script>
+
+    $('#srchFromDate, #srchToDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true }).attr('readonly', 'readonly');
+    $('#srchToDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true }).datepicker("setDate", "0");
+    var defaultFromDate = moment(new Date()).add(-10, 'days').toDate();
+    $('#srchFromDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true }).datepicker("setDate", defaultFromDate);
+
+    //if (dis != "") {
+
+    //    $('.ion-trash-a').removeClass();
+    //    $('#btnSave').hide();
+    //    $('.form-control').prop('disabled', true);
+    //    $('#ProcessStatusContainer .form-control').prop('disabled', false);
+    //    $('input[type="file"],#btnAddDrDetail,#btnAddCrDetail,.removeDrDetail,.removeCrDetail').hide();
+    //    $('#btnReset,#btnbookcommitment,#btnbookcommitment,#btnCollapseSrchCommit').hide();
+    //    $('.btn-circle').removeClass();
+    //    $('.ion-close-round').removeClass();
+
+    //}
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+        applyProjectAutoComplete($('#CreditProject'), $('#CreditProjectId'));
+        applyProjectAutoComplete($('#DebitProject'), $('#DebitProjectId'));
+        CalculatePaymentValue();
+    });
+    function changeCreditAmount() {
+        $('#DebitAmount').val($('#CreditAmount').val())
+    }
+
+
+    //function ValidateCommitment() {
+    //    var msg = 'valid';
+    //    var ttlCrAmt = parseFloat($('#CreditAmount').val()) || 0;
+    //    var commitmentAmt = parseFloat($('#CommitmentAmount').val()) || 0;
+    //    //var ttlGSTElg = parseFloat($('#GSTOffsetTotal').val()) || 0;
+    //    $("#tbodyCommitmentSelList tr").each(function () {
+    //        var elePayment = $(this).find("input[name$='.PaymentAmount']");
+    //        var eleAvlBal = $(this).find('input[name$=".AvailableAmount"]');
+    //        var parseVal = parseFloat($(elePayment).val()) || 0;
+    //        var avlBal = parseFloat($(eleAvlBal).val()) || 0;
+    //        if (parseVal > avlBal)
+    //            msg = "Commitment payment value should not be greater than available balance."
+    //    });
+    //    //var voucherVal = (ttlCrAmt - ttlGSTElg).toFixed(2);
+    //    if (ttlCrAmt != commitmentAmt) {
+    //        msg = 'There is a mismatch between the payment value and allocated commitment value. Please update the value to continue.';
+    //    }
+    //    return msg;
+    //}
+    //function formSave() {
+    //     var validationMsg = ValidateCommitment();
+    //        if (validationMsg != 'valid') {
+    //            $("#alert").text(validationMsg);
+    //            $('#Validation').modal('show');
+    //            return false;
+    //        }
+    //        var isValid = $('#formPFT').valid();
+    //    if (!isValid)
+    //        return false;
+
+    //    $('#formPFT').submit();
+    //}
+
+    $('input[name$="Amount"]').on("copy cut paste drop", function () {
+        return false;
+    });
+
+
+
+    /* Tab Sections Start*/
+    var currentTab = 0; // Current tab is set to be the first tab (0)
+   // showTab(currentTab); // Display the crurrent tab
+    //function showTab(n) {
+    //    // This function will display the specified tab of the form...
+    //    var x = document.getElementsByClassName("tab");
+    //    x[n].style.display = "block";
+    //    $(".custom-nav-pills li:eq(" + n + ")").addClass("active");
+    //    //... and fix the Previous/Next buttons:
+    //    if (n == 0) {
+    //        document.getElementById("prevBtn").style.display = "none";
+    //    } else {
+    //        document.getElementById("prevBtn").style.display = "inline";
+    //    }
+    //    if (n == (x.length - 1)) {
+    //        document.getElementById("nextBtn").innerHTML = "Submit";
+    //        $('#nextBtn').hide();
+    //    } else {
+    //        document.getElementById("nextBtn").innerHTML = "Next";
+    //        $('#nextBtn').show();
+    //    }
+    //    //... and run a function that will display the correct step indicator:
+    //    //fixStepIndicator(n)
+    //}
+
+    //function nextPrev(n) {
+    //    // This function will figure out which tab to display
+    //    var x = document.getElementsByClassName("tab");
+    //    // Exit the function if any field in the current tab is invalid:
+    //    if (n > 0 && !validateForm(n)) return false;
+    //    if (currentTab + n < x.length) {
+    //        // Hide the current tab:
+    //        x[currentTab].style.display = "none";
+    //        $(".custom-nav-pills li:eq(" + currentTab + ")").removeClass("active");
+    //    } else {
+    //        // ... the form gets submitted:
+    //        formSave();
+    //        return false;
+    //    }
+    //    // Increase or decrease the current tab by 1:
+    //    currentTab = currentTab + n;
+
+    //    // Otherwise, display the correct tab:
+    //    showTab(currentTab);
+    //}
+
+    //function validateForm(n) {
+    //    // This function deals with validation of the form fields
+    //    var isValid = false;
+    //    var hadError = false;
+    //    var tabs = $(".tab");
+    //    var currentTabEle = tabs[currentTab];
+    //    var inputs = $(":input, textarea, select"); // get all the form inputs and selects
+    //    var stepElements = $(currentTabEle).find(inputs); // get inputs for current step
+    //    var count = stepElements.length; // check that there are inputs
+    //    if (count <= 0) {                // if there are not no reason to loop them
+    //        return true;                 // this can be used to perform other action if there are no steps
+    //    } else if (currentTab == 0) {
+    //        var content = $('#tbodyCommitmentSrchList tr td:last').html();
+    //        var projId = $('#DebitProjectId').val();
+    //        $('#srchHiddenProjectId').val(projId);
+    //        if (projId == '')
+    //            return false;
+    //        if (content == '') {
+    //            searchCommitment(projId);
+    //        }
+    //    }
+    //    $(stepElements).each(function (idx, ele) {
+
+    //        if (!$(ele).is(':radio') && !$(ele).is(':checkbox') && !$(ele).is(':password')) {
+    //            isValid = $(ele).valid();//$(document.forms[0]).validate().element($(this)); // check that the input is valid. This can also be used on a per input basis to perform another action if the field is not valid.
+    //            if (!isValid) { hadError = true; } // set our flag if there was an error
+    //        }
+
+    //    });
+    //    return !hadError; // return the valid status
+
+    //}
+</script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>

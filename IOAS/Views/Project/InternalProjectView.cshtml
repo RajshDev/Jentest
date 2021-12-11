@@ -1,0 +1,150 @@
+﻿@model IOAS.Models.InternalProjectModel
+@{
+    ViewBag.Title = "InternalProjectView";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<div class="row hd-tt-bg">
+    <div class="col-md-4">
+        <h3>Internal Project View</h3>
+    </div>
+    
+</div>
+<div class="vw-dts-bg">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="col-sm-offset-8">
+                <table class="table table-bordered mb-null">
+                    <thead></thead>
+                    <tbody>
+                        <tr>
+
+
+                            <td colspan="2" class="reg-no">
+                                <label class="lblval">Project Number</label>
+                                <h4 class="tatval">@Html.DisplayFor(m => m.ProjectNumber)</h4>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="vw-dts-bg">
+    
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table table-bordered mb-null">
+                <thead>
+
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <label>Faculty code</label>
+                            <h4>@Html.DisplayFor(m=>m.FacaltyCodeName)</h4>
+                        </td>
+                        <td>
+                            <label>Centre</label>
+                            <h4>@Html.DisplayFor(m => m.Centername)</h4>
+                        </td>
+                        <td>
+                            <label>LabName</label>
+                            <h4>@Html.DisplayFor(m => m.LabName)</h4>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label>Financial Year</label>
+                            <h4>@Html.DisplayFor(m => m.SelFinyear)</h4>
+                        </td>
+                        <td>
+                            <label>PI Name</label>
+                            <h4>@Html.DisplayFor(m => m.PIName)</h4>
+                        </td>
+                        <td>
+                            <label>Sanction value</label>
+                            <h4>@Html.DisplayFor(m => m.SanctionValue)</h4>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label>Agency Name</label>
+                            <h4>@Html.DisplayFor(m => m.AgencyName)</h4>
+                        </td>
+                        <td>
+                            <label>Start Date</label>
+                            <h4>@Html.DisplayFor(m=>m.ProjectStartDate)</h4>
+                        </td>
+                        <td>
+                            <label>Close Date</label>
+                            <h4>@Html.DisplayFor(m=>m.ProjectCloseDate)</h4>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label>Type</label>
+                            <h4>@Html.DisplayFor(m => m.Typename)</h4>
+                        </td>
+                        <td>
+                            <label>Project Classification</label>
+                            <h4>@Html.DisplayFor(m => m.ProjectClassificationName)</h4>
+                        </td>
+                        
+                    </tr>
+                </tbody>
+
+                </table>
+</div>
+    </div>
+
+</div>
+<div class="vw-dts-bg">
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table table-bordered mb-null">
+                <thead>
+                    <tr>
+                        <th colspan="5">Documents</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><label>Attachment type</label></td>
+                        <td><label>Attachment Name</label></td>
+                        <td><label>Attachment</label></td>
+                    </tr>
+                    @if (Model.Doclist.Count > 0)
+                    {
+                        for (int i = 0; i < Model.Doclist.Count; i++)
+                        {
+                            <tr>
+                                <td><h4>@Model.Doclist[i].AttachementType</h4></td>
+                                <td><h4>@Model.Doclist[i].AttachementName</h4></td>
+                                @*<td><a href="ShowDocument?file='+@Model.DocDetail[i].AttachemntPath+'&filepath=~%2FContent%2FSupportDocuments%2F" class="prooflink" target="_blank">@Model.DocDetail[i].Attachment</a></td>*@
+                                <td><a href="@Url.Action("ShowDocument","Project",new { file = Model.Doclist[i].AttachemntPath, filepath = "~/Content/SupportDocuments" })" target="_blank">@Model.Doclist[i].Attachment</a></td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-20 text-center">
+    
+ <div class="col-md-12 text-center pd-tb-30">
+
+  <input type="button" onclick="window.location.href='@Url.Action("InternalProjectList", "Project")';" class="btn btn-default" value="Close" id="btnclose" />
+ </div>
+    
+</div>
+
+<input type="hidden" id="currentRefId" value="@Model.Projectid" />
+<input type="hidden" id="processGuideLineId" value="@ViewBag.processGuideLineId" />
+@Html.Partial("_ProcessStatus")
+<link href="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/css/bootstrap-select.min.css")" rel="stylesheet" />
+<script src="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/js/bootstrap-select.min.js")"></script>
+
+

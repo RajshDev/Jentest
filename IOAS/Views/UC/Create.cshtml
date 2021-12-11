@@ -1,0 +1,561 @@
+﻿@model IOAS.Models.UCModel
+@{
+    ViewBag.Title = "UC";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+@using (Html.BeginForm("Create", "UC", FormMethod.Post, new { @class = "", role = "form", @id = "formUC", enctype = "multipart/form-data" }))
+{
+    <div class="row hd-tt-bg">
+        <div class="col-md-12">
+            <h4><b>UC</b> </h4>
+        </div>
+    </div>
+    <div class="row">
+        <div class="white-bg ad-navbar">
+
+            <div class="col-md-3 ds-spl-bg">
+                <div class="ds-tt">
+                    <span>Type of UC</span>
+                    @Html.DropDownListFor(m => m.TypeOfUC, new SelectList(ViewBag.UCTypeList, "id", "name"), "Select any", new { @class = "form-control required", @onchange = "getExp()" })
+                    @Html.ValidationMessageFor(m => m.TypeOfUC)
+                    @Html.HiddenFor(m => m.UCId)
+                    @Html.HiddenFor(m => m.UCRawFile)
+                </div>
+            </div>
+
+            <div class="col-md-3 ds-spl-bg">
+                <div class="ds-tt">
+                    <span>Project</span>
+                    @Html.TextBox("ProjectNumber", Model.ProjectNumber, new { @class = "form-control" })
+                    @Html.TextBox("ProjectId", Model.ProjectId, new { @class = "form-control dis-none" })
+                    @Html.ValidationMessage("ProjectId")
+                </div>
+            </div>
+
+            <div class="col-md-3 ds-spl-bg">
+                <div class="ds-tt">
+                    <span>Finance Year</span>
+                    @Html.DropDownListFor(m => m.FinancialYear, new SelectList(ViewBag.FinYearList, "id", "name"), "Select any", new { @class = "form-control required", @onchange = "getExp()" })
+                    @Html.ValidationMessageFor(m => m.FinancialYear)
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="page-wrapper">
+            <div class="col-md-12 mt30">
+                <ul class="nav nav-pills custom-nav-pills">
+                    <li class="active"><a href="javascript:void(0)"><span>01</span>Utilization Details</a></li>
+                    <li><a href="javascript:void(0)"><span>02</span>Template builder</a></li>
+                </ul>
+                <div class="tab">
+                    <div class="col-md-12">
+                        <div class="bl-lg-panel-box pb-null">
+                            <div class="cmn-panel-box">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="row">
+                                            <div class="white-bg ad-navbar">
+
+                                                <div class="col-md-12 ds-spl-bg">
+                                                    <div class="ds-tt">
+                                                        <span>Remarks</span>
+                                                        @Html.TextAreaFor(m => m.Remarks, new { @class = "form-control", @row = "3" })
+                                                        @Html.ValidationMessageFor(m => m.Remarks)
+                                                    </div>
+                                                </div>
+
+
+                                            </div>
+                                        </div>
+                                        @*<div class="row">
+                                                <div class="col-md-2">
+                                                    <div class="form-group custom-form-group">
+                                                        <label>Total Sanction Value</label>
+                                                        <h4>12,000</h4>
+                                                    </div>
+                                                    <div class="form-group custom-form-group">
+                                                        <label>Total Recepit </label>
+                                                        <h4>12,000</h4>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="form-group custom-form-group">
+                                                        <label>Total Allocated value for financial year</label>
+                                                        <h4>2019-2020</h4>
+                                                    </div>
+                                                    <div class="form-group custom-form-group">
+                                                        <label>Receipt on this financial year</label>
+                                                        <h4>2019-2020</h4>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3">
+
+                                                    <div class="form-group custom-form-group">
+                                                        <label>PI Name </label>
+                                                        <h4>shankar mohan</h4>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3">
+
+                                                    <div class="form-group custom-form-group">
+                                                        <label>Co PI  Name </label>
+                                                        <div class="co-pi-hgt">
+                                                            <h4>shankar mohan</h4>
+                                                            <h4>shankar mohan</h4>
+                                                            <h4>shankar mohan</h4>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>*@
+
+
+
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="bl-lg-panel-box pb-null">
+                            <div class="cmn-panel-box">
+                                <div class="row">
+                                    <div class="col-md-12">
+
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                @Html.Partial("_UCCommitment", Model.CommitDetails)
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                @Html.Partial("_UCExpenditure", Model.ExpDetails)
+                                            </div>
+
+                                        </div>
+
+
+
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h4>Previous UCs For this project</h4>
+                                <div class="grey-bg-adj mb-lg">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div id="preUCList">
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab">
+                    @Html.Partial("_TemplateBuilder", Model)
+                </div>
+
+                <div class="custom-nav-btn text-right">
+                    <button type="button" class="btn btn-default pull-left" id="prevBtn" onclick="nextPrev(-1)">Previous</button>
+                    <button type="button" class="btn btn-primary pull-right" id="nextBtn" onclick="nextPrev(1)">Next</button>
+                    <button type="button" class="btn btn-default pull-right" onclick="window.location.href='@Url.Action("List", "UC")';">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+<script>
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+        applyProjectAutoComplete($('#ProjectNumber'), $('#ProjectId'));
+
+
+        var projId = $('#ProjectId').val() || 0;
+        var ucId = $('#UCId').val() || 0;
+        var finYear = $('#FinancialYear').val() || 0;
+        if (projId > 0) {
+            //EmptyCommitmentSelList();
+            searchCommitment(projId, ucId);
+            $("#preUCList").jsGrid("search");
+        }
+        if (projId > 0 && finYear > 0) {
+            getProjectData(projId, finYear);
+        }
+        CalculatePaymentValue();
+    });
+    $('#ProjectNumber').blur(function () {
+        var projId = $('#ProjectId').val() || 0;
+        var ucId = $('#UCId').val() || 0;
+        if (projId > 0) {
+            loadFinYear(projId);
+            EmptyCommitmentSelList();
+            searchCommitment(projId, ucId);
+            $("#preUCList").jsGrid("search");
+            getExp();
+        }
+    });
+    function loadFinYear(projId) {
+        $.getJSON("@Url.Action("GetFinYearList", "UC")", { pId: projId },
+        function (locationdata) {
+            var select = $("#FinancialYear");
+            select.empty();
+            select.append($('<option/>', {
+                value: "",
+                text: "Select any"
+
+            }));
+            $.each(locationdata, function (index, itemData) {
+
+                select.append($('<option/>', {
+                    value: itemData.id,
+                    text: itemData.name
+
+                }));
+            });
+        });
+    }
+    function getProjectData(projId, finYear) {
+        $.ajax({
+            type: "GET",
+            url: "@Url.Action("GetUCComponent", "UC")",
+            data: { "ProjectId": projId, "finYear": finYear },
+            dataType: "json",
+            success: function (result) {
+                if (result != null && result.basic != undefined) {
+                    $('#divComp > div').not(':first').remove();
+                    var basic = result.basic;
+                    for (var key in basic) {
+                        var cloneObj = $('#divDupComp').clone();
+                        cloneObj.removeClass('dis-none');
+                        cloneObj.find('#dragPT').html(basic[key]).attr('id', key);
+                        cloneObj.find('label').text(key.replace(/_/g, " "));
+                        $('#divComp').append(cloneObj);
+                    }
+                    //$('#dragPT').html(result.ProjectTittle);
+                    //$('#dragPI').html(result.PIname);
+                    //$('#dragPN').html(result.ProjectNo);
+                    //$('#dragStrDate').html(result.StartDate);
+                    //$('#dragClosDate').html(result.CloseDate);
+                    //$('#dragSanValue').html(result.SanctionedValue);
+                    //$('#dragGrantRec').html(result.TotalGrantReceived);
+                    //$('#dragTtlExp').html(result.TotalExpenditure);
+                    //$('#dragNegBal').html(result.ApprovedNegativeBalance);
+                    //$('#dragNetBal').html(result.NetBalance);
+                    //$('#dragSanNo').html(result.SanctionOrderNo);
+                    setDragDrop();
+                }
+            },
+            error: function (err) {
+                console.log("error : " + err);
+            }
+        });
+    }
+    function getExp() {
+        var projId = $('#ProjectId').val() || 0;
+        var UCType = $('#TypeOfUC').val() || 0;
+        var finYear = $('#FinancialYear').val() || 0;
+        var UCId = $('#UCId').val() || 0;
+        if (projId > 0 && UCType > 0 && finYear > 0) {
+            getProjectData(projId, finYear);
+            getHeadwiseExp(projId, UCId, UCType, finYear);
+        }
+    }
+    function calcUCAmount() {
+        var overAllExpAmt = 0;
+        var overAllCommExp = 0;
+        $('#tbodyExpList tr').each(function () {
+            var expHdId = $(this).find('input[name$=".AllocationHeadId"]').val();
+            var actExp = parseFloat($(this).find('input[name$=".ExpenditureAsPerBook"]').val()) || 0;
+            var utilized = parseFloat($(this).find('input[name$=".UCCommitmentUtilized"]').val()) || 0;
+            var withdrawn = parseFloat($(this).find('input[name$=".UCCommitmentWithdrawn"]').val()) || 0;
+            //var unUtilized = parseFloat($(this).find('input[name$=".UCCommitmentUnutilized"]').val()) || 0;
+            var ttlCommitAmt = 0;
+            $('#tbodyUCCommitment tr').each(function (idx, ele) {
+                var commHdId = $(ele).find('input[name$=".AllocationHeadId"]').val();
+                if (expHdId == commHdId) {
+                    var parseAmt = parseFloat($(ele).find('input[name$=".AvailableBalance"]').val()) || 0;
+                    ttlCommitAmt += parseAmt;
+                }
+            });
+            var ttlExp = (actExp + ttlCommitAmt) - (utilized + withdrawn);
+            overAllExpAmt += ttlExp;
+            overAllCommExp = overAllCommExp + ttlCommitAmt;
+            $(this).find('input[name$=".CommitmentTreatedAsExp"]').val(ttlCommitAmt.toFixed(2));
+            $(this).find('input[name$=".ExpenditureAsPerUC"]').val(ttlExp.toFixed(2));
+            $(this).find('td:nth-child(8)').html(ttlExp.toFixed(2));
+            $(this).find('td:nth-child(4)').html(ttlCommitAmt.toFixed(2));
+        });
+        $('#TotalExpenditure').val(overAllExpAmt.toFixed(2));
+        $('#overAllCommExp').val(overAllCommExp.toFixed(2));
+    }
+
+    var DateField = function (config) {
+        jsGrid.Field.call(this, config);
+    };
+    DateField.prototype = new jsGrid.Field({
+        sorter: function (date1, date2) {
+            return new Date(date1) - new Date(date2);
+        },
+
+        itemTemplate: function (value) {
+            return value;//new Date(value).toDateString();
+        },
+
+        filterTemplate: function () {
+            var now = new Date();
+            this._fromPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() - 1), dateFormat: 'dd M yy', changeYear: true });
+            this._toPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() + 1), dateFormat: 'dd M yy', changeYear: true });
+            return $("<div>").append(this._fromPicker).append(this._toPicker);
+        },
+
+        insertTemplate: function (value) {
+            return this._insertPicker = $("<input>").datepicker({ defaultDate: new Date() });
+        },
+
+        editTemplate: function (value) {
+            return this._editPicker = $("<input>").datepicker().datepicker("setDate", new Date(value));
+        },
+
+        insertValue: function () {
+            return this._insertPicker.datepicker("getDate").toISOString();
+        },
+
+        editValue: function () {
+            return this._editPicker.datepicker("getDate").toISOString();
+        },
+
+        filterValue: function () {
+            return {
+                from: this._fromPicker.datepicker("getDate"),
+                to: this._toPicker.datepicker("getDate")
+            };
+        }
+    });
+    jsGrid.fields.date = DateField;
+    $("#preUCList").jsGrid({
+        paging: true,
+        pageIndex: 1,
+        pageSize: 5,
+        editing: false,
+        filtering: true,
+        pageLoading: true,
+        //autoload: true,
+        controller: {
+
+            loadData: function (filter) {
+                var deferred = $.Deferred();
+                //var token = $("input[name=__RequestVerificationToken]").val();
+                if (filter.UCDate) {
+                    filter.ExpFrom = filter.UCDate.from ? formatDate(filter.UCDate.from) : null;
+                    filter.ExpTo = filter.UCDate.to ? formatDate(filter.UCDate.to) : null;
+                }
+                //filter.__RequestVerificationToken = token;
+                filter.ProjectId = $('#ProjectId').val();
+                $.ajax({
+                    type: "post",
+                    url: 'GetUCList',
+                    data: JSON.stringify(filter),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (result) {
+                        var da = {
+                            data: result.Data,
+                            itemsCount: result.TotalRecords
+                        }
+                        deferred.resolve(da);
+                    },
+                    error: function (err) {
+                        console.log("error : " + err);
+                    }
+
+                });
+                return deferred.promise();
+            }
+
+        },
+
+        fields: [
+            { name: "SlNo", title: "S.No", editing: false, width: 50 },
+            { type: "number", name: "UCId", title: "Id", visible: false },
+            { type: "text", name: "UCNumber", title: "UC Number", editing: false },
+            { name: "UCDateStr", title: "UC Date", type: "date", width: 100, align: "center" },
+            { name: "Type", title: "Type of UC", editing: false },
+             { name: "FinYear", title: "Finance Year", editing: false },
+            { type: "text", name: "Status", title: "Status", editing: false },
+              {
+                  name: "UCId",
+                  title: "Action",
+                  width: "60px",
+                  itemTemplate: function (value, item) {
+                      return $("<a>").attr("href", "javascript:void(0)").attr("value", "View").text('View').on("click", function () {
+                          var url = '@Url.Action("View", "UC")?UCId=' + item.UCId;
+                          window.open(url, '_blank');
+                      });
+                  }
+              },
+              {
+                  type: "control", editButton: false, deleteButton: false, width: "25px",
+                  _createFilterSwitchButton: function () {
+                      return this._createOnOffSwitchButton("filtering", this.searchModeButtonClass, false);
+                  }
+              },
+        ],
+
+    });
+    $("#preUCList").jsGrid("option", "filtering", false);
+
+    function formSave() {
+        var isValid = $('#formUC').valid();
+        if (!isValid)
+            return false;
+        if (isValid)
+            $('#formUC').submit();
+    }
+    function fillExpDetail() {
+        var finYear = $("#FinancialYear option:selected").text();
+        var ttlExp = $("#TotalExpenditure").val() || 0;
+        var overAllCommExp = $('#overAllCommExp').val() || 0;
+        $('#dragFinYear').html(finYear);
+        $('#dragTtlExp').html(ttlExp);
+        $('#tbodyDragExpList tr').not(':first').remove();
+        var netBal = $('#Net_Balance').text() || 0;
+        var actBalCommit = $('#Actual_Balance_Commitments').text() || 0;
+        var availBal = netBal - ttlExp;
+        var balCommit = actBalCommit - overAllCommExp;
+        $('#Available_Balance').text(availBal.toFixed(2));
+        $('#Balance_Commitments').text(balCommit.toFixed(2));
+        $('#Balance_After_Commitments').text((availBal - balCommit).toFixed(2));
+        $('#tbodyExpList tr').each(function (indx) {
+            var head = $(this).find('td:nth-child(2)').html();
+            var exp = $(this).find('input[name$=".ExpenditureAsPerUC"]').val();
+            if (indx == 0) {
+                var trEle = $('#tbodyDragExpList tr:first');
+                var clnHead = $('#dragTtlExp').clone();
+                var clnAmt = $('#dragTtlExp').clone();
+                clnAmt.attr('id', 'UCExpAmount_' + indx + '_' + finYear).html(exp);
+                clnHead.attr('id', 'HeadName_' + indx + '_' + finYear).html(head);
+                $(trEle).find('td:nth-child(1)').html(clnHead);
+                $(trEle).find('td:nth-child(2)').html(clnAmt);
+                $('#tbodyDragExpList').append(trEle);
+            } else {
+                var trEle = $('#tbodyDragExpList tr:first').clone();
+                var clnHead = $('#dragTtlExp').clone();
+                var clnAmt = $('#dragTtlExp').clone();
+                clnAmt.attr('id', 'UCExpAmount_' + indx + '_' + finYear).html(exp);
+                clnHead.attr('id', 'HeadName_' + indx + '_' + finYear).html(head);
+                $(trEle).find('td:nth-child(1)').html(clnHead);
+                $(trEle).find('td:nth-child(2)').html(clnAmt);
+                $('#tbodyDragExpList').append(trEle);
+            }
+        });
+        setDragDrop();
+    }
+    /* Tab Sections Start*/
+    var currentTab = 0; // Current tab is set to be the first tab (0)
+    showTab(currentTab); // Display the crurrent tab
+    function showTab(n) {
+        // This function will display the specified tab of the form...
+        var x = document.getElementsByClassName("tab");
+        x[n].style.display = "block";
+        $(".custom-nav-pills li:eq(" + n + ")").addClass("active");
+        //... and fix the Previous/Next buttons:
+        if (n == 0) {
+            document.getElementById("prevBtn").style.display = "none";
+        } else {
+            document.getElementById("prevBtn").style.display = "inline";
+        }
+        if (n == (x.length - 1)) {
+            document.getElementById("nextBtn").innerHTML = "Submit";
+        } else {
+            document.getElementById("nextBtn").innerHTML = "Next";
+        }
+        //... and run a function that will display the correct step indicator:
+        //fixStepIndicator(n)
+    }
+
+    function nextPrev(n) {
+        // This function will figure out which tab to display
+        var x = document.getElementsByClassName("tab");
+        // Exit the function if any field in the current tab is invalid:
+        if (n > 0 && !validateForm(n)) return false;
+        if (currentTab + n < x.length) {
+            // Hide the current tab:
+            x[currentTab].style.display = "none";
+            $(".custom-nav-pills li:eq(" + currentTab + ")").removeClass("active");
+        } else {
+            // ... the form gets submitted:
+            formSave();
+            return false;
+        }
+        // Increase or decrease the current tab by 1:
+        currentTab = currentTab + n;
+
+        // Otherwise, display the correct tab:
+        showTab(currentTab);
+    }
+
+    function validateForm(n) {
+        // This function deals with validation of the form fields
+        var isValid = false;
+        var hadError = false;
+        var tabs = $(".tab");
+        var currentTabEle = tabs[currentTab];
+        var inputs = $(":input, textarea, select"); // get all the form inputs and selects
+        var stepElements = $(currentTabEle).find(inputs); // get inputs for current step
+        var count = stepElements.length; // check that there are inputs
+        if (count <= 0) {                // if there are not no reason to loop them
+            return true;                 // this can be used to perform other action if there are no steps
+        } else if (currentTab == 0) {
+            var ttlExp = parseFloat($('#TotalExpenditure').val()) || 0;
+            if (ttlExp <= 0) {
+                hadError = true;
+                $("#alert").text("Total expenditure should be greater than zero.");
+                $('#Validation').modal('show');
+            }
+            fillExpDetail();
+        } else if (currentTab == 1) {
+            var tempRawData = editor.html.get();
+            if (tempRawData == '') {
+                hadError = true;
+                $("#alert").text("Template Content filed is required.");
+                $('#Validation').modal('show');
+            } else {
+                $('#UCRawFile').val(tempRawData);
+            }
+        }
+        $(stepElements).each(function (idx, ele) {
+
+            if (!$(ele).is(':radio') && !$(ele).is(':checkbox') && !$(ele).is(':password')) {
+                isValid = $(ele).valid();//$(document.forms[0]).validate().element($(this)); // check that the input is valid. This can also be used on a per input basis to perform another action if the field is not valid.
+                if (!isValid) { hadError = true; } // set our flag if there was an error
+            }
+
+        });
+        return !hadError; // return the valid status
+
+    }
+</script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>

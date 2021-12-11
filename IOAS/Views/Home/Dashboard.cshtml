@@ -1,0 +1,254 @@
+﻿@model IOAS.Models.DashboardModel
+@{
+    ViewBag.Title = "Dashboard";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<div id="addnewstatusbar">
+    <div class="row hd-tt-bg">
+        <div class="col-md-4">
+
+            <h3>Dashboard</h3>
+
+
+        </div>
+        <div class="col-md-8 flt-nav-links">
+
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="white-bg ad-navbar">
+        <div class="col-md-3">
+            <div class="ds-tt">
+                <span>Welcome</span>
+                <h4>@ViewBag.FirstName</h4>
+            </div>
+        </div>
+
+        <div class="col-md-offset-5 col-md-4">
+            <div class="ds-dts">
+                <h4> <i class="ion-android-time"></i><b>@ViewBag.LoginTS</b></h4>
+                <span>Logon time & date</span>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div class="row mt30">
+    <div class="page-wrapper">
+
+        <div class="col-md-5">
+            <div class="alter-box">
+                <div class="tb-tt bg-blue">
+                    @*<span>Unread Messages (20)</span>*@
+                    <h4>Notification</h4>
+                </div>
+                <div class="tb-body tb-alt-scrl">
+                    @if (Model.nofity != null && Model.nofity.Count() > 0)
+                    {
+
+                        <div class="col-md-12 pd-null">
+                            <div class="col-md-4">
+                                <b>From</b>
+                            </div>
+                               <div class="col-md-4">
+                                    <b>Type</b>
+                                </div>
+                                <div class="col-md-4">
+                                       <b>Date & time</b>
+                                </div>
+                                
+                        </div>
+                        foreach (var item in Model.nofity)
+                        {
+                            var url = UrlHelper.GenerateContentUrl("~" + item.FunctionURL, this.ViewContext.HttpContext);
+                            <div class="col-md-12 pd-null mt-sm ds-notify">
+                                <a name="notifyLink" href="@Url.Content(url)">
+                                    <div class="col-md-4">
+                                        <span>@Html.DisplayFor(m => item.FromUserName)</span>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <span>@Html.DisplayFor(m => item.NotificationType)</span>
+                                    </div>
+                                    <div class="col-md-4">
+                                          <span>@Html.DisplayFor(m => item.NotificationDateTime)</span>
+                                    </div>
+                                </a>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-7">
+            <div class="alter-box">
+                <div class="tb-tt bg-blue">
+                    @*<span>Unread Messages (20)</span>*@
+                    <h4>Approval Worklist</h4>
+                </div>
+                <div class="tb-body tb-alt-scrl">
+                    @if (Model.approveList != null && Model.approveList.Count() > 0)
+                    {
+
+                        <div class="col-md-12 pd-null">
+                            <div class="col-md-2">
+                                <b>From</b>
+                            </div>
+                            <div class="col-md-3">
+                                <b>Flow Title</b>
+                            </div>
+                            <div class="col-md-3">
+                                <b>Reference No</b>
+                            </div>
+                            <div class="col-md-2">
+                                <b>Status</b>
+                            </div>
+                            <div class="col-md-2">
+                                <b>Date & time</b>
+                            </div>
+
+                        </div>
+                        foreach (var item in Model.approveList)
+                        {
+                            var url = UrlHelper.GenerateContentUrl("~" + item.ActionLink, this.ViewContext.HttpContext);
+                            var ts = String.Format("{0:ddd dd-MM-yy h:mm tt}", item.TransactionTS);
+                            <div style="word-break: break-all;" class="col-md-12 pd-null mt-sm ds-notify">
+                                <a  href="@Url.Content(url)">
+                                    <div class="col-md-2">
+                                        <span>@Html.DisplayFor(m => item.FirstName)&nbsp;@Html.DisplayFor(m => item.LastName) </span>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <span>@Html.DisplayFor(m => item.FlowTitle)</span>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <span>@Html.DisplayFor(m => item.RefNumber)</span>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <span>@Html.DisplayFor(m => item.ActionStatus)</span>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <span>@Html.DisplayFor(m => ts)</span>
+                                    </div>
+                                </a>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-12">
+            <div class="alter-box">
+                <div class="tb-tt bg-blue">
+                    <h4>Work Flow Proposal</h4>
+                </div>
+                <div  class="tb-body tb-alt-scrl">
+                    @if (Model.wfproposallist != null && Model.wfproposallist.Count() > 0)
+                    {
+                        
+                        <div class="col-md-12 pd-null">
+                            <div class="col-md-2">
+                                <b>WF Proposal No</b>
+                            </div>
+                            <div class="col-md-2">
+                                <b>PI Name</b>
+                            </div>
+                            <div class="col-md-2">
+                                <b>Agency</b>
+                            </div>
+                            <div class="col-md-1">
+                                <b>Type</b>
+                            </div>
+                            <div class="col-md-2">
+                                <b>Value</b>
+                            </div>
+                            <div class="col-md-2">
+                                <b>Date</b>
+                            </div>
+                            <div class="col-md-1">
+                              
+                            </div>
+                        </div>
+                        foreach (var item in Model.wfproposallist)
+                        {
+                            var WFid = item.WFid;
+                            var url = UrlHelper.GenerateContentUrl("~" + item.ActionLink, this.ViewContext.HttpContext);
+                            <div class="col-md-12 pd-null mt-sm ds-notify">
+                                <div id="aTAGWF">
+                                    <a href="@Url.Content(url)">
+                                        <div class="col-md-2">
+                                            <span>@Html.DisplayFor(m => item.WFProposalNo)</span>
+                                            @Html.Hidden("WFid")
+
+                                        </div>
+                                        <div class="col-md-2">
+                                            <span>@Html.DisplayFor(m => item.PIName)</span>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <span>@Html.DisplayFor(m => item.Agency)</span>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <span>@Html.DisplayFor(m => item.Type)</span>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <span>@Html.DisplayFor(m => item.Value)</span>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <span>@Html.DisplayFor(m => item.Date)</span>
+                                        </div>
+                                    </a>
+
+
+                                    <div class="col-md-1">
+                                        <a href="javascript:void(0)" data-id='@WFid' class="btn-circle removeWF"><i class="ion-trash-a"></i></a>
+
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+</div>
+<div id="popup"></div>
+<script type="text/javascript" language="javascript">
+
+    $('a[name="notifyLink"]').on('click', function (e) {
+        e.preventDefault();
+       var notifyUrl =  $(this).attr('href');
+        $.ajax({
+            url: notifyUrl,
+            type: "Post",
+            contentType: "application/x-www-form-urlencoded",
+            success: function (data) {
+                $("#popup").html(data);
+                $('#notify_modal').modal('toggle');
+            }
+        });
+    });
+    $(document).on('click', 'a.removeWF', function () {
+        var WFid = $(this).data('id');
+        var thisFun = $(this);
+        var choice = confirm("Are you sure, Do you want to remove this proposal for your notification?");
+        if (choice === true) {
+            $.ajax({
+                type: "POST",
+                data: JSON.stringify({ 'WFid': WFid}),
+                url: '@Url.Action("DeleteWFProposal", "Proposal")',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (result) {
+                    if(result==true)
+                        thisFun.closest('#aTAGWF').remove();
+                },
+            })
+        }
+       
+    });
+</script>

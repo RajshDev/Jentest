@@ -1,0 +1,616 @@
+﻿@model IOAS.Models.ConsultantAppointmentModel
+@{
+    ViewBag.Title = "CONViewProfile";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+<style>
+    .modal-dialog {
+        width: 850px;
+    }
+
+    .img-profile {
+        height: 177px;
+        width: 138px;
+    }
+
+    .wrd-wrap {
+        word-wrap: break-word;
+    }
+</style>
+<div class="row hd-tt-bg">
+    <div class="col-md-12">
+        <h4><b>Consultant AppointMent</b></h4>
+       
+    </div>
+</div>
+<div class="row cust-tab">
+    <div class="page-wrapper mt30">
+        <div>
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="bl-lg-panel-box pb-null">
+                            <div class="cmn-panel-box">
+                                <div class="row ">
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            @Html.HiddenFor(m => m.ProjectId)
+                                            @Html.HiddenFor(m => m.ConsultantAppointmentId)
+                                            @Html.HiddenFor(m => m.Status)
+                                            @Html.HiddenFor(M => M.DesignationId)
+                                            <label>Employee No: </label>
+                                            <h4 id="ClApplicationNo">@Model.EmployeeId</h4>
+                                        </div>
+                                    </div>
+                                  
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>Candidate Name</label>
+                                            <h4>@Model.Name</h4>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>Father’s / Husband’s Name</label>
+                                            <h4>@Model.Nameoftheguardian</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>Photo</label> <br>
+                                            <img id="displayImg" class="img-profile" src="@Url.Action("ShowDocument", "Account", new { file = Model.PersonDocPath, filepath = "RCTEmployeeImages"})">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>Singnature</label> <br>
+                                            <img id="displaySignature" src="~/Content/Requirement/@Model.CantidateSignatureFilePath" width="50%" height="50px"><br>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>PI Name:</label> <br>
+                                            <h4 id="ClPIName">@Model.ProjectDetailsModel.PIName</h4>
+
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>Department name:</label> <br>
+                                            <h4 id="ClDepartname">@Model.ProjectDetailsModel.PIDepartmentName</h4>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>Contact No</label> <br>
+                                            <h4>@Model.ContactNumber</h4>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>Designation: </label>
+                                            <h4 id="ClDesignation"></h4>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>Qualification: </label>
+                                            <h4 id="ClQualification">@Html.Raw(Model.QualificationDetail)</h4>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>Experience: </label>
+                                            <h4 id="ClExperience">@Model.Experience</h4>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>Retainer Fee: </label>
+                                            <h4 id="ClPay">@Model.Salary</h4>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>GST:</label> <br>
+                                            <h4 id="ClMedical">@Model.GST</h4>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row ">
+
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>Date of Brith</label>
+                                            <h4>@Model.DateBrith</h4>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group  ">
+                                            <label>Application Received Date</label>
+                                            <h4>@Model.ApplicationRecvDate</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row ">
+
+
+                                    <div class="col-md-6" id="CldivCSIR">
+                                        <div class="form-group custom-form-group ">
+                                            <label>IITM Pensioner / CSIR Staff :</label>
+                                            <h4>@Model.PensionerCSIRStaff</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 wrd-wrap">
+                                        <div class="form-group custom-form-group ">
+                                            <label>Present Address</label>
+                                            <h4>@Model.TemporaryAddress</h4>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 wrd-wrap">
+                                        <div class="form-group custom-form-group">
+                                            <label>Permanent Address</label> <br>
+                                            <h4>@Model.PermanentAddress</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group ">
+                                              <label>Emergency Contact No</label>
+                                                <h4>@Model.EmergencyContactNo</h4>
+                                        </div>
+                                    </div>
+                                    @*<div class="col-md-6">
+                                        <div class="form-group custom-form-group ">
+                                            <label>Alternate Contact No</label>
+                                            <h4>@Model.AlternativeContactNumber</h4>
+                                        </div>
+                                    </div>*@
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="bl-lg-panel-box  pb-null">
+                            <div class="bl-lg-panel-box-hd mb-m-5 pd-null">
+                                <div class="cmn-panel-box">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>Project Number</label>
+                                                <h4>@Model.ProjectNumber</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>Project Title</label>
+                                                <h4 id="txtProjectTitle1">@Model.ProjectDetailsModel.ProjectTitle</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>Name of the Client / Sponsoring Agency</label>
+                                                <h4 id="txtClietAgency1">@Model.ProjectDetailsModel.SponsoringAgency</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>Project Type</label>
+                                                <h4 id="txtProjectType1">@Model.ProjectDetailsModel.ProjectType</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>PI Name</label>
+                                                <h4 id="txtPIName1">@Model.ProjectDetailsModel.PIName</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>Project Start Date</label>
+                                                <h4 id="txtProjectStartDate1">@Model.ProjectDetailsModel.ProjectStartDate</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>Project Closure Date</label>
+                                                <h4 id="txtProjectClosureDate1">@Model.ProjectDetailsModel.ProjectClosureDate</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>PI Code</label>
+                                                <h4 id="txtPICode1">@Model.ProjectDetailsModel.PICode</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>PI Email ID</label>
+                                                <h4 id="txtPIEmailID1">@Model.ProjectDetailsModel.Email</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>PI Phone No</label>
+                                                <h4 id="txtPIPhone1">@Model.ProjectDetailsModel.Phone</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>Department code </label>
+                                                <h4 id="txtDepartmentCode1">@Model.ProjectDetailsModel.PIDepartmentCode</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group mb-sm">
+                                                <label>Department Name</label>
+                                                <h4 id="txtDepartmentName1">@Model.ProjectDetailsModel.PIDepartmentName</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label>Pay type</label>
+                                                <h4>Retainer Fee</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label>Retainer Fee: </label>
+                                                <h4 id="ClPay">@Model.Salary</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label>Designation Code</label>
+                                                <h4 id="lblDesignationCode1"></h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label class="required">Designation</label>
+                                                <h4 id="lblDesignationName1"></h4>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label>Appointment start date</label>
+                                                <h4>@Model.AppointMentStrDate</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label>Appointment End date</label>
+                                                <h4>@Model.AppointMentEdDate</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                @*<label>Commitment Amount</label>
+                                                <h4>@Model.CommitmentAmount</h4>*@
+                                                <label>Commitment Balance</label>
+                                                <h4>@Html.DisplayFor(m => m.CommitmentBalance)</h4>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label>Commitment Number</label>
+                                                <h4>@Html.DisplayFor(m => m.CommitmentNo)</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bl-lg-panel-box pb-null">
+                            <div class="cmn-panel-box">
+                                <div class="row ">
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label class="">Bank Account No </label>
+                                            <br>
+                                            @Html.DisplayFor(m => m.BankAccountNo)
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label class="">Bank Name </label>
+                                            <br>
+                                            @Html.DisplayFor(m => m.BankName)
+                                        </div>
+                                    </div><div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label class="">IFSC </label>
+                                            <br>
+                                            @Html.DisplayFor(m => m.IFSCCode)
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                       
+                    </div>
+
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="bl-lg-panel-box pb-null">
+                        <div class="cmn-panel-box">
+                            <div class="grey-bg-adj mb-lg">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <table class="table alter-table mb-null">
+                                            <thead>
+                                                <tr>
+                                                    <th>QUALIFICATION* ACADEMIC / TECHNICAL</th>
+                                                    <th>Discipline</th>
+                                                    <th>UNIVERSITY / INSTITUTION </th>
+                                                    <th>YEAR OF PASSING</th>
+                                                    <th>% OF MARKS</th>
+                                                    <th>DIVISION / CLASS OBTAINED</th>
+                                                    <th>Attachment File</th>
+                                                    <th>Remarks</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="tbodyEducation">
+                                                @if (Model.EducationDetail != null)
+                                                {
+                                                    var count = 0;
+                                                    foreach (var item in Model.EducationDetail)
+                                                    {
+                                                        var eduId = "EducationDetail[" + count + "].EducationId";
+                                                        var edu = "EducationDetail[" + count + "].Education";
+                                                        var qullfi = "EducationDetail[" + count + "].QualificationId";
+                                                        var decpid = "EducationDetail[" + count + "].DisciplineId";
+                                                        var instu = "EducationDetail[" + count + "].Institution";
+                                                        var yearpass = "EducationDetail[" + count + "].YearofPassing";
+                                                        var marks = "EducationDetail[" + count + "].Marks";
+                                                        var devob = "EducationDetail[" + count + "].DivisionClassObtained";
+                                                        var cetrifid = "EducationDetail[" + count + "].CertificateId";
+                                                        var cerfile = "EducationDetail[" + count + "].Certificate";
+                                                        var remark = "EducationDetail[" + count + "].Remarks";
+                                                        var qulfiappId = "qulfiAPP_" + count;
+                                                        <tr>
+                                                            <td>
+                                                                @Html.Hidden(@eduId, item.EducationId)
+                                                                <span>@Model.EducationDetail[count].QualificationName</span>
+                                                            </td>
+                                                            <td>
+                                                                <span>@Model.EducationDetail[count].DisciplineName</span>
+                                                               
+                                                            </td>
+                                                            <td>
+                                                                <span>@Model.EducationDetail[count].Institution</span>
+                                                               
+                                                            </td>
+                                                            <td>
+                                                                <span>@Model.EducationDetail[count].YearofPassing</span>
+                                                               
+                                                            </td>
+                                                            <td>
+                                                                <span>@Model.EducationDetail[count].Marks</span>
+                                                                
+                                                            </td>
+
+                                                            <td>
+                                                                <span>@Model.EducationDetail[count].DivisionClassObtained</span>
+                                                               
+                                                            </td>
+                                                            <td>
+                                                                @if (Model.ConsultantAppointmentId > 0 && !string.IsNullOrEmpty(item.DocumentActualName))
+                                                                {
+                                                                    @Html.ActionLink(item.DocumentActualName, "ShowFile", new { Controller = "Requirement", filepath = "~/Content/Requirement/STE", file = item.DocumentName }, new { @name = "DocDownload", @target = "_blank" })
+                                                                }
+                                                            </td>
+                                                            <td>
+                                                                <span>@Model.EducationDetail[count].Remarks</span>
+                                                                
+                                                            </td>
+                                                            
+                                                        </tr>
+                                                        count++;
+                                                    }
+                                                
+                                                }
+                                            </tbody>
+                                        </table>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="bl-lg-panel-box pb-null">
+                        <div class="cmn-panel-box">
+                            <div class="grey-bg-adj mb-lg">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <table class="table alter-table mb-null">
+                                            <thead>
+                                                <tr>
+                                                    <th style="width:130px;">Type</th>
+                                                    <th>ORGANISATION</th>
+                                                    <th>DESIGNATION </th>
+                                                    <th style="width: 160px;">FROM</th>
+                                                    <th style="width: 160px;">TO</th>
+                                                    <th>SALARY DRAWN (Rs.)</th>
+                                                    <th>Attachment File</th>
+                                                    <th>Remarks</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="tbodyExperience">
+                                                @if (Model.ExperienceDetail != null)
+                                                {
+                                                    var count = 0;
+                                                    foreach (var item in Model.ExperienceDetail)
+                                                    {
+                                                        var expid = "ExperienceDetail[" + count + "].ExperienceId";
+                                                        var exptype = "ExperienceDetail[" + count + "].ExperienceTypeId";
+                                                        var exptypestr = "ExperienceDetail[" + count + "].ExperienceType";
+                                                        var org = "ExperienceDetail[" + count + "].Organisation";
+                                                        var autocom = "ExperienceDetail[" + count + "].DesignationautoComplete";
+                                                        var des = "ExperienceDetail[" + count + "].DesignationListId";
+                                                        var frmdate = "ExperienceDetail[" + count + "].FromDate";
+                                                        var todate = "ExperienceDetail[" + count + "].ToDate";
+                                                        var salarydr = "ExperienceDetail[" + count + "].SalaryDrawn";
+                                                        var expfile = "ExperienceDetail[" + count + "].ExperienceFile";
+                                                        var remark = "ExperienceDetail[" + count + "].Remarks";
+                                                        <tr>
+                                                            <td>
+                                                                <span>@Model.ExperienceDetail[count].ExperienceTypeName</span>
+                                                               
+                                                            </td>
+                                                            <td>
+                                                                <span>@Model.ExperienceDetail[count].Organisation</span>
+                                                               
+                                                            </td>
+                                                            <td>
+                                                                <span>@Model.ExperienceDetail[count].DesignationautoComplete</span>
+                                                               
+                                                            </td>
+                                                            <td>
+                                                                <span>@Model.ExperienceDetail[count].EXPFromDate</span>
+                                                               
+                                                            </td>
+                                                            <td>
+                                                                <span>@Model.ExperienceDetail[count].ExpToDate</span>
+                                                                @Html.TextBox(@todate, item.ToDate, new { @class = "form-control dis-none", @readonly = "readonly" })
+                                                                @Html.ValidationMessage(@todate)
+                                                            </td>
+                                                            <td>
+                                                                <span>@Model.ExperienceDetail[count].SalaryDrawn</span>
+                                                               
+                                                            </td>
+                                                            <td>
+                                                                @if (Model.ConsultantAppointmentId > 0 && !string.IsNullOrEmpty(item.DocumentName))
+                                                                {
+                                                                    @Html.ActionLink(item.DocumentActualName, "ShowFile", new { Controller = "Requirement", filepath = "~/Content/Requirement", file = item.DocumentName }, new { @name = "DocDownload", @target = "_blank" })
+                                                                }
+                                                            </td>
+                                                            <td>
+                                                                <span>@Model.ExperienceDetail[count].Remarks</span>
+                                                                
+                                                            </td>
+                                                           
+                                                        </tr>
+                                                        count++;
+                                                    }
+                                                }
+                                            </tbody>
+
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="text-center" style="margin-bottom: 50px;">
+    @Html.HiddenFor(m => m.List_f)
+    @if (!string.IsNullOrEmpty(Model.List_f))
+    {
+        <button type="button" class="btn btn-default" onclick="window.location.href='@Url.Action(Model.List_f,"Requirement")';">Close</button>
+    }
+    else
+    {
+        <button type="button" class="btn btn-default" onclick="window.location.href='@Url.Action("Dashboard", "Home")';">Close</button>
+    } 
+</div>
+<script>
+    function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                $('#displayImg')
+                    .attr('src', e.target.result)
+                    .width(30)
+                    .height(30);
+            };
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function readSignURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                $('#displaySignature')
+                    .attr('src', e.target.result)
+                    .width(30)
+                    .height(30);
+            };
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+    if ($("#DesignationId").val() != 0) {
+        LoadFillDesignation()
+    }
+    function LoadFillDesignation() {
+        var DesignationID = $('#DesignationId').val();
+        if (DesignationID > 0) {
+            $.getJSON("@Url.Action("LoadDesignationDetails", "Requirement")", { DesignationID: DesignationID },
+        function (result) {
+            if (result.DesignationData.DestinationID > 0) {
+                $('#lblDesignationCode1').text(result.DesignationData.DesignationCode);
+                $('#lblDesignationName1').text(result.DesignationData.Designation);
+                $('#ClDesignation').text(result.DesignationData.Designation);
+            }
+        });
+    }
+    }
+</script>

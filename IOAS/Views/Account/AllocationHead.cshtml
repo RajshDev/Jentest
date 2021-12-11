@@ -1,0 +1,214 @@
+﻿@model IOAS.Models.AccountHeadViewModel
+@{
+    ViewBag.Title = "AllocationHead";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+@Styles.Render("~/bundles/JSGridCss")
+@Scripts.Render("~/bundles/JSGrid")
+<script src="@Url.Content("~/Scripts/Account/Allocationhead.js")"></script>
+<div class="row hd-tt-bg" id="addnewpage">
+    <div class="col-md-4">
+
+        <h3>Account head</h3>
+
+    </div>
+    <div class="col-md-8 flt-nav-links">
+
+
+        <a href="#" id="btnaddnew"> <i class="ion-plus"></i>Add New</a>
+        <a href="Javascript:void(0)" id="btnFilterHead" class="pull-right"> <i class="ion-android-funnel"></i>Filters</a>
+
+    </div>
+</div>
+<div id="popFilterHead" class="filter-popup">
+    <div class="">
+        <div class="filter-content">
+            <div class="white-bg">
+                <div class="form-group custom-form-group">
+                    <h3>Filter by</h3>
+                </div>
+                <div class="form-group custom-form-group">
+                    <label>Account Head</label><br>
+                    @Html.TextBoxFor(M => M.AccountHeadSearch, new { @class = "form-control", @id = "txtAcctHeadSearch" })
+                </div>
+                <div class="form-group custom-form-group">
+                    <label>Account Head Code</label><br>
+                    @Html.TextBoxFor(M => M.AccountHeadCodeSearch, new { @class = "form-control", @id = "txtAcctCodeSearch" })
+                </div>
+                <div class="form-group custom-form-group">
+                    <label>Account Group</label><br>
+                   @Html.DropDownListFor(M => M.AccountGroupIdSearch, new SelectList(ViewBag.acctgroup, "id", "name"), "Select Account Group", new { @class = "form-control", @id = "ddlAcctGroupSearch" })
+                </div>
+                <div class="form-group custom-form-group mt30 text-center">
+                    <button id="btnSrchHead" type="button" class="btn btn-primary mr10">Search</button>
+                    <button id="btnResetSrchHead" type="button" class="btn btn-default">Reset</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <a href="javascript:void(0)" name="btnCloseHead" class="close-btn"><i class="ion-android-cancel"></i></a>
+
+</div>
+@using (Html.BeginForm("AllocationHead", "Account", FormMethod.Post, new { @class = "", role = "form", @id = "formCU", enctype = "multipart/form-data" }))
+{
+    <div class="col-md-12">
+        <div class="page-wrapper"id="createhead" style="display:none">
+            <div class="white-bg">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h3 class="spl-title">Account Head</h3>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label class="required">Account group</label>
+                            @Html.DropDownListFor(M => M.AccountGroupId, new SelectList(ViewBag.acctgroup, "id", "name"), "Select", new { @class = "form-control selectpicker", @id = "ddlacctgrop"})
+                            <div class="txt-error txt-red"> @Html.ValidationMessageFor(M => M.AccountGroupId)</div>
+                        @Html.HiddenFor(M => M.AccountHeadId, new { @id = "txtacctheadid" })
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label class="required">Account head</label>
+                            @Html.TextBoxFor(M => M.AccountHead, new { @class = "form-control", @id = "txtaccthead", @required = "required" })
+                            <div class="txt-error txt-red"> @Html.ValidationMessageFor(M => M.AccountHead)</div>
+                            
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label class="required">Account head code</label>
+                            @Html.TextBoxFor(M => M.AccountHeadCode, new { @class = "form-control", @id = "txtacctheadcode", @required = "required", @readonly = "readonly" })
+                            <div class="txt-error txt-red"> @Html.ValidationMessageFor(M => M.AccountHeadCode)</div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+            <div class="row">
+                <div class="col-md-12 text-center pd-tb-30">
+                    <input type="submit" class="btn btn-primary mr10" value="Save" name="Button" id="btnSave" />
+                    <input type="submit" class="btn btn-primary mr10" value="Update" name="Button" id="btnUpdate" style="display:none" />
+                    <input type="button" onclick="window.location.href='@Url.Action("AllocationHead", "Account")';" class="btn btn-default" value="Close" name="Button" id="btnReset" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mt30" id="gridlist">
+
+        <div class="col-md-12">
+            <div class="page-wrapper">
+                <div class="custom-jsgrid-normal">
+                    <div id="headlist"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+
+
+
+
+
+
+
+<div id="deletemodal" class="modal fade modal-success" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-checkmark-circle"></i>
+                <h3 class="modal-title">Deleted successfully</h3>
+            </div>
+            <div class="modal-body">
+                <p>Account head  Deleted successfully</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    $('#btnaddnew').on('click', function () {
+        $('#createhead').show();
+        $('#gridlist').hide();
+        $('#addnewpage').hide();
+        reset();
+    });
+    function reset() {
+        $('#txtacctheadid,#txtaccthead,#txtacctheadcode').val('');
+        $('.selectpicker').selectpicker('val', 0);
+    }
+    $(document).ready(function () {
+
+        var add = '@ViewBag.success';
+        if (add != '') {
+            $('#alertSuccess').html(add);
+            $('#Success').modal('toggle');
+        }
+        var warrning = '@ViewBag.warrning';
+        if (warrning != '') {
+
+            $('#alert').html(warrning);
+            $('#Validation').modal('toggle');
+        }
+
+        var error = '@ViewBag.error';
+        if (error != '') {
+
+            $('#FailedAlert').html(error);
+            $('#Failed').modal('toggle');
+        }
+        var userMsg = '@ViewBag.UserMsg';
+        if(userMsg!='')
+        {
+            $('#alert').html(userMsg);
+            $('#Validation').modal('toggle');
+        }
+    });
+    $(document).ready(function () {
+        //This select picker load dropdown in search
+        $('.selectpicker').selectpicker({
+            liveSearch: true
+        });
+        $('.selectpicker').selectpicker('refresh');
+    });
+    $('#ddlacctgrop').on('change', function () {
+        var acctgroup = $('#ddlacctgrop').val();
+        $.ajax({
+            type: "Post",
+            url: '@Url.Action("GetAccoutHeadCode", "Account")',
+            data: { accountgroupcode: acctgroup },
+            dataType: "json",
+            success: function (result) {
+                if (result != "") {
+                    $('#txtacctheadcode').val(result);
+                }
+                else {
+                    $('#FailedAlert').html("Somthing went to worng please contact Admin!.");
+                    $('#Failed').modal('toggle');
+                }
+            }
+        });
+
+    });
+    $('#btnFilterHead').off("click").on("click", function () {
+        $('#popFilterHead').css("display", "Block");
+    });
+    $('a[name="btnCloseHead"],button[name="btnCloseHead"]').click(function () {
+        $('#popFilterHead').css("display", "none");
+    });
+</script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>

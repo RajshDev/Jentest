@@ -1,0 +1,641 @@
+﻿@model IOAS.Models.CommonPaymentModel
+<div class="col-md-12 col-sm-12 m-b-sm">
+    <div class="">
+
+        <div id="pnlLedgerInfo" class="row">
+
+            <div class="col-md-12">
+                <div class="bl-lg-panel-box pb-null">
+                    <div class="cmn-panel-box">
+                        <h3 id="CreditorLabel" class="mt-null">Creditor</h3>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div id="creditor" class="form-group custom-form-group">
+                                    <label class="required">Creditor Type</label>
+                                    <h4>@Model.CreditorType</h4>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group custom-form-group">
+                                    <label id="subledger">Sub ledger</label>
+                                    <h4 id="lblVendorName"></h4>
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-md-offset-2">
+                                <div class="reg-no mt-m-md">
+                                    <div class="form-group custom-form-group">
+                                        <label id="subledgeramountlabel">Sub ledger amount @*<span class="cr">(Cr)</span>*@</label>
+                                        @Html.TextBoxFor(m => m.CreditorAmount, new { @class = "form-control", @autocomplete = "off", @readonly = "readonly" })
+                                        @Html.ValidationMessageFor(m => m.CreditorAmount)
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="gray-bg br-rd">
+            <h3 id="ExpenseLabel" class="mt-null col-md-6">Expense Details</h3>
+            <div class="col-md-6 text-right mb-md">
+                <a href="javascript:void(0)" id="btnAddExpense" class="btn btn-primary">Add New</a>
+                <a href="javascript:void(0)" id="btnReset" class="btn btn-primary">Reset</a>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="m-b-sm">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th class="required">Account Group</th>
+                                    <th class="required">Account Head</th>
+                                    <th class="required">Transaction Type</th>
+                                    <th style="width:200px;" class="required">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbodyExpenseList">
+                                @if (Model.ExpenseDetail != null && Model.ExpenseDetail.Count() > 0)
+                                {
+                                    var count = 0;
+                                    foreach (var item in Model.ExpenseDetail)
+                                    {
+                                        var accountGroup = "ExpenseDetail[" + count + "].AccountGroupId";
+                                        var accountHead = "ExpenseDetail[" + count + "].AccountHeadId";
+                                        var expDetailId = "ExpenseDetail[" + count + "].BillExpenseDetailId";
+                                        var transType = "ExpenseDetail[" + count + "].TransactionType";
+                                        var jv = "ExpenseDetail[" + count + "].IsJV";
+                                        var amt = "ExpenseDetail[" + count + "].Amount";
+                                        <tr>
+                                            <td>
+                                                @Html.DropDownList(@accountGroup, new SelectList(item.AccountGroupList, "id", "name", item.AccountGroupId), new { @class = "form-control required" })
+                                                @Html.ValidationMessage(@accountGroup)
+                                                @Html.Hidden("ExpenseDetail.Index", @count)
+                                                @Html.Hidden(@expDetailId, item.BillExpenseDetailId)
+                                                @Html.Hidden(@jv, item.IsJV)
+                                            </td>
+                                            <td>
+                                                @Html.DropDownList(@accountHead, new SelectList(item.AccountHeadList, "id", "name", item.AccountHeadId), new { @class = "form-control required" })
+                                                @Html.ValidationMessage(@accountHead)
+                                            </td>
+                                            <td>
+                                                <h4 id="lblTransType">@item.TransactionType</h4>
+                                                @Html.Hidden(@transType, item.TransactionType)
+                                                @Html.ValidationMessage(@transType)
+                                            </td>
+                                            <td>
+                                                @Html.TextBox(@amt, item.Amount, new { @class = "form-control required", @onkeypress = "return ValidateDecimalOnly(event)", @onblur = "CalculateDeductionTotal()", @autocomplete = "off" })
+                                                @Html.ValidationMessage(@amt)
+                                            </td>
+                                            <td>
+                                                <a href="javascript:void(0)" class="removeExpense btn-circle"><i class="ion-close-round"></i></a>
+                                            </td>
+                                        </tr>
+                                        count++;
+
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td>
+                                            @Html.DropDownList("ExpenseDetail[0].AccountGroupId", new SelectList(ViewBag.AccountGroupList, "id", "name"), "Select any", new { @class = "form-control required" })
+                                            @Html.ValidationMessage("ExpenseDetail[0].AccountGroupId")
+                                            @Html.Hidden("ExpenseDetail.Index", "0")
+                                            @Html.Hidden("ExpenseDetail[0].BillExpenseDetailId")
+                                            @Html.Hidden("ExpenseDetail[0].IsJV")
+                                        </td>
+                                        <td>
+                                            @Html.DropDownList("ExpenseDetail[0].AccountHeadId", new SelectList(ViewBag.AccountHeadList, "id", "name"), "Select any", new { @class = "form-control required" })
+                                            @Html.ValidationMessage("ExpenseDetail[0].AccountHeadId")
+                                        </td>
+                                        <td>
+                                            <h4 id="lblTransType"></h4>
+                                            @Html.Hidden("ExpenseDetail[0].TransactionType")
+                                            @Html.ValidationMessage("ExpenseDetail[0].TransactionType")
+                                        </td>
+                                        <td>
+                                            @Html.TextBox("ExpenseDetail[0].Amount", "", new { @class = "form-control required", @onkeypress = "return ValidateDecimalOnly(event)", @onblur = "CalculateDeductionTotal()", @autocomplete = "off" })
+                                            @Html.ValidationMessage("ExpenseDetail[0].Amount")
+                                        </td>
+                                        <td>
+                                            <a href="javascript:void(0)" class="removeExpense btn-circle"><i class="ion-close-round"></i></a>
+                                        </td>
+                                    </tr>
+                                }
+
+
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+            <div class="row dis-none">
+                <div class="col-md-4 col-md-offset-8">
+                    <div class="form-group custom-form-group ">
+                        <label>Total Value <span class="dr">(Dr)</span> :</label>
+                        @Html.TextBoxFor(m => m.ExpenseAmount, new { @class = "form-control", @readonly = "readonly", @autocomplete = "off" })
+                        @Html.ValidationMessageFor(m => m.ExpenseAmount)
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="gray-bg br-rd">
+            <h3 class="mt-null">Taxes</h3>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="m-b-sm">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Group</th>
+                                    <th>Account Head</th>
+                                    <th>Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbodyDeductionList">
+                                @if (Model.DeductionDetail != null && Model.DeductionDetail.Count() > 0)
+                                {
+                                    var count = 0;
+                                    foreach (var item in Model.DeductionDetail)
+                                    {
+                                        var amt = "DeductionDetail[" + count + "].Amount";
+                                        var groupId = "DeductionDetail[" + count + "].AccountGroupId";
+                                        var headId = "DeductionDetail[" + count + "].DeductionHeadId";
+                                        var deductDetailId = "DeductionDetail[" + count + "].BillDeductionDetailId";
+                                        var deductionHead = "DeductionDetail[" + count + "].DeductionHead";
+                                        var accountGroup = "DeductionDetail[" + count + "].AccountGroup";
+                                        <tr>
+                                            <td>@item.AccountGroup</td>
+                                            <td>@item.DeductionHead</td>
+                                            <td>
+                                                @Html.TextBox(@amt, item.Amount, new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)", @onblur = "CalculateDeductionTotal()", @autocomplete = "off" })
+                                                @Html.Hidden(@groupId, item.AccountGroupId)
+                                                @Html.Hidden(@headId, item.DeductionHeadId)
+                                                @Html.Hidden(@deductDetailId, item.BillDeductionDetailId)
+                                                @Html.Hidden(@deductionHead, item.DeductionHead)
+                                                @Html.Hidden(@accountGroup, item.AccountGroup)
+                                            </td>
+                                        </tr>
+                                        count++;
+
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+
+                                        <td></td>
+                                        <td></td>
+                                        <td>
+                                            @Html.TextBox("DeductionDetail[0].Amount", "", new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)", @onblur = "CalculateDeductionTotal()", @autocomplete = "off" })
+                                            @Html.ValidationMessage("DeductionDetail[0].Amount")
+                                            @Html.Hidden("DeductionDetail[0].AccountGroupId")
+                                            @Html.Hidden("DeductionDetail[0].DeductionHeadId")
+                                            @Html.Hidden("DeductionDetail[0].BillDeductionDetailId")
+                                            @Html.Hidden("DeductionDetail[0].DeductionHead")
+                                            @Html.Hidden("DeductionDetail[0].AccountGroup")
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+            <div class="row dis-none">
+                <div class="col-md-4 col-md-offset-8">
+                    <div class="form-group custom-form-group ">
+                        <label>Total Value <span class="dr">(Dr)</span> :</label>
+                        @Html.TextBoxFor(m => m.DeductionAmount, new { @class = "form-control", @readonly = "readonly", @autocomplete = "off" })
+                        @Html.ValidationMessageFor(m => m.DeductionAmount)
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3  col-md-offset-6">
+                <div class="form-group custom-form-group ">
+                    <label>Total Credit <span class="cr">(Cr)</span> :</label>
+                    <input value="" name="CreditAmount" id="ttlCr" class="form-control" readonly="readonly" autocomplete="off" type="text">
+                    @Html.Hidden("ttlJVCr")
+                </div>
+            </div>
+            <div class="col-md-3 ">
+                <div class="form-group custom-form-group ">
+                    <label>Total Debit <span class="dr">(Dr)</span> :</label>
+                    <input value="" name="DebitAmount" id="ttlDr" class="form-control" readonly="readonly" autocomplete="off" type="text">
+                    @Html.Hidden("ttlJVDr")
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    function CalculateDeductionTotal() {
+        var ttlExpVal = 0, ttlDrVal = 0, ttlDedtVal = 0, ttlJVExpVal = 0, ttlJVDrVal = 0;
+        $('#tbodyExpenseList input[name$=".TransactionType"]').each(function (i, rowEle) {
+            var jv = $(this).closest('tr').find("input[name$='.IsJV']").val();
+            if ($(this).val() == 'Credit') {
+                var parseVal = parseFloat($(this).closest('tr').find("input[name$='.Amount']").val());
+                if (!isNaN(parseVal)) {
+                    ttlExpVal = ttlExpVal + parseVal;
+                  
+                    if (jv.toLowerCase() == "true")
+                        ttlJVExpVal = ttlJVExpVal + parseVal;
+               
+                }
+            } else if ($(this).val() == 'Debit') {
+                var parseVal = parseFloat($(this).closest('tr').find("input[name$='.Amount']").val());
+                if (!isNaN(parseVal)) {
+                    ttlDrVal = ttlDrVal + parseVal;
+              
+                    if (jv.toLowerCase() == "true")
+                        ttlJVDrVal = ttlJVDrVal + parseVal;
+             
+                }
+            }
+
+        });
+        //$('#tbodyExpenseList input[name$=".Amount"]').each(function (i, rowEle) {
+        //    var parseVal = parseFloat($(this).val());
+        //    if (!isNaN(parseVal))
+        //        ttlExpVal = ttlExpVal + parseVal;
+        //});
+
+        $('#tbodyDeductionList input[name$=".Amount"]').each(function (i, rowEle) {
+            var parseVal = parseFloat($(this).val());
+            if (!isNaN(parseVal))
+                ttlDedtVal = ttlDedtVal + parseVal;
+         
+        });
+        var tlDr = (ttlDrVal + ttlDedtVal).toFixed(2);
+        ttlDrVal = ttlDrVal.toFixed(2);
+        ttlDedtVal = ttlDedtVal.toFixed(2);
+        ttlJVDrVal = ttlJVDrVal.toFixed(2);
+        ttlJVExpVal = ttlJVExpVal.toFixed(2);
+        ttlExpVal = ttlExpVal.toFixed(2);
+        $('#ExpenseAmount').val(ttlDrVal);
+        $('#DeductionAmount').val(ttlDedtVal);
+        $('#ttlJVDr').val(ttlJVDrVal);
+        $('#ttlJVCr').val(ttlJVExpVal);
+        $('#ttlDr').val(tlDr);
+        $('#ttlCr').val(ttlExpVal);
+    }
+    function FillTransactionDetails() {
+        var subcode = $('#SubCode').val();
+        var tCode = $('#TransactionTypeCode').val();
+        var rcm = $('#RCM_f').is(':checked') || false;
+        var stateCode = $('#lblStateCode').html() || null;
+        var interstate = null
+        if (stateCode != null)
+            interstate = IsInterState(stateCode);
+        var cpyTDSObj = {};
+        if (typeof TDSObj != 'undefined')
+            cpyTDSObj = TDSObj;
+        EmptyExpenseDeductionDetails();
+        $.ajax({
+            type: "GET",
+            url: "@Url.Action("GetTransactionDetails", "CoreAccounts")",
+            data: { "interstate_f": interstate, "typeCode": tCode, "tSubCode": subcode },
+            traditional: true,
+            dataType: "json",
+            success: function (result) {
+                $.each(result.ExpenseDetail, function (i, item) {
+                    var isHaveTdsArry = false;
+                    var variableName = item.VariableName || "";
+                    var variableValue = parseFloat($('#' + variableName).val()) || 0;
+                    if (variableName.indexOf('varBank') != -1 && variableValue == 0)
+                        variableValue = parseFloat($('#varBank').val()) || 0;
+                    else if (variableName.indexOf('varTDSIT') != -1 && !isEmpty(cpyTDSObj))
+                        isHaveTdsArry = true;
+                    else if (variableName.indexOf('varTDSIT') != -1 && variableValue == 0)
+                        variableValue = parseFloat($('#varTDSIT').val()) || 0;
+                    else if (variableName.indexOf('varTDSGST') != -1 && variableValue == 0)
+                        variableValue = parseFloat($('#varTDSGST').val()) || 0;
+                    else if (variableName.indexOf('varProjectCreditors') != -1 && variableValue == 0) {
+                        if (item.TransactionType == "Credit")
+                            variableValue = parseFloat($('#varProjectCreditors_Cr').val()) || 0;
+                        else if (item.TransactionType == "Debit")
+                            variableValue = parseFloat($('#varProjectCreditors_Dr').val()) || 0;
+                    }
+                    else if (variableName.indexOf('varIGSTOutput') != -1 && variableValue == 0)
+                        variableValue = parseFloat($('#varIGSTOutput').val()) || 0;
+                    else if (variableName.indexOf('varCGSTOutput') != -1 && variableValue == 0)
+                        variableValue = parseFloat($('#varCGSTOutput').val()) || 0;
+                    else if (variableName.indexOf('varSGSTOutput') != -1 && variableValue == 0)
+                        variableValue = parseFloat($('#varSGSTOutput').val()) || 0;
+
+                    else if (variableName.indexOf('varRCM') != -1 && variableValue == 0)
+                        variableValue = parseFloat($('#varRCM').val()) || 0;
+
+                    else if (variableName.indexOf('varIGSTTDSReceivable') != -1 && variableValue == 0)
+                        variableValue = parseFloat($('#varIGSTTDSReceivable').val()) || 0;
+                    else if (variableName.indexOf('varSGSTTDSReceivable') != -1 && variableValue == 0)
+                        variableValue = parseFloat($('#varSGSTTDSReceivable').val()) || 0;
+                    else if (variableName.indexOf('varCGSTTDSReceivable') != -1 && variableValue == 0)
+                        variableValue = parseFloat($('#varCGSTTDSReceivable').val()) || 0;
+
+                    else if (variableName.indexOf('varIGSTInput') != -1 && variableValue == 0)
+                        variableValue = parseFloat($('#varIGSTInput').val()) || 0;
+                    else if (variableName.indexOf('varSGSTInput') != -1 && variableValue == 0) {
+                        if (item.TransactionType == "Credit")
+                            variableValue = parseFloat($('#varSGSTInput_Cr').val()) || 0;
+                        else if (item.TransactionType == "Debit")
+                            variableValue = parseFloat($('#varSGSTInput_Dr').val()) || 0;
+                    }
+                    else if (variableName.indexOf('varCGSTInput') != -1 && variableValue == 0) {
+                        if (item.TransactionType == "Credit")
+                            variableValue = parseFloat($('#varCGSTInput_Cr').val()) || 0;
+                        else if (item.TransactionType == "Debit")
+                            variableValue = parseFloat($('#varCGSTInput_Dr').val()) || 0;
+                    }
+                    else if (variableName.indexOf('varRoundoffDebit') != -1 && variableValue == 0)
+                        variableValue = parseFloat($('#varRoundoffDebit').val()) || 0;
+                    else if (variableName.indexOf('varRoundoffCredit') != -1 && variableValue == 0)
+                        variableValue = parseFloat($('#varRoundoffCredit').val()) || 0;
+                    if (i == 0)
+                    {
+                        var trEle = $('#tbodyExpenseList tr:first');
+                        $(trEle).find('input[name$=".Amount"]').val(variableValue);
+                        $(trEle).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                        $(trEle).find('input[name$=".IsJV"]').val(item.IsJV);
+                        $(trEle).find('#lblTransType').text(item.TransactionType);
+                        $(trEle).find("input[name='ExpenseDetail.Index']").val(i);
+                        var selectGroup = $(trEle).find('select[name$=".AccountGroupId"]');
+                        selectGroup.empty();
+                        $.each(item.AccountGroupList, function (idx, itemData) {
+                            selectGroup.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name,
+                            }));
+                        });
+                        var selectHead = $(trEle).find('select[name$=".AccountHeadId"]');
+                        selectHead.empty();
+                        var grpId = $(trEle).find('select[name$=".AccountGroupId"]').val();
+                        if (grpId == 38 && item.AccountHeadList.length > 1) {
+                            selectHead.append($('<option/>', {
+                                value: "",
+                                text: "Select any",
+                            }));
+                        }
+                        $.each(item.AccountHeadList, function (idx, itemData) {
+                            selectHead.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name,
+                            }));
+                        });
+                        if (grpId == 61 && item.AccountHeadList.length > 1 && $("#varImprestBank").val() > 1) {
+                            selectHead.empty();
+                            $.each(item.AccountHeadList, function (idx, itemData) {
+                                if (itemData.id == $("#varImprestBank").val()) {
+                                    selectHead.append($('<option/>', {
+                                    value: itemData.id,
+                                    text: itemData.name,
+                                }));
+                                }
+
+                            });
+                            $(trEle).find('input[name$=".Amount"]').val($("#varBank").val());
+                        }
+                    } else {
+                        var trEleNew = $('#tbodyExpenseList tr:first').clone().find('input').val('').end();
+                        var index = $('#tbodyExpenseList tr:last').find("input[name='ExpenseDetail.Index']").val();
+                        index = parseInt(index) + 1;
+                        $(trEleNew).find('input[name$=".Amount"]').val(variableValue);
+                        $(trEleNew).find("input[name='ExpenseDetail.Index']").val(index);
+                        $(trEleNew).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                        $(trEleNew).find('input[name$=".IsJV"]').val(item.IsJV);
+                        $(trEleNew).find('#lblTransType').text(item.TransactionType);
+                        $(trEleNew).find("input,Select").each(function () {
+                            $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+                            $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+                        });
+                        $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+                        });
+
+                        var selectGroup = $(trEleNew).find('select[name$=".AccountGroupId"]');
+                        selectGroup.empty();
+                        $.each(item.AccountGroupList, function (idx, itemData) {
+                            selectGroup.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name,
+                            }));
+                        });
+
+                        var selectHead = $(trEleNew).find('select[name$=".AccountHeadId"]');
+                        selectHead.empty();
+                        var grpId = $(trEleNew).find('select[name$=".AccountGroupId"]').val();
+                        if (grpId == 38 && item.AccountHeadList.length > 1) {
+                            selectHead.append($('<option/>', {
+                                value: "",
+                                text: "Select any",
+                            }));
+                        }
+                        $.each(item.AccountHeadList, function (idx, itemData) {
+                            selectHead.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name,
+                            }));
+                        });
+                        if (grpId == 61 && item.AccountHeadList.length > 1 && $("#varImprestBank").val() > 1) {
+                            selectHead.empty();
+                            $.each(item.AccountHeadList, function (idx, itemData) {
+                                if (itemData.id == $("#varImprestBank").val()) {
+                                    selectHead.append($('<option/>', {
+                                        value: itemData.id,
+                                        text: itemData.name,
+                                    }));
+                                }
+
+                            });
+                            $(trEle).find('input[name$=".Amount"]').val($("#varBank").val());
+                        }
+                        if (isHaveTdsArry) {
+                            var indxTds = 0;
+                            for (var tdsKey in cpyTDSObj) {
+                                var pct = tdsKey.substring(tdsKey.lastIndexOf('_') + 1);
+                                var section = tdsKey.substring(tdsKey.indexOf('_') + 1, tdsKey.lastIndexOf('_'));
+                                var partialSec = '(' + section + ') ' + pct + '%';
+                                if (indxTds == 0) {
+                                    selectHead.find("option:contains(" + partialSec + ")").attr('selected', 'selected');
+                                    $(trEleNew).find('input[name$=".Amount"]').val(cpyTDSObj[tdsKey]);
+                                    $('#tbodyExpenseList').append(trEleNew);
+                                } else {
+                                    var index = $('#tbodyExpenseList tr:last').find("input[name='ExpenseDetail.Index']").val();
+                                    index = parseInt(index) + indxTds;
+                                    var clnLastTr = $('#tbodyExpenseList tr:last').clone().find("select[name$='.AccountHeadId']").val("").end();
+                                    $(clnLastTr).find("input[name='ExpenseDetail.Index']").val(index);
+                                    $(clnLastTr).find("input,Select").each(function () {
+                                        $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+                                        $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+                                    });
+                                    $(clnLastTr).find("span[data-valmsg-for]").each(function () {
+                                        $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+                                    });
+                                    $(clnLastTr).find("select[name$='.AccountHeadId'] option:contains(" + partialSec + ")").attr('selected', true);
+                                    $(clnLastTr).find('input[name$=".Amount"]').val(cpyTDSObj[tdsKey]);
+                                    $('#tbodyExpenseList').append(clnLastTr);
+                                }
+                                indxTds = indxTds + 1;
+                            }
+                        } else
+                            $('#tbodyExpenseList').append(trEleNew);
+                    }
+                });
+                if (!rcm) {
+                    $.each(result.DeductionDetail, function (i, item) {
+                        var variableName = item.VariableName || "";
+                        var variableValue = parseFloat($('#' + variableName).val()) || 0;
+                        if (i == 0) {
+                            var trEle = $('#tbodyDeductionList tr:first');
+                            var amtEle = $(trEle).find('input[name$=".Amount"]');
+                            amtEle.addClass('required');
+                            $(trEle).find('input[name$=".Amount"]').val(variableValue);
+                            $(trEle).find('input[name$=".AccountGroupId"]').val(item.AccountGroupId);
+                            $(trEle).find('input[name$=".DeductionHeadId"]').val(item.DeductionHeadId);
+                            $(trEle).find('input[name$=".DeductionHead"]').val(item.DeductionHead);
+                            $(trEle).find('input[name$=".AccountGroup"]').val(item.AccountGroup);
+                            $(trEle).find('td:nth-child(1)').html(item.AccountGroup);
+                            $(trEle).find('td:nth-child(2)').html(item.DeductionHead);
+                        } else {
+                            var trEleNew = $('#tbodyDeductionList tr:first').clone().find('input').val('').end();
+                            $(trEleNew).find("input").each(function () {
+                                $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                                $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                            });
+                            $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                                $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                            });
+                            var amtEle = $(trEleNew).find('input[name$=".Amount"]');
+                            amtEle.addClass('required');
+                            $(trEleNew).find('input[name$=".Amount"]').val(variableValue);
+                            $(trEleNew).find('input[name$=".AccountGroupId"]').val(item.AccountGroupId);
+                            $(trEleNew).find('input[name$=".DeductionHeadId"]').val(item.DeductionHeadId);
+                            $(trEleNew).find('input[name$=".DeductionHead"]').val(item.DeductionHead);
+                            $(trEleNew).find('input[name$=".AccountGroup"]').val(item.AccountGroup);
+                            $(trEleNew).find('td:nth-child(1)').html(item.AccountGroup);
+                            $(trEleNew).find('td:nth-child(2)').html(item.DeductionHead);
+                            $('#tbodyDeductionList').append(trEleNew);
+                        }
+                    });
+                }
+                $('#NeedUpdateTransDetail').val('false');
+                CalculateDeductionTotal();
+            },
+            error: function (err) {
+                console.log("error : " + err);
+            }
+        });
+    }
+    function EmptyExpenseDeductionDetails() {
+        $('#tbodyDeductionList tr').not(':first').remove();
+        $('#tbodyDeductionList tr td').find('input, select').val('');
+        $('#tbodyExpenseList tr').not(':first').remove();
+        $('#tbodyExpenseList tr td').find("input[name!='ExpenseDetail.Index']").val('');
+        $('#tbodyDeductionList tr td').not(':last').html('');
+        $('input[name="CreditAmount"],input[name="DebitAmount"],#ExpenseAmount,#DeductionAmount,#ttlJVDr,#ttlJVCr,#ttlDr,#ttlCr').val('0');
+    }
+    $('#btnAddExpense').click(function () {
+        AddNewExpense();
+        @*var cln = $('#tbodyExpenseList tr:first').clone().find("select,input").val("").end();
+        $(cln).find('a.dis-none').removeClass('dis-none');
+        var index = $('#tbodyExpenseList tr:last').find("input[name='ExpenseDetail.Index']").val();
+        index = parseInt(index) + 1;
+        $(cln).find("input[name='ExpenseDetail.Index']").val(index);
+        $(cln).find("input, select").each(function () {
+            $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+            $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+        });
+        $(cln).find("span[data-valmsg-for]").each(function () {
+            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+        });
+        var options = [];
+        $('#tbodyExpenseList tr select[name$=".AccountGroupId"]').find('option').each(function () {
+            var obj = { value: $(this).val(), text: $(this).text() };
+            if (options.findIndex(x => x.value == obj.value) == -1)
+                options.push(obj);
+        });
+        var select = $(cln).find("select[name$='.AccountGroupId']");
+        var firstGroupId = 0;
+        select.empty();
+        $.each(options, function (i, option) {
+            if (i == 0)
+                firstGroupId = option.value;
+            select.append($('<option/>', option));
+        });
+
+        var selectHead = $(cln).find("select[name$='.AccountHeadId']");
+        selectHead.empty();
+        $.getJSON("@Url.Action("GetAccountHead", "CoreAccounts")", { "accountGroupId": firstGroupId },
+             function (locationdata) {
+                 $.each(locationdata, function (index, itemData) {
+                     selectHead.append($('<option/>', {
+                         value: itemData.id,
+                         text: itemData.name,
+                     }));
+                 });
+             });
+        $('#tbodyExpenseList').append(cln);*@
+    });
+    $('#btnReset').click(function () {
+        GetTransactionDetails();
+    });
+    $(document).on('click', 'a.removeExpense', function () {
+        if ($('#tbodyExpenseList tr').length != 1) {
+            $(this).closest('tr').remove();
+            CalculateDeductionTotal();
+        }
+    });
+    $(document).on('change', 'select[name$=".AccountGroupId"]', function () {
+        var groupId = $(this).val();
+        var ele = $(this).closest('tr');
+        var select = ele.find("select[name$='.AccountHeadId']");
+        select.empty();
+        select.append($('<option/>', {
+            value: "",
+            text: "Select any",
+        }));
+        ele.find('input[name$=".TransactionType"]').val('');
+        ele.find('input[name$=".IsJV"]').val('false');
+        ele.find('#lblTransType').text('');
+        if (groupId != '') {
+            $.getJSON("@Url.Action("GetAccountHead", "CoreAccounts")", { "accountGroupId": groupId },
+             function (locationdata) {
+                 $.each(locationdata, function (index, itemData) {
+                     select.append($('<option/>', {
+                         value: itemData.id,
+                         text: itemData.name,
+                     }));
+                 });
+             });
+        }
+    });
+
+    $(document).on('change', 'select[name$=".AccountHeadId"]', function () {
+        var headId = $(this).val();
+        var sCode = $('#SubCode').val();
+        var tCode = $('#TransactionTypeCode').val();
+        var ele = $(this).closest('tr');
+        var groupId = $(this).closest('tr').find("select[name$='.AccountGroupId']").val();
+        if (headId != '') {
+            $.getJSON("@Url.Action("GetTransactionType", "CoreAccounts")", { "accountGroupId": groupId, "accountHeadId": headId, "typeCode": tCode, "tSubCode": sCode },
+             function (data) {
+                 ele.find('input[name$=".TransactionType"]').val(data.tType);
+                 ele.find('input[name$=".IsJV"]').val(data.isJv);
+                 ele.find('#lblTransType').text(data.tType);
+                 CalculateDeductionTotal();
+             });
+        } else {
+            ele.find('input[name$=".TransactionType"]').val('');
+            ele.find('input[name$=".IsJV"]').val('false');
+            ele.find('#lblTransType').text('');
+            CalculateDeductionTotal();
+        }
+    });
+</script>

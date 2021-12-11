@@ -1,0 +1,1348 @@
+﻿@model IOAS.Models.SBIECardModel
+@{
+    ViewBag.Title = "SBI ECard Recoupment";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+@using (Html.BeginForm("SBIECardRecoupment", "CoreAccounts", FormMethod.Post, new { @class = "", role = "form", @id = "formADV", enctype = "multipart/form-data" }))
+{
+    <div class="row hd-tt-bg">
+        <div class="col-md-12">
+            <h4><b>SBI ECard Recoupment</b> </h4>
+        </div>
+    </div>
+    @*<div class="row">
+            <div class="white-bg ad-navbar">
+                <div class="col-md-3 ds-spl-bg">
+                    <div class="ds-icn">
+                        <i class="ion-ios-list-outline "></i>
+                    </div>
+                    <div class="ds-tt">
+                        <span class="required">Request Reference</span>
+                        @Html.DropDownListFor(m => m.Source, new SelectList(ViewBag.SourceList, "codevalAbbr", "CodeValDetail"), "Select any",
+                            new { @class = "form-control", @disabled = true })
+                        @Html.ValidationMessageFor(m => m.Source)
+                        @Html.HiddenFor(m => m.Source)
+                        @Html.HiddenFor(m => m.NeedUpdateTransDetail)
+                        @Html.HiddenFor(m => m.TemporaryAdvanceId)
+                    </div>
+                </div>
+                <div class="col-md-3 ds-spl-bg">
+                    <div class="ds-icn">
+                        <i class="ion-ios-calendar-outline"></i>
+                    </div>
+                    <div class="ds-tt" id="divRefNum">
+                        <span class="required">Ref Number (WF / Tapal)</span>
+                        @Html.DropDownListFor(m => m.SourceReferenceNumber, new SelectList(ViewBag.SourceRefNumberList, "id", "name"), "Select any",
+                            new { @class = "form-control", @disabled = true })
+                        @Html.ValidationMessageFor(m => m.SourceReferenceNumber)
+                        @Html.Hidden("SourceTapalOrWorkflow", "True")
+                        @Html.HiddenFor(m => m.SourceReferenceNumber)
+                    </div>
+                    <div class="dis-none ds-tt" id="divRefEmailDate">
+                        <span class="required">Email Date</span>
+                        @Html.EditorFor(m => m.SourceEmailDate, new { @class = "form-control", @disabled = true })
+                        <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.SourceEmailDate)</div>
+                    </div>
+                </div>
+
+
+                <div class="col-md-3 col-md-offset-3">
+                    <div class="reg-no custom-reg-no">
+                        <div class="form-group custom-form-group">
+                            <label>Number</label>
+                            <h4>@Html.DisplayFor(m => m.TempAdvSettlementNumber)</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>*@
+    <div class="row">
+        <div class="page-wrapper">
+            <div class="col-md-12 mt30">
+                <ul class="nav nav-pills custom-nav-pills">
+                    <li class="active"><a href="javascript:void(0)"><span>01</span>Recoupment Details</a></li>
+                    <li><a href="javascript:void(0)"><span>02</span>Commitment Details</a></li>
+                    <li><a href="javascript:void(0)"><span>03</span>Transaction Details</a></li>
+                    <li><a href="javascript:void(0)"><span>04</span>CheckList Details</a></li>
+                    <li><a href="javascript:void(0)"><span>05</span>Document Details</a></li>
+                </ul>
+
+                <div class="tab">
+                    <div class="col-md-12 col-sm-12 m-b-sm">
+                        <div class="row">
+                            <div class="page-wrapper">
+                                <div class="col-md-12">
+                                    <div class="white-bg">
+
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="required">Project</label>
+                                                    @Html.TextBoxFor(m => m.Projecttitle, new { @class = "form-control", @id = "txtProjectTitle", @readonly = true })
+                                                    @*@Html.DropDownListFor(m => m.ProjectId, new SelectList(ViewBag.Project, "id", "name"), "Select any", new { @class = "form-control selectpicker", @id = "selectproject" })*@
+                                                    @Html.ValidationMessageFor(m => m.Projecttitle)
+                                                    @Html.Hidden("ProjectId")
+                                                    @Html.Hidden("RecoupmentId")
+                                                    @Html.HiddenFor(m => m.SubCode)
+                                                    @Html.Hidden("TransactionTypeCode", "ECR")
+                                                    @Html.Hidden("SBIEcardProjectDetailsId")
+                                                    @Html.Hidden("TotalProjectsValue")
+                                                    @Html.Hidden("TotalPrevRecoupValue")
+                                                    @Html.Hidden("TotalPrevImprestValue")
+                                                    @Html.Hidden("RecoupmentValue")
+                                                    @Html.HiddenFor(m => m.NeedUpdateTransDetail)
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="required">PI</label>
+                                                    @Html.TextBoxFor(m => m.NameofPI, new { @class = "form-control", @id = "txtPIName", @readonly = true })
+                                                    @*@Html.DropDownListFor(m => m.PIId, new SelectList(ViewBag.PIName, "id", "name"), "Select any", new { @class = "form-control selectpicker", @id = "txtPI" })*@
+                                                    @Html.ValidationMessageFor(m => m.NameofPI)
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="required">SBI E Card Number</label>
+                                                    @Html.TextBoxFor(m => m.SBIEcardNumber, new { @class = "form-control", @id = "txtClaimingDept", @readonly = true })
+                                                    @Html.ValidationMessageFor(m => m.SBIEcardNumber)
+                                                    @Html.Hidden("SBIEcardId")
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="required">Allocated Amount</label>
+                                                    @Html.TextBoxFor(m => m.CurrentProjectAllotmentValue, new { @class = "form-control", @id = "txtAllocatedAmount", @readonly = true })
+                                                    @Html.ValidationMessageFor(m => m.CurrentProjectAllotmentValue)
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="required">Pending Bill Amount</label>
+                                                    @Html.TextBoxFor(m => m.PendingBillsRecoupValue, new { @class = "form-control", @id = "txtAllocatedAmount", @readonly = true })
+                                                    @Html.ValidationMessageFor(m => m.PendingBillsRecoupValue)
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="page-wrapper">
+                                <div class="col-md-12 mt30">
+
+                                    <div class="bl-lg-panel-box">
+                                        <div class="bl-lg-panel-box-hd mb-null">
+                                            <div class="">
+                                                <h3 class="fn-s-bold">Bill Details</h3>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="scrl-table scrl-table-po-bl">
+                                                    <table class="table table-bordered mb-null" style="width: 2000px;">
+                                                        <thead>
+
+                                                        </thead>
+
+                                                        <tbody id="tbodyPO">
+                                                            <tr>
+                                                                @*<td style="width: 400px;">Department </td>*@
+                                                                <td style="width: 300px;">Bill Number</td>
+                                                                <td style="width: 400px;">Vendor Name</td>
+                                                                <td style="width: 450px;">Particulars</td>
+                                                                <td style="width: 200px;">Amount</td>
+                                                                <td style="width: 200px;">Invoice Number </td>
+                                                                <td style="width: 400px;">SAC / HSN</td>
+                                                                @*<td style="width: 200px;">(SAC / HSN) / Tax % </td>*@
+                                                                <td style="width: 200px;">Invoice Date</td>
+
+                                                                <td style="width: 90px;">Tax %</td>
+                                                                <td style="width: 150px;">Tax Amount</td>
+                                                                <td style="width: 220px;">GSTIN</td>
+                                                                <td style="width: 20px;">Tax Eligible</td>
+                                                                <td style="width: 20px;">Interstate</td>
+                                                                <th style="width:50px"></th>
+                                                                @*<td class="bg-blue">Adv %</td>
+                                                                    <td class="bg-blue">Advance Amt</td>
+                                                                    <td class="bg-blue dis-none">TAX</td>
+                                                                    <td class="bg-blue dis-none">Total</td>
+                                                                    <td></td>*@
+                                                            </tr>
+                                                            @if (Model.PaymentDetails != null && Model.PaymentDetails.Count > 0)
+                                                            {
+                                                                var count = 0;
+                                                                foreach (var item in Model.PaymentDetails)
+                                                                {
+                                                                    var detailId = "PaymentDetails[" + count + "].SBICardBillDetailId";
+                                                                    var vendor = "PaymentDetails[" + count + "].Vendor";
+                                                                    var vendorbillnumber = "PaymentDetails[" + count + "].VendorBillNumber";
+                                                                    var invoicenumber = "PaymentDetails[" + count + "].InvoiceNumber";
+                                                                    var hsnCode = "PaymentDetails[" + count + "].HSNCode";
+                                                                    var hsn = "PaymentDetails[" + count + "].TypeOfServiceOrCategory";
+                                                                    var invoicedate = "PaymentDetails[" + count + "].InvDate";
+                                                                    var description = "PaymentDetails[" + count + "].Description";
+                                                                    var amount = "PaymentDetails[" + count + "].Amount";
+                                                                    var taxpercent = "PaymentDetails[" + count + "].TaxablePercentage";
+                                                                    var taxvalue = "PaymentDetails[" + count + "].TaxValue";
+                                                                    var gstin = "PaymentDetails[" + count + "].GSTIN";
+                                                                    var taxEligible = "PaymentDetails[" + count + "].IsTaxEligible";
+                                                                    var interstate = "PaymentDetails[" + count + "].IsInterstate";
+                                                                    count++;
+                                                                    <tr id="trdetails" class="p-b-sm">
+                                                                        <td>
+                                                                            @Html.TextBox(@vendorbillnumber, item.VendorBillNumber, new { @class = "form-control" })
+                                                                            @Html.ValidationMessage(@vendorbillnumber)
+                                                                        </td>
+                                                                        <td>
+                                                                            @Html.TextBox(@vendor, item.Vendor, new { @class = "form-control" })
+                                                                            @Html.ValidationMessage(@vendor)
+                                                                        </td>
+                                                                        <td>
+                                                                            @Html.TextBox(@description, item.Description, new { @class = "form-control" })
+                                                                            @Html.ValidationMessage(@description)
+                                                                        </td>
+                                                                        <td>
+                                                                            @Html.TextBox(@amount, item.Amount, new { @class = "form-control required", @onkeypress = "return ValidateDecimalOnly(event)", @onchange = "calculateamount()" })
+                                                                            @Html.ValidationMessage(@amount)
+                                                                        </td>
+
+                                                                        <td>
+                                                                            @Html.TextBox(@invoicenumber, item.InvoiceNumber, new { @class = "form-control" })
+                                                                            @Html.ValidationMessage(@invoicenumber)
+                                                                            @Html.Hidden("PaymentDetails.Index", @count)
+                                                                            @Html.TextBox(@detailId, item.SBICardBillDetailId, new { @class = "form-control dis-none" })
+                                                                        </td>
+                                                                        <td>
+                                                                            @Html.TextBox(@hsnCode, item.HSNCode, new { @class = "form-control" })
+                                                                            @Html.TextBox(@hsn, item.TypeOfServiceOrCategory, new { @class = "form-control dis-none" })
+                                                                            @Html.ValidationMessage(@hsnCode)
+                                                                        </td>
+                                                                        <td>
+                                                                            @Html.TextBox(@invoicedate, item.InvDate, new { @class = "form-control required", @id = "InvDate", @autocomplete = "off" })
+                                                                            @Html.ValidationMessage(@invoicedate)
+                                                                        </td>
+
+                                                                        <td>
+                                                                            @Html.TextBox(@taxpercent, item.TaxablePercentage, new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)" })
+                                                                            @Html.ValidationMessage(@taxpercent)
+                                                                        </td>
+                                                                        <td>
+                                                                            @Html.TextBox(@taxvalue, item.TaxValue, new { @class = "form-control", @readonly = true, @id = "InternToDate", @autocomplete = "off" })
+                                                                            @Html.ValidationMessage(@taxvalue)
+                                                                        </td>
+                                                                        <td>
+                                                                            @Html.TextBox(@gstin, item.GSTIN, new { @class = "form-control" })
+                                                                            @Html.ValidationMessage(@gstin)
+                                                                        </td>
+                                                                        <td>
+                                                                            @Html.CheckBox(@taxEligible, item.IsTaxEligible)
+                                                                            @Html.ValidationMessage(@taxEligible)
+                                                                        </td>
+                                                                        <td>
+                                                                            @Html.CheckBox(@interstate, item.IsInterstate)
+                                                                            @Html.ValidationMessage(@interstate)
+                                                                        </td>
+                                                                        <td>
+                                                                            <a href="javascript:void(0)" class="btn-circle dis-none removeDetail"><i class="ion-trash-a"></i></a>
+                                                                        </td>
+                                                                    </tr>
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                <tr>
+                                                                    <td>
+                                                                        @Html.TextBox("PaymentDetails[0].VendorBillNumber", "", new { @class = "form-control" })
+                                                                        @Html.ValidationMessage("PaymentDetails[0].VendorBillNumber")
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.TextBox("PaymentDetails[0].Vendor", "", new { @class = "form-control" })
+                                                                        @Html.ValidationMessage("PaymentDetails[0].Vendor")
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.TextBox("PaymentDetails[0].Description", "", new { @class = "form-control" })
+                                                                        @Html.ValidationMessage("PaymentDetails[0].Description")
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.TextBox("PaymentDetails[0].Amount", "", new { @class = "form-control required", @onchange = "calculateamount()", @onkeypress = "return ValidateDecimalOnly(event)" })
+                                                                        @Html.ValidationMessage("PaymentDetails[0].Amount")
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.TextBox("PaymentDetails[0].InvoiceNumber", "", new { @class = "form-control required" })
+                                                                        @Html.ValidationMessage("PaymentDetails[0].InvoiceNumber")
+                                                                        @Html.Hidden("PaymentDetails.Index", 0)
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.TextBox("PaymentDetails[0].HSNCode", "", new { @class = "form-control" })
+                                                                        @Html.TextBox("PaymentDetails[0].TypeOfServiceOrCategory", "", new { @class = "form-control dis-none" })
+                                                                        @Html.ValidationMessage("PaymentDetails[0].TypeOfServiceOrCategory")
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.TextBox("PaymentDetails[0].InvDate", "", new { @class = "form-control required", @id = "invdate", @autocomplete = "off" })
+                                                                        @Html.ValidationMessage("PaymentDetails[0].InvDate")
+                                                                    </td>
+
+                                                                    <td>
+                                                                        @Html.TextBox("PaymentDetails[0].TaxablePercentage", "", new { @class = "form-control" })
+                                                                        @Html.ValidationMessage("PaymentDetails[0].TaxablePercentage")
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.TextBox("PaymentDetails[0].TaxValue", "", new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)", @readonly = true })
+                                                                        @Html.ValidationMessage("PaymentDetails[0].TaxValue")
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.TextBox("PaymentDetails[0].GSTIN", "", new { @class = "form-control" })
+                                                                        @Html.ValidationMessage("PaymentDetails[0].GSTIN")
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.CheckBox("PaymentDetails[0].IsTaxEligible")
+                                                                        @Html.ValidationMessage("PaymentDetails[0].IsTaxEligible")
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.CheckBox("PaymentDetails[0].IsInterstate", new { @id = "PaymentDetails_0_IsInterstate" })
+                                                                        @Html.ValidationMessage("PaymentDetails[0].IsInterstate")
+                                                                    </td>
+                                                                    <td>
+                                                                        <a href="javascript:void(0)" class="btn-circle dis-none removeDetail"><i class="ion-trash-a"></i></a>
+                                                                    </td>
+                                                                </tr>
+                                                            }
+                                                        </tbody>
+                                                    </table>
+
+                                                    <div class="row p-b-sm ml45">
+
+                                                        <div class="col-md-2 mt20">
+                                                            <label>
+                                                                Total Bill Amount
+                                                            </label>
+                                                            @Html.TextBoxFor(m => m.TotalBillAmount, new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)", @id = "txtTotalbillAmount", @readonly = true })
+                                                            @Html.ValidationMessageFor(m => m.TotalBillAmount)
+                                                        </div>
+                                                        <div class="col-md-2 mt20">
+                                                            <label>
+                                                                Total Tax Amount
+                                                            </label>
+                                                            @Html.TextBoxFor(m => m.TotalTaxAmount, new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)", @id = "txtTotalTaxValue", @readonly = true })
+                                                            @Html.ValidationMessageFor(m => m.TotalTaxAmount)
+                                                        </div>
+                                                        <div class="col-md-2 mt20">
+                                                            <label>
+                                                                Total Eligible GST
+                                                            </label>
+                                                            @Html.TextBoxFor(m => m.TotalEligibleGST, new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)", @id = "txtEligibleTaxValue", @readonly = true })
+                                                            @Html.ValidationMessageFor(m => m.TotalEligibleGST)
+                                                        </div>
+                                                        <div class="col-md-2 mt20">
+                                                            <div class="reg-no custom-reg-no">
+                                                                <div class="form-group custom-form-group">
+                                                                    <label>Net Payable Amount</label>
+                                                                    @Html.TextBoxFor(m => m.NetPayableValue, new { @class = "form-control", @id = "txtNetPayableValue", @readonly = true })
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row p-b-sm ml45">
+                                                        <div class="col-md-12">
+                                                            <div class="form-group custom-form-group">
+                                                                <p> * Commitment shall be booked for an amount <label style="color:black; font-weight: bold" id="lblcommitamt"></label> (Net Payable Amount - Eligible Tax Amount) </p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row p-b-sm">
+                                                        <div class="col-md-12 text-center mt-md">
+                                                            <button type="button" id="btnAddBillDetails" class="btn-primary btn">Add New</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @*<div class="row">
+                                <div class="col-md-12 text-center mb-md mt-md">
+                                    <input type="submit" class="btn btn-primary mr10" value="Submit" name="Button" id="btnSubmit" />
+                                    <input type="button" onclick="window.location.href='@Url.Action("TravelAdvancePaymentList", "CoreAccounts")';" class="btn btn-default" value="Close" id="btnclose" />
+                                </div>
+                            </div>*@
+                    </div>
+                </div>
+
+                <div class="tab">
+                    @Html.Partial("_CommitmentDetails", Model.CommitmentDetail)
+                </div>
+                <div class="tab">
+                    @Html.Partial("_TransactionDetails", Model)
+                </div>
+                <div class="tab">
+                    <div class="col-md-12 col-sm-12 m-b-sm">
+                        <div class="">
+                            @Html.Partial("_CheckListDetail", Model.CheckListDetail)
+                        </div>
+                        <div>
+                            @Html.HiddenFor(m => m.CheckListVerified_By)
+                            @Html.HiddenFor(m => m.CheckListVerifierName)
+                            <div class="col-md-3 col-md-offset-9">
+                                <div class="form-group custom-form-group">
+                                    <label>Verified by</label>
+                                    <h4 id="Verified_ByName">@Html.DisplayFor(m => m.CheckListVerifierName)</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab">
+                    <div class="col-md-12 col-sm-12 m-b-sm">
+                        <div class="">
+                            @Html.Partial("_DocumentDetail", Model.DocumentDetail)
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="custom-nav-btn text-right">
+                    <button type="button" class="btn btn-default pull-left" id="prevBtn" onclick="nextPrev(-1)">Previous</button>
+                    <button type="button" class="btn btn-primary pull-right" id="nextBtn" onclick="nextPrev(1)">Next</button>
+                    <button type="button" class="btn btn-default pull-right" onclick="window.location.href='@Url.Action("SBIECardRecoupmentList", "CoreAccounts")';">Close</button>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+}
+<div id="ValidationModal" class="modal fade modal-warning" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-warning"></i>
+                <h3 class="modal-title">Warning</h3>
+            </div>
+            <div class="modal-body">
+
+                <p id="MsgValidation"></p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+@if (ViewBag.succMsg != null)
+{
+    <div id="myModal" class="modal fade modal-success" role="dialog">
+        <div class="modal-dialog modal-sm">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" onclick="window.location.href='@Url.Action("SBIECardRecoupmentList", "CoreAccounts")';">&times;</button>
+                    <i class="ion-android-checkmark-circle"></i>
+                    <h3 class="modal-title">Saved successfully</h3>
+                </div>
+                <div class="modal-body">
+
+                    <p>@ViewBag.succMsg</p>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" onclick="window.location.href='@Url.Action("SBIECardRecoupmentList", "CoreAccounts")';">Close</button>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            $('#myModal').modal('show');
+        });
+
+    </script>
+
+}
+<div class="row mt30">
+
+
+</div>
+@Html.AntiForgeryToken()
+<div id="popup"></div>
+<input type="hidden" id="currentRefId" value="@Model.RecoupmentId" />
+<input type="hidden" id="processGuideLineId" value="@ViewBag.processGuideLineId" />
+@Html.Partial("_ProcessStatus")
+<script>
+    var dis = '@ViewBag.disabled';
+    if (dis != "") {
+        $('.form-control').prop('disabled', true);
+        $('.ion-trash-a').removeClass();
+        $("input[type='radio']").prop('disabled', true);
+        $('#selectCommitment').hide();
+        $('#btnReset,#btnbookcommitment,#btnbookcommitment,#btnCollapseSrchCommit').hide();
+        $('input[type="checkbox"]').prop('disabled', true);
+        $('input[type="file"],#btnAddAttachment').hide();
+        $('#ProcessStatusContainer .form-control').prop('disabled', false);
+        $('#btnAddExpense').hide();
+        $('.btn-circle').removeClass();
+        $('.ion-close-round').removeClass();
+    }
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    $('input[name$=".InvDate"]').datepicker({maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
+    $('#TravelToDate, #TravelFromDate').datepicker({ minDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
+    $('#SourceEmailDate, #srchFromDate, #srchToDate,#InvoiceDate,#PODate, #txtInvoiceDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
+    $('#srchToDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true }).datepicker("setDate", "0");
+    var defaultFromDate = moment(new Date()).add(-10, 'days').toDate();
+    $('#srchFromDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true }).datepicker("setDate", defaultFromDate);
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+        $('.selectpicker').selectpicker({
+            liveSearch: true
+        });
+        var selSource = $('#Source').val();
+        $("#divRefNum, #divRefEmailDate").addClass('dis-none');
+        if (selSource == '1') {
+            $("#divRefNum").removeClass('dis-none');
+        } else if (selSource == '3') {
+            $("#divRefNum").removeClass('dis-none');
+        }
+        else if (selSource == '2') {
+            $('#divRefEmailDate').removeClass('dis-none');
+        } else {
+            $("#divRefNum").removeClass('dis-none');
+        }
+        $('#lblVendorName').html($('#txtPIName').val())
+       // calculatetotalamount();
+        CalculatePaymentValue();
+        CalculateDeductionTotal();
+
+     //   $('#NeedUpdateTransDetail').val('false');
+        $('#tbodyPO tr').each(function () {
+            var index = $(this).find("input[name='PaymentDetails.Index']").val();
+            var hdEle = $("input[name='PaymentDetails[" + index + "].TypeOfServiceOrCategory']");
+            var acEle = $("input[name='PaymentDetails[" + index + "].HSNCode']");
+            applyAutoComplete(acEle, hdEle, '@Url.Action("LoadTypeOfServiceList")');
+        });
+        $(document).on('keyup', 'input[name$=".HSNCode"]', function () {
+            if ($(this).val() != '') {
+                $(this).closest('tr').find('input').not('input[name$=".Description"],input[name$=".IsTaxEligible"],input[name$=".IsInterstate"],input[name$=".GSTIN"],input[name$=".SBICardBillDetailId"]').addClass('required');
+            } else {
+                $(this).closest('tr').find('input').not('input[name$=".Description"],input[name$=".IsTaxEligible"],input[name$=".IsInterstate"],input[name$=".GSTIN"],input[name$=".SBICardBillDetailId"]').removeClass('required');
+                // $(this).closest('tr').find('input[name$=".IsInterstate"],input[name$=".IsTaxEligible"]').attr("checked", false);
+            }
+        });
+        var paymentDetails = @Html.Raw(Json.Encode(Model.PaymentDetails));
+        $.each(paymentDetails, function (i, result) {
+            if (i == 0) {
+                var trEle = $('#tbodyPO tr:nth-child(2)');
+                $('#tbodyPO tr').not(':first,:nth-child(2)').remove();
+                $(trEle).find("input[name='PaymentDetails.Index']").val(i);
+
+                trEle.find('input[name$=".SBICardBillDetailId"]').val(result.SBICardBillDetailId);
+                trEle.find('input[name$=".VendorBillNumber"]').val(result.VendorBillNumber);
+                trEle.find('input[name$=".Vendor"]').val(result.Vendor);
+                trEle.find('input[name$=".InvoiceNumber"]').val(result.InvoiceNumber);
+                trEle.find('input[name$=".InvDate"]').val(result.InvDate);
+                trEle.find('input[name$=".Description"]').val(result.Description);
+
+
+                trEle.find('input[name$=".Amount"]').val(result.Amount);
+                trEle.find('input[name$=".TaxablePercentage"]').val(result.TaxablePercentage);
+                trEle.find('input[name$=".TaxValue"]').val(result.TaxValue);
+                trEle.find('input[name$=".GSTIN"]').val(result.GSTIN);
+                trEle.find('input[name$=".HSNCode"]').val(result.HSNCode);
+                trEle.find('input[name$=".TypeOfServiceOrCategory"]').val(result.TypeOfServiceOrCategory);
+                if (result.IsTaxEligible == true)
+                {
+                    trEle.find('input[name$=".IsTaxEligible"]').attr('checked', true);
+                }
+                if (result.IsTaxEligible == false)
+                {
+                    trEle.find('input[name$=".IsTaxEligible"]').attr('checked', false);
+                }
+                if (result.IsInterstate == true)
+                {
+                    trEle.find('input[name$=".IsInterstate"]').prop('checked', true);
+                }
+                if (result.IsInterstate == false || result.IsInterstate == null)
+                {
+                    trEle.find('input[name$=".IsInterstate"]').prop('checked', false);
+                }
+                //else if (result.IsTaxEligible == false)
+                //{
+                //    trEle.find('input[name$=".IsTaxEligible"]').removeAttribute("checked");
+                //}
+
+            } else {
+                var trEleNew = $('#tbodyPO tr:nth-child(2)').clone();
+                $(trEleNew).find('a.dis-none').removeClass('dis-none');
+                $(trEleNew).find("input[name='PaymentDetails.Index']").val(i);
+                $(trEleNew).find("input, select").each(function () {
+                    $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                    //$(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                    //$(this).attr("code", $(this).attr("id").replace(/\d+/, i));
+                });
+                $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                    $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                });
+                //  trEle.find("input[name='PaymentDetails.Index']");
+                //  DepartmentChange(trEle);
+                ////  trEle.find('select[name$=".Department"]').val(result.Department);
+                //  trEle.find('input[name$=".autoComplete"]').val(result.Name);
+                //  trEle.find('input[name$=".Name"]').val(result.Name);
+                //  if(result.Name != "")
+                //  {
+                //      trEle.find('input[name$=".UserId"]').val("0");
+                //  }
+                trEleNew.find('input[name$=".SBICardBillDetailId"]').val(result.SBICardBillDetailId);
+                trEleNew.find('input[name$=".VendorBillNumber"]').val(result.VendorBillNumber);
+                trEleNew.find('input[name$=".Vendor"]').val(result.Vendor);
+                trEleNew.find('input[name$=".InvoiceNumber"]').val(result.InvoiceNumber);
+                trEleNew.find('input[name$=".InvDate"]').val(result.InvDate);
+                trEleNew.find('input[name$=".Description"]').val(result.Description);
+
+
+                trEleNew.find('input[name$=".Amount"]').val(result.Amount);
+                trEleNew.find('input[name$=".TaxablePercentage"]').val(result.TaxablePercentage);
+                trEleNew.find('input[name$=".TaxValue"]').val(result.TaxValue);
+                trEleNew.find('input[name$=".GSTIN"]').val(result.GSTIN);
+                trEleNew.find('input[name$=".HSNCode"]').val(result.HSNCode);
+                trEleNew.find('input[name$=".TypeOfServiceOrCategory"]').val(result.TypeOfServiceOrCategory);
+                if (result.IsTaxEligible == true)
+                {
+                    trEleNew.find('input[name$=".IsTaxEligible"]').attr('checked', true);
+                }
+                if (result.IsTaxEligible == false)
+                {
+                    trEleNew.find('input[name$=".IsTaxEligible"]').attr('checked', false);
+                }
+                if (result.IsInterstate == true)
+                {
+                    trEleNew.find('input[name$=".IsInterstate"]').prop('checked', true);
+                }
+                if (result.IsInterstate == false || result.IsInterstate == null)
+                {
+                    trEleNew.find('input[name$=".IsInterstate"]').prop('checked', false);
+                }
+                $(trEleNew).find('.hasDatepicker').attr("id", "").removeClass('hasDatepicker').removeData('datepicker').unbind().datepicker({
+                    dateFormat: 'dd-MM-yy', changeYear: true
+                })
+
+                $('#tbodyPO').append(trEleNew);
+            }
+        });
+        calculateamount();
+        calculateeligibletaxamount();
+        //   $('#NeedUpdateTransDetail').val('false');
+    });
+    $(document).on('click', 'a.removeBillDetails', function () {
+        $(this).closest('tr').remove();
+        calculateamount();
+    });
+    $(document).on('keyup', 'input[name="HSNCode"]', function () {
+        if ($(this).val() != '') {
+            $(this).closest('tr').find('input').not('input[name="Description"],input[name="IsTaxEligible"],input[name="IsInterstate"],input[name="GSTIN"],input[name="DetailsID"]').addClass('required');
+        } else {
+            $(this).closest('tr').find('input').not('input[name="Description"],input[name="IsTaxEligible"],input[name="IsInterstate"],input[name="GSTIN"],input[name="DetailsID"]').removeClass('required');
+            // $(this).closest('tr').find('input[name$=".IsInterstate"],input[name$=".IsTaxEligible"]').attr("checked", false);
+        }
+    });
+    $(document).on('change', 'input[name$=".Amount"]', function () {
+        calculateamount();
+        calculateeligibletaxamount();
+    });
+
+    $(document).on('change', 'input[name$=".TaxablePercentage"]', function () {
+        var value = $(this).val();
+        if(value > 100)
+        {
+            $('#MsgValidation').html("Percentage value cannot be greater than 100. Please enter a value less than 100");
+            $('#ValidationModal').modal('toggle');
+            return false;
+        }
+
+        calculateamount();
+        calculateeligibletaxamount();
+    });
+
+    $(document).on('change', 'input[name$=".TaxValue"]', function () {
+        calculateamount();
+        calculateeligibletaxamount();
+    });
+    $(document).on('click', 'a.removeDetail', function () {
+        $(this).closest('tr').remove();
+        calculateamount();
+        calculateeligibletaxamount();
+    });
+    $('#btnAddBillDetails').click(function () {
+        var cln = $('#tbodyPO tr:nth-child(2)').clone().find("select, input, textarea, input[type!='checkbox']").val("").end();
+        // $(cln).find('.tdAdvAmt, .tdTaxAmt, .tdNetAmt, .tdTaxCode').text('');
+        // $(cln).find('input[type="hidden"][name$=".IsTaxEligible"]').val('false');
+        //$(cln).find('input[name$=".IsTaxEligible"]').prop('checked', false);
+        $(cln).find('a.dis-none').removeClass('dis-none');
+        var index = $('#tbodyPO tr:last').find("input[name='PaymentDetails.Index']").val();
+        index = parseInt(index) + 1;
+        $(cln).find("input[name='PaymentDetails.Index']").val(index);
+        $(cln).find('input[name$=".IsInterstate"],input[name$=".IsTaxEligible"]').prop('checked', false);
+        // $(cln).find('input[type="hidden"][name$=".IsInterstate"],input[type="hidden"][name$=".IsTaxEligible"]').val('false');
+        $(cln).find("input, select").each(function () {
+            $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+            // $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+            // $(this).attr("code", $(this).attr("id").replace(/\d+/, index));
+        });
+        $(cln).find("span[data-valmsg-for]").each(function () {
+            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+        });
+        $(cln).find('.hasDatepicker').attr("id", "").removeClass('hasDatepicker').removeData('datepicker').unbind().datepicker({
+            maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true
+        })
+
+        $('#tbodyPO').append(cln);
+        var hdEle = $("input[name='PaymentDetails[" + index + "].TypeOfServiceOrCategory']");
+        var acEle = $("input[name='PaymentDetails[" + index + "].HSNCode']");
+        applyAutoComplete(acEle, hdEle, '@Url.Action("LoadTypeOfServiceList")')
+    });
+
+    $('#Source').change(function () {
+        var selSource = $(this).val();
+        var select = $("#SourceReferenceNumber");
+        select.empty();
+        $("#divRefNum, #divRefEmailDate").addClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('False');
+        if (selSource == '1') {
+            $.getJSON("@Url.Action("GetWorkflowRefNumber","Proposal")",
+             function (locationdata) {
+                 fillMasterDropDown(select,locationdata);
+             });
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        } else if (selSource == '3') {
+            $.getJSON("@Url.Action("GetTapalRefNumber","Proposal")",
+            function (locationdata) {
+                fillMasterDropDown(select,locationdata);
+            });
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        }
+        else if (selSource == '2') {
+            $('#divRefEmailDate').removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('False');
+        } else {
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        }
+    });
+    function calculateamount() {
+        var totalamount = 0;
+        var totaltax = 0;
+        var eligibletaxtotal = 0;
+        var netpayabletotal = 0;
+        $('#tbodyPO tr').each(function (idx, val) {
+            var amount = parseFloat($(this).closest('tr').find('input[name$=".Amount"]').val());
+            var taxpercent = parseFloat($(this).closest('tr').find('input[name$=".TaxablePercentage"]').val());
+            var taxvalue = parseFloat($(this).closest('tr').find('input[name$=".TaxValue"]').val());
+            var taxamount = parseFloat((amount * taxpercent)/100);
+
+            if (!isNaN(taxamount)) {
+                $(this).find('input[name$=".TaxValue"]').val(taxamount);
+                totaltax += taxamount;
+            }
+            if (!isNaN(amount)) {
+                totalamount += amount;
+            }
+        });
+        totalamount = parseFloat((totalamount).toFixed(0));
+        totaltax = parseFloat((totaltax).toFixed(0));
+        netpayabletotal = totalamount + totaltax;
+        if (!isNaN(netpayabletotal)) {
+            $("#txtNetPayableValue").val((netpayabletotal).toFixed(0));
+            // $("#CreditorAmount").val(netpayabletotal.toFixed(0));
+        }
+        if (!isNaN(totaltax)) {
+            $("#txtTotalTaxValue").val((totaltax).toFixed(0));
+        }
+        if (!isNaN(totalamount)) {
+            $("#txtTotalbillAmount").val((totalamount).toFixed(0));
+        }
+    }
+
+    $(document).on('click', 'input[name$=".IsTaxEligible"]', function () {
+        calculateeligibletaxamount();
+        var ele = $(this).closest('tr').find('input[name$=".IsTaxEligible"]')
+        if ($(this).prop('checked'))
+        {
+            var gstin = $(this).closest('tr').find('input[name$=".GSTIN"]');
+            $(gstin).addClass('required');
+        }
+        else
+        {
+            var gstin = $(this).closest('tr').find('input[name$=".GSTIN"]');
+            $(gstin).removeClass('required');
+        }
+
+    });
+
+    function formSave(){
+        var isValid = $('#formADV').valid();
+        if (!isValid)
+            return false;
+        var doctypevalues = [];
+        $('select[name$=".DocumentType"]').each(function (idx, val) { doctypevalues.push($(val).val()); });
+        doctypevalues.sort();
+        // duplicate check
+        for (var k = 1; k < doctypevalues.length; ++k) {
+            if (doctypevalues[k] == doctypevalues[k - 1]) {
+                $('#alert').html("Selected attachment type already exist. Please select a different attachment type.");
+                $('#Validation').modal('toggle');
+                return false;
+            }
+            isValid = true;
+        }
+        if (isValid)
+        {
+            $('#formADV').submit(function () {
+                var id = $(this).attr('Id');
+                $('button[type="submit"],input[type="submit"],#nextBtn,#btnSave').attr('disabled', 'true');
+            });
+            $('#formADV').submit();
+        }
+
+    }
+
+    function parseDate(s) {
+        var months = {
+            january: 0, february: 1, march: 2, april: 3, may: 4, june: 5,
+            july: 6, august: 7, september: 8, october: 9, november: 10, december: 11
+        };
+        var p = s.split('-');
+        return new Date(p[2], months[p[1].toLowerCase()], p[0]);
+    }
+
+
+    $('#AdvanceValue, #AdvanceValue, #NoOfTraveller').on("copy cut paste drop", function () {
+        return false;
+    });
+    $('#AdvanceValue, #AdvanceValue, #NoOfTraveller').on("copy cut paste drop", function () {
+        return false;
+    });
+    function calculateeligibletaxamount() {
+        var eligibletaxtotal = 0;
+        $('#tbodyPO input[name$=".IsTaxEligible"]:checked').each(function (idx, val) {
+
+            // var taxeligible = $('#tbodyPO input[name$=".IsTaxEligible"]:checked');
+            var taxeligiblevalue = parseFloat($(this).closest('tr').find('input[name$=".TaxValue"]').val());
+            if (!isNaN(taxeligiblevalue)) {
+                eligibletaxtotal += taxeligiblevalue;
+            }
+            $(this).val(true);
+            if($(this).not(':checked'))
+            {
+                var gstin = $(this).closest('tr').find('input[name$=".GSTIN"]');
+                $(gstin).removeClass('required');
+            }
+        });
+        if (!isNaN(eligibletaxtotal)) {
+            $("#txtEligibleTaxValue").val(eligibletaxtotal.toFixed(0));
+            var netpayamt = parseFloat($('#txtNetPayableValue').val());
+            var commitamt = (netpayamt - eligibletaxtotal).toFixed(0);
+            $('#lblcommitamt').html(commitamt);
+        }
+    }
+    $('#txtPI').change(function () {
+        $('#NeedUpdateTransDetail').val('True');
+        var PIID = $(this).val();
+        $.getJSON("@Url.Action("LoadPIProject", "CoreAccounts")", { PIId: PIID },
+                    function (locationdata) {
+                        var select = $("#selectproject");
+                        select.empty();
+
+                        $.each(locationdata, function (index, itemData) {
+                            select.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name
+                            }));
+                            $('#txtReceiverName').val(itemData.code);
+                            $('#txtClaimingDept').val(itemData.pidepartment);
+                        });
+                        select.selectpicker('refresh');
+                    });
+
+    });
+
+    $('#selectproject').change(function () {
+        $('#NeedUpdateTransDetail').val('True');
+        var projectid = $(this).val();
+        $.getJSON("@Url.Action("LoadProjectDetails", "CoreAccounts")", { ProjectId: projectid },
+                   function (locationdata) {
+                       if(locationdata.ProjectType == "Sponsored")
+                       {
+                           $("#txtprojecttype").val(locationdata.ProjectType + " - " + locationdata.SponProjectCategory + " - " + locationdata.SponSchemeName);
+                       }
+                       if(locationdata.ProjectType == "Consultancy")
+                       {
+                           $("#txtprojecttype").val(locationdata.ProjectType + " - " + locationdata.ConsFundingCategory);
+                       }
+
+                   });
+
+    });
+
+    function fillMasterDropDown(ele, data, fillDafaultText,valueAsName) {
+        if (fillDafaultText !== undefined) {
+            ele.append($('<option/>', {
+                value: '',
+                text: 'Select any',
+            }));
+        }
+        if(valueAsName !== undefined) {
+            $.each(data, function (index, itemData) {
+                ele.append($('<option/>', {
+                    value: itemData.name,
+                    text: itemData.name,
+                }));
+            });
+        }else{
+            $.each(data, function (index, itemData) {
+                ele.append($('<option/>', {
+                    value: itemData.id,
+                    text: itemData.name,
+                }));
+            });
+        }
+    }
+    function GetTransactionDetails() {
+        //var commitmentDetailIds = [];
+        //var stateCode = $('#lblStateCode').html();
+        //var BillType = $('#BillType').val();
+       // var tdsDetailId = $('#VendorTDSDetailId').val() || null;
+        var interstate_f = false;
+        //if ($('#lblStateCode').html() == '33')
+        //    interstate_f = true;
+       // var ttlAdvTax = parseFloat($('#lblAdvTtlAmt').html());
+       // var eligibilityCheck_f = deductionEligibilityCheck(ttlAdvTax);
+        //$('#tbodyCommitmentSelList input[name$=".CommitmentDetailId"]').each(function () {
+        //    var cmtDetId = $(this).val();
+        //    if (cmtDetId != '') { commitmentDetailIds.push(cmtDetId); }
+        //});
+        //if (commitmentDetailIds.length == 0) {
+        //    $("#alert").text("Please select at least one commitment from the list.");
+        //    $('#Validation').modal('show');
+        //    return false;
+        //} else {
+        EmptyExpenseDeductionDetails();
+        $.ajax({
+            type: "GET",
+            url: "@Url.Action("GetTransactionDetails", "CoreAccounts")",
+            data: { "typeCode": "ECR","tSubCode" : "1", },
+        traditional: true,
+        dataType: "json",
+        success: function (result) {
+            $.each(result.ExpenseDetail, function (i, item) {
+                //var amt = 0;
+                //$("#tbodyCommitmentSelList [name$='.HeadName'][value='"+item.BudgetHeadName+"']").each(function(){
+                //    var elePayment = $(this).closest('td').find("input[name$='.PaymentAmount']");
+                //    var parseVal = parseFloat($(elePayment).val());
+                //    if (!isNaN(parseVal))
+                //        amt = amt + parseVal;
+                //});
+                if (i == 0) {
+                    var trEle = $('#tbodyExpenseList tr:first');
+                    $(trEle).find('input[name$=".Amount"]').val('');
+                    $(trEle).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                    $(trEle).find('input[name$=".IsJV"]').val(item.IsJV);
+                    $(trEle).find('#lblTransType').text(item.TransactionType);
+                    $(trEle).find("input[name='ExpenseDetail.Index']").val(i);
+
+                    var selectGroup = $(trEle).find('select[name$=".AccountGroupId"]');
+                    selectGroup.empty();
+                    $.each(item.AccountGroupList, function (index, itemData) {
+                        selectGroup.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+
+                    var selectHead = $(trEle).find('select[name$=".AccountHeadId"]');
+                    selectHead.empty();
+                    $.each(item.AccountHeadList, function (index, itemData) {
+                        selectHead.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+                } else {
+                    var trEleNew = $('#tbodyExpenseList tr:first').clone().find('input').val('').end();
+                    $(trEleNew).find('input[name$=".Amount"]').val('');
+                    $(trEleNew).find("input[name='ExpenseDetail.Index']").val(i);
+                    $(trEleNew).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                    $(trEleNew).find('input[name$=".IsJV"]').val(item.IsJV);
+                    $(trEleNew).find('#lblTransType').text(item.TransactionType);
+                    $(trEleNew).find("input,Select").each(function () {
+                        $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                        $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                    });
+                    $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                        $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                    });
+
+                    var selectGroup = $(trEleNew).find('select[name$=".AccountGroupId"]');
+                    selectGroup.empty();
+                    $.each(item.AccountGroupList, function (index, itemData) {
+                        selectGroup.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+
+                    var selectHead = $(trEleNew).find('select[name$=".AccountHeadId"]');
+                    selectHead.empty();
+                    $.each(item.AccountHeadList, function (index, itemData) {
+                        selectHead.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name,
+                        }));
+                    });
+                    $('#tbodyExpenseList').append(trEleNew);
+                }
+            });
+            $.each(result.DeductionDetail, function (i, item) {
+                if (i == 0) {
+                    var trEle = $('#tbodyDeductionList tr:first');
+                    var amtEle = $(trEle).find('input[name$=".Amount"]');
+                    if(item.TDSPercentage == null){
+                        amtEle.val('');
+                    }else{
+                        tds = ttlAdvTax * item.TDSPercentage / 100;
+                        amtEle.val(tds);
+                    }
+
+                    amtEle.addClass('required');
+                    $(trEle).find('input[name$=".AccountGroupId"]').val(item.AccountGroupId);
+                    $(trEle).find('input[name$=".DeductionHeadId"]').val(item.DeductionHeadId);
+                    $(trEle).find('input[name$=".DeductionHead"]').val(item.DeductionHead);
+                    $(trEle).find('input[name$=".AccountGroup"]').val(item.AccountGroup);
+                    $(trEle).find('td:nth-child(1)').html(item.AccountGroup);
+                    $(trEle).find('td:nth-child(2)').html(item.DeductionHead);
+                } else {
+                    var trEleNew = $('#tbodyDeductionList tr:first').clone().find('input').val('').end();
+                    //$(trEleNew).find("input[name='DeductionDetail.Index']").val(i);
+                    $(trEleNew).find("input").each(function () {
+                        $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                        $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                    });
+                    $(trEleNew).find("span[data-valmsg-for]").each(function () {
+                        $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                    });
+                    var amtEle = $(trEleNew).find('input[name$=".Amount"]');
+                    amtEle.addClass('required');
+                    if(item.TDSPercentage != null){
+                        tds = ttlAdvTax * item.TDSPercentage / 100;
+                        amtEle.val(tds);
+                    }
+                    $(trEleNew).find('input[name$=".AccountGroupId"]').val(item.AccountGroupId);
+                    $(trEleNew).find('input[name$=".DeductionHeadId"]').val(item.DeductionHeadId);
+                    $(trEleNew).find('input[name$=".DeductionHead"]').val(item.DeductionHead);
+                    $(trEleNew).find('input[name$=".AccountGroup"]').val(item.AccountGroup);
+                    $(trEleNew).find('td:nth-child(1)').html(item.AccountGroup);
+                    $(trEleNew).find('td:nth-child(2)').html(item.DeductionHead);
+                    $('#tbodyDeductionList').append(trEleNew);
+                }
+            });
+            var Amt =  $('#txtNetPayableValue').val();
+            $("#CreditorAmount").val(Amt);
+            $('#NeedUpdateTransDetail').val('false');
+            CalculateDeductionTotal();
+        },
+        error: function (err) {
+            console.log("error : " + err);
+        }
+    });
+    //}
+    }
+
+
+    $('#CreditorAmount, #ExpenseAmount, #CreditorAmount, input[name $=".PaymentAmount"], input[name $=".Quantity"], input[name $=".TotalAmount"], input[name $=".Amount"], #ttlCr, #ttlDr').on("copy cut paste drop", function () {
+        return false;
+    });
+
+    function AddNewExpense(){
+        //var stateCode = $('#lblStateCode').html();
+        //var BillType = $('#BillType').val();
+        $.ajax({
+            type: "GET",
+            url: "@Url.Action("GetAddNewExpenseDetails", "CoreAccounts")",
+            data: { "typeCode": "ECR","tSubCode" : "1"},
+        traditional: true,
+        dataType: "json",
+        success: function (result) {
+            $.each(result.ExpenseDetail, function (i, item) {
+                var cln = $('#tbodyExpenseList tr:first').clone().find("select,input").val("").end();
+                $(cln).find('a.dis-none').removeClass('dis-none');
+                var index = $('#tbodyExpenseList tr:last').find("input[name='ExpenseDetail.Index']").val();
+                index = parseInt(index) + 1;
+                $(cln).find("input[name='ExpenseDetail.Index']").val(index);
+                $(cln).find('input[name$=".TransactionType"]').val(item.TransactionType);
+                $(trEle).find('input[name$=".IsJV"]').val(item.IsJV);
+                $(cln).find('#lblTransType').text(item.TransactionType);
+                $(cln).find("input, select").each(function () {
+                    $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+                    $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+                });
+                $(cln).find("span[data-valmsg-for]").each(function () {
+                    $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+                });
+
+                var selectGroup = $(cln).find("select[name$='.AccountGroupId']");
+                selectGroup.empty();
+                $.each(item.AccountGroupList, function (index, itemData) {
+                    selectGroup.append($('<option/>', {
+                        value: itemData.id,
+                        text: itemData.name,
+                    }));
+                });
+
+                var selectHead = $(cln).find("select[name$='.AccountHeadId']");
+                selectHead.empty();
+                $.each(item.AccountHeadList, function (index, itemData) {
+                    selectHead.append($('<option/>', {
+                        value: itemData.id,
+                        text: itemData.name,
+                    }));
+                });
+                $('#tbodyExpenseList').append(cln);
+            });
+        },
+        error: function (err) {
+            console.log("error : " + err);
+        }
+    });
+    }
+    function ValidateCommitment() {
+        var msg = 'valid';
+        var commitmentAmt = parseFloat($('#CommitmentAmount').val());
+        var netPayAmt = parseFloat($('#txtNetPayableValue').val());
+        var eligtax = parseFloat($('#txtEligibleTaxValue').val());
+        var ttlAdvAmt = netPayAmt - eligtax;
+        // var advPct = parseInt($("#AdvancePercentage").val());
+        var offsetValue = $("input[name='GST']:checked").val();
+        $("#tbodyCommitmentSelList tr").each(function () {
+            var elePayment = $(this).find("input[name$='.PaymentAmount']");
+            var eleAvlBal = $(this).find('input[name$=".AvailableAmount"]');
+            var parseVal = parseFloat($(elePayment).val()) || 0;
+            var avlBal = parseFloat($(eleAvlBal).val()) || 0;
+            if (parseVal > avlBal)
+                msg = "Commitment payment value should not be greater than available balance."
+        });
+        if (isNaN(ttlAdvAmt) || isNaN(commitmentAmt)) {
+            msg = 'The requested advance value / allocated commitment value is not a valid entry.';
+        } else if (ttlAdvAmt != commitmentAmt) {
+            msg = 'There is a mismatch between the payable amount and allocated commitment value. Commitment value should be equal to (Net Payable value - Eligible tax). Please update the value to continue.';
+        }
+
+        return msg;
+    }
+    function ValidateTransaction() {
+        var msg = 'valid';
+        var netCrAmt = parseFloat($('#CreditorAmount').val());
+        var commitmentAmt = parseFloat($('#CommitmentAmount').val());
+        var ttlExpAmt = parseFloat($('#ExpenseAmount').val()) || 0;
+        var ttldeductAmt = parseFloat($('#DeductionAmount').val()) || 0;
+        var netPayAmt = parseFloat($('#txtNetPayableValue').val());
+        var eligtax = parseFloat($('#txtEligibleTaxValue').val());
+        var crAmt = parseFloat($('#ttlCr').val()) || 0;
+        var netDrAmt = ttlExpAmt + ttldeductAmt;
+        var ttlAdvAmt = netPayAmt - eligtax;
+        //var netDrAmt = ttlExpAmt + ttldeductAmt;
+        //var offsetValue = $("input[name='GST']:checked").val();
+        if (isNaN(netCrAmt)) {
+            return 'The Credit value is not a valid entry.';
+        }
+        if (netDrAmt != crAmt || netCrAmt != crAmt) {
+            msg = 'Not a valid entry. Credit and Debit value are not equal.';
+        }
+        if (isNaN(netCrAmt) || isNaN(commitmentAmt)) {
+            msg = 'The requested advance value / Transaction value is not a valid entry.';
+        }
+        else if (ttlAdvAmt != commitmentAmt) {
+            msg = 'There is a mismatch between allocated commitment value and transaction value. Please update the value to continue.';
+        }
+
+        var hdList = [];
+        var hdJVList = [];
+        $('#tbodyExpenseList tr').find('select[name$=".AccountHeadId"]').each(function (idx, val) {
+            var jv = $(this).closest('tr').find("input[name$='.IsJV']").val();
+            if (jv.toLowerCase()== "true")
+                hdJVList.push($(val).val());
+            else
+                hdList.push($(val).val());
+        });
+        hdList.sort();
+        hdJVList.sort();
+        // duplicate check
+        for (var k = 1; k < hdList.length; ++k) {
+            if (hdList[k] == hdList[k - 1]) {
+                msg = "Duplicate account head exist in expense details. Please select a different head.";
+            }
+        }
+        //for (var k = 1; k < hdJVList.length; ++k) {
+        //    if (hdJVList[k] == hdJVList[k - 1]) {
+        //        msg = "Duplicate account head exist in expense details. Please select a different head.";
+        //    }
+        //}
+        return msg;
+    }
+    /* Tab Sections Start*/
+    var currentTab = 0; // Current tab is set to be the first tab (0)
+    showTab(currentTab); // Display the crurrent tab
+    function showTab(n) {
+        // This function will display the specified tab of the form...
+        var x = document.getElementsByClassName("tab");
+        x[n].style.display = "block";
+        $(".custom-nav-pills li:eq(" + n + ")").addClass("active");
+        //... and fix the Previous/Next buttons:
+        if (n == 0) {
+            document.getElementById("prevBtn").style.display = "none";
+        } else {
+            document.getElementById("prevBtn").style.display = "inline";
+        }
+        if (n == (x.length - 1)) {
+            document.getElementById("nextBtn").innerHTML = "Submit";
+            $('#nextBtn').hide();
+        } else {
+            document.getElementById("nextBtn").innerHTML = "Next";
+            $('#nextBtn').show();
+        }
+        //... and run a function that will display the correct step indicator:
+        //fixStepIndicator(n)
+    }
+
+    function nextPrev(n) {
+        // This function will figure out which tab to display
+        var x = document.getElementsByClassName("tab");
+        // Exit the function if any field in the current tab is invalid:
+        if (n > 0 && !validateForm(n)) return false;
+        if (currentTab + n < x.length) {
+            // Hide the current tab:
+            x[currentTab].style.display = "none";
+            $(".custom-nav-pills li:eq(" + currentTab + ")").removeClass("active");
+        } else {
+            // ... the form gets submitted:
+            formSave();
+            return false;
+        }
+        // Increase or decrease the current tab by 1:
+        currentTab = currentTab + n;
+
+        // Otherwise, display the correct tab:
+        showTab(currentTab);
+    }
+
+    function validateForm(n) {
+        // This function deals with validation of the form fields
+        var isValid = false;
+        var hadError = false;
+        var tabs = $(".tab");
+        var currentTabEle = tabs[currentTab];
+        var inputs = $(":input, textarea, select"); // get all the form inputs and selects
+        var stepElements = $(currentTabEle).find(inputs); // get inputs for current step
+        var count = stepElements.length; // check that there are inputs
+        if (count <= 0) {                // if there are not no reason to loop them
+            return true;                 // this can be used to perform other action if there are no steps
+        } else if (currentTab == 0) {
+            $('#tbodyPO input[name$=".IsTaxEligible"]').not(':checked').each(function (idx, val) {
+                $(this).val(false);
+                var gstin = $(this).closest('tr').find('input[name$=".GSTIN"]');
+                $(gstin).removeClass('required');
+
+            });
+            var amt = parseFloat($('#txtNetPayableValue').val() || 0);
+            var pendingbillstotal = parseFloat($('input[name="PendingBillsRecoupValue"]').val() || 0);
+            var currbillvalue = parseFloat($('input[name="RecoupmentValue"]').val() || 0);
+            var bookableamount = pendingbillstotal + currbillvalue;
+            if (bookableamount < amt)
+            {
+                $("#alert").text("Bill Booking amount claimed cannot be greater than that of Available Imprest Value.");
+                $('#Validation').modal('show');
+                return false;
+            }
+
+            $("#CreditorAmount").val(amt);
+
+            var content = $('#tbodyCommitmentSrchList tr td:last').html();
+            if (content == '') {
+                searchCommitment()
+            }
+        }
+        else if (currentTab == 1) {
+
+            var validationMsg = ValidateCommitment()
+            if (validationMsg != 'valid') {
+                hadError = true;
+                $("#alert").text(validationMsg);
+                $('#Validation').modal('show');
+            } else {
+                if($('#NeedUpdateTransDetail').val() == 'True'){
+                    GetTransactionDetails();
+                }
+                //if(parseInt($("#AdvancePercentage").val()) == 100){
+                CalculateDeductionTotal();
+                //$("#CreditorAmount, #ttlCr").val($('#lblAdvTtlAmt').text());
+                //}else{
+                //    $("#CreditorAmount, #ttlCr").val($('#lblAdvNetAmt').text());
+                //}
+            }
+        }
+        else if (currentTab == 2) {
+            var validationMsg = ValidateTransaction()
+            if (validationMsg != 'valid') {
+                hadError = true;
+                $("#alert").text(validationMsg);
+                $('#Validation').modal('show');
+            }
+        }
+        else if (currentTab == 3) {
+            if ($('#CheckListVerified_By').val() == '') {
+                hadError = true;
+                $("#alert").text('Checklist is not verified.');
+                $('#Validation').modal('show');
+            }
+        }
+
+        $(stepElements).each(function (idx, ele) {
+            if (!$(ele).is(':radio') && !$(ele).is(':checkbox') && !$(ele).is(':password')) {
+                isValid = $(ele).valid();//$(document.forms[0]).validate().element($(this)); // check that the input is valid. This can also be used on a per input basis to perform another action if the field is not valid.
+                if (!isValid) { hadError = true; } // set our flag if there was an error
+            }
+
+        });
+        return !hadError; // return the valid status
+
+    }
+</script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>

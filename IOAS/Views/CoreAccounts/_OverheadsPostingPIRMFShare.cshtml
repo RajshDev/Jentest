@@ -1,0 +1,212 @@
+﻿
+@model IOAS.Models.OverheadsPostingModel
+@using (Html.BeginForm("_SavePIRMFShare", "CoreAccounts", FormMethod.Post, new { @class = "", role = "form", @id = "formOP", enctype = "multipart/form-data" }))
+{
+<div class="row mt30">
+    <div id="ViewDetailsModal" class="modal fade modal-pr-vw" role="dialog">
+        <div class="modal-dialog modal-md">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <div class="row hd-tt-bg">
+                        <div class="col-md-12">
+                            <h4><b>Overheads PI RMF Share</b></h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="gray-bg br-rd">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="row m-b-sm">
+                                <div class="col-md-6">
+                                    <h3 class="mt-xs">Details</h3>
+                                    @Html.TextBoxFor(m => m.ReceiptId, new { @class = "form-control dis-none" })
+                                    @Html.TextBoxFor(m => m.ToDate, new { @class = "form-control dis-none" })
+                                    @Html.TextBoxFor(m => m.ProjectId, new { @class = "form-control dis-none" })
+                                </div>
+                                @*<div class="col-md-6 text-right">
+                            <a href="javascript:void(0)" id="btnAddHonor" class="btn btn-primary btnAddHonor">Add New</a>
+                        </div>*@
+                            </div>
+                            <div class="m-b-sm scrl-table scrl-table-po-bl">
+                                <table class="table table-bordered" style="width: 780px;">
+                                    <thead>
+                                        <tr>
+                                            <th colspan="10"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbodyOH">
+                                        <tr>
+
+                                            <td style="width: 200px;">PI Name</td>                                           
+                                            <td style="width: 100px;">RMF Percent</td>
+                                            <td style="width: 100px;">RMF Amount</td>
+                                           
+                                        </tr>
+                                        @if (Model.PIShareDetails != null)
+                                        {
+                                            var count = 0;
+                                            foreach (var item in Model.PIShareDetails)
+                                            {
+                                                var piid = "PIShareDetails[" + count + "].PIId";
+                                                var projectid = "PIShareDetails[" + count + "].ProjectId";
+                                                var piname = "PIShareDetails[" + count + "].NameofPI";
+                                                var detailsid = "PIShareDetails[" + count + "].OverheadsPIShareDetailsId";
+                                                var rmfpercent = "PIShareDetails[" + count + "].RMFPercent";
+                                                var oldrmfpercent = "PIShareDetails[" + count + "].OldRMFPercent";
+                                                var rmfamount = "PIShareDetails[" + count + "].RMFAmount";
+                                                var totalrmfamt = "PIShareDetails[" + count + "].TotalRMFAmount";
+                                                <tr id="trdetails" class="p-b-sm">
+                                                    <td>
+                                                        @Html.TextBox(@piname, item.NameofPI, new { @class = "form-control", @autocomplete = "off", @readonly = true })
+                                                        @Html.ValidationMessage(@piname)
+                                                        @Html.Hidden("PIShareDetails.Index", @count)
+                                                        @Html.TextBox(@piid, item.PIId, new { @class = "form-control dis-none" }) 
+                                                        @Html.TextBox(@projectid, item.ProjectId, new { @class = "form-control dis-none" })
+                                                        @Html.TextBox(@detailsid, item.OverheadsPIShareDetailsId, new { @class = "form-control dis-none" })    
+                                                        @Html.TextBox(@totalrmfamt, item.TotalRMFAmount, new { @class = "form-control dis-none" })                                                   
+                                                    </td>
+                                                    <td>
+                                                        @Html.TextBox(@rmfpercent, item.RMFPercent, new { @class = "form-control", @autocomplete = "off" })
+                                                        @Html.TextBox(@oldrmfpercent, item.OldRMFPercent, new { @class = "form-control dis-none" })                                                        
+                                                        @Html.ValidationMessage(@rmfpercent)
+                                                    </td>
+                                                    <td>
+                                                        @Html.TextBox(@rmfamount, item.RMFAmount, new { @class = "form-control", @autocomplete = "off", @readonly = true })
+                                                        @Html.ValidationMessage(@rmfamount)
+                                                    </td>
+              
+                                                </tr>
+                                                count++;
+                                            }
+
+                                        }
+
+                                        else
+                                        {
+                                            <tr>
+                                                <td>
+                                                    @Html.TextBox("PIShareDetails[0].NameofPI", "", new { @class = "form-control", @id = "txtname", @autocomplete = "off", @readonly = true })
+                                                    @Html.Hidden("PIShareDetails.Index", "0")
+                                                    @Html.ValidationMessage("PIShareDetails[0].NameofPI")
+                                                    @Html.TextBox("PIShareDetails[0].PIId", "", new { @class = "form-control dis-none" })
+                                                    @Html.TextBox("PIShareDetails[0].ProjectId", "", new { @class = "form-control dis-none" })
+                                                    @Html.TextBox("PIShareDetails[0].OverheadsPIShareDetailsId", "", new { @class = "form-control dis-none" })
+                                                    @Html.TextBox("PIShareDetails[0].TotalRMFAmount", "", new { @class = "form-control dis-none" })
+                                                </td>
+                                                <td>
+                                                    @Html.TextBox("PIShareDetails[0].RMFPercent", "", new { @class = "form-control", @id = "txtReceipt", @autocomplete = "off" })
+                                                    @Html.ValidationMessage("PIShareDetails[0].RMFPercent")
+                                                    @Html.TextBox("PIShareDetails[0].OldRMFPercent", "", new { @class = "form-control dis-none" })
+                                                </td>
+                                                <td>
+                                                    @Html.TextBox("PIShareDetails[0].RMFAmount", "", new { @class = "form-control", @autocomplete = "off", @readonly = true })
+                                                    @Html.ValidationMessage("PIShareDetails[0].RMFAmount")
+                                                </td>
+                                               
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <input type="submit" class="btn btn-primary pull-right" value="Update RMF Share" name="Button" id="btnSave" />
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+}
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        var errMsg = '@ViewBag.errMsg';
+        if (errMsg) {
+            $("#FailedAlert").html(errMsg);
+            $('#Failed').modal('show');
+        }
+    });
+    $(document).on('change', 'input[name$=".RMFPercent"]', function () {
+        var totalRMFPercent = 0;
+        $('#tbodyOH tr').each(function (idx, val) {
+            var rmfpercent = parseFloat($(this).closest('tr').find('input[name$=".RMFPercent"]').val() || 0);
+            totalRMFPercent += rmfpercent;
+        });
+
+        $('#tbodyOH tr').each(function (idx, val) {
+            var rmfpercent = parseFloat($(this).closest('tr').find('input[name$=".RMFPercent"]').val() || 0);
+            var totalRMFValue = parseFloat($(this).closest('tr').find('input[name$=".TotalRMFAmount"]').val() || 0);
+            var RMFValue = (totalRMFValue * (rmfpercent / totalRMFPercent)).toFixed(0);
+            $(this).closest('tr').find('input[name$=".RMFAmount"]').val(RMFValue);
+        });
+
+    });
+    $('[id^="btnSave"]').on('click', function (e) {
+      
+        var isValid = $('#formOP').valid();
+        if (!isValid)
+            return false;       
+        var totalRMFPercent = 0;
+        $('#tbodyOH tr').each(function (idx, val) {
+            var rmfpercent = parseFloat($(this).closest('tr').find('input[name$=".RMFPercent"]').val() || 0);
+            totalRMFPercent += rmfpercent;
+        });
+        if (totalRMFPercent != 100)
+        {
+            $("#FailedAlert").html('The total RMF Percent is not equal to 100 percent');
+            $('#Failed').modal('show');
+            return false;
+        }
+        else if (totalRMFPercent == 100) {
+            isValid = true;
+        }
+
+        if (isValid)
+        {
+            $('#formOP').submit();
+        }
+        
+        @*e.preventDefault();
+        var modelData = '@Html.Raw(Json.Encode(Model.PIShareDetails))';
+        var model = new FormData();
+        model.append("PIShareDetails", modelData);
+        var ajaxOpts = {
+            type: "POST",
+            url: updatePIShare,
+            data: model,
+            //data: { "ProjectType": Projecttype, "ProposalNumber": Proposalnumber, "FromSOdate": FromSODate, "ToSOdate": ToSODate, },
+            contentType: false,//"application/x-www-form-urlencoded",
+            dataType: "json",
+            processData: false,
+            success: function (result) {
+                // dataProposal = result;
+                var res = result
+                if (res == 1) {
+                    $('#ViewDetailsModal').hide();
+                    $('body').removeClass('modal-open');
+                    $(".modal-backdrop").remove();
+                }
+
+                //  $('.modal-backdrop').remove();
+                //  EmptyCommitmentSrchList()
+
+
+
+                //   $('#popupFilter').hide();
+            },
+            error: function (err) {
+
+                console.log("error : " + err);
+            }
+        };
+
+        $.ajax(ajaxOpts);*@
+    });
+</script>

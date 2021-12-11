@@ -1,0 +1,770 @@
+﻿@model IOAS.Models.TravelAdvanceModel
+@{
+    ViewBag.Title = "Travel Advance";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+@using (Html.BeginForm("TravelAdvancePayment", "CoreAccounts", FormMethod.Post, new { @class = "", role = "form", @id = "formADV", enctype = "multipart/form-data" }))
+{
+    <div class="row hd-tt-bg">
+        <div class="col-md-12">
+            <h4><b>Travel Advance</b> </h4>
+        </div>
+    </div>
+    <div class="row">
+        <div class="white-bg ad-navbar">
+            <div class="col-md-3 ds-spl-bg">
+                <div class="ds-icn">
+                    <i class="ion-ios-list-outline "></i>
+                </div>
+                <div class="ds-tt">
+                    <span class="required">Request Reference</span>
+                    @Html.DropDownListFor(m => m.Source, new SelectList(ViewBag.SourceList, "codevalAbbr", "CodeValDetail"), "Select any",
+                        new { @class = "form-control" })
+                    @Html.ValidationMessageFor(m => m.Source)
+                    @Html.HiddenFor(m => m.TravelBillId)
+                </div>
+            </div>
+            <div class="col-md-3 ds-spl-bg">
+                <div class="ds-icn">
+                    <i class="ion-ios-calendar-outline"></i>
+                </div>
+                <div class="ds-tt" id="divRefNum">
+                    <span class="required">Ref Number (WF / Tapal)</span>
+                    @Html.TextBoxFor(m => m.ReferenceNumber, new { @class = "form-control" })
+                    @Html.TextBoxFor(m => m.SourceReferenceNumber, new { @class = "form-control dis-none" })
+                    @Html.ValidationMessageFor(m => m.SourceReferenceNumber)
+                    @Html.Hidden("SourceTapalOrWorkflow", "True")
+                </div>
+                <div class="dis-none ds-tt" id="divRefEmailDate">
+                    <span class="required">Email Date</span>
+                    @Html.EditorFor(m => m.SourceEmailDate, new { @class = "form-control" })
+                    <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.SourceEmailDate)</div>
+                </div>
+            </div>
+
+
+            <div class="col-md-3 col-md-offset-3">
+                <div class="reg-no custom-reg-no">
+                    <div class="form-group custom-form-group">
+                        <label>Number</label>
+                        <h4>@Html.DisplayFor(m => m.BillNumber)</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="page-wrapper">
+            <div class="col-md-12 mt30">
+                <ul class="nav nav-pills custom-nav-pills">
+                    <li class="active"><a href="javascript:void(0)"><span>01</span>Payment Details</a></li>
+                    <li><a href="javascript:void(0)"><span>02</span>Document Details</a></li>
+                </ul>
+
+                <div class="tab">
+                    <div class="col-md-12 col-sm-12 m-b-sm">
+                        <div class="row">
+                            <div class="page-wrapper">
+                                <div class="col-md-8">
+                                    <div class="white-bg">
+
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="required">PI</label>
+                                                    @Html.TextBoxFor(m => m.PIName, new { @class = "form-control" })
+                                                    @Html.TextBoxFor(m => m.PI, new { @class = "form-control dis-none" })
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="required">Country</label>
+                                                    @Html.DropDownListFor(m => m.CountryId, new SelectList(ViewBag.CountryList, "CountryID", "CountryName"), new { @multiple = "multiple", @class = "form-control selectpicker", @title = "Select any" })
+                                                    @Html.ValidationMessageFor(m => m.CountryId)
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="required">Duration</label>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            @Html.EditorFor(m => m.TravelFromDate, new { @class = "form-control" })
+                                                            @Html.ValidationMessageFor(m => m.TravelFromDate)
+                                                            <label id="lblDuration"></label>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            @Html.EditorFor(m => m.TravelToDate, new { @class = "form-control" })
+                                                            @Html.ValidationMessageFor(m => m.TravelToDate)
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="required">Place</label>
+                                                    @Html.TextBoxFor(m => m.Place, new { @class = "form-control" })
+                                                    @Html.ValidationMessageFor(m => m.Place)
+                                                </div>
+                                            </div>
+
+
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="required">Purpose</label>
+                                                    @Html.TextBoxFor(m => m.Purpose, new { @class = "form-control" })
+                                                    @Html.ValidationMessageFor(m => m.Purpose)
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group custom-form-group">
+                                                    <label>No. of Travelers</label>
+                                                    @Html.TextBoxFor(m => m.NoOfTraveller, new { @value = "1", @class = "form-control", @readonly = "readonly" })
+                                                    @Html.ValidationMessageFor(m => m.NoOfTraveller)
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="required">Estimated Budget</label>
+                                                    @Html.TextBoxFor(m => m.EstimatedValue, new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)" })
+                                                    @Html.ValidationMessageFor(m => m.EstimatedValue)
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="required">Advance Requested</label>
+                                                    @Html.TextBoxFor(m => m.AdvanceValue, new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)" })
+                                                    @Html.ValidationMessageFor(m => m.AdvanceValue)
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Remarks</label>
+                                                    @Html.TextAreaFor(m => m.Remarks, new { @class = "form-control", @rows = "3" })
+                                                    @Html.ValidationMessageFor(m => m.Remarks)
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group custom-form-group">
+                                                    @Html.CheckBoxFor(m => m.Adv100Pct_f)<label class="ml15">Approved for 100%</label> <br />
+                                                    @Html.CheckBoxFor(m => m.ProformaInvoiceSubmit_f)<label class="ml15">Proforma Invoice Attached</label>
+                                                    @*<input type="checkbox" name="vehicle1" value="Bike"><label class="ml15">Proformula Invoice Submit</label>*@
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            </div>
+
+
+                            <div class="col-md-4 mt30">
+
+                                <div class="bl-lg-panel-box">
+                                    <div class="bl-lg-panel-box-hd mb-null">
+                                        <div class="">
+                                            <h3 class="fn-s-bold">Traveller Details</h3>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="">
+                                                <table class="table table-bordered mb-null">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Category</th>
+                                                            <th>Name</th>
+                                                            <th></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="tbodyTraveller">
+                                                        <tr>
+                                                            <td>
+                                                                @Html.DropDownListFor(m => m.CategoryId, new SelectList(ViewBag.CategoryList, "id", "name"), "Select any", new { @class = "form-control required" })
+                                                                @Html.ValidationMessageFor(m => m.CategoryId)
+                                                            </td>
+                                                            <td class="tdDDLTraveler">
+                                                                <input id="autoComplete" name="autoComplete" class="form-control" />
+                                                                @Html.ValidationMessage("autoComplete")
+                                                                <input id="TravellerId" name="TravellerId" class="form-control dis-none" />
+                                                                @Html.ValidationMessage("TravellerId")
+                                                            </td>
+                                                            <td class="tdTxtTraveler dis-none">
+                                                                @Html.TextBox("TravellerName", "", new { @class = "form-control" })
+                                                                @Html.ValidationMessage("TravellerName")
+                                                            </td>
+                                                            <td>
+                                                                <a href="javascript:void(0)" class="btn-sm btn btn-danger removeTravellerDetail dis-none"><i class="ion-android-close"></i></a>
+                                                            </td>
+
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                                <div class="row p-b-sm">
+                                                    <div class="col-md-12 text-center mt-md">
+                                                        <button type="button" id="btnAddTraveller" class="btn-primary btn">Add New</button>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @*<div class="row">
+                                <div class="col-md-12 text-center mb-md mt-md">
+                                    <input type="submit" class="btn btn-primary mr10" value="Submit" name="Button" id="btnSubmit" />
+                                    <input type="button" onclick="window.location.href='@Url.Action("TravelAdvancePaymentList", "CoreAccounts")';" class="btn btn-default" value="Close" id="btnclose" />
+                                </div>
+                            </div>*@
+
+                    </div>
+                </div>
+
+                <div class="tab">
+                    <div class="col-md-12 col-sm-12 m-b-sm">
+                        <div class="">
+                            @Html.Partial("_DocumentDetail", Model.DocumentDetail)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="custom-nav-btn text-right">
+                    <button type="button" class="btn btn-default pull-left" id="prevBtn" onclick="nextPrev(-1)">Previous</button>
+                    <button type="button" class="btn btn-primary pull-right" id="nextBtn" onclick="nextPrev(1)">Next</button>
+                    <button type="button" class="btn btn-default pull-right" onclick="window.location.href='@Url.Action("TravelAdvancePaymentList", "CoreAccounts")';">Close</button>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+}
+
+<script>
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    $('#TravelToDate, #TravelFromDate').datepicker({ minDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+        $('.selectpicker').selectpicker({
+            liveSearch: true
+        });
+        applyAutoComplete($('#PIName'), $('#PI'), "@Url.Action("LoadPIList", "CoreAccounts")");
+        var selSource = $('#Source').val();
+        $("#divRefNum, #divRefEmailDate").addClass('dis-none');
+        if (selSource == '1') {
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACWorkflowRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+        } else if (selSource == '3') {
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACTapalRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+        }
+        else if (selSource == '2') {
+            $('#divRefEmailDate').removeClass('dis-none');
+        } else {
+            $("#divRefNum").removeClass('dis-none');
+        }
+        var category = @Html.Raw(Json.Encode(Model.CategoryId));
+        var tID = @Html.Raw(Json.Encode(Model.TravellerId));
+        var tName = @Html.Raw(Json.Encode(Model.TravellerName));
+        var countryies = @Html.Raw(Json.Encode(Model.CountryId));
+        $('#CountryId').val(countryies)
+        $('#CountryId').selectpicker('refresh');
+        $.each(category, function (i, selVal) {
+            var trEle;
+            if (i == 0) {
+                trEle = $('#tbodyTraveller tr:first');
+                $('#tbodyTraveller tr').not(':first').remove();
+            } else {
+                trEle = $('#tbodyTraveller tr:first').clone().find("input,select").val("").end();
+                $(trEle).find('a.dis-none').removeClass('dis-none');
+                $('#tbodyTraveller').append(trEle);
+            }
+            @*if (selVal == 1) {
+                $(trEle).find("td.tdDDLTraveler").removeClass('dis-none');
+                $(trEle).find("td.tdTxtTraveler").addClass('dis-none');
+                var ele = $(trEle).find("select[name='TravellerId']");
+                $(ele).addClass('required');
+                $(trEle).find("input[name='TravellerName']").removeClass('required');
+                $(trEle).find("select[name='CategoryId']").val(selVal);
+                $.getJSON("@Url.Action("LoadPIList", "CoreAccounts")",
+                function (locationdata) {
+                    ele.empty();
+                    fillAutoCompleteDropDown(ele, locationdata, true);
+                    ele.val(tID[i]);
+                });
+
+            } else if (selVal == 2) {
+                $(trEle).find("td.tdDDLTraveler").removeClass('dis-none');
+                $(trEle).find("td.tdTxtTraveler").addClass('dis-none');
+                var ele = $(trEle).find("select[name='TravellerId']");
+                $(ele).addClass('required');
+                $(trEle).find("input[name='TravellerName']").removeClass('required');
+                $(trEle).find("select[name='CategoryId']").val(selVal);
+                $.getJSON("@Url.Action("LoadStudentList", "CoreAccounts")",
+                function (locationdata) {
+                    ele.empty();
+                    fillAutoCompleteDropDown(ele, locationdata, true,true);
+                    ele.val(tID[i]);
+                });
+            } else if (selVal == 3) {
+                $(trEle).find("td.tdDDLTraveler").addClass('dis-none');
+                $(trEle).find("td.tdTxtTraveler").removeClass('dis-none');
+                $(trEle).find("select[name='CategoryId']").val(selVal);
+                var ele = $(trEle).find("select[name='TravellerId']");
+                $(ele).removeClass('required');
+                $(trEle).find("input[name='TravellerName']").addClass('required').val(tName[i]);
+
+            }*@
+            $(trEle).find("select[name='CategoryId']").val(selVal);
+            if (selVal == 1) {
+                $(trEle).closest('tr').find("td.tdDDLTraveler").removeClass('dis-none');
+                $(trEle).closest('tr').find("td.tdTxtTraveler").addClass('dis-none');
+                var ele = $(trEle).find("input[name='autoComplete']");
+                var eleTId = $(trEle).find("input[name='TravellerId']");
+                var eleTName = $(trEle).find("input[name='TravellerName']");
+                $(eleTId).addClass('required');
+                $(eleTName).removeClass('required');
+                $(eleTName).val(tName[i]);
+                $(ele).val(tName[i]);
+                $(eleTId).val(tID[i]);
+                setAutoComplete(ele, "@Url.Action("LoadPIList", "CoreAccounts")", true)
+            } else if (selVal == 2) {
+                $(trEle).closest('tr').find("td.tdDDLTraveler").removeClass('dis-none');
+                $(trEle).closest('tr').find("td.tdTxtTraveler").addClass('dis-none');
+                var ele = $(trEle).find("input[name='autoComplete']");
+                var eleTId = $(trEle).find("input[name='TravellerId']");
+                var eleTName = $(trEle).find("input[name='TravellerName']");
+                $(eleTId).addClass('required');
+                $(eleTName).removeClass('required');
+                $(eleTName).val(tName[i]);
+                $(ele).val(tName[i]);
+                $(eleTId).val(tID[i]);
+                setAutoComplete(ele, "@Url.Action("LoadStudentList", "CoreAccounts")", false);
+            } else if (selVal == 4) {
+                $(trEle).closest('tr').find("td.tdDDLTraveler").removeClass('dis-none');
+                $(trEle).closest('tr').find("td.tdTxtTraveler").addClass('dis-none');
+                var ele = $(trEle).find("input[name='autoComplete']");
+                var eleTId = $(trEle).find("input[name='TravellerId']");
+                var eleTName = $(trEle).find("input[name='TravellerName']");
+                $(eleTId).addClass('required');
+                $(eleTName).removeClass('required');
+                $(eleTName).val(tName[i]);
+                $(ele).val(tName[i]);
+                $(eleTId).val(tID[i]);
+                setAutoComplete(ele, "@Url.Action("LoadACProjectStaff", "CoreAccounts")", true)
+            }
+            else if (selVal == 5) {
+                $(trEle).closest('tr').find("td.tdDDLTraveler").removeClass('dis-none');
+                $(trEle).closest('tr').find("td.tdTxtTraveler").addClass('dis-none');
+                var ele = $(trEle).find("input[name='autoComplete']");
+                var eleTId = $(trEle).find("input[name='TravellerId']");
+                var eleTName = $(trEle).find("input[name='TravellerName']");
+                $(eleTId).addClass('required');
+                $(eleTName).removeClass('required');
+                $(eleTName).val(tName[i]);
+                $(ele).val(tName[i]);
+                $(eleTId).val(tID[i]);
+                setAutoComplete(ele, "@Url.Action("LoadInstituteStaffList", "CoreAccounts")", true)
+            }
+    else if (selVal == 6) {
+                $(trEle).closest('tr').find("td.tdDDLTraveler").removeClass('dis-none');
+                $(trEle).closest('tr').find("td.tdTxtTraveler").addClass('dis-none');
+                var ele = $(trEle).find("input[name='autoComplete']");
+                var eleTId = $(trEle).find("input[name='TravellerId']");
+                var eleTName = $(trEle).find("input[name='TravellerName']");
+                $(eleTId).addClass('required');
+                $(eleTName).removeClass('required');
+                $(eleTName).val(tName[i]);
+                $(ele).val(tName[i]);
+                $(eleTId).val(tID[i]);
+                setAutoComplete(ele, "@Url.Action("LoadAdhocStaffList", "CoreAccounts")", true)
+            }
+            else if (selVal == 3) {
+                $(trEle).closest('tr').find("td.tdDDLTraveler").addClass('dis-none');
+                $(trEle).closest('tr').find("td.tdTxtTraveler").removeClass('dis-none');
+                var ele = $(trEle).find("input[name='TravellerId']");
+                $(ele).removeClass('required');
+                var eleTName = $(trEle).find("input[name='TravellerName']");
+                $(eleTName).addClass('required');
+                $(eleTName).val(tName[i]);
+            }
+        });
+        CalculateNoOfTraveller();
+        calcDateDiff();
+    });
+    $('#PIName').keyup(function () {
+        if ($(this).val() == "") {
+            $('#PI').val('')
+        }
+    });
+    $(document).on('click', 'a.removeTravellerDetail', function () {
+        $(this).closest('tr').remove();
+        CalculateNoOfTraveller();
+    });
+    $('#btnAddTraveller').click(function () {
+        var cln = $('#tbodyTraveller tr:first').clone().find("input,select").val("").end();
+        $(cln).find('a.dis-none').removeClass('dis-none');
+        $(cln).find('td.tdDDLTraveler').removeClass('dis-none');
+        $(cln).find('td.tdTxtTraveler').addClass('dis-none');
+        $('#tbodyTraveller').append(cln);
+        CalculateNoOfTraveller();
+    });
+    $(document).on('change', 'select[name="CategoryId"]', function () {
+        var selVal = $(this).val();
+        $(this).closest('tr').find("input[name='TravellerId']").val('');
+        $(this).closest('tr').find("input[name='autoComplete']").val('');
+        $(this).closest('tr').find("input[name='TravellerName']").val('');
+        if (selVal == 1) {
+            $(this).closest('tr').find("td.tdDDLTraveler").removeClass('dis-none');
+            $(this).closest('tr').find("td.tdTxtTraveler").addClass('dis-none');
+            $(this).closest('tr').find("input[name='TravellerId']").addClass('required');
+            var ele = $(this).closest('tr').find("input[name='autoComplete']");
+            $(this).closest('tr').find("input[name='TravellerName']").removeClass('required');
+            setAutoComplete(ele, "@Url.Action("LoadPIList", "CoreAccounts")", true)
+        } else if (selVal == 2) {
+            $(this).closest('tr').find("td.tdDDLTraveler").removeClass('dis-none');
+            $(this).closest('tr').find("td.tdTxtTraveler").addClass('dis-none');
+            $(this).closest('tr').find("input[name='TravellerId']").addClass('required');
+            var ele = $(this).closest('tr').find("input[name='autoComplete']");
+            $(this).closest('tr').find("input[name='TravellerName']").removeClass('required');
+            setAutoComplete(ele, "@Url.Action("LoadStudentList", "CoreAccounts")", false);
+        } else if (selVal == 4) {
+            $(this).closest('tr').find("td.tdDDLTraveler").removeClass('dis-none');
+            $(this).closest('tr').find("td.tdTxtTraveler").addClass('dis-none');
+            $(this).closest('tr').find("input[name='TravellerId']").addClass('required');
+            var ele = $(this).closest('tr').find("input[name='autoComplete']");
+            $(this).closest('tr').find("input[name='TravellerName']").removeClass('required');
+            setAutoComplete(ele, "@Url.Action("LoadACProjectStaff", "CoreAccounts")", true)
+        }
+        else if (selVal == 5) {
+            $(this).closest('tr').find("td.tdDDLTraveler").removeClass('dis-none');
+            $(this).closest('tr').find("td.tdTxtTraveler").addClass('dis-none');
+            $(this).closest('tr').find("input[name='TravellerId']").addClass('required');
+            var ele = $(this).closest('tr').find("input[name='autoComplete']");
+            $(this).closest('tr').find("input[name='TravellerName']").removeClass('required');
+            setAutoComplete(ele, "@Url.Action("LoadInstituteStaffList", "CoreAccounts")", true)
+        }
+        else if (selVal == 6) {
+            $(this).closest('tr').find("td.tdDDLTraveler").removeClass('dis-none');
+            $(this).closest('tr').find("td.tdTxtTraveler").addClass('dis-none');
+            $(this).closest('tr').find("input[name='TravellerId']").addClass('required');
+            var ele = $(this).closest('tr').find("input[name='autoComplete']");
+            $(this).closest('tr').find("input[name='TravellerName']").removeClass('required');
+            setAutoComplete(ele, "@Url.Action("LoadAdhocStaffList", "CoreAccounts")", true)
+        }else if (selVal == 3) {
+            $(this).closest('tr').find("td.tdDDLTraveler").addClass('dis-none');
+            $(this).closest('tr').find("td.tdTxtTraveler").removeClass('dis-none');
+            var ele = $(this).closest('tr').find("input[name='TravellerId']");
+            $(ele).removeClass('required');
+            $(this).closest('tr').find("input[name='TravellerName']").addClass('required');
+        }
+    });
+    $('#Source').change(function () {
+        var selSource = $(this).val();
+        $("#SourceReferenceNumber,#ReferenceNumber").val('');
+        $("#divRefNum, #divRefEmailDate").addClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('False');
+        if (selSource == '1') {
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACWorkflowRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        } else if (selSource == '3') {
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACTapalRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        }else if (selSource == '2') {
+            $('#divRefEmailDate').removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('False');
+        } else {
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        }
+    });
+    function formSave(){
+        var isValid = $('#formADV').valid();
+        if (!isValid)
+            return false;
+
+        $('#formADV').submit();
+    }
+    $("#TravelToDate, #TravelFromDate").change(function () {
+        calcDateDiff();
+    });
+    function calcDateDiff() {
+        var strDate = $("#TravelFromDate").val();
+        var clsDate = $("#TravelToDate").val();
+        if (strDate != '' && clsDate != '') {
+            var startDate = moment(parseDate(strDate));
+            var closeDate = moment(parseDate(clsDate));
+
+            var mins = closeDate.diff(startDate, 'minutes');
+            if (mins <= 0) {
+                $('#alert').html("To Date must be greater than from date.");
+                $('#Validation').modal('toggle');
+                return false;
+            }
+            var result = '';
+            var years = closeDate.diff(startDate, 'year');
+            startDate.add(years, 'years');
+
+            var months = closeDate.diff(startDate, 'months');
+            startDate.add(months, 'months');
+
+            var days = closeDate.diff(startDate, 'days');
+            if (years > 1) {
+                result = years + ' years ';
+            } else if (years == 1) {
+                result = years + ' year ';
+            }
+            if (months > 1) {
+                result = result + months + ' months ';
+            } else if (months == 1) {
+                result = result + months + ' month ';
+            }
+            if (days > 1) {
+                result = result + days + ' days';
+            } else if (days == 1) {
+                result = result + days + ' day';
+            }
+            $('#lblDuration').html(result);
+        }
+    }
+    function parseDate(s) {
+        var months = {
+            january: 0, february: 1, march: 2, april: 3, may: 4, june: 5,
+            july: 6, august: 7, september: 8, october: 9, november: 10, december: 11
+        };
+        var p = s.split('-');
+        return new Date(p[2], months[p[1].toLowerCase()], p[0]);
+    }
+
+    function CalculateNoOfTraveller() {
+        var len = $('#tbodyTraveller tr').length;
+        $('#NoOfTraveller').val(len);
+    }
+    $('#AdvanceValue, #AdvanceValue, #NoOfTraveller').on("copy cut paste drop", function () {
+        return false;
+    });
+    function setAutoComplete(ele,url,setId) {
+        $(ele).autocomplete({
+            select: function (event, ui) {
+                event.preventDefault();
+                $(ele).val(ui.item.label);
+                if (setId == true) {
+                    $(ele).closest('tr').find("input[name='TravellerId']").val(ui.item.value);
+                    $(ele).closest('tr').find("input[name='TravellerName']").val(ui.item.label);
+                } else {
+                    $(ele).closest('tr').find("input[name='TravellerId']").val(ui.item.label);
+                    $(ele).closest('tr').find("input[name='TravellerName']").val(ui.item.label);
+                }
+            },
+            focus: function (event, ui) {
+                event.preventDefault();
+                $(ele).val(ui.item.label);
+            },
+            source: function (request, response) {
+                $.getJSON(url,{ term: request.term },
+                 function (locationdata) {
+                     response(locationdata);
+                 });
+            },
+            minLength: 3
+        });
+    }
+    @*$(document).on('change','select[name="CategoryId"]',function () {
+        var selVal = $(this).val();
+        if (selVal == 1) {
+            $(this).closest('tr').find("td.tdDDLTraveler").removeClass('dis-none');
+            $(this).closest('tr').find("td.tdTxtTraveler").addClass('dis-none');
+            var ele = $(this).closest('tr').find("select[name='TravellerId']");
+            $(ele).addClass('required');
+            $(this).closest('tr').find("input[name='TravellerName']").removeClass('required');
+            $.getJSON("@Url.Action("LoadPIList", "CoreAccounts")",
+             function (locationdata) {
+                 ele.empty();
+                 fillAutoCompleteDropDown(ele, locationdata, true);
+             });
+        } else if (selVal == 2) {
+            $(this).closest('tr').find("td.tdDDLTraveler").removeClass('dis-none');
+            $(this).closest('tr').find("td.tdTxtTraveler").addClass('dis-none');
+            var ele = $(this).closest('tr').find("select[name='TravellerId']");
+            $(ele).addClass('required');
+            $(this).closest('tr').find("input[name='TravellerName']").removeClass('required');
+            $.getJSON("@Url.Action("LoadStudentList", "CoreAccounts")",
+             function (locationdata) {
+                 ele.empty();
+                 fillAutoCompleteDropDown(ele, locationdata, true,true);
+             });
+        } else if (selVal == 3) {
+            $(this).closest('tr').find("td.tdDDLTraveler").addClass('dis-none');
+            $(this).closest('tr').find("td.tdTxtTraveler").removeClass('dis-none');
+            var ele = $(this).closest('tr').find("select[name='TravellerId']");
+            $(ele).removeClass('required');
+            $(this).closest('tr').find("input[name='TravellerName']").addClass('required');
+
+        }
+    });*@
+    function fillMasterDropDown(ele, data, fillDafaultText,valueAsName) {
+        if (fillDafaultText !== undefined) {
+            ele.append($('<option/>', {
+                value: '',
+                text: 'Select any',
+            }));
+        }
+        if(valueAsName !== undefined) {
+            $.each(data, function (index, itemData) {
+                ele.append($('<option/>', {
+                    value: itemData.name,
+                    text: itemData.name,
+                }));
+            });
+        }else{
+            $.each(data, function (index, itemData) {
+                ele.append($('<option/>', {
+                    value: itemData.id,
+                    text: itemData.name,
+                }));
+            });
+        }
+    }
+    function fillAutoCompleteDropDown(ele, data, fillDafaultText,valueAsName) {
+        if (fillDafaultText !== undefined) {
+            ele.append($('<option/>', {
+                value: '',
+                text: 'Select any',
+            }));
+        }
+        if(valueAsName !== undefined) {
+            $.each(data, function (index, itemData) {
+                ele.append($('<option/>', {
+                    value: itemData.label,
+                    text: itemData.label,
+                }));
+            });
+        }else{
+            $.each(data, function (index, itemData) {
+                ele.append($('<option/>', {
+                    value: itemData.value,
+                    text: itemData.label,
+                }));
+            });
+        }
+    }
+
+    /* Tab Sections Start*/
+    var currentTab = 0; // Current tab is set to be the first tab (0)
+    showTab(currentTab); // Display the crurrent tab
+    function showTab(n) {
+        // This function will display the specified tab of the form...
+        var x = document.getElementsByClassName("tab");
+        x[n].style.display = "block";
+        $(".custom-nav-pills li:eq(" + n + ")").addClass("active");
+        //... and fix the Previous/Next buttons:
+        if (n == 0) {
+            document.getElementById("prevBtn").style.display = "none";
+        } else {
+            document.getElementById("prevBtn").style.display = "inline";
+        }
+        if (n == (x.length - 1)) {
+            document.getElementById("nextBtn").innerHTML = "Submit";
+        } else {
+            document.getElementById("nextBtn").innerHTML = "Next";
+        }
+        //... and run a function that will display the correct step indicator:
+        //fixStepIndicator(n)
+    }
+
+    function nextPrev(n) {
+        // This function will figure out which tab to display
+        var x = document.getElementsByClassName("tab");
+        // Exit the function if any field in the current tab is invalid:
+        if (n > 0 && !validateForm(n)) return false;
+        if (currentTab + n < x.length) {
+            // Hide the current tab:
+            x[currentTab].style.display = "none";
+            $(".custom-nav-pills li:eq(" + currentTab + ")").removeClass("active");
+        } else {
+            // ... the form gets submitted:
+            formSave();
+            return false;
+        }
+        // Increase or decrease the current tab by 1:
+        currentTab = currentTab + n;
+
+        // Otherwise, display the correct tab:
+        showTab(currentTab);
+    }
+
+    function validateForm(n) {
+        // This function deals with validation of the form fields
+        var isValid = false;
+        var hadError = false;
+        var tabs = $(".tab");
+        var currentTabEle = tabs[currentTab];
+        var inputs = $(":input, textarea, select"); // get all the form inputs and selects
+        var stepElements = $(currentTabEle).find(inputs); // get inputs for current step
+        var count = stepElements.length; // check that there are inputs
+        if (count <= 0) {                // if there are not no reason to loop them
+            return true;                 // this can be used to perform other action if there are no steps
+        } else if (currentTab == 0) {
+            var strDate = $("#TravelFromDate").val();
+            var clsDate = $("#TravelToDate").val();
+            if (strDate != '' && clsDate != '') {
+                var startDate = moment(parseDate(strDate));
+                var closeDate = moment(parseDate(clsDate));
+
+                var mins = closeDate.diff(startDate, 'minutes');
+                if (mins <= 0) {
+                    $('#alert').html("To Date must be greater than from date.");
+                    $('#Validation').modal('toggle');
+                    return false;
+                }
+            }
+            var isChecked = $('#ProformaInvoiceSubmit_f').is(":checked");
+            if (!isChecked) {
+                $('#alert').html("Proforma Invoice Attached is not checked.");
+                $('#Validation').modal('toggle');
+                return false;
+            }
+        }
+        $(stepElements).each(function (idx, ele) {
+
+            if (!$(ele).is(':radio') && !$(ele).is(':checkbox') && !$(ele).is(':password')) {
+                isValid = $(ele).valid();//$(document.forms[0]).validate().element($(this)); // check that the input is valid. This can also be used on a per input basis to perform another action if the field is not valid.
+                if (!isValid) { hadError = true; } // set our flag if there was an error
+            }
+
+        });
+        return !hadError; // return the valid status
+
+    }
+</script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>

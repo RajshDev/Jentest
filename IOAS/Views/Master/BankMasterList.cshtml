@@ -1,0 +1,179 @@
+﻿@model IOAS.Models.BankMasterListModel
+@{
+    ViewBag.Title = "BankMasterList";
+    ViewBag.Subtitle = "Bank Master List";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<div class="row hd-tt-bg">
+    <div class="col-md-4">
+        <h3>Bank Master</h3>
+    </div>
+    <div class="col-md-8 flt-nav-links">
+        <a href="@Url.Action("BankMaster")"> <i class="ion-plus"></i>Add New</a>
+       
+    </div>
+</div>
+<div class="row mt30">
+    <div class="page-wrapper">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="custom-jsgrid-normal">
+                    <div id="bankMasterList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    var alertMsg = '@TempData["alertMsg"]';
+    $('#bankMasterList').jsGrid({
+        paging: true,
+        pageIndex: 1,
+        pageSize: 10,
+        editing: false,
+        filtering: true,
+        pageLoading: true,
+        autoload: true,
+        controller: {
+
+            loadData: function (filter) {
+                //return $.grep(db, function (agency) {
+
+                //    return (!filter.AgencyName || agency.AgencyName.toLowerCase().indexOf(filter.AgencyName.toLowerCase()) > -1)
+                //    && (!filter.AgencyCode || agency.AgencyCode.toLowerCase().indexOf(filter.AgencyCode.toLowerCase()) > -1)
+                //    && (!filter.CountryName || agency.CountryName.toLowerCase().indexOf(filter.CountryName.toLowerCase()) > -1);
+
+                //});
+                var searchData = [];
+                searchData = {
+                    CategorySearch: filter.Category||null,
+                    Name: filter.Name||null,
+                    AccountNumber: filter.AccountNumber||null,
+                    BankName: filter.BankName||null
+                },
+                filter.model = searchData;
+                var deferred = $.Deferred();
+                $.ajax({
+                    type: "post",
+                    url: "LoadBankList",
+                    data: JSON.stringify(filter),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (result) {
+                        //db = result;
+                        //$("#AdvanceBillPaymentList").jsGrid({ data: db });
+                        var da = {
+                            data: result.listbank,
+                            itemsCount: result.TotalRecords
+                        }
+                        deferred.resolve(da);
+                    },
+                    error: function (err) {
+                        console.log("error : " + err);
+                    }
+
+                });
+                return deferred.promise();
+            }
+
+        },
+        fields: [
+                    { type: "number", name: "SNo", title: "S.No", editing: false, filtering: false, align: "left", width: "70px" },
+                    { name: "StaffBankId", title: "StaffBank Id", editing: false, visible: false },
+                    { type: "text", name: "Category", title: "Category", editing: false },
+                    { type: "text", name: "Name", title: "Name", editing: false },
+                    { type: "text", name: "AccountNumber", title: "Account Number", editing: false },
+                    { type: "text", name: "BankName", title: "Bank Name", editing: false },
+
+                  
+                    {
+                        type: "control", editButton: false, deleteButton: false, title: "Action", width: 80,
+                        itemTemplate: function (value, item) {
+                            var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+                            statusList = [{ id: "", name: "Select Action" }, { id: "Edit", name: "Edit" }]
+                            var $customSelect = $("<select>")
+                                .attr("class", "form-control").prop("selectedIndex", "")
+
+                            $.each(statusList, function (index, itemData) {
+                                $customSelect.append($('<option/>', {
+
+                                    value: itemData.id,
+                                    text: itemData.name
+                                }));
+                            });
+
+                            $customSelect.change(function (e) {
+                                var selVal = $(this).val();
+                               
+                                if (selVal == "Edit") {
+                                    var url = '@Url.Action("BankMaster", "Master")?StaffBankId=' + item.StaffBankId;
+                                    window.location.href = url;
+                                }
+                                 $(this).val("");
+                                return false;
+                                e.stopPropagation();
+                            });
+
+                            return $result.add($customSelect);
+                        },
+
+                        _createFilterSwitchButton: function () {
+                            return this._createOnOffSwitchButton("filtering", this.searchModeButtonClass, false);
+                        }
+                    }
+
+        ],
+        @*onItemEditing: function (args) {
+            if (args.item.StaffBankId > 0) {
+                var accheadid = args.item.StaffBankId;
+                var url = '@Url.Action("BankMaster", "Master")?StaffBankId=' + args.item.StaffBankId;
+                window.location.href = url;
+            }
+
+
+
+        },*@
+
+    });
+    $("#bankMasterList").jsGrid("option", "filtering", false);
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+        else if(alertMsg!='')
+        {
+            $('#alert').html(alertMsg);
+            $('#Validation').modal('toggle');
+        }
+    });
+    //GetBankList();
+    //function GetBankList() {
+    //    $.ajax({
+
+    //        type: "GET",
+    //        url: "LoadBankList",
+    //        data: "",
+    //        contentType: "application/json; charset=utf-8",
+    //        dataType: "json",
+    //        async: false,
+    //        success: function (result) {
+
+    //            $("#bankMasterList").jsGrid({
+    //                data: result
+    //            });
+
+    //        },
+    //        error: function (err) {
+    //            console.log("error : " + err);
+    //        }
+
+    //    });
+    //}
+</script>

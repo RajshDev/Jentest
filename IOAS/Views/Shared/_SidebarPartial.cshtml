@@ -1,0 +1,298 @@
+﻿@model IEnumerable<IOAS.Models.MenuListViewModel>
+
+<div class="sidebar-nav">
+
+    <div class="nav-ls">
+        <div class="logo">
+            <a href="@Url.Action("Dashboard", "Home")">
+                <img src="~/Content/IOASContent/img/iitm-logo.png" width="50" height="50" />
+                @*<span class="tt">ICSR, IIT Madras</span>*@
+                <img src="~/Content/IOASContent/img/tula-logo.png" width="50" height="50" />
+            </a>
+            
+        </div>
+       
+        <ul>
+            @{
+                int count = 1;
+                <li><a href="javascript:void(0)" onclick="displayMenu(0)" id="Module_0"><i class="ion-android-open"></i></a></li>
+                foreach (var item in Model)
+                {
+                    <li><a href="javascript:void(0)" title="@item.Modulename" onclick="displayMenu(@count)" id="Module_@count"><i class="@item.ModuleIconName"></i></a></li>
+                    count = (count + 1);
+                }
+            }
+        </ul>
+    </div>
+   
+    @{
+        int subCount = 1;
+        foreach (var item in Model)
+        {
+            if (item.Modulename != "Analytics") { 
+            <div class="sidebar-submenu menu-hide" id="subMenu_@subCount">
+                <div class="sp-nav-bg">
+                    <div class="sp-nav">
+                        <h4><i class="@item.ModuleIconName"></i>@item.Modulename</h4>
+                        <ul>
+                            @foreach (var subModule in item.submodule)
+                            {
+                                <li>
+                                    <h5 href="javascript:void(0)">@subModule.Menugroupname</h5>
+                                    <ul>
+                                        @foreach (var subModuleChild in subModule.Submenu)
+                                        {
+                                            <li>
+                                                <a href="@Url.Action(subModuleChild.Actionname, subModuleChild.Controllername)">@subModuleChild.Functioname</a>
+                                            </li>
+
+                                        }
+                                    </ul>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            }
+            else {
+            <div class="submenu-nav menu-hide" id="subMenu_@subCount">
+                <div class="submenu-search-bg">
+                    <div class="row">
+                        <h5 class="col-md-12">Search Menu</h5>
+                    </div>
+                    <div class="row search-bg-adj">
+
+                        <div class="col-md-9">
+                            <input value="" id="txtBISSearch" onkeyup="LoadBISMenu()" class="form-control" type="text">
+                        </div>
+                        <div class="col-md-3">
+                            <a href="javascript:void(0)" id="btnBISClear" class="btn btn-primary"><i class="ion-refresh"></i></a>
+                            <a href="javascript:void(0)" id="btnBISClose" class="btn btn-danger"><i class="ion-close"></i></a>
+                        </div>
+
+                    </div>
+                    <div id="AnalyticsDiv">
+                        <div id="reportMenuList" class="row mt30 srch-clear">
+                            <div class="col-md-3">
+                                <div class="sp-nav">
+                                    <h4><i class="ion-gear-b"></i> Reports</h4>
+                                    <ul id="reportMenu"></ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            }
+            subCount = (subCount + 1);
+        }
+    }
+            <div class="submenu-nav menu-hide" id="subMenu_0">
+        <div class="submenu-search-bg">
+            <div class="row">
+                <h5 class="col-md-12">Search Menu</h5>
+            </div>
+            <div class="row search-bg-adj">
+
+                <div class="col-md-9">
+                    <input value="" id="txtSearch" onkeyup="SearchMenu()" class="form-control" type="text">
+                </div>
+                <div class="col-md-3">                 
+                    <a href="javascript:void(0)" id="btnClear" class="btn btn-primary"><i class="ion-refresh"></i></a>
+                    <a href="javascript:void(0)" id="btnClose" class="btn btn-danger"><i class="ion-close"></i></a>
+                </div>
+
+            </div>
+            <div id="mainDiv">
+                @{
+                    var Count = 0;
+                    var init = true;
+                    var TotCount = Model.Count();
+                    foreach (var item in Model)
+                    {
+                        if (init == true)
+                        {
+                            @:<div class="row mt30">
+                            }
+                        else if (init == false && Count % 4 == 0)
+                        {
+                            @:</div><div class="row">
+        }
+                        if (item.Modulename != "Analytics") { 
+                        <div class="col-md-3 cls-clear" id="Row_@count">
+                            <div class="sp-nav">
+                                <h4><i class="@item.ModuleIconName"></i>@item.Modulename</h4>
+                                <ul id="1ul">
+                                    @foreach (var subModule in item.submodule)
+                {
+                                        <li>
+                                            <h5 href="javascript:void(0)">@subModule.Menugroupname</h5>
+                                            <ul id="2ul">
+                                                @foreach (var subModuleChild in subModule.Submenu)
+                                                {
+                                                    <li>
+                                                        <a href="@Url.Action(subModuleChild.Actionname, subModuleChild.Controllername)">@subModuleChild.Functioname</a>
+                                                    </li>
+
+                                                }
+                                            </ul>
+                                        </li>
+                                    }
+
+                                </ul>
+                            </div>
+                        </div>
+                        }
+                        Count++;
+                        init = false;
+                        if (TotCount == Count)
+                        {
+                            @:</div>
+        }
+                    }
+                }
+            </div>
+        </div>
+    </div>
+
+   
+</div>
+
+<script type="text/javascript">
+
+    //$(".menu-show").animate({
+    //    width: "toggle"
+    //});
+
+    var cur_selection = 1;
+    var prev_selection = 0;
+    function displayMenu(user_selection) {
+        prev_selection = cur_selection;
+        cur_selection = user_selection;
+        $("#subMenu_" + prev_selection).fadeOut('slow');//.removeClass("menu-show");
+        $("#Module_" + prev_selection).parent('li').removeClass("active");
+        $("#subMenu_" + prev_selection).fadeOut('slow'); //addClass("menu-hide");
+       
+        $("#subMenu_" + cur_selection).fadeIn('slow')//.removeClass("menu-hide");
+        $("#Module_" + cur_selection).parent('li').addClass("active");
+        $("#subMenu_" + cur_selection).fadeIn('slow'); //addClass("menu-show");
+        $("body").addClass('ovr-hd');      
+    }
+
+
+    $(document).mousedown(function (e) {
+        var container = $(".sp-nav-bg,.submenu-nav,.submenu-search-bg");
+        // if the target of the click isn't the container nor a descendant of the container
+        if (!container.is(e.target) && container.has(e.target).length === 0) {
+            $("#Module_" + cur_selection).parent('li').removeClass("active");
+            $("#subMenu_" + cur_selection).fadeOut('slow'); //addClass("menu-hide");
+            $("body").removeClass('ovr-hd');          
+        }
+    });
+
+    $("#btnClose").click(function () {
+        $("#Module_" + cur_selection).parent('li').removeClass("active");
+        $("#subMenu_" + cur_selection).fadeOut('slow'); //addClass("menu-hide");
+        $("body").removeClass('ovr-hd');
+    });
+
+    $("#btnClear").click(function () {
+        $("#txtSearch").val("");
+        SearchMenu();
+    });
+
+    function SearchMenu() {
+        var input, filter, cls, li, a, i, div,cls;
+        input = document.getElementById("txtSearch");
+        filter = input.value.toUpperCase();
+        div = document.getElementById("mainDiv");
+        li = $('#mainDiv li');       
+        li.each(function () {            
+            a = $(this).html().toUpperCase();
+            if (a.indexOf(filter) > -1) {               
+                $(this).removeClass('menu-hide');
+                $(this).closest('.cls-clear').removeClass('menu-hide');
+            } else {
+                $(this).addClass('menu-hide');
+                $(this).closest('.cls-clear').addClass('menu-hide');              
+            }
+        });
+       
+        $('#mainDiv .cls-clear .sp-nav ul li').each(function () {
+            $(this).find('ul').each(function (j,eleUl) {
+                $(eleUl).find('li:not(.menu-hide)').each(function () {                  
+                    $(eleUl).closest('.cls-clear').removeClass('menu-hide');
+                    return false;
+                });
+            });
+        });     
+    }
+  
+
+    $("#btnBISClose").click(function () {
+        $("#Module_" + cur_selection).parent('li').removeClass("active");
+        $("#subMenu_" + cur_selection).fadeOut('slow'); //addClass("menu-hide");
+        $("body").removeClass('ovr-hd');
+    });
+
+    $("#btnBISClear").click(function () {
+        $("#txtBISSearch").val("");
+        LoadBISMenu();
+    });
+
+    LoadBISMenu();
+
+    function LoadBISMenu() {
+
+        var token = $("input[name=__RequestVerificationToken]").val();
+        var searchdata = { "__RequestVerificationToken": token };
+        var headers = {
+            contentType: 'application/x-www-form-urlencoded'
+        }
+        headers['__RequestVerificationToken'] = token;
+        searchdata.ReportId = -1;
+        var ReportName = $("#txtBISSearch").val() || "";
+        $.ajax({
+            url: '@Url.Action("getReportListByUser", "Reports")?ReportName=' + ReportName,
+            type: "GET",
+            headers: headers,
+            data: searchdata,
+            success: function (response) {
+
+                var data = response.result;
+                $("#reportMenu").html("");
+                if (data && data.length > 0) {
+
+                    $("#reportMenuList").empty();
+                    for (var menu = 0; menu < data.length; menu++) {
+                        var modulename = data[menu].ModuleName.replace(/ /g, '');
+                        var menuId = $('#' + modulename);
+                        if (menuId.length === 0) {
+                            $("#reportMenuList").append('<div class="col-md-3"><div class="sp-nav"><h4><i class="' + data[menu].ModuleIcon + '"></i>' + data[menu].ModuleName + '</h4><ul id="' + modulename + '"></ul></div></div>');
+                        }
+
+                    }
+                    for (var i = 0; i < data.length; i++) {
+                        var modulename = data[i].ModuleName.replace(/ /g, '');
+                        var MenuList = $('#' + modulename);
+                        if (MenuList.length > 0) {
+                            MenuList.append('<li><a href="@Url.Action("ReportViewer", "Reports")?ReportID=' + data[i].ReportID + '">' + data[i].ReportName + '</a></li>')
+                        }
+                        //$("#reportMenu").append('<li><a href="/Reports/ReportViewer?ReportID=' + data[i].ReportID+'">' + data[i].ReportName + '</a></li>')
+                    }
+                }
+                else {
+                    $("#reportMenuList").empty();
+                    $("#reportMenuList").append('<ul>No records found</ul>')
+                }
+            },
+            error: function (err) {
+                console.log(err);
+                alert(err);
+            }
+        });
+    }
+</script>
+
+

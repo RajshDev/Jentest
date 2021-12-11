@@ -1,0 +1,137 @@
+﻿@model IOAS.Models.ReceiptBreakupModel
+@{
+    ViewBag.Title = "Receipt Breakup";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+@using (Html.BeginForm("ReceiptBreakup", "CoreAccounts", FormMethod.Post, new { @class = "", role = "form", @id = "formRecBU", enctype = "multipart/form-data" }))
+{
+    <div class="row hd-tt-bg">
+        <div class="col-md-12">
+            <h4><b>Receipt Breakup</b> </h4>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="page-wrapper">
+            <div class="col-md-12 mt30">
+
+                <div class="col-md-12 col-sm-12 m-b-sm">
+                    <div class="row mb-lg">
+                        <div class="page-wrapper text-center">
+                            <div class="col-md-4 col-md-offset-4">
+                                <label>Receipt Number</label>
+                                @Html.TextBoxFor(m => m.ReceiptNumber, new { @class = "form-control" })
+                                @Html.TextBoxFor(m => m.ReceiptId, new { @class = "form-control dis-none" })
+                                @Html.ValidationMessageFor(m => m.ReceiptId)
+                                @Html.HiddenFor(m => m.ReceiptBreakupId)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="gridData" class="row">
+                    @Html.Partial("_ReceiptBreakup", Model)
+                </div>
+                <div class="text-center mt-lg mb-lg">
+                    <button type="button" id="btnSave" class="btn btn-primary">Submit</button>
+                    <button type="button" class="btn btn-default" onclick="window.location.href='@Url.Action("ReceiptBreakupList", "CoreAccounts" )';">Close</button>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+}
+<input type="hidden" id="currentRefId" value="@ViewBag.VwReceiptBreakupId" />
+<input type="hidden" id="processGuideLineId" value="@ViewBag.processGuideLineId" />
+@Html.Partial("_ProcessStatus")
+@Html.AntiForgeryToken()
+<script>
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    
+
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+        $('.ion-trash-a').removeClass();
+        $('#btnSave').hide();
+        $('.form-control,input[type="checkbox"]').prop('disabled', true);
+        $('input[type="file"],.divAddHead,.removeHeadBUDetail').hide();
+        $('#ProcessStatusContainer .form-control').prop('disabled', false);
+        $('.ion-android-close').removeClass();
+        applyAutoComplete($('#eceiptNumber'), $('#ReceiptId'), "@Url.Action("LoadReceiptListForBreakup", "CoreAccounts")", 'changeReceipt');
+    });
+    function changeReceipt() {
+        var token = $("input[name=__RequestVerificationToken]").val();
+        var receiptId = $('#ReceiptId').val();
+        var searchData = { "__RequestVerificationToken": token, "receiptId": receiptId };
+        $.ajax({
+            url: "@Url.Action("_ReceiptBreakup", "CoreAccounts")",
+            type: "POST",
+            data: searchData,
+            contentType: "application/x-www-form-urlencoded",
+            success: function (data) {
+                $('#gridData').html(data)
+            },
+            error: function (err) {
+                console.log("error : " + err);
+            }
+        });
+    }
+    $('#btnSave').click(function (e) {
+        //e.preventDefault();
+        var isValid = $('#formRecBU').valid();
+        if (!isValid)
+            return false;
+        var validationMsg = validateForm();
+        if (validationMsg == 'Valid')
+            $('#formRecBU').submit();
+        else
+        {
+            $('#alert').html(validationMsg);
+            $('#Validation').modal('toggle');
+            return false;
+        }
+    });
+    function validateForm() {
+        msg = 'Valid';
+        var ttlAmt = 0;
+        $('.divGroup').each(function (indx) {
+            var amt = parseFloat($(this).find('input[name="groups[' + indx + '].Amount"]').val() || 0);
+            ttlAmt = ttlAmt + amt;
+            if ($('input[name="groups[' + indx + '].BudgetHeadMapping_f"]').prop('checked')) {
+                var hdList = [];
+                $(this).find('.tbodyHeadBU').find('select[name$=".BudgetHeadId"]').each(function (idx, val) { hdList.push($(val).val()); });
+                hdList.sort();
+                // duplicate check
+                for (var k = 1; k < hdList.length; ++k) {
+                    if (hdList[k] == hdList[k - 1]) {
+                        msg = "Duplicate account head exist in expense details. Please select a different head.";
+                    }
+                }
+                var parseAmt = parseFloat(amt);
+                var parsebrkupAmt = parseFloat($(this).find('input[name="GroupBreakUpTtl"]').val());
+                if (parseAmt != parsebrkupAmt) {
+                    msg = "Not a valid entry. Budget group value and Budget head breakup value are not equal.";
+                }
+            }
+        });
+        var parseTtlAmt = parseFloat(ttlAmt);
+        var parseReceiptAmt = parseFloat($('#TaxableReceiptAmount').val());
+        if (parseTtlAmt != parseReceiptAmt) {
+            msg = "Not a valid entry. Budget group breakup value and receipt amount are not equal.";
+        }
+        return msg;
+    }
+</script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>

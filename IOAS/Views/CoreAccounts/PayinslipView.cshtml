@@ -1,0 +1,233 @@
+﻿@model IOAS.Models.CreateInvoiceModel
+@{
+    ViewBag.Title = "Pay in Slip";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+@using (Html.BeginForm("Payinslip", "Project", FormMethod.Post, new { @class = "", role = "form", @id = "formPI", enctype = "multipart/form-data" }))
+{
+    <div class="row hd-tt-bg">
+        <div class="col-md-4">
+            <h4 class="hd-tt-adj">Pay in Slip</h4>
+        </div>
+        <div class="col-md-8 flt-nav-links">
+
+        </div>
+    </div>
+
+
+    <div>
+        <div class="page-wrapper">
+
+            <div class="row">
+                <div class="col-md-8 vw-dts-bg">
+                    <table class="table table-bordered">
+                        <tbody>
+                            <tr>
+                                <td>Project Number</td>
+                                <td>@Html.DisplayFor(m => m.ProjectNumber, new { @class = "form-control", @id = "txtprojectnumber" })</td>
+                                @Html.Hidden("InvoiceId")
+                                @Html.Hidden("ProjectID")
+                                @Html.Hidden("PIId")
+                                @Html.Hidden("PayinslipId")
+                                @Html.Hidden("InvoiceNumber")
+                            </tr>
+                            <tr>
+                                <td>Invoice No</td>
+                                <td>@Html.DisplayFor(m => m.InvoiceNumber, new { @class = "form-control", @id = "txtinvnumber" })</td>
+                            </tr>
+                            <tr>
+                                <td>PI Name</td>
+                                <td>@Html.DisplayFor(m => m.NameofPI, new { @class = "form-control", @id = "txtpiname" })</td>
+                            </tr>
+                            <tr>
+                                <td>Invoice Date</td>
+                                <td>@Html.DisplayFor(m => m.Invoicedatestrng, new { @class = "form-control", @id = "txtinvoicedate" })</td>
+                            </tr>
+                            <tr>
+                                <td>Name of Client</td>
+                                <td>@Html.DisplayFor(m => m.SponsoringAgencyName, new { @class = "form-control", @id = "txtclientname" })</td>
+                            </tr>
+                            <tr>
+                                <td>Address of Client</td>
+                                <td>@Html.DisplayFor(m => m.CommunicationAddress, new { @class = "form-control", @id = "txtclientaddress" })</td>
+                            </tr>
+                            <tr>
+                                <td>District</td>
+                                <td>@Html.DisplayFor(m => m.Agencydistrict, new { @class = "form-control", @id = "txtagencydistrict" })</td>
+                            </tr>
+                            <tr>
+                                <td>State</td>
+                                <td>@Html.DisplayFor(m => m.Agencystate, new { @class = "form-control", @id = "txtagencystate" })</td>
+                            </tr>
+                            <tr>
+                                <td>GSTIN of Client</td>
+                                <td>@Html.DisplayFor(m => m.GSTNumber, new { @class = "form-control", @id = "txtagencygstin" })</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="col-md-4 vw-dts-bg">
+
+                    <div class="reg-no">
+                        <div class="form-group custom-form-group">
+                            <label>Req No</label> <br>
+                            @Html.TextBoxFor(m => m.PaySlipReferenceNumber, new { @class = "form-control", @id = "txtPaySlipReference" })
+                        </div>
+                    </div>
+
+                    <table class="table table-bordered">
+                        <tbody>
+                            <tr>
+                                <td>Taxable Value</td>
+                                <td>@Html.DisplayFor(m => m.TaxableValue, new { @class = "form-control", @id = "txttaxablevalue" })</td>
+                            </tr>
+                            <tr>
+                                <td>CGST (@Html.DisplayFor(m => m.CGSTRate, new { @class = "form-control", @id = "txtcgstrate" })%)</td>
+                                <td>@Html.DisplayFor(m => m.CGST, new { @class = "form-control", @id = "txtcgst" })</td>
+                            </tr>
+                            <tr>
+                                <td>SGST (@Html.DisplayFor(m => m.SGSTRate, new { @class = "form-control", @id = "txtsgstrate" })%)</td>
+                                <td>@Html.DisplayFor(m => m.SGST, new { @class = "form-control", @id = "txtsgst" })</td>
+                            </tr>
+                            <tr>
+                                <td>IGST (@Html.DisplayFor(m => m.IGSTRate, new { @class = "form-control", @id = "txtigstrate" })%)</td>
+                                <td>@Html.DisplayFor(m => m.IGST, new { @class = "form-control", @id = "txtigst" })</td>
+                            </tr>
+                            <tr>
+                                <td>Total Invoice Value</td>
+                                <td>@Html.DisplayFor(m => m.TotalInvoiceValue, new { @class = "form-control", @id = "txttotalinvoicevalue" })</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="bl-lg-panel-box pb-null">
+                        <div class="cmn-panel-box">
+                            <div class="row">
+                                <div class="col-md-12">
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="form-group custom-form-group">
+                                                        <label>Amount Received</label>
+                                                        @Html.TextBoxFor(m => m.AmountReceived, new { @class = "form-control", @id = "txtAmountReceived", @onkeypress = "return ValidateDecimalOnly(event)" })
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group custom-form-group">
+                                                        <label>TDS Received</label>
+                                                        @Html.TextBoxFor(m => m.TDSReceived, new { @class = "form-control", @id = "txtTDSReceived", @onkeypress = "return ValidateDecimalOnly(event)" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="grey-bg-adj">
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group custom-form-group">
+                                                            <label>TDS Receivable (GST)</label>
+                                                            @Html.TextBoxFor(m => m.TDSReceivableGST, new { @class = "form-control", @id = "txtTDSReceivableGST", @onkeypress = "return ValidateDecimalOnly(event)" })
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group custom-form-group">
+                                                            <label>Mode of Payment</label>
+                                                            @Html.TextBoxFor(m => m.ModeofPayment, new { @class = "form-control", @id = "txtModeofPAyment" })
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="col-md-12">
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="form-group custom-form-group">
+                                                        <label>Reference Number</label>
+                                                        @Html.TextBoxFor(m => m.ReceiptReference, new { @class = "form-control", @id = "txtReceiptReference" })
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group custom-form-group">
+                                                        <label>Instruments Date</label>
+                                                        @Html.TextBoxFor(m => m.InstrumentsDate, new { @class = "form-control", @id = "txtInstrumentsDate" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="grey-bg-adj">
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group custom-form-group">
+                                                            <label>Remarks / Name of the Test</label>
+                                                            @Html.TextBoxFor(m => m.InstrumentsRemarks, new { @class = "form-control", @id = "txtInstrumentRemarks" })
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group custom-form-group">
+                                                            <label>Outstanding</label>
+                                                            @Html.TextBoxFor(m => m.OutstandingAmount, new { @class = "form-control", @id = "txtOutstandingReceived", @onkeypress = "return ValidateDecimalOnly(event)" })
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="grey-bg-adj">
+                                                <div class="row">
+
+                                                    <div class="col-md-6">
+                                                        <div class="form-group custom-form-group">
+                                                            @*<input type="submit" value="Submit" class="btn btn-primary mt30">*@
+                                                            <a href="@Url.Action("PayinslipList")"  class="btn btn-primary mt30">Close</a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+}
+
+<script>
+    var dis = '@ViewBag.disabled';
+    if (dis != "") {
+        $('.form-control').prop('disabled', true);
+        $('.ion-trash-a').removeClass();
+        $("input[type='radio']").prop('disabled', true);
+        $('#btnReset,#btnupdate,#btnSave').hide();
+        $('input[type="checkbox"]').prop('disabled', true);
+        $('input[type="file"],#btnAddAttachment').hide();
+        $('#ProcessStatusContainer .form-control').prop('disabled', false);
+        $('#btnAddExpense').hide();
+        $('.btn-circle').removeClass();
+        $('.ion-close-round').removeClass();
+    }
+    
+</script>

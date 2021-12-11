@@ -1,0 +1,106 @@
+﻿@model IOAS.Models.HeadCenterLabModel
+@{
+    ViewBag.Title = "HeadCenterLab";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<div class="row hd-tt-bg">
+    <div class="col-md-4 pull-left">
+        <h3>Create Center / Lab</h3>
+    </div>
+</div>
+@using (Html.BeginForm("HeadCenterLab", "Project", FormMethod.Post, new { @class = "", role = "form", @id = "formCL", enctype = "multipart/form-data" }))
+
+{
+<div class="page-wrapper">
+    <div class="white-bg">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="col-md-4">
+                    <div class="form-group custom-form-group">
+                        <label class="required">Faculty code</label>
+                        @Html.DropDownListFor(m => m.FacultyCode, new SelectList(ViewBag.FacultyCodeList, "id", "name"), "Select any", new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.FacultyCode)
+                        @Html.Hidden("HeadId")
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group custom-form-group">
+                        <label class="required">Center Name / Lab Name</label>
+                       @Html.TextBoxFor(m => m.HeadName, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.HeadName)
+                    </div>
+                </div>
+                <div class="col-md-4 dis-none" id="divCode">
+                    <div class="form-group custom-form-group">
+                        <label class="required">Center Code</label>
+                        @Html.TextBoxFor(m => m.Code, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.Code)
+                    </div>
+                </div>
+                <div class="col-md-4 dis-none" id="divLabCode">
+                    <div class="form-group custom-form-group">
+                        <label class="required">Lab Code</label>
+                        @Html.TextBoxFor(m => m.LabCode, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.LabCode)
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12 text-center pd-tb-30">
+        <input type="submit" class="btn btn-primary mr10" value="Submit" name="Button" id="btnClSave" />
+        <button type="button" class="btn btn-default" onclick="window.location.href='@Url.Action("HeadCenterLabList", "Project")';">Close</button>
+    </div>
+</div>
+}
+<script>
+    var errMsg = '@ViewBag.errMsg';
+    var succMsg = '@ViewBag.succMsg';
+
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+    });
+    $(document).ready(function () {
+        GetLabCodeChange();
+    });
+    $("#FacultyCode").change(function () {
+        var selVal = $(this).val();
+        $('#divCode,#divLabCode').addClass('dis-none');
+        if (selVal == "2") {
+            $('#divCode').removeClass('dis-none');
+        }
+        else if (selVal == "4") {
+            $('#divLabCode').removeClass('dis-none');
+        }
+        else if (selVal == "5") {
+            $('#divCode').removeClass('dis-none');
+        }
+    });
+    function GetLabCodeChange()
+    {
+        var selVal = $("#FacultyCode").val();
+        $('#divCode,#divLabCode').addClass('dis-none');
+        if (selVal == "2") {
+            $('#divCode').removeClass('dis-none');
+        }
+        else if (selVal == "4") {
+            $('#divLabCode').removeClass('dis-none');
+        }
+        else if (selVal == "5") {
+            $('#divCode').removeClass('dis-none');
+        }
+    }
+</script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>

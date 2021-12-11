@@ -1,0 +1,190 @@
+﻿
+@model IEnumerable<IOAS.Models.VendorInvoiceBreakUpDetailModel>
+<div>
+    <h3>Invoice Details</h3>
+    <table class="table table-bordered mb-null">
+        <thead>
+            <tr>
+                <td>Invoice Number </td>
+                <td>Invoice Date</td>
+                <td>Amount</td>
+                <td>Tax %</td>
+                <td>Tax Amount</td>
+                <td>Tax Eligible</td>
+            </tr>
+        </thead>
+        <tbody id="tbodyInvoiceBU">
+            @if (Model.Count() > 0)
+                {
+                    var count = 0;
+                    foreach (var item in Model)
+                    {
+                        var invoicenumber = "InvoiceBreakDetail[" + count + "].InvoiceNumber";
+                        var invoicedate = "InvoiceBreakDetail[" + count + "].InvoiceDate";
+                        var amount = "InvoiceBreakDetail[" + count + "].Amount";
+                        var taxpercent = "InvoiceBreakDetail[" + count + "].TaxablePercentage";
+                        var taxvalue = "InvoiceBreakDetail[" + count + "].TaxValue";
+                        var taxEligible = "InvoiceBreakDetail[" + count + "].IsTaxEligible";
+                    <tr id="trdetails" class="p-b-sm">
+                        <td>
+                            <h4>@item.InvoiceNumber</h4>
+                            @Html.Hidden("InvoiceBreakDetail.Index", @count)
+                        </td>
+                        <td>
+                            <h4>@item.InvoiceDateView</h4>
+                        </td>
+                        <td>
+                            <h4>@item.Amount</h4>
+                            @Html.Hidden(@amount,item.Amount)
+                        </td>
+                        <td>
+                            <h4>@item.TaxablePercentage</h4>
+                        </td>
+                        <td>
+                            <h4>@item.TaxValue</h4>
+
+                        </td>
+                        <td>
+                            @Html.CheckBox(@taxEligible, item.IsTaxEligible,new {@disabled="disabled",@class="dis-none" })
+                            @if(item.IsTaxEligible==true)
+                            {
+                                <h4>Yes</h4>
+                            }
+                            else
+                            {
+                                <h4>No</h4>
+                            }
+                        </td>
+
+                    </tr>
+
+                    count++;
+                   
+                            }
+
+                        }
+                        else
+                        {
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+
+
+                </tr>
+
+                }
+            <tr>
+                <td colspan="4"></td>
+                <td class="reg-no">
+                    <label class="lblval">Total Tax Amount</label>
+                  <h4 class="tatval">@ViewBag.invoiceTaxAmt</h4>
+                    @Html.TextBox("InvoiceTaxAmount", (string)ViewBag.invoiceTaxAmt, new { @class = "form-control dis-none",@id="InvoiceTaxAmount" })
+                </td>
+                <td class="reg-no">
+                    <label class="lblval">Total Invoice Amount</label>
+                   <h4 id="lblInvAmt"class="tatval"></h4>
+                    @Html.TextBox("InvoiceAmount", "", new { @class = "form-control dis-none", @readonly = true })
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+   
+
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        //var currentRefId = parseInt($('#currentRefId').val()) || 0;
+        //if (currentRefId == 0) {
+        //    calculateAmount();
+        //} else {
+            calculateAmountViewMode();
+        //}
+    });
+    function calculateAmountViewMode() {
+        var totalamount = 0;
+        var totaltax = 0;
+        var eligibletaxtotal = 0;
+        $('#tbodyInvoiceBU tr').each(function (idx, val) {
+            var amount = parseFloat($(this).find('input[name$=".Amount"]').val()) || 0;
+            var taxamount = parseFloat($(this).find('input[name$=".TaxValue"]').val()) || 0;
+            var isEle = $(this).find('input[name$=".IsTaxEligible"]');
+            if (isEle.prop("checked") == true)
+                eligibletaxtotal = eligibletaxtotal + taxamount;
+            totaltax += taxamount;
+            totalamount += amount;
+        });
+        $("#lblInvAmt").text(totalamount.toFixed(2));
+        $("#InvoiceAmount").val(totalamount.toFixed(2));
+        //$("#InvoiceTaxAmount").val(totaltax.toFixed(2));
+        $("#InvoiceTaxEligibleAmount").val(eligibletaxtotal.toFixed(2));
+        CalculatePOValue();
+    }
+    $('input[name$=".InvoiceDate"]').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
+    $(document).on('click', 'a.removeInvoiceBUDetail', function () {
+        if ($('#tbodyInvoiceBU tr').length != 1) {
+            $(this).closest('tr').remove();
+            calculateAmount();
+        }
+    });
+    $(document).on('click',"#btnAddInvoiceBU", function (){
+        var cln = $('#tbodyInvoiceBU tr:first').clone().find("select,input[type!='checkbox'],textarea").val("").end();
+        var index = $('#tbodyInvoiceBU tr:last').find("input[name='InvoiceBreakDetail.Index']").val();
+        index = parseInt(index) + 1;
+        $(cln).find("input[name='InvoiceBreakDetail.Index']").val(index);
+        $(cln).find('input[type="hidden"][name$=".IsTaxEligible"]').val('false');
+        $(cln).find('input[name$=".IsTaxEligible"]').prop('checked', false);
+        $(cln).find("input, select,textarea").each(function () {
+            $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+            if($(this).attr("id"))
+             $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+        });
+
+        $(cln).find("span[data-valmsg-for]").each(function () {
+            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+        });
+        $('#tbodyInvoiceBU').append(cln);
+        $(cln).find('.hasDatepicker').attr("id", "").removeClass('hasDatepicker').removeData('datepicker').unbind().datepicker({
+            maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true
+        });
+    });
+
+    $(document).on('blur', 'input[name$=".Amount"],select[name$=".TaxablePercentage"],input[name$=".IsTaxEligible"]', function () {
+        calculateAmount();
+    });
+    $(document).on('blur', '#InvoiceTaxAmount', function () {
+        CalculatePOValue();
+    });
+    function calculateAmount() {
+        var totalamount = 0;
+        var totaltax = 0;
+        var eligibletaxtotal = 0;
+        $('#tbodyInvoiceBU tr').each(function (idx, val) {
+            var amount = parseFloat($(this).find('input[name$=".Amount"]').val()) || 0;
+            var taxpercent = parseFloat($(this).find('select[name$=".TaxablePercentage"]').val()) || 0;
+            var taxamount = parseFloat((amount * taxpercent) / 100) || 0;
+            $(this).find('input[name$=".TaxValue"]').val(taxamount);
+            var isEle = $(this).find('input[name$=".IsTaxEligible"]');
+            if (isEle.prop("checked") == true)
+                eligibletaxtotal = eligibletaxtotal + taxamount;
+            totaltax += taxamount;
+            totalamount += amount;
+        });
+        $("#InvoiceAmount").val(totalamount.toFixed(2));
+        $("#InvoiceTaxAmount").val(totaltax.toFixed(2));
+        $("#InvoiceTaxEligibleAmount").val(eligibletaxtotal.toFixed(2));
+        CalculatePOValue();
+    }
+    function EmptyInvoiceBU() {
+        $('#tbodyInvoiceBU tr').not(':first').remove();
+        $('#tbodyInvoiceBU tr').find("input[name!='InvoiceBreakDetail.Index'],select").val("");
+        $('#tbodyInvoiceBU tr').find('input[type="hidden"][name$=".IsTaxEligible"]').val('false');
+        $('#tbodyInvoiceBU tr').find('input[name$=".IsTaxEligible"]').prop('checked', false);
+    }
+</script>
+

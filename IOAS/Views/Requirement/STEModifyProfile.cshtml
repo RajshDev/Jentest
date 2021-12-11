@@ -1,0 +1,1721 @@
+﻿@model IOAS.Models.STEModel
+@{
+    ViewBag.Title = "Short Term Engagement";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+    <link href="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/css/bootstrap-select.min.css")" rel="stylesheet" />
+    var doccount = 0;
+}
+<style>
+    .rc-tb-scrl {
+        width: 100%;
+        overflow: auto;
+    }
+
+    .file-wd {
+        width: 275px;
+    }
+
+    .rc-tb-scrl table {
+        max-width: 2100px !important;
+        width: 2000px;
+    }
+</style>
+@using (Html.BeginForm("STEModifyProfile", "Requirement", FormMethod.Post, new { @class = "", role = "form", @id = "formSubmit", enctype = "multipart/form-data" }))
+{
+    <div class="row hd-tt-bg">
+        <div class="col-md-12">
+            <h4><b>Modify Profile</b></h4>
+        </div>
+    </div>
+    <div class="row cts-mn-dts" id="tab-01">
+        <div class="page-wrapper mt30">
+            <div>
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="bl-lg-panel-box pb-null">
+                                <div class="cmn-panel-box">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label>Candidate Photo:</label> <br>
+                                                @if (Model.STEId > 0 && !string.IsNullOrEmpty(Model.PersonImagePath))
+                                                {
+                                                    <img id="displayImg" src="@Url.Action("ShowDocument", "Account", new { file = Model.PersonImagePath, filepath = "RCTEmployeeImages" })"  width="30px" height="30px"><br>                                                   
+                                                    <input class="file-wd" type="file" name="PersonImage" onchange="readURL(this);">
+                                                }
+                                                else
+                                                {
+                                                    <img id="displayImg" src="~/Content/IOASContent/img/Image_placeholder.png" width="30px" height="30px"><br>
+                                                    <input class="file-wd" type="file" name="PersonImage" onchange="readURL(this);">
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label>Candidate Signature:</label> <br>
+                                                @if (Model.STEId > 0 && !string.IsNullOrEmpty(Model.CantidateSignatureFilePath))
+                                                {
+                                                    <img id="displaySignature" src="@Url.Action("ShowDocument", "Account", new { file = Model.CantidateSignatureFilePath, filepath = "Requirement" })"  width="30px" height="30px"><br>
+                                                    <input class="file-wd" type="file" name="CantidateSignature" onchange="readSignURL(this);">
+                                                }
+                                                else
+                                                {
+                                                    <img id="displaySignature" src="~/Content/IOASContent/img/Image_placeholder.png" width="30px" height="30px"><br>
+                                                    <input class="file-wd" type="file" name="CantidateSignature" onchange="readSignURL(this);">
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label>Employee Id: </label>
+                                                @Html.HiddenFor(m => m.ProjectId)
+                                                @Html.HiddenFor(m => m.STEId)
+                                                @Html.HiddenFor(m => m.Status)
+                                                @Html.HiddenFor(m => m.strDateofBirth)
+                                                @Html.HiddenFor(m => m.ApplicationNo)
+                                                <h4>@Model.EmployeeId</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label>Name </label>
+                                                @*@if (Model.ProfessionalId == 3)
+                                                    {*@
+                                                @Html.DropDownListFor(m => m.ProfessionalId, new SelectList(ViewBag.Professional, "id", "name", Model.ProfessionalId), "Select")
+                                                <div>@Html.ValidationMessageFor(m => m.ProfessionalId)</div>
+                                                @*}
+                                                    else
+                                                    {
+                                                        @Html.DisplayFor(m => m.Professional)
+                                                        @Html.HiddenFor(m => m.Professional)
+                                                    }*@
+                                                @Html.TextBoxFor(m => m.Name, new { @class = "form-control" })
+                                                <div>@Html.ValidationMessageFor(m => m.Name)</div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group mb-sm ">
+                                                <label class="required">Father’s / Husband’s Name</label>
+                                                @Html.TextBoxFor(m => m.Nameoftheguardian, new { @class = "form-control" })
+                                                <div>@Html.ValidationMessageFor(m => m.Nameoftheguardian)</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group ">
+                                                <label>Aadhaar Number :</label>
+                                                <br>
+                                                @if (Model.aadharnumber > 0 && Model.aadharnumber != null)
+                                                {
+                                                    @Html.DisplayFor(m => m.aadharnumber)
+                                                    @Html.HiddenFor(m => m.aadharnumber)
+                                                }
+                                                else
+                                                {
+                                                    @Html.TextBoxFor(m => m.aadharnumber, new { @class = "form-control" })
+                                                    <div>@Html.ValidationMessageFor(m => m.aadharnumber)</div>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group mb-sm ">
+                                                <label>PAN No </label><br>
+                                                @if (Model.PAN != "" && Model.PAN != null)
+                                                {
+                                                    @Html.DisplayFor(m => m.PAN)
+                                                    @Html.HiddenFor(m => m.PAN)
+                                                }
+                                                else
+                                                {
+                                                    @Html.TextBoxFor(m => m.PAN, new { @class = "form-control" })
+                                                    <div>@Html.ValidationMessageFor(m => m.PAN)</div>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group mb-sm ">
+                                                <label class="required">Contact No</label>
+                                                @Html.TextBoxFor(m => m.ContactNumber, new { @class = "form-control  required" })
+                                                <div>@Html.ValidationMessageFor(m => m.ContactNumber)</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group mb-sm ">
+                                                <label>Emergency Contact No </label>
+                                                @Html.TextBoxFor(m => m.EmergencyContactNo, new { @class = "form-control required" })
+                                                <div>@Html.ValidationMessageFor(m => m.EmergencyContactNo)</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group  ">
+                                                <label class="required">Email ID</label>
+                                                @Html.TextBoxFor(m => m.Email, new { @class = "form-control  required" })
+                                                <div>@Html.ValidationMessageFor(m => m.Email)</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label class="required">Present Address </label>
+                                                @Html.TextAreaFor(m => m.PresentAddress, new { @class = "form-control required" })
+                                                <div>@Html.ValidationMessageFor(m => m.PresentAddress)</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group  ">
+                                                <label>
+                                                    @Html.CheckBoxFor(m => m.isSameasPermanentAddress) same as present address<br>Permanent Address
+                                                </label> <br>
+                                                @Html.TextAreaFor(m => m.PermanentAddress, new { @class = "form-control" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group ">
+                                                <label>Physically Challenged</label>
+                                                @if (Model.STEId > 0)
+                                                {
+                                                    @Html.DropDownListFor(m => m.PhysicallyChallenged, new SelectList(ViewBag.YesNo, "id", "name", Model.PhysicallyChallenged), "Select", new { @class = "form-control", @id = "PhysicallyChallenged", @data_val = "false" })
+                                                }
+                                                else
+                                                {
+                                                    @Html.DropDownListFor(m => m.PhysicallyChallenged, new SelectList(ViewBag.YesNo, "id", "name"), "Select", new { @class = "form-control", @id = "PhysicallyChallenged", @data_val = "false" })
+                                                }
+                                                <div>@Html.ValidationMessageFor(m => m.PhysicallyChallenged)</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label>Bank Account No </label>
+                                                @Html.TextBoxFor(m => m.BankAccountNo, new { @class = "form-control  required", @onkeypress = "return isOnlyNumericKey(event)" })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label>Bank Name </label>
+                                                @Html.TextBoxFor(m => m.BankName, new { @class = "form-control required", @onpaste = "return false", @onblur = "changeBankName()" })
+                                                @Html.Hidden("BankId")
+                                                <div>@Html.ValidationMessageFor(m => m.BankName)</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label>IFSC </label>
+                                                @Html.TextBoxFor(m => m.IFSCCode, new { @class = "form-control required" })
+                                                <div>@Html.ValidationMessageFor(m => m.IFSCCode)</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row ">
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group ">
+                                                <label>Staff Category</label>
+                                                <br>
+                                                @Html.DisplayFor(m => m.StaffCategory)
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group ">
+                                                <label>IITM Pensioner / CSIR Staff :</label>
+                                                @Html.DropDownListFor(m => m.IITMPensionerCSIRStaff, new SelectList(ViewBag.IITMPensionerOrCSIRStaff, "id", "name", Model.IITMPensionerCSIRStaff), "Select", new { @class = "form-control required" })
+                                                <div>@Html.ValidationMessageFor(m => m.IITMPensionerCSIRStaff)</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 dis-none" id="divPensionerNo">
+                                            <div class="form-group custom-form-group">
+                                                <label>PPO No :</label>
+                                                @Html.TextBoxFor(m => m.PPONo, new { @class = "form-control" })
+                                                <div>@Html.ValidationMessageFor(m => m.PPONo)</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 dis-none" id="divCSIRStaff">
+                                            <div class="form-group custom-form-group">
+                                                <label>CSIR staff</label>
+                                                @if (Model.STEId > 0)
+                                                {
+                                                    @Html.DropDownListFor(m => m.CSIRStaff, new SelectList(ViewBag.CSIRStaffPayMode, "id", "name", Model.CSIRStaff), "Select", new { @data_val = "false", @class = "form-control" })
+                                                }
+                                                else
+                                                {
+                                                    @Html.DropDownListFor(m => m.CSIRStaff, new SelectList(ViewBag.CSIRStaffPayMode, "id", "name"), "Select", new { @data_val = "false", @class = "form-control" })
+                                                }
+                                                <div>@Html.ValidationMessageFor(m => m.CSIRStaff)</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="col-md-6">
+                                                <div class="form-group custom-form-group ">
+                                                    <label>MS/Ph.d</label>
+                                                    @Html.DropDownListFor(m => m.MsPhdType, new SelectList(ViewBag.MsPhd, "id", "name"), "Select", new { @class = "form-control" })
+                                                    <div>@Html.ValidationMessageFor(m => m.MsPhdType)</div>
+                                                    @Html.HiddenFor(m => m.MsPhdTypeValid)
+                                                    @*<h4>@Html.CheckBoxFor(m => m.MsPhd, new { @id = "IsMsPhd" }) </h4>*@
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 dis-none" id="phdDetails">
+                                                <div class="form-group custom-form-group ">
+                                                    <label>Roll Number</label>
+                                                    @Html.TextBoxFor(m => m.PhdDetail, new { @class = "form-control" })
+                                                    <div>@Html.ValidationMessageFor(m => m.PhdDetail)</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group ">
+                                                <label>To Mail</label>
+                                                @Html.TextBoxFor(m => m.ToMail, new { @class = "form-control required" })
+                                                <div>@Html.ValidationMessageFor(m => m.ToMail)</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group ">
+                                                <label>CC Mail</label>
+                                                @Html.TextBoxFor(m => m.bcc, new { @class = "form-control", @placeholder = "Separate emails by comma" })
+                                                <div>@Html.ValidationMessageFor(m => m.bcc)</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label class="">Employee Workplace</label>
+                                                @Html.TextBoxFor(m => m.EmployeeWorkplace, new { @class = "form-control", @placeholder = "Employee Workplace" })
+                                                <div>@Html.ValidationMessageFor(m => m.EmployeeWorkplace)</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label class="required">Request received from PI</label>
+                                                @Html.TextBoxFor(m => m.AutoFillRequstedbyPI, new { @class = "form-control" })
+                                                @Html.HiddenFor(m => m.RequestedByPI)
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="bl-lg-panel-box pb-null">
+                                <div class="cmn-panel-box">
+                                    <div class="grey-bg-adj">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <h4>Education Details:</h4>
+                                                <div class="rc-tb-scrl">
+                                                    <table class="table alter-table mb-null">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>QUALIFICATION</th>
+                                                                <th>COURSE</th>
+                                                                <th>DISCIPILINE</th>
+                                                                <th>UNIVERSITY / INSTITUTION </th>
+                                                                <th>YEAR OF PASSING</th>
+                                                                <th>MARK TYPE</th>
+                                                                <th>MARKS/CGPA</th>
+                                                                <th>Attachment File</th>
+                                                                <th>Upload File</th>
+                                                                <th>Remarks</th>
+                                                                <th></th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="tbodyEducation">
+                                                            @if (Model.EducationDetail != null)
+                                                            {
+                                                                var count = 0;
+                                                                foreach (var item in Model.EducationDetail)
+                                                                {
+                                                                    var eduId = "EducationDetail[" + count + "].EducationId";
+                                                                    var edu = "EducationDetail[" + count + "].Education";
+                                                                    var qullfi = "EducationDetail[" + count + "].QualificationId";
+                                                                    var decpid = "EducationDetail[" + count + "].DisciplineId";
+                                                                    var instu = "EducationDetail[" + count + "].Institution";
+                                                                    var yearpass = "EducationDetail[" + count + "].YearofPassing";
+                                                                    var MarkType = "EducationDetail[" + count + "].MarkType";
+                                                                    var marks = "EducationDetail[" + count + "].Marks";
+                                                                    var devob = "EducationDetail[" + count + "].DivisionClassObtained";
+                                                                    var cetrifid = "EducationDetail[" + count + "].CertificateId";
+                                                                    var cerfile = "EducationDetail[" + count + "].Certificate";
+                                                                    var remark = "EducationDetail[" + count + "].Remarks";
+                                                                    var verify = "EducationDetail[" + count + "].Verify";
+                                                                    var qulfiappId = "qulfiAPP_" + count;
+                                                                    <tr>
+                                                                        <td>
+                                                                            @*<span class="spn-rv">@Model.EducationDetail[count].Education</span>*@
+                                                                            @Html.DropDownList(@qullfi, new SelectList(ViewBag.Qualification, "id", "name", item.QualificationId), "Select Qualification",
+                                                                            new { @class = "form-control", @id = @qulfiappId })
+                                                                            @Html.ValidationMessage(@qullfi)
+                                                                            @Html.Hidden("EducationDetail.Index", @count)
+                                                                            @Html.Hidden(@eduId, item.EducationId)
+                                                                        </td>
+                                                                        <td>
+                                                                            @*<span class="spn-rv">@Model.EducationDetail[count].Discipline</span>*@
+                                                                            @Html.DropDownList(@decpid, new SelectList(item.DisiplineList, "id", "name", item.DisciplineId), "Select Course",
+                                                                             new { @class = "form-control", @id = "decpAPP_" + @count, @title = "Select any" })
+                                                                            @Html.ValidationMessage(@decpid)
+                                                                        </td>
+
+                                                                        <td>
+                                                                            @*<span class="spn-rv">@Model.EducationDetail[count].DivisionClassObtained</span>*@
+                                                                            @Html.TextBox(@devob, item.DivisionClassObtained, new { @class = "form-control" })
+                                                                            @Html.ValidationMessage(@devob)
+                                                                        </td>
+                                                                        <td>
+                                                                            @*<span class="spn-rv">@Model.EducationDetail[count].Institution</span>*@
+                                                                            @Html.TextBox(@instu, item.Institution, new { @class = "form-control" })
+                                                                            @Html.ValidationMessage(@instu)
+                                                                        </td>
+                                                                        <td>
+                                                                            @*<span class="spn-rv">@Model.EducationDetail[count].YearofPassing</span>*@
+                                                                            @Html.DropDownList(@yearpass, new SelectList(ViewBag.Years, "id", "name", item.YearofPassing), "Select year", new { @class = "form-control" })
+                                                                            @Html.ValidationMessage(@yearpass)
+                                                                        </td>
+                                                                        <td>
+                                                                            @*<span class="spn-rv">@Model.EducationDetail[count].strMarkType</span>*@
+                                                                            @Html.DropDownList(@MarkType, new SelectList(ViewBag.MarkType, "id", "name", item.MarkType), "Select MarkType", new { @class = "form-control" })
+                                                                            @Html.ValidationMessageFor(m => m.EducationDetail[count].MarkType)
+                                                                        </td>
+                                                                        <td>
+                                                                            @*<span class="spn-rv">@Model.EducationDetail[count].Marks</span>*@
+                                                                            @Html.TextBox(@marks, item.Marks, "", new { @id = "ddlMarks_" + count, @class = "form-control", @onkeypress = "return isNumberKey(event)", @placeholder = "CGPA / Marks" })
+                                                                            @Html.ValidationMessage(@marks)
+                                                                        </td>
+
+                                                                        <td>
+                                                                            @if (Model.STEId > 0 && !string.IsNullOrEmpty(item.CertificatePath))
+                                                                            {
+                                                                                @Html.ActionLink(item.CertificateName, "ShowDocument", new { Controller = "Account", filepath = "Requirement", file = item.CertificatePath }, new { @name = "DocDownload", @target = "_blank" })
+                                                                            }
+                                                                        </td>
+                                                                        <td>
+                                                                            @if (item.EducationId == null)
+                                                                            {
+                                                                                <input type="file" class="required" name="@cerfile" />@:&nbsp; &nbsp; &nbsp;
+                                                                             }
+                                                                            else
+                                                                            {
+                                                                                <input type="file" class="" name="@cerfile" />@:&nbsp; &nbsp; &nbsp;
+                                                                             }
+                                                                            @Html.ValidationMessage(@cerfile)
+                                                                        </td>
+                                                                        <td>
+                                                                            @*<span class="spn-rv">@Model.EducationDetail[count].Remarks</span>*@
+                                                                            @Html.TextBox(@remark, item.Remarks, new { @class = "form-control" })
+                                                                            @Html.ValidationMessage(@remark)
+                                                                        </td>
+                                                                        <td>
+                                                                            <a href="javascript:void(0)" class="btn-sm btn btn-danger dis-none removeEducationDetail"><i class="ion-android-close"></i></a>
+                                                                        </td>
+                                                                    </tr>
+                                                                    count++;
+                                                                }
+                                                                <tr id="ScoreDetails">
+                                                                    <td colspan="7">
+                                                                        Having Valid Gate Score:
+                                                                        @if (Model != null && !String.IsNullOrWhiteSpace(Model.isHaveGateScore) && Model.isHaveGateScore == "No")
+                                                                        {
+                                                                            @Html.RadioButtonFor(M => M.isHaveGateScore, "Yes", new { @id = "isYesGateScore" })@:&nbsp;<label>Yes</label>
+                                                                            @Html.RadioButtonFor(M => M.isHaveGateScore, "No", new { @id = "isNoGateScore", @checked = "checked" })@:&nbsp;<label>No</label>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            @Html.RadioButtonFor(M => M.isHaveGateScore, "Yes", new { @id = "isYesGateScore", @checked = "checked" })@:&nbsp;<label>Yes</label>
+                                                                            @Html.RadioButtonFor(M => M.isHaveGateScore, "No", new { @id = "isNoGateScore" })@:&nbsp;<label>No</label>
+                                                                         }
+                                                                    </td>
+                                                                    <td colspan="2" id="divPHDDetail" class="dis-none">
+                                                                        @Html.TextBoxFor(M => M.GateScore, new { @class = "form-control", @id = "Score", @onkeypress = "return isNumberKey(event)", @placeholder = "00.00" })
+                                                                        @Html.ValidationMessageFor(M => M.GateScore)
+                                                                    </td>
+                                                                    <td></td>
+                                                                </tr>
+                                                            }
+                                                            else
+                                                            {
+                                                                var cerfile = "EducationDetail[0].Certificate";
+                                                                <tr>
+                                                                    <td>
+                                                                        @Html.DropDownListFor(m=>m.EducationDetail[0].QualificationId, new SelectList(ViewBag.Qualification, "id", "name"), "Select Qualification",
+                                                                            new { @class = "form-control", @id = "qulfiAPP_0" })
+                                                                        @Html.ValidationMessageFor(m=>m.EducationDetail[0].QualificationId)
+                                                                        @Html.Hidden("EducationDetail.Index", 0)
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.DropDownListFor(m=>m.EducationDetail[0].DisciplineId, new SelectList(ViewBag.List, "id", "name"), "Select Course",
+                                                                             new { @class = "form-control", @id = "decpAPP_0", @title = "Select any" })
+                                                                        @Html.ValidationMessageFor(m => m.EducationDetail[0].DisciplineId)
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.TextBoxFor(m=>m.EducationDetail[0].DivisionClassObtained, null, new { @class = "form-control" })
+                                                                        @Html.ValidationMessageFor(m=>m.EducationDetail[0].DivisionClassObtained)
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.TextBoxFor(m=>m.EducationDetail[0].Institution, null, new { @class = "form-control" })
+                                                                        @Html.ValidationMessageFor(m => m.EducationDetail[0].Institution)
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.DropDownListFor(m=>m.EducationDetail[0].YearofPassing, new SelectList(ViewBag.Years, "id", "name"), "Select year", new { @class = "form-control" })
+                                                                        @Html.ValidationMessageFor(m => m.EducationDetail[0].YearofPassing)
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.DropDownListFor(m=>m.EducationDetail[0].MarkType, new SelectList(ViewBag.MarkType, "id", "name"), "Select MarkType", new { @class = "form-control" })
+                                                                        @Html.ValidationMessageFor(m => m.EducationDetail[0].MarkType)
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.TextBoxFor(m=>m.EducationDetail[0].Marks, new { @id = "ddlMarks_0", @class = "form-control", @onkeypress = "return isNumberKey(event)", @placeholder = "CGPA / Marks" })
+                                                                        @Html.ValidationMessageFor(m => m.EducationDetail[0].Marks)
+                                                                    </td>
+
+                                                                    <td></td>
+                                                                    <td>
+                                                                        <input type="file" class="required" name="@cerfile" /> &nbsp; &nbsp; &nbsp;
+                                                                        @Html.ValidationMessage(@cerfile)
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.TextBoxFor(m=>m.EducationDetail[0].Remarks, new { @class = "form-control" })
+                                                                        @Html.ValidationMessageFor(m => m.EducationDetail[0].Remarks)
+                                                                    </td>
+                                                                    <td>
+                                                                        <a href="javascript:void(0)" class="btn-sm btn btn-danger dis-none removeEducationDetail"><i class="ion-android-close"></i></a>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr id="ScoreDetails">
+                                                                    <td colspan="7">
+                                                                        Having Valid Gate Score:
+                                                                        @if (Model != null && !String.IsNullOrWhiteSpace(Model.isHaveGateScore) && Model.isHaveGateScore == "No")
+                                                                        {
+                                                                            @Html.RadioButtonFor(M => M.isHaveGateScore, "Yes", new { @id = "isYesGateScore" })@:&nbsp;<label>Yes</label>
+                                                                            @Html.RadioButtonFor(M => M.isHaveGateScore, "No", new { @id = "isNoGateScore", @checked = "checked" })@:&nbsp;<label>No</label>
+                                                                   }
+                                                                        else
+                                                                        {
+                                                                            @Html.RadioButtonFor(M => M.isHaveGateScore, "Yes", new { @id = "isYesGateScore", @checked = "checked" })@:&nbsp;<label>Yes</label>
+                                                                            @Html.RadioButtonFor(M => M.isHaveGateScore, "No", new { @id = "isNoGateScore" })@:&nbsp;<label>No</label>
+                                                                   }
+                                                                    </td>
+                                                                    <td colspan="2" id="divPHDDetail" class="dis-none">
+                                                                        @Html.TextBoxFor(M => M.GateScore, new { @class = "form-control", @id = "Score", @onkeypress = "return isNumberKey(event)", @placeholder = "00.00" })
+                                                                        @Html.ValidationMessageFor(M => M.GateScore)
+                                                                    </td>
+                                                                    <td></td>
+                                                                </tr>
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                <div class="col-md-6 mt-md mb20">
+                                                    <a href="javascript:void(0)" id="btnAddEducation" class="btn btn-primary">Add New</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="bl-lg-panel-box pb-null">
+                                <div class="cmn-panel-box">
+                                    <div class="grey-bg-adj">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <h4>Experience Details:</h4>
+                                                <div class="rc-tb-scrl">
+                                                    <table class="table alter-table mb-null">
+                                                        <thead>
+                                                            <tr>
+                                                                <th style="width:130px;">Type</th>
+                                                                <th>ORGANISATION</th>
+                                                                <th>DESIGNATION </th>
+                                                                <th style="width:160px;">FROM</th>
+                                                                <th style="width:160px;">TO</th>
+                                                                <th>SALARY DRAWN / MONTH (Rs.)</th>
+                                                                <th>Attachment File</th>
+                                                                <th style="width:150px;">Upload File</th>
+                                                                <th>Remarks</th>
+                                                                <th></th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="tbodyExperience">
+                                                            @if (Model.ExperienceDetail != null)
+                                                            {
+                                                                var count = 0;
+                                                                foreach (var item in Model.ExperienceDetail)
+                                                                {
+                                                                    var expid = "ExperienceDetail[" + count + "].ExperienceId";
+                                                                    var exptype = "ExperienceDetail[" + count + "].ExperienceTypeId";
+                                                                    var exptypestr = "ExperienceDetail[" + count + "].ExperienceType";
+                                                                    var org = "ExperienceDetail[" + count + "].Organisation";
+                                                                    var autocom = "ExperienceDetail[" + count + "].DesignationautoComplete";
+                                                                    var des = "ExperienceDetail[" + count + "].DesignationListId";
+                                                                    var frmdate = "ExperienceDetail[" + count + "].FromDate";
+                                                                    var todate = "ExperienceDetail[" + count + "].ToDate";
+                                                                    var salarydr = "ExperienceDetail[" + count + "].SalaryDrawn";
+                                                                    var expfile = "ExperienceDetail[" + count + "].ExperienceFile";
+                                                                    var remark = "ExperienceDetail[" + count + "].Remarks";
+                                                                    <tr>
+                                                                        <td>
+                                                                            <span class="spn-rv">@item.ExperienceType</span>
+                                                                            @Html.DropDownList(@exptype, new SelectList(ViewBag.Exptype, "id", "name", item.ExperienceTypeId), "Select Qualification",
+                                                                                new { @class = "form-control  dis-none", @id = "expTypeid" })
+                                                                            @Html.ValidationMessage(@exptype)
+                                                                            @Html.Hidden("ExperienceDetail.Index", @count)
+                                                                            @Html.Hidden(@expid, item.ExperienceId)
+                                                                        </td>
+                                                                        <td>
+                                                                            <span class="spn-rv">@item.Organisation</span>
+                                                                            @Html.TextBox(@org, item.Organisation, new { @class = "form-control dis-none" })
+                                                                            @Html.ValidationMessage(@org)
+                                                                        </td>
+                                                                        <td>
+                                                                            <span class="spn-rv">@item.DesignationautoComplete</span>
+                                                                            @Html.TextBox(@autocom, item.DesignationautoComplete, new { @class = "form-control dis-none" })
+                                                                            @Html.Hidden(@des, item.DesignationListId, new { @class = "form-control" })
+                                                                            @Html.ValidationMessage(@des)
+                                                                        </td>
+                                                                        <td>
+                                                                            <span class="spn-rv">@item.strFromDate</span>
+                                                                            @Html.TextBox(@frmdate, item.strFromDate, new { @class = "form-control dis-none", @readonly = "readonly" })
+                                                                            @Html.ValidationMessage(@frmdate)
+                                                                        </td>
+                                                                        <td>
+                                                                            <span class="spn-rv">@item.strToDate</span>
+                                                                            @Html.TextBox(@todate, item.strToDate, new { @class = "form-control dis-none", @readonly = "readonly" })
+                                                                            @Html.ValidationMessage(@todate)
+                                                                        </td>
+                                                                        <td>
+                                                                            <span class="spn-rv">@item.SalaryDrawn</span>
+                                                                            @Html.TextBox(@salarydr, item.SalaryDrawn, new { @class = "form-control dis-none", @onkeypress = "return isNumberKey(event)" })
+                                                                            @Html.ValidationMessage(@salarydr)
+                                                                        </td>
+                                                                        <td>
+                                                                            @if (Model.STEId > 0 && !string.IsNullOrEmpty(item.ExperienceFilePath))
+                                                                            {
+                                                                                @Html.ActionLink(item.ExperienceFileName, "ShowDocument", new { Controller = "Account", filepath = "Requirement", file = item.ExperienceFilePath }, new { @name = "DocDownload", @target = "_blank" })
+                                                                            }
+                                                                        </td>
+                                                                        <td>
+                                                                            <input type="file" class="" name="@expfile" />
+                                                                            @Html.ValidationMessage(@expfile)
+                                                                        </td>
+                                                                        <td>
+                                                                            <span class="spn-rv">@item.Remarks</span>
+                                                                            @Html.TextBox(@remark, item.Remarks, new { @class = "form-control dis-none" })
+                                                                            @Html.ValidationMessage(@remark)
+                                                                        </td>
+                                                                        <td>
+                                                                            <a href="javascript:void(0)" class="btn-sm btn btn-danger removeExperienceDetail dis-none"><i class="ion-android-close"></i></a>
+                                                                        </td>
+                                                                    </tr>
+                                                                    count++;
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                <tr>
+                                                                    <td>
+                                                                        @Html.DropDownList("ExperienceDetail[0].ExperienceTypeId", new SelectList(ViewBag.Exptype, "id", "name"), "Select Qualification",new { @class = "form-control", @id = "expTypeid" })
+                                                                        @Html.ValidationMessage("ExperienceDetail[0].ExperienceTypeId")
+                                                                        @Html.Hidden("ExperienceDetail.Index", 0)
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.TextBox("ExperienceDetail[0].Organisation", "", new { @class = "form-control" })
+                                                                        @Html.ValidationMessage("ExperienceDetail[0].Organisation")
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.TextBox("ExperienceDetail[0].DesignationautoComplete", "", new { @class = "form-control" })
+                                                                        @Html.Hidden("ExperienceDetail[0].DesignationListId", "", new { @class = "form-control" })
+                                                                        @Html.ValidationMessage("ExperienceDetail[0].DesignationautoComplete")
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.TextBox("ExperienceDetail[0].FromDate", "", new { @class = "form-control", @id = "txtfrmdate", @autocomplete = "off", @readonly = "readonly" })
+                                                                        @Html.ValidationMessage("ExperienceDetail[0].FromDate")
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.TextBox("ExperienceDetail[0].ToDate", "", new { @class = "form-control", @id = "txttodate", @autocomplete = "off", @readonly = "readonly" })
+                                                                        @Html.ValidationMessage("ExperienceDetail[0].ToDate")
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.TextBox("ExperienceDetail[0].SalaryDrawn", "", new { @class = "form-control", @onkeypress = "return isNumberKey(event)" })
+                                                                        @Html.ValidationMessage("ExperienceDetail[0].SalaryDrawn")
+                                                                    </td>
+                                                                    <td></td>
+                                                                    <td>
+                                                                        <input type="file" class="" name="ExperienceDetail[0].ExperienceFile" />&nbsp; &nbsp; &nbsp;
+                                                                        @Html.ValidationMessage("ExperienceDetail[0].ExperienceFile")
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.TextBox("ExperienceDetail[0].Remarks", "", new { @class = "form-control" })
+                                                                        @Html.ValidationMessage("ExperienceDetail[0].Remarks")
+                                                                    </td>
+                                                                    <td><a href="javascript:void(0)" class="btn-sm btn btn-danger removeExperienceDetail"><i class="ion-android-close"></i></a></td>
+                                                                </tr>
+                                                            }
+                                                        </tbody>
+
+                                                    </table>
+                                                </div>
+                                                <div class="col-md-6 mt-md mb20">
+                                                    <a href="javascript:void(0)" id="btnAddExperience" class="btn btn-primary">Add New</a>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="bl-lg-panel-box pb-null">
+                                <div class="cmn-panel-box">
+                                    <div class="grey-bg-adj mb-lg">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <h4>Other Documents:</h4>
+                                                <div class="">
+                                                    <table class="table alter-table mb-null">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Document Name</th>
+                                                                <th>Attachment</th>
+                                                                <th></th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="OtherDoc">
+                                                            @{
+                                                                if (Model.OtherDocList != null)
+                                                                {
+                                                                    foreach (var item in Model.OtherDocList)
+                                                                    {
+                                                                        var docName = "OtherDocList[" + doccount + "].DocumentName";
+                                                                        var doc = "OtherDocList[" + doccount + "].Document";
+                                                                        <tr>
+                                                                            <td>
+                                                                                <h4>@item.DocumentName</h4>
+                                                                                @Html.TextBoxFor(m => m.OtherDocList[doccount].DocumentName, new { @class = "form-control dis-none" })
+                                                                            </td>
+                                                                            <td>
+                                                                                @if (Model.STEId > 0 && !string.IsNullOrEmpty(item.DocumentPath))
+                                                                                {
+                                                                                    if (!string.IsNullOrEmpty(item.DocumentName))
+                                                                                    {
+                                                                                        @Html.ActionLink(item.DocumentName, "ShowDocument", new { Controller = "Account", filepath = "Requirement", file = item.DocumentPath }, new { @name = "DocDownload", @target = "_blank" })
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        @Html.ActionLink(item.DocumentFileName, "ShowDocument", new { Controller = "Account", filepath = "Requirement", file = item.DocumentPath }, new { @name = "DocDownload", @target = "_blank" })
+                                                                                    }
+                                                                                }
+                                                                                <input type="file" class="dis-none" name="@doc" />&nbsp; &nbsp; &nbsp;
+                                                                            </td>
+                                                                            <td>
+                                                                                <a href="javascript:void(0)" class="btn-sm btn btn-danger removeOtherDoc dis-none"><i class="ion-android-close"></i></a>
+                                                                            </td>
+                                                                        </tr>
+                                                                        doccount++;
+                                                                    }
+                                                                }
+                                                                else
+                                                                {
+                                                                    var docName = "OtherDocList[0].DocumentName";
+                                                                    var doc = "OtherDocList[0].Document";
+                                                                    <tr>
+                                                                        <td>
+                                                                            @Html.TextBox(@docName, null, new { @class = "form-control" })
+                                                                            @Html.ValidationMessage(@docName)
+                                                                        </td>
+                                                                        <td>
+                                                                            <input type="file" class="" name="@doc" />&nbsp; &nbsp; &nbsp;
+                                                                            @Html.ValidationMessage(@doc)
+                                                                        </td>
+                                                                        <td>
+                                                                            <a href="javascript:void(0)" class="btn-sm btn btn-danger removeOtherDoc"><i class="ion-android-close"></i></a>
+                                                                        </td>
+                                                                    </tr>
+                                                                }
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                <div class="col-md-6 mt-md">
+                                                    <a href="javascript:void(0)" id="btnAddOtherDoc" class="btn btn-primary">Add New</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 mb-lg text-center">
+            <input type="submit" class="btn btn-primary" value="Submit" id="btnSave" />
+            @if (Model.VerifyProfile != true)
+                {
+                <a href='@Url.Action("STEEmployeeMaster", "Requirement")' class="btn btn-default">Close</a>
+            }
+            else
+            {
+                <a href='@Url.Action("EmployeeverificationList", "Requirement")' class="btn btn-default">Close</a>
+            }
+        </div>
+    </div>
+}
+<script>
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    var STEID = @Html.Raw(Json.Encode(Model.STEId)) || 0;
+
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+        $('.selectpicker').selectpicker({
+            liveSearch: true
+        });
+        $('.selectpicker').selectpicker('refresh');
+        applyAutoComplete($('#BankName'), $('#BankId'), '@Url.Action("LoadBankNameList", "Requirement")');
+        applyAutoComplete($('#AutoFillRequstedbyPI'), $('#RequestedByPI'), '@Url.Action("LoadPIList", "Requirement")');
+        var CurrDate = moment(new Date()).toDate();
+        $('input[name$=".FromDate"]').datepicker({
+            dateFormat: 'dd-MM-yy',
+            changeYear: true,
+            yearRange: '-100:+0',
+        }).datepicker("option", "maxDate", CurrDate);
+
+        $('input[name$=".ToDate"]').datepicker({
+            dateFormat: 'dd-MM-yy',
+            changeYear: true,
+            yearRange: '-100:+0',
+        }).datepicker("option", "maxDate", CurrDate);
+
+        var dobString = $('#strDateofBirth').val();
+        if (dobString != "") {
+            var dob = new Date(dobString.split('-').join('/'));
+            var Curr = new Date();
+            var year = parseInt(dob.getFullYear());
+            year += 14;
+            var minimumDt = new Date(year, dob.getMonth(), dob.getDate());
+            if (STEID > 0) {
+                var maxdt = new Date();
+                $('input[name$=".FromDate"]').each(function () {
+                    $(this).datepicker({ dateFormat: 'dd-MM-yy', changeYear: true }).datepicker("option", "minDate", minimumDt).datepicker("option", "maxDate", maxdt);
+                });
+                $('input[name$=".ToDate"]').each(function () {
+                    $(this).datepicker({ dateFormat: 'dd-MM-yy', changeYear: true }).datepicker("option", "minDate", minimumDt).datepicker("option", "maxDate", maxdt);
+                });
+            }
+            else {
+                $('input[name$=".FromDate"]').each(function () {
+                    $(this).datepicker({ dateFormat: 'dd-MM-yy', changeYear: true }).datepicker("option", "minDate", minimumDt).datepicker("option", "maxDate", maxdt);
+                });
+                $('input[name$=".ToDate"]').each(function () {
+                    $(this).datepicker({ dateFormat: 'dd-MM-yy', changeYear: true }).datepicker("option", "minDate", minimumDt).datepicker("option", "maxDate", maxdt);
+                });
+            }
+        }
+
+        $('#tbodyExperience tr').each(function () {
+            debugger
+            var index = $(this).find("input[name='ExperienceDetail.Index']").val();
+            var hdEle = $("input[name='ExperienceDetail[" + index + "].DesignationListId']");
+            var acEle = $("input[name='ExperienceDetail[" + index + "].DesignationautoComplete']");
+            var frmEle = $("input[name='ExperienceDetail[" + index + "].FromDate']");
+            var toEle = $("input[name='ExperienceDetail[" + index + "].ToDate']");
+            $(frmEle).datepicker({ dateFormat: 'dd-MM-yy', changeYear: true, yearRange: '-10:+50' });
+            $(toEle).datepicker({ dateFormat: 'dd-MM-yy', changeYear: true, yearRange: '-10:+50' });
+            applyAutoComplete(acEle, hdEle, '@Url.Action("LoadDesignationNameList", "Requirement")');
+        });
+
+    });
+
+    $(document).on("change", "input[name$='.FromDate']",function () {
+        var name = $(this).attr('name');
+        var SplitName = name.split('.');
+        var value = $(this).val();
+        value = value.split('-').join('/')
+        var defaultFromDate = moment(value).add(+1, 'days').toDate();
+        $('input[name="' + SplitName[0] + '.ToDate"]').datepicker({
+            dateFormat: 'dd-MM-yy',
+            changeYear: true
+        }).datepicker("option", "minDate", defaultFromDate);
+    });
+
+    function FillPIDetails() {
+        var projectId = $("#ProjectId").val();
+        if (projectId != "" || projectId != 0) {
+            $.getJSON("@Url.Action("LoadProjectDetails", "Requirement")", { ProjectId: projectId },
+                 function (result) {
+                     if (result.projectData.ProjectNumber != null) {
+                         $('#PICode').text(result.projectData.PICode);
+                         $('#PINametxt').text(result.projectData.PIName);
+                         $('#DepartmentNametxt').text(result.projectData.PIDepartmentName);
+                     }
+                 });
+        }
+    }
+
+    FillPIDetails()
+
+    var addyear = 0;
+    if (parseInt($("#DesignationId").val()) != 0)
+        LoadFillDesignation()
+    function LoadFillDesignation() {
+        debugger;
+        var DesignationID = $('#DesignationId').val();
+        if (DesignationID > 0) {
+            $.getJSON("@Url.Action("LoadDesignationDetails", "Requirement")", { DesignationID: DesignationID },
+        function (result) {
+            if (result.DesignationData.DestinationID > 0) {
+                $("#Designationtxt").text(result.DesignationData.Designation);
+            }
+        });
+        }
+    }
+
+    $('input[name="isSameasPermanentAddress"]').on('click', function () {
+        if ($(this).is(":checked")) {
+            $('#PermanentAddress').val($('#PresentAddress').val());
+        } else {
+            $('#PermanentAddress').val('');
+        }
+    });
+    var Qualifications = "";
+    $('#tbodyEducation tr').each(function () {
+        var Qualify = $(this).find("select[name$='.QualificationId'] option:selected").text();
+        var departmet = $(this).find("select[name$='.DisciplineId'] option:selected").text();
+        Qualifications += Qualify + '.' + departmet + ",";
+    });
+    $('#ClQualification').text(Qualifications);
+    $('textarea[name="PresentAddress"]').on('keyup', function () {
+        var value = $(this).val();
+        if ($('#isSameasPermanentAddress').is(":checked")) {
+            $('#PermanentAddress').val(value);
+        }
+    });
+    function FillExperience() {
+        var TotalExp = 0;
+        $('#tbodyExperience tr').each(function () {
+            var frmexpdate = $(this).find("input[name$='.FromDate']").val() || "";
+            var toexpdate = $(this).find("input[name$='.ToDate']").val() || "";
+            if (frmexpdate != "" && toexpdate != "") {
+                var dateTo = new Date(toexpdate.split('-').join('/'));
+                var dateFrom = new Date(frmexpdate.split('-').join('/'));
+                var diff = new Date(dateTo - dateFrom);
+                var days = diff / 1000 / 60 / 60 / 24;
+                TotalExp += days;
+            }
+        });
+        var Exp = TotalExp / 365;
+        $('#Experiencetxt').text(Exp.toFixed(2) + 'Years')
+    }
+    FillExperience();
+    $(document).on('keyup', 'input[name$=".Marks"]', function () {
+        var value = parseInt($(this).val());
+        var splitId = $(this).attr('id');
+        var ID = splitId.split('_')[1];
+        var MarkType = parseInt($('select[name="EducationDetail[' + ID + '].MarkType"]').val()) || 0;
+        if (MarkType > 0) {
+            if (MarkType == 1) {
+                if (isNaN(value)) {
+                    $.alert({
+                        icon: 'ion-close-circled',
+                        title: 'Error Alert!',
+                        content: 'Enter valid input',
+                        type: 'red'
+                    });
+                    return false;
+                }
+                if (value > 100) {
+                    $.alert({
+                        icon: 'ion-close-circled',
+                        title: 'Error Alert!',
+                        content: 'Mark percentage should be between 0 and 100',
+                        type: 'red'
+                    });
+                    $(this).val('')
+                    return false;
+                }
+            }
+            else {
+                if (isNaN(value)) {
+                    $.alert({
+                        icon: 'ion-close-circled',
+                        title: 'Error Alert!',
+                        content: 'Enter valid input',
+                        type: 'red'
+                    });
+                    return false;
+                }
+                if (value > 10) {
+                    $.alert({
+                        icon: 'ion-close-circled',
+                        title: 'Error Alert!',
+                        content: 'CGPA should be between 1 and 10',
+                        type: 'red'
+                    });
+                    $(this).val('')
+                    return false;
+                }
+            }
+        }
+        else {
+            $.alert({
+                icon: 'ion-close-circled',
+                title: 'Error Alert!',
+                content: 'Please select mark type',
+                type: 'red'
+            });
+            $('input[name="EducationDetail[' + ID + '].MarkType"]').focus();
+            $(this).val('')
+            return false;
+        }
+
+    });
+
+    $(document).on('change', 'select[name$=".MarkType"]', function () {
+        var value = parseInt($(this).val());
+        var name = $(this).attr('name');
+        var ID = name.match(/\d+/)[0];
+        var Mark = parseFloat($('input[name="EducationDetail[' + ID + '].Marks"]').val()) || 0;
+        if (Mark > 0) {
+            if (value == 1) {
+                if (Mark > 100) {
+                    $.alert({
+                        icon: 'ion-close-circled',
+                        title: 'Error Alert!',
+                        content: 'Mark percentage should be between 0 and 100',
+                        type: 'red'
+                    });
+                    $('input[name="EducationDetail[' + ID + '].Marks"]').val('');
+                    return false;
+                }
+            }
+            else if (value == 2) {
+                if (Mark > 10) {
+                    $.alert({
+                        icon: 'ion-close-circled',
+                        title: 'Error Alert!',
+                        content: 'CGPA should be between 1 and 10',
+                        type: 'red'
+                    });
+                    $('input[name="EducationDetail[' + ID + '].Marks"]').val('');
+                    return false;
+                }
+            }
+            else {
+                $.alert({
+                    icon: 'ion-close-circled',
+                    title: 'Error Alert!',
+                    content: 'Please select valid input',
+                    type: 'red'
+                });
+                return false;
+            }
+        }
+    });
+
+    function formSave() {
+        var isValid = $('#formSubmit').valid();
+        if (!isValid)
+            return false;
+        if (isValid)
+            $('#formSubmit').submit();
+    }
+
+    function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode != 46 && charCode > 31
+          && (charCode < 48 || charCode > 57))
+            return false;
+
+        return true;
+    }
+
+    function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                $('#displayImg')
+                    .attr('src', e.target.result)
+                    .width(30)
+                    .height(30);
+            };
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function changeBankName() {
+        var bankname = $("#BankName").val();
+        if (bankname == null || bankname == "") {
+            $('#BankId').val('');
+        }
+    }
+
+    function readSignURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                $('#displaySignature')
+                    .attr('src', e.target.result)
+                    .width(30)
+                    .height(30);
+            };
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    $('input[name$=".Certificate"],input[name$=".ExperienceFile"]').change(function (e) {
+        var _size = this.files[0].size;
+        var iSize = (_size / 1024);
+        iSize = (Math.round(iSize * 100) / 100)
+        var fileName = e.target.files[0].name;
+        var allowedExtensions = [".jpeg", ".png", ".jpg", ".gif"];
+        var allowedExtensionsPdf = [".pdf", ".PDF"];
+        var extension = fileName.substr((fileName.lastIndexOf('.') + 1)).toLowerCase();
+        var ImgFormat = allowedExtensions.includes('.' + extension);
+        var DocFormat = allowedExtensionsPdf.includes('.' + extension);
+        if (ImgFormat) {
+            if (iSize > 1024) {
+                $('#FailedAlert').html('Image size should be allow below 1MB');
+                $('#Failed').modal('toggle');
+                $(this).val('');
+                return;
+            }
+        }
+        else if (DocFormat) {
+            if (iSize > 5120) {
+                $('#FailedAlert').html('PDF size should be allow below 5MB');
+                $('#Failed').modal('toggle');
+                $(this).val('');
+                return;
+            }
+        }
+        else {
+            $('#FailedAlert').html('Certificates should be allowed only document type [pdf,jpg,jpeg,gif]');
+            $('#Failed').modal('toggle');
+            $(this).val('');
+            return;
+        }
+    });
+
+    $(document).on('change', 'input[name="CantidateSignature"],input[name="PersonImage"]', function (e) {
+        var _size = this.files[0].size;
+        var iSize = (_size / 1024);
+        iSize = (Math.round(iSize * 100) / 100)
+        var fileName = e.target.files[0].name;
+        var allowedExtensions = [".jpeg", ".png", ".jpg"];
+        var extension = fileName.substr((fileName.lastIndexOf('.') + 1)).toLowerCase();
+        var ImgFormat = allowedExtensions.includes('.' + extension);
+        if (ImgFormat) {
+            if (iSize > 1024) {
+                $('#FailedAlert').html('Image size should be allow below 1MB');
+                $('#Failed').modal('toggle');
+                $(this).val('');
+                return;
+            }
+        }
+        else {
+            $('#FailedAlert').html('Image size should be allowd document type [pdf,jpg,jpeg,gif]');
+            $('#Failed').modal('toggle');
+            $(this).val('');
+            return;
+        }
+    });
+
+    $('a[name="DocDownload"]').click(function (p) {
+        p.preventDefault();
+        var ref = $(this).attr('href');
+        var win = window.open('', '_blank');
+        win.location.href = ref;
+    });
+
+
+    $("#btnAddEducation").click(function () {
+        var cln = $('#tbodyEducation tr:first').clone().find("input,select").val("").end();
+        var cloneElement = $('#tbodyEducation tr:first').find('#decpAPP').parent().clone();
+        $(cln).find('select[id="decpAPP"]').parent().replaceWith(selectPickerApiElement($(cloneElement), "empty", [], ''));
+        $(cln).find('a').removeClass('dis-none');
+        $(cln).find('a[name="DocDownload"]').remove();
+        //$('#tbodyEducation tr:first').find('a').removeClass('dis-none');
+        var index = $('#tbodyEducation tr:not("#ScoreDetails"):last').find("input[name='EducationDetail.Index']").val();
+        index = parseInt(index) + 1;
+        idx = index;
+        $(cln).find("input[name='EducationDetail.Index']").val(index);
+        //$(cln).find(".spn-rv").each(function () {
+        //    $(this).remove();
+        //})
+        //$(cln).find(".dis-none").each(function () {
+        //    $(this).removeClass('dis-none');
+        //})
+        $(cln).find("input,select").each(function () {
+
+            if ($(this).attr("name") != undefined)
+                $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+            console.log($(this).attr("id"));
+            var letters = /^[0-9a-zA-Z]+$/;
+            if ($(this).attr("id") != undefined)
+                $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+        });
+        $(cln).find("span[data-valmsg-for]").each(function () {
+            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+        });
+        $(cln).insertBefore("#tbodyEducation #ScoreDetails");
+    });
+
+    $(document).on('click', 'a.removeEducationDetail', function () {
+        if ($('#tbodyEducation tr:not("#ScoreDetails")').length != 1) {
+            $(this).closest('tr:not("#ScoreDetails")').remove();
+        }
+    });
+
+    $("#btnAddExperience").click(function () {
+        var cln = $('#tbodyExperience tr:first').clone().find("select,input").val("").end();
+        var index = $('#tbodyExperience tr:last').find("input[name='ExperienceDetail.Index']").val();
+        index = parseInt(index) + 1;
+        $(cln).find('a').removeClass('dis-none');
+        $(cln).find('a[name="DocDownload"]').remove();
+        $(cln).find("input[name='ExperienceDetail.Index']").val(index);
+        $(cln).find(".spn-rv").each(function () {
+            $(this).remove();
+        });
+        $(cln).find(".dis-none").each(function () {
+            if (!$(this).attr('id').includes("DesignationListId")) {
+                $(this).removeClass('dis-none');
+            }
+        })
+        $(cln).find("input, select").each(function () {
+            //if ($(this).attr("readonly") == "readonly") {
+            //    $(this).removeAttr("readonly");
+            //}
+            $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+            if ($(this).attr("id"))
+                $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+        });
+        $(cln).find("span[data-valmsg-for]").each(function () {
+            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+        });
+
+        var hdEle = $("input[name='ExperienceDetail[" + index + "].DesignationListId']");
+        var acEle = $("input[name='ExperienceDetail[" + index + "].DesignationautoComplete']");
+        var dobString = $('#strDateofBirth').val();
+        if (dobString != "") {
+            var dob = new Date(dobString.split('-').join('/'));
+            var Curr = new Date();
+            var year = parseInt(dob.getFullYear());
+            year += 14;
+            var minimumDt = new Date(year, dob.getMonth(), dob.getDate());
+            if (STEID > 0)
+            {
+                var maxdt = new Date();
+                $(cln).find('.hasDatepicker').attr("id", "").removeClass('hasDatepicker').removeData('datepicker').unbind().datepicker({
+                    dateFormat: 'dd-MM-yy', changeYear: true, yearRange: '-100:+0'
+                }).datepicker("option", "minDate", minimumDt).datepicker("option", "maxDate", maxdt);
+            }
+            else
+            {
+                $(cln).find('.hasDatepicker').attr("id", "").removeClass('hasDatepicker').removeData('datepicker').unbind().datepicker({
+                    dateFormat: 'dd-MM-yy', changeYear: true, yearRange: '-100:+0'
+                }).datepicker("option", "minDate", minimumDt);
+            }
+        }
+        applyAutoComplete(acEle, hdEle, '@Url.Action("LoadDesignationNameList", "Requirement")');
+
+
+        var expinValid = validateExperiencedetail();
+        if (expinValid) {
+            $.confirm({
+                title: 'Warning!',
+                content: 'Please fill experience detail',
+                type: 'orange',
+                buttons: {
+                    Ok: function () {
+                        //close
+                    },
+                },
+            });
+            return false;
+        }
+
+
+        $('#tbodyExperience').append(cln);
+
+    });
+
+    $('#Designation').click(function () {
+        applyAutoCompleteDesignation($('#Designation'), $('#DesignationId'), "../Requirement/LoadDesignationNameList");
+    });
+
+
+    $(document).on('click', 'a.removeExperienceDetail', function () {
+        if ($('#tbodyExperience tr').length != 1) {
+            $(this).closest('tr').remove();
+        }
+    });
+
+
+
+    function validateExperiencedetail() {
+        var hasErr = true;
+        var cln = $('#tbodyExperience');
+        $(cln).find('select[name $=".ExperienceTypeId"]').each(function () {
+            var value = $(this).val() || "";
+            if (value != "")
+                hasErr = false;
+        });
+        $(cln).find('input[name $=".Organisation"]').each(function () {
+            var value = $(this).val() || "";
+            if (value != "")
+                hasErr = false;
+        });
+        $(cln).find('input[name $=".DesignationautoComplete"]').each(function () {
+            var value = $(this).val() || "";
+            if (value != "")
+                hasErr = false;
+        });
+        $(cln).find('input[name $=".FromDate"]').each(function () {
+            var value = $(this).val() || "";
+            if (value != "")
+                hasErr = false;
+        });
+        $(cln).find('input[name $=".ToDate"]').each(function () {
+            var value = $(this).val() || "";
+            if (value != "")
+                hasErr = false;
+        });
+        $(cln).find('input[name $=".SalaryDrawn"]').each(function () {
+            var value = $(this).val() || "";
+            if (value != "")
+                hasErr = false;
+        });
+
+        if (!hasErr) {
+            $(cln).find('select[name $=".ExperienceTypeId"]').each(function () {
+                var value = $(this).val() || "";
+                if (value == "")
+                    hasErr = true;
+            });
+            $(cln).find('input[name $=".Organisation"]').each(function () {
+                var value = $(this).val() || "";
+                if (value == "")
+                    hasErr = true;
+            });
+            $(cln).find('input[name $=".DesignationautoComplete"]').each(function () {
+                var value = $(this).val() || "";
+                if (value == "")
+                    hasErr = true;
+            });
+            $(cln).find('input[name $=".FromDate"]').each(function () {
+                var value = $(this).val() || "";
+                if (value == "")
+                    hasErr = true;
+            });
+            $(cln).find('input[name $=".ToDate"]').each(function () {
+                var value = $(this).val() || "";
+                if (value == "")
+                    hasErr = true;
+            });
+            $(cln).find('input[name $=".SalaryDrawn"]').each(function () {
+                var value = $(this).val() || "";
+                if (value == "")
+                    hasErr = true;
+            });
+        }
+        else
+            hasErr = false;
+
+        return hasErr;
+    };
+
+
+
+    $(document).on('change', 'select[id^="qulfiAPP_"]', function () {
+        var Departmentid = $(this).val();
+        var ID = $(this).attr("id");
+        var idx = ID.substr(ID.lastIndexOf("_") + 1);
+        var select = $(this).closest('#tbodyEducation').find('select[name="EducationDetail[' + idx + '].DisciplineId"]');
+        $(select).empty().append($('<option/>', {
+            value: "",
+            text: "Select Course"
+        }))
+        $.getJSON("@Url.Action("LoadPIByCourseList", "Requirement")", { DepartmentId: Departmentid },
+                    function (locationdata) {
+                        $.each(locationdata, function (index, itemData) {
+                            $(select).append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name
+                            }));
+                        });
+                    });
+    });
+
+
+    var selectPickerApiElement = function (el, choice, options, select) {
+        debugger
+        $(el).find('select').selectpicker({
+            liveSearch: true
+        });
+        $(el).children().eq(2).siblings().remove();
+        if (choice == "add") {
+            $(el).find('.selectpicker').append("<option>" + options + "</option>");
+        } else if (choice == "all" && select != '') {
+            $(el).find('.selectpicker').children().remove();
+            for (var i = 0 ; i < options.length ; i++) {
+                $(el).find('.selectpicker').append("<option value=" + options[i].id + ">" + options[i].name + "</option>");
+            }
+            $(el).find('.selectpicker option[value=' + select + ']').attr('selected', 'selected');
+        } else if (choice == "all" && select == '') {
+            $(el).find('.selectpicker').children().remove();
+            for (var i = 0 ; i < options.length ; i++) {
+                $(el).find('.selectpicker').append("<option value=" + options[i].id + ">" + options[i].name + "</option>");
+            }
+        } else if (choice == "empty") {
+            $(el).find('.selectpicker').children().remove();
+            $(el).find('.selectpicker').append("<option value=''>Select any</option>");
+        } else {
+            var selectOptionsLength = $(el).find('.selectpicker').children().length;
+            for (var i = 1 ; i <= selectOptionsLength ; i++) {
+                if (options == $(el).find('.selectpicker').children().eq(i).val()) {
+                    $(el).find('.selectpicker').children().eq(i).remove();
+                    break;
+                } else {
+                    continue;
+                }
+
+            }
+
+        }
+        $(el).find('select').selectpicker('refresh');
+        return $(el).children().first().unwrap();
+
+    }
+
+    $('input[name="isHaveGateScore"]').change(function () {
+        var value = $("input[name='isHaveGateScore']:checked").val();
+        if (value == "Yes")
+            $('#divPHDDetail').removeClass('dis-none');
+        else
+            $('#divPHDDetail').addClass('dis-none');
+
+    });
+
+    var isHavePHDMS = $("input[name='isHaveGateScore']:checked").val();
+    if (isHavePHDMS == "Yes")
+        $('#divPHDDetail').removeClass('dis-none');
+    else
+        $('#divPHDDetail').addClass('dis-none');
+
+
+
+    $(document).on('keyup', 'input[name="GateScore"]', function () {
+        var value = parseInt($(this).val());
+        if (value > 0) {
+            if (isNaN(value)) {
+                $.alert({
+                    icon: 'ion-close-circled',
+                    title: 'Error Alert!',
+                    content: 'Enter valid gate score',
+                    type: 'red'
+                });
+                return false;
+            }
+            if (value > 100) {
+                $.alert({
+                    icon: 'ion-close-circled',
+                    title: 'Error Alert!',
+                    content: 'Gate score should be between 0 and 100',
+                    type: 'red'
+                });
+                $(this).val('')
+                return false;
+            }
+
+        }
+
+    });
+
+
+    $('select[name="IITMPensionerCSIRStaff"]').on('change', function () {
+        if (parseInt($(this).val()) == 1) {
+            $('#divPensionerNo').removeClass('dis-none');
+            $('#divCSIRStaff').addClass('dis-none');
+            $('#divMSPHDDetails').addClass('dis-none');
+            $('#MsPhdType').val('');
+            $('#phdDetails').addClass('dis-none');
+
+        }
+        else if (parseInt($(this).val()) == 2) {
+            $('#divPensionerNo').addClass('dis-none');
+            $('#divCSIRStaff').removeClass('dis-none');
+            $('#divMSPHDDetails').removeClass('dis-none');
+        }
+        else {
+            $('#divPensionerNo').addClass('dis-none');
+            $('#divCSIRStaff').addClass('dis-none');
+        }
+    });
+
+    var PensionerCSIStaff = parseInt($('select[name="IITMPensionerCSIRStaff"]').val());
+    if (PensionerCSIStaff == 1) {
+        $('#divPensionerNo').removeClass('dis-none');
+        $('#divCSIRStaff').addClass('dis-none');
+        $('#divMSPHDDetails').addClass('dis-none');
+        $('#MsPhdType').val('');
+        $('#phdDetails').addClass('dis-none');
+    }
+    else if (PensionerCSIStaff == 2) {
+        $('#divPensionerNo').addClass('dis-none');
+        $('#divCSIRStaff').removeClass('dis-none');
+        $('#divMSPHDDetails').removeClass('dis-none');
+    }
+    else {
+        $('#divPensionerNo').addClass('dis-none');
+        $('#divCSIRStaff').addClass('dis-none');
+    }
+
+    $(document).on('click', '#btnSave', function (e) {
+        e.preventDefault();
+        var isValid = false;
+        var hadError = false;
+        var tabs = $("#tab-01");
+        var currentTabEle = tabs[0];
+        var inputs = $("input, textarea,select"); // get all the form inputs and selects
+        var stepElements = $(currentTabEle).find(inputs); // get inputs for current step
+        var count = stepElements.length; // check that there are inputs
+        if (count <= 0) {                // if there are not no reason to loop them
+            return true;
+        }
+        $(stepElements).each(function (idx) {
+            if (!$(this).is(':radio') && !$(this).is(':checkbox')) {
+                console.log($(this).attr('id'));
+                isValid = $(this).valid();// check that the input is valid. This can also be used on a per input basis to perform another action if the field is not valid.
+                if (!isValid)
+                    hadError = true;
+            }
+        });
+        var expinValid = validateExperiencedetail();
+        if (expinValid) {
+            $.confirm({
+                title: 'Warning!',
+                content: 'Please fill experience detail',
+                type: 'orange',
+                buttons: {
+                    Ok: function () {
+                        //close
+                    },
+                },
+            });
+            return false;
+        }
+        if (!hadError)
+            $('#formSubmit').submit();
+        return !hadError;
+    });
+
+    function FormDisabled() {
+        $("#formSubmit").find("input, select, textarea").each(function () {
+            var idDisabled = $(this).is(":disabled");
+            var id = $(this).attr('id');
+            if (!idDisabled) {
+                $(this).attr("disabled", "disabled");
+            }
+        });
+        $('#btnAddEducation').addClass('dis-none');
+        $('#btnAddExperience').addClass('dis-none');
+    }
+
+    $('input[name$=".DivisionClassObtained"],#EmployeeWorkplace').keypress(function (e) {
+        var regex = new RegExp("^[a-zA-Z ]+$");
+        var str = String.fromCharCode(!e.charCode ? e.which : e.charCode);
+        if (regex.test(str)) {
+            return true;
+        }
+        else {
+            e.preventDefault();
+            return false;
+        }
+    });
+
+
+    $('#MsPhdType').change(function () {
+        var value =  parseInt($(this).val()) || 0;
+        $('#PhdDetail').val('');
+        if (value > 0) {
+            $('#MsPhdTypeValid').val(true);
+            $('#phdDetails').removeClass('dis-none');
+        }
+        else {
+            $('#MsPhdTypeValid').val(false);
+            $('#phdDetails').addClass('dis-none');
+        }
+    });
+
+    var MsPhdTypeid = parseInt($('#MsPhdType').val()) || 0;
+    if (MsPhdTypeid > 0){
+        $('#phdDetails').removeClass('dis-none');
+    }
+    else {
+        $('#phdDetails').addClass('dis-none');
+    }
+
+    function isOnlyNumericKey(e) {
+        //if the letter is not digit then display error and don't type anything
+        if (e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)) {
+            return false;
+        }
+    }
+
+
+
+    $(document).on('change', 'select[name$=".ExperienceTypeId"]', function () {
+        var value = parseInt($(this).val());
+        var name = $(this).attr('name');
+        var ID = name.match(/\d+/)[0];
+        if (value == 1) {
+            $('input[name="ExperienceDetail[' + ID + '].Organisation"]').val("IIT Madras");
+        }
+        else {
+            $('input[name="ExperienceDetail[' + ID + '].Organisation"]').val("");
+        }
+    });
+
+
+    $(document).on('keypress', 'input[name$=".Marks"],input[name="GateScore"]', function (event) {
+        var $this = $(this);
+        if ((event.which != 46 || $this.val().indexOf('.') != -1) &&
+           ((event.which < 48 || event.which > 57) &&
+           (event.which != 0 && event.which != 8))) {
+            event.preventDefault();
+        }
+
+        var text = $(this).val();
+        if ((event.which == 46) && (text.indexOf('.') == -1)) {
+            setTimeout(function () {
+                if ($this.val().substring($this.val().indexOf('.')).length > 3) {
+                    $this.val($this.val().substring(0, $this.val().indexOf('.') + 3));
+                }
+            }, 1);
+        }
+
+        if ((text.indexOf('.') != -1) &&
+            (text.substring(text.indexOf('.')).length > 2) &&
+            (event.which != 0 && event.which != 8) &&
+            ($(this)[0].selectionStart >= text.length - 2)) {
+            event.preventDefault();
+        }
+    });
+
+    $('input[name$=".Marks"],input[name="GateScore"]').bind("paste", function (e) {
+        var text = e.originalEvent.clipboardData.getData('Text');
+        if ($.isNumeric(text)) {
+            if ((text.substring(text.indexOf('.')).length > 3) && (text.indexOf('.') > -1)) {
+                e.preventDefault();
+                $(this).val(text.substring(0, text.indexOf('.') + 3));
+            }
+        }
+        else {
+            e.preventDefault();
+        }
+    });
+
+    
+    $('#formSubmit').on('keyup','textarea,input[type="text"]',function(event) {
+        if($(this).attr('id') != "Comments" && $(this).attr('id') != undefined) {
+            var input = event.target;
+            var start = input.selectionStart;
+            var end = input.selectionEnd;
+            input.value = input.value.toLocaleUpperCase();
+            input.setSelectionRange(start, end);
+        }
+    });
+
+    $(document).on('keypress', 'input[name$=".Institution"]', function (e) {
+        var regex = new RegExp("^[a-zA-Z ]+$");
+        var str = String.fromCharCode(!e.charCode ? e.which : e.charCode);
+        if (regex.test(str)) {
+            return true;
+        }
+        else {
+            e.preventDefault();
+            return false;
+        }
+    });
+
+    var innc = @doccount;
+    $("#btnAddOtherDoc").click(function () {
+        var cln = $('#OtherDoc tr:first').clone().find("input").val("").end();
+        $(cln).find(".dis-none").each(function () {
+            $(this).removeClass('dis-none');
+        });
+
+        $(cln).find("input").each(function () {
+            if ($(this).attr("name") != undefined)
+                $(this).attr("name", $(this).attr("name").replace(/\d+/, innc));
+            console.log($(this).attr("id"));
+            var letters = /^[0-9a-zA-Z]+$/;
+            if ($(this).attr("id") != undefined)
+                $(this).attr("id", $(this).attr("id").replace(/\d+/, innc));
+        });
+        $(cln).find("span[data-valmsg-for]").each(function () {
+            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, innc));
+        });
+        $(cln).find("a[name='DocDownload'],h4").each(function () {
+            $(this).remove();
+        });
+        $(cln).insertAfter("#OtherDoc tr:last");
+        innc++;
+    });
+
+    $(document).on('click', 'a.removeOtherDoc', function () {
+        if ($('#OtherDoc tr').length == 1) {
+            $(this).find("input,file").val("").end();
+        }
+        else
+        {
+            $(this).closest('tr').remove();
+            $(document).find('input[name$=".DocumentName"]').each(function (idx, ele) {
+                $(this).attr("name", $(this).attr("name").replace(/\d+/, idx));
+                if ($(this).attr("id"))
+                    $(this).attr("id", $(this).attr("id").replace(/\d+/, idx));
+            });
+            $(document).find('input[name$=".Document"]').each(function (idx, ele) {
+                $(this).attr("name", $(this).attr("name").replace(/\d+/, idx));
+                if ($(this).attr("id"))
+                    $(this).attr("id", $(this).attr("id").replace(/\d+/, idx));
+            });
+            $(document).find('span[data-valmsg-for$=".DocumentName"]').each(function (idx, ele) {
+                $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, idx));
+            });
+            $(document).find('span[data-valmsg-for$=".Document"]').each(function (idx, ele) {
+                $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, idx));
+            });
+            innc--;
+        }
+    });
+</script>
+<script src="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/js/bootstrap-select.min.js")"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>

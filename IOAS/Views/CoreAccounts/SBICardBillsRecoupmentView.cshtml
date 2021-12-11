@@ -1,0 +1,514 @@
+﻿@model IOAS.Models.SBIECardBillRecoupModel
+@{
+    ViewBag.Title = "SBI Card Bills Recoupment";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+@using (Html.BeginForm("SBICardBillsRecoupment", "CoreAccounts", FormMethod.Post, new { @class = "", role = "form", @id = "formContra", enctype = "multipart/form-data" }))
+{
+    <div class="row hd-tt-bg">
+        <div class="col-md-12">
+            <h4><b>SBI Card Bills Recoupment</b> </h4>
+        </div>
+    </div>
+    <div class="row">
+        <div class="white-bg ad-navbar">
+            <div class="col-md-3 ds-spl-bg">
+                <div class="ds-icn">
+                    <i class="ion-ios-list-outline "></i>
+                </div>
+                <div class="ds-tt">
+                    <span class="required">Request Reference</span>
+                    @Html.DropDownListFor(m => m.Source, new SelectList(ViewBag.SourceList, "codevalAbbr", "CodeValDetail"), "Select any",
+                        new { @class = "form-control" })
+                    @Html.ValidationMessageFor(m => m.Source)
+                </div>
+            </div>
+            <div class="col-md-3 ds-spl-bg">
+                <div class="ds-icn">
+                    <i class="ion-ios-calendar-outline"></i>
+                </div>
+                <div class="ds-tt" id="divRefNum">
+                    <span class="required">Ref Number (WF / Tapal)</span>
+                    @Html.TextBoxFor(m => m.ReferenceNumber, new { @class = "form-control" })
+                    @Html.TextBoxFor(m => m.SourceReferenceNumber, new { @class = "form-control dis-none" })
+                    @Html.ValidationMessageFor(m => m.SourceReferenceNumber)
+                    @Html.Hidden("SourceTapalOrWorkflow", "True")
+                </div>
+                <div class="dis-none ds-tt" id="divRefEmailDate">
+                    <span class="required">Email Date</span>
+                    @Html.EditorFor(m => m.SourceEmailDate, new { @class = "form-control" })
+                    <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.SourceEmailDate)</div>
+                </div>
+            </div>
+
+
+            <div class="col-md-3 col-md-offset-3">
+                <div class="reg-no custom-reg-no">
+                    <div class="form-group custom-form-group">
+                        @Html.HiddenFor(m => m.SBIECardBillRecoupNumber)
+                        @Html.HiddenFor(m => m.SBIECardRecoupId)
+                        <label>Number</label>
+                        <h4>@Html.DisplayFor(m => m.SBIECardBillRecoupNumber)</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mt-20">
+        <div class="col-md-12 col-sm-12 m-b-sm">
+            <div class="page-wrapper mt-md">
+                <div class="col-md-6">
+                    <div class="form-group custom-form-group">
+                        <label>Remarks</label>
+                        @Html.TextAreaFor(m => m.Narration, new { @class = "form-control", @rows = "3" })
+                        @Html.ValidationMessageFor(m => m.Narration)
+                        @Html.HiddenFor(m => m.SBIECardBillRecoupId)
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group custom-form-group">
+                        <label>Attachments</label>
+                        <input type="file" id="Document" name="Document">
+                        @Html.ValidationMessage("Document")
+                        <a href="@Url.Action("ShowDocument","Project",new { file = Model.DocumentName, filepath = Model.DocumentPath })" target="_blank">@Model.DocumentActualName</a>
+                    </div>
+                </div>
+                @*<div class="col-md-2">
+                        <div class="form-group custom-form-group">
+                            <label>ITC Amount</label>
+                            @Html.TextBoxFor(m => m.ITCAmount, new { @class = "form-control", @id = "ITCAmount" })
+                            @Html.ValidationMessageFor(m => m.ITCAmount)
+
+                        </div>
+                    </div>*@
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="page-wrapper">
+            <div class="col-md-6">
+                <div class="bl-lg-panel-box">
+                    <div class="bl-lg-panel-box-hd mb-null">
+                        <div>
+                            <h3 class="fn-s-bold">Debit details</h3>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <table class="table table-bordered mb-null">
+                                <thead>
+                                    <tr>
+                                        <th>Account Group</th>
+                                        <th>Account Head</th>
+                                        <th>Amount</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbodyDr">
+                                    @if (Model.DrDetail != null && Model.DrDetail.Count() > 0)
+                                    {
+                                        var count = 0;
+                                        foreach (var item in Model.DrDetail)
+                                        {
+                                            var accountGroup = "DrDetail[" + count + "].AccountGroupId";
+                                            var accountHead = "DrDetail[" + count + "].AccountHeadId";
+                                            var amount = "DrDetail[" + count + "].Amount";
+                                            <tr>
+                                                <td>
+                                                    @Html.DropDownList(@accountGroup, new SelectList(ViewBag.AccountGroupList, "id", "name", item.AccountGroupId), new { @class = "form-control required", @disabled = true })
+                                                    @Html.ValidationMessage(@accountGroup)
+                                                    @Html.Hidden("DrDetail.Index", @count)
+                                                    @Html.TextBox(@accountGroup, item.AccountGroupId, new { @class = "form-control dis-none" })
+                                                </td>
+                                                <td>
+                                                    @Html.DropDownList(@accountHead, new SelectList(item.AccountHeadList, "id", "name", item.AccountHeadId), new { @class = "form-control required", @disabled = true })
+                                                    @Html.ValidationMessage(@accountHead)
+                                                    @Html.TextBox(@accountHead, item.AccountHeadId, new { @class = "form-control dis-none" })
+                                                    <label class="balAmt pull-right"></label>
+                                                </td>
+
+                                                <td>
+                                                    @Html.TextBox(@amount, item.Amount, new { @class = "form-control required", @onblur = "CalculateTotal()", @onkeypress = "return ValidateDecimalOnly(event)", @readonly = true })
+                                                    @Html.ValidationMessage(@amount)
+                                                </td>
+                                                <td>
+                                                    <a href="javascript:void(0)" class="btn-sm btn btn-danger removeDrDetail"><i class="ion-android-close"></i></a>
+                                                </td>
+                                            </tr>
+                                            count++;
+                                        }
+
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td>
+                                                @Html.DropDownList("DrDetail[0].AccountGroupId", new SelectList(ViewBag.AccountGroupList, "id", "name"), "Select any", new { @class = "form-control required", @disabled = true })
+                                                @Html.ValidationMessage("DrDetail[0].AccountGroupId")
+                                                @Html.Hidden("DrDetail.Index", 0)
+                                                @Html.TextBox("DrDetail[0].AccountGroupId", "", new { @class = "form-control dis-none" })
+                                            </td>
+                                            <td>
+                                                @Html.DropDownList("DrDetail[0].AccountHeadId", new SelectList(ViewBag.AccountHeadList, "id", "name"), "Select any", new { @class = "form-control required", @disabled = true })
+                                                @Html.ValidationMessage("DrDetail[0].AccountHeadId")
+                                                @Html.TextBox("DrDetail[0].AccountHeadId", "", new { @class = "form-control dis-none" })
+                                                <label class="balAmt pull-right"></label>
+                                            </td>
+                                            <td>
+                                                @Html.TextBox("DrDetail[0].Amount", "", new { @class = "form-control required", @onblur = "CalculateTotal()", @onkeypress = "return ValidateDecimalOnly(event)", @readonly = true })
+                                                @Html.ValidationMessage("DrDetail[0].Amount")
+                                            </td>
+                                            <td>
+                                                <a href="javascript:void(0)" class="btn-sm btn btn-danger removeDrDetail"><i class="ion-android-close"></i></a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                            <div class="row p-b-sm">
+                                <div class="col-md-12 text-center mt-md">
+                                    <button type="button" id="btnAddDrDetail" class="btn-primary btn">Add New</button>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="col-md-6">
+                <div class="bl-lg-panel-box">
+                    <div class="bl-lg-panel-box-hd mb-null">
+                        <div>
+                            <h3 class="fn-s-bold">Credit details</h3>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <table class="table table-bordered mb-null">
+                                <thead>
+                                    <tr>
+                                        <th>Account Group</th>
+                                        <th>Account Head</th>
+                                        <th>Amount</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbodyCr">
+                                    @if (Model.CrDetail != null && Model.CrDetail.Count() > 0)
+                                    {
+                                        var count = 0;
+                                        foreach (var item in Model.CrDetail)
+                                        {
+                                            var accountGroup = "CrDetail[" + count + "].AccountGroupId";
+                                            var accountHead = "CrDetail[" + count + "].AccountHeadId";
+                                            var amount = "CrDetail[" + count + "].Amount";
+                                            <tr>
+                                                <td>
+                                                    @Html.DropDownList(@accountGroup, new SelectList(ViewBag.AccountGroupList, "id", "name", item.AccountGroupId), new { @class = "form-control required", @disabled = true })
+                                                    @Html.ValidationMessage(@accountGroup)
+                                                    @Html.Hidden("CrDetail.Index", @count)
+                                                    @Html.TextBox(@accountGroup, item.AccountGroupId, new { @class = "form-control dis-none" })
+                                                </td>
+                                                <td>
+                                                    @Html.DropDownList(@accountHead, new SelectList(item.AccountHeadList, "id", "name", item.AccountHeadId), new { @class = "form-control required" })
+                                                    @Html.ValidationMessage(@accountHead)
+                                                    <label class="balAmt pull-right"></label>
+                                                </td>
+                                                <td>
+                                                    @Html.TextBox(@amount, item.Amount, new { @class = "form-control required", @onblur = "CalculateTotal()", @onkeypress = "return ValidateDecimalOnly(event)" })
+                                                    @Html.ValidationMessage(@amount)
+                                                </td>
+                                                <td>
+                                                    <a href="javascript:void(0)" class="btn-sm btn btn-danger removeCrDetail"><i class="ion-android-close"></i></a>
+                                                </td>
+                                            </tr>
+                                            count++;
+                                        }
+
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td>
+                                                @Html.DropDownList("CrDetail[0].AccountGroupId", new SelectList(ViewBag.AccountGroupList, "id", "name"), "Select any", new { @class = "form-control required" })
+                                                @Html.ValidationMessage("CrDetail[0].AccountGroupId")
+                                                @Html.Hidden("CrDetail.Index", 0)
+                                                @Html.TextBox("CrDetail[0].AccountGroupId", "", new { @class = "form-control dis-none" })
+                                            </td>
+                                            <td>
+                                                @Html.DropDownList("CrDetail[0].AccountHeadId", new SelectList(ViewBag.AccountHeadList, "id", "name"), "Select any", new { @class = "form-control required" })
+                                                @Html.ValidationMessage("CrDetail[0].AccountHeadId")
+                                                <label class="balAmt pull-right"></label>
+                                            </td>
+                                            <td>
+                                                @Html.TextBox("CrDetail[0].Amount", "", new { @class = "form-control required", @onblur = "CalculateTotal()", @onkeypress = "return ValidateDecimalOnly(event)" })
+                                                @Html.ValidationMessage("CrDetail[0].Amount")
+                                            </td>
+                                            <td>
+                                                <a href="javascript:void(0)" class="btn-sm btn btn-danger removeCrDetail"><i class="ion-android-close"></i></a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                            <div class="row p-b-sm">
+                                <div class="col-md-12 text-center mt-md">
+                                    <button type="button" id="btnAddCrDetail" class="btn-primary btn">Add New</button>
+
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-md-offset-3 col-md-3 mt-md">
+            <div class="form-group custom-form-group ">
+                <label>Total Debit <span class="dr">(Dr)</span> :</label>
+                <input value="" name="DebitAmount" id="ttlDr" class="form-control" readonly="readonly" type="text">
+            </div>
+        </div>
+        <div class="col-md-offset-3 col-md-3 mt-md">
+            <div class="form-group custom-form-group ">
+                <label>Total Credit <span class="cr">(Cr)</span> :</label>
+                <input value="" name="CreditAmount" id="ttlCr" class="form-control" readonly="readonly" type="text">
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-lg">
+        <div class="mt-lg text-center">
+            @*<button type="button" class="btn btn-primary" id="btnSave">Submit</button>*@
+            <button type="button" class="btn btn-default" onclick="window.location.href='@Url.Action("SBICardBillsRecoupList")';">Close</button>
+        </div>
+    </div>
+}
+<input type="hidden" id="currentRefId" value="@Model.SBIECardRecoupId" />
+<input type="hidden" id="processGuideLineId" value="@ViewBag.processGuideLineId" />
+@Html.Partial("_ProcessStatus")
+<script>
+    var dis = '@ViewBag.disabled';
+    if (dis != "") {
+        $('.form-control').prop('disabled', true);
+        $('.ion-trash-a').removeClass();
+        $("input[type='radio']").prop('disabled', true);
+        $('#selectCommitment').hide();
+        $('#btnReset,#btnbookcommitment,#btnbookcommitment,#btnCollapseSrchCommit').hide();
+        $('input[type="checkbox"]').prop('disabled', true);
+        $('input[type="file"],#btnAddAttachment').hide();
+        $('#ProcessStatusContainer .form-control').prop('disabled', false);
+        $('#btnAddExpense').hide();
+        $('.btn-circle').removeClass();
+        $('.ion-close-round').removeClass();
+    }
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    $('#SourceEmailDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy' }).attr('readonly', 'readonly');
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+        //var form = $('#formContra');
+        //form.removeData('validator');
+        //form.removeData('unobtrusiveValidation');
+        //$.validator.unobtrusive.parse(form);
+        var selSource = $('#Source').val();
+        $("#divRefNum, #divRefEmailDate").addClass('dis-none');
+        if (selSource == '1') {
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACWorkflowRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+        } else if (selSource == '3') {
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACTapalRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+        }
+        else if (selSource == '2') {
+            $('#divRefEmailDate').removeClass('dis-none');
+        } else {
+            $("#divRefNum").removeClass('dis-none');
+        }
+        CalculateTotal();
+        $('select[name$=".AccountHeadId"]').each(function () {
+            var hdId = $(this).val();
+            var ele = $(this).closest('tr');
+            if (hdId != '') {
+                $.getJSON("@Url.Action("GetAccountHeadBalance", "CoreAccounts")", { "hdId": hdId },
+                 function (rmnBal) {
+                     ele.find('.balAmt').text(rmnBal);
+                 });
+            }
+        });
+    });
+
+    $('#Source').change(function () {
+        var selSource = $(this).val();
+        $("#SourceReferenceNumber,#ReferenceNumber").val('');
+		$("#divRefNum, #divRefEmailDate").addClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('False');
+		if (selSource == '1') {
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACWorkflowRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        } else if (selSource == '3') {
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACTapalRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        }
+        else if (selSource == '2') {
+            $('#divRefEmailDate').removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('False');
+        } else {
+            $("#divRefNum").removeClass('dis-none');
+            $("#SourceTapalOrWorkflow").val('True');
+        }
+    });
+    function CalculateTotal() {
+        var ttlCrVal = 0, ttlDrVal = 0;
+        $('#tbodyDr input[name$=".Amount"]').each(function (i, rowEle) {
+            var parseVal = parseFloat($(this).val()) || 0;
+            ttlDrVal = ttlDrVal + parseVal;
+        });
+        $('#tbodyCr input[name$=".Amount"]').each(function (i, rowEle) {
+            var parseVal = parseFloat($(this).val()) || 0;
+            ttlCrVal = ttlCrVal + parseVal;
+        });
+        $('#ttlDr').val(ttlDrVal);
+        $('#ttlCr').val(ttlCrVal);
+    }
+    $(document).on('change', 'select[name$=".AccountGroupId"]', function () {
+        var groupId = $(this).val();
+        var ele = $(this).closest('tr');
+        var select = ele.find("select[name$='.AccountHeadId']");
+        select.empty();
+        select.append($('<option/>', {
+            value: "",
+            text: "Select any",
+        }));
+        if (groupId != '') {
+            $.getJSON("@Url.Action("GetAccountHead", "CoreAccounts")", { "accountGroupId": groupId },
+             function (locationdata) {
+                 $.each(locationdata, function (index, itemData) {
+                     select.append($('<option/>', {
+                         value: itemData.id,
+                         text: itemData.name,
+                     }));
+                 });
+             });
+        }
+    });
+    $(document).on('change', 'select[name$=".AccountHeadId"]', function () {
+        var hdId = $(this).val();
+        var ele = $(this).closest('tr');
+        if (hdId != '') {
+            $.getJSON("@Url.Action("GetAccountHeadBalance", "CoreAccounts")", { "hdId": hdId },
+             function (rmnBal) {
+                 ele.find('.balAmt').text(rmnBal);//(rmnBal.toLocaleString("hi-IN"));
+             });
+        }
+    });
+
+    $('#btnSave').click(function () {
+        var isValid = $('#formContra').valid();
+        if (!isValid)
+            return false;
+        var netCrAmt = parseFloat($('#ttlDr').val()) || 0;
+        var netDrAmt = parseFloat($('#ttlCr').val()) || 0;
+        if (netDrAmt != netCrAmt || netCrAmt == 0) {
+            $("#alert").text('Not a valid entry. Credit and Debit value are not equal.');
+            $('#Validation').modal('show');
+            return false;
+        }
+        var crHead = [];
+        var drHead = [];
+        $('#tbodyDr select[name$=".AccountHeadId"]').each(function (idx, val) { drHead.push($(val).val()); });
+        drHead.sort();
+        for (var k = 1; k < drHead.length; ++k) {
+            if (drHead[k] == drHead[k - 1]) {
+                $('#alert').html("Duplicate head exist in Debit details. Please select a different head.");
+                $('#Validation').modal('toggle');
+                return false;
+            }
+        }
+        $('#tbodyCr select[name$=".AccountHeadId"]').each(function (idx, val) { crHead.push($(val).val()); });
+        crHead.sort();
+        for (var k = 1; k < crHead.length; ++k) {
+            if (crHead[k] == crHead[k - 1]) {
+                $('#alert').html("Duplicate head exist in Credit details. Please select a different head.");
+                $('#Validation').modal('toggle');
+                return false;
+            }
+        }
+        $('#tbodyCr input[name$=".Amount"]').each(function () {
+            var ele = $(this).closest('tr');
+            var amt = parseFloat($(this).val()) || 0;
+            var balAmt = parseFloat(ele.find('.balAmt').text()) || 0;
+            if (balAmt < amt) {
+                $('#alert').html("Some of the amount exceed balance amount. Please correct and submit again.");
+                $('#Validation').modal('toggle');
+                amtEle.focus();
+                return false;
+            }
+        });
+        $('#formContra').submit();
+    });
+
+    $('input[name$=".Amount"]').on("copy cut paste drop", function () {
+        return false;
+    });
+
+
+    $('#btnAddDrDetail').click(function () {
+        var cln = $('#tbodyDr tr:first').clone().find("select,input").val("").end();
+        var index = $('#tbodyDr tr:last').find("input[name='DrDetail.Index']").val();
+        index = parseInt(index) + 1;
+        $(cln).find("input[name='DrDetail.Index']").val(index);
+        $(cln).find("input, select").each(function () {
+            $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+            $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+        });
+        $(cln).find("span[data-valmsg-for]").each(function () {
+            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+        });
+        $('#tbodyDr').append(cln);
+    });
+    $(document).on('click', 'a.removeDrDetail', function () {
+        if ($('#tbodyDr tr').length != 1) {
+            $(this).closest('tr').remove();
+            CalculateTotal();
+        }
+    });
+    $('#btnAddCrDetail').click(function () {
+        var cln = $('#tbodyCr tr:first').clone().find("select,input").val("").end();
+        var index = $('#tbodyCr tr:last').find("input[name='CrDetail.Index']").val();
+        index = parseInt(index) + 1;
+        $(cln).find("input[name='CrDetail.Index']").val(index);
+        $(cln).find("input, select").each(function () {
+            $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+            $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+        });
+        $(cln).find("span[data-valmsg-for]").each(function () {
+            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+        });
+        $('#tbodyCr').append(cln);
+    });
+    $(document).on('click', 'a.removeCrDetail', function () {
+        if ($('#tbodyCr tr').length != 1) {
+            $(this).closest('tr').remove();
+            CalculateTotal();
+        }
+    });
+</script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>

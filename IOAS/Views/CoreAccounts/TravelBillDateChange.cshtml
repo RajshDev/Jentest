@@ -1,0 +1,162 @@
+﻿@model IOAS.Models.BillStatusModel
+
+@{
+    ViewBag.Title = "BillStatusChange";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+
+<div class="row hd-tt-bg">
+    <div class="col-md-12">
+        <h4><b> Travel Bill Date Changer</b> </h4>
+    </div>
+</div>
+<style>
+    .vw-dts-bg .hgt-bg {
+        background: #597df0;
+        color: #fff;
+    }
+
+        .vw-dts-bg .hgt-bg label {
+            font-size: 16px !important;
+            color: #fff !important;
+        }
+
+        .vw-dts-bg .hgt-bg h4 {
+            font-size: 18px !important;
+            color: #fff;
+        }
+
+    .vw-dts-bg .hgt-bg-pl {
+        background: #e11eda;
+        color: #fff;
+    }
+
+        .vw-dts-bg .hgt-bg-pl label {
+            font-size: 16px !important;
+            color: #fff !important;
+        }
+
+        .vw-dts-bg .hgt-bg-pl h4 {
+            font-size: 18px !important;
+            color: #fff;
+        }
+</style>
+
+@using (Html.BeginForm("TravelBillDateChange", "CoreAccounts", FormMethod.Post, new { @class = "", role = "form", @id = "formtravelbillDate", enctype = "multipart/form-data" }))
+{
+    <div class="row">
+        <div class="white-bg ad-navbar">
+
+            <div class="col-md-3 ds-spl-bg">
+                <div class="ds-icn">
+                    <i class="ion-ios-list-outline "></i>
+                </div>
+                <div class="ds-tt">
+                    <span>Reference Number</span>
+                    @Html.TextBoxFor(m => m.RefNumber, new { @class = "form-control", @id = "RefNo", @autocomplete = "off" })
+                    <input type="text" class="form-control dis-none" autocomplete="off" name="RefId" id="RefId" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row vw-dts-bg">
+        <div class="col-md-offset-4">
+            <div class="col-md-6">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th colspan="2"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <label>Bill Created Date (Tax):</label>
+                                <h4 id="billdate"></h4>
+                            </td>
+                            <td>
+                                <label>to be updated as :</label>
+                                @Html.EditorFor(m => m.BillDate, new { @class = "form-control", @id = "BillDate", @autocomplete = "off" })
+                            </td>
+                        </tr>
+                        @*<tr>
+                            <td>
+                                <label>Expenditure Date:</label>
+                                <h4 id="expendituredate"></h4>
+                            </td>
+                            <td>
+                                <label>to be updated as :</label>
+                                @Html.EditorFor(m => m.ExpDate, new { @class = "form-control", @id = "ExpDate", @autocomplete = "off" })
+                            </td>
+
+                        </tr>*@
+                        <tr>
+                            <td>
+                                <label>Cash Book Date :</label>
+                                <h4 id="cashbookdate"></h4>
+                            </td>
+                            <td>
+                                <label>to be updated as :</label>
+                                @Html.EditorFor(m => m.CashDate, new { @class = "form-control", @id = "CashDate", @autocomplete = "off" })
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label>Remarks:</label>
+                                @Html.TextAreaFor(m => m.Remarks, new { @class = "form-control", @id = "Remarks", @autocomplete = "off" })
+                            </td>
+                            <td>
+                                <input type="button" value="Update" class="btn btn-primary mt-20" id="btnSubmit" />
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+<script>
+    var errMsg = '@TempData["errMsg"]';
+    $(document).ready(function () {
+        if (errMsg == 'Failed') {
+            $("#RefId,#RefNo,#BillDate,#ExpDate,#CashDate,#Remarks").val('');
+            $("#CurrDate,#expendituredate,#cashbookdate,#Remarks").text('');
+            $('#FailedAlert').html("Something went wrong please contact administrator");
+            $('#Failed').modal('toggle');
+        } if (errMsg == 'Success') {
+            $("#RefId,#RefNo,#BillDate,#ExpDate,#CashDate,#Remarks").val('');
+            $("#CurrDate,#expendituredate,#cashbookdate,#Remarks").text('');
+            $('#alertSuccess').html("It has been updated successfully.");
+            $('#Success').modal('toggle');
+}
+    });
+    $('#BillDate,#ExpDate,#CashDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
+    $(document).on('click', '#RefNo', function () {
+        applyAutoComplete($('#RefNo'), $('#RefId'), '@Url.Action("LoadTravelRefernceNumber", "CoreAccounts")', 'BillDate', undefined, undefined);
+       BillDate();
+    });
+    $('#btnSubmit').click(function () {
+        var RefNumber = $("#RefId").val();
+        var BillDate = $("#BillDate").val();
+        var ExpDate = $("#ExpDate").val();
+        var CashDate = $("#CashDate").val();
+        if (RefNumber != "") {
+            $('#formtravelbillDate').submit();
+    }
+    });
+    function BillDate()
+    {
+        var RefNumber = $("#RefId").val();
+        if (RefNumber != "") {
+            $.getJSON("@Url.Action("GetTravelBillDate", "CoreAccounts")", { RefNumber: RefNumber },
+        function (result) {
+            $("#cashbookdate").text(result.Item1);
+            $("#billdate").text(result.Item2);
+            $("#expendituredate").text(result.Item3);
+        });
+    }
+    }
+</script>
+

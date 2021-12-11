@@ -1,0 +1,463 @@
+﻿@model IOAS.Models.ForeignRemittanceModel
+
+@{
+    Layout = null;
+}
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="Connect UW">
+    <!-- favicon icon -->
+    <link rel="shortcut icon" href="images/connectuw-icn.png" />
+    <title>Advance Import Payment</title>
+    <link href="https://fonts.googleapis.com/css?family=Poppins:400,400i,700,700i" rel="stylesheet">
+    <link href="@Url.Content("~/Content/IOASContent/css/bootstrap.min.css")" rel="stylesheet" />
+    <style>
+        /*
+             body{
+                 width: 21cm;
+                 height: 29.7cm;
+                 margin: 30mm 45mm 30mm 45mm;
+                 border: 1px solid #ccc;
+             }
+         */
+        .umr-body {
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+            color: #2a2a2a;
+        }
+
+        .umr-hd {
+            text-align: center;
+            border-bottom: 1px solid #d4d4d4;
+            padding-bottom: 5px;
+            padding-top: 10px;
+            width: 100%;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+            .umr-hd h2 {
+                font-size: 16px;
+                color: #000;
+                font-weight: normal;
+                text-align: left;
+            }
+
+                .umr-hd h2 em {
+                    font-size: 14px;
+                    float: left;
+                    font-style: normal;
+                }
+
+                .umr-hd h2 b {
+                    font-size: 14px;
+                    float: right;
+                    font-weight: normal;
+                }
+
+        .umr-hd-tt {
+            font-size: 26px;
+        }
+
+        .umr-hd-stt {
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .sb-tt {
+            margin-top: 0px;
+            font-weight: normal;
+            text-decoration: underline;
+        }
+
+        .mb-md {
+            margin-bottom: 30px;
+        }
+
+        .mb-sm {
+            margin-bottom: 15px;
+        }
+
+        .mt-md {
+            margin-top: 30px;
+        }
+
+        .mb-sm {
+            margin-bottom: 10px;
+        }
+
+        .umr-body li {
+            margin-bottom: 10px;
+        }
+
+        .tp-tt {
+            margin-top: 20px;
+            text-decoration: underline;
+            font-weight: bold;
+        }
+
+        .grey-bg {
+            background: #eee;
+            padding: 15px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+            .grey-bg .icn-box {
+                padding: 10px;
+            }
+
+                .grey-bg .icn-box em {
+                    font-size: 13px;
+                    color: #000;
+                    font-style: normal;
+                    width: 100%;
+                    display: inline-block;
+                    margin-bottom: 5px;
+                }
+
+                .grey-bg .icn-box span {
+                    font-size: 15px;
+                    color: #000;
+                    font-style: normal;
+                }
+
+        .cnt-bg {
+            padding: 15px 15px;
+        }
+
+        .gr-bg {
+            background: #eee;
+        }
+
+        .logo-section .icsr-logo {
+            width: 50px;
+            float: left;
+        }
+
+        .logo-section .dts {
+            width: calc(100% - 160px);
+            float: left;
+        }
+
+        .logo-section h4 {
+            margin-top: 0px;
+        }
+
+        .logo-section .iitm-logo {
+            width: 50px;
+            float: right;
+        }
+
+        .logo-section h5 {
+            font-size: 16px;
+        }
+
+        .umr-body .table > tbody > tr > td, .umr-body .table > tbody > tr > th, .umr-body .table > tfoot > tr > td, .umr-body .table > tfoot > tr > th, .umr-body .table > thead > tr > td, .umr-body .table > thead > tr > th {
+            padding: 5px;
+        }
+
+        .ct-tb em {
+            width: 100%;
+            display: inline-block;
+            font-size: 14px;
+            font-style: normal;
+        }
+
+        .ct-tb span {
+            font-weight: bold;
+        }
+
+        .ct-tb {
+            margin-bottom: 15px;
+        }
+
+        .ct-tr-tb {
+            margin-bottom: 0px;
+        }
+
+            .ct-tr-tb.table-bordered > tbody > tr > td, .ct-tr-tb.table-bordered {
+                border: 0px;
+            }
+
+        .ct-br-tb.table-bordered > tbody > tr > td {
+            border-color: rgba(0,0,0,0.7);
+        }
+
+        .ct-tb-trp.table-bordered > tbody > tr > td, .ct-tb-trp.table-bordered, .ct-tb-trp.table > thead > tr > th {
+            border: 0px;
+        }
+
+        .cnt-bg h4 {
+            margin-top: 30px;
+        }
+
+        .mn-tt {
+            font-size: 18px;
+        }
+
+        div.page {
+            page-break-after: always;
+            page-break-inside: avoid;
+            font-size: 18px;
+            position: relative;
+        }
+
+        .page {
+            position: relative;
+        }
+    </style>
+
+</head>
+<body class="umr-body">
+
+    <header class="umr-hd">
+        <div class="col-md-10 col-md-offset-1">
+            <div class="logo-section">
+                <img src="@Url.Content("~/Content/IOASContent/img/icsr_logo.png")" class="icsr-logo">
+                <div class="dts">
+                    <h4>Centre for IC & SR, IIT Madras</h4>
+                    <h5>Chennai 600 036</h5>
+                    @*<h5>'ICSR Over Head'</h5>*@
+                </div>
+                <img src="@Url.Content("~/Content/IOASContent/img/iitm_logo.png")" class="iitm-logo">
+            </div>
+        </div>
+    </header>
+    <section class="cnt-bg">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                    <table class="table table-bordered ct-tb ct-tb-trp">
+                        <thead>
+                            <tr>
+                                <th colspan="3" class="text-center mn-tt">REQUEST LETTER FOR MAKING ADVANCE IMPORT PAYMENT</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>To,</td>
+                                <td></td>
+                                <td class="text-right">Dated : <b>@Html.DisplayFor(m => m.Dated)</b></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td class="text-right">Ref : <b>@Html.DisplayFor(m => m.ForeignRemitNumber)</b></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <em>
+                                        The Branch Manager	<br>
+                                        CANARA BANK LTD.	<br>
+                                        IITM BRANCH
+                                    </em>
+                                </td>
+                                <td>
+                                    <em>
+                                        Project No: @Html.DisplayFor(m => m.ProjectNumber)<br>
+                                        Commitment No: @Html.DisplayFor(m => m.CommitNumber)<br>
+                                        Invoice No: @Html.DisplayFor(m => m.InvoiceNumber)
+                                    </em>
+                                </td>
+                                <td>
+                                    <em>
+                                        PO No: @Html.DisplayFor(m => m.PONumber)<br>
+                                        Portfolio Name: @Html.DisplayFor(m => m.Portfolio)	<br>
+                                        Invoice Date: @Html.DisplayFor(m => m.InvDate)
+                                    </em>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="3">We wish to make an advance payment towards import of Goods prescribed on the Invoice (Goods / Services) as part of our Raw Material / Capital Goods requirement:</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3">Request you to process the Import remittances / Demand Draft request as per following request: - </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cnt-bg" style="min-height:1000px">
+        <div class="container-fluid">
+            <div class="row">
+
+                <div class="col-md-12">
+                    <table class="table table-bordered ct-br-tb">
+                        <tbody>
+                            <tr>
+                                <td>Name & Address of the Customer</td>
+                                <td>
+                                    M/s. THE REGISTRAR IIT MADRAS <br>
+                                    IIT Madras Campus Post Office, Sardar Patel Road, Chennai
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Account to be Debited </td>
+                                <td>@Html.DisplayFor(m => m.AccountNumber) </td>
+                            </tr>
+                            <tr>
+                                <td>Account to be Debited for Charges </td>
+                                <td>@Html.DisplayFor(m => m.AccountNumberDebitedforCharges)</td>
+                            </tr>
+                            <tr>
+                                <td>Amount and Currency to be Remitted (figures & words)</td>
+                                <td>@Html.DisplayFor(m => m.RemittanceCurrencyCode) @Html.DisplayFor(m => m.ForeignRemittanceAmount) ( @Html.DisplayFor(m => m.RemittanceAmountinWords) )</td>
+                            </tr>
+                            <tr>
+                                <td>Beneficiary Name and Address</td>
+                                <td>@Html.DisplayFor(m => m.BeneficiaryName), <br> @Html.DisplayFor(m => m.BeneficiaryAddress), @Html.DisplayFor(m => m.BeneficiaryCity), @Html.DisplayFor(m => m.BeneficiaryCountryName), @Html.DisplayFor(m => m.BeneficiaryPinCode) </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Beneficiary Bank ACCOUNT NO <br>
+                                    Beneficiary Bank Name and Address
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(m => m.BeneficiaryBankAcNo) <br>
+                                    @Html.DisplayFor(m => m.BeneficiaryBank), @Html.DisplayFor(m => m.BeneficiaryBankBranch),<br> @Html.DisplayFor(m => m.BeneficiaryBankAddress), @Html.DisplayFor(m => m.BeneficiaryBankCountryName)
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Swift code / ABA / Routing no / Sort code of Beneficiary Bank</td>
+                                <td>@Html.DisplayFor(m => m.BeneficiaryBankSwiftCode)</td>
+                            </tr>
+                            <tr>
+                                <td>Correspondent / intermediary bank name and address</td>
+                                <td>@Html.DisplayFor(m => m.IntermediaryBank), &nbsp; @Html.DisplayFor(m => m.IntermediaryBankAddress)</td>
+                            </tr>
+                            <tr>
+                                <td>Swift code / ABA / Routing no / Sort code of Correspondent / intermediary bank</td>
+                                <td>@Html.DisplayFor(m => m.IntermediaryBankCodeNumber)</td>
+                            </tr>
+                            <tr>
+                                <td>Foreign Bank Charges</td>
+                                <td>(   ) on @Html.DisplayFor(m => m.ForeignBankChargesTypeName)  </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Shipment details -
+                                   
+                                </td>
+                                <td>
+                                    Expected Date of Despatch / Download (software) –  @Html.DisplayFor(m => m.ExpectedDateofDespatch)<br>
+                                    Name of the shipping company / airlines – @Html.DisplayFor(m => m.ShippingCompany)<br>
+                                    Port of Dispatch - @Html.DisplayFor(m => m.PortofDespatch)<br>
+                                    Destination Port – @Html.DisplayFor(m => m.DestinationPort)<br>
+                                    Country of Origin of goods - @Html.DisplayFor(m => m.CountryofOriginName)
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Goods Description and HS classification Code
+                                </td>
+                                <td>@Html.DisplayFor(m => m.GoodsDescription) @Html.DisplayFor(m => m.HSClassificationCode)</td>
+                            </tr>
+                            <tr>
+                                <td>Import License Details (if applicable)</td>
+                                <td>@Html.DisplayFor(m => m.ImportLicenseDetails)</td>
+                            </tr>
+                            <tr>
+                                <td>SPECIAL REF NO TO BE MENTIONED IN SWIFT / outlet no</td>
+                                <td>@Html.DisplayFor(m => m.SpecialReferenceNumber)</td>
+                            </tr>
+                            <tr>
+                                <td>Rate / contract booked with treasury – if any</td>
+                                <td>@Html.DisplayFor(m => m.RateorContractBookedDetails)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                   
+                </div>
+
+
+            </div>
+        </div>
+    </section>
+
+    <section class="cnt-bg" style="min-height:1070px">
+        <p>We undertake that we shall make physical import within 6 months from the date of remittance (Maximum Period - 3 years in case of Capital goods) and documentary evidence of import (Bill of entry – Exchange control copy or Courier Bill of Entry or CA certificate in case of Non Physical import) will be furnished within 15 days from the date of import. In case of non-import within the above specified period, we shall arrange to repatriate the funds and submit original FIRC to the bank.</p>
+        <h4>OFAC Declaration- </h4>
+        <p>I / We hereby declare that the above transaction does not involve, and is not designed for the purpose of any contravention or evasion of the provisions of the OFAC.</p>
+        <h4>FATF Declaration – (tick if applicable)</h4>
+        <p>We are aware that the above remittance is being made to a FATF listed country and as per prevailing AML guidelines, all due diligence of the beneficiary has been carried out at our end.  We indemnify the bank and request that the remittances should be carried out at our risk and responsibility. We shall not hold CANARA BANK responsible if proceeds for the said transaction are held by any foreign regulators or reach beneficiary with delay. If any additional information is sought by foreign regulators or correspondent bank or by any other external or internal authorities, the same will be provided by us to ensure completion of the transaction. Any loss / charges arising out of the said transaction will be borne by us.</p>
+        <h4>FEMA DECLARATION – CUM – UNDERTAKING </h4>
+        <p>The goods imported by us are (Pls select any one):</p>
+        <p>[  ] Not covered under prohibited or restricted list and are freely importable as per relevant para and Chapters of the extant Foreign Trade Policy and amendments there to.</p>
+        <p>[  ] Restricted for import as per relevant para and Chapters of the extant Foreign Trade Policy and amendments there to and original exchange control copy of the license issued by D.G.F.T. is enclosed.</p>
+        <p>We are eligible to import the above mentioned goods under the extant Foreign Trade policy. Our Importer Exporter Code is: 0100000011</p>
+        <p>I / We hereby declare that the above transaction does not involve, and is not designed for the purpose of any contravention or evasion of the provisions of the FEMA 1999 or of any rule, regulation, notification, direction or order made thereunder. I/ We also hereby agree and undertake to give such information/ documents as will reasonably satisfy you about this transaction in terms of the above declaration. I/ We also undertake that if I/ We refuse to comply with any such requirements or make only unsatisfactory compliance therewith, the bank shall refuse in writing to undertake the transaction and shall if it has reason to believe that any contravention /evasion is contemplated by me /us report the matter to Reserve Bank of India. *I / We further declare that the undersigned has/have the authority to give this declaration and undertaking on behalf of the firm/company.</p>
+        <p>We further confirm that the above remittance has not been effected through any other Authorised Dealer</p>
+        <p>
+            [  ] Part Payment – We are hereby paying only part amount of Invoice due to ____________________________
+            _______________________________________________________________________________________
+
+        </p>
+        <h4>Documents Attached: </h4>
+        <p>
+            [  ] Proforma Invoice (Duly accepted by the importer)<br>
+            [  ] Purchase order  <br>
+            [  ] Original License (Exchange control copy), If applicable <br>
+            [  ] Original Bank Guarantee (If amount of advance remittance exceeds USD 200000 or Equivalent) <br>
+            [  ] Other documents. Pls. specify____________________________________________
+        </p>
+    </section>
+        @if (Model.BeneficiaryBankCountry != Model.BeneficiaryCountry && Model.BeneficiaryBankCountry != null)
+        {
+            <div class="page">
+                <header class="umr-hd">
+                    <div class="col-md-10 col-md-offset-1">
+                        <div class="logo-section">
+                            <img src="@Url.Content("~/Content/IOASContent/img/icsr_logo.png")" class="icsr-logo">
+                            <div class="dts">
+                                <h4>Centre for IC & SR, IIT Madras</h4>
+                                <h5>Chennai 600 036</h5>
+                                @*<h5>'ICSR Over Head'</h5>*@
+                            </div>
+                            <img src="@Url.Content("~/Content/IOASContent/img/iitm_logo.png")" class="iitm-logo">
+                        </div>
+                    </div>
+                </header>
+                <section class="cnt-bg">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <p>Date: @Html.DisplayFor(m => m.Dated)</p>
+                                <p>
+                                    The Branch Manager, <br>
+                                    CANARA BANK, <br>
+                                    IITM BRANCH. <br>
+                                </p>
+                                <p>Dear Sir / Madam</p>
+                                <p><b>Sub: Import consignment of @Html.DisplayFor(m => m.RemittanceCurrencyCode) @Html.DisplayFor(m => m.ForeignRemittanceAmount) (FCY Amount) vide Invoice @Html.DisplayFor(m => m.InvoiceNumber) dated @Html.DisplayFor(m => m.InvDate)</b></p>
+
+                                <p>@Html.DisplayFor(m => m.GoodsDescription) is imported from @Html.DisplayFor(m => m.BeneficiaryName) and the country is @Html.DisplayFor(m => m.BeneficiaryCountryName) The invoice number @Html.DisplayFor(m => m.InvoiceNumber) dated @Html.DisplayFor(m => m.InvDate)</p>
+                                <p>We have to remit the import consideration for the above invoice to @Html.DisplayFor(m => m.BeneficiaryName) to the country is @Html.DisplayFor(m => m.BeneficiaryBankCountryName) were the beneficiary`s HO is located at @Html.DisplayFor(m => m.BeneficiaryBankCountryName).</p>
+                                <p>We are aware of all risk involved in making the payment to 3rd Country and accept the reasons provided by our oversea seller to remit the amount to different country.</p>
+                                <p>We also confirm that we are in the business of international trade for a period of more than 30 Years.</p>
+                                <p>We also indemnify you against any possible loss arising due to whatsoever reasons in processing this transaction.</p>
+                                <p>Truly yours</p>
+                                <p class="mb-md">For The Registrar IIT Madras</p>
+                                <p>Authorized Signatory/ies <br>Powered by </p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        }
+            
+    <!-- main js files -->
+    <script src="js/plugins/jquery-2.2.4.min.js"></script>
+    <script src="js/bootstrap.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,568 @@
+﻿@model IOAS.Models.SRBModel
+
+<div id="AddNewSRBModal" class="modal fade" role="dialog">
+    @using (Html.BeginForm("SRB", "Facility", FormMethod.Post, new { @id = "frmSRB", role = "form", enctype = "multipart/form-data" }))
+    {
+        <div class="modal-dialog modal-lg">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h3 class="modal-title">SRB</h3>
+                </div>
+                <div class="modal-body">
+                    <div class="custom-jsgrid-normal">
+                        <div class="row">
+
+                            <div class="col-md-12">
+                                <div class="col-md-12">
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            <h3 class="panel-title">Item Details</h3>
+                                        </div>
+                                        <div class="panel-body">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div id="divContent">
+                                                        <div id="divDefContent" class="row dyn-cont-box">
+                                                            <div class="col-md-6">
+                                                                <div class="form-group custom-form-group">
+                                                                    <label class="required">Item category</label>
+                                                                    @Html.DropDownList("ItemCategory", new SelectList(ViewBag.CategoryList, "id", "name"), "Select Category", new { @class = "form-control" })
+                                                                    @Html.ValidationMessageFor(M => M.ItemCategory)
+                                                                </div>
+
+                                                                <div class="form-group custom-form-group">
+                                                                    <label class="required">Quantity</label>
+                                                                    @Html.TextBox("Quantity", "", new { @class = "form-control", @onkeypress = "return isDecimalKey(event)" })
+                                                                    @Html.ValidationMessageFor(M => M.Quantity)
+                                                                </div>
+                                                                <div class="form-group custom-form-group">
+                                                                    <label class="required">Item value</label>
+                                                                    @Html.TextBox("TotalAmount", "", new { @class = "form-control", @onkeypress = "return isDecimalKey(event)", @autocomplete = "off" })
+                                                                    @Html.ValidationMessageFor(M => M.TotalAmount)
+                                                                </div>
+                                                                <div class="form-group custom-form-group">
+                                                                    <label>Buyback</label>
+                                                                    <input type="hidden" name="selBuyBack" />
+                                                                    <div name="buyBackDiv" class="pd-null form-control">
+                                                                        <div name="listbox_id" class="listbox_id">
+
+                                                                        </div>
+                                                                    </div>
+
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <div class="form-group custom-form-group">
+                                                                    <label class="required">Item name </label>
+                                                                    @Html.TextBox("ItemName", "", new { @class = "form-control" })
+                                                                    @Html.ValidationMessageFor(M => M.ItemName)
+                                                                </div>
+                                                                <div class="form-group custom-form-group">
+                                                                    <label class="required">UOM</label>
+                                                                    @Html.DropDownList("UOM", new SelectList(ViewBag.UOMList, "id", "name"), "Select UOM", new { @class = "form-control" })
+                                                                    @Html.ValidationMessageFor(M => M.UOM)
+                                                                </div>
+                                                                <div class="form-group custom-form-group">
+                                                                    <label>Is Asset</label> <br />
+
+                                                                    <input type="checkbox" onchange="changeAsset(this)" name="Asset" />
+                                                                    <input type="hidden" name="IsAsset" value="">
+                                                                </div>
+                                                            </div>
+                                                            <div name="selListDiv" class="col-md-12"></div>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="panel-footer">
+                                            <div class="row">
+                                                <div class="col-md-10">
+                                                    <button type="button" id="btnAddNewItem" class="btn btn-primary btn-sm">Add new</button>
+                                                    <button type="button" id="btnRemoveLast" class="btn btn-danger btn-sm">Remove Last</button>
+                                                </div>
+                                                <div><label class="lbl-srb-ttl" id="lblNetVal"></label></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Supplier name</label>
+                                        @Html.TextBoxFor(M => M.SupplierName, new { @class = "form-control", @required = "required" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.SupplierName)</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Department</label>
+                                        @Html.DropDownListFor(m => m.Department, new SelectList(ViewBag.DepartmentList, "id", "name"), "Select Department", new { @class = "form-control", @required = "required" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Department)</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label>PO number</label>
+                                        @Html.TextBoxFor(M => M.PONumber, new { @class = "form-control" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.PONumber)</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Invoice date</label>
+                                        @Html.EditorFor(M => M.PurchaseDate, new { @class = "form-control", @required = "required" })
+                                        @Html.HiddenFor(m => m.SRBId)
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.PurchaseDate)</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Inward date</label>
+                                        @Html.EditorFor(M => M.InwardDate, new { @class = "form-control", @required = "required" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.InwardDate)</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Invoice number</label>
+                                        @Html.TextBoxFor(M => M.InvoiceNumber, new { @class = "form-control", @required = "required" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.InvoiceNumber)</div>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="col-md-12">
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Tax rate</label>
+                                        @Html.TextBoxFor(model => model.TaxRate, new { @class = "form-control", @onkeypress = "return isDecimalKey(event)", @autocomplete = "off" })
+                                        @Html.ValidationMessageFor(M => M.TaxRate)
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label>PO document (".pdf", ".doc", ".docx")</label>
+                                        @Html.TextBoxFor(model => model.PODocument, new { type = "file", @class = "txt-wrap" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(model => model.PODocument)</div>
+                                        @if (!String.IsNullOrEmpty(Model.DocFullName))
+                                        {<br /> <br />
+                                        <a class="txt-wrap" href="@Url.Action("ShowDocument", "Home", new { file = Model.DocFullName, filePath = "~/Content/SRBDocuments/" })" target="_blank"> @Model.DocName</a>
+                                        }
+                                    </div>
+                                </div>
+
+
+                            </div>
+                            <div class="col-md-12">
+                                <div class="col-md-12">
+                                    <div class="form-group custom-form-group">
+                                        <label>Remarks</label>
+                                        @Html.TextAreaFor(M => M.Remarks, new { @class = "form-control" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Remarks)</div>
+                                    </div>
+                                </div>
+
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <input id="btnSubmit" type="submit" class="btn btn-primary mr10" value="Submit" name="Button" />
+                    <input type="button" data-dismiss="modal" class="btn btn-default" value="Close" />
+                </div>
+            </div>
+        </div>
+    }
+</div>
+<div id="ValidationModal" class="modal fade modal-warning" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-warning"></i>
+                <h3 class="modal-title">Warning</h3>
+            </div>
+            <div class="modal-body">
+
+                <p id="MsgValidation"></p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<link href="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/css/bootstrap-select.min.css")" rel="stylesheet" />
+<script src="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/js/bootstrap-select.min.js")"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        //get the relevant form
+        var form = $('#frmSRB');
+        $('#btnRemoveLast').css("visibility", "hidden");
+        // delete validator in case someone called form.validate()
+        $(form).removeData("validator");
+        $.validator.unobtrusive.parse(form);
+        //if ($('#IsIPD').is(":checked")) {
+        //    $('#DivProNo').css("display", "none");
+        //    $('#DivPIName').css("display", "block");
+        //    $('#DivPIProNo').css("display", "block");
+        //} else {
+        //    $('#DivProNo').css("display", "block");
+        //    $('#DivPIName').css("display", "none");
+        //    $('#DivPIProNo').css("display", "none");
+        //}
+    });
+    var qty = @Html.Raw(Json.Encode(Model.Quantity));
+    var iCat = @Html.Raw(Json.Encode(Model.ItemCategory));
+    var iName = @Html.Raw(Json.Encode(Model.ItemName));
+    var ttlAmt = @Html.Raw(Json.Encode(Model.TotalAmount));
+    var uom = @Html.Raw(Json.Encode(Model.UOM));
+    var asset = @Html.Raw(Json.Encode(Model.IsAsset));
+    var buyBack = @Html.Raw(Json.Encode(Model.selBuyBack));
+    var buyBackNo = @Html.Raw(Json.Encode(Model.selBuyBackNo));
+    $.each(iCat, function (i, val) {
+        if (i == 0) {
+            document.getElementsByName('ItemCategory')[0].value = iCat[0];
+            document.getElementsByName('ItemName')[0].value = iName[0];
+            document.getElementsByName('Quantity')[0].value = qty[0];
+            document.getElementsByName('TotalAmount')[0].value = ttlAmt[0];
+            document.getElementsByName('UOM')[0].value = uom[0];
+            document.getElementsByName('Asset')[0].checked = asset[0];
+            document.getElementsByName('IsAsset')[0].value = asset[0];
+            document.getElementsByName('IsAsset')[0].value = asset[0];
+            document.getElementsByName('listbox_id')[0].innerHTML  = buyBackNo[0];
+            document.getElementsByName('selBuyBack')[0].value  = buyBack[0];
+        } else {
+            var cln = $("#divDefContent").clone().find("input").val("").end();
+            cln.find('div[name="selListDiv"]').empty();
+            cln.find('.listbox_id').empty();
+            $('#divContent').append(cln);
+            $('#btnRemoveLast').css("visibility", "visible");
+            document.getElementsByName('ItemCategory')[i].value = iCat[i];
+            document.getElementsByName('ItemName')[i].value = iName[i];
+            document.getElementsByName('Quantity')[i].value = qty[i];
+            document.getElementsByName('TotalAmount')[i].value = ttlAmt[i];
+            document.getElementsByName('UOM')[i].value = uom[i];
+            document.getElementsByName('Asset')[i].checked = asset[i];
+            document.getElementsByName('IsAsset')[i].value = asset[i];
+            document.getElementsByName('listbox_id')[i].innerHTML  = buyBackNo[i];
+            document.getElementsByName('selBuyBack')[i].value  = buyBack[i];
+        }
+        var netVal = 0;
+        $('input[name="TotalAmount"]').each(function (i) {
+            var ttlVal =parseFloat($(this).val());
+            if (!isNaN(ttlVal)) {
+                netVal = netVal +parseFloat($(this).val());
+            }
+        });
+        $("#lblNetVal").text(netVal);
+    });
+    function update(ele){
+        var selId = '', spantxt ='';
+        var index = $(ele).closest('#divDefContent').index();
+        //document.getElementsByName('listbox_id')[index].innerHTML  = ''
+        $.each($('[id^="chckBox_"]:checked'), function (i,indx) {
+            var ID = $(this).attr("id");
+            ID = ID.substr(ID.lastIndexOf("_") + 1);
+            var lbl = $(this).closest('tr').find('td:eq(3)').text();
+            if(spantxt == '')
+            {
+                spantxt ='<span class="tag" id="lblspan_'+indx+'">'+lbl+'</span>';
+            }else{
+                spantxt =spantxt + ',<span class="tag" id="lblspan_'+indx+'">'+lbl+'</span>';
+            }
+            if(selId == ''){
+                selId = ID
+            }else{
+                selId = selId + ',' + ID;
+            }
+
+        });
+        if(selId != '')
+        {
+            document.getElementsByName('Quantity')[index].value = '1';
+            var objQty = document.getElementsByName('Quantity')[index].classList;
+            objQty.add("ronly");
+            document.getElementsByName('Asset')[index].checked  = true;
+            document.getElementsByName('IsAsset')[index].value  = true;
+        }
+        else {
+            document.getElementsByName('Quantity')[index].value = '';
+            var objQty = document.getElementsByName('Quantity')[index].classList;
+            objQty.remove("ronly");
+            document.getElementsByName('Asset')[index].checked  = false;
+            document.getElementsByName('IsAsset')[index].value  = false;
+        }
+        document.getElementsByName('listbox_id')[index].innerHTML  =spantxt;
+        document.getElementsByName('selBuyBack')[index].value = selId;
+    }
+    $(document).on("keyup", 'input[name="TotalAmount"]', function () {
+        var netVal = 0;
+        $('input[name="TotalAmount"]').each(function (i) {
+            var ttlVal =parseFloat($(this).val());
+            if (!isNaN(ttlVal)) {
+                netVal = netVal +parseFloat($(this).val());
+            }
+        });
+        $("#lblNetVal").text(netVal);
+    });
+    $(document).on("click", '.clsSelectList', function () {
+        var index = $(this).closest('#divDefContent').index();
+        document.getElementsByName('selListDiv')[index].innerHTML  = '';
+    });
+    $(document).on("click", 'div[name="buyBackDiv"]', function () {
+        $('div[name="selListDiv"]').empty();
+        var index = $(this).closest('#divDefContent').index();
+        var selItem = document.getElementsByName('selBuyBack')[index].value;
+        var searchdata = { "selItems": selItem };
+        $.ajax({
+            url: '@Url.Action("CustomSelectList", "Facility")',
+            type: 'POST',
+            contentType: "application/x-www-form-urlencoded",
+            data: searchdata,
+            success: function (data) {
+                document.getElementsByName('selListDiv')[index].innerHTML  = data;
+            }
+        });
+    });
+    $(document).on("change", 'select[name="ItemCategory"]', function () {
+        var index = $(this).closest('#divDefContent').index();
+        var categoryId = $(this).val();
+        if(categoryId != ''){
+            $.getJSON("@Url.Action("CheckIsAsset", "Facility")", { CategoryId: categoryId },
+                        function (data) {
+                            if(data == true){
+                                document.getElementsByName('Quantity')[index].value = '1';
+                                var objQty = document.getElementsByName('Quantity')[index].classList;
+                                objQty.add("ronly");
+                                document.getElementsByName('Asset')[index].checked  = true;
+                                console.log(document.getElementsByName('Asset')[index]);
+                                document.getElementsByName('IsAsset')[index].value  = true;
+                            }else{
+                                document.getElementsByName('Quantity')[index].value = '';
+                                var objQty = document.getElementsByName('Quantity')[index].classList;
+                                objQty.remove("ronly");
+                                document.getElementsByName('Asset')[index].checked  = false;
+                                document.getElementsByName('IsAsset')[index].value  = false;
+                            }
+                        });
+        }else{
+            document.getElementsByName('Quantity')[index].value = '';
+            var objQty = document.getElementsByName('Quantity')[index].classList;
+            objQty.remove("ronly");
+            document.getElementsByName('Asset')[index].checked  = false;
+            document.getElementsByName('IsAsset')[index].value  = false;
+        }
+    });
+    function changeAsset(obj) {
+        var index = $(obj).closest('#divDefContent').index();
+        if ($(obj).is(':checked')) {
+            document.getElementsByName('Quantity')[index].value = '1';
+            var objQty = document.getElementsByName('Quantity')[index].classList;
+            objQty.add("ronly");
+            document.getElementsByName('Asset')[index].checked  = true;
+            document.getElementsByName('IsAsset')[index].value  = true;
+        }
+        else {
+            document.getElementsByName('Quantity')[index].value = '';
+            var objQty = document.getElementsByName('Quantity')[index].classList;
+            objQty.remove("ronly");
+            document.getElementsByName('Asset')[index].checked  = false;
+            document.getElementsByName('IsAsset')[index].value  = false;
+            document.getElementsByName('listbox_id')[index].innerHTML  ='';
+            document.getElementsByName('selBuyBack')[index].value = '';
+            document.getElementsByName('selListDiv')[index].innerHTML  = '';
+        }
+    }
+    $('#btnRemoveLast').click(function () {
+        var count = $("#divContent").children().length;
+        var choice = confirm("Are you sure, Do you want to remove this details?");
+        if (choice === true) {
+            if (count > 1) {
+                $('#divContent').children("div[id=divDefContent]:last").remove();
+            }
+            if (count == 2) {
+                $('#btnRemoveLast').css("visibility", "hidden");
+            }
+            var netVal = 0;
+            $('input[name="TotalAmount"]').each(function (i) {
+                var ttlVal =parseFloat($(this).val());
+                if (!isNaN(ttlVal)) {
+                    netVal = netVal +parseFloat($(this).val());
+                }
+            });
+            $("#lblNetVal").text(netVal);
+        }
+    });
+
+    $('#btnAddNewItem').click(function () {
+        var cln = $("#divDefContent").clone().find("input").val("").end();
+        cln.find('div[name="selListDiv"]').empty();
+        cln.find('.listbox_id').empty();
+        cln.find('input:checkbox').removeAttr('checked');
+        $('#divContent').append(cln);
+        $('#btnRemoveLast').css("visibility", "visible");
+
+    });
+    $('#ValidationModal').on('hidden.bs.modal', function(){
+        $('body').addClass('modal-open');
+    })
+    function isNumberKey(evt){
+        var charCode = (evt.which) ? evt.which : event.keyCode
+        if (charCode > 31 && (charCode < 48 || charCode > 57))
+            return false;
+        return true;
+    }
+    function isDecimalKey(evt){
+        var charCode = (evt.which) ? evt.which : event.keyCode
+        if (charCode > 31 && (charCode != 46 &&(charCode < 48 || charCode > 57)))
+            return false;
+        return true;
+    }
+    $(document).on("keypress", '.ronly', function () {
+        return false;
+    });
+    $('input[name="Quantity"],input[name="TotalAmount"],.ronly').on("copy cut paste drop", function () {
+        return false;
+    });
+
+    $("#btnSubmit").click(function (e) {
+        e.preventDefault();
+        $(".loading-bg").removeClass('dis-none');
+        var isValid = $('#frmSRB').valid();
+        if (!isValid){
+            $(".loading-bg").addClass('dis-none');
+            return false;
+        }
+        $('select[name="ItemCategory"]').each(function (i) {
+            if ($(this).val() =="") {
+                isValid = false;
+                $(this).focus();
+                $('#MsgValidation').html("Item category field is required.");
+                $('#ValidationModal').modal('toggle');
+                $(".loading-bg").addClass('dis-none');
+                return false;
+            }
+        });
+        if (!isValid)
+            return false;
+        $('input[name="ItemName"]').each(function (i) {
+            if ($(this).val() =="") {
+                isValid = false;
+                $(this).focus();
+                $('#MsgValidation').html("Item name field is required.");
+                $('#ValidationModal').modal('toggle');
+                $(".loading-bg").addClass('dis-none');
+                return false;
+            }
+        });
+        if (!isValid)
+            return false;
+        $('input[name="UOM"]').each(function (i) {
+            if ($(this).val() =="") {
+                isValid = false;
+                $(this).focus();
+                $('#MsgValidation').html("UOM field is required.");
+                $('#ValidationModal').modal('toggle');
+                $(".loading-bg").addClass('dis-none');
+                return false;
+            }
+        });
+        if (!isValid){
+            $(".loading-bg").addClass('dis-none');
+            return false;
+        }
+        $('input[name="Quantity"]').each(function (i) {
+            var qtyVal = $(this).val();
+            var parseVal = parseInt(qtyVal);
+            if (qtyVal =="") {
+                isValid = false;
+                $(this).focus();
+                $('#MsgValidation').html("Quantity field is required.");
+                $('#ValidationModal').modal('toggle');
+                $(".loading-bg").addClass('dis-none');
+                return false;
+            }else if(isNaN(parseVal)){
+                isValid = false;
+                $(this).focus();
+                $('#MsgValidation').html("Quantity field must be a number.");
+                $('#ValidationModal').modal('toggle');
+            }
+        });
+        if (!isValid){
+            $(".loading-bg").addClass('dis-none');
+            return false;
+        }
+        $('input[name="TotalAmount"]').each(function (i) {
+            var ttlVal = $(this).val();
+            var parseVal = parseInt(ttlVal);
+            if (ttlVal =="") {
+                isValid = false;
+                $(this).focus();
+                $('#MsgValidation').html("Total amount field is required.");
+                $('#ValidationModal').modal('toggle');
+                $(".loading-bg").addClass('dis-none');
+                return false;
+            }else if(isNaN(parseVal)){
+                isValid = false;
+                $(this).focus();
+                $('#MsgValidation').html("Total amount must be a numeric value.");
+                $('#ValidationModal').modal('toggle');
+            }
+        });
+        if (!isValid){
+            $(".loading-bg").addClass('dis-none');
+            return false;
+        }
+        var file = $('#PODocument').val();
+        var isValidExten = false;
+        if (file != "") {
+            var file_size = $('#PODocument')[0].files[0].size;
+            var extension = file.substr((file.lastIndexOf('.') + 1)).toLowerCase();
+            switch (extension) {
+                case 'doc':
+                case 'docx':
+                case 'pdf':
+                    isValidExten = true;
+                    break;
+                default:
+                    isValidExten = false;
+            }
+            if (isValidExten == false) {
+                $('#MsgValidation').html("Please upload any one of these type file [doc, docx, pdf].");
+                $('#ValidationModal').modal('toggle');
+                $(".loading-bg").addClass('dis-none');
+                return false;
+            }
+            else if (file_size > 5242880) {
+                $('#MsgValidation').html("You can upload the file up to 5 MB.");
+                $('#ValidationModal').modal('toggle');
+                $(".loading-bg").addClass('dis-none');
+                return false;
+            }
+        }
+        if (isValid)
+            $('#frmSRB').submit();
+
+    });
+</script>

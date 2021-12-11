@@ -1,0 +1,77 @@
+﻿<style>
+    .modal-dialog {
+        width: 850px;
+    }
+
+    .rt-tb-scrl {
+        overflow: auto;
+        height: 600px;
+    }
+</style>
+<div id="dialogConfirm" class="modal fade" role="dialog" data-backdrop="static" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header brd-bottom">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">Mail Preview</h4>
+            </div>
+            <div class="modal-body">
+                <div style="padding:10px;overflow:auto" id="emailBody">
+
+                </div>
+            </div>
+            <div class="modal-footer brd-top">
+                <button type="button" class="btn btn-danger" id="isbtnSend">Confirm</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $('#isbtnSend').click(function (e) {
+        e.preventDefault();
+        var AppId = $('#tempAppid').text() || 0;
+        var OrderId = $('#tempOrderid').text() || 0;
+        var AppType = $('#tempApptype').text() || "";
+        $('#dialogConfirm').modal('toggle');
+        $.ajax({
+            type: "Post",
+            url: '@Url.Action("SendVerificationReminder", "Requirement")',
+            data: {
+                AppId: AppId,
+                Apptype: AppType,
+                OrderId: OrderId
+            },
+            beforeSend: function () {
+                $(".loading-bg").removeClass('dis-none');
+            },
+            success: function (result) {
+                $(".loading-bg").addClass('dis-none');
+                if (result.Item1 == 0) {
+                    $('#emailBody').html(result.Item2);
+                    $('#dialogConfirm').modal('toggle');
+                }
+                else if (result.Item1 == 1) {
+                    $('#alertTitle').html("Success");
+                    $('#alertSuccessContent').html("Reminder mail sent to Candidate");
+                    $('#SuccessAll').modal('toggle');
+                    $("#VerificationList").jsGrid("loadData");
+                }
+                else if (result.Item1 == 2) {
+                    $('#alertTitle').html("Success");
+                    $('#alertSuccessContent').html("Final reminder sent to Candidate");
+                    $('#SuccessAll').modal('toggle');
+                    $("#VerificationList").jsGrid("loadData");
+                }
+                else {
+                    $('#FailedAlert').html("Something Went to Wrong Please Conatact Administrator");
+                    $('#Failed').modal('toggle');
+                }
+            },
+            error: function (err) {
+                console.log("error1 : " + err);
+            }
+        });
+    });
+</script>

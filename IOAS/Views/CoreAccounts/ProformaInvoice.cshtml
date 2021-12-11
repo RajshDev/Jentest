@@ -1,0 +1,844 @@
+﻿@model IOAS.Models.InvoiceListModel
+@{
+    ViewBag.Title = "Proforma Invoice List";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+@Styles.Render("~/bundles/JSGridCss")
+@Scripts.Render("~/bundles/JSGrid")
+<div class="row hd-tt-bg" id="addnewpage">
+    <div class="col-md-4">
+        <h3>Proforma Invoice List</h3>
+        @*<div class="search-btn">
+                <input type="text" value="" placeholder="Search" class="form-control">
+                <a href="#" id="btnsearch" class="btn"> <i class="ion-search"></i></a>
+            </div>*@
+
+    </div>
+    <div class="col-md-8 flt-nav-links">
+
+        @*<a href="#"> <i class="ion-android-funnel"></i>Filters</a>*@
+        <a href="Javascript:void(0)" id="btnFilter" class="pull-right"> <i class="ion-android-funnel"></i>Filters</a>
+        <a href="#" id="btnaddnew" data-toggle="modal" data-target="#AddNewEntryModel"> <i class="ion-plus"></i>Add New</a>
+        <a href="#" id="btndraft" data-toggle="modal" data-target="#PickDraftModel"> <i class="ion-plus"></i>Pick From Draft</a>
+        @*<a href="#" id="btncancelInvoice" data-toggle="modal" data-target="#CancelInvoice"> <i class="ion-android-cancel"></i>Cancel Invoice</a>*@
+
+    </div>
+    @*@if (Model.Userrole == 8)
+        {*@
+    <div id="popupFilter" class="filter-popup">
+        <div class="">
+            <div class="filter-content">
+                <div class="white-bg">
+                    <div class="form-group custom-form-group">
+                        <h3>Filter by</h3>
+                    </div>
+                    <div class="form-group custom-form-group">
+                        @Html.DropDownListFor(m => m.SearchField.InvoiceType, new SelectList(ViewBag.TypeofInvoice, "codevalAbbr", "CodeValDetail"), "Invoice Type", new { @id = "srchInvoicetype", @class = "form-control" })
+                    </div>
+                    <div class="form-group custom-form-group">
+                        @Html.TextBoxFor(m => m.SearchField.ProjectNumber, new { @id = "srchProjectNumber", @placeholder = "Project Number", @class = "form-control" })
+                        @Html.Hidden("ProjectId")
+                        @Html.Hidden("ProjectType")
+                    </div>
+                    <div class="form-group custom-form-group">
+                        @Html.TextBoxFor(m => m.SearchField.InvoiceNumber, new { @id = "srchInvoiceNumber", @placeholder = "Invoice Number", @class = "form-control" })
+                    </div>
+
+                    <div class="form-group custom-form-group">
+                        @Html.DropDownListFor(m => m.SearchField.PIName, new SelectList(ViewBag.PIName, "id", "name"), "PI Name", new { @id = "srchPIName", @class = "form-control selectpicker" })
+                    </div>
+                    @*<div class="form-group custom-form-group">
+                            <label>Search by</label><br>
+                            <label class="radio chkbox-adj">
+                                @Html.RadioButtonFor(m => m.SearchField.SearchBy, "InvoiceDate", new { @id = "SearchBy_InvoiceDate", @checked = "checked" })
+                                <span></span>
+                                Invoice Date
+                            </label>
+                            <label class="radio chkbox-adj">
+                                @Html.RadioButtonFor(m => m.SearchField.SearchBy, "SRBDate", new { @id = "SearchBy_SRBDate" })
+                                <span></span>
+                                Inward Date
+                            </label>
+                        </div>*@
+
+                    <div id="DivInvoiceDate" class="form-group custom-form-group">
+                        <label class="full-width">Invoice Date</label>
+                        <label class="half-form">From Date</label>
+                        <label class="half-form">To Date</label>
+                        @Html.TextBoxFor(m => m.SearchField.FromDate, new { @id = "FromDate", @class = "form-control half-form" })
+                        @Html.TextBoxFor(m => m.SearchField.ToDate, new { @id = "ToDate", @class = "form-control half-form" })
+                    </div>
+
+                    <div class="form-group custom-form-group mt30 text-center">
+                        <a id="btnReset" href="javascript:void(0)">Reset</a>
+                    </div>
+                    <div class="form-group custom-form-group mt30 text-center">
+                        <button id="btnSearch" type="button" class="btn btn-primary mr10">Search</button>
+                        <button name="btnClose" type="button" class="btn btn-default">Close</button>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <a href="javascript:void(0)" name="btnClose" class="close-btn"><i class="ion-android-cancel"></i></a>
+
+    </div>
+
+    <div class="row mt30" id="gridproject">
+        <div id="AddNewEntryModel" class="modal fade" role="dialog">
+            <div class="modal-dialog wdth80">
+
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" onclick="window.location.href='@Url.Action("ProformaInvoice", "Project")';">&times;</button>
+                        <h3 class="modal-title">Select Project</h3>
+                    </div>
+                    <div class="modal-body">
+
+                        <!-- Modal content-->
+                        <div class="col-md-12">
+                            @*<div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label class="required">Project Type</label>
+                                                @Html.DropDownListFor(m => m.ProjectType, new SelectList(ViewBag.projecttype, "CodeValAbbr", "CodeValDetail"), "Select Project Type",
+                                new { @class = "form-control", @id = "selectProjecttype" })
+
+                                                <div> @Html.ValidationMessageFor(m => m.ProjectType)</div>
+                                            </div>
+                                        </div>*@
+                            <div class="col-md-4">
+                                <div class="form-group custom-form-group">
+                                    <label class="required">PI</label>
+                                    @Html.DropDownListFor(m => m.PIId, new SelectList(ViewBag.PIName, "id", "name"), "Select PI", new { @class = "form-control selectpicker", @id = "SelectPI" })
+                                    <div> @Html.ValidationMessageFor(m => m.PIId)</div>
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="form-group custom-form-group">
+                                    <label class="required"> Project  </label>
+                                    @Html.DropDownListFor(m => m.SelectProject, new SelectList(ViewBag.ProjectNumberList, "id", "name"), "Select Project",
+                    new { @class = "form-control selectpicker", @id = "Projectlist" })
+
+                                    @Html.ValidationMessageFor(m => m.SelectProject)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+
+                        <button type="button" class="btn btn-primary mt10" data-dismiss="modal" id="btnselectproject">Ok</button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt30" id="gridinvoice">
+        <div id="PickDraftModel" class="modal fade" role="dialog">
+            <div class="modal-dialog wdth80">
+
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" onclick="window.location.href='@Url.Action("ProformaInvoice", "Project")';">&times;</button>
+                        <h3 class="modal-title">Select Invoice</h3>
+                    </div>
+                    <div class="modal-body">
+
+                        <!-- Modal content-->
+                        <div class="col-md-12">
+                            @*<div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label class="required">Project Type</label>
+                                                @Html.DropDownListFor(m => m.ProjectType, new SelectList(ViewBag.projecttype, "CodeValAbbr", "CodeValDetail"), "Select Project Type",
+                                new { @class = "form-control", @id = "selecttypeofproject" })
+
+                                                <div> @Html.ValidationMessageFor(m => m.ProjectType)</div>
+                                            </div>
+                                        </div>*@
+                            <div class="col-md-4">
+                                <div class="form-group custom-form-group">
+                                    <label class="required">PI</label>
+                                    @Html.DropDownListFor(m => m.PIId, new SelectList(ViewBag.PIName, "id", "name"), "Select PI", new { @class = "form-control selectpicker", @id = "txtSelectPI" })
+                                    <div> @Html.ValidationMessageFor(m => m.PIId)</div>
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="form-group custom-form-group">
+                                    <label class="required"> Project  </label>
+                                    @Html.DropDownListFor(m => m.SelectProject, new SelectList(ViewBag.ProjectNumberList, "id", "name"), "Select Project",
+                    new { @class = "form-control selectpicker", @id = "ListofProject" })
+
+                                    @Html.ValidationMessageFor(m => m.SelectProject)
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-12">
+
+                            <div class="col-md-8">
+                                <div class="form-group custom-form-group">
+                                    <label class="required"> Invoice  </label>
+                                    @Html.DropDownListFor(m => m.SelectInvoice, new SelectList(ViewBag.Invoice, "id", "name"), "Select Invoice",
+                    new { @class = "form-control selectpicker", @id = "Invoicelist" })
+
+                                    @Html.ValidationMessageFor(m => m.SelectInvoice)
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+
+                        <button type="button" class="btn btn-primary mt10" data-dismiss="modal" id="btnselectinvoice">Ok</button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @*<div class="row mt30" id="gridcancelinvoice">
+        <div id="CancelInvoice" class="modal fade" role="dialog">
+            <div class="modal-dialog wdth80">
+
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" onclick="window.location.href='@Url.Action("ProformaInvoice", "Project")';">&times;</button>
+                        <h3 class="modal-title">Select Invoice</h3>
+                    </div>
+                    <div class="modal-body">
+
+                        <div class="col-md-12">
+                            <div class="col-md-4">
+                                <div class="form-group custom-form-group">
+                                    <label class="required">PI</label>
+                                    @Html.DropDownListFor(m => m.PIId, new SelectList(ViewBag.PIName, "id", "name"), "Select PI", new { @class = "form-control selectpicker", @id = "txtPISelect" })
+                                    <div> @Html.ValidationMessageFor(m => m.PIId)</div>
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="form-group custom-form-group">
+                                    <label class="required"> Invoice  </label>
+                                    @Html.DropDownListFor(m => m.SelectCancelInvoice, new SelectList(ViewBag.Invoice, "id", "name"), "Select Invoice",
+                    new { @class = "form-control selectpicker", @id = "CancelInvoicelist" })
+
+                                    @Html.ValidationMessageFor(m => m.SelectCancelInvoice)
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+
+                        <button type="button" class="btn btn-primary mt10" data-dismiss="modal" id="btnselectinvoice">Ok</button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>*@
+    @*}
+        @if (Model.Userrole == 7)
+        {
+            <div id="popupFilter" class="filter-popup">
+                <div class="">
+                    <div class="filter-content">
+                        <div class="white-bg">
+                            <div class="form-group custom-form-group">
+                                <h3>Filter by</h3>
+                            </div>
+                            <div class="form-group custom-form-group">
+                                @Html.DropDownListFor(m => m.SearchField.InvoiceType, new SelectList(ViewBag.TypeofInvoice, "codevalAbbr", "CodeValDetail"), "Invoice Type", new { @id = "srchInvoicetype", @class = "form-control" })
+                            </div>
+                            <div class="form-group custom-form-group">
+                                @Html.TextBoxFor(m => m.SearchField.ProjectNumber, new { @id = "srchProjectNumber", @placeholder = "Project Number", @class = "form-control" })
+                                @Html.Hidden("ProjectId")
+                                @Html.Hidden("ProjectType")
+                            </div>
+                            <div class="form-group custom-form-group">
+                                @Html.TextBoxFor(m => m.SearchField.InvoiceNumber, new { @id = "srchInvoiceNumber", @placeholder = "Invoice Number", @class = "form-control" })
+                            </div>
+
+                            <div class="form-group custom-form-group">
+                                <label>Search by</label><br>
+                                <label class="radio chkbox-adj">
+                                    @Html.RadioButtonFor(m => m.SearchField.SearchBy, "InvoiceDate", new { @id = "SearchBy_InvoiceDate", @checked = "checked" })
+                                    <span></span>
+                                    Invoice Date
+                                </label>
+
+                            </div>
+
+                            <div id="DivInvoiceDate" class="form-group custom-form-group">
+                                <label class="full-width">Invoice Date</label>
+                                @Html.EditorFor(m => m.SearchField.FromDate, new { @id = "FromDate", @class = "form-control half-form" })
+                                @Html.EditorFor(m => m.SearchField.ToDate, new { @id = "ToDate", @class = "form-control half-form" })
+                            </div>
+
+                            @*<div id="DivCreateDate" class="form-group custom-form-group">
+                                    <label class="full-width">Inward Date</label>
+                                    @Html.TextBoxFor(m => m.SearchField.FromSRBDate, new { @id = "FromSRBDate", @class = "form-control half-form" })
+                                    @Html.TextBoxFor(m => m.SearchField.ToSRBDate, new { @id = "ToSRBDate", @class = "form-control half-form" })
+                                </div>*@
+    @* <div class="form-group custom-form-group mt30 text-center">
+                            <button id="btnSearch" type="button" class="btn btn-primary mr10">Search</button>
+                            <button name="btnClose" type="button" class="btn btn-default">Close</button>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+            <a href="javascript:void(0)" name="btnClose" class="close-btn"><i class="ion-android-cancel"></i></a>
+
+        </div>
+
+        <div class="row mt30" id="gridproject">
+            <div id="AddNewEntryModel" class="modal fade" role="dialog">
+                <div class="modal-dialog wdth80">
+
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" onclick="window.location.href='@Url.Action("ProformaInvoice", "Project")';">&times;</button>
+                            <h3 class="modal-title">Select Project</h3>
+                        </div>
+                        <div class="modal-body">
+                            <!-- Modal content-->
+                            <div class="col-md-10">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required"> Project  </label>
+                                        @Html.DropDownListFor(m => m.SelectProject, new SelectList(ViewBag.Project, "id", "name"), "Select Project",
+                    new { @class = "form-control selectpicker", @id = "PIProjectlist" })
+
+                                        @Html.ValidationMessageFor(m => m.SelectProject)
+                                    </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+
+                            <button type="button" class="btn btn-primary mt10" data-dismiss="modal" id="btnselectproject">Ok</button>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt30" id="gridinvoice">
+            <div id="PickDraftModel" class="modal fade" role="dialog">
+                <div class="modal-dialog wdth80">
+
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" onclick="window.location.href='@Url.Action("ProformaInvoice", "Project")';">&times;</button>
+                            <h3 class="modal-title">Select Invoice</h3>
+                        </div>
+                        <div class="modal-body">
+
+                            <!-- Modal content-->
+                            <div class="col-md-12">
+
+                                <div class="col-md-6">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required"> Project  </label>
+                                        @Html.DropDownListFor(m => m.SelectProject, new SelectList(ViewBag.Project, "id", "name"), "Select Project",
+                    new { @class = "form-control selectpicker", @id = "ListofProject" })
+
+                                        @Html.ValidationMessageFor(m => m.SelectProject)
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required"> Invoice  </label>
+                                        @Html.DropDownListFor(m => m.SelectInvoice, new SelectList(ViewBag.Invoice, "id", "name"), "Select Invoice",
+                    new { @class = "form-control selectpicker", @id = "Invoicelist" })
+
+                                        @Html.ValidationMessageFor(m => m.SelectInvoice)
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="modal-footer">
+
+                            <button type="button" class="btn btn-primary mt10" data-dismiss="modal" id="btnselectinvoice">Ok</button>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    *@
+</div>
+@Html.AntiForgeryToken()
+<div class="row mt30" id="gridData">
+
+    @Html.Partial("SearchProformaInvoiceList")
+</div>
+
+@if (ViewBag.succMsg != null)
+{
+    <div id="myModal" class="modal fade modal-success" role="dialog">
+        <div class="modal-dialog modal-sm">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" onclick="window.location.href='@Url.Action("ProformaInvoice", "Project")';">&times;</button>
+                    <i class="ion-android-checkmark-circle"></i>
+                    <h3 class="modal-title">Saved successfully</h3>
+                </div>
+                <div class="modal-body">
+
+                    <p>@ViewBag.succMsg</p>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" onclick="window.location.href='@Url.Action("ProformaInvoice", "Project")';">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            $('#myModal').modal('show');
+        });
+
+    </script>
+
+}
+@if (ViewBag.errMsg != null)
+{
+    <div id="myModal1" class="modal fade modal-error" role="dialog">
+        <div class="modal-dialog modal-sm">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" onclick="window.location.href='@Url.Action("ProformaInvoice", "Project")';">&times;</button>
+                    <i class="ion-android-cancel"></i>
+                    <h3 class="modal-title">Error Message</h3>
+                </div>
+                <div class="modal-body">
+
+                    <p>@ViewBag.errMsg</p>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" onclick="window.location.href='@Url.Action("ProformaInvoice", "Project")';">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            $('#myModal1').modal('show');
+        });
+
+    </script>
+}
+
+<div id="myModal2" class="modal fade modal-success" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times; onclick="window.location.href='@Url.Action("ProformaInvoice", "Project")';"</button>
+                <i class="ion-android-checkmark-circle"></i>
+                <h3 class="modal-title">Deleted successfully</h3>
+            </div>
+            <div class="modal-body">
+
+                <p>The Proposal has been Deleted successfully.</p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal" onclick="window.location.href='@Url.Action("ProformaInvoice", "Project")';">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div id="ValidationModal" class="modal fade modal-warning" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-warning"></i>
+                <h3 class="modal-title">Warning</h3>
+            </div>
+            <div class="modal-body">
+
+                <p id="MsgValidation"></p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<link href="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/css/bootstrap-select.min.css")" rel="stylesheet" />
+<script src="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/js/bootstrap-select.min.js")"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>
+<script>
+
+    $('#saveproject').hide();
+    $('#updateproject').hide();
+    // $('#gridsearchlist').hide();
+
+    $('#SelectPI').prop("selectedIndex", 0);
+    $('#txtSelectPI').prop("selectedIndex", 0);
+    $('#FromDate').val("");
+    $('#ToDate').val("");
+    $('#Projectlist').prop("selectedIndex", 0);
+    $('#ListofProject').prop("selectedIndex", 0);
+    $('#PIProjectlist').prop("selectedIndex", 0);
+
+    $(document).ready(function () {
+        //get the relevant form
+      //  var form = $('#frmSRB');
+        $('.selectpicker').selectpicker({
+            liveSearch: true
+        });
+        $('.selectpicker').selectpicker('refresh');
+    });
+
+    $(document).ready(function () {
+        //var SearchBy = $('input[name^="SearchField.SearchBy"]:checked').val();
+        //if (SearchBy == 'InvoiceDate') {
+        //    $('#DivInvoiceDate').show();
+        //    //$('#DivCreateDate').hide();
+        //}
+        //else {
+        //    $('#DivInvoiceDate').hide();
+        //    //$('#DivCreateDate').show();
+        //}
+        $("#FromDate, #ToDate").datepicker
+           ({
+               dateFormat: 'dd-MM-yy',
+               showStatus: true,
+               showWeeks: true,
+               changeYear: true,
+               yearRange: '-100:+0',
+               highlightWeek: true,
+               numberOfMonths: 1,
+               showAnim: "scale",
+               showOptions: {
+                   origin: ["top", "left"]
+               }
+           });
+
+    });
+
+    $('input[id^="SearchBy_"]').change(function () {
+        var value = $(this).val();
+        if (value == 'InvoiceDate') {
+            $('#DivInvoiceDate').show();
+            //$('#DivCreateDate').hide();
+        }
+        else {
+            $('#DivInvoiceDate').hide();
+            //$('#DivCreateDate').show();
+        }
+        $('#FromDate').val('');
+        $('#ToDate').val('');
+        //$('#FromCreateDate').val('');
+        //$('#ToCreateDate').val('');
+    });
+    $('a[name="btnClose"],button[name="btnClose"]').click(function () {
+        $('#popupFilter').css("display", "none");
+    });
+    $("#btnFilter").click(function () {
+        $('#popupFilter').css("display", "Block");
+    });
+
+    $("#btnselectproject").click(function () {
+        var projectid = $("#Projectlist").val();
+        var ProjectDetails = 'ProformaInvoice';
+        var PI = $("#SelectPI").val();
+
+        var IsValid = true;
+        if (!IsValid)
+            return
+        if (PI == "") {
+            IsValid = false;
+            $("#alert").text("Please select PI");
+            $('#Validation').modal('show');
+            $("#SelectPI").focus();
+            return false;
+        }
+        if (!IsValid)
+            return
+        if (projectid == "Select Any") {
+            IsValid = false;
+            $("#alert").text("Please select project");
+            $('#Validation').modal('show');
+            $("#Projectlist").focus();
+            return false;
+        }
+        if (IsValid == true)
+           // var searchdata = { "pId": projectid };
+            var url = '@Url.Action("CreateProformaInvoice", "Project")?pId=' + projectid;
+            window.location.href = url;
+
+        //window.location.href = "ProjectInvoice";
+        //$("#AddNewEntryModel").modal('hide');
+        //$("#CreateProjectInvoice").show();
+        //$("#gridData").hide();
+    });
+
+    $("#btnselectinvoice").click(function () {
+        var invoicedraftid = $("#Invoicelist").val();
+        var projectid = $("#ListofProject").val();
+        var PI = $("#txtSelectPI").val();
+        var IsValid = true;
+        if (!IsValid)
+            return
+        if (PI == "") {
+            IsValid = false;
+            $("#alert").text("Please select project type");
+            $('#Validation').modal('show');
+            $("#txtSelectPI").focus();
+            return false;
+        }
+        if (!IsValid)
+            return
+        if (projectid == "Select Any") {
+            IsValid = false;
+            $("#alert").text("Please select project");
+            $('#Validation').modal('show');
+            $("#Projectlist").focus();
+            return false;
+        }
+        if (!IsValid)
+            return
+        if (invoicedraftid == "Select Any") {
+            IsValid = false;
+            $("#alert").text("Please select invoice");
+            $('#Validation').modal('show');
+            $("#Projectlist").focus();
+            return false;
+        }
+        if (IsValid == true)
+            // var searchdata = { "pId": projectid };
+            var url = '@Url.Action("PickDraftProformaInvoice", "Project")?DraftId=' + invoicedraftid;
+        window.location.href = url;
+        });
+
+    $(document).on('click', '#divAllocateContent button', function () {
+        $(this).parent().parent("Div").remove();
+    });
+
+
+
+    $('#btnSave').on('click',function(d){
+        d.preventDefault();
+        var isValid = $('#formPE').valid();
+        if (!isValid)
+            return false;
+
+        $('#addnewpage').hide();
+        $('#projectextension').hide();
+        $('#gridlist').hide();
+        //$('#createuserid').hide();
+
+        if (isValid)
+            $('#formPE').submit();
+
+    });
+
+    $('#btnupdate').on('click', function (d) {
+        d.preventDefault();
+        var isValid = $('#formPE').valid();
+        if (!isValid)
+            return false;
+
+        $('#addnewpage').hide();
+        $('#projectextension').hide();
+        $('#gridlist').hide();
+        //$('#createuserid').hide();
+
+        if (isValid)
+            $('#formPE').submit();
+
+    });
+
+    $(document).on('click', '#divContent button[name="removeButton"]', function () {
+        $(this).parent().parent("Div").remove();
+    });
+
+
+    function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode != 46 && charCode > 31
+          && (charCode < 48 || charCode > 57))
+            return false;
+
+        return true;
+    }
+    function noedit() {
+        return false;
+    }
+    function ResetForm() {
+        $('#srchProjectNumber').val('');
+        $('#srchInvoicetype').val('');
+        $('#srchInvoiceNumber').val('');
+        $('#srchPIName').val('');
+        $('.selectpicker').val('default').selectpicker('deselectAll');
+        $('.selectpicker').selectpicker('refresh');
+        $('#FromDate').val('');
+        $('#ToDate').val('');
+    }
+    $('#btnReset').click(function () {
+        ResetForm();
+        getData(1);
+    });
+
+    $("#btnSearch").click(function () {
+        getData(1);
+    });
+    function getData(page) {
+        var token = $("input[name=__RequestVerificationToken]").val();
+        var ProjectNumber = $('#srchProjectNumber').val();
+        var InvoiceType = $('#srchInvoicetype').val();
+        var InvoiceNumber = $('#srchInvoiceNumber').val();
+        var PIName = $('#srchPIName').val();
+       // var SearchBy = $('input[name^="SearchField.SearchBy"]:checked').val();
+        var FromDate = $('#FromDate').val();
+        var ToDate = $('#ToDate').val();
+
+        var searchdata = { "__RequestVerificationToken": token, "ProjectNumber": ProjectNumber, "InvoiceNumber": InvoiceNumber, "InvoiceType": InvoiceType, "PIName": PIName, "FromDate": FromDate, "ToDate": ToDate, "page": page };
+
+        $.ajax({
+            url: '@Url.Action("SearchProformaInvoiceList", "Project")',
+            type: "POST",
+            contentType: "application/x-www-form-urlencoded",
+            data: searchdata,
+            success: function (data) {
+                $("#gridData").html(data);
+              //  $('#popupFilter').css("display", "none");
+            }
+        });
+
+    }
+
+    $("#SelectPI").change(function () {
+        var PIID = $(this).val();
+        $.getJSON("@Url.Action("LoadConsProjectList", "Project")", { PIId: PIID },
+                    function (locationdata) {
+                        var select = $("#Projectlist");
+                        select.empty();
+
+                        $.each(locationdata, function (index, itemData) {
+
+                            select.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name
+
+                            }));
+                        });
+                        select.selectpicker('refresh');
+                    });
+
+    });
+    $("#txtSelectPI").change(function () {
+        var PIID = $(this).val();
+        $.getJSON("@Url.Action("LoadConsProjectList", "Project")", { PIId: PIID },
+                    function (locationdata) {
+                        var select = $("#ListofProject");
+                        select.empty();
+
+                        $.each(locationdata, function (index, itemData) {
+
+                            select.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name
+
+                            }));
+                        });
+                        select.selectpicker('refresh');
+                    });
+
+    });
+
+    $("#ListofProject").change(function () {
+        var Projectid = $(this).val();
+        $.getJSON("@Url.Action("LoadProformaInvoiceList", "Project")", { ProjectId: Projectid },
+                    function (locationdata) {
+                        var select = $("#Invoicelist");
+                        select.empty();
+
+                        $.each(locationdata, function (index, itemData) {
+
+                            select.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name
+
+                            }));
+                        });
+                        select.selectpicker('refresh');
+                    });
+    });
+
+    $("#PIProjectlist").change(function () {
+        var Projectid = $(this).val();
+        var url = '@Url.Action("CreateProformaInvoice", "Project")?pId=' + Projectid;
+        window.location.href = url;
+    });
+
+    @*$("#txtPISelect").change(function () {
+        var PIID = $(this).val();
+        $.getJSON("@Url.Action("LoadCancelableInvList", "Project")", { PIId: PIID },
+                    function (locationdata) {
+                        var select = $("#CancelInvoicelist");
+                        select.empty();
+
+                        $.each(locationdata, function (index, itemData) {
+
+                            select.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name
+
+                            }));
+                        });
+                        select.selectpicker('refresh');
+                    });
+
+    });
+    $("#btncancelInvoice").click(function () {
+
+         $.getJSON("@Url.Action("LoadCancelInvoiceList", "Project")", { ProjectId: Projectid },
+                    function (locationdata) {
+                        var select = $("#CancelInvoicelist");
+                        select.empty();
+
+                        $.each(locationdata, function (index, itemData) {
+
+                            select.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name
+
+                            }));
+                        });
+                        select.selectpicker('refresh');
+                    });
+    });*@
+</script>

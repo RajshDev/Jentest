@@ -1,0 +1,339 @@
+﻿@model IOAS.Models.LedgerOBBalanceModel
+@{
+    ViewBag.Title = "LedgerOBBalance";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+<div class="row hd-tt-bg" id="addnewpage">
+    <div class="col-md-4">
+
+        <h3>Ledger Opening Balance</h3>
+
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="page-wrapper">
+            <div class="white-bg">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label class="required">Account Category</label>
+                            @Html.DropDownListFor(m => m.AccountCategoryId, new SelectList(ViewBag.AcctCty, "id", "name"), "Select Category", new { @id = "ddlActCategory", @class = "form-control" })
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group">
+                            <label class="required">Financial Year</label>
+                            @Html.DropDownListFor(m => m.FinalYearId, new SelectList(ViewBag.FinYear, "id", "name"), "Select Financial", new { @id = "ddlFinYear", @class = "form-control", @onchange = "GetLoadOBlist()" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    <div class="row mt30" id="gridlist">
+        <div class="col-md-12">
+            <div class="page-wrapper">
+                <div class="custom-jsgrid-normal">
+                    <div id="ledgerOBList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<div id="modified-CurOBPop" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close closepopup" data-dismiss="modal">
+                    <span aria-hidden="true">×</span><span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title" id="modified-CurOB">
+                    Current Opening Balance Updated
+                </h4>
+            </div>
+            <div class="modal-body">
+
+                <div class="row">
+                    <div class="col-md-offset-2 col-md-6">
+                        <div class="form-group custom-form-group ">
+                            <label>Current Opening Balance</label>
+                            @Html.TextBoxFor(m => m.PopupCurrentOpeningBalance, new { @class = "form-control", @id = "txtPopOBal", @disabled = "disabled" })
+                            @Html.HiddenFor(m => m.HeadOpeningBalanceId, new { @id = "hidOBBal" })
+                            @Html.HiddenFor(m => m.AccountHeadId, new { @id = "hidactHeadId" })
+                    </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-offset-2 col-md-6">
+                        <div class="form-group custom-form-group">
+                            <label class="required">Modified Opening Balance</label>
+                            @Html.TextBoxFor(m => m.PopModeifiedOpeningBalance, new { @class = "form-control", @id = "txtPopModifiedOBal"})
+                            <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.PopModeifiedOpeningBalance)</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-offset-2 col-md-6">
+                        <div class="form-group custom-form-group">
+                            <label class="required">Password</label>
+                            @Html.PasswordFor(m => m.Password, new { @class = "form-control", @id = "txtPassword"})
+                            <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Password)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+
+                <input type="submit" name="Button" value="Save" class="btn btn-primary" id="btnSave" />&nbsp; &nbsp;<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+    <script type="text/javascript">
+        $('#ddlActCategory').on('change', function () {
+            $("#ledgerOBList").jsGrid({
+                data: "",
+            });
+            $("#ddlFinYear").prop("selectedIndex", 0);
+        });
+        var GetLOBlist = 'LoadListWiseHead';
+        var db;
+        $(document).ready(function () {
+          
+            $('#ledgerOBList').jsGrid({
+                paging: true,
+                editing: false,
+                pageIndex: 1,
+                pageSize: 10,
+                filtering: true,
+                controller: {
+
+                    loadData: function (filter) {
+                        return $.grep(db, function (OB) {
+
+                            return (!filter.AccountGroupName || OB.AccountGroupName.toLowerCase().indexOf(filter.AccountGroupName.toLowerCase()) > -1)
+                            && (!filter.AccountHeadName || OB.AccountHeadName.toLowerCase().indexOf(filter.AccountHeadName.toLowerCase()) > -1)
+                            && (!filter.CurrentOpeningBalance || OB.CurrentOpeningBalance.toLowerCase().indexOf(filter.CurrentOpeningBalance.toLowerCase()) > -1);
+
+                        });
+                    }
+                },
+                fields: [
+                    { type: "number", name: "sno", title: "S.No", editing: false, align: "left", width: "30px",filtering:false },
+                            { type: "text", name: "AccountGroupName", title: "Account Group", align: "left", editing: false },
+                            { type: "text", name: "AccountHeadName", title: "Account Head", editing: false },
+                            { type: "text", name: "CurrentOpeningBalance", title: "Current Year OB", editing: false,filtering:false },
+                            { type: "number", name: "HeadOpeningBalanceId", title: "HOBId", editing: false, visible: false },
+                            { type: "number", name: "FinalYearId", title: "Fincial Yr", editing: false, visible: false },
+                            { type: "number", name: "AccountHeadId", title: "Account HeadId", editing: false, visible: false },
+                            {
+                                type: "control", editButton: false, deleteButton: false, width: "60px",
+                                _createFilterSwitchButton: function () {
+                                    return this._createOnOffSwitchButton("filtering", this.searchModeButtonClass, false);
+                                },
+                                itemTemplate: function (value, item) {
+                                    var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+                                    //if (item.Status == "Open") {
+                                    //    statusList = [{ id: "", name: "Select Action" }, { id: "Edit", name: "Edit" }, { id: "View", name: "View" }]
+
+                                    //}
+                                    //else {
+                                    statusList = [{ id: "", name: "Select Action" }, { id: "UOB", name: "Update Opening Balance" }]
+                                    //}
+                                    var $customSelect = $("<select>")
+                                        .attr("class", "form-control").prop("selectedIndex", "")
+                                    $.each(statusList, function (index, itemData) {
+                                        $customSelect.append($('<option/>', {
+                                            value: itemData.id,
+                                            text: itemData.name
+                                        }));
+                                    });
+                                    $customSelect.change(function (e) {
+                                        var selVal = $(this).val();
+                                        if (selVal == "UOB") {
+                                            //var urls = '@Url.Action("SettlementBillPayment", "CoreAccounts")?acctheadid=' + item.AccountHeadId;
+                                            var urls = 'GetOpeningBal';
+                                            var getaccount={"accheadid":item.AccountHeadId}
+                                            $.ajax({
+
+                                                type: "Get",
+                                                url: urls,
+                                                data:getaccount,
+                                                //contentType: "application/json; charset=utf-8",
+                                                //contentType: "application/x-www-form-urlencoded",
+                                                //dataType: "json",
+                                                async: false,
+                                                success: function (result) {
+                                                    $('#txtPopOBal').val(result.PopupCurrentOpeningBalance);
+                                                    $('#hidOBBal').val(result.HeadOpeningBalanceId);
+                                                    $('#hidactHeadId').val(result.AccountHeadId);
+                                                    $('#modified-CurOBPop').modal('show');
+
+                                                },
+                                                error: function (err) {
+                                                    console.log("error : " + err);
+                                                }
+
+                                            });
+                                        }
+
+                                        $(this).val("");
+                                        return false;
+                                        e.stopPropagation();
+                                    });
+                                    return $result.add($customSelect);
+                                },
+                            }
+                ],
+            });
+            $("#ledgerOBList").jsGrid("option", "filtering", false);
+        });
+        function GetLoadOBlist() {
+            var acidx = $("#ddlActCategory").val();
+            
+            
+            var getData = { "accounttypid": acidx};
+            $.ajax({
+
+                type: "GET",
+                url: GetLOBlist,
+                data: getData,
+                //contentType: "application/json; charset=utf-8",
+                //contentType: "application/x-www-form-urlencoded",
+                //dataType: "json",
+                async: false,
+                success: function (result) {
+                   
+                        $("#ledgerOBList").jsGrid({
+                            data: result
+                            
+                        });
+                        db = result;
+                },
+                error: function (err) {
+                    console.log("error : " + err);
+                }
+
+            });
+        }
+        $('#btnSave').on('click', function (d) {
+           
+            if(Validation()==true)
+            {
+            var getsave = 'AddOpeningBalanceLedger';
+            var input = {
+                PopupCurrentOpeningBalance: $("#txtPopOBal").val(),
+                HeadOpeningBalanceId: $("#hidOBBal").val(),
+                AccountHeadId: $("#hidactHeadId").val(),
+                PopModeifiedOpeningBalance: $("#txtPopModifiedOBal").val(),
+                Password: $("#txtPassword").val(),
+                FinalYearId: $("#ddlFinYear").val()
+            }
+            $.ajax({
+
+                type: "POST",
+                url: getsave,
+                data: input,
+                //contentType: "application/json; charset=utf-8",
+                //contentType: "application/x-www-form-urlencoded",
+                //dataType: "json",
+                //async: false,
+                success: function (result) {
+                    $('#modified-CurOBPop').modal('hide');
+                    if(result==1)
+                    {
+                        $('#alertSuccess').html("Saved Successfully");
+                        $('#Success').modal('show');
+                    }
+                    else if(result==2)
+                    {
+                        $('#alertSuccess').html("Updated Sucessfully");
+                        $('#Success').modal('show');
+                    }
+                    else if(result==3)
+                    {
+                        $('#FailedAlert').html("Your Password not correct please enter Correct Password");
+                        $('#Failed').modal('show');
+                    }
+                    else if (result == 4) {
+                        $('#alert').html("Your not Authorised Update in Head Opening Balance ");
+                        $('#Validation').modal('show');
+                    }
+                    else
+                    {
+                        $('#FailedAlert').html("Somthing Went to Wrong Please Contact Web Admin");
+                        $('#Failed').modal('show');
+                    }
+                    GetLoadOBlist();
+                    Reset();
+                },
+                error: function (err) {
+                    console.log("error : " + err);
+                }
+
+            });
+            }
+            
+        });
+       
+        function Reset() {
+            $("#txtPopModifiedOBal,#txtPassword").val('');
+        }
+        function Validation() {
+            if($('#txtPopModifiedOBal').val()=='')
+            {
+                
+                $('#alert').html("Please enter Modified Opening balance");
+                $('#Validation').modal('show');
+                return false;
+            }
+            else if($('#txtPassword').val()=='')
+            {
+                $('#alert').html("Please enter Password");
+                $('#Validation').modal('show');
+                return false;
+            }
+            if ($('#txtPopModifiedOBal').val() != '') {
+                var ch = $('#txtPopModifiedOBal').val();
+                if (!/^[0-9]+$/.test(ch)) {
+                    $('#alert').html("Please only enter Modified Balance numeric characters");
+                    $('#Validation').modal('show');
+                    return false;
+                }
+                else {
+                    return true;
+                }
+
+            }
+            else
+            {
+                return true;
+            }
+            
+
+        }
+        function chkcharcters()
+        {
+            if ($('#txtPopModifiedOBal').val() != '') {
+                var ch = $('#txtPopModifiedOBal').val();
+                if (!/^[0-9]+$/.test(ch)) {
+                    $('#alert').html("Please only enter Modified Balance numeric characters");
+                    $('#Validation').modal('show');
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
+                
+            }
+            
+        }
+    </script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>

@@ -1,0 +1,28 @@
+﻿@model IOAS.Models.ReceiptListModel
+
+    @{
+        if (Model.InvoiceNumber != null)
+        {
+            for (int i = 0; i < Model.InvoiceNumber.Count(); i++)
+            {
+                <tr>                  
+                   <td>@Html.DisplayFor(m => m.InvoiceNumber[i], new { @class = "form-control", @id = "txtPreviousInvoicenumber", @readonly = true })</td>
+                        <td>@Html.DisplayFor(m => m.InvoiceDatestr[i], new { @class = "form-control", @id = "txtInvoicedate", @readonly = true })</td>
+                        <td>@Html.DisplayFor(m => m.ProjectNumber[i], new { @class = "form-control", @align = "right", @id = "txtProjectnumber", @readonly = true })</td>
+                        <td>@Html.DisplayFor(m => m.PIName[i], new { @class = "form-control", @align = "right", @id = "txtPIName", @readonly = true })</td>
+                        <td>@Html.DisplayFor(m => m.InvoiceValue[i], new { @class = "form-control", @align = "right", @id = "txtInvoicevalue", @readonly = true })</td>
+                        <td>@{var btnselect = "btnSelect_" + Model.InvoiceId[i];} <a id="@btnselect" name="Select" href="javascript:void(0)" class="btn btn-primary">Select </a></td>
+                </tr>
+            }
+        }
+    }
+<script>
+$('[id^="btnSelect_"]').click(function () {
+        var ID = $(this).attr("id");
+        ID = ID.substr(ID.lastIndexOf("_") + 1);        
+        var url = '@Url.Action("CreateReceipt", "CoreAccounts")?ID=' + ID; 
+        window.location.href = url;
+    });
+</script>
+
+

@@ -1,0 +1,1088 @@
+﻿@model IOAS.Models.BRSModel
+@{
+    ViewBag.Title = "Bank Reconciliation";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<style>
+    /*div.table-wrapper {
+     border: 1px solid #ccc;
+     height: 100px;
+     width: 100%;
+     overflow-y: auto;
+    }*/
+
+    table {
+        width: 100%;
+    }
+
+        table thead tr th {
+            text-align: left;
+            position: sticky;
+            top: 0px;
+            /*background-color: #666;
+      color: #fff;*/
+        }
+
+    .bk-tb-scrl {
+        height: 300px;
+    }
+
+    .table > tbody > tr > td, .table > tbody > tr > th, .table > tfoot > tr > td, .table > tfoot > tr > th, .table > thead > tr > td, .table > thead > tr > th {
+        font-size: 12px;
+        font-weight: 300;
+    }
+
+    .bc-td-bg .table > tbody > tr > td {
+        padding: 5px 5px;
+    }
+
+    .bc-td-bg .table .ad-inp .form-control {
+        height: 33px;
+    }
+
+    .bc-td-bg .table .form-control {
+        height: 33px;
+    }
+</style>
+@using (Html.BeginForm("BRS", "CoreAccounts", FormMethod.Post, new { @class = "", role = "form", @id = "formBRS", enctype = "multipart/form-data" }))
+{
+    <div class="row hd-tt-bg">
+        <div class="col-md-12">
+            <h4><b>Bank Reconciliation</b> </h4>
+        </div>
+    </div>
+    <div class="row">
+        <div class="white-bg ad-navbar">
+
+            <div class="col-md-3 col-md-offset-9">
+                <div class="reg-no custom-reg-no">
+                    <div class="form-group custom-form-group">
+                        <label>Number</label>
+                        <h4>@Html.DisplayFor(m => m.BRSNumber)</h4>
+                        @Html.HiddenFor(m => m.BRSId)
+                        @Html.HiddenFor(m => m.Status)
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="page-wrapper">
+
+            <div class="col-md-12 mb-lg mt-lg">
+                <div class="bl-lg-panel-box">
+                    <div class="cmn-panel-box">
+                        <div class="row cmn-panel-box-adj">
+                            <div class="col-md-6">
+                                <div class="col-md-6">
+                                    <div class="form-group custom-form-group mb-null ">
+                                        <label>Bank: </label>
+                                        @Html.DropDownListFor(m => m.BankHeadId, new SelectList(ViewBag.BankHeadList, "id", "name"), "Select any",
+new { @class = "form-control" })
+                                        @Html.ValidationMessageFor(m => m.BankHeadId)
+                                        @Html.DropDownList("BankReason", new SelectList(ViewBag.BankReasonList, "id", "name"), "Select any",
+new { @class = "form-control dis-none" })
+                                        @Html.DropDownList("BookReason", new SelectList(ViewBag.BookReasonList, "id", "name"), "Select any",
+new { @class = "form-control dis-none" })
+                                    </div>
+                                </div>
+
+
+                                <div class="col-md-6">
+                                    <div class="form-group custom-form-group mb-null ">
+                                        <label>Bank Statement </label>
+                                        <input id="BSRFile" type="file">
+                                        @if (!String.IsNullOrEmpty(Model.DocumentName))
+                                        {
+                                            <a href="@Url.Action("ShowDocument","Project",new { file = Model.DocumentName, filepath = Model.DocumentPath })" target="_blank">@Model.DocumentActualName</a>
+                                        }
+                                        <a id="btnImportBRS" href="javascript:void(0)" class="btn btn-default">View Details</a>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group custom-form-group mb-null ">
+                                        <label>Remarks </label>
+                                        @Html.TextAreaFor(m => m.Remarks, new { @class = "form-control", @rows = "2" })
+                                        @Html.ValidationMessageFor(m => m.Remarks)
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="col-md-12">
+                                    <div class="form-group custom-form-group mb-null ">
+                                        <label>Transaction As on</label> <br>
+                                        @*@Html.EditorFor(m => m.BOAFromDate, new { @class = "form-control half-form" })
+                                            @Html.ValidationMessageFor(m => m.BOAFromDate)*@
+                                        @Html.EditorFor(m => m.BOAToDate, new { @class = "form-control" })
+                                        @Html.ValidationMessageFor(m => m.BOAToDate)
+                                        @*<input id="frmDate" type="text" class="form-control half-form" placeholder="From">
+                                            <input id="toDate" type="text" class="form-control half-form" placeholder="To">*@
+                                    </div>
+                                </div>
+                                <div class="col-md-12 text-center">
+                                    <a id="btnSrchTx" href="javascript:void(0)" class="btn btn-default">Search</a>
+
+
+                                </div>
+                                <div class="col-md-12 text-center">
+                                    <a id="btnReconcile" href="javascript:void(0)" class="btn btn-default">Reconcile</a>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <h3 class="mt-null">Bank Statement</h3>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-5">
+                                        <input type="text" id="searchBS" class="form-control" placeholder="search" />
+                                    </div>
+                                </div>
+                                <div class="grey-bg-adj bc-td-bg mb-lg">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="bk-tb-scrl">
+                                                <table class="table table-bordered mb-null" style="width: 1150px; max-width:1200px">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Date</th>
+                                                            <th style="width:200px;">Batch No</th>
+                                                            <th>Description</th>
+                                                            <th>Amount</th>
+                                                            <th>Type</th>
+                                                            <th>Reason</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="tbodyBTX">
+                                                        @{
+                                                            if (Model.txDetail != null)
+                                                            {
+                                                                int index = 0;
+                                                                foreach (var item in Model.txDetail)
+                                                                {
+                                                                    var txDate = "txDetail[" + index + "].TransactionDate";
+                                                                    var refNo = "txDetail[" + index + "].ReferenceNumber";
+                                                                    var des = "txDetail[" + index + "].Description";
+                                                                    var status = "txDetail[" + index + "].Status";
+                                                                    var dr = "txDetail[" + index + "].Debit";
+                                                                    var bal = "txDetail[" + index + "].Balance";
+                                                                    var cr = "txDetail[" + index + "].Credit";
+                                                                    var reson = "txDetail[" + index + "].Reason";
+                                                                    var detId = "txDetail[" + index + "].BRSDetailId";
+                                                                    <tr>
+                                                                        <td>
+                                                                            @item.TransactionDate.Value.ToString("dd/MM/yyyy")
+                                                                            <input type="hidden" name="@txDate" value="@item.TransactionDate" />
+                                                                            <input type="hidden" name="@detId" value="@item.BRSDetailId" />
+                                                                        </td>
+                                                                        <td>
+                                                                            @*@item.ReferenceNumber*@
+                                                                            <input class="form-control" name="@refNo" value="@item.ReferenceNumber" />
+                                                                        </td>
+                                                                        <td>
+                                                                            @item.Description
+                                                                            <input type="hidden" name="@des" value="@item.Description" />
+                                                                            <input type="hidden" name="@status" value="@item.Status" />
+                                                                        </td>
+                                                                        @if (item.Credit != 0 && item.Credit != null)
+                                                                        {
+                                                                            <td>
+                                                                                @item.Credit
+                                                                                <input type="hidden" name="@dr" value="@item.Debit" />
+                                                                                <input type="hidden" name="@bal" value="@item.Balance" />
+                                                                            </td>
+                                                                            <td>
+                                                                                Cr
+                                                                                <input type="hidden" name="@cr" value="@item.Credit" />
+                                                                            </td>
+                                                                        }
+                                                                        else if (item.Debit != 0 && item.Debit != null)
+                                                                        {
+                                                                            <td>
+                                                                                @item.Debit
+                                                                                <input type="hidden" name="@dr" value="@item.Debit" />
+                                                                                <input type="hidden" name="@bal" value="@item.Balance" />
+                                                                            </td>
+                                                                            <td>
+                                                                                Dr
+                                                                                <input type="hidden" name="@cr" value="@item.Credit" />
+                                                                            </td>
+                                                                        }
+                                                                        <td>
+                                                                            @Html.DropDownList(@reson, new SelectList(ViewBag.BankReasonList, "id", "name", item.Reason), "Select any",
+new { @class = "form-control" })
+                                                                        </td>
+                                                                    </tr>
+                                                                    index++;
+                                                                }
+                                                            }
+                                                        }
+
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="col-md-12">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <h3 class="mt-null">Transaction Details</h3>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-5">
+                                        <input type="text" id="searchTS" class="form-control" placeholder="search">
+                                    </div>
+                                    <div class="col-md-5 text-center">
+                                        <a id="btnDownloadBOATx" href="javascript:void(0)">Download</a>
+
+
+                                    </div>
+                                </div>
+                                <div class="grey-bg bc-td-bg mb-lg">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="bk-tb-scrl">
+                                                <table class="table  table-bordered mb-null" style="width: 1150px; max-width:1200px">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Vch Date</th>
+                                                            <th style="width:200px;">Batch No</th>
+                                                            <th>Description</th>
+                                                            <th>Amount</th>
+                                                            <th>Type</th>
+                                                            <th></th>
+                                                            <th style="width:200px;">Bank Transaction Date</th>
+                                                            <th style="width:200px;">Reason</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="tbodyBOAPayment">
+                                                        @{
+                                                            if (Model.boaDetail != null)
+                                                            {
+                                                                int index = 0;
+                                                                foreach (var item in Model.boaDetail)
+                                                                {
+                                                                    var reconcileF = "boaDetail[" + index + "].Reconciliation_f";
+                                                                    var refDate = "boaDetail[" + index + "].ReferenceDate";
+                                                                    var detailId = "boaDetail[" + index + "].BOAPaymentDetailId";
+                                                                    var remarks = "boaDetail[" + index + "].Remarks";
+                                                                    var vDate = "boaDetail[" + index + "].VoucherDate";
+                                                                    var amt = "boaDetail[" + index + "].Amount";
+                                                                    var typeOfTx = "boaDetail[" + index + "].TransactionType";
+                                                                    var refNo = "boaDetail[" + index + "].ReferenceNumber";
+                                                                    var reson = "boaDetail[" + index + "].Reason";
+                                                                    <tr>
+                                                                        <td>
+                                                                            @if (item.VoucherDate != null)
+                                                                            {
+                                                                                @item.VoucherDate.Value.ToString("dd/MM/yyyy")
+                                                                            }
+                                                                            <input type="hidden" name="@detailId" value="@item.BOAPaymentDetailId" />
+                                                                        </td>
+                                                                        <td>
+                                                                            <input type="text" class="form-control" name="@refNo" value="@item.ReferenceNumber" />
+                                                                        </td>
+                                                                        <td>
+                                                                            @item.Remarks
+                                                                            <input type="hidden" name="@vDate" value="@item.VoucherDate" />
+                                                                        </td>
+                                                                        <td>
+                                                                            @item.Amount
+                                                                            <input type="hidden" name="@remarks" value="@item.Remarks" />
+                                                                        </td>
+                                                                        <td>
+                                                                            @if (item.TransactionType == "Credit")
+                                                                            {
+                                                                                <text>Cr</text>
+                                                                            }
+                                                                            else if (item.TransactionType == "Debit")
+                                                                            { <text>Dr</text>
+                                                                            }
+                                                                            <input type="hidden" name="@amt" value="@item.Amount" />
+                                                                            <input type="hidden" name="@typeOfTx" value="@item.TransactionType" />
+                                                                        </td>
+                                                                        <td>
+                                                                            <label class="switch">
+                                                                                @if (item.Reconciliation_f == true)
+                                                                                {<input type="checkbox" name="@reconcileF" value="true" checked />}
+                                                                                else
+                                                                                { <input type="checkbox" name="@reconcileF" value="true" />}
+                                                                                <span class="slider round"></span>
+                                                                            </label>
+                                                                        </td>
+                                                                        <td>
+                                                                            <input type="text" class="form-control" name="@refDate" value="@item.ReferenceDate" />
+                                                                        </td>
+
+                                                                        <td>
+                                                                            @Html.DropDownList(@reson, new SelectList(ViewBag.BookReasonList, "id", "name", item.Reason), "Select any",
+new { @class = "form-control" })
+                                                                        </td>
+                                                                    </tr>
+                                                                    index++;
+                                                                }
+                                                            }
+                                                        }
+                                                    </tbody>
+                                                </table>
+
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12 text-center">
+                                <p><input id="chkAcknowledge" type="checkbox" class=""><span class="ml10">I acknowledge this BRS verified by me</span></p>
+                            </div>
+                            <div>
+                                @Html.HiddenFor(m => m.Verified_By)
+                                @Html.HiddenFor(m => m.VerifierName)
+                                @Html.HiddenFor(m => m.DocumentName)
+                                @Html.HiddenFor(m => m.DocumentActualName)
+                                <div class="col-md-3 col-md-offset-9">
+                                    <div class="form-group custom-form-group">
+                                        <label>Verified by</label>
+                                        <h4 id="Verified_ByName">@Html.DisplayFor(m => m.VerifierName)</h4>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-lg">
+                                <div class="col-md-12 text-center">
+                                    <a href="javascript:void(0)" id="lnkVerify" class="dis-none mr10">Verify</a>
+                                </div>
+                            </div>
+
+                            <div id="verifyModal" class="modal fade modal-pr-vw" role="dialog">
+                                <div class="modal-dialog">
+
+                                    <!-- Modal content-->
+                                    <div class="modal-content">
+
+                                        <div class="modal-body">
+                                            <div class="row">
+                                                <div class="page-wrapper">
+
+                                                    <div class="col-md-12">
+                                                        <div class="row">
+
+                                                            <div class="col-md-12">
+                                                                <div>
+                                                                    <div>
+                                                                        <div class="row">
+                                                                            <div class="col-md-12">
+                                                                                <div class="form-group custom-form-group mb-null">
+
+                                                                                    <div class="row">
+
+                                                                                        <div class="col-md-12">
+                                                                                            <div class="form-group custom-form-group mb-null">
+                                                                                                <label class="required">Password</label>
+                                                                                                <input class="form-control required" id="VerifierPassword" type="password">
+                                                                                                <span id="errorPass" class="field-validation-error"></span>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+
+                                                                    </div>
+
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                            <div class="page-wrapper">
+                                                <div class="col-md-12">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <a id="btnVerify" href="javascript:void(0);" class="btn btn-primary">Verify</a>
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="col-md-12 text-center">
+                                <div class="form-group custom-form-group ">
+                                    @if (Model.Status == "Init" || String.IsNullOrEmpty(Model.Status))
+                                    {
+                                        <button type="submit" id="btnDraft" class="btn btn-primary">Save Draft</button>
+                                    }
+                                    <button type="submit" id="btnSave" class="btn btn-primary">Submit</button>
+                                    <button type="button" class="btn btn-default" onclick="window.location.href='@Url.Action("BRSList", "CoreAccounts" )';">Close</button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+                                                            }
+<div id="popup"></div>
+@Html.AntiForgeryToken()
+<script>
+    var dis = '@ViewBag.disabled';
+    if (dis != "") {
+
+        $('.ion-trash-a').removeClass();
+        $('#btnSave').hide();
+        $('.form-control').prop('disabled', true);
+        $('#ProcessStatusContainer .form-control').prop('disabled', false);
+        $('input[type="file"],#btnAddDrDetail,#btnAddCrDetail,.removeDrDetail,.removeCrDetail').hide();
+        $('.btn-circle').removeClass();
+        $('.ion-close-round').removeClass();
+
+    }
+    var requestRunning = false;
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    //$('#BOAToDate').datepicker({ maxDate: 0,minDate: 0, dateFormat: 'dd-MM-yy' }).datepicker("setDate", new Date()).attr('readonly', 'readonly');
+    $(document).ready(function () {
+        //$('#BOAToDate, #BOAFromDate').addClass('half-form');
+        //$('#BOAToDate').css('margin-right', '0%');
+        $('#tbodyBOAPayment input[name$=".ReferenceDate"]').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
+        resetDetail();
+        crossVerify();
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+
+        var BRSId = $('#BRSId').val() || 0;
+        if (BRSId == 0)
+            $('#BOAToDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy' }).datepicker("setDate", new Date()).attr('readonly', 'readonly');
+        else
+            $('#BOAToDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy' }).attr('readonly', 'readonly');
+    });
+    $(document).on("click", "input[name$='.Reconciliation_f']", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        //if ($(this).prop('checked')) {
+        //    $(this).prop("checked", false);
+        //} else {
+        //    $(this).prop("checked", true);
+        //}
+    });
+    //$(document).on("blur", "input[name$='.ReferenceNumber']", function () {
+    //    var chkEle = $(this).closest('tr').find('input[name$=".Reconciliation_f"]');
+    //    if ($(this).val() == '' && $(chkEle).prop('checked')) {
+    //        $(chkEle).trigger("click");
+    //    }
+    //});
+    $('#btnReconcile').click(function () {
+        var boaLen = $('#tbodyBOAPayment tr').length;
+        var bTxLen = $('#tbodyBTX tr').length;
+        if (boaLen <= 0) {
+            messageBox("No transaction details exists.", "warning");
+            return false;
+        } else if (bTxLen <= 0) {
+            messageBox("No bank statement exists.", "warning");
+            return false;
+        }
+
+        crossVerify();
+    });
+    function crossVerify() {
+        if (!window.running) {
+            resetDetail();
+            window.running = true;
+            var boaTxArray = [];
+            //var bTxArray = [];
+            $('.loading-bg').removeClass('dis-none');
+            $('#tbodyBOAPayment tr').each(function (i) {
+                var trEle = $(this);
+                var refNo = trEle.find('input[name$=".ReferenceNumber"]').val();
+                if (boaTxArray.indexOf(i) == -1 && refNo != '') {
+                    var BOATxType = trEle.find('input[name$=".TransactionType"]').val();
+                    var txType = BOATxType == 'Credit' ? 'Debit' : 'Credit';
+                    var boaTxAmt = 0;
+                    var boaCurTxArray = [];
+                    var bCurTxArray = [];
+                    $("#tbodyBOAPayment tr").each(function (eleInx) {
+                        var boaEleTr = $(this);//.closest('tr');
+                        if ($(boaEleTr).find('input[name$=".ReferenceNumber"]').val() == refNo && $(boaEleTr).find('input[name$=".TransactionType"]').val() == BOATxType) {
+                            var parseVal = parseFloat($(boaEleTr).find('input[name$=".Amount"]').val()) || 0;
+                            boaTxAmt = boaTxAmt + parseVal;
+                            boaTxArray.push(eleInx);
+                            boaCurTxArray.push($(boaEleTr));
+                        }
+                    });
+                    var ttlAmt = 0, ttlBCrAmt = 0, ttlBDrAmt = 0;
+                    // td:nth-child(2):contains('" + refNo + "')
+                    $("#tbodyBTX tr").each(function () {
+                        var bTxTrEle = $(this);
+                        if ($(bTxTrEle).find('input[name$=".ReferenceNumber"]').val() == refNo) {
+                            parseBCrAmt = parseFloat($(bTxTrEle).find('input[name$=".Credit"]').val()) || 0;
+                            parseBDrAmt = parseFloat($(bTxTrEle).find('input[name$=".Debit"]').val()) || 0;
+                            ttlBCrAmt = ttlBCrAmt + parseBCrAmt;
+                            ttlBDrAmt = ttlBDrAmt + parseBDrAmt;
+                            bCurTxArray.push($(bTxTrEle));
+                        }
+                    });
+                    //ttlAmt = BOATxType == 'Credit' ? (ttlBDrAmt - ttlBCrAmt) : (ttlBCrAmt - ttlBDrAmt);
+                    ttlAmt = BOATxType == 'Credit' ? ttlBDrAmt : ttlBCrAmt;
+                    if (boaTxAmt.toFixed(2) == ttlAmt.toFixed(2)) {
+                        $.each(bCurTxArray, function (indx, ele) {
+                            var chkLbl = $('<span/>', { class: "tick-icon" })
+                                         .append($('<i/>', { class: "ion-checkmark" }));
+                            $(ele).addClass('active');
+                            $(ele).find('td:last').append(chkLbl);
+                            $(ele).find('input[name$=".Status"]').val('Verify');
+
+                            var ttlBAmt = parseFloat($(ele).find('input[name$=".' + txType + '"]').val()).toFixed(2) || 0;
+                            var ttlboaAmt = 0;
+                            $.each(boaCurTxArray, function (inx, bTxele) {
+                                var curBoaAmt = parseFloat($(bTxele).find('input[name$=".Amount"]').val()) || 0;
+                                ttlboaAmt = ttlboaAmt + curBoaAmt;
+                                if (curBoaAmt.toFixed(2) == ttlBAmt) {
+                                    var txDate = $(ele).find('input[name$=".TransactionDate"]').val();
+                                    var parseDate = new Date(txDate);
+                                    $(bTxele).find('input[name$=".ReferenceDate"]').datepicker('setDate', parseDate);
+                                    $(bTxele).find('input[name$=".ReferenceDate"],input[name$=".ReferenceNumber"]').closest('td').addClass('ad-inp active');
+                                } else if (ttlboaAmt.toFixed(2) == ttlBAmt) {
+                                    var txDate = $(ele).find('input[name$=".TransactionDate"]').val();
+                                    var parseDate = new Date(txDate);
+                                    $(bTxele).find('input[name$=".ReferenceDate"]').datepicker('setDate', parseDate);
+                                    $(bTxele).find('input[name$=".ReferenceDate"],input[name$=".ReferenceNumber"]').closest('td').addClass('ad-inp active');
+                                } else {
+                                    $(bTxele).find('input[name$=".ReferenceNumber"]').closest('td').addClass('ad-inp active');
+                                }
+                                $(bTxele).addClass('dup-active');
+                                $(bTxele).find("input[name$='.Reconciliation_f']").prop("checked", true);
+                            });
+                        });
+                    }
+                }
+            });
+            createClearIcon();
+            window.running = false;
+            $('.loading-bg').addClass('dis-none');
+        }
+    }
+    function createClearIcon() {
+        $("#tbodyBOAPayment tr").each(function () {
+            if (!$(this).find("input[name$='.Reconciliation_f']").prop('checked')) {
+                $(this).find('td:nth-child(2)').append($('<a/>', { href: "javascript:void(0)", text: "Clear", class: "btnClearRef" }));
+            } else {
+                $(this).find('select[name$=".Reason"]').val('').attr('disabled', true);
+            }
+        });
+        $('#tbodyBTX tr').each(function () {
+            if (!$(this).hasClass('active')) {
+                var actionEle = $('<span/>', { class: "icn-red-bg" })
+                 .append($('<a/>', { href: "javascript:void(0)", class: "btnCloseRef" }).append($('<i/>', { class: "ion-close-circled" })));
+                $(this).find('td:nth-child(2)').append($('<a/>', { href: "javascript:void(0)", text: "Clear", class: "btnClearRef" }));
+                //.append($('<a/>', { href: "javascript:void(0)", class: "btnBookTx" }).append($('<i/>', { class: "ion-edit" })));
+                $(this).find('td:last').append(actionEle);
+            } else {
+                $(this).find('select[name$=".Reason"]').val('').attr('disabled', true);
+                $(this).find('input[name$=".ReferenceNumber"]').closest('td').addClass('ad-inp active');
+            }
+        });
+    }
+    function resetDetail() {
+        $('#tbodyBTX tr').each(function () {
+            $(this).find('td:last span').remove();
+            if ($(this).hasClass('active')) {
+                $(this).removeClass('active');
+                $(this).find('input[name$=".ReferenceNumber"]').closest('td').removeClass('ad-inp active');
+                $(this).find('select[name$=".Reason"]').val('').attr('disabled', false);
+            } else {
+                $(this).find('td:nth-child(2) a').remove();
+            }
+            if ($(this).find('input[name$=".Status"]').val() != "Direct Verify" && $(this).find('input[name$=".Status"]').val() != "Not Reconcile") {
+                $(this).find('input[name$=".Status"]').val('Open');
+            }
+            if ($(this).find('input[name$=".Status"]').val() == "Not Reconcile" && !$(this).hasClass('tb-close')) {
+                $(this).addClass('tb-close');
+            }
+            //$(this).find('select[name$=".Reason"]').val('');
+        });
+        $("#tbodyBOAPayment tr").each(function () {
+            if ($(this).find("input[name$='.Reconciliation_f']").prop('checked')) {
+                $(this).find("input[name$='.Reconciliation_f']").prop("checked", false);
+                $(this).find('input[name$=".ReferenceDate"]').datepicker('setDate', null);
+                $(this).find('input[name$=".ReferenceDate"],input[name$=".ReferenceNumber"]').closest('td').removeClass('ad-inp active');
+                $(this).find('select[name$=".Reason"]').val('').attr('disabled', false);
+                $(this).removeClass('dup-active');
+            } else {
+                if ($(this).find('select[name$=".Reason"]').val() != "") {
+                    $(this).addClass('tb-close');
+                }
+                $(this).find('a').remove();
+                //$(this).find('select[name$=".Reason"]').val('');
+            }
+        });
+    }
+    $(document).on("click", ".btnCloseRef", function (e) {
+        if ($(this).closest('tr').hasClass('tb-close')) {
+            $(this).closest('tr').removeClass('tb-close');
+            $(this).closest('tr').find('input[name$=".Status"]').val('Open');
+            $(this).closest('tr').find('select[name$=".Reason"]').val('');
+        } //else {
+        //    $(this).closest('tr').find('input[name$=".Status"]').val('Removed');
+        //    $(this).closest('tr').addClass('tb-close');
+        //}
+    });
+    $(document).on("change", "select[name$='.Reason']", function (e) {
+        var selVal = $(this).val();
+        if (selVal == '') {
+            $(this).closest('tr').removeClass('tb-close');
+            $(this).closest('tr').find('input[name$=".Status"]').val('Open');
+            $(this).find('select[name$=".Reason"]').val('');
+        } else {
+            $(this).closest('tr').find('input[name$=".Status"]').val('Not Reconcile');
+            $(this).closest('tr').addClass('tb-close');
+        }
+    });
+    $(document).on("click", ".btnClearRef", function (e) {
+        $(this).closest('td').find('input[name$=".ReferenceNumber"]').val('');
+    });
+    //$(document).on("keypress", "td.ad-inp.active input", function (e) {
+    //    return false;
+    //});
+    //$(document).on("click", ".btnBookTx", function (e) {
+    //    var indx = $("tr", $(this).closest("tbody")).index($(this).closest("tr"));
+    //    console.log(indx);
+    //});
+    $('#BankHeadId, #BOAFromDate, #BOAToDate').change(function () {
+        $("#tbodyBOAPayment tr").remove();
+        resetDetail();
+    });
+
+    $('#btnSrchTx').click(function () {
+        resetDetail();
+        if (requestRunning) { // don't do anything if an AJAX request is pending
+            return;
+        }
+        //var frmDate = $('#BOAFromDate').val();
+        var toDate = $('#BOAToDate').val();
+        var headId = $('#BankHeadId').val();
+        if (toDate == "") {
+            messageBox("please select date of transaction.", "warning");
+            return false;
+        } else if (headId == "") {
+            messageBox("please select the bank from the list.", "warning");
+            return false;
+        }
+        var token = $("input[name=__RequestVerificationToken]").val();
+        var BRSId = $('#BRSId').val();
+        var searchdata = { "__RequestVerificationToken": token, "toDate": toDate, "headId": headId, "BRSId": BRSId };
+        var ajaxOpts = {
+            type: "POST",
+            url: '@Url.Action("GetBOAPaymentDetails", "Coreaccounts")',
+            data: searchdata,
+            contentType: "application/x-www-form-urlencoded",
+            success: function (result) {
+                $('#tbodyBOAPayment tr').remove();
+                $.each(result, function (idx, item) {
+                    var txType = '';
+                    var selReason = $('#BookReason').clone();
+                    selReason.attr('name', 'boaDetail[' + idx + '].Reason');
+                    selReason.removeClass('dis-none');
+                    if (item.TransactionType == "Credit")
+                        txType = 'Cr';
+                    else if (item.TransactionType == "Debit")
+                        txType = 'Dr';
+                    var chkLbl = $('<label/>', { class: "switch" })
+                                 .append($('<input/>', { type: 'checkbox', name: "boaDetail[" + idx + "].Reconciliation_f", value: true }))
+                                 .append($('<span/>', { class: "slider round" }));
+                    var txDate = $('<input/>', { type: 'input', class: "form-control", name: "boaDetail[" + idx + "].ReferenceDate" })
+                    .datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', autoclose: true });
+                    var vDate = new Date(parseInt(item.VoucherDate.replace(/(^.*\()|([+-].*$)/g, '')));
+                    var strVDate = vDate.getDate() + "/" + (vDate.getMonth() + 1) + "/" + vDate.getFullYear();
+                    $('#tbodyBOAPayment').append(
+                             $('<tr>')
+                                 .append($('<td>').append(strVDate).append($('<input/>', { type: 'hidden', name: "boaDetail[" + idx + "].BOAPaymentDetailId", value: item.BOAPaymentDetailId }))).append($('<input/>', { type: 'hidden', name: "boaDetail.index", value: idx }))
+                                 .append($('<td>').append($('<input/>', { type: 'input', class: "form-control", style: "width:150px !important;", name: "boaDetail[" + idx + "].ReferenceNumber", value: item.ReferenceNumber })))
+                                 .append($('<td>').append(item.Remarks).append($('<input/>', { type: 'hidden', name: "boaDetail[" + idx + "].VoucherDate", value: vDate.toLocaleString() })))
+                                 .append($('<td>').append(item.Amount).append($('<input/>', { type: 'hidden', name: "boaDetail[" + idx + "].Remarks", value: item.Remarks })))
+                                 .append($('<td>').append(txType).append($('<input/>', { type: 'hidden', name: "boaDetail[" + idx + "].Amount", value: item.Amount })).append($('<input/>', { type: 'hidden', name: "boaDetail[" + idx + "].TransactionType", value: item.TransactionType })))
+                                 .append($('<td>').append(chkLbl))
+                                 .append($('<td>').append(txDate))
+                                 .append($('<td>').append(selReason))
+                         );
+
+                });
+                requestRunning = false;
+            },
+            error: function (err) {
+                requestRunning = false;
+                console.log("error : " + err);
+            }
+        };
+        requestRunning = true;
+        $.ajax(ajaxOpts);
+    });
+    $('#btnDownloadBOATx').click(function () {
+        //var frmDate = $('#BOAFromDate').val();
+        var toDate = $('#BOAToDate').val();
+        var headId = $('#BankHeadId').val();
+        if (toDate == "") {
+            messageBox("please select date of transaction.", "warning");
+            return false;
+        } else if (headId == "") {
+            messageBox("please select the bank from the list.", "warning");
+            return false;
+        }
+        var BRSId = $('#BRSId').val();
+        var url = '@Url.Action("GetBankStatementReport", "CoreAccounts")?toDate=' + toDate + '&headId=' + headId + '&BRSId=' + BRSId;
+        window.open(url, '_blank');
+    });
+    function parseDate(s) {
+        var months = {
+            january: 0, february: 1, march: 2, april: 3, may: 4, june: 5,
+            july: 6, august: 7, september: 8, october: 9, november: 10, december: 11
+        };
+        var p = s.split('-');
+        return new Date(p[2], months[p[1].toLowerCase()], p[0]);
+    }
+    $('#btnImportBRS').click(function () {
+        resetDetail();
+        if (requestRunning) { // don't do anything if an AJAX request is pending
+            return;
+        }
+        var file = $('#BSRFile').val();//$('#BSRFile')[0].files[0];
+        if (file != "") {
+            var extension = file.substr((file.lastIndexOf('.') + 1)).toLowerCase();
+            switch (extension) {
+                case 'xls':
+                case 'xlsx':
+                    isValidExten = true;
+                    break;
+                default:
+                    isValidExten = false;
+            }
+            if (isValidExten == false) {
+                messageBox("Please upload any one of these type file [xls, xlsx].", "warning");
+                return false;
+            }
+            var headId = $('#BankHeadId').val();
+            if (headId == "") {
+                messageBox("please select the bank from the list.", "warning");
+                return false;
+            }
+            var BRSId = $('#BRSId').val() || 0;
+            var model = new FormData();
+            model.append("file", $('#BSRFile')[0].files[0]);
+            model.append("bankId", headId);
+            model.append("brsId", BRSId);
+            var ajaxOpts = {
+                type: "POST",
+                url: '@Url.Action("ImportBankStatement", "Coreaccounts")',
+                data: model,
+                contentType: false,//"application/x-www-form-urlencoded",
+                dataType: "json",
+                processData: false,
+                success: function (result) {
+                    $('#tbodyBTX tr').remove();
+                    if (result.status == "Valid") {
+                        var responseData = result.data;
+                        $('#DocumentActualName').val(responseData.DocumentActualName);
+                        $('#DocumentName').val(responseData.DocumentName);
+
+                        $.each(responseData.txDetail, function (idx, item) {
+                            var crVal = parseFloat(item.Credit) || 0;
+                            var drVal = parseFloat(item.Debit) || 0;
+                            var selReason = $('#BankReason').clone();
+                            selReason.attr('name', 'txDetail[' + idx + '].Reason');
+                            selReason.removeClass('dis-none');
+                            if (crVal != 0) {
+                                var txDate = new Date(parseInt(item.TransactionDate.replace(/(^.*\()|([+-].*$)/g, '')));
+                                $('#tbodyBTX').append(
+                                    $('<tr>')
+                                        .append($('<td>').append(txDate.getDate() + "/" + (txDate.getMonth() + 1) + "/" + txDate.getFullYear()).append($('<input/>', { type: 'hidden', name: "txDetail[" + idx + "].TransactionDate", value: txDate.toLocaleString() }))).append($('<input/>', { type: 'hidden', name: "txDetail.index", value: idx })).append($('<input/>', { type: 'hidden', name: "txDetail[" + idx + "].BRSDetailId", value: item.BRSDetailId }))
+                                        .append($('<td>').append($('<input/>', { class: 'form-control', name: "txDetail[" + idx + "].ReferenceNumber", value: item.ReferenceNumber })))
+                                        .append($('<td>').append(item.Description).append($('<input/>', { type: 'hidden', name: "txDetail[" + idx + "].Description", value: item.Description })).append($('<input/>', { type: 'hidden', name: "txDetail[" + idx + "].Status", value: 'Open' })))
+                                        .append($('<td>').append(crVal).append($('<input/>', { type: 'hidden', name: "txDetail[" + idx + "].Debit", value: '' })).append($('<input/>', { type: 'hidden', name: "txDetail[" + idx + "].Balance", value: item.Balance })))
+                                        .append($('<td>').append('Cr').append($('<input/>', { type: 'hidden', name: "txDetail[" + idx + "].Credit", value: crVal })))
+                                        .append($('<td>').append(selReason))
+                                );
+                            }
+                            else if (drVal != 0) {
+                                var txDate = new Date(parseInt(item.TransactionDate.replace(/(^.*\()|([+-].*$)/g, '')));
+                                $('#tbodyBTX').append(
+                                 $('<tr>')
+                                     .append($('<td>').append(txDate.getDate() + "/" + (txDate.getMonth() + 1) + "/" + txDate.getFullYear()).append($('<input/>', { type: 'hidden', name: "txDetail[" + idx + "].TransactionDate", value: txDate.toLocaleString() }))).append($('<input/>', { type: 'hidden', name: "txDetail.index", value: idx })).append($('<input/>', { type: 'hidden', name: "txDetail[" + idx + "].BRSDetailId", value: item.BRSDetailId }))
+                                     .append($('<td>').append($('<input/>', { class: 'form-control', name: "txDetail[" + idx + "].ReferenceNumber", value: item.ReferenceNumber })))
+                                     .append($('<td>').append(item.Description).append($('<input/>', { type: 'hidden', name: "txDetail[" + idx + "].Description", value: item.Description })).append($('<input/>', { type: 'hidden', name: "txDetail[" + idx + "].Status", value: 'Open' })))
+                                         .append($('<td>').append(drVal).append($('<input/>', { type: 'hidden', name: "txDetail[" + idx + "].Debit", value: drVal })).append($('<input/>', { type: 'hidden', name: "txDetail[" + idx + "].Balance", value: item.Balance })))
+                                         .append($('<td>').append('Dr').append($('<input/>', { type: 'hidden', name: "txDetail[" + idx + "].Credit", value: '' })))
+                                         .append($('<td>').append(selReason))
+                             );
+                            }
+                        });
+                    } else {
+                        messageBox(msg, "error");
+                    }
+                    requestRunning = false;
+                },
+                error: function (err) {
+                    requestRunning = false;
+                    console.log("error : " + err);
+                }
+            };
+            requestRunning = true;
+            $.ajax(ajaxOpts);
+        } else {
+            messageBox("please upload bank statement.", "warning");
+        }
+    });
+    //$("#BOAToDate, #BOAFromDate").change(function () {
+    //    var strDate = $("#BOAFromDate").val();
+    //    var clsDate = $("#BOAToDate").val();
+    //    if (strDate != '' && clsDate != '') {
+    //        var startDate = moment(parseDate(strDate));
+    //        var closeDate = moment(parseDate(clsDate));
+    //        var mins = closeDate.diff(startDate, 'minutes');
+    //        if (mins < 0) {
+    //            messageBox("To Date must be greater than from date.", "warning");
+    //            $("#BOAToDate").val('');
+    //        }
+    //    }
+    //});
+    $('#chkAcknowledge').click(function () {
+        if ($(this).is(':checked')) {
+            $('#lnkVerify').removeClass("dis-none");
+        } else {
+            $('#lnkVerify').addClass("dis-none");
+        }
+        $('#Verified_By').val('');
+        $('#VerifierName').val('');
+        $('#Verified_ByName').html('');
+    });
+    $('#lnkVerify').click(function () {
+        var checked = $('#chkAcknowledge').is(':checked');
+        if (checked) {
+            $('#verifyModal').modal('show');
+        } else {
+            $("#alert").text("Please acknowledge the BRS.");
+            $('#Validation').modal('show');
+        }
+    });
+    //$("#searchBS").on("keyup paste", function() {
+    //    var value = $(this).val().toUpperCase();
+    //    var $rows = $("#tbodyBTX tr");
+
+    //    if(value === ''){
+    //        $rows.show();
+    //        return false;
+    //    }
+
+    //    $rows.each(function(index) {
+    //        if (index !== 0) {
+
+    //            $row = $(this);
+
+    //            var refNo = $row.find("td").eq(1).text().toUpperCase();
+    //            var des = $row.find("td").eq(2).text().toUpperCase();
+    //            var amt = $row.find("td").eq(3).text().toUpperCase();
+
+    //            if ((refNo.indexOf(value) > -1) || (des.indexOf(value) > -1) || amt == value) {
+    //                $row.show();
+    //            }
+    //            else {
+    //                $row.hide();
+    //            }
+    //        }
+    //    });
+    //});
+
+    $('#btnVerify').click(function () {
+        var password = $('#VerifierPassword').val();
+        if (password == '') {
+            $('#errorPass').html('This field is required.');
+        } else {
+            $('#errorPass').html('');
+            $.getJSON("@Url.Action("Verification", "Account")", { Password: password },
+            function (data) {
+                if (data != false) {
+                    $('#Verified_By').val(data.userId);
+                    $('#VerifierName').val(data.firstName);
+                    $('#Verified_ByName').html(data.firstName);
+                    $('#verifyModal').modal('hide');
+                } else {
+                    $('#errorPass').html('The password you entered is incorrect.');
+                }
+            });
+        }
+    });
+    $('#btnSave').click(function (e) {
+        e.preventDefault();
+        var isValid = $('#formBRS').valid();
+        $('#Status').val('');
+        if (!isValid)
+            return false;
+        var boaLen = $('#tbodyBOAPayment tr').length;
+        var bTxLen = $('#tbodyBTX tr').length;
+        if (boaLen <= 0) {
+            messageBox("No transaction details exists.", "warning");
+            return false;
+        } else if (bTxLen <= 0) {
+            messageBox("No bank statement exists.", "warning");
+            return false;
+        } else if ($('#Verified_By').val() == '') {
+            messageBox("Please acknowledge the BRS.", "warning");
+            return false;
+        }
+        //$("#tbodyBTX tr:not('[class*=active]')").each(function () {
+        //    var bTxTrEle = $(this).closest('tr');
+        //    if ($(bTxTrEle).find('select[name$=".Reason"]').val() == '') {
+        //        isValid = false;
+        //        messageBox("Some of the bank statement still not reconcile.", "warning");
+        //        return false;
+        //    }
+        //});
+        //$("#tbodyBOAPayment tr:not('[class*=dup-active]')").each(function () {
+        //    var boaTrEle = $(this).closest('tr');
+        //    if ($(boaTrEle).find('select[name$=".Reason"]').val() == '') {
+        //        isValid = false;
+        //        messageBox("Some of the transaction detail still not reconcile.", "warning");
+        //        return false;
+        //    }
+        //});
+        if (!isValid)
+            return false;
+        $('#formBRS').submit();
+    });
+    $('#btnDraft').click(function (e) {
+        e.preventDefault();
+        var isValid = $('#formBRS').valid();
+        $('#Status').val('Init');
+        if (!isValid)
+            return false;
+        var boaLen = $('#tbodyBOAPayment tr').length;
+        var bTxLen = $('#tbodyBTX tr').length;
+        if (boaLen <= 0) {
+            messageBox("No transaction details exists.", "warning");
+            return false;
+        } else if (bTxLen <= 0) {
+            messageBox("No bank statement exists.", "warning");
+            return false;
+        } else if ($('#Verified_By').val() == '') {
+            messageBox("Please acknowledge the BRS.", "warning");
+            return false;
+        }
+        if (!isValid)
+            return false;
+        $('#formBRS').submit();
+    });
+    $('#searchTS').on('keyup', function (event) {
+        var keycode = (event.keyCode ? event.keyCode : event.which);
+        if (keycode == '119') {
+            var $rows = $("#tbodyBOAPayment tr");
+            $rows.each(function (index) {
+                $row = $(this);
+                if ($row.hasClass('tb-close') || $row.hasClass('dup-active')) {
+                    $row.hide();
+                }
+                else {
+                    $row.show();
+                }
+            });
+            return false;
+        }
+        var value = $(this).val().toUpperCase();
+        var $rows = $("#tbodyBOAPayment tr");
+
+        if (value === '') {
+            $rows.show();
+            return false;
+        }
+
+        $rows.each(function (index) {
+            $row = $(this);
+
+            var des = $row.find("td").eq(2).text().toUpperCase();
+            var amt = $row.find("td").eq(3).text().toUpperCase();
+            var txType = $row.find("td").eq(4).text().toUpperCase();
+            var ref = $row.find('input[name $=".ReferenceNumber"]').val().toUpperCase();
+            //var amt = $row.find('input[name $=".Description"]').val().toUpperCase();
+            //var des = $row.find("td").eq(2).text().toUpperCase();
+
+            if ((des.indexOf(value) > -1) || (ref.indexOf(value) > -1) || (amt.indexOf(value) > -1) || (txType.indexOf(value) > -1)) {
+                $row.show();
+            }
+            else {
+                $row.hide();
+            }
+        });
+    });
+    $('#searchBS').on('keyup', function (keycode) {
+        var keycode = (event.keyCode ? event.keyCode : event.which);
+        if (keycode == '119') {
+            var $rows = $("#tbodyBTX tr");
+            $rows.each(function (index) {
+                $row = $(this);
+                if ($row.hasClass('tb-close') || $row.hasClass('active')) {
+                    $row.hide();
+                }
+                else {
+                    $row.show();
+                }
+            });
+            return false;
+        }
+        var value = $(this).val().toUpperCase();
+        var $rows = $("#tbodyBTX tr");
+
+        if (value === '') {
+            $rows.show();
+            return false;
+        }
+
+        $rows.each(function (index) {
+            $row = $(this);
+
+            var refNo = $row.find('input[name $=".ReferenceNumber"]').val().toUpperCase();
+            var des = $row.find("td").eq(2).text().toUpperCase();
+            var amt = $row.find("td").eq(3).text().toUpperCase();
+            var txType = $row.find("td").eq(4).text().toUpperCase();
+
+            if ((refNo.indexOf(value) > -1) || (des.indexOf(value) > -1) || (amt.indexOf(value) > -1) || (txType.indexOf(value) > -1)) {
+                $row.show();
+            }
+            else {
+                $row.hide();
+            }
+        });
+    });
+    $(window).keydown(function (e) {
+        if (e.keyCode == 13) {
+            e.preventDefault();
+            return false;
+        }
+    });
+</script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>

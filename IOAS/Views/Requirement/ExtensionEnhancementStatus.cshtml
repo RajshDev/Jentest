@@ -1,0 +1,211 @@
+﻿
+@{
+    ViewBag.Title = "DAApplicationStatus";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<div class="row hd-tt-bg">
+    <div class="col-md-12">
+        <h3>Application Status</h3>
+        <ul class="nav nav-pills custom-nav-pills custom-spl-nav">
+            <li class="active" id="allOca1"><a href="javascript:void(0)" class="brd-rd-md">Extension / Enhancement</a></li>
+        </ul>
+    </div>
+</div>
+<div class="row cts-mn-dts " id="tab-01">
+    <div class="col-md-12">
+        <div class="row mt30">
+            <div class="page-wrapper">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="custom-jsgrid-normal">
+                            <div id="gridExEnhlist"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+
+    var DateField = function (config) {
+        jsGrid.Field.call(this, config);
+    };
+    DateField.prototype = new jsGrid.Field({
+        sorter: function (date1, date2) {
+            return new Date(date1) - new Date(date2);
+        },
+
+        itemTemplate: function (value) {
+            if (value != "") {
+                return new Date(value).toDateString();
+            }
+        },
+
+        filterTemplate: function () {
+            var now = new Date();
+            this._fromPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() - 1), changeYear: true });
+            this._toPicker = $("<input>").datepicker({ defaultDate: now.setFullYear(now.getFullYear() + 1), changeYear: true });
+            return $("<div>").append(this._fromPicker).append(this._toPicker);
+        },
+
+        insertTemplate: function (value) {
+            return this._insertPicker = $("<input>").datepicker({ defaultDate: new Date() });
+        },
+
+        editTemplate: function (value) {
+            return this._editPicker = $("<input>").datepicker().datepicker("setDate", new Date(value));
+        },
+
+        insertValue: function () {
+            return this._insertPicker.datepicker("getDate").toISOString();
+        },
+
+        editValue: function () {
+            return this._editPicker.datepicker("getDate").toISOString();
+        },
+
+        filterValue: function () {
+            return {
+                from: this._fromPicker.datepicker("getDate"),
+                to: this._toPicker.datepicker("getDate")
+            };
+        }
+    });
+    jsGrid.fields.date = DateField;
+    $("#gridExEnhlist").jsGrid({
+        paging: true,
+        pageIndex: 1,
+        pageSize: 10,
+        editing: false,
+        filtering: true,
+        pageLoading: true,
+        autoload: true,
+        controller: {
+
+            loadData: function (filter) {
+                var searchData = [];
+                searchData = {
+                    EmployeeNo: filter.EmployeeNo || null,
+                    ExtensionEnhCategory: filter.ExtensionEnhCategory || null,
+                    ApplicationCategory: filter.ApplicationCategory || null,
+                    CondidateName: filter.CondidateName || null,
+                    EmployeeName: filter.EmployeeName || null,
+                    ProjectNumber: filter.ProjectNumber || null,
+                    Status: filter.Status || null
+                },
+                filter.model = searchData;
+                var deferred = $.Deferred();
+                $.ajax({
+                    type: "post",
+                    url: "GetAllExtensionEnhList",
+                    data: JSON.stringify(filter),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (result) {
+                        //db = result;
+                        //$("#AdvanceBillPaymentList").jsGrid({ data: db });
+                        var da = {
+                            data: result.ExtandEnhList,
+                            itemsCount: result.TotalRecords
+                        }
+                        deferred.resolve(da);
+                    },
+                    error: function (err) {
+                        console.log("error : " + err);
+                    }
+
+                });
+                return deferred.promise();
+            }
+
+        },
+
+        fields: [
+            { name: "SNo", title: "S.No", editing: false, width: 50 },
+            { type: "number", name: "OrderId", title: "Id", visible: false },
+            { type: "text", name: "EmployeeNo", title: "Employee Number", editing: false },
+            { type: "text", name: "ExtensionEnhCategory", title: "Extension / Enhancement", editing: false },
+            { type: "text", name: "ApplicationCategory", title: "Application Category", editing: false },
+            { type: "text", name: "EmployeeName", title: "Employee Name", editing: false },
+            { type: "text", name: "ProjectNumber", title: "Project Number", editing: false },
+            { type: "date", name: "StrFrmDate", title: "From Date", editing: false },
+            { type: "date", name: "StrtoDate", title: "To Date", editing: false },
+           { type: "text", name: "Status", title: "Status", editing: false },
+
+
+             {
+                 type: "control", editButton: false, deleteButton: false, width: 120, title: "Action",
+
+                 itemTemplate: function (value, item) {
+                     var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+                     if (item.Status == "Open" || item.Status == "Note to PI") {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "Edit", name: "Edit" }, { id: "View", name: "View" }]
+                     }
+                     else {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }]
+                     }
+                     //else if (item.Status == "Note to PI") {
+
+                     //    if (item.EmailRemaindarCount == 0) {
+                     //        statusList = [{ id: "", name: "Select Action" }, { id: "EmailNf", name: "Email Notification" }, { id: "View", name: "View" }]
+                     //    }
+                     //    else if (item.EmailRemaindarCount == 1) {
+                     //        statusList = [{ id: "", name: "Select Action" }, { id: "EmailNf", name: "Email Remainder " + " " + item.EmailRemaindarCount }, { id: "View", name: "View" }]
+                     //    }
+                     //    else {
+                     //        statusList = [{ id: "", name: "Select Action" }, { id: "EmailNf", name: "Email Reminder" + " " + item.EmailRemaindarCount }, { id: "View", name: "View" }]
+                     //    }
+
+
+                     //}
+                     var $customSelect = $("<select>")
+                         .attr("class", "form-control").prop("selectedIndex", "")
+                     $.each(statusList, function (index, itemData) {
+                         $customSelect.append($('<option/>', {
+
+                             value: itemData.id,
+                             text: itemData.name
+                         }));
+                     });
+                     $customSelect.change(function (e) {
+                         var selVal = $(this).val();
+                         if (selVal == "View") {
+                             if (item.ExtensionEnhCategory == "Extension") {
+                                 var url = '@Url.Action("RecruitExtensionView", "Requirement")?OrderId=' + item.OrderId + '&Adminf=' + true;
+                                 window.location.href = url;
+                             }
+                             else if (item.ExtensionEnhCategory == "Enhancement") {
+                                 var url = '@Url.Action("RecruitEnhancementView", "Requirement")?OrderId=' + item.OrderId + '&Adminf=' + true;
+                                 window.location.href = url;
+                             }
+                         }
+                         else if (selVal == "Edit") {
+                             if (item.ExtensionEnhCategory == "Extension") {
+                                 var url = '@Url.Action("RecruitExtension", "Requirement")?OrderId=' + item.OrderId;
+                                 window.location.href = url;
+                             }
+                             else if (item.ExtensionEnhCategory == "Enhancement") {
+                                 var url = '@Url.Action("RecruitEnhancement", "Requirement")?OrderId=' + item.OrderId;
+                                 window.location.href = url;
+                             }
+                         }
+
+                         $(this).val("");
+                         return false;
+                         e.stopPropagation();
+                     });
+                     return $result.add($customSelect);
+                 },
+                 _createFilterSwitchButton: function () {
+                     return this._createOnOffSwitchButton("filtering", this.searchModeButtonClass, false);
+                 }
+             }
+
+
+        ],
+
+    });
+    $("#gridExEnhlist").jsGrid("option", "filtering", false);
+
+</script>

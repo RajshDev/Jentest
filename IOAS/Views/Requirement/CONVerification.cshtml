@@ -1,0 +1,1574 @@
+﻿@model IOAS.Models.ConsultantAppointmentModel
+@using IOAS.GenericServices
+@{
+    ViewBag.Title = "CONVerification";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+    bool isHaveExperience = RequirementService.checkIsHaveExperience(Model.ConsultantAppointmentId ?? 0, "CON");
+}
+<style>
+    .rc-tb-scrl {
+        width: 100%;
+        overflow: auto;
+    }
+
+        .rc-tb-scrl table {
+            max-width: 2100px !important;
+            width: 2000px;
+        }
+</style>
+@using (Html.BeginForm("CONVerification", "Requirement", FormMethod.Post, new { @class = "", role = "form", @id = "formVerification", enctype = "multipart/form-data" }))
+{
+    <div class="row hd-tt-bg">
+        <div class="col-md-12">
+            <h4><b>Verification </b></h4>
+        </div>
+    </div>
+    <div class="row cts-mn-dts" id="tab-01">
+        <div class="page-wrapper mt30">
+            <div>
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="bl-lg-panel-box pb-null">
+                                <div class="cmn-panel-box">
+                                    <div class="row ">
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label>Application No: </label>
+                                                @Html.HiddenFor(m => m.ProjectId)
+                                                @Html.HiddenFor(m => m.DateBrith)
+                                                @Html.HiddenFor(m => m.TypeofappointmentId)
+                                                @Html.HiddenFor(m => m.ApplicationNumber)
+                                                @Html.HiddenFor(m => m.ConsultantAppointmentId)
+                                                <h4>@Model.ApplicationNumber</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label>Candidate Name: </label>
+                                                <h4>@Model.Name</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group custom-form-group">
+                                                <label>Coordinator Code:</label> <br>
+                                                <h4 id="PICode"></h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group custom-form-group">
+                                                <label>PI Name:</label> <br>
+                                                <h4 id="PINametxt"></h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group custom-form-group">
+                                                <label>Candidate Photo:</label> <br>
+                                                @if (!string.IsNullOrEmpty(Model.PersonDocPath))
+                                                {
+                                                    <img id="displayImg" src="@Url.Action("ShowDocument", "Account", new { file = Model.PersonDocPath, filepath = "RCTEmployeeImages" })" width="30px" height="30px"><br>
+                                                    <input class="form-control" type="file" name="PersonDocImage">
+                                                }
+                                                else
+                                                {
+                                                    <img id="displayImg" src="~/Content/IOASContent/img/Image_placeholder.png" width="30px" height="30px"><br>
+                                                    <input type="file" class="form-control" name="PersonDocImage" id="perDocName">
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label>Department:</label> <br>
+                                                <h4 id="DepartmentNametxt"></h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label>Designation: </label>
+                                                @Html.HiddenFor(M => M.DesignationId)
+                                                <h4 id="Designationtxt"></h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group custom-form-group">
+                                                <label>Qualification: </label>
+                                                <h4>@Model.QualificationDetail</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group custom-form-group">
+                                                <label>Experience: </label>
+                                                <h4>@Model.Experience</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group custom-form-group">
+                                                <label>Candidate Signature:</label> <br>
+                                                @if (!string.IsNullOrEmpty(Model.CantidateSignatureFilePath))
+                                                {
+                                                    <img id="displaySignature" src="@Url.Action("ShowDocument", "Account", new { file = Model.CantidateSignatureFilePath, filepath = "Requirement" })" width="30px" height="30px"><br>
+                                                    <input class="form-control" type="file" name="CantidateSignature">
+                                                }
+                                                else
+                                                {
+                                                    <img id="displaySignature" src="~/Content/IOASContent/img/Image_placeholder.png" width="30px" height="30px"><br>
+                                                    <input class="form-control" type="file" name="CantidateSignature">
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label>Pay: </label>
+                                                <h4>@Model.Salary</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group custom-form-group">
+                                                <label>GST % :</label> <br>
+                                                <h4>@Model.GST</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label>Appointment start date:</label> <br>
+                                                <h4 id="txtAppointmentStartDate">@string.Format("{0:dd-MMMM-yyyy}", Model.Appointmentstartdate)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label>Appointment End date:</label> <br>
+                                                <h4 id="txtAppointmentEndDate">@string.Format("{0:dd-MMMM-yyyy}", Model.AppointmentEndDate)</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row ">
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label class="required">Bank Account No </label>
+                                                @Html.TextBoxFor(m => m.BankAccountNo, new { @class = "form-control required", @onkeypress = "return isOnlyNumericKey(event)" })
+                                                <div>@Html.ValidationMessageFor(m => m.BankAccountNo)</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label class="required">Bank Name </label>
+                                                @Html.TextBoxFor(m => m.BankName, new { @class = "form-control required", @onpaste = "return false", @onblur = "changeBankName()" })
+                                                @Html.Hidden("BankId")
+                                                <div>@Html.ValidationMessageFor(m => m.BankName)</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group custom-form-group">
+                                                <label class="required">IFSC </label>
+                                                @Html.TextBoxFor(m => m.IFSCCode, new { @class = "form-control required" })
+                                                <div>@Html.ValidationMessageFor(m => m.IFSCCode)</div>
+                                            </div>
+                                        </div>
+                                        @if (string.IsNullOrEmpty(Model.PANNo))
+                                        {
+                                            <div class="col-md-2">
+                                                <div class="form-group custom-form-group mb-sm ">
+                                                    <label class="required">PAN No </label>
+                                                    @Html.TextBoxFor(m => m.PANNo, new { @class = "form-control required" })
+                                                    <div>@Html.ValidationMessageFor(m => m.PANNo)</div>
+                                                </div>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="col-md-2">
+                                                <div class="form-group custom-form-group mb-sm ">
+                                                    <label>PAN No </label>
+                                                    <h4>@Html.DisplayFor(m => m.PANNo)</h4>
+                                                    @Html.HiddenFor(m => m.PANNo)
+                                                </div>
+                                            </div>
+                                        }
+                                        @if (string.IsNullOrEmpty(Model.AadharNumber))
+                                        {
+
+                                            <div class="col-md-2">
+                                                <div class="form-group custom-form-group mb-sm ">
+                                                    <label class="required">Aadhaar Number :</label>
+                                                    @Html.TextBoxFor(m => m.AadharNumber, new { @class = "form-control", @onkeypress = "return isNumberKey(event)" })
+                                                    <div>@Html.ValidationMessageFor(m => m.AadharNumber)</div>
+
+                                                </div>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="col-md-2">
+                                                <div class="form-group custom-form-group ">
+                                                    <label>Aadhaar Number :</label>
+                                                    <h4>@Html.DisplayFor(m => m.AadharNumber)</h4>
+                                                    @Html.HiddenFor(m => m.AadharNumber)
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+
+
+                                    <div class="row">
+
+                                        <div class="col-md-2">
+                                            <div class="form-group custom-form-group">
+                                                <label>Candidate name verified </label>  <br>
+                                                @Html.CheckBoxFor(m => m.isVerifiedGovProof)Government Proof
+                                                @if (Model.ConsultantAppointmentId > 0 && Model.GovProof > 0)
+                                                {
+                                                    @Html.DropDownListFor(m => m.GovProof, new SelectList(ViewBag.Proof, "id", "name", Model.GovProof), "Select", new { @class = "form-control" })
+                                                    <div>@Html.ValidationMessageFor(m => m.GovProof)</div>
+                                                }
+                                                else
+                                                {
+                                                    @Html.DropDownListFor(m => m.GovProof, new SelectList(ViewBag.Proof, "id", "name"), "Select", new { @class = "form-control" })
+                                                    <div>@Html.ValidationMessageFor(m => m.GovProof)</div>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group  ">
+                                                <label>PI Comments</label>
+                                                <div style="overflow: auto;height: 80px;background: white;border-radius: 5px;">
+                                                    @if (Model.Notes != null)
+                                                    {
+                                                        if (Model.Notes.Count > 0)
+                                                        {
+                                                            foreach (var Note in Model.Notes)
+                                                            {
+                                                                if (Note.PICommends != null)
+                                                                {
+                                                                    <h4>@Note.PICommends</h4>
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group  ">
+                                                <label>HR Note</label>
+                                                <div style="overflow: auto;height: 80px;background: white;border-radius: 5px;">
+                                                    @if (Model.Notes != null)
+                                                    {
+                                                        if (Model.Notes.Count > 0)
+                                                        {
+                                                            foreach (var Note in Model.Notes)
+                                                            {
+                                                                if (Note.HRNote != null)
+                                                                {
+                                                                    <h4>@Note.HRNote</h4>
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group custom-form-group  ">
+                                                <label>Present Address  </label>
+                                                @Html.TextAreaFor(m => m.TemporaryAddress, new { @class = "form-control required" })
+                                                <div>@Html.ValidationMessageFor(m => m.TemporaryAddress)</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group custom-form-group  ">
+                                                <label>
+                                                    @Html.CheckBoxFor(m => m.isSameasPermanentAddress) same as above	   <br>Permanent Address
+                                                </label>
+                                                @Html.TextAreaFor(m => m.PermanentAddress, new { @class = "form-control" })
+                                                <div>@Html.ValidationMessageFor(m => m.PermanentAddress)</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row ">
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label>Contact Number </label>
+                                                @Html.TextBoxFor(m => m.ContactNumber, new { @class = "form-control required" })
+                                                <div>@Html.ValidationMessageFor(m => m.ContactNumber)</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label class="required">Emergency Contact No  </label>
+                                                @Html.TextBoxFor(m => m.EmergencyContactNo, new { @class = "form-control required" })
+                                                <div>@Html.ValidationMessageFor(m => m.EmergencyContactNo)</div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label>Staff Category:</label>
+                                                <h4>@Html.DisplayFor(m => m.StaffCategory)</h4>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-2">
+                                            <div class="form-group custom-form-group ">
+                                                <label>Request received from PI</label>
+                                                <h4>@Html.DisplayFor(m => m.RequestedfromPI)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group custom-form-group ">
+                                                <label> Project Number:</label>
+                                                <h4>@Html.DisplayFor(m => m.ProjectNumber)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group custom-form-group">
+                                                <label class="">Commitment number</label>
+                                                <h4>@Html.DisplayFor(m => m.CommitmentNo)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group custom-form-group">
+                                                <label class="">Commitment amount</label>
+                                                <h4>@Html.DisplayFor(m => m.CommitmentAmount)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group custom-form-group">
+                                                <label class="">Employee Workplace</label>
+                                                @Html.TextBoxFor(m => m.EmployeeWorkplace, new { @class = "form-control", @placeholder = "Employee Workplace" })
+                                                <div>@Html.ValidationMessageFor(m => m.EmployeeWorkplace)</div>
+                                            </div>
+                                        </div>
+                                        @if (!string.IsNullOrEmpty(Model.ResumeFilePath))
+                                        {
+                                            <div class="col-md-2">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Resume</label>
+                                                    @Html.HiddenFor(m => m.ResumeFilePath)
+                                                    @Html.HiddenFor(m => m.ResumeFileName)
+                                                    <h4>@Html.ActionLink(Model.ResumeFileName, "ShowDocument", new { Controller = "Account", filepath = "Requirement", file = Model.ResumeFilePath }, new { @name = "DocDownload", @target = "_blank" })</h4>
+                                                    <input class="" type="file" name="Resume" style="width:190px;">
+                                                    <em style="color:red;font-size:12px;">upload .pdf and file size below 5MB</em>
+                                                </div>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="col-md-2">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Resume</label>
+                                                    <input class="" type="file" name="Resume" style="width:190px;">
+                                                    <em style="color:red;font-size:12px;">upload .pdf and file size below 5MB</em>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <h4>Details of Education:</h4>
+                                            <div class="rc-tb-scrl">
+                                                <table class="table alter-table mb-null">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>QUALIFICATION</th>
+                                                            <th>COURSE</th>
+                                                            <th>DISCIPILINE</th>
+                                                            <th>UNIVERSITY / INSTITUTION </th>
+                                                            <th>YEAR OF PASSING</th>
+                                                            <th>MARK TYPE</th>
+                                                            <th>MARK/CGPA</th>
+                                                            <th>Attachment File</th>
+                                                            <th>Upload File</th>
+                                                            <th>Remarks</th>
+                                                            <th>Verify</th>
+                                                            <th></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="tbodyEducation">
+                                                        @if (Model.EducationDetail.Count > 0)
+                                                        {
+                                                            var count = 0;
+                                                            foreach (var item in Model.EducationDetail)
+                                                            {
+                                                                var eduId = "EducationDetail[" + count + "].EducationId";
+                                                                var edu = "EducationDetail[" + count + "].Education";
+                                                                var qullfi = "EducationDetail[" + count + "].QualificationId";
+                                                                var decpid = "EducationDetail[" + count + "].DisciplineId";
+                                                                var instu = "EducationDetail[" + count + "].Institution";
+                                                                var yearpass = "EducationDetail[" + count + "].YearofPassing";
+                                                                var marks = "EducationDetail[" + count + "].Marks";
+                                                                var MarkType = "EducationDetail[" + count + "].MarkType";
+                                                                var devob = "EducationDetail[" + count + "].DivisionClassObtained";
+                                                                var cetrifid = "EducationDetail[" + count + "].CertificateId";
+                                                                var cerfile = "EducationDetail[" + count + "].Certificate";
+                                                                var remark = "EducationDetail[" + count + "].Remarks";
+                                                                var verify = "EducationDetail[" + count + "].Verify";
+                                                                var qulfiappId = "qulfiAPP_" + count;
+                                                                <tr>
+                                                                    <td>
+                                                                        <label class="lbl-rv">@Model.EducationDetail[count].QualificationName</label>
+                                                                        @Html.DropDownList(@qullfi, new SelectList(ViewBag.Qualification, "id", "name", item.QualificationId), "Select Qualification",
+                                                        new { @class = "form-control dis-none", @id = @qulfiappId })
+                                                                        @Html.ValidationMessage(@qullfi)
+                                                                        @Html.Hidden("EducationDetail.Index", @count)
+                                                                        @Html.Hidden(@eduId, item.EducationId)
+                                                                    </td>
+                                                                    <td>
+                                                                        <label class="lbl-rv">@Model.EducationDetail[count].DisciplineName</label>
+                                                                        @Html.DropDownList(@decpid, new SelectList(item.ddlList, "id", "name", item.DisciplineId), "Select Course",
+                                                        new { @class = "form-control dis-none", @id = "decpAPP_" + count })
+                                                                        @*<script>
+                                                                                $('select[name="@decpid"]').val(@Html.Raw(Json.Encode(item.DisciplineId)));
+                                                                            </script>*@
+                                                                    </td>
+                                                                    <td>
+                                                                        <label class="lbl-rv">@Model.EducationDetail[count].DivisionClassObtained</label>
+                                                                        @Html.TextBox(@devob, item.DivisionClassObtained, new { @class = "form-control dis-none" })
+                                                                        @Html.ValidationMessage(@devob)
+                                                                    </td>
+                                                                    <td>
+                                                                        <label class="lbl-rv">@Model.EducationDetail[count].Institution</label>
+                                                                        @Html.TextBox(@instu, item.Institution, new { @class = "form-control dis-none" })
+                                                                        @Html.ValidationMessage(@instu)
+                                                                    </td>
+                                                                    <td>
+                                                                        @*<label class="lbl-rv">@Model.EducationDetail[count].YearofPassing</label>
+                                                                            @Html.TextBox(@yearpass, item.YearofPassing, new { @class = "form-control dis-none", @onkeypress = "return isNumberKey(event)" })
+                                                                            @Html.ValidationMessage(@yearpass)*@
+                                                                        <h4 class="lbl-rv">@Html.DisplayFor(m => m.EducationDetail[count].YearofPassing)</h4>
+                                                                        @Html.DropDownList(@yearpass, new SelectList(ViewBag.Years, "id", "name", item.YearofPassing), "Select year", new { @class = "form-control dis-none" })
+                                                                        @Html.ValidationMessage(@yearpass)
+                                                                    </td>
+                                                                    <td>
+                                                                        <h4 class="lbl-rv">@Html.DisplayFor(m => m.EducationDetail[count].strMarkType)</h4>
+                                                                        @Html.DropDownList(@MarkType, new SelectList(ViewBag.MarkType, "id", "name", item.MarkType), "Select MarkType", new { @class = "form-control dis-none" })
+                                                                        @Html.ValidationMessage(@MarkType)
+                                                                    </td>
+                                                                    <td>
+                                                                        <label class="lbl-rv">@Model.EducationDetail[count].Marks</label>
+                                                                        @Html.TextBox(@marks, item.Marks, "", new { @id = "ddlMarks_" + count, @class = "form-control dis-none", @onkeypress = "return isNumberKey(event)" })
+                                                                        @Html.ValidationMessage(@marks)
+                                                                    </td>
+
+
+                                                                    <td>
+                                                                        @if (Model.ConsultantAppointmentId > 0 && !string.IsNullOrEmpty(item.DocumentPath))
+                                                                        {
+                                                                            @Html.ActionLink(item.DocumentPath, "ShowDocument", new { Controller = "Account", filepath = "Requirement", file = item.DocumentName }, new { @class = "doclink", @name = "DocDownload", @target = "_blank" })
+                                                                        }
+                                                                    </td>
+                                                                    <td>
+                                                                        @if (item.EducationId == null)
+                                                                        {
+                                                                            <input type="file" class="" name="@cerfile" />@:&nbsp; &nbsp; &nbsp;
+                                                                         }
+                                                                        else if (item.EducationId != null && string.IsNullOrEmpty(item.DocumentPath))
+                                                                        {
+                                                                            <input type="file" class="" name="@cerfile" />@:&nbsp; &nbsp; &nbsp;
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <input type="file" class="form-control" name="@cerfile" />@:&nbsp; &nbsp; &nbsp;
+                                                                        }
+                                                                        @Html.ValidationMessage(@cerfile)
+                                                                    </td>
+                                                                    <td>
+                                                                        <label class="lbl-rv">@Model.EducationDetail[count].Remarks</label>
+                                                                        @Html.TextBox(@remark, item.Remarks, new { @class = "form-control dis-none" })
+                                                                        @Html.ValidationMessage(@remark)
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.CheckBox(@verify, false, new { @class = "" })
+                                                                        @Html.ValidationMessage(@verify)
+                                                                    </td>
+                                                                    <td>
+                                                                        <a href="javascript:void(0)" class="btn-sm btn btn-danger dis-none removeEducationDetail"><i class="ion-android-close"></i></a>
+                                                                    </td>
+                                                                </tr>
+                                                                count++;
+                                                            }
+
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <div class="col-md-6 mt-md mb20">
+                                                <a href="javascript:void(0)" id="btnAddEducation" class="btn btn-primary">Add New</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="rc-tb-scrl">
+                                                <table class="table alter-table mb-null">
+                                                    <thead>
+                                                        <tr>
+                                                            <th style="width:130px;">Type</th>
+                                                            <th>ORGANISATION</th>
+                                                            <th>DESIGNATION </th>
+                                                            <th>FROM</th>
+                                                            <th>TO</th>
+                                                            <th>SALARY DRAWN / MONTH (Rs.)</th>
+                                                            <th>Attachment File</th>
+                                                            <th>Upload File</th>
+                                                            <th>Remarks</th>
+                                                            <th>Verify</th>
+                                                            <th></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="tbodyExperience">
+                                                        @if (Model.ExperienceDetail.Count > 0)
+                                                        {
+                                                            var count = 0;
+                                                            foreach (var item in Model.ExperienceDetail)
+                                                            {
+                                                                var expid = "ExperienceDetail[" + count + "].ExperienceId";
+                                                                var exptype = "ExperienceDetail[" + count + "].ExperienceTypeId";
+                                                                var exptypestr = "ExperienceDetail[" + count + "].ExperienceType";
+                                                                var org = "ExperienceDetail[" + count + "].Organisation";
+                                                                var autocom = "ExperienceDetail[" + count + "].DesignationautoComplete";
+                                                                var des = "ExperienceDetail[" + count + "].DesignationListId";
+                                                                var frmdate = "ExperienceDetail[" + count + "].FromDate";
+                                                                var todate = "ExperienceDetail[" + count + "].ToDate";
+                                                                var salarydr = "ExperienceDetail[" + count + "].SalaryDrawn";
+                                                                var expfile = "ExperienceDetail[" + count + "].ExperienceFile";
+                                                                var remark = "ExperienceDetail[" + count + "].Remarks";
+                                                                var verify = "ExperienceDetail[" + count + "].Verify";
+
+                                                                <tr>
+                                                                    <td>
+
+                                                                        @Html.DropDownList(@exptype, new SelectList(ViewBag.Exptype, "id", "name", item.ExperienceTypeId), "Select Qualification",
+                                                        new { @class = "form-control", @id = "expTypeid" })
+                                                                        @Html.ValidationMessage(@exptype)
+                                                                        @Html.Hidden("ExperienceDetail.Index", @count)
+                                                                        @Html.Hidden(@expid, item.ExperienceId)
+                                                                    </td>
+                                                                    <td>
+
+                                                                        @Html.TextBox(@org, item.Organisation, new { @class = "form-control" })
+                                                                        @Html.ValidationMessage(@org)
+                                                                    </td>
+                                                                    <td>
+
+                                                                        @Html.TextBox(@autocom, item.DesignationautoComplete, new { @class = "form-control" })
+                                                                        @Html.TextBox(@des, item.DesignationListId, new { @class = "form-control dis-none" })
+                                                                        @Html.ValidationMessage(@des)
+                                                                    </td>
+                                                                    <td>
+
+                                                                        @Html.TextBox(@frmdate, item.strFromDate, new { @class = "form-control", @readonly = "readonly" })
+                                                                        @Html.ValidationMessage(@frmdate)
+                                                                    </td>
+                                                                    <td>
+
+                                                                        @Html.TextBox(@todate, item.strToDate, new { @class = "form-control", @readonly = "readonly" })
+                                                                        @Html.ValidationMessage(@todate)
+                                                                    </td>
+                                                                    <td>
+
+                                                                        @Html.TextBox(@salarydr, item.SalaryDrawn, new { @class = "form-control", @onkeypress = "return isNumberKey(event)" })
+                                                                        @Html.ValidationMessage(@salarydr)
+                                                                    </td>
+                                                                    <td>
+                                                                        @if (Model.ConsultantAppointmentId > 0 && !string.IsNullOrEmpty(item.DocumentPath))
+                                                                        {
+                                                                            @Html.ActionLink(item.DocumentName, "ShowDocument", new { Controller = "Account", filepath = "Requirement", file = item.DocumentPath }, new { @class = "doclink", @name = "DocDownload", @target = "_blank" })
+                                                                        }
+                                                                    </td>
+                                                                    <td>
+                                                                        @if (item.ExperienceId == null && string.IsNullOrEmpty(item.DocumentPath) && isHaveExperience == true)
+                                                                        {
+                                                                            <input type="file" class="" name="@expfile" />@:&nbsp; &nbsp; &nbsp;
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <input type="file" class="" name="@expfile" />@:&nbsp; &nbsp; &nbsp;
+                                                                    }
+                                                                        @Html.ValidationMessage(@expfile)
+                                                                    </td>
+                                                                    <td>
+
+                                                                        @Html.TextBox(@remark, item.Remarks, new { @class = "form-control" })
+                                                                        @Html.ValidationMessage(@remark)
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.CheckBox(@verify, false, new { @class = "" })
+                                                                        @Html.ValidationMessage(@remark)
+                                                                    </td>
+                                                                    <td>
+                                                                        <a href="javascript:void(0)" class="btn-sm btn btn-danger removeExperienceDetail dis-none"><i class="ion-android-close"></i></a>
+                                                                    </td>
+                                                                </tr>
+                                                                count++;
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            <tr>
+                                                                <td>
+                                                                    @Html.DropDownList("ExperienceDetail[0].ExperienceTypeId", new SelectList(ViewBag.Exptype, "id", "name"), "Select Qualification",
+                                                 new { @class = "form-control", @id = "expTypeid" })
+                                                                    @Html.ValidationMessage("ExperienceDetail[0].ExperienceTypeId")
+                                                                    @Html.Hidden("ExperienceDetail.Index", 0)
+                                                                </td>
+                                                                <td>
+                                                                    @Html.TextBox("ExperienceDetail[0].Organisation", "", new { @class = "form-control" })
+                                                                    @Html.ValidationMessage("ExperienceDetail[0].Organisation")
+                                                                </td>
+                                                                <td>
+                                                                    @Html.TextBox("ExperienceDetail[0].DesignationautoComplete", "", new { @class = "form-control" })
+                                                                    @Html.TextBox("ExperienceDetail[0].DesignationListId", "", new { @class = "form-control dis-none" })
+                                                                    @Html.ValidationMessage("ExperienceDetail[0].DesignationListId")
+                                                                    @*@Html.TextBox("ExperienceDetail[0].DesignationNames", "", new { @class = "form-control" })
+                                                                        @Html.ValidationMessage("ExperienceDetail[0].DesignationNames")*@
+                                                                </td>
+                                                                <td>
+                                                                    @Html.TextBox("ExperienceDetail[0].FromDate", "", new { @class = "form-control", @id = "txtfrmdate", @autocomplete = "off", @readonly = "readonly" })
+                                                                    @Html.ValidationMessage("ExperienceDetail[0].FromDate")
+                                                                </td>
+                                                                <td>
+                                                                    @Html.TextBox("ExperienceDetail[0].ToDate", "", new { @class = "form-control", @id = "txttodate", @autocomplete = "off", @readonly = "readonly" })
+                                                                    @Html.ValidationMessage("ExperienceDetail[0].ToDate")
+                                                                </td>
+                                                                <td>
+                                                                    @Html.TextBox("ExperienceDetail[0].SalaryDrawn", "", new { @class = "form-control", @onkeypress = "return isNumberKey(event)" })
+                                                                    @Html.ValidationMessage("ExperienceDetail[0].SalaryDrawn")
+                                                                </td>
+                                                                <td>
+                                                                    <input type="file" class="" name="ExperienceDetail[0].ExperienceFile" />&nbsp;&nbsp;&nbsp;
+
+                                                                </td>
+                                                                <td>
+                                                                    @Html.TextBox("ExperienceDetail[0].Remarks", "", new { @class = "form-control" })
+                                                                    @Html.ValidationMessage("ExperienceDetail[0].Remarks")
+                                                                </td>
+                                                                <td><a href="javascript:void(0)" class="btn-sm btn btn-danger removeExperienceDetail"><i class="ion-android-close"></i></a></td>
+                                                            </tr>
+                                                        }
+
+                                                    </tbody>
+
+                                                </table>
+                                            </div>
+                                            <div class="col-md-6 mt-md mb20">
+                                                <a href="javascript:void(0)" id="btnAddExperience" class="btn btn-primary">Add New</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <h4>Other Documents:</h4>
+                                            <div class="">
+                                                <table class="table alter-table mb-null">
+                                                    <thead>
+                                                        <tr>
+                                                            <th style="width:30%;">Document Name</th>
+                                                            <th style="width:70%;">Attachment</th>
+                                                            <th></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="OtherDoc">
+                                                        @{
+                                                            var docName = "OtherDocList[0].DocumentName";
+                                                            var doc = "OtherDocList[0].Document";
+                                                            <tr>
+                                                                <td>
+                                                                    @Html.TextBox(@docName, null, new { @class = "form-control" })
+                                                                    @Html.ValidationMessage(@docName)
+                                                                </td>
+                                                                <td>
+                                                                    <input type="file" class="" name="@doc" />&nbsp; &nbsp; &nbsp;
+                                                                    @Html.ValidationMessage(@doc)
+                                                                </td>
+                                                                <td>
+                                                                    <a href="javascript:void(0)" class="btn-sm btn btn-danger removeOtherDoc"><i class="ion-android-close"></i></a>
+                                                                </td>
+                                                            </tr>
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <div class="col-md-6 mt-md">
+                                                <a href="javascript:void(0)" id="btnAddOtherDoc" class="btn btn-primary">Add New</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-lg">
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group  ">
+                                                <label>Offer Letter Date </label>
+                                                <h4>@Model.OfferDate</h4>
+                                            </div>
+                                            <div class="form-group custom-form-group  ">
+                                                <label>Offer Letter Attachment  </label> <br>
+                                                @Html.ActionLink("OfferLetter", "_RCTCONOfferletter", new { Controller = "ReportMaster", ConAppId = Model.ConsultantAppointmentId }, new { @name = "DocDownload", @target = "_blank" })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group  ">
+                                                <label>Actual Date </label>
+                                                @Html.EditorFor(m => m.ActualDate, new { @class = "form-control required" })
+                                                @Html.ValidationMessageFor(m => m.ActualDate)
+                                            </div>
+                                            <div class="form-group custom-form-group  ">
+                                                <label>Joining Report  </label> <br>
+                                                @if (Model.ConsultantAppointmentId > 0 && !string.IsNullOrEmpty(Model.JoiningReportPath))
+                                                {
+                                                    <input type="file" name="JoiningReport" class="">
+                                                    @Html.ActionLink(Model.JoiningReportFileName, "ShowDocument", new { Controller = "Account", filepath = "Requirement", file = Model.JoiningReportPath }, new { @name = "DocDownload", @target = "_blank" })
+                                                }
+                                                else
+                                                {
+                                                    <input type="file" name="JoiningReport" class="required">
+                                                    @Html.ValidationMessage("JoiningReport")
+                                                }
+                                            </div>
+
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label>Remarks</label>  <br>
+                                                @Html.TextAreaFor(m => m.VerificationRemarks, new { @class = "form-control" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12 mb-lg text-center">
+            <input type="submit" class="btn btn-primary" value="Submit" id="btnSave" />
+            <button type="button" class="btn btn-default" onclick="window.location.href='@Url.Action("CONVerificationList", "Requirement")';">Close</button>
+
+        </div>
+    </div>
+                                                            }
+<script>
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    var alertMsg = '@TempData["alertMsg"]';
+    var CONId = @Html.Raw(Json.Encode(Model.ConsultantAppointmentId)) || 0;
+    $('.form-control').prop('autocomplete', "off");
+    $(document).on('change', 'input[name="CantidateSignature"]', function () {
+
+        var file = $(this).val();
+        if (file != "") {
+            var file_size = $(this)[0].files[0].size;
+            var extension = file.substr((file.lastIndexOf('.') + 1)).toLowerCase();
+            switch (extension) {
+                case 'png':
+                case 'jpg':
+                case 'jpeg':
+                    isValidExten = true;
+                    break;
+                default:
+                    isValidExten = false;
+            }
+            if (isValidExten == false) {
+                $('#alert').html("Please upload any one of these type file [png, jpg, jpeg].");
+                $('#Validation').modal('toggle');
+                $(this).val('');
+
+                return false;
+            }
+            else if (file_size > 1000000) {
+                $('#alert').html("You can upload the file up to 1 MB.");
+                $('#Validation').modal('toggle');
+                $(this).val('');
+                return false;
+            }
+            readSignURL(this);
+        }
+    });
+    $(document).on('change', 'input[name="PersonDocImage"]', function () {
+
+        var file = $(this).val();
+        if (file != "") {
+            var file_size = $(this)[0].files[0].size;
+            var extension = file.substr((file.lastIndexOf('.') + 1)).toLowerCase();
+            switch (extension) {
+                case 'png':
+                case 'jpg':
+                case 'jpeg':
+                    isValidExten = true;
+                    break;
+                default:
+                    isValidExten = false;
+            }
+            if (isValidExten == false) {
+                $('#alert').html("Please upload any one of these type file [png, jpg, jpeg].");
+                $('#Validation').modal('toggle');
+                $(this).val('');
+
+                return false;
+            }
+            else if (file_size > 1000000) {
+                $('#alert').html("You can upload the file up to 1 MB.");
+                $('#Validation').modal('toggle');
+                $(this).val('');
+                return false;
+            }
+            readURL(this);
+        }
+    });
+    $(document).ready(function () {
+
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+        else if (alertMsg != '') {
+            $('#alert').html(alertMsg);
+            $('#Validation').modal('toggle');
+        }
+
+        $('.selectpicker').selectpicker({
+            liveSearch: true
+        });
+        $('.selectpicker').selectpicker('refresh');
+
+        var CurrDate = moment(new Date()).toDate();
+        $('input[name$=".FromDate"]').datepicker({
+            dateFormat: 'dd-MM-yy',
+            changeYear: true,
+            yearRange: '-35:+0',
+        }).datepicker("option", "maxDate", CurrDate);
+
+        $('input[name$=".ToDate"]').datepicker({
+            dateFormat: 'dd-MM-yy',
+            changeYear: true,
+            yearRange: '-35:+0',
+        }).datepicker("option", "maxDate", CurrDate);
+        var dobString = $('#DateBrith').val();
+        if (dobString != "") {
+            var dob = new Date(dobString.split('-').join('/'));
+            var Curr = new Date();
+            var year = parseInt(dob.getFullYear());
+            year += 14;
+            var minimumDt = new Date(year, dob.getMonth(), dob.getDate());
+            if (CONId > 0) {
+                var maxdt = new Date($('#txtAppointmentStartDate').text().split('-').join('/'));
+                maxdt.setDate(maxdt.getDate() - 1);
+                $('input[name$=".FromDate"]').each(function () {
+                    $(this).datepicker({ dateFormat: 'dd-MM-yy', changeYear: true }).datepicker("option", "minDate", minimumDt).datepicker("option", "maxDate", maxdt);
+                });
+                $('input[name$=".ToDate"]').each(function () {
+                    $(this).datepicker({ dateFormat: 'dd-MM-yy', changeYear: true }).datepicker("option", "minDate", minimumDt).datepicker("option", "maxDate", maxdt);
+                });
+            }
+            else {
+                $('input[name$=".FromDate"]').each(function () {
+                    $(this).datepicker({ dateFormat: 'dd-MM-yy', changeYear: true }).datepicker("option", "minDate", minimumDt).datepicker("option", "maxDate", maxdt);
+                });
+                $('input[name$=".ToDate"]').each(function () {
+                    $(this).datepicker({ dateFormat: 'dd-MM-yy', changeYear: true }).datepicker("option", "minDate", minimumDt).datepicker("option", "maxDate", maxdt);
+                });
+            }
+        }
+        applyAutoComplete($('#BankName'), $('#BankId'), '@Url.Action("LoadBankNameList", "Requirement")');
+        $('#tbodyExperience tr').each(function () {
+            var index = $(this).find("input[name='ExperienceDetail.Index']").val();
+            var hdEle = $("input[name='ExperienceDetail[" + index + "].DesignationListId']");
+            var acEle = $("input[name='ExperienceDetail[" + index + "].DesignationautoComplete']");
+            applyAutoComplete(acEle, hdEle, '@Url.Action("LoadDesignationNameList", "Requirement")');
+        });
+
+    });
+    $(document).on("change", "input[name$='.FromDate']",function () {
+        var name = $(this).attr('name');
+        var SplitName = name.split('.');
+        var value = $(this).val();
+        value = value.split('-').join('/')
+        var defaultFromDate = moment(value).add(+1, 'days').toDate();
+        $('input[name="' + SplitName[0] + '.ToDate"]').datepicker({
+            dateFormat: 'dd-MM-yy',
+            changeYear: true
+        }).datepicker("option", "minDate", defaultFromDate);
+    });
+    var AppointmentStartDate = $('#txtAppointmentStartDate').text();
+    var AppointmentEndDate = $('#txtAppointmentEndDate').text();
+    var setStartDate = moment(new Date(AppointmentStartDate.split('-').join('/'))).toDate();
+    var setEndDate = moment(new Date()).toDate();
+    $('input[name="ActualDate"]').datepicker({
+        dateFormat: 'dd-MM-yy',
+        showStatus: true,
+        showWeeks: true,
+        changeYear: true,
+        yearRange: '1950:+30',
+        highlightWeek: true,
+        numberOfMonths: 1,
+        showAnim: "scale",
+        showOptions: {
+            origin: ["top", "left"]
+        },
+        beforeShowDay: function (date) {
+            var day = date.getDay();
+            return [day != 0, ''];
+        }
+    }).datepicker("option", "minDate", setStartDate).datepicker("option", "maxDate", setEndDate);
+    function changeBankName()
+    {
+        var bankname = $("#BankName").val();
+        if (bankname == null || bankname == "") {
+            $('#BankId').val('');
+        }
+    }
+    function FillPIDetails() {
+        var projectId = $("#ProjectId").val();
+        if (projectId != "" || projectId != 0) {
+            $.getJSON("@Url.Action("LoadProjectDetails", "Requirement")", { ProjectId: projectId },
+                 function (result) {
+                     if (result.projectData.ProjectNumber != null) {
+                         $('#PICode').text(result.projectData.PICode);
+                         $('#PINametxt').text(result.projectData.PIName);
+                         $('#DepartmentNametxt').text(result.projectData.PIDepartmentName);
+                     }
+                 });
+        }
+    }
+
+    FillPIDetails()
+
+    var addyear = 0;
+    if (parseInt($("#DesignationId").val()) != 0)
+        LoadFillDesignation();
+
+    function LoadFillDesignation() {
+        var designationId = $('#DesignationId').val();
+        if (designationId > 0) {
+            $.getJSON("@Url.Action("LoadDesignationDetails", "Requirement")", { DesignationID: designationId },
+            function (result) {
+                if (result.DesignationData.DestinationID > 0) {
+                    $("#Designationtxt").text(result.DesignationData.Designation);
+                }
+            });
+        }
+    }
+
+    $('input[name="isSameasPermanentAddress"]').on('click', function () {
+        if ($(this).is(":checked"))
+            $('#PermanentAddress').val($('#PresentAddress').val());
+        else
+            $('#PermanentAddress').val('');
+    });
+
+    //var qualification = "";
+    //$('#tbodyEducation tr').each(function () {
+    //    var Qualify = $(this).find("select[name$='.QualificationId'] option:selected").text();
+    //    var departmet = $(this).find("select[name$='.DisciplineId'] option:selected").text();
+    //    qualification += Qualify + '.' + departmet + ",";
+    //});
+
+    //$('#ClQualification').text(qualification);
+
+    $('textarea[name="PresentAddress"]').on('keyup', function () {
+        var value = $(this).val();
+        if ($('#isSameasPermanentAddress').is(":checked")) {
+            $('#PermanentAddress').val(value);
+        }
+    });
+
+    function FillExperience() {
+        var TotalExp = 0;
+        $('#tbodyExperience tr').each(function () {
+            var frmexpdate = $(this).find("input[name$='.FromDate']").val();
+            var toexpdate = $(this).find("input[name$='.ToDate']").val();
+            var dateTo = new Date(toexpdate.split('-').join('/'));
+            var dateFrom = new Date(frmexpdate.split('-').join('/'));
+            var diff = new Date(dateTo - dateFrom);
+            var days = diff / 1000 / 60 / 60 / 24;
+            TotalExp += days;
+        });
+        var Exp = TotalExp / 365;
+        $('#Experiencetxt').text(Exp.toFixed(2) + 'Years')
+    }
+
+    FillExperience();
+
+    function formSave() {
+        var isValid = $('#formVerification').valid();
+        if (!isValid)
+            return false;
+        if (isValid)
+            $('#formVerification').submit();
+    }
+
+    function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode != 46 && charCode > 31
+          && (charCode < 48 || charCode > 57))
+            return false;
+        return true;
+    }
+
+    function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                $('#displayImg')
+                    .attr('src', e.target.result)
+                    .width(30)
+                    .height(30);
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function readSignURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                $('#displaySignature')
+                    .attr('src', e.target.result)
+                    .width(30)
+                    .height(30);
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    $(document).on('change', 'input[type="file"]', function (e) {
+        var _size = this.files[0].size;
+        var iSize = (_size / 1024);
+        iSize = (Math.round(iSize * 100) / 100)
+        var fileName = e.target.files[0].name;
+        var allowedExtensions = [".jpeg", ".png", ".jpg", ".JPEG", ".PNG", ".JPG"];
+        var allowedExtensionsPdf = [".pdf", ".PDF"];
+        var extension = fileName.substr((fileName.lastIndexOf('.') + 1)).toLowerCase();
+        var ImgFormat = allowedExtensions.includes('.' + extension);
+        var DocFormat = allowedExtensionsPdf.includes('.' + extension);
+        if (ImgFormat) {
+            if (iSize > 1024) {
+                $.alert("Image size should be allow below 1MB");
+                $(this).val('')
+                return;
+            }
+        }
+        else if (DocFormat) {
+            if (iSize > 5120) {
+                $.alert("PDF size should be allow below 5MB");
+                $(this).val('')
+                return;
+            }
+        }
+        else {
+            $.alert("This browser doesn't support HTML5 file uploads!");
+        }
+    });
+
+    $('a[name="DocDownload"]').click(function (p) {
+        p.preventDefault();
+        var ref = $(this).attr('href');
+        var win = window.open('', '_blank');
+        win.location.href = ref;
+    });
+
+
+    $("#btnAddEducation").click(function () {
+        var cln = $('#tbodyEducation tr:first').clone().find("input,select").val("").end();
+
+        $(cln).find('select[id="decpAPP"]').empty();
+        $(cln).find('a').removeClass('dis-none');
+        $(cln).find('b').parent('a').remove();
+        $(cln).find('b').remove();
+        var index = $('#tbodyEducation').find("input[name='EducationDetail.Index']").val();
+        index = parseInt(index) + 1;
+        idx = index;
+        $(cln).find("input[name='EducationDetail.Index']").val(index);
+        $(cln).find("input[name='EducationDetail[0].Verify']").prop('checked', false);
+        $(cln).find(".lbl-rv").each(function () {
+            $(this).remove();
+        })
+        $(cln).find(".dis-none").each(function () {
+            $(this).removeClass('dis-none');
+        })
+        $(cln).find('a.doclink').addClass('dis-none');
+        $(cln).find("input,select").each(function () {
+
+            if ($(this).attr("name") != undefined)
+                $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+            console.log($(this).attr("id"));
+            var letters = /^[0-9a-zA-Z]+$/;
+            if ($(this).attr("id") != undefined)
+                $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+        });
+        $(cln).find("span[data-valmsg-for]").each(function () {
+            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+        });
+        $('#tbodyEducation').append(cln);
+    });
+
+
+
+    $("#btnAddExperience").click(function () {
+        var cln = $('#tbodyExperience tr:first').clone().find("select,input").val("").end();
+        var index = $('#tbodyExperience tr:last').find("input[name='ExperienceDetail.Index']").val();
+        var idx = parseInt(index);
+        var frmEle = moment($("input[name='ExperienceDetail[" + idx + "].FromDate']").val()).toDate();
+        var toEle = moment($("input[name='ExperienceDetail[" + idx + "].ToDate']").val()).add(+1, 'days').toDate();
+        var todaydate = moment(new Date()).toDate();
+        index = parseInt(index) + 1;
+        $(cln).find('b').parent('a').remove();
+        $(cln).find('a').removeClass('dis-none');
+        $(cln).find('b').remove();
+        $(cln).find("input[name='ExperienceDetail.Index']").val(index);
+        //$(cln).find(".lbl-rv").each(function () {
+        $(this).remove();
+        //});
+        $(cln).find(".dis-none").each(function () {
+            if (!$(this).attr('id').includes("DesignationListId")) {
+                $(this).removeClass('dis-none');
+            }
+        })
+        $(cln).find('a.doclink').addClass('dis-none');
+        $(cln).find("input, select").each(function () {
+            //if ($(this).attr("readonly") == "readonly") {
+            //    $(this).removeAttr("readonly");
+            //}
+            $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+            if ($(this).attr("id"))
+                $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+        });
+        $(cln).find("span[data-valmsg-for]").each(function () {
+            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+        });
+
+        var hdEle = $("input[name='ExperienceDetail[" + index + "].DesignationListId']");
+        var acEle = $("input[name='ExperienceDetail[" + index + "].DesignationautoComplete']");
+        applyAutoComplete(acEle, hdEle, '@Url.Action("LoadDesignationNameList", "Requirement")');
+        var dobString = $('#DateBrith').val();
+        if (dobString != "") {
+            var dob = new Date(dobString.split('-').join('/'));
+            var Curr = new Date();
+            var year = parseInt(dob.getFullYear());
+            year += 14;
+            var minimumDt = new Date(year, dob.getMonth(), dob.getDate());
+            if (CONId > 0) {
+                var maxdt = new Date($('txtAppointmentStartDate').text().split('-').join('/'));
+                maxdt.setDate(maxdt.getDate() - 1);
+                $(cln).find('.hasDatepicker').attr("id", "").removeClass('hasDatepicker').removeData('datepicker').unbind().datepicker({
+                    dateFormat: 'dd-MM-yy', changeYear: true, yearRange: '-100:+0'
+                }).datepicker("option", "minDate", minimumDt).datepicker("option", "maxDate", maxdt);
+            }
+            else {
+                $(cln).find('.hasDatepicker').attr("id", "").removeClass('hasDatepicker').removeData('datepicker').unbind().datepicker({
+                    dateFormat: 'dd-MM-yy', changeYear: true, yearRange: '-100:+0'
+                }).datepicker("option", "minDate", minimumDt);
+            }
+        }
+
+        var expinValid = validateExperiencedetail();
+        if (expinValid) {
+            $.confirm({
+                title: 'Warning!',
+                content: 'Please fill experience detail',
+                type: 'orange',
+                buttons: {
+                    Ok: function () {
+                        //close
+                    },
+                },
+            });
+            return false;
+        }
+        $('#tbodyExperience').append(cln);
+
+
+
+    });
+    function validateExperiencedetail() {
+        var hasErr = true;
+        var cln = $('#tbodyExperience');
+        $(cln).find('select[name $=".ExperienceTypeId"]').each(function () {
+            var value = $(this).val() || "";
+            if (value != "")
+                hasErr = false;
+        });
+        $(cln).find('input[name $=".Organisation"]').each(function () {
+            var value = $(this).val() || "";
+            if (value != "")
+                hasErr = false;
+        });
+        $(cln).find('input[name $=".DesignationautoComplete"]').each(function () {
+            var value = $(this).val() || "";
+            if (value != "")
+                hasErr = false;
+        });
+        $(cln).find('input[name $=".FromDate"]').each(function () {
+            var value = $(this).val() || "";
+            if (value != "")
+                hasErr = false;
+        });
+        $(cln).find('input[name $=".ToDate"]').each(function () {
+            var value = $(this).val() || "";
+            if (value != "")
+                hasErr = false;
+        });
+        $(cln).find('input[name $=".SalaryDrawn"]').each(function () {
+            var value = $(this).val() || "";
+            if (value != "")
+                hasErr = false;
+        });
+
+        if (!hasErr) {
+            $(cln).find('select[name $=".ExperienceTypeId"]').each(function () {
+                var value = $(this).val() || "";
+                if (value == "")
+                    hasErr = true;
+            });
+            $(cln).find('input[name $=".Organisation"]').each(function () {
+                var value = $(this).val() || "";
+                if (value == "")
+                    hasErr = true;
+            });
+            $(cln).find('input[name $=".DesignationautoComplete"]').each(function () {
+                var value = $(this).val() || "";
+                if (value == "")
+                    hasErr = true;
+            });
+            $(cln).find('input[name $=".FromDate"]').each(function () {
+                var value = $(this).val() || "";
+                if (value == "")
+                    hasErr = true;
+            });
+            $(cln).find('input[name $=".ToDate"]').each(function () {
+                var value = $(this).val() || "";
+                if (value == "")
+                    hasErr = true;
+            });
+            $(cln).find('input[name $=".SalaryDrawn"]').each(function () {
+                var value = $(this).val() || "";
+                if (value == "")
+                    hasErr = true;
+            });
+        }
+        else
+            hasErr = false;
+
+        return hasErr;
+    };
+    $('#Designation').click(function () {
+        applyAutoComplete($('#Designation'), $('#DesignationId'), "../Requirement/LoadDesignationNameList");
+    });
+
+    $(document).on('click', 'a.removeEducationDetail', function () {
+        if ($('#tbodyEducation tr').length != 1) {
+            $(this).closest('tr').remove();
+        }
+    });
+    $(document).on('click', 'a.removeExperienceDetail', function () {
+        if ($('#tbodyExperience tr').length != 1) {
+            $(this).closest('tr').remove();
+        }
+    });
+    var innc = 1;
+    $("#btnAddOtherDoc").click(function () {
+        var cln = $('#OtherDoc tr:first').clone().find("input").val("").end();
+        $(cln).find(".dis-none").each(function () {
+            $(this).removeClass('dis-none');
+        })
+        $(cln).find("input").each(function () {
+            if ($(this).attr("name") != undefined)
+                $(this).attr("name", $(this).attr("name").replace(/\d+/, innc));
+            console.log($(this).attr("id"));
+            var letters = /^[0-9a-zA-Z]+$/;
+            if ($(this).attr("id") != undefined)
+                $(this).attr("id", $(this).attr("id").replace(/\d+/, innc));
+        });
+        $(cln).find("span[data-valmsg-for]").each(function () {
+            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, innc));
+        });
+        $(cln).insertAfter("#OtherDoc tr:last");
+        innc++;
+    });
+
+    $(document).on('click', 'a.removeOtherDoc', function () {
+        if ($('#OtherDoc tr').length == 1) {
+            $(this).find("input,file").val("").end();
+        }
+        else
+        {
+            $(this).closest('tr').remove();
+            $(document).find('input[name$=".DocumentName"]').each(function (idx, ele) {
+                $(this).attr("name", $(this).attr("name").replace(/\d+/, idx));
+                if ($(this).attr("id"))
+                    $(this).attr("id", $(this).attr("id").replace(/\d+/, idx));
+            });
+            $(document).find('input[name$=".Document"]').each(function (idx, ele) {
+                $(this).attr("name", $(this).attr("name").replace(/\d+/, idx));
+                if ($(this).attr("id"))
+                    $(this).attr("id", $(this).attr("id").replace(/\d+/, idx));
+            });
+            $(document).find('span[data-valmsg-for$=".DocumentName"]').each(function (idx, ele) {
+                $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, idx));
+            });
+            $(document).find('span[data-valmsg-for$=".Document"]').each(function (idx, ele) {
+                $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, idx));
+            });
+            innc--;
+        }
+    });
+
+    $(document).on('change', 'select[id^="qulfiAPP_"]', function () {
+        var Departmentid = $(this).val();
+        var ID = $(this).attr("id");
+        var idx = ID.substr(ID.lastIndexOf("_") + 1);
+        var select = $(this).closest('#tbodyEducation').find('select[name="EducationDetail[' + idx + '].DisciplineId"]');
+        $(select).empty().append($('<option/>', { value: "", text: "Select Course" }));
+        $.getJSON("@Url.Action("LoadPIByCourseList", "Requirement")", { DepartmentId: Departmentid },
+                    function (locationdata) {
+
+                        $.each(locationdata, function (index, itemData) {
+                            $(select).append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name
+                            }));
+                        });
+                    });
+    });
+
+
+    $('input[name="isHavePHD"]').change(function () {
+        var value = $("input[name='isHavePHD']:checked").val();
+        if (value == "Yes")
+            $('#divPHDDetail').removeClass('dis-none');
+        else
+            $('#divPHDDetail').addClass('dis-none');
+
+    });
+
+    var isHavePHDMS = $("input[name='isHavePHD']:checked").val();
+    if (isHavePHDMS == "Yes")
+        $('#divPHDDetail').removeClass('dis-none');
+    else
+        $('#divPHDDetail').addClass('dis-none');
+
+    function VerifyCertificate() {
+        var isGov = false;
+        var isValid = true;
+        var isVerify = false;
+        $('#tbodyEducation').find('input[name$=".Verify"]').each(function () {
+            if ($(this).attr('type') == "checkbox") {
+                if (!$(this).is(':checked')) {
+                    isValid = false;
+                    isVerify = true;
+                }
+            }
+
+        });
+        var isHaveExp = @Json.Encode(isHaveExperience) || false;
+        if(isHaveExp == true)
+        {
+            $('#tbodyExperience').find('input[name$=".Verify"]').each(function () {
+                if ($(this).attr('type') == "checkbox") {
+                    if (!$(this).is(':checked')) {
+                        isValid = false;
+                        isVerify = true;
+                    }
+                }
+            });
+        }
+        if (!$('#isVerifiedGovProof').is(":checked")) {
+            isValid = false;
+            isGov = true;
+        }
+        return [isValid, isGov, isVerify];
+    }
+
+
+
+    $(document).on('click', '#btnSave', function (e) {
+        e.preventDefault();
+        $('.loading-bg').removeClass('dis-none');
+        var isValid = false;
+        var hadError = false;
+        var tabs = $("#tab-01");
+        var currentTabEle = tabs[0];
+        var inputs = $("input, textarea,select"); // get all the form inputs and selects
+        var stepElements = $(currentTabEle).find(inputs); // get inputs for current step
+        var count = stepElements.length; // check that there are inputs
+        if (count <= 0) {                // if there are not no reason to loop them
+            return true;
+        }
+        $(stepElements).each(function (idx) {
+            if (!$(this).is(':radio') && !$(this).is(':checkbox')) {
+                console.log($(this).attr('id'));
+                isValid = $(this).valid();// check that the input is valid. This can also be used on a per input basis to perform another action if the field is not valid.
+                if (!isValid)
+                    hadError = true;
+            }
+        });
+        var validateCer = VerifyCertificate();
+        if (!validateCer[0] && validateCer[2]) {
+            messageBox('Please verify credentials', "warning");
+            hadError = true;
+        }
+        if (!validateCer[0] && validateCer[1]) {
+            messageBox('Please verify  government issued ID', "warning");
+            hadError = true;
+        }
+        var qualificationvalue=[];
+        $('select[name$=".QualificationId"]').each(function (idx, val) { qualificationvalue.push($(val).val()); });
+        qualificationvalue.sort();
+        // duplicate check
+        for (var k = 1; k < qualificationvalue.length; ++k) {
+            if (qualificationvalue[k] == qualificationvalue[k - 1]) {
+                messageBox("Selected different Qualification");
+                hadError = true;
+            }
+            //isValid = true;
+        }
+        if (!hadError) {
+            if($('#formVerification').valid())
+                $('#formVerification').submit();
+            else
+                return;
+        }
+        else {
+            $('.loading-bg').addClass('dis-none');
+        }
+        return !hadError;
+    });
+
+    $(document).on('change', 'input[name$=".Certificate"]', function () {
+
+        var file = $(this).val();
+        if (file != "") {
+            var file_size = $(this)[0].files[0].size;
+            var extension = file.substr((file.lastIndexOf('.') + 1)).toLowerCase();
+            switch (extension) {
+                case 'doc':
+                case 'docx':
+                case 'pdf':
+                    isValidExten = true;
+                    break;
+                default:
+                    isValidExten = false;
+            }
+            if (isValidExten == false) {
+                $('#alert').html("Please upload any one of these type file [doc, docx, pdf].");
+                $('#Validation').modal('toggle');
+                $(this).val('');
+                return false;
+            }
+            else if (file_size > 5242880) {
+                $('#alert').html("You can upload the file up to 5 MB.");
+                $('#Validation').modal('toggle');
+                $(this).val('');
+                return false;
+            }
+        }
+    });
+    $(document).on('change', 'input[name$=".ExperienceFile"]', function () {
+        var file = $(this).val();
+        if (file != "") {
+            var file_size = $(this)[0].files[0].size;
+            var extension = file.substr((file.lastIndexOf('.') + 1)).toLowerCase();
+            switch (extension) {
+                case 'doc':
+                case 'docx':
+                case 'pdf':
+                    isValidExten = true;
+                    break;
+                default:
+                    isValidExten = false;
+            }
+            if (isValidExten == false) {
+                $('#alert').html("Please upload any one of these type file [doc, docx, pdf].");
+                $('#Validation').modal('toggle');
+                $(this).val('');
+                return false;
+            }
+            else if (file_size > 5242880) {
+                $('#alert').html("You can upload the file up to 5 MB.");
+                $('#Validation').modal('toggle');
+                $(this).val('');
+                return false;
+            }
+        }
+    });
+    $(document).on('change', 'input[name$=".JoinungReport"]', function () {
+        var file = $(this).val();
+        if (file != "") {
+            var file_size = $(this)[0].files[0].size;
+            var extension = file.substr((file.lastIndexOf('.') + 1)).toLowerCase();
+            switch (extension) {
+                case 'doc':
+                case 'docx':
+                case 'pdf':
+                    isValidExten = true;
+                    break;
+                default:
+                    isValidExten = false;
+            }
+            if (isValidExten == false) {
+                $('#alert').html("Please upload any one of these type file [doc, docx, pdf].");
+                $('#Validation').modal('toggle');
+                $(this).val('');
+                return false;
+            }
+            else if (file_size > 5242880) {
+                $('#alert').html("You can upload the file up to 5 MB.");
+                $('#Validation').modal('toggle');
+                $(this).val('');
+                return false;
+            }
+        }
+    });
+
+    function FormDisabled(){
+        $("#formSubmit").find("input, select, textarea").each(function () {
+            var idDisabled = $(this).is(":disabled");
+            var id = $(this).attr('id');
+            if (!idDisabled) {
+                $(this).attr("disabled", "disabled");
+            }
+        });
+        $('#btnAddEducation').addClass('dis-none');
+        $('#btnAddExperience').addClass('dis-none');
+    }
+    function isOnlyNumericKey(e) {
+        //if the letter is not digit then display error and don't type anything
+        if (e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)) {
+            return false;
+        }
+    }
+    $('select[name="MsPhdType"]').change(function () {
+        $('#PhdDetail').val('');
+        var value = parseInt($(this).val()) || 0;
+        if (value > 0)
+            $('#divPHDDetail').removeClass('dis-none');
+        else
+            $('#divPHDDetail').addClass('dis-none');
+    });
+
+    var isHavePHDMS = $("select[name='MsPhdType']").val() || 0;
+    if (isHavePHDMS > 0)
+        $('#divPHDDetail').removeClass('dis-none');
+    else
+        $('#divPHDDetail').addClass('dis-none');
+</script>
+<script src="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/js/bootstrap-select.min.js")"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>
+
