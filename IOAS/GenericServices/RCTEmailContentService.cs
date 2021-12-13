@@ -183,6 +183,7 @@ namespace IOAS.GenericServices
                                  where vw.ApplicationId == model.AppId && vw.Category == model.AppType
                                  && vw.ApplicationType == "New"
                                  select new { vw.BasicPay }).FirstOrDefault();
+                    string IITExperience = RequirementService.IITExperienceInWording(model.OldEmployee);
                     int SNo = 1;
                     string OrderType = model.OrderType;
                     if (string.IsNullOrEmpty(model.OrderType))
@@ -321,7 +322,6 @@ namespace IOAS.GenericServices
                                                        where c.CourseId == courceId
                                                        select c.CourseName).FirstOrDefault();
                                 }
-                                string IITEx = RequirementService.IITExperienceInWording(model.OldEmployee);
 
                                 list.Add(new CheckListEmailModel()
                                 {
@@ -330,7 +330,7 @@ namespace IOAS.GenericServices
                                     devScenarios = item.CheckList,
                                     checklistId = item.checklistId ?? 0,
                                     actNorms = "Please refer the IC&SR norms link --> https://icsr.iitm.ac.in/file/pdf/annexure3.pdf , https://icsr.iitm.ac.in/file/pdf/annexure56.pdf",
-                                    devinNorms = "The relevant experience of the candidate is only  other experience " + model.Experienceinwordings + " and IIT experience 0 Years 0 months 0 days with " + devnormscourse
+                                    devinNorms = "The relevant experience of the candidate in IIT: " + IITExperience + " and in other organizations: " + model.Experienceinwordings + " with qualification as: " + devnormscourse
                                 });
                             }
                             else if (item.checklistId == 38 && model.AppType == "OSG")
@@ -353,7 +353,7 @@ namespace IOAS.GenericServices
                                     devScenarios = item.CheckList,
                                     checklistId = item.checklistId ?? 0,
                                     actNorms = "Please refer the IC&SR outsourcing norms link --> https://icsr.iitm.ac.in/file/pdf/annexure55.pdf",
-                                    devinNorms = "The relevant experience of the candidate is only  " + model.Experienceinwordings + " with " + devnormscourse
+                                    devinNorms = "The relevant experience of the candidate in IIT: " + IITExperience + " and in other organizations: " + model.Experienceinwordings + " with qualification as: " + devnormscourse
                                 });
                             }
                             else if (item.checklistId == 39)
