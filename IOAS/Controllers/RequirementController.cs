@@ -2391,9 +2391,11 @@ namespace IOAS.Controllers
                                  vw.BasicPay,
                                  vw.DesignationId,
                                  vw.ProjectId,
-                                 vw.AppointmentEnddate
+                                 vw.AppointmentEnddate,
+                                 vw.EmployeersID
                              }).FirstOrDefault();
                 PIModel.AppointmentType = query.TypeofAppointment;
+                model.OldEmployee = query.EmployeersID;
                 PIModel.AppointmentStartDate = String.Format("{0:dd-MMMM-yyyy}", model.AppointmentStartDate);
                 PIModel.AppointmentEndDate = String.Format("{0:dd-MMMM-yyyy}", model.AppointmentEndDate);
                 PIModel.PersonName = model.PersonName;

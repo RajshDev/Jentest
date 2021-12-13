@@ -25676,7 +25676,7 @@ namespace IOAS.GenericServices
             }
             catch (Exception ex)
             {
-                return "";
+                return "0 Years 0 months 0 days";
             }
         }
 
