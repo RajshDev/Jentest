@@ -25451,9 +25451,24 @@ namespace IOAS.GenericServices
                                       join ord in context.tblOrderDetail on or.OrderId equals ord.OrderId
                                       join ofd in context.tblRCTOfferDetails on or.OrderId equals ofd.OrderId
                                       join om in context.tblOrderMaster on or.OrderType equals om.CodeID
-                                      where (ofd.OfferCategory == "OfferLetter" && string.IsNullOrEmpty(ord.OfferLetter) || ((ofd.OfferCategory == "Order" || ofd.OfferCategory == "OfficeOrder") && string.IsNullOrEmpty(ord.OfficeOrder)))
+                                      where ((ofd.OfferCategory == "OfferLetter" && string.IsNullOrEmpty(ord.OfferLetter)) || ((ofd.OfferCategory == "Order" || ofd.OfferCategory == "OfficeOrder") && string.IsNullOrEmpty(ord.OfficeOrder)))
                                       && or.AppointmentId == id && or.AppointmentType == 3 && ordertype.Contains(om.CodeID)
-                                      select new { ord.OrderId, Code = om.CodeDescription, or.OrderNo, or.FromDate, or.ToDate }).ToList();
+                                      group or by new
+                                      {
+                                          or.OrderId,
+                                          om.CodeDescription,
+                                          or.OrderNo,
+                                          or.FromDate,
+                                          or.ToDate
+                                      } into gp
+                                      select new
+                                      {
+                                          gp.Key.OrderId,
+                                          Code = gp.Key.CodeDescription,
+                                          gp.Key.OrderNo,
+                                          gp.Key.FromDate,
+                                          gp.Key.ToDate
+                                      }).ToList();
                     if (checkOrder.Count > 0)
                     {
                         for (int i = 0; i < checkOrder.Count; i++)
@@ -25461,7 +25476,7 @@ namespace IOAS.GenericServices
                             list.Add(new MasterlistviewModel()
                             {
                                 id = checkOrder[i].OrderId,
-                                name = checkOrder[i].Code + " - " + string.Format("{0:dd-MMMM-yyyy}", checkOrder[i].FromDate) + "-" + string.Format("{0:dd-MMMM-yyyy}", checkOrder[i].ToDate)
+                                name = checkOrder[i].Code + " - (" + string.Format("{0:dd-MMMM-yyyy}", checkOrder[i].FromDate) + " - " + string.Format("{0:dd-MMMM-yyyy}", checkOrder[i].ToDate) + ")"
                             });
                         }
                     }

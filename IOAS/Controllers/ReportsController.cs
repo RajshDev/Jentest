@@ -1870,8 +1870,8 @@ namespace IOAS.Controllers
                     dtResult1 = dsReport.Tables.Count > 0 ? dsReport.Tables[1] : new DataTable();
                     dtResult2 = dsReport.Tables.Count > 0 ? dsReport.Tables[2] : new DataTable();
 
-                  //  dtResult1.DefaultView.Sort = "ReferenceDate ASC";
-                  //  dtResult2.DefaultView.Sort = "ReferenceDate ASC";
+                    //  dtResult1.DefaultView.Sort = "ReferenceDate ASC";
+                    //  dtResult2.DefaultView.Sort = "ReferenceDate ASC";
                     var ws = wb.Worksheets.Add("Cash Book");
 
                     DataView dataview = dtResult1.DefaultView;
@@ -2259,6 +2259,7 @@ namespace IOAS.Controllers
                     ReportParam[0].Value = Frm;
                     ReportParam[1] = new SqlParameter("@Date2", SqlDbType.DateTime);
                     ReportParam[1].Value = Todate;
+                    context.Database.CommandTimeout = 1800;
                     context.Database.ExecuteSqlCommand("exec AnnualAccounts @Date, @Date2", ReportParam);
                     using (var connection = Common.getConnection())
                     {
@@ -11265,11 +11266,11 @@ namespace IOAS.Controllers
                         DateTime yearToDate = Date;
 
                         DataTable dtResult = new DataTable();
-                       // dtResult = db.GetICSROH_2(FromDate, Date, "Income");
+                        // dtResult = db.GetICSROH_2(FromDate, Date, "Income");
                         DataTable dtResult1 = new DataTable();
-                     //   dtResult1 = db.GetICSROH_2(FromDate, Date, "Expenses");
+                        //   dtResult1 = db.GetICSROH_2(FromDate, Date, "Expenses");
 
-                      //  var ws = wb.Worksheets.Add("ICSROH Income & Exp");
+                        //  var ws = wb.Worksheets.Add("ICSROH Income & Exp");
                         var ws1 = wb.Worksheets.Add("ICSROH Income & Exp");
                         var ws2 = wb.Worksheets.Add("ICSROH I&E Break Up");
                         ws2.Cell(1, 1).Value = "Type";
@@ -11314,7 +11315,7 @@ namespace IOAS.Controllers
                         int mainRow = 6;
                         int secSheetAmountCol = 4;
 
-                        for (int i = 0; i < (Date.Month-3); i++)
+                        for (int i = 0; i < (Date.Month - 3); i++)
                         {
                             decimal Amt = 0;
                             int secSheetHeadRow = 6;
@@ -11326,12 +11327,12 @@ namespace IOAS.Controllers
                                 ToDate = Date;
                             DataTable dt = new DataTable();
                             dt = db.GetICSROH_2(FromDate, ToDate, "Income");
-            
+
                             if (i == 0)
                             {
                                 string month = FromDate.ToString("MMMM");
                                 ws1.Cell(5, 3).Value = month;
-                              
+
                                 for (int k = 0; k < dt.Rows.Count; k++)
                                 {
                                     if (k == 0)
@@ -11352,8 +11353,8 @@ namespace IOAS.Controllers
                                     mainRow++;
                                     Amt += Convert.ToDecimal(dt.Rows[k]["Amount"]);
                                 }
-                                ws1.Cell(secSheetHeadRow+1, 2).Value = "Total";
-                                ws1.Cell(secSheetHeadRow+1 , 3).Value = Amt;
+                                ws1.Cell(secSheetHeadRow + 1, 2).Value = "Total";
+                                ws1.Cell(secSheetHeadRow + 1, 3).Value = Amt;
                             }
                             else
                             {
@@ -11363,18 +11364,18 @@ namespace IOAS.Controllers
                                 {
                                     ws1.Cell(secSheetAmountRow, secSheetAmountCol).Value = dt.Rows[k]["Amount"].ToString();
                                     secSheetAmountRow++;
-                       
+
                                     Amt += Convert.ToDecimal(dt.Rows[k]["Amount"]);
                                 }
-                                ws1.Cell(secSheetAmountRow+1, secSheetAmountCol).Value = Amt;
+                                ws1.Cell(secSheetAmountRow + 1, secSheetAmountCol).Value = Amt;
                             }
-                         
-                            
+
+
                             if (i != 0)
                                 secSheetAmountCol++;
                         }
 
-                    
+
                         ws1.Cell(mainRow + 3, 1).Value = "Expense";
                         ws1.Range("A" + (mainRow + 3) + ":C4").Style.Font.Bold = true;
                         ws1.Range("A" + (mainRow + 3) + ":C4").Row(1).Merge();
@@ -11383,10 +11384,10 @@ namespace IOAS.Controllers
                         int dd = Date.Month - 3;
                         for (int i = 0; i < (Date.Month - 3); i++)
                         {
-                            int ExpsecSheetHeadRow = mainRow+4;
+                            int ExpsecSheetHeadRow = mainRow + 4;
                             int ExpsecSheetAmountRow = mainRow + 4;
                             decimal Amt = 0;
-                           FromDate = yearFromDate.AddMonths(i);
+                            FromDate = yearFromDate.AddMonths(i);
                             ToDate = FromDate.AddMonths(1);
                             ToDate = ToDate.AddTicks(-1);
                             if (i == Date.Month - 4)
@@ -11396,7 +11397,7 @@ namespace IOAS.Controllers
 
                             if (i == 0)
                             {
-                              
+
                                 for (int k = 0; k < dt.Rows.Count; k++)
                                 {
                                     if (k == 0)
@@ -11418,28 +11419,28 @@ namespace IOAS.Controllers
                                     Amt += Convert.ToDecimal(dt.Rows[k]["Amount"]);
 
                                 }
-                                ws1.Cell(ExpsecSheetHeadRow+1, 2).Value = "Total";
-                                ws1.Cell(ExpsecSheetHeadRow+1, 3).Value = Amt;
+                                ws1.Cell(ExpsecSheetHeadRow + 1, 2).Value = "Total";
+                                ws1.Cell(ExpsecSheetHeadRow + 1, 3).Value = Amt;
                             }
                             else
                             {
-                             
+
                                 for (int k = 0; k < dt.Rows.Count; k++)
                                 {
                                     ws1.Cell(ExpsecSheetAmountRow, ExpsecSheetAmountCol).Value = dt.Rows[k]["Amount"].ToString();
                                     ExpsecSheetAmountRow++;
                                     Amt += Convert.ToDecimal(dt.Rows[k]["Amount"]);
                                 }
-                                ws1.Cell(ExpsecSheetAmountRow+1, ExpsecSheetAmountCol).Value = Amt;
+                                ws1.Cell(ExpsecSheetAmountRow + 1, ExpsecSheetAmountCol).Value = Amt;
                             }
-                           
-                           
+
+
                             if (i != 0)
                                 ExpsecSheetAmountCol++;
-                            
+
                         }
 
-                        
+
                         wb.SaveAs(workStream);
                         workStream.Position = 0;
                         string fileType = Common.GetMimeType("xls");
@@ -11621,7 +11622,7 @@ namespace IOAS.Controllers
             }
         }
 
-     
+
 
     }
 }

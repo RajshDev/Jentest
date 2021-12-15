@@ -23660,7 +23660,7 @@ namespace IOAS.Infrastructure
                 {
                     var checkquery = (from cc in context.vw_RCTOverAllApplicationEntry.AsNoTracking()
                                       where cc.Status != "Cancel" && cc.Status != "Relieved" && cc.Status != "Rejected" && cc.ApplicationType == "New"
-                                      && cc.AadhaarNo.Contains(adharno) && (RefNo == null || !cc.ApplicationNo.Contains(RefNo))
+                                      && cc.AadhaarNo.Contains(adharno) && (string.IsNullOrEmpty(RefNo) || !cc.ApplicationNo.Contains(RefNo))
                                       select new { cc.EmployeeNo, cc.ApplicationNo }).ToArray();
 
                     if (checkquery != null && checkquery.Count() > 0)
@@ -23709,7 +23709,7 @@ namespace IOAS.Infrastructure
                 {
                     var checkquery = (from cc in context.vw_RCTOverAllApplicationEntry.AsNoTracking()
                                       where cc.Status != "Cancel" && cc.Status != "Relieved" && cc.Status != "Rejected" && cc.ApplicationType == "New"
-                                      && cc.PANNo.Contains(Panno) && (RefNo == null || !cc.ApplicationNo.Contains(RefNo))
+                                      && cc.PANNo.Contains(Panno) && (string.IsNullOrEmpty(RefNo) || !cc.ApplicationNo.Contains(RefNo))
                                       select new { cc.EmployeeNo, cc.ApplicationNo }).ToArray();
 
                     if (checkquery != null && checkquery.Count() > 0)
@@ -27375,7 +27375,7 @@ namespace IOAS.Infrastructure
                             .Select((x, index) => new AutoCompleteModel()
                             {
                                 value = x.ApplicationId.ToString(),
-                                label = x.EmployeeNo + "-" + x.CandidateName + "-" + x.ApplicationNo
+                                label = x.EmployeeNo + " - " + x.CandidateName + " - " + x.ApplicationNo
                             }).ToList();
                 }
                 return list;

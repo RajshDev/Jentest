@@ -753,12 +753,12 @@
                                         @Html.HiddenFor(m => m.ApplicationNo)
                                         @if (Model.STEId > 0)
                                         {
-                                        <div class="col-md-6">
-                                            <div class="form-group custom-form-group">
-                                                <label>Application No: </label>
-                                                <h4 id="ClApplicationNo">@Html.DisplayFor(M => M.ApplicationNo)</h4>
-                                            </div>
-                                        </div>
+                                          <div class="col-md-6">
+                                              <div class="form-group custom-form-group">
+                                                  <label>Application No: </label>
+                                                  <h4 id="ClApplicationNo">@Html.DisplayFor(M => M.ApplicationNo)</h4>
+                                              </div>
+                                          </div>
                                         }
                                         <div class="col-md-6">
                                             <div class="form-group custom-form-group">
@@ -5413,10 +5413,13 @@
         var data = {};
         if(adhar != null && adhar.length == 12)
         {
-            data = { adharno : adhar };
+            var apprefNo = null;
+            if($('#ApplicationNo').val() != "")
+                apprefNo = $('#ApplicationNo').val()
+            data = { adharno : adhar , apptype : "OSG" ,appref : apprefNo };
             if($('#OldEmployeeNumber').val() != "")
             {
-                data = { adharno : adhar , oldId : $('#OldEmployeeNumber').val() };
+                data = { adharno : adhar , oldId : $('#OldEmployeeNumber').val(),appref : apprefNo , apptype : "OSG" };
             }
             $.ajax({
                 url: '@Url.Action("CheckPreviousEmployeeAdhar", "Requirement")',
@@ -5439,10 +5442,13 @@
         var pnno = $('#PAN').val() || null;
         var data = {};
         if(pnno != null && pnno.length == 10) {
-            data = { Panno : pnno };
+            var apprefNo = null;
+            if($('#ApplicationNo').val() != "")
+                apprefNo = $('#ApplicationNo').val()
+            data = { Panno : pnno , apptype : "OSG" ,appref : apprefNo };
             if($('#OldEmployeeNumber').val() != "")
             {
-                data = { Panno : pnno , oldId : $('#OldEmployeeNumber').val() };
+                data = { Panno : pnno , oldId : $('#OldEmployeeNumber').val() , apptype : "OSG" ,appref : apprefNo };
             }
             $.ajax({
                 url: '@Url.Action("CheckPreviousEmployeePan", "Requirement")',

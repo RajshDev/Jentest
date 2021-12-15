@@ -7651,15 +7651,15 @@ namespace IOAS.Controllers
             }
         }
         [HttpGet]
-        public JsonResult CheckPreviousEmployeeAdhar(string adharno, string oldId = null, string apptype = null)
+        public JsonResult CheckPreviousEmployeeAdhar(string adharno, string oldId = null, string apptype = null, string appref = null)
         {
-            object output = Common.CheckPreviousEmployeeAdharserver(adharno, null, true, oldId, apptype);
+            object output = Common.CheckPreviousEmployeeAdharserver(adharno, appref, true, oldId, apptype);
             return Json(output, JsonRequestBehavior.AllowGet);
         }
         [HttpGet]
-        public JsonResult CheckPreviousEmployeePan(string Panno, string oldId = null, string apptype = null)
+        public JsonResult CheckPreviousEmployeePan(string Panno, string oldId = null, string apptype = null, string appref = null)
         {
-            object output = Common.CheckPreviousEmployeePanserver(Panno, null, true, oldId, apptype);
+            object output = Common.CheckPreviousEmployeePanserver(Panno, appref, true, oldId, apptype);
             return Json(output, JsonRequestBehavior.AllowGet);
         }
         #endregion
