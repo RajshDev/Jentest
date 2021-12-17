@@ -16332,8 +16332,9 @@ namespace IOAS.GenericServices
                 {
                     if (appid > 0 && !string.IsNullOrEmpty(category))
                     {
+                        decimal experience = 0;
+                        int appTypeid = getAppointmentType(category);
                         int[] CourseId = new int[] { 0 };
-
                         if (category == "STE")
                             CourseId = context.tblRCTSTEEducationDetail.Where(x => x.STEID == appid && x.isCurrentVersion == true).Select(x => x.DisciplineID ?? 0).ToArray();
                         else if (category == "CON")
@@ -16341,7 +16342,26 @@ namespace IOAS.GenericServices
                         else if (category == "OSG")
                             CourseId = context.tblRCTOSGEducationDetail.Where(x => x.OSGId == appid && x.isCurrentVersion == true).Select(x => x.DisciplineId ?? 0).ToArray();
 
-                        int appTypeid = getAppointmentType(category);
+                        int days = 0;
+                        if (category == "STE")
+                            context.tblRCTSTEExperienceDetail.Where(x => x.STEID == appid && x.isCurrentVersion == true).Select(x => new { x.FromYear, x.ToYear })
+                                .ToList().ForEach(m =>
+                                {
+                                    days = days + (m.ToYear.Value.Subtract(m.FromYear.Value).Days + 1);
+                                });
+                        if (category == "CON")
+                            context.tblRCTConsultantExperienceDetail.Where(x => x.ConsultantAppointmentId == appid && x.Status == "Active").Select(x => new { x.FromYear, x.ToYear })
+                                .ToList().ForEach(m =>
+                                {
+                                    days = days + (m.ToYear.Value.Subtract(m.FromYear.Value).Days + 1);
+                                });
+                        else if (category == "OSG")
+                            context.tblRCTOSGExperienceDetail.Where(x => x.OSGId == appid && x.isCurrentVersion == true).Select(x => new { x.FromYear, x.ToYear })
+                                .ToList().ForEach(m =>
+                                {
+                                    days = days + (m.ToYear.Value.Subtract(m.FromYear.Value).Days + 1);
+                                });
+                        experience = days / 365;
 
                         var query = (from m in context.vw_RCTOverAllApplicationEntry
                                      from d in context.tblRCTDesignation
@@ -16354,10 +16374,18 @@ namespace IOAS.GenericServices
                                      && CourseId.Contains(q.CourseId ?? 0)
                                      && m.ApplicationId == appid && m.Category == category && m.ApplicationType == "New"
                                      && c.CodeName == "RelevantExperienceType" && c.CodeValAbbr == dt.RelevantExperience
-                                     && c.CodeValAbbr != 1
-                                     select new { dt, c, q }).FirstOrDefault();
-                        if (query != null)
+                                     //&& c.CodeValAbbr != 1
+                                     select new { c.CodeValDetail }).ToList();
+                        if (query.Count > 0)
                         {
+                            for (int i = 0; i < query.Count; i++)
+                            {
+                                decimal min = 0, max = 0;
+                                min = Convert.ToDecimal(query[i].CodeValDetail.Split('-')[0].Trim());
+                                max = Convert.ToDecimal(query[i].CodeValDetail.Split('-')[1].Trim());
+                                if (min <= experience && (max >= experience || max <= experience))
+                                    return false;
+                            }
                             if (category == "STE")
                             {
                                 if (context.tblRCTSTEDeviationCheckDetail.Any(m => m.STEID == appid && m.DeviationCheckListId == 38))
@@ -16379,8 +16407,6 @@ namespace IOAS.GenericServices
                                 else
                                     return true;
                             }
-                            else
-                                return false;
                         }
                     }
                 }
@@ -16388,7 +16414,7 @@ namespace IOAS.GenericServices
             }
             catch (Exception ex)
             {
-                return false;
+                return true;
             }
         }
 
@@ -17982,7 +18008,7 @@ namespace IOAS.GenericServices
                                                   where S.StatutoryId == detQuery.StatutoryId
                                                   select S).FirstOrDefault();
                             model.Name = Common.GetCodeControlName(mastQuery.M.ProfessionalType ?? 0, "RCTProfessional") + mastQuery.M.Name;
-                            model.Typeofappointment = Common.GetCodeControlName(mastQuery.M.TypeofAppointment ?? 0, "STEAppointmenttype");
+                            model.Typeofappointment = Common.GetCodeControlName(mastQuery.M.TypeofAppointment ?? 0, "OSGAppointmenttype");
                             model.ProjectNumber = Common.GetProjectNameandNumber(mastQuery.M.ProjectId ?? 0);
                             model.Appointmentstartdate = string.Format("{0:dd-MMMM-yyyy}", mastQuery.M.AppointmentStartdate);
                             model.AppointmentEndDate = string.Format("{0:dd-MMMM-yyyy}", mastQuery.M.AppointmentEnddate);
@@ -26143,10 +26169,12 @@ namespace IOAS.GenericServices
 
         #endregion
 
-        public static string GetTenWorkingDates(DateTime OfferDate)
+        public static string GetTenWorkingDates(DateTime OfferDate, DateTime AppointmentStartDate)
         {
             int i = 0;
             DateTime woringDate = DateTime.Now;
+            if (OfferDate < AppointmentStartDate)
+                OfferDate = AppointmentStartDate;
             for (woringDate = OfferDate; woringDate >= OfferDate; woringDate = woringDate.AddDays(1))
             {
                 if (!(woringDate.DayOfWeek == DayOfWeek.Sunday || woringDate.DayOfWeek == DayOfWeek.Saturday))
@@ -26539,8 +26567,8 @@ namespace IOAS.GenericServices
                         if (checkemployee != null)
                         {
                             checkemployee.Status = model.EmployeeStatus;
-                            checkEmployee.Uptd_Id = userId;
-                            checkEmployee.Uptd_ts = DateTime.Now;
+                            checkemployee.Uptd_Id = userId;
+                            checkemployee.Uptd_Ts = DateTime.Now;
                             EmployeeContext.SaveChanges();
                         }
                     }
@@ -26554,8 +26582,8 @@ namespace IOAS.GenericServices
                         if (checkemployee != null)
                         {
                             checkemployee.Status = model.EmployeeStatus;
-                            checkEmployee.Uptd_Id = userId;
-                            checkEmployee.Uptd_ts = DateTime.Now;
+                            checkemployee.Uptd_Id = userId;
+                            checkemployee.Uptd_Ts = DateTime.Now;
                             EmployeeContext.SaveChanges();
                         }
                     }

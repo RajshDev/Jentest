@@ -25,7 +25,7 @@ namespace IOAS.GenericServices
         public static int Logon(LogOnModel logon)
         {
             try
-            {
+            {                
                 using (var context = new IOASDBEntities())
                 {
                     String Encpassword = Cryptography.Encrypt(logon.Password, "LFPassW0rd");
