@@ -42,5 +42,6 @@ namespace IOAS.DataModel
         public bool IsNotValid { get; set; }
         public bool IsSCST { get; set; }
         public Nullable<int> SCSTAgeLimit { get; set; }
+        public Nullable<int> SalaryLevel { get; set; }
     }
 }

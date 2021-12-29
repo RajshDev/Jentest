@@ -21,7 +21,9 @@ namespace IOAS.DataModel
         public string Design_ { get; set; }
         public string Full_Attendance___LOP { get; set; }
         public string Remarks { get; set; }
-        public Nullable<System.DateTime> LOG_TIME { get; set; }
+        public Nullable<System.DateTime> CREATED_TIME { get; set; }
         public string CREATED_BY { get; set; }
+        public Nullable<System.DateTime> LOG_TIME { get; set; }
+        public string LOG_BY { get; set; }
     }
 }

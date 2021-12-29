@@ -19,5 +19,7 @@ namespace IOAS.DataModel
         public string ProjectType { get; set; }
         public string TypeCode { get; set; }
         public string ProjectTitle { get; set; }
+        public string Classification { get; set; }
+        public string Type { get; set; }
     }
 }

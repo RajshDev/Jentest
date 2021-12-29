@@ -600,12 +600,14 @@
             }
         });
         $('select[name$=".tdsdropdown"]').each(function () {
-            var value = $(this).closest('tr').find('select[name$=".tdsdropdown"]').val();
+            var value = $(this).closest('tr').find('select[name$=".tdsdropdown"]').val();          
             value = parseFloat(value) || 0;
-            if (value > 0)
+            if (value > 0 && value != 20)
                 $(this).closest('tr').find('input[name$=".PAN"]').prop("readonly", false).addClass('required');
-            else
+            else {
                 $(this).closest('tr').find('input[name$=".PAN"]').prop("readonly", true).removeClass('required');
+                $(this).closest('tr').find('input[name$=".PAN"]').val("");
+            }
 
         });
         $('#tbodyPCF').find(' input[name$=".PCFName"]').each(function () {
@@ -625,11 +627,19 @@ categoryChange($(this));
 
                 $(document).on('change', 'select[name$=".tdsdropdown"]', function () {
                     var value = $(this).closest('tr').find('select[name$=".tdsdropdown"]').val();
-                    value=   parseFloat(value) || 0;
-                    if (value > 0)
+                    value = parseFloat(value) || 0;
+                    if (value != 10 && value != 20) {
+                        $(this).val('');
+                        $("#alert").text("This TDS percent not available");
+                        $('#Validation').modal('show');
+                        return;
+                    }
+                    if (value > 0 && value != 20)
                         $(this).closest('tr').find('input[name$=".PAN"]').prop("readonly", false).addClass('required');
-                    else
+                    else {
                         $(this).closest('tr').find('input[name$=".PAN"]').prop("readonly", true).removeClass('required');
+                        $(this).closest('tr').find('input[name$=".PAN"]').val("");
+                    }
                 });
 
                 /* PaymentDetails CheckBox Realted Function */
@@ -1210,6 +1220,7 @@ categoryChange($(this));
                         }
                     });
                 }
+    
 
                 function fillMasterDropDown(ele, data, fillDafaultText, valueAsName) {
                     if (fillDafaultText !== undefined) {
@@ -1413,6 +1424,16 @@ categoryChange($(this));
                             $("#alert").text(validationMsg);
                             $('#Validation').modal('show');
                         }
+
+                        $('select[name$=".tdsdropdown"]').each(function () {
+                            var value = $(this).val();
+                            if (value != 10 && value != 20)
+                            {
+                                hadError = true;
+                                $("#alert").text("Selected TDS percent not available");
+                                $('#Validation').modal('show');
+                            }
+                        });
                         //var validationPANMsg = ValidatePAN()
                         //if (validationPANMsg != 'valid') {
                         //    hadError = true;

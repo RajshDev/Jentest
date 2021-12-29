@@ -689,7 +689,7 @@
                                                     @Html.ActionLink(item.PIJustificationDocument, "ShowDocument", new { Controller = "Account", filepath = "Requirement", file = item.PIJustificationDocumentPath }, new { @class = "cls-a-wt", @name = "DocDownload", @target = "_blank" })
                                                     @if (Model.Status == "Draft" || Model.Status == "Open" || Model.Status.Contains("Note"))
                                                             {
-                                                    <a class="rct-del-doc cls-a-wt" value="@item.PIJustificationDocumentPath">Delete</a>
+                                                            <a class="rct-del-doc cls-a-wt" value="@item.PIJustificationDocumentPath">Delete</a>
                                                             }
                                                 </h4>
                                                 <br>
@@ -753,12 +753,12 @@
                                         @Html.HiddenFor(m => m.ApplicationNo)
                                         @if (Model.STEId > 0)
                                         {
-                                          <div class="col-md-6">
-                                              <div class="form-group custom-form-group">
-                                                  <label>Application No: </label>
-                                                  <h4 id="ClApplicationNo">@Html.DisplayFor(M => M.ApplicationNo)</h4>
-                                              </div>
-                                          </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label>Application No: </label>
+                                                <h4 id="ClApplicationNo">@Html.DisplayFor(M => M.ApplicationNo)</h4>
+                                            </div>
+                                        </div>
                                         }
                                         <div class="col-md-6">
                                             <div class="form-group custom-form-group">
@@ -2983,7 +2983,7 @@
                     Tot += lwfamt;
                 }
             }
-            if(startmonth == 12 ||  endmonth == 12)
+            if((startmonth == 12 ||  endmonth == 12) && startyear == endyear)
             {
                 lwfamt = parseFloat($('input[name=LWFAmount]').val()) || 0;
                 if(lwfamt > 0)
@@ -3880,7 +3880,7 @@
             return true;
         }
 
-        var otherinValid = validateotherdetail();
+		var otherinValid = validateotherdetail();
         if (otherinValid) {
             $.confirm({
                 title: 'Warning!',
@@ -3894,8 +3894,7 @@
             });
             return false;
         }
-
-
+		
         if($('#DesignationCode').val() == "SRF" || $('#DesignationCode').val() == "JRF")
         {
             $("input[name=isHaveGateScore][value=Yes]").trigger('click');
@@ -5410,17 +5409,18 @@
     }
     function CheckEmployeeadhar() {
         var adhar = $('#aadharnumber').val() || null;
-        var data = {};
+        var data = {};		
         if(adhar != null && adhar.length == 12)
         {
-            var apprefNo = null;
+			var apprefNo = null;
             if($('#ApplicationNo').val() != "")
                 apprefNo = $('#ApplicationNo').val()
-            data = { adharno : adhar , apptype : "OSG" ,appref : apprefNo };
+			data = { adharno : adhar , apptype : "OSG", appref : apprefNo };
             if($('#OldEmployeeNumber').val() != "")
             {
-                data = { adharno : adhar , oldId : $('#OldEmployeeNumber').val(),appref : apprefNo , apptype : "OSG" };
+                data = { adharno : adhar , oldId : $('#OldEmployeeNumber').val() , apptype : "OSG", appref : apprefNo };
             }
+
             $.ajax({
                 url: '@Url.Action("CheckPreviousEmployeeAdhar", "Requirement")',
                 type: "Get",
@@ -5429,7 +5429,7 @@
                 success: function (result) {
                     if(result!="")
                     {
-                        $('#alert').html("This Aadhaar Number is linked to  " +result);
+                        $('#alert').html(result);
                         $('#Validation').modal('toggle');
                         $('#aadharnumber').val('');
                         $('#aadharnumber').focus();
@@ -5440,15 +5440,15 @@
     }
     function CheckEmployeepanno() {
         var pnno = $('#PAN').val() || null;
-        var data = {};
+        var data = {};		
         if(pnno != null && pnno.length == 10) {
-            var apprefNo = null;
+		   var apprefNo = null;
             if($('#ApplicationNo').val() != "")
                 apprefNo = $('#ApplicationNo').val()
-            data = { Panno : pnno , apptype : "OSG" ,appref : apprefNo };
+			data = { Panno : pnno , apptype : "OSG" , appref : apprefNo };
             if($('#OldEmployeeNumber').val() != "")
             {
-                data = { Panno : pnno , oldId : $('#OldEmployeeNumber').val() , apptype : "OSG" ,appref : apprefNo };
+                data = { Panno : pnno , oldId : $('#OldEmployeeNumber').val() , apptype : "OSG", appref : apprefNo };
             }
             $.ajax({
                 url: '@Url.Action("CheckPreviousEmployeePan", "Requirement")',
@@ -5458,7 +5458,7 @@
                 success: function (result) {
                     if(result!="")
                     {
-                        $('#alert').html("This Pan number is linked to  " +result);
+                        $('#alert').html(result);
                         $('#Validation').modal('toggle');
                         $('#PAN').val('');
                         $('#PAN').focus();
@@ -5583,9 +5583,10 @@
             });
         }
     });
-
-
-    function validateotherdetail() {
+	
+	
+	
+	function validateotherdetail() {
         var hasErr = true;
         var cln = $('#tbodyOthers');
         $(cln).find('input[name $=".OtherNames"]').each(function (e,i) {

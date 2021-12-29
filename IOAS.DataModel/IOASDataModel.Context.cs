@@ -21,8 +21,7 @@ namespace IOAS.DataModel
             : base("name=IOASDBEntities")
         {
             this.Database.CommandTimeout = 180;
-            this.Database.ExecuteSqlCommand("SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;");
-        }
+            this.Database.ExecuteSqlCommand("SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;");        }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
@@ -626,6 +625,7 @@ namespace IOAS.DataModel
         public virtual DbSet<tblChequePrint> tblChequePrint { get; set; }
         public virtual DbSet<tblChequePrintLog> tblChequePrintLog { get; set; }
         public virtual DbSet<tblChequePrintSize> tblChequePrintSize { get; set; }
+        public virtual DbSet<tblDynamicSummary> tblDynamicSummary { get; set; }
         public virtual DbSet<tblEmpITDeclaration> tblEmpITDeclaration { get; set; }
         public virtual DbSet<tblEmpITDeclarationDoc> tblEmpITDeclarationDoc { get; set; }
         public virtual DbSet<tblEmpOtherIncome> tblEmpOtherIncome { get; set; }
@@ -645,6 +645,7 @@ namespace IOAS.DataModel
         public virtual DbSet<tblProjectNotConsiderForMailRpt> tblProjectNotConsiderForMailRpt { get; set; }
         public virtual DbSet<tblprojectStatusModifierLog> tblprojectStatusModifierLog { get; set; }
         public virtual DbSet<tblProjectSubHead> tblProjectSubHead { get; set; }
+        public virtual DbSet<tblRCTAdhocEmployeeMaxOrder> tblRCTAdhocEmployeeMaxOrder { get; set; }
         public virtual DbSet<tblRCTAnnouncementMaster> tblRCTAnnouncementMaster { get; set; }
         public virtual DbSet<tblRCTCancelApplicationLog> tblRCTCancelApplicationLog { get; set; }
         public virtual DbSet<tblRCTCONNotes> tblRCTCONNotes { get; set; }
@@ -673,12 +674,16 @@ namespace IOAS.DataModel
         public virtual DbSet<tblRCTProjectFinType> tblRCTProjectFinType { get; set; }
         public virtual DbSet<tblRCTSalaryCalcDetails> tblRCTSalaryCalcDetails { get; set; }
         public virtual DbSet<tblRCTSalaryCalcDetailsLog> tblRCTSalaryCalcDetailsLog { get; set; }
+        public virtual DbSet<tblRCTSalaryLevel> tblRCTSalaryLevel { get; set; }
+        public virtual DbSet<tblRCTSalaryLevelCourses> tblRCTSalaryLevelCourses { get; set; }
+        public virtual DbSet<tblRCTSalaryLevelDetail> tblRCTSalaryLevelDetail { get; set; }
         public virtual DbSet<tblRCTSTEEmailLog> tblRCTSTEEmailLog { get; set; }
         public virtual DbSet<tblRCTSTEOldOrderHistory> tblRCTSTEOldOrderHistory { get; set; }
         public virtual DbSet<tblRCTStopMail> tblRCTStopMail { get; set; }
         public virtual DbSet<tblReceiptBreakup> tblReceiptBreakup { get; set; }
         public virtual DbSet<tblReceiptBudgetGroup> tblReceiptBudgetGroup { get; set; }
         public virtual DbSet<tblReceiptBudgetHead> tblReceiptBudgetHead { get; set; }
+        public virtual DbSet<tblSalaryAgencyComponentLog> tblSalaryAgencyComponentLog { get; set; }
         public virtual DbSet<tblSalaryAgencyMaster> tblSalaryAgencyMaster { get; set; }
         public virtual DbSet<tblSalaryAgencyMasterLog> tblSalaryAgencyMasterLog { get; set; }
         public virtual DbSet<tblTDSDetails> tblTDSDetails { get; set; }
@@ -1211,6 +1216,7 @@ namespace IOAS.DataModel
         public virtual DbSet<tempAllocationYearWise> tempAllocationYearWise { get; set; }
         public virtual DbSet<vw_AccountsMonthlyReceiptReport> vw_AccountsMonthlyReceiptReport { get; set; }
         public virtual DbSet<vw_AccountsTapalReport> vw_AccountsTapalReport { get; set; }
+        public virtual DbSet<vw_AccountTapalReport> vw_AccountTapalReport { get; set; }
         public virtual DbSet<vw_AdhocEmployees> vw_AdhocEmployees { get; set; }
         public virtual DbSet<vw_AdhocStaffSalaryExpenditure> vw_AdhocStaffSalaryExpenditure { get; set; }
         public virtual DbSet<vw_AdvanceOutstandingReport> vw_AdvanceOutstandingReport { get; set; }
@@ -1335,7 +1341,10 @@ namespace IOAS.DataModel
         public virtual DbSet<Vw_rctEmployeeDetails> Vw_rctEmployeeDetails { get; set; }
         public virtual DbSet<vw_RCTEmployeeExperience> vw_RCTEmployeeExperience { get; set; }
         public virtual DbSet<vw_RCTEmployeeHistory> vw_RCTEmployeeHistory { get; set; }
+        public virtual DbSet<vw_RCTMSPHDEmployees> vw_RCTMSPHDEmployees { get; set; }
+        public virtual DbSet<vw_RCTOSGAmendmentReport> vw_RCTOSGAmendmentReport { get; set; }
         public virtual DbSet<vw_RCTOSGAttendanceReport> vw_RCTOSGAttendanceReport { get; set; }
+        public virtual DbSet<vw_RCTOSGChagofprojectReport> vw_RCTOSGChagofprojectReport { get; set; }
         public virtual DbSet<vw_RCTOSGExtensionEnhancementReport> vw_RCTOSGExtensionEnhancementReport { get; set; }
         public virtual DbSet<vw_RCTOSGNewJoineeReport> vw_RCTOSGNewJoineeReport { get; set; }
         public virtual DbSet<vw_RCTOSGPayroll> vw_RCTOSGPayroll { get; set; }
@@ -1346,8 +1355,11 @@ namespace IOAS.DataModel
         public virtual DbSet<vw_RCTOverAllApplicationEntry> vw_RCTOverAllApplicationEntry { get; set; }
         public virtual DbSet<vw_RCTOverAllEffectLog> vw_RCTOverAllEffectLog { get; set; }
         public virtual DbSet<vw_RCTOverAllReports> vw_RCTOverAllReports { get; set; }
+        public virtual DbSet<vw_RCTPHDQulifiedEmployees> vw_RCTPHDQulifiedEmployees { get; set; }
         public virtual DbSet<vw_RCTProjectDetail> vw_RCTProjectDetail { get; set; }
+        public virtual DbSet<vw_RCTProjectTypeCount> vw_RCTProjectTypeCount { get; set; }
         public virtual DbSet<vw_RCTRelievedEmployees> vw_RCTRelievedEmployees { get; set; }
+        public virtual DbSet<vw_RCTSalaryAgencyComponentLog> vw_RCTSalaryAgencyComponentLog { get; set; }
         public virtual DbSet<vw_RCTSTEExtensionEnhancementReport> vw_RCTSTEExtensionEnhancementReport { get; set; }
         public virtual DbSet<vw_RCTSTENewJoineeReport> vw_RCTSTENewJoineeReport { get; set; }
         public virtual DbSet<vw_RCTSTERelievingReport> vw_RCTSTERelievingReport { get; set; }
@@ -1376,7 +1388,6 @@ namespace IOAS.DataModel
         public virtual DbSet<vw_Tapal> vw_Tapal { get; set; }
         public virtual DbSet<vw_TapalandAccountsReport> vw_TapalandAccountsReport { get; set; }
         public virtual DbSet<vw_TapalandOfficeReport> vw_TapalandOfficeReport { get; set; }
-        public virtual DbSet<vw_TapalreportForTapalSec> vw_TapalreportForTapalSec { get; set; }
         public virtual DbSet<vw_tempAllocation> vw_tempAllocation { get; set; }
         public virtual DbSet<vw_tempAllocation1> vw_tempAllocation1 { get; set; }
         public virtual DbSet<vw_TempApprovalFlow> vw_TempApprovalFlow { get; set; }
@@ -1408,7 +1419,6 @@ namespace IOAS.DataModel
         public virtual DbSet<vwTapalDetails> vwTapalDetails { get; set; }
         public virtual DbSet<vwTapalInwardDetails> vwTapalInwardDetails { get; set; }
         public virtual DbSet<vwTnMmaxOrder> vwTnMmaxOrder { get; set; }
-        public virtual DbSet<tblSalaryAgencyComponentLog> tblSalaryAgencyComponentLog { get; set; }
     
         public virtual int AnnualAccounts(Nullable<System.DateTime> date, Nullable<System.DateTime> date2)
         {
@@ -2166,6 +2176,11 @@ namespace IOAS.DataModel
         public virtual int UTRwithTapal()
         {
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("UTRwithTapal");
+        }
+    
+        public virtual int SPImportTapalreportForTapalSec()
+        {
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("SPImportTapalreportForTapalSec");
         }
     }
 }

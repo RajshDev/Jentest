@@ -69,5 +69,7 @@ namespace IOAS.DataModel
         public string OtherExperience { get; set; }
         public Nullable<decimal> CommitmentAmount { get; set; }
         public Nullable<System.DateTime> RequestReceivedDate { get; set; }
+        public Nullable<System.DateTime> ActualAppointmentDate { get; set; }
+        public string ModeofRelieving { get; set; }
     }
 }

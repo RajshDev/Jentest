@@ -18,7 +18,6 @@ using WorkFlow;
 namespace IOAS.Infrastructure
 {
     public class Common
-
     {
         public static List<AutoCompleteModel> GetAutoCompleteAdhocStaffWitheEmpDetails(string term)
         {
@@ -26932,6 +26931,11 @@ namespace IOAS.Infrastructure
                     if (typeOfPaybill != 2)
                         month = month + 1;
                     int year = Convert.ToInt32(dt[1].Trim());
+                    if (month >= 13)
+                    {
+                        year += 1;
+                        month = 1;
+                    }
                     firstDate = new DateTime(year, month, 1);
                 }
                 return firstDate;

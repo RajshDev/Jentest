@@ -2099,17 +2099,17 @@ namespace IOAS.Controllers
             {
                 if (OrderId > 0)
                 {
-                    //if (validateOrderVerification(OrderId))
-                    //{
-                    model = recruitmentService.GetOrderVerification(OrderId);
-                    //}
-                    //else
-                    //{
-                    //    int Apptype = Common.GetAppointmentType(OrderId);
-                    //    TempData["alertMsg"] = "Date of joining should be only within the tenure.";
-                    //    string action = Apptype == 1 ? "CONVerificationList" : Apptype == 2 ? "STEVerficationList" : Apptype == 3 ? "OSGVerificationList" : "";
-                    //    return RedirectToAction(action, "Requirement");
-                    //}
+                    if (validateOrderVerification(OrderId))
+                    {
+                        model = recruitmentService.GetOrderVerification(OrderId);
+                    }
+                    else
+                    {
+                        int Apptype = Common.GetAppointmentType(OrderId);
+                        TempData["alertMsg"] = "Date of joining should be only within the tenure.";
+                        string action = Apptype == 1 ? "CONVerificationList" : Apptype == 2 ? "STEVerficationList" : Apptype == 3 ? "OSGVerificationList" : "";
+                        return RedirectToAction(action, "Requirement");
+                    }
                 }
                 return View(model);
             }
@@ -2137,11 +2137,11 @@ namespace IOAS.Controllers
                 int Apptype = Common.GetAppointmentType(model.OrderId ?? 0);
                 string action = Apptype == 1 ? "CONVerificationList" : Apptype == 2 ? "STEVerficationList" : Apptype == 3 ? "OSGVerificationList" : "";
                 int userId = Common.GetUserid(User.Identity.Name);
-                //if (!validateOrderVerification(model.OrderId ?? 0))
-                //{
-                //    TempData["alertMsg"] = "Date of joining should be only within the tenure.";
-                //    return RedirectToAction(action, "Requirement");
-                //}
+                if (!validateOrderVerification(model.OrderId ?? 0))
+                {
+                    TempData["alertMsg"] = "Date of joining should be only within the tenure.";
+                    return RedirectToAction(action, "Requirement");
+                }
                 int status = RequirementService.UpdateVerificationOrder(model, userId);
                 if (status == 1 && model.OrderId > 0)
                 {

@@ -18,24 +18,26 @@ namespace IOAS.DataModel
         public string NAME { get; set; }
         public string EMPL_TYPE { get; set; }
         public string DESIGNATION { get; set; }
-        public Nullable<System.DateTime> FROM { get; set; }
-        public Nullable<System.DateTime> TO { get; set; }
+        public Nullable<System.DateTime> EXISTING_FROM { get; set; }
+        public Nullable<System.DateTime> EXISTING_TO { get; set; }
+        public decimal PREVIOUS_BASIC_PAY { get; set; }
+        public Nullable<decimal> PREVIOUS_GROSS_PAY { get; set; }
         public string PROJECT_NO_ { get; set; }
         public string Project_details { get; set; }
         public string COMMITMENT_NO_ { get; set; }
-        public Nullable<System.DateTime> EXISTING_FROM { get; set; }
-        public Nullable<System.DateTime> EXISTING_TO { get; set; }
-        public Nullable<System.DateTime> Dt__OF__Increment { get; set; }
-        public Nullable<decimal> PREVIOUS_BASIC_PAY { get; set; }
+        public Nullable<System.DateTime> FROM { get; set; }
+        public Nullable<System.DateTime> TO { get; set; }
+        public Nullable<System.DateTime> DATE_OF_INCREMENT { get; set; }
         public Nullable<decimal> YEARLY_INCREMENT { get; set; }
-        public Nullable<decimal> CURRENT_REVISED_BASIC__PAY { get; set; }
-        public Nullable<decimal> BASIC_SALARY { get; set; }
-        public Nullable<decimal> GROSS_PAY { get; set; }
+        public Nullable<decimal> CURRENT_BASIC_SALARY { get; set; }
+        public Nullable<decimal> CURRENT_GROSS_PAY { get; set; }
         public string PF_Eligiblity { get; set; }
         public string ESIC_Eligiblity { get; set; }
         public Nullable<System.DateTime> ArrearWEF { get; set; }
-        public Nullable<System.DateTime> LOG_TIME { get; set; }
+        public Nullable<System.DateTime> CREATED_TIME { get; set; }
         public string CREATED_BY { get; set; }
+        public Nullable<System.DateTime> LOG_TIME { get; set; }
+        public string LOG_CREATED_BY { get; set; }
         public Nullable<int> OrderType { get; set; }
     }
 }

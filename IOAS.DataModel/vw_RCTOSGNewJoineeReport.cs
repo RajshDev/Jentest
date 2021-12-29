@@ -28,7 +28,12 @@ namespace IOAS.DataModel
         public string PF_Eligiblity { get; set; }
         public string ESIC_Eligiblity { get; set; }
         public Nullable<int> ARREARS_TO_BE_PROCESSED_W_E_F { get; set; }
-        public Nullable<System.DateTime> LOG_TIME { get; set; }
+        public Nullable<System.DateTime> CREATED_TIME { get; set; }
         public string CREATED_BY { get; set; }
+        public Nullable<System.DateTime> LOG_TIME { get; set; }
+        public string LOG_CREATED_BY { get; set; }
+        public string BANK_NAME { get; set; }
+        public string ACCOUNT_NO_ { get; set; }
+        public string IFSC_CODE { get; set; }
     }
 }

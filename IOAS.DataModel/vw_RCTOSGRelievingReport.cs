@@ -24,5 +24,7 @@ namespace IOAS.DataModel
         public string No_due___Remarks { get; set; }
         public Nullable<System.DateTime> Crt_TS { get; set; }
         public string CREATED_BY { get; set; }
+        public Nullable<System.DateTime> LOGCREATED_TIME { get; set; }
+        public string LOG_CREATED_BY { get; set; }
     }
 }

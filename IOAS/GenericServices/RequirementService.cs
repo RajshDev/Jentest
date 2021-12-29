@@ -528,20 +528,19 @@ namespace IOAS.GenericServices
                                         for (var i = 0; i < querydetails.Count; i++)
                                         {
                                             string fileName = "";
+                                            querydetails[i].ShortlistedApplicantsNumber = model.DesignationDetails[i].ShortlistedApplicant;
                                             if (model.DesignationDetails[i].ShortlistedApplicantFile != null)
                                             {
                                                 fileName = Guid.NewGuid().ToString() + "_" + System.IO.Path.GetFileName(model.DesignationDetails[i].ShortlistedApplicantFile.FileName);
                                                 model.DesignationDetails[i].ShortlistedApplicantFile.UploadFile("RCTAnnouncementDocuments", fileName);
                                                 querydetails[i].ShortlistedApplicantsDoc = fileName;
-                                                querydetails[i].ShortlistedApplicantsNumber = model.DesignationDetails[i].ShortlistedApplicant;
                                             }
-
+                                            querydetails[i].TotalApplicantsNumber = model.DesignationDetails[i].TotalApplicant;
                                             if (model.DesignationDetails[i].TotalApplicantFile != null)
                                             {
                                                 fileName = Guid.NewGuid().ToString() + "_" + System.IO.Path.GetFileName(model.DesignationDetails[i].TotalApplicantFile.FileName);
                                                 model.DesignationDetails[i].TotalApplicantFile.UploadFile("RCTAnnouncementDocuments", fileName);
                                                 querydetails[i].TotalApplicantsDoc = fileName;
-                                                querydetails[i].TotalApplicantsNumber = model.DesignationDetails[i].TotalApplicant;
                                             }
                                             context.SaveChanges();
                                         }
@@ -607,13 +606,13 @@ namespace IOAS.GenericServices
                                     {
                                         for (int i = 0; i < querydetail.Count; i++)
                                         {
+                                            querydetail[i].SelectedApplicantsNumber = model.DesignationDetails[i].SelectedApplicant;
                                             if (model.DesignationDetails[i].SelectedApplicantFile != null)
                                             {
                                                 string fileName = string.Empty;
                                                 fileName = Guid.NewGuid().ToString() + "_" + System.IO.Path.GetFileName(model.DesignationDetails[i].SelectedApplicantFile.FileName);
                                                 model.DesignationDetails[i].SelectedApplicantFile.UploadFile("RCTAnnouncementDocuments", fileName);
                                                 querydetail[i].SelectedApplicantsDoc = fileName;
-                                                querydetail[i].SelectedApplicantsNumber = model.DesignationDetails[i].SelectedApplicant;
                                             }
                                             context.SaveChanges();
                                         }
@@ -11167,6 +11166,7 @@ namespace IOAS.GenericServices
                                 withdraw.EmpNumber = queryorder.vw.EmployeersID;
                                 withdraw.EmpId = loggedInUser;
                                 context.tblRCTCommitmentRequest.Add(withdraw);
+                                context.SaveChanges();
 
                                 tblRCTOTHPaymentDeduction addpaydeuction = new tblRCTOTHPaymentDeduction();
                                 addpaydeuction.EmployeeNo = queryorder.vw.EmployeersID;
@@ -11199,6 +11199,7 @@ namespace IOAS.GenericServices
                                 addothdetail.Remarks = "Back end entry";
                                 addothdetail.Status = "Active";
                                 context.tblRCTOTHPaymentDeductionDetail.Add(addothdetail);
+                                context.SaveChanges();
                             }
                             context.SaveChanges();
                             PostOrderStatusLog(orderid, PreStatus, queryorder.o.Status, loggedInUser);
@@ -11228,6 +11229,7 @@ namespace IOAS.GenericServices
                                 withdraw.EmpNumber = queryorder.vw.EmployeersID;
                                 withdraw.EmpId = loggedInUser;
                                 context.tblRCTCommitmentRequest.Add(withdraw);
+                                context.SaveChanges();
                             }
                             queryorder.o.Status = "Completed";
                             queryorder.o.isUpdated = true;
@@ -11237,6 +11239,7 @@ namespace IOAS.GenericServices
                                 queryDeduction.Status = "Completed";
                                 queryDeduction.UpdtUser = loggedInUser;
                                 queryDeduction.UpdtTs = DateTime.Now;
+                                context.SaveChanges();
                             }
                             context.SaveChanges();
                             PostOrderStatusLog(orderid, PreStatus, queryorder.o.Status, loggedInUser);

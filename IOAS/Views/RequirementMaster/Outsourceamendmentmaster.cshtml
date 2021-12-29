@@ -1,0 +1,180 @@
+﻿@{
+    ViewBag.Title = "Outsourcing amendment master";
+    ViewBag.Subtitle = "Outsourcing amendment master";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+<div class="row hd-tt-bg ">
+    <div class="col-md-12">
+        <h4><b>Outsourcing Amendment Master</b></h4>
+    </div>
+</div>
+
+<div class="row">
+    <div class="page-wrapper">
+        <div class="col-md-12 mt30">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="vh-tt-bg vh-tt-bg-adj mt-null">
+                        <div class="vh-frm-bg bl-lg-panel-box pb-null br-adj-null">
+                            <div class="row">
+                                <div class="">
+                                    <div class="col-md-12">
+                                        <div class="grey-bg-adj mb-lg">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="row mt-md">
+                                                        <div class="col-md-3">
+                                                            <div class="form-group custom-form-group ">
+                                                                <label class="required">Amendment type:</label><br />
+                                                                @Html.DropDownList("AmendmentType", new SelectList(ViewBag.AmendmentType, "id", "name"), "Select Amendment type", new { @class = "form-control" })
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div class="col-md-12 mt-md mb-lg text-center">
+                <input type="button" value="Amendment" class="btn btn-primary" id="btnSubmit" />
+                <input type="button" value="Export to excel comparison data" class="btn btn-success" id="btnExport" />
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+
+    $(document).ready(function () {
+        var success = "@TempData["succMsg"]";
+        var alertMsg = "@TempData["alertMsg"]";
+
+        if (success != '') {
+            $.confirm({
+                title: 'Sucess message !',
+                content: success,
+                type: 'blue',
+                buttons: {
+                    Close: function () {
+                        //close
+                    },
+                },
+            });
+        }
+        if (alertMsg != '') {
+            $.confirm({
+                title: 'Alert !',
+                content: alertMsg,
+                type: 'blue',
+                buttons: {
+                    Close: function () {
+                        //close
+                    },
+                },
+            });
+        }
+    });
+
+
+    $('#btnExport').click(function () {
+
+        var AmendmentType = $('#AmendmentType').val() || 0;
+        if (AmendmentType > 0) {
+            var choice = confirm("Do you want to export salary components comparison ?");
+            if (choice == true) {
+                var url = '@Url.Action("getOSGSalaryComparison", "RequirementMaster")?componentId=' + AmendmentType;
+                window.location.href = url;
+            }
+        } else {
+            $('#FailedAlert').html("Amendment type are required");
+            $('#Failed').modal('toggle');
+        }
+    });
+    $('#btnSubmit').click(function () {
+
+        var AmendmentType = $('#AmendmentType').val() || 0;
+        if (AmendmentType > 0) {
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("AmendmentOSGSalary")",
+                data: { componentId: AmendmentType },
+                contentType: "application/x-www-form-urlencoded",
+                beforeSend: function () {
+                    $(".loading-bg").removeClass('dis-none');
+                },
+                success: function (result) {
+                    $(".loading-bg").addClass('dis-none');
+                    if(result == 1)
+                    {
+                        $.confirm({
+                            title: 'Sucess message !',
+                            content: "Salary components update successfully.",
+                            type: 'blue',
+                            buttons: {
+                                Close: function () {
+                                    //close
+                                },
+                            },
+                        });
+                    }
+                    else if (result == -1) {
+                        $.confirm({
+                            title: 'Error message !',
+                            content: "No employee found",
+                            type: 'blue',
+                            buttons: {
+                                Close: function () {
+                                    //close
+                                },
+                            },
+                        });
+                    }
+                    else {
+                        $.confirm({
+                            title: 'Error message !',
+                            content: "Something wrong.",
+                            type: 'blue',
+                            buttons: {
+                                Close: function () {
+                                    //close
+                                },
+                            },
+                        });
+                    }
+                },
+                error: function (err) {
+                    $(".loading-bg").addClass('dis-none');
+                    console.log("error : " + err);
+                    $.confirm({
+                        title: 'Error message !',
+                        content: err,
+                        type: 'blue',
+                        buttons: {
+                            Close: function () {
+                                //close
+                            },
+                        },
+                    });
+                }
+            });
+        }
+        else
+        {
+            $('#FailedAlert').html("Amendment type are required");
+            $('#Failed').modal('toggle');
+        }
+    });
+</script>

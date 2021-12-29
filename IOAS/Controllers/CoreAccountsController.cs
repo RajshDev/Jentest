@@ -5421,7 +5421,7 @@ namespace IOAS.Controllers
                 model = coreAccountService.GetClearancePaymentDetailsView(billId);
                 ViewBag.paymentTDSAmount = model.PaymentTDSAmount.ToString();
                 //ViewBag.disabled = "Disabled";
-                decimal amt = model.PODetail.Sum(m => m.TotalAmount) ?? 0;
+                decimal amt = model.BillAmount + model.BillTaxAmount ?? 0;
                 ViewBag.processGuideLineId = Common.GetProcessGuidelineId(45, "Others", amt);
                 ViewBag.TypeOfServiceList = Common.GetCLPTypeOfServiceList();
                 ViewBag.PONumberList = Common.GetClearancePaymentPONumberList(model.ClearanceAgentId);

@@ -954,7 +954,7 @@ namespace IOAS.GenericServices
                                      ProjectNo = g.Key.ProjectNumber,
                                      CommitmentBalance = g.Key.CommitmentBalance,
                                      Amount = g.Select(m => m.c.Amount).Sum(),
-                                     BalanceAfter = g.Key.CommitmentBalance - g.Select(m => m.c.Amount).Sum()??0
+                                     BalanceAfter = g.Key.CommitmentBalance - g.Select(m => m.c.Amount).Sum() ?? 0
                                  });
                     var records = query.Where(predicate).OrderBy(m => m.BalanceAfter)
                         .AsEnumerable()
@@ -966,7 +966,7 @@ namespace IOAS.GenericServices
                             ProjectNo = x.ProjectNo,
                             CurrentBalance = x.CommitmentBalance ?? 0,
                             SalaryToBePaid = x.Amount ?? 0,
-                            BalanceAfter = x.CommitmentBalance - x.Amount??0,
+                            BalanceAfter = x.CommitmentBalance - x.Amount ?? 0,
                             IsBalanceAavailable = (x.CommitmentBalance - x.Amount) > 0
                         }).Skip(skiprec).Take(pageSize).ToList();
                     var recordCount = query.Where(predicate).ToList().Count();
@@ -1387,9 +1387,9 @@ namespace IOAS.GenericServices
                     //                   sm,
                     //                   sd.GrossTotal
                     //               }).ToList();
-                    var records = (from p in context.tblRCTPayroll  
+                    var records = (from p in context.tblRCTPayroll
                                    join sm in context.vw_RCTOSGPayroll on p.RCTPayrollId equals sm.RCTPayrollId
-                                   where p.Status == "Requested for salary processing" && p.SalaryMonth == MonthYear && p.AppointmentType =="OSG"
+                                   where p.Status == "Requested for salary processing" && p.SalaryMonth == MonthYear && p.AppointmentType == "OSG"
                                     && !context.tblAgencyVerifiedSalary.Any(m => m.RCTPayrollDetailId == sm.RCTPayrollDetailId)
                                    orderby sm.Employee_ID
                                    select sm).ToList();
@@ -1397,14 +1397,14 @@ namespace IOAS.GenericServices
                     if (records.Count > 0)
                     {
                         for (int i = 0; i < records.Count; i++)
-                        {                           
+                        {
                             var row = dtUnverify.NewRow();
                             row["EmployeeId"] = records[i].Employee_ID;
                             row["Name"] = records[i].Employee_Name;
                             row["Project No"] = records[i].Project_Number;
                             row["Designation"] = records[i].Designation;
                             row["BasicSalary"] = Convert.ToDecimal(records[i].Recommended_Salary);
-                            row["GrossTotal"] = Convert.ToDecimal(records[i].CTC_CM); 
+                            row["GrossTotal"] = Convert.ToDecimal(records[i].CTC_CM);
                             dtUnverify.Rows.Add(row);
                         }
                     }
@@ -1415,11 +1415,13 @@ namespace IOAS.GenericServices
                                              join sm in context.vw_RCTOSGPayroll on C.RCTPayrollDetailId equals sm.RCTPayrollDetailId
                                              where C.AgencySalaryId == AgencySalaryID
                                              orderby C.EmployeeID
-                                             select new {
+                                             select new
+                                             {
                                                  C,
                                                  DesignationName = sm.Designation,
                                                  BasicSalary = sm.Recommended_Salary,
-                                                 ProjectNo = sm.Project_Number }).ToList();
+                                                 ProjectNo = sm.Project_Number
+                                             }).ToList();
                         if (queryVerified.Count > 0)
                         {
                             for (int i = 0; i < queryVerified.Count; i++)
@@ -1575,7 +1577,7 @@ namespace IOAS.GenericServices
                 return searchData;
             }
         }
-        public AgencyStaffDetailsModel getEmployeeSalaryDetails(int AgencySalaryID,int payrollDetailId)
+        public AgencyStaffDetailsModel getEmployeeSalaryDetails(int AgencySalaryID, int payrollDetailId)
         {
             AgencyStaffDetailsModel model = new AgencyStaffDetailsModel();
             try
@@ -1613,7 +1615,7 @@ namespace IOAS.GenericServices
                         model.CommitmentNo = qrySalary.sm.Commitment_Number;
                         model.PayrollDetailId = payrollDetailId;
                         var otherDet = context.tblEmpOtherAllowance.Where(m => m.EmployeeIdStr == model.EmployeeId && (m.IsPaid == false || m.IsPaid == null) && m.Category == 8).ToList();
-                        
+
                         model.otherDetail = otherDet;
                         model.OtherExpTotal = otherDet.Sum(m => m.Amount);
 
@@ -1786,20 +1788,20 @@ namespace IOAS.GenericServices
                         if (model.AgencySalaryID != 0)
                             payMonthStr = Common.getAgencySalaryPaymentMonth(model.AgencySalaryID);
                         var qrySalary = (from sm in context.vw_RCTOSGPayroll
-                             where sm.RCTPayrollDetailId == model.PayrollDetailId
-                              select sm).FirstOrDefault();
+                                         where sm.RCTPayrollDetailId == model.PayrollDetailId
+                                         select sm).FirstOrDefault();
                         if (qrySalary != null)
                         {
-                           
+
                             decimal NetSalary = qrySalary.CTC_CM.GetValueOrDefault(0);
                             var otherQuery = context.tblEmpOtherAllowance.Where(m => m.EmployeeIdStr == model.EmployeeId && (m.IsPaid == false || m.IsPaid == null) && m.Category == 8).ToList();
                             decimal otherAmt = otherQuery.Sum(m => m.Amount ?? 0);
-                            
+
                             decimal netsal = NetSalary + otherAmt;
                             netsal = Math.Round(netsal, 2, MidpointRounding.AwayFromZero);
                             var qryAgency = (from C in context.tblAgencySalary where C.AgencySalaryId == model.AgencySalaryID select C).FirstOrDefault();
                             if (qryAgency == null)
-                            {                                
+                            {
                                 var PayMentNo = Common.getAgencySalarySequenceNumber();
                                 tblAgencySalary Agency = new tblAgencySalary();
                                 Agency.PaymentNo = PayMentNo.Item1;
@@ -1863,7 +1865,7 @@ namespace IOAS.GenericServices
                                 context.SaveChanges();
                             }
                             var qryCommitment = (from c in context.tblCommitment
-                                                  join cDet in context.tblCommitmentDetails on c.CommitmentId equals cDet.CommitmentId
+                                                 join cDet in context.tblCommitmentDetails on c.CommitmentId equals cDet.CommitmentId
                                                  where c.CommitmentNumber == qrySalary.Commitment_Number
                                                  && c.Status == "Active"
                                                  select new { cDet.BalanceAmount, c.CommitmentId, cDet.ComitmentDetailId }).FirstOrDefault();
@@ -1947,7 +1949,7 @@ namespace IOAS.GenericServices
                                 try
                                 {
                                     decimal grossTtl = Convert.ToDecimal(item.CTC_CM);
-                                    
+
                                     decimal NetSalary = grossTtl;// item.GrossTotal;
                                     var otherQuery = context.tblEmpOtherAllowance.Where(m => m.EmployeeIdStr == item.Employee_ID && (m.IsPaid == false || m.IsPaid == null) && m.Category == 8).ToList();
                                     decimal otherAmt = otherQuery.Sum(m => m.Amount ?? 0);
@@ -1960,7 +1962,7 @@ namespace IOAS.GenericServices
                                     {
                                         decimal netsal = NetSalary + otherAmt;
                                         netsal = Math.Round(netsal, 2, MidpointRounding.AwayFromZero);
-                                        
+
 
                                         tblAgencyVerifiedSalary Salary = new tblAgencyVerifiedSalary();
                                         var EmpName = Common.getAgencyEmployeeName(item.Employee_ID);
@@ -2043,7 +2045,7 @@ namespace IOAS.GenericServices
                                 try
                                 {
                                     decimal grossTtl = Convert.ToDecimal(item.CTC_CM);
-                                    
+
                                     decimal NetSalary = grossTtl;// item.GrossTotal;
                                     var qryCommitment = (from c in context.tblCommitment
                                                          join cDet in context.tblCommitmentDetails on c.CommitmentId equals cDet.CommitmentId
@@ -2054,7 +2056,7 @@ namespace IOAS.GenericServices
                                     {
                                         decimal netsal = NetSalary + otherAmt;
                                         netsal = Math.Round(netsal, 2, MidpointRounding.AwayFromZero);
-                                      
+
                                         tblAgencyVerifiedSalary Salary = new tblAgencyVerifiedSalary();
                                         Salary.EmployeeID = item.Employee_ID;
                                         Salary.AgencySalaryId = AgencySalaryID;
@@ -2118,7 +2120,7 @@ namespace IOAS.GenericServices
                 return data;
             }
         }
-        public AgencySalaryModel DeleteVerifiedEmployee(int VerifiedSalaryId,int userId)
+        public AgencySalaryModel DeleteVerifiedEmployee(int VerifiedSalaryId, int userId)
         {
             using (var context = new IOASDBEntities())
             {
@@ -2165,7 +2167,7 @@ namespace IOAS.GenericServices
                         context.tblAgencySalaryCommitmentDetail.RemoveRange(context.tblAgencySalaryCommitmentDetail.Where(c => c.VerifiedSalaryId == VerifiedSalaryId));
                         context.SaveChanges();
                         transaction.Commit();
-                        data = UpdateSalaryCalculation(agencyId,userId);
+                        data = UpdateSalaryCalculation(agencyId, userId);
                         return data;
                     }
                     catch (Exception ex)
@@ -2485,7 +2487,7 @@ namespace IOAS.GenericServices
                 List<BillCommitmentDetailModel> txList = new List<BillCommitmentDetailModel>();
                 using (var context = new IOASDBEntities())
                 {
-                  
+
                     txList = (from c in context.tblAgencySalaryCommitmentDetail
                               join det in context.tblCommitmentDetails on c.CommitmentDetailId equals det.ComitmentDetailId
                               join com in context.tblCommitment on det.CommitmentId equals com.CommitmentId
@@ -4803,7 +4805,7 @@ namespace IOAS.GenericServices
                         DateTime tDate = new DateTime();
                         //if (record.Gender != null && record.Gender.ToLower() == "m")
                         //{
-                            salaryModel.Gender = record.Gender;
+                        salaryModel.Gender = record.Gender;
                         //}
                         //else if (record.Gender != null && record.Gender.ToLower() == "f")
                         //{
@@ -5915,12 +5917,19 @@ namespace IOAS.GenericServices
                                      SP.GrossTotal,
                                      SP.PaymentId,
                                      emp.DesignationCode
-                                 });
+                                 }).ToList();
+                    var recordCount = query.Count();
+                    int sno = 0;
+                    if (page == 1)
+                        sno = 1;
+                    else
+                        sno = skiprec + 1;
+                    query = query.Skip(skiprec).Take(pageSize).ToList();
                     list = query
                     .AsEnumerable()
                     .Select((x, index) => new AdhocEmployeeModel()
                     {
-                        SlNo = index + 1,
+                        SlNo = sno + index,
                         MakePayment = true,
                         EmployeeID = x.EmployeeId,
                         EmployeeName = x.CandidateName,
@@ -5934,9 +5943,9 @@ namespace IOAS.GenericServices
                         GrossTotal = x.GrossTotal,
                         PaymentId = x.PaymentId,
                         DesignationCode = x.DesignationCode
-                    }).Skip(skiprec).Take(pageSize).ToList();
+                    }).ToList();
 
-                    var recordCount = query.Count();
+                    //var recordCount = query.Count();
                     searchData.TotalRecords = recordCount;
                     searchData.TotalPages = Convert.ToInt32(Math.Ceiling((double)recordCount / pageSize));
                     searchData.Data = list;
@@ -6008,12 +6017,20 @@ namespace IOAS.GenericServices
                                                IsNotInMain = true,
                                                PayrollProDetId = 0
                                            });
+                    var querylist = query.ToList();
+                    var recordCount = querylist.Count();
+                    querylist = querylist.Skip(skiprec).Take(pageSize).ToList();
 
-                    list = query
+                    int sno = 0;
+                    if (page == 1)
+                        sno = 1;
+                    else
+                        sno = skiprec + 1;
+                    list = querylist
                                  .AsEnumerable()
                                  .Select((x, index) => new AdhocEmployeeModel()
                                  {
-                                     SlNo = index + 1,
+                                     SlNo = sno + index,
                                      MakePayment = true,
                                      EmployeeID = x.EmployeeId,
                                      EmployeeName = x.CandidateName,
@@ -6025,9 +6042,8 @@ namespace IOAS.GenericServices
                                      DesignationCode = x.DesignationCode,
                                      BasicPay = Convert.ToDecimal(x.Basic),
                                      PayrollProDetId = x.PayrollProDetId
-                                 }).Skip(skiprec).Take(pageSize).ToList();
+                                 }).ToList();
 
-                    var recordCount = query.Count();
                     searchData.TotalRecords = recordCount;
                     searchData.TotalPages = Convert.ToInt32(Math.Ceiling((double)recordCount / pageSize));
                     searchData.Data = list;
@@ -6040,6 +6056,100 @@ namespace IOAS.GenericServices
                 return null;
             }
         }
+
+        //public PagedList<AdhocEmployeeModel> GetSalaryEmployees(string PaymentMonthYear, int PaymentHeadId, int typeOfPay, int page, int pageSize)
+        //{
+        //    try
+        //    {
+        //        int skiprec = 0;
+
+        //        if (page > 1)
+        //        {
+        //            skiprec = (page - 1) * pageSize;
+        //        }
+        //        var searchData = new PagedList<AdhocEmployeeModel>();
+
+        //        List<AdhocEmployeeModel> list = new List<AdhocEmployeeModel>();
+        //        AdhocEmployeeModel salary = new AdhocEmployeeModel();
+        //        DateTime lastDate = Common.GetMonthLastDate(PaymentMonthYear);
+        //        DateTime startDate = Common.GetMonthFirstDate(PaymentMonthYear);
+        //        using (var context = new IOASDBEntities())
+        //        {
+        //            var query = (from emp in context.tblRCTPayrollProcessDetail
+        //                         where (String.IsNullOrEmpty(EmployeeName) || emp.CandidateName.Contains(EmployeeName))
+        //                       && (String.IsNullOrEmpty(EmployeeNo) || emp.EmployeeId.Contains(EmployeeNo))
+        //                       && (String.IsNullOrEmpty(DepartmentCode) || emp.DepartmentCode.Contains(DepartmentCode) || emp.DepartmentName.Contains(DepartmentCode))
+        //                       && !context.tblSalaryPayment.Any(m => m.RCTPayrollProcessDetailId == emp.RCTPayrollProcessDetailId)
+        //                       && emp.SalaryMonth == PaymentMonthYear && emp.SalaryType == typeOfPay && emp.ProcessStatus == "Active"
+        //                         orderby emp.CandidateName
+        //                         select new
+        //                         {
+        //                             emp.EmployeeId,
+        //                             emp.CandidateName,
+        //                             emp.CommitmentNumber,
+        //                             emp.ProjectNumber,
+        //                             emp.DepartmentCode,
+        //                             emp.DepartmentName,
+        //                             emp.Basic,
+        //                             emp.DesignationCode,
+        //                             IsNotInMain = false,
+        //                             PayrollProDetId = emp.RCTPayrollProcessDetailId
+        //                         }).Concat(from emp in context.vw_RCTAdhocEmployeeMaster
+        //                                   where context.tblEmpOtherAllowance.Any(m => m.EmployeeIdStr == emp.EmployeeId && (m.IsPaid == null || m.IsPaid == false)) && typeOfPay != 2
+        //                                   && ((emp.IITMPensioner_f == true && typeOfPay == 0) || (emp.IITMPensioner_f == false && typeOfPay != 0))
+        //                        && (String.IsNullOrEmpty(EmployeeName) || emp.NAME.Contains(EmployeeName))
+        //                        && (String.IsNullOrEmpty(EmployeeNo) || emp.EmployeeId.Contains(EmployeeNo))
+        //                        && (String.IsNullOrEmpty(DepartmentCode) || emp.departmentcode.Contains(DepartmentCode) || emp.DEPARTMENT.Contains(DepartmentCode))
+        //                        && !context.tblRCTPayrollProcessDetail.Any(m => m.SalaryMonth == PaymentMonthYear && m.SalaryType == typeOfPay && m.ProcessStatus == "Active" && m.EmployeeId == emp.EmployeeId)
+        //                               && !context.tblSalaryPayment.Any(m => m.PaymentMonthYear == PaymentMonthYear && m.TypeOfPayBill == typeOfPay && m.EmployeeId == emp.EmployeeId)
+        //                                   orderby emp.NAME
+        //                                   select new
+        //                                   {
+        //                                       emp.EmployeeId,
+        //                                       CandidateName = emp.NAME,
+        //                                       CommitmentNumber = emp.commitmentNo,
+        //                                       ProjectNumber = emp.PROJECTNO,
+        //                                       DepartmentCode = emp.departmentcode,
+        //                                       DepartmentName = emp.DEPARTMENT,
+        //                                       emp.Basic,
+        //                                       emp.DesignationCode,
+        //                                       IsNotInMain = true,
+        //                                       PayrollProDetId = 0
+        //                                   });
+
+        //            list = query
+        //                         .AsEnumerable()
+        //                         .Select((x, index) => new AdhocEmployeeModel()
+        //                         {
+        //                             SlNo = index + 1,
+        //                             MakePayment = true,
+        //                             EmployeeID = x.EmployeeId,
+        //                             EmployeeName = x.CandidateName,
+        //                             commitmentNo = x.CommitmentNumber,
+        //                             PROJECTNO = x.ProjectNumber,
+        //                             departmentcode = x.DepartmentCode,
+        //                             DEPARTMENT = x.DepartmentName,
+        //                             IsNotInMain = x.IsNotInMain,
+        //                             DesignationCode = x.DesignationCode,
+        //                             BasicPay = Convert.ToDecimal(x.Basic),
+        //                             PayrollProDetId = x.PayrollProDetId
+        //                         }).Skip(skiprec).Take(pageSize).ToList();
+
+        //            var recordCount = query.Count();
+        //            searchData.TotalRecords = recordCount;
+        //            searchData.TotalPages = Convert.ToInt32(Math.Ceiling((double)recordCount / pageSize));
+        //            searchData.Data = list;
+        //        }
+        //        return searchData;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine(ex.ToString());
+        //        return null;
+        //    }
+        //}
+
+
         public List<EmpOtherAllowance> GetEmpOtherAllowance(string EmployeeId)
         {
             try

@@ -14,11 +14,14 @@ namespace IOAS.DataModel
     
     public partial class vw_CashBokkDetails
     {
-        public string PaymentType { get; set; }
+        public long RowNumber { get; set; }
+        public string VoucherType { get; set; }
         public string RefNumber { get; set; }
         public string BankName { get; set; }
         public string PayeeName { get; set; }
         public Nullable<decimal> Amount { get; set; }
+        public Nullable<decimal> CRamount { get; set; }
+        public Nullable<decimal> DRamount { get; set; }
         public Nullable<System.DateTime> ReferenceDate { get; set; }
     }
 }

@@ -16,6 +16,7 @@ namespace IOAS.DataModel
     {
         public Nullable<int> AppointmentId { get; set; }
         public Nullable<int> AppointmentType { get; set; }
+        public string EmployeeName { get; set; }
         public string EmployeeNo { get; set; }
         public string ProjectNumber { get; set; }
         public string Designation { get; set; }

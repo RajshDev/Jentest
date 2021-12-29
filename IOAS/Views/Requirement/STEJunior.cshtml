@@ -673,7 +673,6 @@
             </div>
         </div>
     </div>
-
     <div class="row cust-tab" style="display:none;">
         <div class="page-wrapper mt30">
             <div>
@@ -1328,7 +1327,7 @@
         if($('#TypeofappointmentId').val() == 4 || ($('#TypeofappointmentId').val() == 3 && value > 0)) {
             currentdate = moment(new Date()).add(-2,'years').add(+1,'days').toDate();
         }
-        if(strFromDate != '' && strToDate != '')
+        if(strFromDate !='' && strToDate !='')
         {
             if(strFromDate <= currentdate)
             {
@@ -1721,16 +1720,14 @@
             }
         });
         $('#labelExperience').text(getDateFormattedDate());
-        var Qualifications = [];
+        var Qualifications = "";
         $('#tbodyEducation tr').each(function () {
             var departmet = $(this).find("select[name$='.DisciplineId'] option:selected").text();
             if(departmet != "") {
-                Qualifications.push(departmet);
+                Qualifications += departmet + ",";
             }
         });
-        if(Qualifications.length > 0)
-            $('#labelQualification').text(Qualifications.join(','));
-
+        $('#labelQualification').text(Qualifications);
         //UpdateUploadedDoc();
     }
 
@@ -3514,15 +3511,17 @@
 
     function CheckEmployeeadhar() {
         var adhar = $('#aadharnumber').val() || null;
-        var data = {};
+        var data = {};		
         if(adhar != null && adhar.length == 12)
         {
-            data = { adharno : adhar , apptype : "STE" };
+		    var apprefNo = null;
+            if($('#ApplicationNo').val() != "")
+                apprefNo = $('#ApplicationNo').val()
+			data = { adharno : adhar , apptype : "STE", appref : apprefNo};
             if($('#OldEmployeeNumber').val() != "")
             {
-                data = { adharno : adhar , oldId : $('#OldEmployeeNumber').val() , apptype : "STE" };
+                data = { adharno : adhar , oldId : $('#OldEmployeeNumber').val() , apptype : "STE", appref : apprefNo };
             }
-
             $.ajax({
                 url: '@Url.Action("CheckPreviousEmployeeAdhar", "Requirement")',
                 type: "Get",
@@ -3542,12 +3541,15 @@
     }
     function CheckEmployeepanno() {
         var pnno = $('#PAN').val() || null;
-        var data = {};
+		var data = {};
         if(pnno != null && pnno.length == 10) {
-            data = { Panno : pnno , apptype : "STE" };
+		    var apprefNo = null;
+            if($('#ApplicationNo').val() != "")
+                apprefNo = $('#ApplicationNo').val()
+			data = { Panno : pnno , apptype : "STE" , appref : apprefNo};
             if($('#OldEmployeeNumber').val() != "")
             {
-                data = { Panno : pnno , oldId : $('#OldEmployeeNumber').val() , apptype : "STE" };
+                data = { Panno : pnno , oldId : $('#OldEmployeeNumber').val() , apptype : "STE" , appref : apprefNo};
             }
             $.ajax({
                 url: '@Url.Action("CheckPreviousEmployeePan", "Requirement")',

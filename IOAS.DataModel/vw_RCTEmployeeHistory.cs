@@ -46,5 +46,6 @@ namespace IOAS.DataModel
         public Nullable<int> STEOldOrderHistory { get; set; }
         public Nullable<int> RCTOSGOldOrderId { get; set; }
         public string CommitmentNumber { get; set; }
+        public string EmployeeName { get; set; }
     }
 }

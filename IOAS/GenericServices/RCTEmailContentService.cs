@@ -3771,6 +3771,7 @@ namespace IOAS.GenericServices
             List<string> addcc = new List<string>();
             try
             {
+                return true;
                 using (var context = new IOASDBEntities())
                 {
                     var Qry = (from A in context.vw_RCTOverAllApplicationEntry
