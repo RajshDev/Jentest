@@ -299,13 +299,44 @@ namespace IOAS.GenericServices
                                             && dd.DesignationId == DesignationID
                                             select new
                                             {
+                                                SalaryLevelDetailId = 0,
                                                 qw.Qualification,
                                                 mark = c.CodeValDetail,
                                                 exp = cc.CodeValDetail,
                                                 dd.CGPA,
-                                                dd.RelevantExperience,
                                                 dd.DesignationDetailId
                                             }).ToList();
+                            if (query.SalaryLevel > 0)
+                            {
+                                var salquery = context.tblRCTSalaryLevel.Where(m => m.SalaryLevelId == query.SalaryLevel).FirstOrDefault();
+                                if (salquery != null)
+                                {
+                                    model.MinSalary = Convert.ToString(salquery.MinSalary ?? 0);
+                                    model.MaxSalary = Convert.ToString(salquery.MaxSalary ?? 0);
+                                    model.SalaryLevel = salquery.LevelRange;
+                                    model.SalaryLevelDescription = salquery.Description;
+                                }
+                                querydet = (from d in context.tblRCTSalaryLevelDetail
+                                            from q in context.tblRCTQualificationList
+                                            from mr in context.tblCodeControl
+                                            from c in context.tblCodeControl
+                                            from r in context.tblCodeControl
+                                            where d.Qualification == q.QualificationId && mr.CodeName == "Markstype" && mr.CodeValAbbr == d.Marks
+                                            && c.CodeName == "CGPAType" && c.CodeValAbbr == d.CGPA
+                                            && r.CodeName == "RelevantExperienceType" && r.CodeValAbbr == d.RelevantExperience
+                                            && d.SalaryLevelId == query.SalaryLevel && d.IsCurrentVersion == true
+                                            orderby d.SalaryLevelDetailId
+                                            select new
+                                            {
+                                                d.SalaryLevelDetailId,
+                                                q.Qualification,
+                                                mark = mr.CodeValDetail,
+                                                exp = r.CodeValDetail,
+                                                d.CGPA,
+                                                DesignationDetailId = 0
+                                            }).ToList();
+                            }
+
                             if (querydet.Count > 0)
                             {
                                 qualification = string.Join(",", querydet.Select(m => m.Qualification).ToArray());
@@ -16371,14 +16402,27 @@ namespace IOAS.GenericServices
                                      from dt in context.tblRCTDesignationDetail
                                      from q in context.tblRCTQualificationDetail
                                      from c in context.tblCodeControl
-                                     where m.DesignationId == d.DesignationId && d.TypeOfAppointment == appTypeid
-                                     && d.DesignationId == dt.DesignationId && dt.DesignationId == q.Designationid
-                                     && dt.DesignationDetailId == q.DesignationDetailId && dt.IsCurrentVersion == true
+                                     where m.DesignationId == d.DesignationId && d.DesignationId == dt.DesignationId
+                                     && dt.DesignationId == q.Designationid && dt.DesignationDetailId == q.DesignationDetailId && dt.IsCurrentVersion == true
                                      && CourseId.Contains(q.CourseId ?? 0)
                                      && m.ApplicationId == appid && m.Category == category && m.ApplicationType == "New"
                                      && c.CodeName == "RelevantExperienceType" && c.CodeValAbbr == dt.RelevantExperience
+                                     && (d.SalaryLevel == 0 || d.SalaryLevel == null)
                                      //&& c.CodeValAbbr != 1
                                      select new { c.CodeValDetail }).ToList();
+                        query = (from m in context.vw_RCTOverAllApplicationEntry
+                                 from d in context.tblRCTDesignation
+                                 from dt in context.tblRCTSalaryLevelDetail
+                                 from q in context.tblRCTSalaryLevelCourses
+                                 from c in context.tblCodeControl
+                                 where m.DesignationId == d.DesignationId && d.SalaryLevel == dt.SalaryLevelId
+                                 && dt.SalaryLevelDetailId == q.SalaryLevelDetailId && dt.IsCurrentVersion == true
+                                 && CourseId.Contains(q.CourseId ?? 0)
+                                 && m.ApplicationId == appid && m.Category == category && m.ApplicationType == "New"
+                                 && c.CodeName == "RelevantExperienceType" && c.CodeValAbbr == dt.RelevantExperience
+                                 && d.SalaryLevel != 0
+                                 //&& c.CodeValAbbr != 1
+                                 select new { c.CodeValDetail }).ToList();
                         if (query.Count > 0)
                         {
                             for (int i = 0; i < query.Count; i++)

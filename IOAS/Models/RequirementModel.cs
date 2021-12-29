@@ -262,6 +262,9 @@ namespace IOAS.Models
         public bool Medical { get; set; }
         public decimal MedicalAmount { get; set; }
         public bool GateScore { get; set; }
+        public string SalaryLevel { get; set; }
+        public string SalaryLevelDescription { get; set; }
+
     }
 
     #endregion

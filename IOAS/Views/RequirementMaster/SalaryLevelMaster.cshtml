@@ -1,0 +1,530 @@
+﻿@model IOAS.Models.SalaryLevelModel
+@{
+    ViewBag.Title = "SalaryLevelMaster";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<div class="row hd-tt-bg">
+    <div class="col-md-12">
+        <h4><b>Salary Level Master Entry</b></h4>
+    </div>
+</div>
+<style>
+    .ov-lp-bg {
+        position: absolute;
+        width: calc(100% - 30px);
+        height: calc(100% - 30px);
+        background: rgba(0,0,0,0.2);
+        top: 0;
+        left: 13px;
+        display: block;
+        z-index: 100;
+    }
+
+    .stspos {
+        position: relative;
+        z-index: 101;
+    }
+
+    .bs-actionsbox .btn-group button {
+        width: 46% !important;
+    }
+</style>
+@using (Html.BeginForm("SalaryLevelMaster", "RequirementMaster", FormMethod.Post, new { @class = "", role = "form", @id = "SLform", enctype = "multipart/form-data" }))
+{
+    <div class="row cts-mn-dts">
+        <div class="page-wrapper mt30">
+            <div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="bl-lg-panel-box pb-null">
+                            <div class="cmn-panel-box">
+                                <div class="row ">
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label class="required">Type of appointment </label>
+                                            @if (Model.TypeOfAppointment != null && Model.SalaryLevelId > 0)
+                                            {
+                                                <h4>@Html.DisplayFor(m => m.TypeOfAppointmentName)</h4>
+                                                @Html.HiddenFor(m => m.TypeOfAppointment)
+                                            }
+                                            else
+                                            {
+                                                @Html.DropDownListFor(m => m.TypeOfAppointment, new SelectList(ViewBag.Apptype, "id", "name"), "Select Type", new { @class = "form-control" })
+                                                <div>@Html.ValidationMessageFor(m => m.TypeOfAppointment)</div>
+                                            }
+                                            @Html.HiddenFor(m => m.SalaryLevelId)
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label class="required">Level Range </label>
+                                            @if (Model.LevelRange != null && Model.SalaryLevelId > 0)
+                                            {
+                                                <h4>@Html.DisplayFor(m => m.LevelRange)</h4>
+                                                @Html.HiddenFor(m => m.LevelRange)
+                                            }
+                                            else
+                                            {
+                                                @Html.TextBoxFor(m => m.LevelRange, new { @class = "form-control", @style = "text-transform:uppercase", @autoComplete = "off", @maxlength = 10 })
+                                                <div>@Html.ValidationMessageFor(m => m.LevelRange)</div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row ">
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label class="required">Pay Structure (Minimum)</label>
+                                            @Html.TextBoxFor(m => m.PayStructureMinimum, new { @class = "form-control", @onkeypress = "return isNumberKey(event)" })
+                                            <div>@Html.ValidationMessageFor(m => m.PayStructureMinimum)</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+
+                                            <label class="required">Pay Structure (Maximum)</label>
+                                            @Html.TextBoxFor(m => m.PayStructureMaximum, new { @class = "form-control", @onkeypress = "return isNumberKey(event)" })
+                                            <div>@Html.ValidationMessageFor(m => m.PayStructureMaximum)</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    @if (Model.Status != null && Model.SalaryLevelId != null)
+                                    {
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group stspos">
+                                                <label class="required">Status</label> <br>
+                                                @Html.DropDownListFor(m => m.EnableDisable, new SelectList(ViewBag.Status, "id", "name"), "Select Status", new { @class = "form-control" })
+                                                <div>@Html.ValidationMessageFor(m => m.EnableDisable)</div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+
+                                <div id="statusHide">
+
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="bl-lg-panel-box pb-null">
+                            <div class="cmn-panel-box">
+                                <div class="form-group custom-form-group">
+                                    <label>Description</label> <br>
+                                    @Html.TextAreaFor(m => m.Description, new { @class = "form-control", @style = "text-transform:uppercase", @autoComplete = "off" })
+                                    <div>@Html.ValidationMessageFor(m => m.Description)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="bl-lg-panel-box pb-null">
+                            <div class="cmn-panel-box">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div id="divAttachContent">
+                                            <div class="row">
+                                                <label class="col-md-3 fn-normal required">Qualification</label>
+                                                <label class="col-md-3 fn-normal required">Course Name</label>
+                                                <label class="col-md-2 fn-normal required">Marks</label>
+                                                <label class="col-md-2 fn-normal required">CGPA</label>
+                                                <label class="col-md-2 fn-normal required">Relevant Experience (In Years)</label>
+                                            </div>
+                                            @{
+                                                if (Model.SalaryLevelDetail.Count() > 0)
+                                                {
+                                                    var count = 0;
+                                                    foreach (var item in Model.SalaryLevelDetail)
+                                                    {
+                                                        var qulfi = "SalaryLevelDetail[" + count + "].Qualification";
+                                                        var corid = "SalaryLevelDetail[" + count + "].QualificationCourse";
+                                                        var mark = "SalaryLevelDetail[" + count + "].Marks";
+                                                        var cgpa = "SalaryLevelDetail[" + count + "].CGPA";
+                                                        var rvex = "SalaryLevelDetail[" + count + "].RelevantExperience";
+                                                        var desid = "SalaryLevelDetail[" + count + "].SalaryLevelDetailId";
+                                                        <div class="m-b-sm row" id="divAttachPrimary">
+                                                            <div class="col-md-3">
+                                                                @Html.DropDownList(@qulfi, new SelectList(ViewBag.Qualification, "id", "name", item.Qualification), "Select Qualification",
+                        new { @class = "form-control required", @id = "qulfi", @title = "Qualification is required" })
+                                                                @Html.Hidden("SalaryLevelDetail.Index", @count)
+                                                                @Html.Hidden(@desid, item.SalaryLevelDetailId)
+                                                                @Html.ValidationMessage(@qulfi)
+                                                            </div>
+                                                            <div class="col-md-3">
+                                                                @Html.DropDownList(@corid, new SelectList(item.ddlList, "id", "name", item.QualificationCourse), new { @multiple = "multiple", @class = "form-control selectpicker required", @id = "Qualificourses", @title = "Select any" })
+                                                                <script>
+                                                                    $('select[name="@corid"]').val(@Html.Raw(Json.Encode(item.QualificationCourse)));
+                                                                </script>
+                                                                @Html.ValidationMessage(@corid)
+                                                            </div>
+                                                            <div class="col-md-2">
+                                                                @Html.DropDownList(@mark, new SelectList(ViewBag.Marks, "id", "name", item.Marks), "Select Marks", new { @class = "form-control required", @id = "mark", @title = "Marks is required" })
+                                                                @Html.ValidationMessage(@mark)
+                                                            </div>
+                                                            <div class="col-md-2">
+                                                                @Html.DropDownList(@cgpa, new SelectList(ViewBag.CGPAType, "id", "name", item.CGPA), "Select CGPA", new { @class = "form-control required", @id = "cgpa", @title = "CGPA is required" })
+                                                                @Html.ValidationMessage(@cgpa)
+
+                                                            </div>
+                                                            <div class="col-md-2">
+                                                                @Html.DropDownList(@rvex, new SelectList(ViewBag.Experience, "id", "name", item.RelevantExperience), "Select Relevant Experience", new { @class = "form-control required", @id = "rvex", @title = "Relevant Experience is required" })
+                                                                @Html.ValidationMessage(@rvex)
+                                                            </div>
+                                                            @if (count == 0)
+                                                            {
+                                                                <div class="col-md-1">
+                                                                    <button class="dis-none btn-sm btn btn-danger" type="button" name="removeDocButton"><i class="ion-android-close"></i></button>
+                                                                </div>
+                                                            }
+                                                            else
+                                                            {
+                                                                <div class="col-md-1">
+                                                                    <button class="btn-sm btn btn-danger" type="button" name="removeDocButton"><i class="ion-android-close"></i></button>
+                                                                </div>
+                                                            }
+                                                        </div>
+                                                        count++;
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <div class="m-b-sm row" id="divAttachPrimary">
+                                                        <div class="col-md-3">
+                                                            @Html.DropDownList("SalaryLevelDetail[0].Qualification", new SelectList(ViewBag.Qualification, "id", "name"), "Select Qualification",
+                        new { @class = "form-control required", @id = "qulfi", @title = "Qualification is required" })
+                                                            @Html.Hidden("SalaryLevelDetail.Index", "0")
+                                                            @Html.ValidationMessage("SalaryLevelDetail[0].Qualification")
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            @Html.DropDownList("SalaryLevelDetail[0].QualificationCourse", new SelectList(ViewBag.Course, "id", "name"),
+                        new { @multiple = "multiple", @class = "form-control selectpicker required", @id = "Qualificourses", @title = "Select any" })
+                                                            @Html.ValidationMessage("SalaryLevelDetail[0].QualificationCourse")
+                                                        </div>
+                                                        <div class="col-md-2">
+                                                            @Html.DropDownList("SalaryLevelDetail[0].Marks", new SelectList(ViewBag.Marks, "id", "name"), "Select Marks",
+                        new { @class = "form-control required", @id = "mark", @title = "Marks is required" })
+                                                            @Html.ValidationMessage("SalaryLevelDetail[0].Marks")
+                                                        </div>
+                                                        <div class="col-md-2">
+                                                            @Html.DropDownList("SalaryLevelDetail[0].CGPA", new SelectList(ViewBag.CGPAType, "id", "name"), "Select CGPA",
+                        new { @class = "form-control required", @id = "cgpa", @title = "CGPA is required" })
+                                                            @Html.ValidationMessage("SalaryLevelDetail[0].CGPA")
+
+                                                        </div>
+                                                        <div class="col-md-2">
+                                                            @Html.DropDownList("SalaryLevelDetail[0].RelevantExperience", new SelectList(ViewBag.Experience, "id", "name"), "Select Relevant Experience",
+                        new { @class = "form-control required", @id = "rvex", @title = "Relevant Experience is required" })
+                                                            @Html.ValidationMessage("SalaryLevelDetail[0].RelevantExperience")
+                                                        </div>
+                                                        <div class="col-md-1">
+                                                            <button class="dis-none btn-sm btn btn-danger" type="button" name="removeDocButton"><i class="ion-android-close"></i></button>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            }
+                                            <div class="row p-b-sm">
+                                                <div class="col-md-12">
+                                                    <h4 class="text-right">
+                                                        <button type="button" id="btnAddDetails" class="btn-primary btn pull-left">Add New</button>
+                                                    </h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 mb-lg text-center">
+            <input type="submit" class="btn btn-primary" value="Submit" name="Button" id="btnSave" />
+            <input type="button" onclick="window.location.href='@Url.Action("SalaryLevelList", "RequirementMaster")';" class="btn btn-default" value="Close" id="btnclose" />
+        </div>
+    </div>
+
+                                                }
+<div class="loading-bg dis-none">
+</div>
+<script>
+    var errMsg = '@ViewBag.errMsg';
+    var alertMsg = '@ViewBag.alertMsg';
+    var SalaryLevelId = $('#SalaryLevelId').val();
+
+    $(document).ready(function () {
+        $('select[name$=".QualificationCourse"]').attr('data-actions-box', 'true');
+        if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+        else if (alertMsg != '') {
+            $('#alert').html(alertMsg);
+            $('#Validation').modal('toggle');
+        }
+        $('#EnableDisable').val(@Html.Raw(Json.Encode(Model.EnableDisable)));
+        var EnableDisable = @Html.Raw(Json.Encode(Model.EnableDisable));
+        $('#EnableDisable').on('change',function() {
+            var value = $(this).val();
+            if(value == 2)
+                $('#statusHide').addClass('ov-lp-bg');
+            else
+                $('#statusHide').removeClass('ov-lp-bg');
+        });
+
+        if(EnableDisable == 2)
+            $('#statusHide').addClass('ov-lp-bg');
+        else
+            $('#statusHide').removeClass('ov-lp-bg');
+    });
+
+    $('#btnAddDetails').click(function () {
+        var cln = $("#divAttachPrimary").clone().find("select").val("").end();
+        var cloneElement = $("#divAttachPrimary").find('#Qualificourses').parent().clone();
+        $(cln).find('select[id="Qualificourses"]').parent().replaceWith(selectPickerApiElement($(cloneElement), "empty", [], ''));
+        $(cln).find('button.dis-none').removeClass('dis-none');
+        $(cln).find('div.doclink').addClass('dis-none');
+        var index = $('#divAttachContent div.m-b-sm').length;//$("#divAttachPrimary").length - 1;
+        $(cln).find("input[name='SalaryLevelDetail.Index']").val(index);
+        $(cln).find("input[name$='.SalaryLevelDetailId']").each(function () {
+            $(this).val("");
+            $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+        });
+        $(cln).find("select").each(function () {
+            $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+
+        });
+        $(cln).find("span[data-valmsg-for]").each(function () {
+            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+        });
+        $(cln).find("select[name$='.Qualification']").addClass('Required');
+
+        $(cln).insertBefore($('#divAttachContent').find('.p-b-sm'));
+    });
+
+    $(document).on('click', '#divAttachContent button[name="removeDocButton"]', function () {
+        $(this).closest('#divAttachPrimary').remove();
+    });
+
+
+    $('#btnSave').click(function (d){
+        d.preventDefault();
+        var isValid = $('#SLform').valid();
+        var qualificationcourse = [];
+        var qualificationcheck = [];
+        $('select[name$=".QualificationCourse"]').each(function (idx, val) { qualificationcourse.push($(val).val()); });
+        if(qualificationcourse.length > 0)
+        {
+            qualificationcourse.sort();
+            for (var k = 0; k < qualificationcourse.length; k++) {
+                if(qualificationcourse[k] != null)
+                {
+                    for(var l = 0;l < qualificationcourse[k].length; l++) {
+                        qualificationcheck.push(qualificationcourse[k][l]);
+                    }
+                }
+            }
+            qualificationcheck.sort();
+            for (var j = 1; j < qualificationcheck.length; ++j) {
+                if(qualificationcheck[j] != 0) {
+                    if (qualificationcheck[j] == qualificationcheck[j - 1]) {
+                        isValid = false;
+                        $('#alert').html("Course name should not be same for two qualifications");
+                        $('#Validation').modal('toggle');
+                        return false;
+                    }
+                }
+                isValid = true;
+            }
+        }
+
+        if(SalaryLevelId != null && $('#EnableDisable').val() == "")
+        {
+            $('#alert').html("Select Status");
+            $('#Validation').modal('toggle');
+            return false;
+        }
+        var hadError = false;
+        try
+        {
+            $('#SLform').each(function (idx)
+            {
+                if (!$(this).is(':radio') && !$(this).is(':checkbox'))
+                {
+                    isValid = $(this).valid(); // check that the input is valid. This can also be used on a per input basis to perform another action if the field is not valid.
+                    if (!isValid)
+                        hadError = true;
+                }
+            });
+        }
+        catch(err)
+        {
+            console.log(err.message);
+        }
+        if(hadError)
+            return !hadError;
+        if (!isValid)
+            return false;
+        else if (isValid)
+        {
+            $('.loading-bg').removeClass('dis-none');
+            $('#SLform').submit();
+        }
+    });
+
+
+    function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode != 46 && charCode > 31
+          && (charCode < 48 || charCode > 57))
+            return false;
+
+        return true;
+    }
+    var selectPickerApiElement = function (el, choice, options, select) {
+        $(el).find('select').selectpicker({
+            liveSearch: true,
+
+        });
+
+        $(el).children().eq(2).siblings().remove();
+        if (choice == "add") {
+            $(el).find('.selectpicker').append("<option>" + options + "</option>");
+        } else if (choice == "all" && select != '') {
+            $(el).find('.selectpicker').children().remove();
+            for (var i = 0 ; i < options.length ; i++) {
+                $(el).find('.selectpicker').append("<option value=" + options[i].id + ">" + options[i].name + "</option>");
+            }
+            $(el).find('.selectpicker option[value=' + select + ']').attr('selected', 'selected');
+        } else if (choice == "all" && select == '') {
+            $(el).find('.selectpicker').children().remove();
+            for (var i = 0 ; i < options.length ; i++) {
+                $(el).find('.selectpicker').append("<option value=" + options[i].id + ">" + options[i].name + "</option>");
+            }
+        } else if (choice == "empty") {
+            $(el).find('.selectpicker').children().remove();
+            $(el).find('.selectpicker').append("<option value=''>Select any</option>");
+
+        } else {
+            var selectOptionsLength = $(el).find('.selectpicker').children().length;
+            for (var i = 1 ; i <= selectOptionsLength ; i++) {
+                if (options == $(el).find('.selectpicker').children().eq(i).val()) {
+                    $(el).find('.selectpicker').children().eq(i).remove();
+                    break;
+                } else {
+                    continue;
+                }
+            }
+        }
+        $(el).find('select').selectpicker('refresh');
+
+        return $(el).children().first().unwrap();
+
+    }
+    $(document).on('change', 'select[id="qulfi"]', function () {
+        var Departmentid = $(this).val();
+
+        var select = $(this).closest('#divAttachPrimary').find('select[id="Qualificourses"]');
+        $(select).empty().selectpicker('refresh');
+
+        $.getJSON("@Url.Action("LoadPIByCourseList", "RequirementMaster")", { DepartmentId: Departmentid },
+                function (locationdata) {
+                    $.each(locationdata, function (index, itemData) {
+                        $(select).append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name
+                        })).selectpicker('refresh')
+                    });
+
+                });
+
+    });
+
+
+    //$('#DesignationCode').on('blur',function(){
+    //    var txtvalue = $(this).val();
+    //    if(txtvalue.length == 1)
+    //    {
+    //        $.alert({
+    //            icon: 'ion-close-circled',
+    //            title: 'Error Alert!',
+    //            content: 'Enter valid input minimum 2',
+    //            type: 'red'
+    //        });
+    //        return false;
+    //        $('#DesignationCode').focus();
+    //    }
+
+    //});
+
+    $('#DesignationCode').keypress(function (e) {
+        var regex = new RegExp("^[a-zA-Z0-999999999]$");
+        var str = String.fromCharCode(!e.charCode ? e.which : e.charCode);
+        if (regex.test(str)) {
+            return true;
+        }
+        else {
+            e.preventDefault();
+            return false;
+        }
+    });
+
+    $('#PayStructureMinMum').keypress(function (e) {
+        var $this = $(this);
+        if ((event.which != 46 || $this.val().indexOf('.') != -1) &&
+           ((event.which < 48 || event.which > 57) &&
+           (event.which != 0 && event.which != 8))) {
+            event.preventDefault();
+        }
+
+    });
+
+    function toggleSelectAll(control) {
+        var allOptionIsSelected = (control.val() || []).indexOf("0") > -1;
+        function valuesOf(elements) {
+            return $.map(elements, function(element) {
+                return element.value;
+            });
+        }
+
+        if (control.data('allOptionIsSelected') != allOptionIsSelected) {
+            // User clicked 'All' option
+
+            if (allOptionIsSelected) {
+                // Can't use .selectpicker('selectAll') because multiple "change" events will be triggered
+                control.selectpicker('val', valuesOf(control.find('option')));
+                control.attr('static', 'Selected all');
+            } else {
+                control.selectpicker('val', []);
+                control.attr('data-selected-text-format', 'count');
+            }
+        } else {
+            // User clicked other option
+            if (allOptionIsSelected && control.val().length != control.find('option').length) {
+                // All options were selected, user deselected one option
+                // => unselect 'All' option
+                control.selectpicker('val', valuesOf(control.find('option:selected[value!=0]')));
+                allOptionIsSelected = false;
+            } else if (!allOptionIsSelected && control.val().length == control.find('option').length - 1) {
+                // Not all options were selected, user selected all options except 'All' option
+                // => select 'All' option too
+                control.selectpicker('val', valuesOf(control.find('option')));
+                allOptionIsSelected = true;
+            }
+        }
+        control.data('allOptionIsSelected', allOptionIsSelected);
+    }
+
+
+</script>
+<link href="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/css/bootstrap-select.min.css")" rel="stylesheet" />
+<script src="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/js/bootstrap-select.min.js")"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>

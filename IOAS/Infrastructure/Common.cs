@@ -25928,29 +25928,76 @@ namespace IOAS.Infrastructure
 
                     if (model.DesignationId != null)
                     {
-                        var querydesmast = (from dm in context.tblRCTDesignation
-                                            from dd in context.tblRCTDesignationDetail
-                                            from q in context.tblRCTQualificationDetail
-                                            where dm.DesignationId == dd.DesignationId && dm.DesignationId == q.Designationid
-                                            && dd.DesignationDetailId == q.DesignationDetailId && dm.DesignationId == model.DesignationId
-                                            && dm.TypeOfAppointment == ApplicationType
-                                            && dm.RecordStatus == "Active" && dd.IsCurrentVersion == true && dm.IsNotValid != true
-                                            select new
-                                            {
-                                                dm,
-                                                dd.DesignationDetailId,
-                                                dd.Qualification,
-                                                dd.Marks,
-                                                dd.CGPA,
-                                                dd.RelevantExperience,
-                                                q.CourseId
-                                            }).ToList();
+                        //var querydesmast = (from dm in context.tblRCTDesignation
+                        //                    from dd in context.tblRCTDesignationDetail
+                        //                    from q in context.tblRCTQualificationDetail
+                        //                    where dm.DesignationId == dd.DesignationId && dm.DesignationId == q.Designationid
+                        //                    && dd.DesignationDetailId == q.DesignationDetailId && dm.DesignationId == model.DesignationId
+                        //                    && dm.TypeOfAppointment == ApplicationType
+                        //                    && dm.RecordStatus == "Active" && dd.IsCurrentVersion == true && dm.IsNotValid != true
+                        //                    select new
+                        //                    {
+                        //                        dm,
+                        //                        dd.DesignationDetailId,
+                        //                        dd.Qualification,
+                        //                        dd.Marks,
+                        //                        dd.CGPA,
+                        //                        dd.RelevantExperience,
+                        //                        q.CourseId
+                        //                    }).ToList();
 
-                        if (querydesmast != null && querydesmast.Count > 0)
+
+                        decimal MinSalary = 0, MaxSalary = 0;
+                        var querymasttbl = (from m in context.tblRCTDesignation
+                                            where m.DesignationId == model.DesignationId && m.TypeOfAppointment == ApplicationType
+                                            && m.RecordStatus == "Active" && m.IsNotValid != true
+                                            select m).FirstOrDefault();
+
+                        var querydetail = (from dd in context.tblRCTDesignationDetail
+                                           from q in context.tblRCTQualificationDetail
+                                           where dd.DesignationDetailId == q.DesignationDetailId && dd.DesignationId == model.DesignationId
+                                           && dd.IsCurrentVersion == true
+                                           select new
+                                           {
+                                               dd.Qualification,
+                                               dd.Marks,
+                                               dd.CGPA,
+                                               dd.RelevantExperience,
+                                               q.CourseId
+                                           }).ToList();
+                        if (querymasttbl != null && querymasttbl.SalaryLevel > 0)
+                        {
+                            var querysal = (from s in context.tblRCTSalaryLevel
+                                            where s.SalaryLevelId == querymasttbl.SalaryLevel
+                                            select s).FirstOrDefault();
+                            querydetail = (from d in context.tblRCTSalaryLevelDetail
+                                           from c in context.tblRCTSalaryLevelCourses
+                                           where d.SalaryLevelDetailId == c.SalaryLevelDetailId && d.SalaryLevelId == querymasttbl.SalaryLevel
+                                           && d.IsCurrentVersion == true
+                                           select new
+                                           {
+                                               d.Qualification,
+                                               d.Marks,
+                                               d.CGPA,
+                                               d.RelevantExperience,
+                                               c.CourseId,
+                                           }).ToList();
+                            if (querysal != null)
+                            {
+                                MinSalary = querysal.MinSalary ?? 0;
+                                MaxSalary = querysal.MaxSalary ?? 0;
+                            }
+                        }
+
+                        if (querymasttbl != null && querydetail.Count > 0)
                         {
 
-                            var querymasttbl = querydesmast.Select(x => x.dm).FirstOrDefault();
-
+                            //var querymasttbl = querydesmast.Select(x => x.dm).FirstOrDefault();
+                            if (querymasttbl.SalaryLevel == null || querymasttbl.SalaryLevel == 0)
+                            {
+                                MinSalary = querymasttbl.PayStructureMinMum ?? 0;
+                                MaxSalary = querymasttbl.PayStructureMaximum ?? 0;
+                            }
                             #region check age deviation
 
                             bool ageDeviation = false;
@@ -26023,17 +26070,11 @@ namespace IOAS.Infrastructure
                             //{
                             #region check salary deviation
                             bool Salarydeviation = false;
-                            decimal MinSalary = 0, MaxSalary = 0;
                             //part time cadidate must be giving off salary
                             if (model.TypeOfAppointment == 2 && model.AppType == "STE")
                             {
-                                MinSalary = (querymasttbl.PayStructureMinMum ?? 0) / 2;
-                                MaxSalary = (querymasttbl.PayStructureMaximum ?? 0) / 2;
-                            }
-                            else
-                            {
-                                MinSalary = querymasttbl.PayStructureMinMum ?? 0;
-                                MaxSalary = querymasttbl.PayStructureMaximum ?? 0;
+                                MinSalary = MinSalary / 2;
+                                MaxSalary = MaxSalary / 2;
                             }
 
                             //Check 
@@ -26246,7 +26287,7 @@ namespace IOAS.Infrastructure
                                     var isValidExperience = false;
                                     for (int i = 0; i < model.QualificationId.Count(); i++)
                                     {
-                                        var queryQua = querydesmast.Where(m => m.Qualification == model.QualificationId[i] && m.CourseId == model.DisciplineId[i]).Select(m => new { m.Marks, m.CGPA, m.RelevantExperience }).ToList();
+                                        var queryQua = querydetail.Where(m => m.Qualification == model.QualificationId[i] && m.CourseId == model.DisciplineId[i]).Select(m => new { m.Marks, m.CGPA, m.RelevantExperience }).ToList();
                                         if (queryQua.Count > 0)
                                         {
                                             for (var k = 0; k < queryQua.Count; k++)
@@ -27568,6 +27609,43 @@ namespace IOAS.Infrastructure
                 return new List<MasterlistviewModel>();
             }
         }
+
+        public static List<MasterlistviewModel> GetSalaryLevelList(int? apptype = null)
+        {
+            List<MasterlistviewModel> list = new List<MasterlistviewModel>();
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    var query = (from cc in context.tblRCTSalaryLevel
+                                 where (apptype == null || cc.AppointmentType == apptype) && cc.Status == "Active"
+                                 orderby cc.SalaryLevelId
+                                 select new { cc.SalaryLevelId, cc.LevelRange }).ToList();
+                    list.Add(new MasterlistviewModel()
+                    {
+                        id = 0,
+                        name = "No"
+                    });
+                    if (query.Count > 0)
+                    {
+                        for (int i = 0; i < query.Count; i++)
+                        {
+                            list.Add(new MasterlistviewModel()
+                            {
+                                id = query[i].SalaryLevelId,
+                                name = query[i].LevelRange
+                            });
+                        }
+                    }
+                }
+                return list;
+            }
+            catch (Exception ex)
+            {
+                return list;
+            }
+        }
+
 
 
     }

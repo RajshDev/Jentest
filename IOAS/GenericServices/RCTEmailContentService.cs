@@ -185,11 +185,25 @@ namespace IOAS.GenericServices
                                  select new { vw.BasicPay }).FirstOrDefault();
                     string IITExperience = RequirementService.IITExperienceInWording(model.OldEmployee);
                     int SNo = 1;
+                    decimal minsalary = 0, maxsalary = 0;
                     string OrderType = model.OrderType;
                     if (string.IsNullOrEmpty(model.OrderType))
                         OrderType = "Appointment";
                     if (model.devChecklist.Count > 0 && desquery != null)
                     {
+                        minsalary = desquery.PayStructureMinMum ?? 0;
+                        maxsalary = desquery.PayStructureMaximum ?? 0;
+                        if (desquery.SalaryLevel > 0)
+                        {
+                            var salquery = (from des in context.tblRCTSalaryLevel
+                                            where des.SalaryLevelId == desquery.SalaryLevel
+                                            select des).FirstOrDefault();
+                            if (salquery != null)
+                            {
+                                minsalary = salquery.MinSalary ?? 0;
+                                maxsalary = salquery.MaxSalary ?? 0;
+                            }
+                        }
                         foreach (var item in model.devChecklist)
                         {
                             if (item.checklistId == 31 && OrderType == "Extension")
@@ -306,7 +320,7 @@ namespace IOAS.GenericServices
                                     CheckList = item.CheckList,
                                     devScenarios = item.CheckList,
                                     checklistId = item.checklistId ?? 0,
-                                    actNorms = "As per the ICSR norms, Minimum Salary Rs." + string.Format(Indian, "{0:N0}", desquery.PayStructureMinMum) + "/- and Maximum salary Rs." + string.Format(Indian, "{0:N0}", desquery.PayStructureMaximum ?? 0) + "/-",
+                                    actNorms = "As per the ICSR norms, Minimum Salary Rs." + string.Format(Indian, "{0:N0}", minsalary) + "/- and Maximum salary Rs." + string.Format(Indian, "{0:N0}", maxsalary) + "/-",
                                     devinNorms = "Salary recommended for amount Rs." + string.Format(Indian, "{0:N0}", model.ChekSalary) + " /- per month, which is above the norms for the said post."
                                 });
                             }

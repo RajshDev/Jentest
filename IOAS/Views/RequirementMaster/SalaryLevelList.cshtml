@@ -1,0 +1,142 @@
+﻿@model IOAS.Models.SearchdesignationModel
+@{
+    ViewBag.Title = "SalaryLevelList";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<div class="row hd-tt-bg">
+    <div class="col-md-12">
+        <h4 class="pull-left"><b>Salary Level Master List</b></h4>
+        <div class="flt-nav-links pull-right">
+            <a href="@Url.Action("SalaryLevelMaster")"> <i class="ion-plus"></i>Add New</a>
+        </div>
+    </div>
+</div>
+<div class="row mt30">
+    <div class="page-wrapper">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="custom-jsgrid-normal">
+                    <div id="gridSalaryLevelList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    var alertMsg = '@TempData["alertMsg"]';
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+        else if (alertMsg != '') {
+            $('#alert').html(alertMsg);
+            $('#Validation').modal('toggle');
+        }
+    });
+
+    $("#gridSalaryLevelList").jsGrid({
+        paging: true,
+        pageIndex: 1,
+        pageSize: 10,
+        editing: false,
+        filtering: true,
+        pageLoading: true,
+        autoload: true,
+        controller: {
+
+            loadData: function (filter) {
+                var searchData = [];
+                searchData = {
+                    TypeofAccountName: filter.TypeOfAppointmentName || null,
+                    LevelRange: filter.LevelRange || null,
+                    Description: filter.Description || null,
+                    PayStructureMinMum: filter.PayStructureMinimum || null,
+                    PayStructureMaximum: filter.PayStructureMaximum || null,
+                    RecordsStatus: filter.Status || null
+                },
+                filter.model = searchData;
+
+
+                var deferred = $.Deferred();
+                $.ajax({
+                    type: "post",
+                    url: "GetSalaryLevelMasterList",
+                    data: JSON.stringify(filter),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (result) {
+                        var da = {
+                            data: result.SalaryLevelList,
+                            itemsCount: result.TotalRecords
+                        }
+                        deferred.resolve(da);
+                    },
+                    error: function (err) {
+                        console.log("error : " + err);
+                    }
+
+                });
+                return deferred.promise();
+            }
+
+        },
+
+        fields: [
+    { name: "SNo", title: "S.No", editing: false, width: 50 },
+    { type: "number", name: "SalaryLevelId", title: "Id", visible: false },
+    { type: "text", name: "TypeOfAppointmentName", title: "Type of appointment", editing: false },
+    { type: "text", name: "LevelRange", title: "Level Range", editing: false },
+    { type: "text", name: "Description", title: "Description", editing: false },
+    { type: "text", name: "PayStructureMinimum", title: "Minimum", editing: false },
+    { type: "text", name: "PayStructureMaximum", title: "Maximum", editing: false },
+    { type: "text", name: "Status", title: "Status", editing: false },
+     {
+         type: "control", editButton: false, deleteButton: false, width: 120, title: "Action",
+
+         itemTemplate: function (value, item) {
+             var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+             if (item.Status == "Active") {
+                 statusList = [{ id: "", name: "Select Action" }, { id: "Edit", name: "Edit" }]
+             }
+             else {
+                 statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }]
+             }
+             var $customSelect = $("<select>")
+                 .attr("class", "form-control").prop("selectedIndex", "")
+             $.each(statusList, function (index, itemData) {
+                 $customSelect.append($('<option/>', {
+
+                     value: itemData.id,
+                     text: itemData.name
+                 }));
+             });
+             $customSelect.change(function (e) {
+                 var selVal = $(this).val();
+                 if (selVal == "Edit") {
+                     var url = '@Url.Action("SalaryLevelMaster", "RequirementMaster")?SalaryLevelId=' + item.SalaryLevelId;
+                     window.location.href = url;
+                 }
+
+                 $(this).val("");
+                 return false;
+                 e.stopPropagation();
+             });
+             return $result.add($customSelect);
+         },
+         _createFilterSwitchButton: function () {
+             return this._createOnOffSwitchButton("filtering", this.searchModeButtonClass, false);
+         }
+     }
+
+
+        ],
+    });
+    $("#gridSalaryLevelList").jsGrid("option", "filtering", false);
+</script>

@@ -40,8 +40,11 @@ namespace IOAS.GenericServices
                             adddesignation.Designation = model.Designation.ToUpper();
                             if (model.TypeOfAppointment == 4)
                                 adddesignation.Department = model.DepartmentId;
-                            adddesignation.PayStructureMinMum = model.PayStructureMinMum;
-                            adddesignation.PayStructureMaximum = model.PayStructureMaximum;
+                            if (model.SalaryLevel == 0)
+                            {
+                                adddesignation.PayStructureMinMum = model.PayStructureMinMum;
+                                adddesignation.PayStructureMaximum = model.PayStructureMaximum;
+                            }
                             adddesignation.CrtdUser = model.UserId;
                             adddesignation.CrtdTs = DateTime.Now;
                             if (model.IsNotValidDesignation == "Yes")
@@ -80,6 +83,7 @@ namespace IOAS.GenericServices
                             adddesignation.AnnualIncrement = model.AnnualIncrement;
                             adddesignation.Status = 1;
                             adddesignation.RecordStatus = "Active";
+                            adddesignation.SalaryLevel = model.SalaryLevel;
                             if (model.TypeOfAppointment == 3)
                             {
                                 if (model.IsSCST == "Yes")
@@ -93,7 +97,7 @@ namespace IOAS.GenericServices
                             context.tblRCTDesignation.Add(adddesignation);
                             context.SaveChanges();
                             int designationId = adddesignation.DesignationId;
-                            if (model.Detail != null)
+                            if (model.Detail != null && model.SalaryLevel == 0)
                             {
                                 foreach (var item in model.Detail)
                                 {
@@ -171,8 +175,11 @@ namespace IOAS.GenericServices
 
                                     if (model.TypeOfAppointment == 4)
                                         updatedesignation.Department = model.DepartmentId;
-                                    updatedesignation.PayStructureMinMum = model.PayStructureMinMum;
-                                    updatedesignation.PayStructureMaximum = model.PayStructureMaximum;
+                                    if (model.SalaryLevel == 0)
+                                    {
+                                        updatedesignation.PayStructureMinMum = model.PayStructureMinMum;
+                                        updatedesignation.PayStructureMaximum = model.PayStructureMaximum;
+                                    }
                                     updatedesignation.UptdTs = DateTime.Now;
                                     updatedesignation.UptdUser = model.UserId;
                                     if (model.IsNotValidDesignation == "Yes")
@@ -212,6 +219,7 @@ namespace IOAS.GenericServices
                                     updatedesignation.AgeLimit = model.AgeLimit;
                                     updatedesignation.AnnualIncrement = model.AnnualIncrement;
                                     updatedesignation.Status = model.Status;
+                                    updatedesignation.SalaryLevel = model.SalaryLevel;
                                     if (model.TypeOfAppointment == 3)
                                     {
                                         if (model.IsSCST == "Yes")
@@ -237,67 +245,27 @@ namespace IOAS.GenericServices
                                         m.UptdUser = model.UserId;
                                     });
                                     //context.tblRCTQualificationDetail.Where(x => x.Designationid == model.DesignationId && !arrlist.Contains(x.DesignationDetailId ?? 0) && x.IsCurrentVersion != false);
-                                    foreach (var item in model.Detail)
+                                    if (model.SalaryLevel == 0)
                                     {
-                                        var desquery = context.tblRCTDesignationDetail.FirstOrDefault(m => m.DesignationDetailId == item.DesignationDetailId);
-                                        if (desquery == null)
+                                        foreach (var item in model.Detail)
                                         {
-                                            tblRCTDesignationDetail adddes = new tblRCTDesignationDetail();
-                                            adddes.DesignationId = model.DesignationId;
-                                            adddes.Qualification = item.Qualification;
-                                            adddes.Marks = item.Marks;
-                                            adddes.CGPA = item.CGPA;
-                                            adddes.RelevantExperience = item.RelevantExperience;
-                                            adddes.IsCurrentVersion = true;
-                                            adddes.CrtdTs = DateTime.Now;
-                                            adddes.CrtdUser = model.UserId;
-                                            //if (item.QualificationCourse.Contains(0))
-                                            //    adddes.IsSelectAll = true;
-                                            context.tblRCTDesignationDetail.Add(adddes);
-                                            context.SaveChanges();
-                                            int designationdetailid = adddes.DesignationDetailId;
-                                            if (item.QualificationCourse != null)
+                                            var desquery = context.tblRCTDesignationDetail.FirstOrDefault(m => m.DesignationDetailId == item.DesignationDetailId);
+                                            if (desquery == null)
                                             {
-                                                for (int i = 0; i < item.QualificationCourse.Length; i++)
-                                                {
-
-                                                    tblRCTQualificationDetail addqualification = new tblRCTQualificationDetail();
-                                                    addqualification.Designationid = model.DesignationId;
-                                                    addqualification.DesignationDetailId = designationdetailid;
-                                                    addqualification.QualificationId = item.Qualification;
-                                                    addqualification.CourseId = item.QualificationCourse[i];
-                                                    addqualification.CrtdTs = DateTime.Now;
-                                                    addqualification.CrtdUser = model.UserId;
-                                                    context.tblRCTQualificationDetail.Add(addqualification);
-                                                    context.SaveChanges();
-
-                                                }
-                                            }
-                                        }
-                                        else
-                                        {
-                                            if (item.DesignationDetailId != null)
-                                            {
-                                                desquery.DesignationId = model.DesignationId;
-                                                desquery.Qualification = item.Qualification;
-                                                desquery.Marks = item.Marks;
-                                                desquery.CGPA = item.CGPA;
-                                                desquery.RelevantExperience = item.RelevantExperience;
-                                                desquery.UptdTs = DateTime.Now;
-                                                desquery.UptdUser = model.UserId;
+                                                tblRCTDesignationDetail adddes = new tblRCTDesignationDetail();
+                                                adddes.DesignationId = model.DesignationId;
+                                                adddes.Qualification = item.Qualification;
+                                                adddes.Marks = item.Marks;
+                                                adddes.CGPA = item.CGPA;
+                                                adddes.RelevantExperience = item.RelevantExperience;
+                                                adddes.IsCurrentVersion = true;
+                                                adddes.CrtdTs = DateTime.Now;
+                                                adddes.CrtdUser = model.UserId;
                                                 //if (item.QualificationCourse.Contains(0))
-                                                //    desquery.IsSelectAll = true;
+                                                //    adddes.IsSelectAll = true;
+                                                context.tblRCTDesignationDetail.Add(adddes);
                                                 context.SaveChanges();
-                                                int ddlids = item.DesignationDetailId ?? 0;
-                                                var query = (from dd in context.tblRCTQualificationDetail
-                                                             where (dd.Designationid == model.DesignationId && dd.DesignationDetailId == ddlids)
-                                                             select dd).ToList();
-                                                if (query.Count > 0)
-                                                {
-                                                    context.tblRCTQualificationDetail.RemoveRange(query);
-                                                    context.SaveChanges();
-
-                                                }
+                                                int designationdetailid = adddes.DesignationDetailId;
                                                 if (item.QualificationCourse != null)
                                                 {
                                                     for (int i = 0; i < item.QualificationCourse.Length; i++)
@@ -305,7 +273,7 @@ namespace IOAS.GenericServices
 
                                                         tblRCTQualificationDetail addqualification = new tblRCTQualificationDetail();
                                                         addqualification.Designationid = model.DesignationId;
-                                                        addqualification.DesignationDetailId = item.DesignationDetailId;
+                                                        addqualification.DesignationDetailId = designationdetailid;
                                                         addqualification.QualificationId = item.Qualification;
                                                         addqualification.CourseId = item.QualificationCourse[i];
                                                         addqualification.CrtdTs = DateTime.Now;
@@ -313,6 +281,49 @@ namespace IOAS.GenericServices
                                                         context.tblRCTQualificationDetail.Add(addqualification);
                                                         context.SaveChanges();
 
+                                                    }
+                                                }
+                                            }
+                                            else
+                                            {
+                                                if (item.DesignationDetailId != null)
+                                                {
+                                                    desquery.DesignationId = model.DesignationId;
+                                                    desquery.Qualification = item.Qualification;
+                                                    desquery.Marks = item.Marks;
+                                                    desquery.CGPA = item.CGPA;
+                                                    desquery.RelevantExperience = item.RelevantExperience;
+                                                    desquery.UptdTs = DateTime.Now;
+                                                    desquery.UptdUser = model.UserId;
+                                                    //if (item.QualificationCourse.Contains(0))
+                                                    //    desquery.IsSelectAll = true;
+                                                    context.SaveChanges();
+                                                    int ddlids = item.DesignationDetailId ?? 0;
+                                                    var query = (from dd in context.tblRCTQualificationDetail
+                                                                 where (dd.Designationid == model.DesignationId && dd.DesignationDetailId == ddlids)
+                                                                 select dd).ToList();
+                                                    if (query.Count > 0)
+                                                    {
+                                                        context.tblRCTQualificationDetail.RemoveRange(query);
+                                                        context.SaveChanges();
+
+                                                    }
+                                                    if (item.QualificationCourse != null)
+                                                    {
+                                                        for (int i = 0; i < item.QualificationCourse.Length; i++)
+                                                        {
+
+                                                            tblRCTQualificationDetail addqualification = new tblRCTQualificationDetail();
+                                                            addqualification.Designationid = model.DesignationId;
+                                                            addqualification.DesignationDetailId = item.DesignationDetailId;
+                                                            addqualification.QualificationId = item.Qualification;
+                                                            addqualification.CourseId = item.QualificationCourse[i];
+                                                            addqualification.CrtdTs = DateTime.Now;
+                                                            addqualification.CrtdUser = model.UserId;
+                                                            context.tblRCTQualificationDetail.Add(addqualification);
+                                                            context.SaveChanges();
+
+                                                        }
                                                     }
                                                 }
                                             }
@@ -394,6 +405,7 @@ namespace IOAS.GenericServices
                         editmodel.AgeLimit = query.AgeLimit;
                         editmodel.AnnualIncrement = query.AnnualIncrement;
                         editmodel.Status = query.Status;
+                        editmodel.SalaryLevel = query.SalaryLevel;
                         if (querydetail.Count > 0)
                         {
                             for (int i = 0; i < querydetail.Count; i++)
@@ -2641,6 +2653,397 @@ namespace IOAS.GenericServices
             }
         }
 
+        #endregion
+
+        #region SalaryLevel
+
+        public static int CreateSalaryLevel(SalaryLevelModel model)
+        {
+            using (var context = new IOASDBEntities())
+            {
+                using (var transaction = context.Database.BeginTransaction())
+                {
+                    try
+                    {
+                        model.LevelRange = model.LevelRange.ToUpper().Trim();
+                        if (context.tblRCTSalaryLevel.Any(x => x.LevelRange == model.LevelRange && x.AppointmentType == model.TypeOfAppointment && (model.SalaryLevelId == null || model.SalaryLevelId != x.SalaryLevelId)))
+                            return 3;
+                        if (model.SalaryLevelId == null)
+                        {
+                            tblRCTSalaryLevel addlevel = new tblRCTSalaryLevel();
+                            addlevel.AppointmentType = model.TypeOfAppointment;
+                            addlevel.LevelRange = model.LevelRange;
+                            addlevel.Status = "Active";
+                            addlevel.Description = model.Description;
+                            addlevel.MinSalary = model.PayStructureMinimum;
+                            addlevel.MaxSalary = model.PayStructureMaximum;
+                            addlevel.CRTD_BY = model.UserId;
+                            addlevel.CRTD_TS = DateTime.Now;
+                            context.tblRCTSalaryLevel.Add(addlevel);
+                            context.SaveChanges();
+                            int SalaryLevelId = addlevel.SalaryLevelId;
+                            foreach (var item in model.SalaryLevelDetail)
+                            {
+                                if (item.Qualification != null)
+                                {
+                                    tblRCTSalaryLevelDetail adddetail = new tblRCTSalaryLevelDetail();
+                                    adddetail.SalaryLevelId = SalaryLevelId;
+                                    adddetail.Qualification = item.Qualification;
+                                    adddetail.Marks = item.Marks;
+                                    adddetail.CGPA = item.CGPA;
+                                    adddetail.RelevantExperience = item.RelevantExperience;
+                                    adddetail.IsCurrentVersion = true;
+                                    adddetail.CRTD_TS = DateTime.Now;
+                                    adddetail.CRTD_BY = model.UserId;
+                                    context.tblRCTSalaryLevelDetail.Add(adddetail);
+                                    context.SaveChanges();
+                                    int detailid = adddetail.SalaryLevelDetailId;
+                                    if (item.QualificationCourse != null && item.QualificationCourse.Length > 0)
+                                    {
+                                        foreach (var CourseId in item.QualificationCourse)
+                                        {
+                                            tblRCTSalaryLevelCourses addqualification = new tblRCTSalaryLevelCourses();
+                                            addqualification.SalaryLevelDetailId = detailid;
+                                            addqualification.CourseId = CourseId;
+                                            addqualification.CRTD_TS = DateTime.Now;
+                                            addqualification.CRTD_BY = model.UserId;
+                                            context.tblRCTSalaryLevelCourses.Add(addqualification);
+                                            context.SaveChanges();
+                                        }
+                                    }
+                                }
+                            }
+                            transaction.Commit();
+                            return 1;
+                        }
+                        else
+                        {
+                            var salQuery = context.tblRCTSalaryLevel.Where(x => x.SalaryLevelId == model.SalaryLevelId).FirstOrDefault();
+                            if (salQuery != null)
+                            {
+
+                                //tblRCTDesignationLog adddesignationlog = new tblRCTDesignationLog();
+                                //adddesignationlog.DesignationId = updatedesignation.DesignationId;
+                                //adddesignationlog.TypeOfAppointment = updatedesignation.TypeOfAppointment;
+                                //adddesignationlog.DesignationCode = updatedesignation.DesignationCode;
+                                //adddesignationlog.Department = updatedesignation.Department;
+                                //adddesignationlog.PayStructureMinMum = updatedesignation.PayStructureMinMum;
+                                //adddesignationlog.PayStructureMaxiMum = updatedesignation.PayStructureMaximum;
+                                //adddesignationlog.HRA = updatedesignation.HRA;
+                                //adddesignationlog.HRABasic = updatedesignation.HRABasic;
+                                //adddesignationlog.Medical = updatedesignation.Medical;
+                                //adddesignationlog.MedicalDeducation = updatedesignation.MedicalDeduction;
+                                //adddesignationlog.AgeLimit = updatedesignation.AgeLimit;
+                                //adddesignationlog.AnnualIncrement = updatedesignation.AnnualIncrement;
+                                //adddesignationlog.Status = updatedesignation.Status;
+                                //adddesignationlog.CrtdTs = DateTime.Now;
+                                //adddesignationlog.CrtdUser = model.UserId;
+                                //adddesignationlog.GateScore = updatedesignation.GateScore;
+                                //adddesignationlog.FellowshipPay = updatedesignation.FellowshipPay;
+                                //adddesignationlog.ConsolidatedPay = updatedesignation.ConsolidatedPay;
+                                //adddesignationlog.IsNotValid = updatedesignation.IsNotValid;
+                                //adddesignationlog.IsSCST = updatedesignation.IsSCST;
+                                //adddesignationlog.SCSTAgeLimit = updatedesignation.SCSTAgeLimit;
+                                //context.tblRCTDesignationLog.Add(adddesignationlog);
+                                //context.SaveChanges();
+
+                                //salQuery.AppointmentType = model.TypeOfAppointment;
+                                //salQuery.LevelRange = model.LevelRange;
+                                salQuery.Description = model.Description;
+                                salQuery.MinSalary = model.PayStructureMinimum;
+                                salQuery.MaxSalary = model.PayStructureMaximum;
+                                salQuery.UPDT_BY = model.UserId;
+                                salQuery.UPDT_TS = DateTime.Now;
+                                context.SaveChanges();
+                                context.tblRCTSalaryLevelDetail.Where(x => x.SalaryLevelId == model.SalaryLevelId && x.IsCurrentVersion != false)
+                                .ToList()
+                                .ForEach(m =>
+                                {
+                                    m.IsCurrentVersion = false;
+                                    m.UPDT_TS = DateTime.Now;
+                                    m.UPDT_BY = model.UserId;
+                                });
+
+                                foreach (var item in model.SalaryLevelDetail)
+                                {
+                                    var detQuery = context.tblRCTSalaryLevelDetail.Where(m => m.SalaryLevelDetailId == item.SalaryLevelDetailId).FirstOrDefault();
+                                    if (detQuery == null)
+                                    {
+                                        if (item.Qualification != null)
+                                        {
+                                            tblRCTSalaryLevelDetail detail = new tblRCTSalaryLevelDetail();
+                                            detail.SalaryLevelId = model.SalaryLevelId;
+                                            detail.Qualification = item.Qualification;
+                                            detail.Marks = item.Marks;
+                                            detail.CGPA = item.CGPA;
+                                            detail.RelevantExperience = item.RelevantExperience;
+                                            detail.IsCurrentVersion = true;
+                                            detail.CRTD_TS = DateTime.Now;
+                                            detail.CRTD_BY = model.UserId;
+                                            context.tblRCTSalaryLevelDetail.Add(detail);
+                                            context.SaveChanges();
+                                            int detailId = detail.SalaryLevelDetailId;
+                                            if (item.QualificationCourse != null && item.QualificationCourse.Length > 0)
+                                            {
+                                                foreach (var CourseId in item.QualificationCourse)
+                                                {
+                                                    tblRCTSalaryLevelCourses addqualification = new tblRCTSalaryLevelCourses();
+                                                    addqualification.SalaryLevelDetailId = detailId;
+                                                    addqualification.CourseId = CourseId;
+                                                    addqualification.CRTD_TS = DateTime.Now;
+                                                    addqualification.CRTD_BY = model.UserId;
+                                                    context.tblRCTSalaryLevelCourses.Add(addqualification);
+                                                    context.SaveChanges();
+                                                }
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (item.SalaryLevelDetailId != null)
+                                        {
+                                            detQuery.Qualification = item.Qualification;
+                                            detQuery.Marks = item.Marks;
+                                            detQuery.CGPA = item.CGPA;
+                                            detQuery.RelevantExperience = item.RelevantExperience;
+                                            detQuery.UPDT_TS = DateTime.Now;
+                                            detQuery.UPDT_BY = model.UserId;
+                                            detQuery.IsCurrentVersion = true;
+                                            context.SaveChanges();
+                                            var corQuery = context.tblRCTSalaryLevelCourses.Where(m => m.SalaryLevelDetailId == item.SalaryLevelDetailId).ToList();
+                                            if (corQuery.Count > 0)
+                                            {
+                                                context.tblRCTSalaryLevelCourses.RemoveRange(corQuery);
+                                                context.SaveChanges();
+                                            }
+
+                                            if (item.QualificationCourse != null && item.QualificationCourse.Length > 0)
+                                            {
+                                                foreach (var CourseId in item.QualificationCourse)
+                                                {
+                                                    tblRCTSalaryLevelCourses addqualification = new tblRCTSalaryLevelCourses();
+                                                    addqualification.SalaryLevelDetailId = item.SalaryLevelDetailId;
+                                                    addqualification.CourseId = CourseId;
+                                                    addqualification.CRTD_TS = DateTime.Now;
+                                                    addqualification.CRTD_BY = model.UserId;
+                                                    context.tblRCTSalaryLevelCourses.Add(addqualification);
+                                                    context.SaveChanges();
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                            }
+                            transaction.Commit();
+                            return 2;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        model.ErrorMsg = ex.Message;
+                        return -1;
+                    }
+                }
+            }
+        }
+        public static SalaryLevelModel EditSalaryLevel(int SalaryLevelId)
+        {
+            SalaryLevelModel model = new SalaryLevelModel();
+            List<DesignationDetailModel> list = new List<DesignationDetailModel>();
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    var salQuery = (from m in context.tblRCTSalaryLevel where m.SalaryLevelId == SalaryLevelId select m).FirstOrDefault();
+                    var detQuery = (from d in context.tblRCTSalaryLevelDetail where d.SalaryLevelId == SalaryLevelId && d.IsCurrentVersion == true select d).ToList();
+                    if (salQuery != null)
+                    {
+                        model.SalaryLevelId = salQuery.SalaryLevelId;
+                        model.TypeOfAppointment = salQuery.AppointmentType;
+                        model.TypeOfAppointmentName = Common.GetCodeControlnameCommon(salQuery.AppointmentType ?? 0, "Appointmenttype");
+                        model.LevelRange = salQuery.LevelRange;
+                        model.Status = salQuery.Status;
+                        model.Description = salQuery.Description;
+                        model.PayStructureMinimum = salQuery.MinSalary;
+                        model.PayStructureMaximum = salQuery.MaxSalary;
+                        if (detQuery.Count > 0)
+                        {
+                            for (int i = 0; i < detQuery.Count; i++)
+                            {
+                                int ddid = detQuery[i].SalaryLevelDetailId;
+                                int qulid = detQuery[i].Qualification ?? 0;
+                                var courselist = (from co in context.tblRCTSalaryLevelCourses
+                                                  where co.SalaryLevelDetailId == ddid
+                                                  select co.CourseId).ToArray();
+                                List<MasterlistviewModel> datalist = new List<MasterlistviewModel>();
+                                datalist = Common.GetCourseList(qulid);
+                                list.Add(new DesignationDetailModel()
+                                {
+                                    SalaryLevelDetailId = detQuery[i].SalaryLevelDetailId,
+                                    Marks = detQuery[i].Marks,
+                                    CGPA = detQuery[i].CGPA,
+                                    Qualification = detQuery[i].Qualification,
+                                    QualificationCourse = courselist,
+                                    ddlList = datalist,
+                                    RelevantExperience = detQuery[i].RelevantExperience
+                                });
+                            }
+                            model.SalaryLevelDetail = list;
+                        }
+                    }
+                }
+                return model;
+            }
+            catch (Exception ex)
+            {
+                return model;
+            }
+        }
+        public static SearchdesignationModel GetSalaryLevelList(SearchdesignationModel model, int page, int pageSize)
+        {
+            SearchdesignationModel searchdata = new SearchdesignationModel();
+            try
+            {
+                int skiprec = 0;
+                if (page == 1)
+                {
+                    skiprec = 0;
+
+                }
+                else
+                {
+                    skiprec = (page - 1) * pageSize;
+                }
+                using (var context = new IOASDBEntities())
+                {
+                    List<SalaryLevelModel> list = new List<SalaryLevelModel>();
+                    var query = (from ds in context.tblRCTSalaryLevel
+                                 join cc in context.tblCodeControl on ds.AppointmentType equals cc.CodeValAbbr
+                                 orderby ds.SalaryLevelId descending
+                                 where (cc.CodeName == "Appointmenttype" && ds.Status != "InActive")
+                                       && (cc.CodeValDetail.Contains(model.TypeofAccountName) || model.TypeofAccountName == null)
+                                       && (ds.LevelRange.Contains(model.LevelRange) || model.LevelRange == null)
+                                       && (ds.Description.Contains(model.Description) || model.Description == null)
+                                       && (ds.MinSalary == model.PayStructureMinMum || model.PayStructureMinMum == null)
+                                       && (ds.MaxSalary == model.PayStructureMaximum || model.PayStructureMaximum == null)
+                                       && (ds.Status == model.RecordsStatus || model.RecordsStatus == null)
+                                 select new
+                                 {
+                                     cc.CodeValDetail,
+                                     ds.LevelRange,
+                                     ds.Status,
+                                     ds.Description,
+                                     ds.MinSalary,
+                                     ds.MaxSalary,
+                                     ds.SalaryLevelId
+                                 }).Skip(skiprec).Take(pageSize).ToList();
+                    searchdata.TotalRecords = (from ds in context.tblRCTSalaryLevel
+                                               join cc in context.tblCodeControl on ds.AppointmentType equals cc.CodeValAbbr
+                                               orderby ds.SalaryLevelId descending
+                                               where (cc.CodeName == "Appointmenttype" && ds.Status != "InActive")
+                                                     && (cc.CodeValDetail.Contains(model.TypeofAccountName) || model.TypeofAccountName == null)
+                                                     && (ds.LevelRange.Contains(model.LevelRange) || model.LevelRange == null)
+                                                     && (ds.Description.Contains(model.Description) || model.Description == null)
+                                                     && (ds.MinSalary == model.PayStructureMinMum || model.PayStructureMinMum == null)
+                                                     && (ds.MaxSalary == model.PayStructureMaximum || model.PayStructureMaximum == null)
+                                                     && (ds.Status == model.RecordsStatus || model.RecordsStatus == null)
+                                               select ds).Count();
+
+                    if (query.Count > 0)
+                    {
+                        int sno = 0;
+                        if (page == 1)
+                        {
+                            sno = 1;
+                        }
+                        else
+                        {
+                            sno = ((page - 1) * pageSize) + 1;
+                        }
+
+                        for (int i = 0; i < query.Count; i++)
+                        {
+                            list.Add(new SalaryLevelModel()
+                            {
+                                SNo = sno + i,
+                                SalaryLevelId = query[i].SalaryLevelId,
+                                TypeOfAppointmentName = query[i].CodeValDetail,
+                                LevelRange = query[i].LevelRange,
+                                Description = query[i].Description,
+                                PayStructureMinimum = query[i].MinSalary,
+                                PayStructureMaximum = query[i].MaxSalary,
+                                Status = query[i].Status,
+                            });
+                        }
+                    }
+                    searchdata.SalaryLevelList = list;
+                }
+                return searchdata;
+            }
+            catch (Exception ex)
+            {
+                return searchdata;
+            }
+        }
+        public static Tuple<List<SalaryLevelDetailModel>, decimal, decimal> GetSalaryLevelDetail(int SalaryLevelId)
+        {
+            List<SalaryLevelDetailModel> list = new List<SalaryLevelDetailModel>();
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    var salQuery = (from m in context.tblRCTSalaryLevel where m.SalaryLevelId == SalaryLevelId select m).FirstOrDefault();
+                    var detQuery = (from d in context.tblRCTSalaryLevelDetail
+                                    from q in context.tblRCTQualificationList
+                                    from mr in context.tblCodeControl
+                                    from c in context.tblCodeControl
+                                    from r in context.tblCodeControl
+                                    where d.Qualification == q.QualificationId && mr.CodeName == "Markstype" && mr.CodeValAbbr == d.Marks
+                                    && c.CodeName == "CGPAType" && c.CodeValAbbr == d.CGPA
+                                    && r.CodeName == "RelevantExperienceType" && r.CodeValAbbr == d.RelevantExperience
+                                    && d.SalaryLevelId == SalaryLevelId && d.IsCurrentVersion == true
+                                    orderby d.SalaryLevelDetailId
+                                    select new
+                                    {
+                                        d.SalaryLevelDetailId,
+                                        q.Qualification,
+                                        mark = mr.CodeValDetail,
+                                        cgpa = c.CodeValDetail,
+                                        experience = r.CodeValDetail,
+                                    }).ToList();
+
+                    if (salQuery != null && detQuery.Count > 0)
+                    {
+
+                        foreach (var item in detQuery)
+                        {
+                            var arrCourse = (from co in context.tblRCTSalaryLevelCourses
+                                             join cd in context.tblRCTCourseList on co.CourseId equals cd.CourseId
+                                             where co.SalaryLevelDetailId == item.SalaryLevelDetailId
+                                             select cd.CourseName).ToArray();
+                            string courses = string.Join(" ,", arrCourse);
+                            list.Add(new SalaryLevelDetailModel()
+                            {
+                                SalaryLevelDetailId = item.SalaryLevelDetailId,
+                                Marks = item.mark,
+                                CGPA = item.cgpa,
+                                Qualification = item.Qualification,
+                                QualificationCourse = courses,
+                                RelevantExperience = item.experience
+                            });
+                        }
+                        return Tuple.Create(list, salQuery.MinSalary ?? 0, salQuery.MaxSalary ?? 0);
+                    }
+                }
+                return Tuple.Create(list, (Decimal)0, (Decimal)0);
+            }
+            catch (Exception ex)
+            {
+                return Tuple.Create(list, (Decimal)0, (Decimal)0);
+            }
+        }
         #endregion
     }
 }

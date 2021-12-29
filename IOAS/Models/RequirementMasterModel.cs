@@ -68,6 +68,7 @@ namespace IOAS.Models
     public class DesignationDetailModel
     {
         public Nullable<int> DesignationDetailId { get; set; }
+        public Nullable<int> SalaryLevelDetailId { get; set; }
 
         public Nullable<int> Qualification { get; set; }
 
@@ -97,7 +98,13 @@ namespace IOAS.Models
         public List<DesignationModel> Designationlist { get; set; }
         public int TotalRecords { get; set; }
 
+        public List<SalaryLevelModel> SalaryLevelList { get; set; }
+        public string RecordsStatus { get; set; }
+        public string LevelRange { get; set; }
+        public string Description { get; set; }
+
     }
+
     public class DesignationModel
     {
         public Nullable<int> DesignationId { get; set; }
@@ -137,6 +144,9 @@ namespace IOAS.Models
         [Range(1, 999)]
         [Display(Name = "Medical Deduction")]
         public Nullable<decimal> MedicalDeduction { get; set; }
+        [RequiredIf("IsNotValidDesignation", "No", ErrorMessage = "Salary Level required")]
+        [Display(Name = "Salary Level")]
+        public Nullable<int> SalaryLevel { get; set; }
         [RequiredIf("IsNotValidDesignation", "No", ErrorMessage = "Age Limit required")]
         [Display(Name = "Age Limit")]
         [Range(18, 100)]
@@ -514,6 +524,49 @@ namespace IOAS.Models
         public Nullable<decimal> CTCwithAgencyFee { get; set; }
         public Nullable<decimal> TotalCTC { get; set; }
         public Nullable<decimal> LWFAmount { get; set; }
+    }
+
+    public class SalaryLevelModel
+    {
+        public Nullable<int> SalaryLevelId { get; set; }
+        [Required]
+        [Display(Name = "Type of appointment")]
+        public Nullable<int> TypeOfAppointment { get; set; }
+        [Required]
+        [Display(Name = "Level Range")]
+        public string LevelRange { get; set; }
+        public string Description { get; set; }
+        [Required]
+        [Display(Name = "Pay structure Minimum")]
+        [DisplayFormat(DataFormatString = "{0:N}")]
+        [Range(0, 999999999.99, ErrorMessage = "Only 9 digits are allowed")]
+        [LessThanOrEqualTo("PayStructureMaximum", ErrorMessage = "Pay Structure Minimum should not be Greater than Pay Structure Maximum Value.")]
+        public Nullable<decimal> PayStructureMinimum { get; set; }
+        [Required]
+        [Display(Name = "Pay structure Maximum")]
+        [DisplayFormat(DataFormatString = "{0:N}")]
+        [Range(0, 99999999999.99, ErrorMessage = "Only 11 digits are allowed")]
+        [GreaterThanOrEqualTo("PayStructureMinimum", ErrorMessage = "Pay Structure Maximum should not be less than Pay Structure MinMum Value.")]
+        public Nullable<decimal> PayStructureMaximum { get; set; }
+        public string Status { get; set; }
+        [Display(Name = "Level Range")]
+        public Nullable<int> EnableDisable { get; set; }
+        public string ErrorMsg { get; set; }
+        public Nullable<int> UserId { get; set; }
+        public List<DesignationDetailModel> SalaryLevelDetail { get; set; } = new List<DesignationDetailModel>();
+
+        public Nullable<int> SNo { get; set; }
+        public string TypeOfAppointmentName { get; set; }
+    }
+
+    public class SalaryLevelDetailModel
+    {
+        public string Qualification { get; set; }
+        public string QualificationCourse { get; set; }
+        public string Marks { get; set; }
+        public string RelevantExperience { get; set; }
+        public string CGPA { get; set; }
+        public int SalaryLevelDetailId { get; set; }
     }
 
 }

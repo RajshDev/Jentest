@@ -38,6 +38,7 @@ namespace IOAS.Controllers
                 ViewBag.Status = Common.GetCodeControlList("DesignationStatus");
                 ViewBag.cgpatype = Common.GetCodeControlList("CGPAType");
                 ViewBag.course = new List<MasterlistviewModel>();
+                ViewBag.SalaryLevel = Common.GetSalaryLevelList(model.TypeOfAppointment);
                 if (designationId > 0)
                 {
                     model = RequirementMasterService.EditDesignation(designationId);
@@ -64,6 +65,7 @@ namespace IOAS.Controllers
                 ViewBag.Status = Common.GetCodeControlList("DesignationStatus");
                 ViewBag.cgpatype = Common.GetCodeControlList("CGPAType");
                 ViewBag.course = new List<MasterlistviewModel>();
+                ViewBag.SalaryLevel = Common.GetSalaryLevelList(model.TypeOfAppointment);
                 if (ModelState.IsValid)
                 {
                     model.UserId = Common.GetUserid(user_logged_in);
@@ -120,6 +122,7 @@ namespace IOAS.Controllers
                 ViewBag.Relevant = Common.GetCodeControlList("RelevantExperienceType");
                 ViewBag.Status = Common.GetCodeControlList("DesignationStatus");
                 ViewBag.cgpatype = Common.GetCodeControlList("CGPAType");
+                ViewBag.SalaryLevel = Common.GetSalaryLevelList(model.TypeOfAppointment);
                 TempData["errMsg"] = "Something went wrong please contact administrator." + "<br/>" + ex.Message;
                 if (model.Detail.Count > 0)
                 {
@@ -814,6 +817,152 @@ namespace IOAS.Controllers
             }
         }
 
+        #endregion
+
+        #region SalaryLevel
+        public ActionResult SalaryLevelList()
+        {
+
+            return View();
+        }
+        [HttpGet]
+        public ActionResult SalaryLevelMaster(int SalaryLevelId = 0)
+        {
+            SalaryLevelModel model = new SalaryLevelModel();
+            try
+            {
+                ViewBag.Apptype = Common.GetCodeControlList("Appointmenttype");
+                ViewBag.Qualification = Common.GetQualificationList();
+                ViewBag.Marks = Common.GetCodeControlList("Markstype");
+                ViewBag.Experience = Common.GetCodeControlList("RelevantExperienceType");
+                ViewBag.Status = Common.GetCodeControlList("DesignationStatus");
+                ViewBag.CGPAType = Common.GetCodeControlList("CGPAType");
+                ViewBag.Course = new List<MasterlistviewModel>();
+                if (SalaryLevelId > 0)
+                    model = RequirementMasterService.EditSalaryLevel(SalaryLevelId);
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                return View(model);
+            }
+        }
+        [HttpPost]
+        public ActionResult SalaryLevelMaster(SalaryLevelModel model)
+        {
+            try
+            {
+                string user_logged_in = User.Identity.Name;
+                ViewBag.Apptype = Common.GetCodeControlList("Appointmenttype");
+                ViewBag.Qualification = Common.GetQualificationList();
+                ViewBag.Marks = Common.GetCodeControlList("Markstype");
+                ViewBag.Experience = Common.GetCodeControlList("RelevantExperienceType");
+                ViewBag.Status = Common.GetCodeControlList("DesignationStatus");
+                ViewBag.CGPAType = Common.GetCodeControlList("CGPAType");
+                ViewBag.Course = new List<MasterlistviewModel>();
+                if (ModelState.IsValid)
+                {
+                    model.UserId = Common.GetUserid(user_logged_in);
+                    int Status = RequirementMasterService.CreateSalaryLevel(model);
+                    if (model.SalaryLevelId == null && Status == 1)
+                    {
+                        TempData["succMsg"] = "Salary level has been added successfully.";
+                        return RedirectToAction("SalaryLevelList");
+                    }
+                    else if (model.SalaryLevelId > 0 && Status == 2)
+                    {
+                        TempData["succMsg"] = "Salary level has been Updated successfully.";
+                        return RedirectToAction("SalaryLevelList");
+                    }
+                    else if (model.SalaryLevelId == null && Status == 3)
+                        ViewBag.alertMsg = "Salary level Code already exists.";
+                    else
+                        ViewBag.errMsg = "Something went wrong please contact administrator.";
+                }
+                else
+                {
+                    string messages = string.Join("<br />", ModelState.Values
+                    .SelectMany(x => x.Errors)
+                    .Select(x => x.ErrorMessage));
+                    TempData["errMsg"] = messages;
+                }
+                if (model.SalaryLevelDetail.Count > 0)
+                {
+                    foreach (var item in model.SalaryLevelDetail)
+                        item.ddlList = Common.GetCourseList(item.Qualification ?? 0);
+                }
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Apptype = Common.GetCodeControlList("Appointmenttype");
+                ViewBag.Qualification = Common.GetQualificationList();
+                ViewBag.Marks = Common.GetCodeControlList("Markstype");
+                ViewBag.Experience = Common.GetCodeControlList("RelevantExperienceType");
+                ViewBag.Status = Common.GetCodeControlList("DesignationStatus");
+                ViewBag.CGPAType = Common.GetCodeControlList("CGPAType");
+                ViewBag.Course = new List<MasterlistviewModel>();
+                TempData["errMsg"] = "Something went wrong please contact administrator." + "<br/>" + ex.Message;
+                //if (model.SalaryLevelDetail.Count > 0)
+                //{
+                //    List<DesignationDetailModel> list = new List<DesignationDetailModel>();
+                //    for (int i = 0; i < model.SalaryLevelDetail.Count; i++)
+                //    {
+                //        int ddid = model.SalaryLevelDetail[i].DesignationDetailId ?? 0;
+                //        int qulid = model.SalaryLevelDetail[i].Qualification ?? 0;
+                //        List<MasterlistviewModel> datalist = new List<MasterlistviewModel>();
+                //        datalist = Common.GetCourseList(qulid);
+                //        list.Add(new DesignationDetailModel()
+                //        {
+                //            QualificationCourse = model.SalaryLevelDetail[i].QualificationCourse,
+                //            ddlList = datalist,
+
+                //        });
+                //    }
+                //    model.SalaryLevelDetail = list;
+                //}
+                return View(model);
+            }
+        }
+        [HttpPost]
+        public JsonResult GetSalaryLevelMasterList(SearchdesignationModel model, int pageIndex, int pageSize)
+        {
+            try
+            {
+                object output = RequirementMasterService.GetSalaryLevelList(model, pageIndex, pageSize);
+                return Json(output, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        [HttpPost]
+        public JsonResult GetSalaryLevelDetail(int SalaryLevelId)
+        {
+            try
+            {
+                var result = RequirementMasterService.GetSalaryLevelDetail(SalaryLevelId);
+                return Json(result, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        [HttpPost]
+        public JsonResult GetSalaryRange(int Apptype)
+        {
+            try
+            {
+                var result = Common.GetSalaryLevelList(Apptype);
+                return Json(result, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         #endregion
     }
 }
