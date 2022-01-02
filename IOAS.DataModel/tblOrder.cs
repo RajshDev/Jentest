@@ -63,5 +63,6 @@ namespace IOAS.DataModel
         public Nullable<System.DateTime> WithdrawTillDate { get; set; }
         public Nullable<bool> InitByPI_f { get; set; }
         public Nullable<int> WFSeqId { get; set; }
+        public Nullable<int> SalaryLevelId { get; set; }
     }
 }

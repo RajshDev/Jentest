@@ -1058,6 +1058,11 @@ namespace IOAS.Controllers
                             if (model.HRA > 0 && model.HRA != hra)
                                 msg = msg == "Valid" ? "HRA entered exceeds institution norms." : msg + "<br /> HRA entered exceeds institution norms.";
                         }
+                        if (querydes.SalaryLevel > 0)
+                        {
+                            if (querydes.SalaryLevel != model.SalaryLevelId)
+                                msg = msg == "Valid" ? "Entered designation does not have salary level. Please contact administrator." : msg + "<br /> Entered designation does not have salary level. Please contact administrator.";
+                        }
                     }
                 }
                 else
@@ -6525,6 +6530,11 @@ namespace IOAS.Controllers
                             var HRAValue = model.Salary * HRAPercentage;
                             if (model.HRA > HRAValue)
                                 msg = msg == "Valid" ? "HRA entered exceeds institution norms." : msg + "<br /> HRA entered exceeds institution norms.";
+                        }
+                        if (querydes.SalaryLevel > 0)
+                        {
+                            if (querydes.SalaryLevel != model.SalaryLevelId)
+                                msg = msg == "Valid" ? "Entered designation does not have salary level. Please contact administrator." : msg + "<br /> Entered designation does not have salary level. Please contact administrator.";
                         }
                     }
                 }

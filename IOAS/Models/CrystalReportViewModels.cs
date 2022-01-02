@@ -594,6 +594,8 @@ namespace IOAS.Models
         public List<ReceiptJournal> Journal { get; set; }
         public string Category { get; set; }
         public string BillRefNumber { get; set; }
+        public decimal InvoiceValueInFRNCurrency { get; set; }
+        public string InvoiceCurrencyCode { get; set; }
     }
     public class Receivables
     {

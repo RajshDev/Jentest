@@ -263,6 +263,7 @@ namespace IOAS.Models
         public decimal MedicalAmount { get; set; }
         public bool GateScore { get; set; }
         public string SalaryLevel { get; set; }
+        public int SalaryLevelId { get; set; }
         public string SalaryLevelDescription { get; set; }
 
     }
@@ -718,6 +719,8 @@ namespace IOAS.Models
         public string VendorCode { get; set; }
         public Nullable<decimal> LWFAmount { get; set; }
         public string SendSalaryStructure { get; set; }
+        public Nullable<int> SalaryLevelId { get; set; }
+
     }
 
     public class STEEducationModel
@@ -756,6 +759,7 @@ namespace IOAS.Models
         public List<MasterlistviewModel> DisiplineList { get; set; }
         public bool Verify { get; set; }
         public Nullable<int> StatutoryId { get; set; }
+
     }
 
     public class STEExperienceModel
@@ -901,6 +905,9 @@ namespace IOAS.Models
         public string DesignationCode { get; set; }
         public string Designation { get; set; }
         public Nullable<int> DesignationId { get; set; }
+        public Nullable<int> SalaryLevelId { get; set; }
+        public string SalaryLevel { get; set; }
+        public string SalaryLevelDescription { get; set; }
         public int Medical { get; set; }
         public string MedicalINWordings { get; set; }
         public decimal MedicalAmmount { get; set; }
@@ -1160,6 +1167,9 @@ namespace IOAS.Models
         public Nullable<int> StatutoryId { get; set; }
         public bool SendOffer_f { get; set; }
         public string RequestedfromPI { get; set; }
+        public string SalaryLevel { get; set; }
+        public string SalaryLevelDescription { get; set; }
+
     }
 
     public class SearchSTEVerificationModel
@@ -1522,6 +1532,9 @@ namespace IOAS.Models
         public string strArrearOrDeductionTillDate { get; set; }
         public Nullable<int> RequestedByPI { get; set; }
         public string AutoFillRequstedbyPI { get; set; }
+        public Nullable<int> SalaryLevelId { get; set; }
+        public string SalaryLevel { get; set; }
+        public string SalaryLevelDescription { get; set; }
         public string ToMail { get; set; }
         public string CCMail { get; set; }
         public bool MailSent_f { get; set; }
@@ -1604,6 +1617,8 @@ namespace IOAS.Models
         public bool HRAAdmf { get; set; }
         public string IITMExperience { get; set; }
         public string List_f { get; set; }
+        public string SalaryLevel { get; set; }
+        public string SalaryLevelDescription { get; set; }
     }
 
 
@@ -1861,6 +1876,11 @@ namespace IOAS.Models
         public Nullable<decimal> CommitmentBalance { get; set; }
         public string CommitmentNo { get; set; }
         public int CommitmentId { get; set; }
+        public Nullable<int> SalaryLevelId { get; set; }
+        public string SalaryLevel { get; set; }
+        public string SalaryLevelDescription { get; set; }
+
+
     }
 
     public class RecruitCommitRequestModel
@@ -2651,6 +2671,8 @@ namespace IOAS.Models
         public string DonotCommitment { get; set; }
         public Nullable<DateTime> CRTD_TS { get; set; }
         public string CreatedDate { get; set; }
+        public string SalaryLevel { get; set; }
+        public string SalaryLevelDesription { get; set; }
     }
 
     public class OtherPaymentDeductionDetailModel
@@ -2892,6 +2914,9 @@ namespace IOAS.Models
         public bool SendOffer_f { get; set; }
         public string ApplicationRefNo { get; set; }
         public Nullable<int> RequestedByPI { get; set; }
+        public Nullable<int> SalaryLevelId { get; set; }
+        public string SalaryLevel { get; set; }
+        public string SalaryLevelDescription { get; set; }
         public string AutoFillRequstedbyPI { get; set; }
         public string RequestedfromPI { get; set; }
         public string List_f { get; set; }

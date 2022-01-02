@@ -71,5 +71,6 @@ namespace IOAS.DataModel
         public Nullable<System.DateTime> RequestReceivedDate { get; set; }
         public Nullable<System.DateTime> ActualAppointmentDate { get; set; }
         public string ModeofRelieving { get; set; }
+        public string SalaryLevel { get; set; }
     }
 }

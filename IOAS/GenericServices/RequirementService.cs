@@ -103,6 +103,31 @@ namespace IOAS.GenericServices
             }
         }
 
+        public static Tuple<string, string> getSalaryLevelName_Description(int salarylevelId)
+        {
+            string levelrange = string.Empty;
+            string description = string.Empty;
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    var salQuery = (from d in context.tblRCTSalaryLevel
+                                    where d.SalaryLevelId == salarylevelId
+                                    select d).FirstOrDefault();
+                    if (salQuery != null)
+                    {
+                        levelrange = salQuery.LevelRange;
+                        description = salQuery.Description;
+                    }
+                }
+                return Tuple.Create(levelrange, description);
+            }
+            catch (Exception ex)
+            {
+                return Tuple.Create(levelrange, description);
+            }
+        }
+
         public static decimal getEmployeeCTC(int AppId, int? OrderId = null)
         {
             decimal? EmployerCTC = 0;
@@ -314,6 +339,7 @@ namespace IOAS.GenericServices
                                     model.MinSalary = Convert.ToString(salquery.MinSalary ?? 0);
                                     model.MaxSalary = Convert.ToString(salquery.MaxSalary ?? 0);
                                     model.SalaryLevel = salquery.LevelRange;
+                                    model.SalaryLevelId = salquery.SalaryLevelId;
                                     model.SalaryLevelDescription = salquery.Description;
                                 }
                                 querydet = (from d in context.tblRCTSalaryLevelDetail
@@ -1362,6 +1388,7 @@ namespace IOAS.GenericServices
                                 add.PhdDetail = model.PhdDetail;
                                 add.ProjectId = model.ProjectId;
                                 add.DesignationId = model.DesignationId;
+                                add.SalaryLevelId = model.SalaryLevelId;
                                 //if (model.MsPhd || model.TypeofappointmentId == 2)
                                 //{
                                 //    STE.Medical = 3;
@@ -1668,6 +1695,7 @@ namespace IOAS.GenericServices
                                     }
                                     queryedit.ProjectId = model.ProjectId;
                                     queryedit.DesignationId = model.DesignationId;
+                                    queryedit.SalaryLevelId = model.SalaryLevelId;
                                     //if (model.MsPhd || model.TypeofappointmentId == 2)
                                     //{
                                     //    qrySTE.Medical = 3;
@@ -2035,6 +2063,7 @@ namespace IOAS.GenericServices
                         model.PhdDetail = QrySTE.A.PhdDetail;
                         model.ProjectId = QrySTE.A.ProjectId;
                         model.DesignationId = QrySTE.A.DesignationId;
+                        model.SalaryLevelId = QrySTE.A.SalaryLevelId;
                         model.Designation = QrySTE.Designation;
                         model.DesignationCode = QrySTE.DesignationCode;
                         model.MinSalary = QrySTE.PayStructureMinMum;
@@ -2259,6 +2288,13 @@ namespace IOAS.GenericServices
                         viewmodel.DesignationId = query.A.DesignationId;
                         viewmodel.Designation = query.j != null ? query.j.Designation : "";
                         viewmodel.DesignationCode = query.j != null ? query.j.DesignationCode : "";
+                        if (query.A.SalaryLevelId > 0)
+                        {
+                            var data = getSalaryLevelName_Description(query.A.SalaryLevelId ?? 0);
+                            viewmodel.SalaryLevel = data.Item1;
+                            viewmodel.SalaryLevelId = query.A.SalaryLevelId;
+                            viewmodel.SalaryLevelDescription = data.Item2;
+                        }
                         viewmodel.Medical = query.A.Medical ?? 0;
                         viewmodel.MedicalINWordings = Common.GetCodeControlName(query.A.Medical ?? 0, "SETMedical");
                         viewmodel.Appointmentstartdate = string.Format("{0:dd-MMMM-yyyy}", query.A.AppointmentStartdate);
@@ -3261,7 +3297,12 @@ namespace IOAS.GenericServices
                             model.JoiningReportFileName = query.A.JoiningReport.Substring(query.A.JoiningReport.IndexOf("_") + 1);
                         model.JoiningReportPath = query.A.JoiningReport;
                         model.RequestedfromPI = Common.GetPIName(query.A.RequestedBy ?? 0);
-
+                        if (query.A.SalaryLevelId > 0)
+                        {
+                            var data = getSalaryLevelName_Description(query.A.SalaryLevelId ?? 0);
+                            model.SalaryLevel = data.Item1;
+                            model.SalaryLevelDescription = data.Item2;
+                        }
                     }
                 }
                 return model;
@@ -5613,6 +5654,12 @@ namespace IOAS.GenericServices
                                 model.CommitmentAmount = odrQuery.O.CommitmentAmmount;
                         }
                         model.RequestedfromPI = Common.GetPIName(odrQuery.O.RequestedBy ?? 0);
+                        if (odrQuery.O.SalaryLevelId > 0)
+                        {
+                            var data = getSalaryLevelName_Description(odrQuery.O.SalaryLevelId ?? 0);
+                            model.SalaryLevel = data.Item1;
+                            model.SalaryLevelDescription = data.Item2;
+                        }
                     }
                 }
                 return model;
@@ -5841,6 +5888,7 @@ namespace IOAS.GenericServices
                                         mastmodel.CommitmentNo = query.CommitmentNumber;
                                         mastmodel.CommitmentId = query.CommitmentId;
                                     }
+                                    mastmodel.SalaryLevelId = QryCON.A.SalaryLevelId;
                                 }
                             }
                         }
@@ -5917,6 +5965,7 @@ namespace IOAS.GenericServices
                                         mastmodel.CommitmentId = query.CommitmentId;
                                     }
                                 }
+                                mastmodel.SalaryLevelId = QrySTE.A.SalaryLevelId;
                             }
                         }
                     }
@@ -5991,9 +6040,21 @@ namespace IOAS.GenericServices
                                     }
                                 }
                             }
+                            mastmodel.SalaryLevelId = QryOSG.A.SalaryLevelId;
                         }
                     }
+
+                    var querydes = (from sl in context.tblRCTSalaryLevel
+                                    where sl.SalaryLevelId == mastmodel.SalaryLevelId
+                                    select sl).FirstOrDefault();
+                    if (querydes != null)
+                    {
+                        mastmodel.SalaryLevel = querydes.LevelRange;
+                        mastmodel.SalaryLevelDescription = querydes.Description;
+                    }
                 }
+
+
                 return mastmodel;
             }
             catch (Exception ex)
@@ -6053,6 +6114,7 @@ namespace IOAS.GenericServices
                                     oldmastmodel.ProjectClosureDate = string.Format("{0:dd-MMM-yyyy}", Common.GetProjectDueDate(ProjectID) ?? qryProject.TentativeCloseDate);
                                     oldmastmodel.ProjectNumber = qryProject.ProjectNumber;
                                     oldmastmodel.ProjectID = qryProject.ProjectId;
+                                    //oldmastmodel.SalaryLevelId = QryCON.A.SalaryLevelId;
                                     if (qryProject.PIName > 0)
                                     {
                                         int PIUserID = qryProject.PIName ?? 0;
@@ -6118,6 +6180,7 @@ namespace IOAS.GenericServices
                                     oldmastmodel.ProjectClosureDate = string.Format("{0:dd-MMM-yyyy}", Common.GetProjectDueDate(ProjectID) ?? qryProject.TentativeCloseDate);
                                     oldmastmodel.ProjectNumber = qryProject.ProjectNumber;
                                     oldmastmodel.ProjectID = qryProject.ProjectId;
+                                    //oldmastmodel.SalaryLevelId = QrySTE.A.SalaryLevelId;
                                     if (qryProject.PIName > 0)
                                     {
                                         int PIUserID = qryProject.PIName ?? 0;
@@ -6184,6 +6247,7 @@ namespace IOAS.GenericServices
                                     oldmastmodel.ProjectClosureDate = string.Format("{0:dd-MMM-yyyy}", Common.GetProjectDueDate(ProjectID) ?? qryProject.TentativeCloseDate);
                                     oldmastmodel.ProjectNumber = qryProject.ProjectNumber;
                                     oldmastmodel.ProjectID = qryProject.ProjectId;
+                                    //oldmastmodel.SalaryLevelId = QryOSG.A.SalaryLevelId;
                                     if (qryProject.PIName > 0)
                                     {
                                         int PIUserID = qryProject.PIName ?? 0;
@@ -6211,6 +6275,16 @@ namespace IOAS.GenericServices
                                 }
                             }
                         }
+                    }
+                    var querydes = (from s in context.tblRCTDesignation
+                                    from sl in context.tblRCTSalaryLevel
+                                    where s.DesignationId == oldmastmodel.DesignationId && s.SalaryLevel != 0
+                                    && s.SalaryLevel == sl.SalaryLevelId
+                                    select sl).FirstOrDefault();
+                    if (querydes != null)
+                    {
+                        oldmastmodel.SalaryLevel = querydes.LevelRange;
+                        oldmastmodel.SalaryLevelDescription = querydes.Description;
                     }
                 }
                 return oldmastmodel;
@@ -6662,6 +6736,8 @@ namespace IOAS.GenericServices
                                 model.Qualification = Common.getQualificationWordings(appid, appType);
                                 model.ConsolidatedPay = QryCON.A.ConsolidatedPay;
                                 model.PayType = QryCON.A.ConsolidatedPay == true ? "Consolidated Pay" : "Fellowship pay";
+                                model.ToMail = QryCON.A.ToMail;
+                                model.CCMail = QryCON.A.Bcc;
                             }
                         }
                         else if (appTypeId == 2)
@@ -6703,6 +6779,8 @@ namespace IOAS.GenericServices
                                 model.Experience = Common.getExperienceInWordings(appid, appType);
                                 model.ExperienceInDes = Common.getExperienceDecimal(appid, appType);
                                 model.Qualification = Common.getQualificationWordings(appid, appType);
+                                model.ToMail = QrySTE.A.ToMail;
+                                model.CCMail = QrySTE.A.bcc;
                             }
                         }
                         else if (appTypeId == 3)
@@ -6757,6 +6835,8 @@ namespace IOAS.GenericServices
                                 model.ExperienceInDes = Common.getExperienceDecimal(appid, appType);
                                 model.Qualification = Common.getQualificationWordings(appid, appType);
                                 model.VendorId = Common.GetVendorId(appid);
+                                model.ToMail = QryOSG.A.ToMail;
+                                model.CCMail = QryOSG.A.bcc;
                                 if (Qrysalcalc != null)
                                 {
                                     model.OldTotalCTC = Qrysalcalc.EmployerCTC;
@@ -6866,7 +6946,13 @@ namespace IOAS.GenericServices
                             model.OrderType = QryOrder.OrderType ?? 0;
                             model.RequestedByPI = QryOrder.RequestedBy;
                             model.AutoFillRequstedbyPI = Common.GetPIName(QryOrder.RequestedBy ?? 0);
-
+                            model.SalaryLevelId = QryOrder.SalaryLevelId;
+                            if (model.SalaryLevelId > 0)
+                            {
+                                var data = getSalaryLevelName_Description(model.SalaryLevelId ?? 0);
+                                model.SalaryLevel = data.Item1;
+                                model.SalaryLevelDescription = data.Item2;
+                            }
                             var QryOrderDetail = (from O in context.tblOrderDetail
                                                   where O.OrderId == Orderid
                                                   select O).FirstOrDefault();
@@ -7113,7 +7199,7 @@ namespace IOAS.GenericServices
                                 newstatus = edQuery.Status;
                                 edQuery.OrderDate = model.ApplicationReceiveDate;
                                 edQuery.Basic = model.Salary;
-
+                                edQuery.SalaryLevelId = model.SalaryLevelId;
                                 var mastQuery = (from vw in context.vw_RCTOverAllApplicationEntry.AsNoTracking()
                                                  where vw.ApplicationId == model.ApplicationID && vw.Category == model.TypeCode
                                                  && vw.ApplicationType == "New"
@@ -7321,6 +7407,7 @@ namespace IOAS.GenericServices
                                 edQuery.UpdtTS = DateTime.Now;
                                 edQuery.UpdtUser = logged_in_userId;
                                 edQuery.RequestedBy = model.RequestedByPI;
+                                edQuery.SalaryLevelId = model.SalaryLevelId;
                                 context.SaveChanges();
                                 OrderID = edQuery.OrderId;
                                 //Update Order Detail table
@@ -7414,6 +7501,7 @@ namespace IOAS.GenericServices
                                 Order.AppointmentType = apptype;
                                 Order.OrderDate = model.ApplicationReceiveDate;
                                 Order.OrderType = OrderType;
+                                Order.SalaryLevelId = model.SalaryLevelId;
 
                                 var mastQuery = (from vw in context.vw_RCTOverAllApplicationEntry.AsNoTracking()
                                                  where vw.ApplicationId == model.ApplicationID && vw.AppointmentType == apptype
@@ -7606,6 +7694,7 @@ namespace IOAS.GenericServices
                                 string value = number.ToString("D4");
                                 Order.OrderNo = "CP" + DateTime.Now.Year + "" + DateTime.Now.Month + "" + value;
                                 Order.RequestedBy = model.RequestedByPI;
+                                Order.SalaryLevelId = model.SalaryLevelId;
                                 context.tblOrder.Add(Order);
                                 context.SaveChanges();
                                 OrderID = Order.OrderId;
@@ -7774,6 +7863,8 @@ namespace IOAS.GenericServices
                                 odQuery.o.Basic = model.Salary;
                                 odQuery.o.FromDate = model.FromDate;
                                 odQuery.o.ToDate = model.ToDate;
+                                odQuery.o.SalaryLevelId = model.SalaryLevelId;
+
                                 var mastQuery = (from vw in context.vw_RCTOverAllApplicationEntry.AsNoTracking()
                                                  where vw.ApplicationId == model.ApplicationID && vw.AppointmentType == apptype
                                                  && vw.ApplicationType == "New"
@@ -8046,6 +8137,7 @@ namespace IOAS.GenericServices
                                 Order.OrderType = orderTypeid;
                                 Order.Basic = model.Salary;
                                 Order.RequestedBy = model.RequestedByPI;
+                                Order.SalaryLevelId = model.SalaryLevelId;
                                 var mastQuery = (from vw in context.vw_RCTOverAllApplicationEntry.AsNoTracking()
                                                  where vw.ApplicationId == model.ApplicationID && vw.AppointmentType == apptype
                                                  && vw.ApplicationType == "New"
@@ -8365,6 +8457,7 @@ namespace IOAS.GenericServices
                                 odQuery.CommitmentAmmount = model.CommitmentAmount;
                                 odQuery.WithdrawAmmount = model.WithdrawalAmount;
                                 odQuery.RequestedBy = model.RequestedByPI;
+                                odQuery.SalaryLevelId = model.SalaryLevelId;
                                 if (AppointmentType == 1)
                                 {
                                     odQuery.GST = model.IsGSTapplicable == "Yes" ? model.GST : 0;
@@ -8611,6 +8704,7 @@ namespace IOAS.GenericServices
                                 Order.OrderType = _qryOrderID;
                                 Order.Basic = model.Salary;
                                 Order.isUpdated = false;
+                                Order.SalaryLevelId = model.SalaryLevelId;
                                 if (AppointmentType == 1)
                                 {
                                     Order.GST = model.IsGSTapplicable == "Yes" ? model.GST : 0;
@@ -9143,7 +9237,6 @@ namespace IOAS.GenericServices
                         model.ArrearOrDeductionTillDate = queryorder.O.ArrearOrDeductionTillDate ?? DateTime.Now;
                         model.ArrearOrDeductionAmount = queryorder.O.ArrearOrDeductionAmount ?? 0;
                         model.strArrearOrDeductionTillDate = string.Format("{0:dd-MMMM-yyyy}", queryorder.O.ArrearOrDeductionTillDate);
-
                         var query = (from A in context.tblRCTSTE
                                      from D in context.tblRCTDesignation
                                      where A.DesignationId == D.DesignationId && A.STEID == queryorder.O.AppointmentId
@@ -9500,7 +9593,8 @@ namespace IOAS.GenericServices
                                                      s.Medical,
                                                      s.EmployeersID,
                                                      s.TypeofAppointment,
-                                                     s.IITMPensionerOrCSIRStaff
+                                                     s.IITMPensionerOrCSIRStaff,
+                                                     s.SalaryLevelId
                                                  }).FirstOrDefault();
                                 if (mastQuery != null)
                                 {
@@ -9514,7 +9608,7 @@ namespace IOAS.GenericServices
                                     Order.MedicalAmount = mastQuery.MedicalAmmount;
                                     Order.MedicalType = mastQuery.Medical;
                                     Order.OldHRA = mastQuery.HRA;
-
+                                    Order.SalaryLevelId = mastQuery.SalaryLevelId;
                                     if (IsHRABooking == true)
                                     {
                                         var CommitmentAmount = Common.calHRA(model.FromDate ?? DateTime.Now, model.ToDate ?? DateTime.Now, mastQuery.Salary, mastQuery.DesignationId, mastQuery.TypeofAppointment);
@@ -9945,6 +10039,7 @@ namespace IOAS.GenericServices
                                             reintQuery.o.OldProjectId = query.ProjectId;
                                             reintQuery.o.isMedical = false;
                                             reintQuery.o.isHRA = false;
+                                            reintQuery.o.SalaryLevelId = query.SalaryLevelId;
                                         }
                                     }
                                     else if (apptypeid == 2)
@@ -9966,6 +10061,7 @@ namespace IOAS.GenericServices
                                             reintQuery.o.OldProjectId = query.ProjectId;
                                             reintQuery.o.isMedical = query.Medical == 2 ? true : false;
                                             reintQuery.o.isHRA = query.isHaveHRA ?? false;
+                                            reintQuery.o.SalaryLevelId = query.SalaryLevelId;
                                         }
                                     }
                                     else if (apptypeid == 3)
@@ -9986,6 +10082,7 @@ namespace IOAS.GenericServices
                                             reintQuery.o.OldProjectId = query.ProjectId;
                                             reintQuery.o.isMedical = query.Medical == 2 ? true : false;
                                             reintQuery.o.isHRA = query.isHaveHRA ?? false;
+                                            reintQuery.o.SalaryLevelId = query.SalaryLevelId;                                        
                                         }
                                     }
                                     reintQuery.o.FromDate = model.FromDate;
@@ -10040,6 +10137,7 @@ namespace IOAS.GenericServices
                                         Order.OldProjectId = mastQuery.ProjectId;
                                         Order.isMedical = false;
                                         Order.isHRA = false;
+                                        Order.SalaryLevelId = mastQuery.SalaryLevelId;
                                     }
                                 }
                                 else if (apptypeid == 2)
@@ -10058,6 +10156,7 @@ namespace IOAS.GenericServices
                                         Order.OldProjectId = mastQuery.ProjectId;
                                         Order.isMedical = mastQuery.Medical == 2 ? true : false;
                                         Order.isHRA = mastQuery.isHaveHRA ?? false;
+                                        Order.SalaryLevelId = mastQuery.SalaryLevelId;
                                     }
                                 }
                                 else if (apptypeid == 3)
@@ -10076,6 +10175,7 @@ namespace IOAS.GenericServices
                                         Order.OldProjectId = mastQuery.ProjectId;
                                         Order.isMedical = mastQuery.Medical == 2 ? true : false;
                                         Order.isHRA = mastQuery.isHaveHRA ?? false;
+                                        Order.SalaryLevelId = mastQuery.SalaryLevelId;
                                     }
                                 }
                                 Order.OrderType = ordertype;
@@ -16801,6 +16901,7 @@ namespace IOAS.GenericServices
                         model.ApplicationRefNo = QryOSG.A.RefNumber;
                         model.AutoFillRequstedbyPI = Common.GetPIName(QryOSG.A.RequestedBy ?? 0);
                         model.RequestedByPI = QryOSG.A.RequestedBy;
+                        model.SalaryLevelId = QryOSG.A.SalaryLevelId;
                         model.Comments = QryOSG.A.Comments;
                     }
                 }
@@ -16907,6 +17008,7 @@ namespace IOAS.GenericServices
                                 OSG.PhdDetail = model.PhdDetail;
                                 OSG.ProjectId = model.ProjectId;
                                 OSG.DesignationId = model.DesignationId;
+                                OSG.SalaryLevelId = model.SalaryLevelId;
                                 //if (model.MsPhd || model.TypeofappointmentId == 2)
                                 //{
                                 //    STE.Medical = 3;
@@ -17397,6 +17499,7 @@ namespace IOAS.GenericServices
                                     qryOSG.GateScore = Convert.ToDecimal(model.GateScore);
                                     qryOSG.RefNumber = model.ApplicationRefNo;
                                     qryOSG.RequestedBy = model.RequestedByPI;
+                                    qryOSG.SalaryLevelId = model.SalaryLevelId;
                                     context.SaveChanges();
                                     var QryDelEdurecords = (from q in context.tblRCTOSGEducationDetail
                                                             where q.OSGId == OSGID && q.isCurrentVersion == true
@@ -18681,6 +18784,12 @@ namespace IOAS.GenericServices
                         //Common.getIITMExperience(OSGID, "OSG");
                         model.StatutoryId = Qrysalcalc.StatutoryId;
                         model.RequestedfromPI = Common.GetPIName(QryOSG.A.RequestedBy ?? 0);
+                        if (QryOSG.A.SalaryLevelId > 0)
+                        {
+                            var data = getSalaryLevelName_Description(QryOSG.A.SalaryLevelId ?? 0);
+                            model.SalaryLevel = data.Item1;
+                            model.SalaryLevelDescription = data.Item2;
+                        }
                     }
                 }
                 return model;
@@ -19759,6 +19868,13 @@ namespace IOAS.GenericServices
                             model.ActualAppointmentstartdate = string.Format("{0:dd-MMMM-yyyy}", QryOSG.A.ActualAppointmentStartDate);
                         model.EmployeeWorkplace = QryOSG.A.EmployeeWorkplace;
                         model.MailSent_f = context.tblRCTOSGEmailLog.Any(m => m.OSGID == OSGID && m.TypeofMail == 1 && !m.Subject.Contains("structure approval for"));
+                        if (QryOSG.A.SalaryLevelId > 0)
+                        {
+                            var data = getSalaryLevelName_Description(QryOSG.A.SalaryLevelId ?? 0);
+                            model.SalaryLevel = data.Item1;
+                            model.SalaryLevelId = QryOSG.A.SalaryLevelId;
+                            model.SalaryLevelDescription = data.Item2;
+                        }
                     }
                 }
                 return model;
@@ -20497,6 +20613,7 @@ namespace IOAS.GenericServices
                                 NewStatus = addConsultant.Status;
                                 addConsultant.RefNumber = model.ApplicationRefNo;
                                 addConsultant.RequestedBy = model.RequestedByPI;
+                                addConsultant.SalaryLevelId = model.SalaryLevelId;
                                 context.tblRCTConsultantAppointment.Add(addConsultant);
                                 context.SaveChanges();
                                 ConAppId = addConsultant.ConsultantAppointmentId;
@@ -20756,6 +20873,7 @@ namespace IOAS.GenericServices
                                     updateconsultant.NotetoCMAdmin = model.FlowApprover == "CMAdmin" ? true : false;
                                     updateconsultant.RefNumber = model.ApplicationRefNo;
                                     updateconsultant.RequestedBy = model.RequestedByPI;
+                                    updateconsultant.SalaryLevelId = model.SalaryLevelId;
                                     context.SaveChanges();
                                     if (model.PIJustificationFile != null)
                                     {
@@ -21128,6 +21246,7 @@ namespace IOAS.GenericServices
                         editmodel.ApplicationRefNo = query.RefNumber;
                         editmodel.AutoFillRequstedbyPI = Common.GetPIName(query.RequestedBy ?? 0);
                         editmodel.RequestedByPI = query.RequestedBy;
+                        editmodel.SalaryLevelId = query.SalaryLevelId;
                         var queryedu = context.tblRCTConsultantEducationDetail.Where(x => x.ConsultantAppointmentId == consultantAppId && x.Status != "InActive").ToList();
                         if (queryedu.Count > 0)
                         {
@@ -21414,12 +21533,18 @@ namespace IOAS.GenericServices
                                 });
                             }
                         }
+                        if (query.SalaryLevelId > 0)
+                        {
+                            var data = getSalaryLevelName_Description(query.SalaryLevelId ?? 0);
+                            Viewmodel.SalaryLevel = data.Item1;
+                            Viewmodel.SalaryLevelId = query.SalaryLevelId;
+                            Viewmodel.SalaryLevelDescription = data.Item2;
+                        }
                     }
                 }
                 Viewmodel.EducationDetail = viewedu;
                 Viewmodel.ExperienceDetail = viewlist;
                 Viewmodel.PIJustificationDocDetail = doclist;
-
                 return Viewmodel;
             }
             catch (Exception ex)
@@ -21976,6 +22101,13 @@ namespace IOAS.GenericServices
                                 model.ResumeFileName = QryCON.A.ResumeFile.Substring((QryCON.A.ResumeFile.LastIndexOf('_') + 1));
                             model.ResumeFilePath = QryCON.A.ResumeFile;
                             model.RequestedfromPI = Common.GetPIName(QryCON.A.RequestedBy ?? 0);
+                            if (QryCON.A.SalaryLevelId > 0)
+                            {
+                                var data = getSalaryLevelName_Description(QryCON.A.SalaryLevelId ?? 0);
+                                model.SalaryLevel = data.Item1;
+                                model.SalaryLevelId = QryCON.A.SalaryLevelId;
+                                model.SalaryLevelDescription = data.Item2;
+                            }
                         }
                     }
                 }
@@ -25569,7 +25701,7 @@ namespace IOAS.GenericServices
             {
                 using (var context = new IOASDBEntities())
                 {
-                    if (appointmentname == "New Appointment")
+                    if (appointmentname.Contains("New Appointment"))
                     {
                         var queryNew = (from osg in context.tblRCTOutsourcing
                                         where osg.OSGID == id && (string.IsNullOrEmpty(osg.OfficeOrder) || string.IsNullOrEmpty(osg.OfferLetter))

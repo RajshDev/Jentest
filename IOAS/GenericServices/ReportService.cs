@@ -3571,6 +3571,8 @@ namespace IOAS.GenericServices
                         model.InvoiceAmt = InvDet.TotalInvoiceValue ?? 0;
                         model.projsumm.AgencyName = InvDet.AgencyRegName;
                         model.projsumm.AgencyAddress = InvDet.CommunicationAddress;
+                        model.InvoiceValueInFRNCurrency = InvDet.InvoiceValueinForeignCurrency ?? 0;
+                        model.InvoiceCurrencyCode = InvDet.CurrencyCode;
                     }
 
                     int PIid = 0;

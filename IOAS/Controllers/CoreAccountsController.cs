@@ -20495,13 +20495,13 @@ namespace IOAS.Controllers
         //    coreAccountService.TestOus();
         //    return View();
         //}
-        //public ActionResult PaymentTest()
-        //{
-        //    // coreAccountService.PaymentTestBOATransaction(5647, 1);
-        //    coreAccountService.PaymentTestBOATransaction(5817, 1);
-        //    return View();
+        public ActionResult PaymentTest()
+        {
+            // coreAccountService.PaymentTestBOATransaction(5647, 1);
+            coreAccountService.PaymentTestBOATransaction(6083, 1);
+            return View();
 
-        //}
+        }
         //public ActionResult BackEndPostingOHAR()
         //{
         //    if (coreAccountService.TestOverHeadsReversalBackEndPosting(25683))

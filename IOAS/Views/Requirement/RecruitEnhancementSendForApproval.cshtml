@@ -375,13 +375,19 @@
                                             </div>
                                             <div class="col-md-3">
                                                 <div class="form-group custom-form-group">
+                                                    <label>Salary Level Range <i class="ion-information-circled" data-toggle="tooltip" data-original-title="@Model.SalaryLevelDescription"></i></label>
+                                                    <h4>@Html.DisplayFor(m => m.SalaryLevel)</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
                                                     <label>Salary</label>
                                                     <h4>@Model.Salary</h4>
                                                     @if (Model.TypeCode == "OSG")
                                                     {
-                                                    <div class="form-group custom-form-group">
-                                                        <a href="#" class="bl-bg-txt" onclick="salarycalcpopup();">View Salary Calculation</a>
-                                                    </div>
+                                                        <div class="form-group custom-form-group">
+                                                            <a href="#" class="bl-bg-txt" onclick="salarycalcpopup();">View Salary Calculation</a>
+                                                        </div>
                                                     }
                                                 </div>
                                             </div>
@@ -441,11 +447,11 @@
                                                 <div class="form-group">
                                                     @if (Model.isWithdrawCommitment)
                                                     {
-                                                    <h4 class="pull-left mt-xs">Withdraw Commitment</h4>
+                                                        <h4 class="pull-left mt-xs">Withdraw Commitment</h4>
                                                     }
                                                     else
                                                     {
-                                                    <h4 class="pull-left mt-xs">Additional commitment</h4>
+                                                        <h4 class="pull-left mt-xs">Additional commitment</h4>
                                                     }
                                                     <h4>@Model.WithdrawalAmount</h4>
                                                 </div>
@@ -473,7 +479,7 @@
                                                 <div class="form-group custom-form-group">
                                                     @if (Model.OrderID > 0 && Model.JustificationDoc != null)
                                                     {
-                                                    <label>PI Justification Document</label> <br>
+                                                        <label>PI Justification Document</label> <br>
                                                         var SNo = 1;
                                                         foreach (var item in Model.JustificationDoc)
                                                         {
@@ -481,7 +487,7 @@
                                                             {
                                                                 if (item.FilePath != "")
                                                                 {
-                                                    <h4>@Html.ActionLink(SNo + "." + item.FileName, "ShowDocument", new { Controller = "Account", filepath = "Requirement", file = item.FilePath }, new { @name = "DocDownload", @target = "_blank", @style = "color:white;" })</h4><br>
+                                                                    <h4>@Html.ActionLink(SNo + "." + item.FileName, "ShowDocument", new { Controller = "Account", filepath = "Requirement", file = item.FilePath }, new { @name = "DocDownload", @target = "_blank", @style = "color:white;" })</h4><br>
                                                                     SNo++;
                                                                 }
                                                             }
@@ -812,7 +818,8 @@
     var succMsg = '@TempData["succMsg"]';
     var MailSent_f = @Html.Raw(Json.Encode(Model.MailSent_f));
     $(document).ready(function () {
-        if (@Model.OrderID>0)
+        $('[data-toggle="tooltip"]').tooltip();
+        if (@Model.OrderID > 0)
         {
             $('#RequestReference').val(@Model.RequestReference)
             $('#TypeofappointmentId').val(@Model.TypeofappointmentId)
@@ -1152,19 +1159,19 @@
             type: "POST",
             url: "@Url.Action("OrderEmailProcess", "Requirement")",
             data: modelData,
-        contentType: "application/x-www-form-urlencoded",
-        beforeSend: function () {
-            $(".loading-bg").removeClass('dis-none');
-        },
-        success: function (result) {
-            $(".loading-bg").addClass('dis-none');
-            $("#ShowDeviation").html(result.output.Item2);
-            $('#dialogConfirm').modal('toggle');
-        },
-        error: function (err) {
-            console.log("error : " + err);
-        }
-    });
+            contentType: "application/x-www-form-urlencoded",
+            beforeSend: function () {
+                $(".loading-bg").removeClass('dis-none');
+            },
+            success: function (result) {
+                $(".loading-bg").addClass('dis-none');
+                $("#ShowDeviation").html(result.output.Item2);
+                $('#dialogConfirm').modal('toggle');
+            },
+            error: function (err) {
+                console.log("error : " + err);
+            }
+        });
     }
     $('#btnSave').click(function(e){
         if(MailSent_f == false)

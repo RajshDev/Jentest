@@ -130,5 +130,6 @@ namespace IOAS.DataModel
         public Nullable<int> RequestedBy { get; set; }
         public string RefNumber { get; set; }
         public string OfferLetter { get; set; }
+        public Nullable<int> SalaryLevelId { get; set; }
     }
 }
