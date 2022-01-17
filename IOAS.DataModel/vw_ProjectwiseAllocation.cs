@@ -54,6 +54,9 @@ namespace IOAS.DataModel
         public Nullable<decimal> Allo_InterestRefund { get; set; }
         public Nullable<decimal> Allo_Distribution { get; set; }
         public Nullable<decimal> Allo_Outsourcing { get; set; }
+        public Nullable<decimal> Allo_InternalTransfer { get; set; }
+        public Nullable<decimal> Allo_TransfertoOtherInstitute { get; set; }
+        public Nullable<decimal> Allo_PIFellowship { get; set; }
         public string PIname { get; set; }
         public int ProjectId { get; set; }
         public int ProjectTypeId { get; set; }

@@ -60,6 +60,9 @@ namespace IOAS.DataModel
         public Nullable<decimal> InterestRefund { get; set; }
         public Nullable<decimal> Distribution { get; set; }
         public Nullable<decimal> Outsourcing { get; set; }
+        public Nullable<decimal> InternalTransfer { get; set; }
+        public Nullable<decimal> TransfertoOtherInstitute { get; set; }
+        public Nullable<decimal> PIFellowship { get; set; }
         public Nullable<System.DateTime> StartDate { get; set; }
         public Nullable<System.DateTime> ClosureDate { get; set; }
         public Nullable<decimal> sanctionValue { get; set; }

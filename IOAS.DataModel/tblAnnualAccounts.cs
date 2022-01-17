@@ -57,6 +57,9 @@ namespace IOAS.DataModel
         public Nullable<decimal> Allo_InterestRefund { get; set; }
         public Nullable<decimal> Allo_Distribution { get; set; }
         public Nullable<decimal> Allo_Outsourcing { get; set; }
+        public Nullable<decimal> Allo_InternalTransfer { get; set; }
+        public Nullable<decimal> Allo_TransfertoOtherInstitute { get; set; }
+        public Nullable<decimal> Allo_PIFellowship { get; set; }
         public Nullable<decimal> Receipts { get; set; }
         public Nullable<decimal> Staff { get; set; }
         public Nullable<decimal> Consumables { get; set; }
@@ -89,6 +92,9 @@ namespace IOAS.DataModel
         public Nullable<decimal> InterestRefund { get; set; }
         public Nullable<decimal> Distribution { get; set; }
         public Nullable<decimal> Outsourcing { get; set; }
+        public Nullable<decimal> InternalTransfer { get; set; }
+        public Nullable<decimal> TransfertoOtherInstitute { get; set; }
+        public Nullable<decimal> PIFellowship { get; set; }
         public Nullable<decimal> TotalExpenditure { get; set; }
         public Nullable<decimal> ClosingBalance { get; set; }
         public Nullable<decimal> NegativeApprove { get; set; }

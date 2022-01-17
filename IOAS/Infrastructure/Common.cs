@@ -23689,6 +23689,17 @@ namespace IOAS.Infrastructure
                                 return "This Aadhaar Number is linked to old number " + relQuery.EmployeeNo;
                             }
                         }
+
+                        if (!string.IsNullOrEmpty(Oldemployeeno))
+                        {
+                            var Query = (from cc in context.vw_RCTOverAllApplicationEntry.AsNoTracking()
+                                         where cc.Status == "Relieved" && cc.ApplicationType == "New" && cc.EmployeeNo == Oldemployeeno
+                                         && cc.Category == Apptype && !string.IsNullOrEmpty(cc.AadhaarNo)
+                                         orderby cc.ApplicationId descending
+                                         select new { cc.EmployeeNo, cc.AadhaarNo }).FirstOrDefault();
+                            if (Query != null && Query.AadhaarNo != adharno)
+                                return "This Old employee number  is linked to aadhaar Number " + Query.AadhaarNo;
+                        }
                     }
                 }
                 return isalreadyEmp;
@@ -23737,6 +23748,17 @@ namespace IOAS.Infrastructure
                             {
                                 return "This Pan Number is linked to old number " + relQuery.EmployeeNo;
                             }
+                        }
+
+                        if (!string.IsNullOrEmpty(Oldemployeeno))
+                        {
+                            var Query = (from cc in context.vw_RCTOverAllApplicationEntry.AsNoTracking()
+                                         where cc.Status == "Relieved" && cc.ApplicationType == "New" && cc.EmployeeNo == Oldemployeeno
+                                         && cc.Category == Apptype && !string.IsNullOrEmpty(cc.PANNo)
+                                         orderby cc.ApplicationId descending
+                                         select new { cc.EmployeeNo, cc.PANNo }).FirstOrDefault();
+                            if (Query != null && Query.PANNo != Panno)
+                                return "This Old employee number  is linked to pan number " + Query.PANNo;
                         }
                     }
                 }

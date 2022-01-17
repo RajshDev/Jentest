@@ -1194,13 +1194,13 @@ namespace IOAS.GenericServices
                 return false;
             }
         }
-        public bool LCOWFInitSuccess(int BillId, int logged_in_user)
+        public bool LCOWFInitSuccess(int LCDraftid, int logged_in_user)
         {
             try
             {
                 using (var context = new IOASDBEntities())
                 {
-                    var query = context.tblLCDraftDetails.FirstOrDefault(m => m.Id == BillId && m.Status == "Establish LC Approval Pending" && m.TransactionTypeCode == "LCO");
+                    var query = context.tblLCDraftDetails.FirstOrDefault(m => m.Id == LCDraftid && m.Status == "Establish LC Approval Pending" && m.TransactionTypeCode == "LCO");
                     if (query != null)
                     {
                         query.Status = "Established";
@@ -1220,13 +1220,13 @@ namespace IOAS.GenericServices
                 return false;
             }
         }
-        public bool LCAWFInitSuccess(int BillId, int logged_in_user)
+        public bool LCAWFInitSuccess(int LCAmmendmentid, int logged_in_user)
         {
             try
             {
                 using (var context = new IOASDBEntities())
                 {
-                    var query = context.tblLCAmmendment.FirstOrDefault(m => m.Id == BillId && m.Status == "Amendment Approval Pending" && m.TransactionTypeCode == "LCA");
+                    var query = context.tblLCAmmendment.FirstOrDefault(m => m.Id == LCAmmendmentid && m.Status == "Amendment Approval Pending" && m.TransactionTypeCode == "LCA");
                     if (query != null)
                     {
                         var lcopeningid = query.LCOpeningId ?? 0;
@@ -1250,13 +1250,13 @@ namespace IOAS.GenericServices
                 return false;
             }
         }
-        public bool LCRWFInitSuccess(int BillId, int logged_in_user)
+        public bool LCRWFInitSuccess(int LCRetirmentid, int logged_in_user)
         {
             try
             {
                 using (var context = new IOASDBEntities())
                 {
-                    var query = context.tblLCRetirement.FirstOrDefault(m => m.Id == BillId && m.Status == "Retirement Approval Pending" && m.TransactionTypeCode == "LCR");
+                    var query = context.tblLCRetirement.FirstOrDefault(m => m.Id == LCRetirmentid && m.Status == "Retirement Approval Pending" && m.TransactionTypeCode == "LCR");
                     if (query != null)
                     {
                         var lcopeningid = query.LCOpeningId ?? 0;

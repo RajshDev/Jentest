@@ -2639,12 +2639,12 @@ namespace IOAS.GenericServices
                         EmailModel emodel = new EmailModel();
                         NotePIModel npmodel = new NotePIModel();
                         List<string> addcc = new List<string>();
-                        if (query.bcc != null)
-                        {
-                            var bcc = query.bcc.Split(',');
-                            foreach (var bccEmail in bcc)
-                                addcc.Add(bccEmail.Trim());
-                        }
+                        //if (query.bcc != null)
+                        //{
+                        //    var bcc = query.bcc.Split(',');
+                        //    foreach (var bccEmail in bcc)
+                        //        addcc.Add(bccEmail.Trim());
+                        //}
                         getDefaultCC(query.Category).ForEach(mailid => { addcc.Add(mailid); });
                         if (querycancellog.PreStatus == "Draft" || querycancellog.PreStatus == "Note to PI" || querycancellog.PreStatus == "Open")
                             npmodel.Cancel_f = "application";

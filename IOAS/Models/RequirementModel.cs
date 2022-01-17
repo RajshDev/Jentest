@@ -999,6 +999,7 @@ namespace IOAS.Models
         public Nullable<decimal> AgencyFeePrecentage { get; set; }
         public Nullable<decimal> EmployeeESICPrecentage { get; set; }
         public Nullable<decimal> EmployerESICPrecentage { get; set; }
+        public Nullable<decimal> LWFEmployerContribution { get; set; }
         public string PIJustificationRemarks { get; set; }
         public HttpPostedFileBase[] PIJustificationFile { get; set; }
         public string List_f { get; set; }

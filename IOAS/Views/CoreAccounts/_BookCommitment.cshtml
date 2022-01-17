@@ -1259,6 +1259,8 @@
             //    Total: Total,
             //    IsDeansApproval: IsDeansApproval
             //};
+            var prjspanType = $('#spanType').text();
+            var prjType = $('#srchProjectType').val();
             var closeDate = moment(parseDateThreeCharacter($('#spanCloseDate').text()));
             if (closeDate < new Date()) {
                 var choice = confirm("Are you sure, Do you want to book commitment for this closed project?");
@@ -1296,6 +1298,13 @@
                         traditional: true,
                         dataType: "json",
                         success: function (result) {
+                            if ((prjspanType.includes("Sponsored") && prjType != 1) || (prjspanType.includes("Consultancy") && prjType != 2)) {
+                                EmptyCommitmentSrchList();
+                                if (prjspanType.includes("Sponsored"))
+                                    $('#srchProjectType').val(1);
+                                if (prjspanType.includes("Consultancy"))
+                                    $('#srchProjectType').val(2);
+                            }
                             $.each(result, function (i, item) {
                                 if (i == 0) {
                                     var trEle = $('#tbodyCommitmentSrchList tr:first').clone();

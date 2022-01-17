@@ -1610,8 +1610,12 @@ namespace IOAS.GenericServices
                                     queryedit.EmployeeCategory = model.EmployeeType;
                                     if (model.EmployeeType.Contains("New"))
                                         queryedit.NIDNumber = model.NIDNumber;
+                                    else
+                                        queryedit.OldNumber = null;
                                     if (model.EmployeeType.Contains("Old"))
                                         queryedit.OldNumber = model.OldEmployeeNumber;
+                                    else
+                                        queryedit.NIDNumber = null;
                                     if (model.PersonImage != null)
                                     {
                                         var guid = Guid.NewGuid().ToString();
@@ -4601,7 +4605,7 @@ namespace IOAS.GenericServices
                     var Prequery = (from vw in context.vw_RCTOverAllApplicationEntry.AsNoTracking()
                                     join prj in context.tblProject on vw.ProjectId equals prj.ProjectId
                                     orderby vw.ApplicationId descending
-                                    where (vw.Status == "Cancel") && vw.ApplicationType == "New"
+                                    where vw.Status == "Cancel" && vw.ApplicationType == "New" && (vw.isEmployee == false || vw.isEmployee == null)
                                     select new ApplicationListModel()
                                     {
                                         ApplicationId = vw.ApplicationId,
@@ -10082,7 +10086,7 @@ namespace IOAS.GenericServices
                                             reintQuery.o.OldProjectId = query.ProjectId;
                                             reintQuery.o.isMedical = query.Medical == 2 ? true : false;
                                             reintQuery.o.isHRA = query.isHaveHRA ?? false;
-                                            reintQuery.o.SalaryLevelId = query.SalaryLevelId;                                        
+                                            reintQuery.o.SalaryLevelId = query.SalaryLevelId;
                                         }
                                     }
                                     reintQuery.o.FromDate = model.FromDate;
@@ -17341,8 +17345,12 @@ namespace IOAS.GenericServices
                                     qryOSG.VendorCode = model.VendorCode;
                                     if (model.EmployeeType.Contains("New"))
                                         qryOSG.NIDNumber = model.NIDNumber;
+                                    else
+                                        qryOSG.OldNumber = null;
                                     if (model.EmployeeType.Contains("Old"))
                                         qryOSG.OldNumber = model.OldEmployeeNumber;
+                                    else
+                                        qryOSG.NIDNumber = null;
                                     if (model.PersonImage != null)
                                     {
                                         var guid = Guid.NewGuid().ToString();
@@ -18143,6 +18151,7 @@ namespace IOAS.GenericServices
                             model.AgencyFeePrecentage = detQuery.AgencyFeePercentage;
                             model.EmployeeESICPrecentage = statutoryQuery != null ? statutoryQuery.ESICEmployeePercentage : null;
                             model.EmployerESICPrecentage = statutoryQuery != null ? statutoryQuery.ESICEmployerPercentage : null;
+                            model.LWFEmployerContribution = statutoryQuery != null ? statutoryQuery.LWFEmployerContribution : null;
                         }
                     }
                     else
@@ -18189,6 +18198,7 @@ namespace IOAS.GenericServices
                             model.AgencyFeePrecentage = detQuery.AgencyFeePercentage;
                             model.EmployeeESICPrecentage = statutoryQuery != null ? statutoryQuery.ESICEmployeePercentage : null;
                             model.EmployerESICPrecentage = statutoryQuery != null ? statutoryQuery.ESICEmployerPercentage : null;
+                            model.LWFEmployerContribution = statutoryQuery != null ? statutoryQuery.LWFEmployerContribution : null;
 
                         }
                     }
@@ -19670,6 +19680,12 @@ namespace IOAS.GenericServices
                         model.SalaryGST = Qrysalcalc.EmployerGST;
                         model.CTCwithAgencyFee = Qrysalcalc.EmployerCTCWithAgencyFee;
                         model.TotalCTC = Qrysalcalc.TotalCostPerMonth;
+                        //var statutoryQuery = (from S in context.tblRCTStatutory where S.StatutoryId == Qrysalcalc.StatutoryId select S).FirstOrDefault();
+                        //model.GSTPrecentage = Qrysalcalc.GSTPercentage;
+                        //model.AgencyFeePrecentage = Qrysalcalc.AgencyFeePercentage;
+                        //model.EmployeeESICPrecentage = statutoryQuery != null ? statutoryQuery.ESICEmployeePercentage : null;
+                        //model.EmployerESICPrecentage = statutoryQuery != null ? statutoryQuery.ESICEmployerPercentage : null;
+                        //model.LWFEmployerContribution = statutoryQuery != null ? statutoryQuery.LWFEmployerContribution : null;
                         model.CommitmentNo = string.IsNullOrEmpty(QryOSG.A.CommitmentNo) ? "-" : QryOSG.A.CommitmentNo;
                         model.CommitmentBalance = Common.GetCommitmentBalance(model.CommitmentNo);
                         model.PIJustificationDocuments = (from c in context.tblRCTOSGPIJustificationDoc
@@ -20815,11 +20831,13 @@ namespace IOAS.GenericServices
                                     {
                                         updateconsultant.EmployeeCategory = "Old Employee";
                                         updateconsultant.OldNumber = model.OldEmployeeNumber;
+                                        updateconsultant.NIDNumber = null;
                                     }
                                     else
                                     {
                                         updateconsultant.EmployeeCategory = "New Employee";
                                         updateconsultant.NIDNumber = model.NIDNumber;
+                                        updateconsultant.OldNumber = null;
                                     }
                                     updateconsultant.ProjectId = model.ProjectId;
                                     updateconsultant.DesignationId = model.DesignationId;
@@ -28076,7 +28094,7 @@ namespace IOAS.GenericServices
                 {
                     var query = (from vw in context.vw_RCTOverAllApplicationEntry.AsNoTracking()
                                  orderby vw.ApplicationId descending
-                                 where vw.Status == "Cancel"
+                                 where vw.Status == "Cancel" && vw.isEmployee == true
                                  && (vw.ApplicationNo.Contains(model.ApplicationNo) || model.ApplicationNo == null)
                                  && vw.Category == Category
                                  && (vw.CandidateName.Contains(model.CondidateName) || model.CondidateName == null)
@@ -28088,7 +28106,7 @@ namespace IOAS.GenericServices
 
                     appseamodel.TotalRecords = (from vw in context.vw_RCTOverAllApplicationEntry.AsNoTracking()
                                                 orderby vw.ApplicationId descending
-                                                where vw.Status == "Cancel"
+                                                where vw.Status == "Cancel" && vw.isEmployee == true
                                                 && (vw.ApplicationNo.Contains(model.ApplicationNo) || model.ApplicationNo == null)
                                                 && vw.Category == Category
                                                 && (vw.CandidateName.Contains(model.CondidateName) || model.CondidateName == null)

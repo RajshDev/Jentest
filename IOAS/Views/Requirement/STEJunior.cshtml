@@ -1157,12 +1157,13 @@
 
         $(document).on('keypress', 'input[id="DesignationCode"]', function () {
             var checkvalue = $('input[name="isConsolidatePay"]:checked').val() || "";
-            if(checkvalue == "") {
+            if(checkvalue == '') {
                 $.alert("Please select consolidated pay or fellowship pay.")
                 return;
             }
             $('#Appointmentstartdate').val('');
             $('#AppointmentEndDate').val('');
+            $('#DesignationId').val('');
             var ckvalue = checkvalue == "ConsolidatedPay" ? true : false;
             applyAutoCompleteDesignation($('#DesignationCode'), $('#DesignationId'),'@Url.Action("LoadDesignationList", "Requirement")?TypeCode=2&isConsolidatePay='+ckvalue, 'FillDesignation', true);
         });
@@ -1170,8 +1171,8 @@
 
         var currentdate = moment(new Date()).toDate();
         if(STEID > 0) {
-            var DateRD = "@string.Format("{0:dd/MMMM/yyyy}", Model.ApplicationReceiveDate)";
-            var ApplicationRD = moment(DateRD.split('-').join('/')).toDate();
+            var DateFormatRD = "@string.Format("{0:dd/MMMM/yyyy}", Model.ApplicationReceiveDate)";
+            var ApplicationRD = moment(DateFormatRD).toDate();
             $('#ApplicationReceiveDate').datepicker({
                 dateFormat: 'dd-MM-yy',
                 changeYear: true
@@ -1331,16 +1332,16 @@
 
     function UpdateAppointmentDatePicker() {
         var setappstrdat = "";
-        var strFromDate = moment($('#lblProjectStartDate').text().split('-').join('/')).toDate();
-        var strToDate = moment($('#lblProjectClosureDate').text().split('-').join('/')).toDate();
+        var fromdate = moment($('#lblProjectStartDate').text().split('-').join('/')).toDate();
+        var todate = moment($('#lblProjectClosureDate').text().split('-').join('/')).toDate();
         var currentdate = moment(new Date()).add(-15,'days').toDate();
         var value =  parseInt($('#MsPhdType').val()) || 0;
         if($('#TypeofappointmentId').val() == 4 || ($('#TypeofappointmentId').val() == 3 && value > 0)) {
             currentdate = moment(new Date()).add(-2,'years').add(+1,'days').toDate();
         }
-        if(strFromDate !='' && strToDate !='')
+        if(fromdate != '' && todate != '')
         {
-            if(strFromDate <= currentdate)
+            if(fromdate <= currentdate)
             {
                 setappstrdat = currentdate;
                 if(STEID > 0)
@@ -1353,13 +1354,13 @@
             }
             else
             {
-                setappstrdat = strFromDate
+                setappstrdat = fromdate
             }
 
             $('#Appointmentstartdate').datepicker({
                 dateFormat: 'dd-MM-yy',
                 changeYear: true
-            }).datepicker("option", "minDate", setappstrdat).datepicker("option", "maxDate", strToDate);
+            }).datepicker("option", "minDate", setappstrdat).datepicker("option", "maxDate", todate);
         }
     };
 

@@ -6271,6 +6271,7 @@ namespace IOAS.Models
         public List<MasterlistviewModel> CommitmentList { get; set; } = new List<MasterlistviewModel>();
         public LCSearchFieldModel SearchField { get; set; }
         public PagedData<LCSearchResultModel> SearchResult { get; set; }
+        public string Payment { get; set; }
 
     }
 

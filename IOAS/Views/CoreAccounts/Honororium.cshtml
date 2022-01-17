@@ -628,7 +628,11 @@ categoryChange($(this));
                 $(document).on('change', 'select[name$=".tdsdropdown"]', function () {
                     var value = $(this).closest('tr').find('select[name$=".tdsdropdown"]').val();
                     value = parseFloat(value) || 0;
-                    if (value != 10 && value != 20) {
+                    var index = $(this).attr('name').match(/\d+/);
+                    var paymentmode = $('select[name="PODetail[' + index + '].PaymentMode"]').val() == "" ? 0 : $('select[name="PODetail[' + index + '].PaymentMode"]').val();
+
+                    if (value != 10 && value != 20 && !(value == 0 && paymentmode == 3))
+                    {
                         $(this).val('');
                         $("#alert").text("This TDS percent not available");
                         $('#Validation').modal('show');
@@ -1427,7 +1431,9 @@ categoryChange($(this));
 
                         $('select[name$=".tdsdropdown"]').each(function () {
                             var value = $(this).val();
-                            if (value != 10 && value != 20)
+                            var index = $(this).attr('name').match(/\d+/);
+                            var paymentmode = $('select[name="PODetail[' + index + '].PaymentMode"]').val() == "" ? 0 : $('select[name="PODetail[' + index + '].PaymentMode"]').val();
+                            if (value != 10 && value != 20 && !(value == 0 && paymentmode == 3))
                             {
                                 hadError = true;
                                 $("#alert").text("Selected TDS percent not available");

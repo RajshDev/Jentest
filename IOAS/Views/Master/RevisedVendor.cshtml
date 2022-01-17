@@ -511,7 +511,6 @@ new { @class = "form-control", @id = "vendordoctype" })
                                         </div>
                                     </div>
                                     <div class="col-md-2 doclink mt6" id="vendordoclink">
-
                                         <a href="#" class="link2" target="_blank"></a>
                                     </div>
                                     <div class="col-md-1 ml40 mt5">
@@ -1271,6 +1270,7 @@ new { @class = "form-control", @id = "tdsdoctype" })
         var docnamevendor = [];
         var attachvendorfile = [];
         var attachvendorfileSize = [];
+        var attachedvendorfile = [];
         var attachvendordocid = [];
 
         var doctypetds = [];
@@ -1289,6 +1289,7 @@ new { @class = "form-control", @id = "tdsdoctype" })
         $('input[name="VendorAttachName"]').each(function (idx, val) { docnamevendor.push($(val).val()); });
         $('input[name="VendorFile"]').each(function (idx, val) { attachvendorfile.push($(val).val()); });
         $('input[name="VendorFile"]').each(function (idx, val) { attachvendorfileSize.push($(this).size); });
+        $('div[id="vendordoclink"]').each(function (idx, val) { attachedvendorfile.push($(this).children("a").attr("href")); });
         $('input[name="VendorDocumentId"]').each(function (idx, val) { attachvendordocid.push($(val).val()); });
 
         $('select[name="TDSDocumentType"]').each(function (idx, val) { doctypetds.push($(val).val()); });
@@ -1306,7 +1307,7 @@ new { @class = "form-control", @id = "tdsdoctype" })
 
         doctypevendor.sort();
         docnamevendor.sort();
-        attachvendorfile.sort();
+        //attachvendorfile.sort();
         attachvendorfileSize.sort();
         attachvendordocid.sort();
 
@@ -1423,7 +1424,7 @@ new { @class = "form-control", @id = "tdsdoctype" })
                     $('#Validation').modal('toggle');
                     return false;
                 }
-                if (attachvendorfile[j] == null || attachvendorfile[j] == "") {
+                if ((attachvendorfile[j] == null || attachvendorfile[j] == "") && attachedvendorfile[j]) {
                     isValid = false;
                     $('#alert').html("Please upload any one of these type file [doc, docx, pdf].");
                     $('#Validation').modal('toggle');

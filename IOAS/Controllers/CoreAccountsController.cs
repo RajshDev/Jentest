@@ -11333,29 +11333,41 @@ namespace IOAS.Controllers
             {
                 int userId = Common.GetUserid(User.Identity.Name);
 
-                bool cStatus = coreAccountService.LCOpeningCommitmentBalanceUpdate(LCOpeningId, false, false, userId, "LCO");
+                //bool cStatus = coreAccountService.LCOpeningCommitmentBalanceUpdate(LCOpeningId, false, false, userId, "LCO");
 
-                if (!cStatus)
+                //if (!cStatus)
+                //{
+                //    return Json(new { status = false, msg = "There is a mismatch between the allocated available value and allocated commitment value." }, JsonRequestBehavior.AllowGet);
+                //}
+                //else
+                //{
+                //    using (var context = new IOASDBEntities())
+                //    {
+                //        var query = context.tblLCDraftDetails.FirstOrDefault(m => m.Id == LCOpeningId && m.Status == "Establish LC Open" && m.TransactionTypeCode == "LCO");
+                //        if (query != null)
+                //        {
+                //            query.Status = "Establish LC Approval Pending";
+                //            query.UPTD_By = userId;
+                //            query.UPTD_TS = DateTime.Now;
+                //            context.SaveChanges();
+                //        }
+                //    }
+                //}
+
+                bool cStatus = false;
+                if (Common.ValidateLCOpeningStatus(LCOpeningId, "Establish LC Open"))
                 {
-                    return Json(new { status = false, msg = "There is a mismatch between the allocated available value and allocated commitment value." }, JsonRequestBehavior.AllowGet);
+                    var transCode = "LCO";
+                    cStatus = coreAccountService.LCOpeningCommitmentBalanceUpdate(LCOpeningId, false, false, userId, transCode);
+                    if (!cStatus)
+                        return Json(new { status = false, msg = "There is a mismatch between the allocated available value and allocated commitment value." }, JsonRequestBehavior.AllowGet);
+                    bool status = coreAccountService.LCOpeningWFInit(LCOpeningId, userId, transCode);
+                    if (!status)
+                        coreAccountService.LCOpeningCommitmentBalanceUpdate(LCOpeningId, true, false, userId, transCode);
+                    return Json(new { status = status, msg = !status ? "Bill not submited for approval" : "" }, JsonRequestBehavior.AllowGet);
                 }
                 else
-                {
-                    using (var context = new IOASDBEntities())
-                    {
-                        var query = context.tblLCDraftDetails.FirstOrDefault(m => m.Id == LCOpeningId && m.Status == "Establish LC Open" && m.TransactionTypeCode == "LCO");
-                        if (query != null)
-                        {
-                            query.Status = "Establish LC Approval Pending";
-                            query.UPTD_By = userId;
-                            query.UPTD_TS = DateTime.Now;
-                            context.SaveChanges();
-                        }
-                    }
-                }
-
-                //bool status = coreAccountService.LCOpeningBillApproved(LCOpeningId, userId);
-                return Json(new { status = cStatus, msg = !cStatus ? "Something went wrong please contact administrator" : "" }, JsonRequestBehavior.AllowGet);
+                    return Json(new { status = false, msg = "This bill already approved" }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -11752,36 +11764,54 @@ namespace IOAS.Controllers
         {
             try
             {
-                int userId = Common.GetUserid(User.Identity.Name);
+                //int userId = Common.GetUserid(User.Identity.Name);
 
-                bool cStatus = coreAccountService.LCAmmendCommitmentBalanceUpdate(LCAmmendId, false, false, userId, "LCA");
-                if (!cStatus)
+                //bool cStatus = coreAccountService.LCAmmendCommitmentBalanceUpdate(LCAmmendId, false, false, userId, "LCA");
+                //if (!cStatus)
+                //{
+                //    return Json(new { status = false, msg = "There is a mismatch between the allocated available value and allocated commitment value." }, JsonRequestBehavior.AllowGet);
+                //}
+                //else
+                //{
+                //    using (var context = new IOASDBEntities())
+                //    {
+                //        var query = context.tblLCAmmendment.FirstOrDefault(m => m.Id == LCAmmendId && m.Status == "Amendment Open" && m.TransactionTypeCode == "LCA");
+
+                //        if (query != null)
+                //        {
+                //            query.Status = "Amendment Approval Pending";
+                //            query.UPTD_By = userId;
+                //            query.UPTD_TS = DateTime.Now;
+                //            context.SaveChanges();
+                //            var lcdraftid = query.LCOpeningId;
+                //            var LCquery = context.tblLCDraftDetails.FirstOrDefault(m => m.Id == LCAmmendId);
+                //            LCquery.Status = "Amendment Approval Pending";
+                //            LCquery.UPTD_By = userId;
+                //            LCquery.UPTD_TS = DateTime.Now;
+                //            context.SaveChanges();
+                //        }
+                //    }
+                //}
+                ////bool status = coreAccountService.LCAmmendBillApproved(LCAmmendId, userId);
+                //return Json(new { status = cStatus, msg = !cStatus ? "Something went wrong please contact administrator" : "" }, JsonRequestBehavior.AllowGet);
+
+                lock (LCAmdWFInitlockObj)
                 {
-                    return Json(new { status = false, msg = "There is a mismatch between the allocated available value and allocated commitment value." }, JsonRequestBehavior.AllowGet);
-                }
-                else
-                {
-                    using (var context = new IOASDBEntities())
+                    int userId = Common.GetUserid(User.Identity.Name);
+                    if (Common.ValidateLCAmmendmentStatus(LCAmmendId, "Amendment Open"))
                     {
-                        var query = context.tblLCAmmendment.FirstOrDefault(m => m.Id == LCAmmendId && m.Status == "Amendment Open" && m.TransactionTypeCode == "LCA");
-
-                        if (query != null)
-                        {
-                            query.Status = "Amendment Approval Pending";
-                            query.UPTD_By = userId;
-                            query.UPTD_TS = DateTime.Now;
-                            context.SaveChanges();
-                            var lcdraftid = query.LCOpeningId;
-                            var LCquery = context.tblLCDraftDetails.FirstOrDefault(m => m.Id == LCAmmendId);
-                            LCquery.Status = "Amendment Approval Pending";
-                            LCquery.UPTD_By = userId;
-                            LCquery.UPTD_TS = DateTime.Now;
-                            context.SaveChanges();
-                        }
+                        var transCode = "LCA";
+                        bool cStatus = coreAccountService.LCAmmendCommitmentBalanceUpdate(LCAmmendId, false, false, userId, transCode);
+                        if (!cStatus)
+                            return Json(new { status = false, msg = "There is a mismatch between the allocated available value and allocated commitment value." }, JsonRequestBehavior.AllowGet);
+                        bool status = coreAccountService.LCAmmendmentWFInit(LCAmmendId, userId, transCode);
+                        if (!status)
+                            coreAccountService.LCAmmendCommitmentBalanceUpdate(LCAmmendId, true, false, userId, transCode);
+                        return Json(new { status = status, msg = !status ? "Bill not submited for approval" : "" }, JsonRequestBehavior.AllowGet);
                     }
+                    else
+                        return Json(new { status = false, msg = "This bill already approved" }, JsonRequestBehavior.AllowGet);
                 }
-                //bool status = coreAccountService.LCAmmendBillApproved(LCAmmendId, userId);
-                return Json(new { status = cStatus, msg = !cStatus ? "Something went wrong please contact administrator" : "" }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -12341,9 +12371,56 @@ namespace IOAS.Controllers
             return msg;
         }
 
-        [HttpGet]        public ActionResult LCRetirementSubmitforApproval(int LCRetirementId)        {            try            {                int userId = Common.GetUserid(User.Identity.Name);                bool cStatus = coreAccountService.LCRetireCommitmentBalanceUpdate(LCRetirementId, false, false, userId, "LCR");                if (!cStatus)                {                    return Json(new { status = false, msg = "There is a mismatch between the allocated available value and allocated commitment value." }, JsonRequestBehavior.AllowGet);                }                else                {                    using (var context = new IOASDBEntities())                    {                        var query = context.tblLCRetirement.FirstOrDefault(m => m.Id == LCRetirementId && m.Status == "Final Retirement Open" && m.TransactionTypeCode == "LCR");                        if (query != null)                        {                            query.Status = "Retirement Approval Pending";                            query.UPTD_By = userId;                            query.UPTD_TS = DateTime.Now;                            context.SaveChanges();                            var lcdraftid = query.LCOpeningId;                            var LCquery = context.tblLCDraftDetails.FirstOrDefault(m => m.Id == LCRetirementId);                            LCquery.Status = "Retirement Approval Pending";                            LCquery.UPTD_By = userId;                            LCquery.UPTD_TS = DateTime.Now;                            context.SaveChanges();                        }                    }                }
-                //bool status = coreAccountService.LCRetireBillApproved(LCRetirementId, userId);
-                return Json(new { status = cStatus, msg = !cStatus ? "Something went wrong please contact administrator" : "" }, JsonRequestBehavior.AllowGet);            }            catch (Exception ex)            {                Infrastructure.IOASException.Instance.HandleMe(       (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);                return Json(new { status = false, msg = "Something went wrong please contact administrator" }, JsonRequestBehavior.AllowGet);            }        }
+        [HttpGet]        public ActionResult LCRetirementSubmitforApproval(int LCRetirementId)        {            try            {
+                //int userId = Common.GetUserid(User.Identity.Name);
+
+                //bool cStatus = coreAccountService.LCRetireCommitmentBalanceUpdate(LCRetirementId, false, false, userId, "LCR");
+                //if (!cStatus)
+                //{
+                //    return Json(new { status = false, msg = "There is a mismatch between the allocated available value and allocated commitment value." }, JsonRequestBehavior.AllowGet);
+                //}
+                //else
+                //{
+                //    using (var context = new IOASDBEntities())
+                //    {
+                //        var query = context.tblLCRetirement.FirstOrDefault(m => m.Id == LCRetirementId && m.Status == "Final Retirement Open" && m.TransactionTypeCode == "LCR");
+
+                //        if (query != null)
+                //        {
+                //            query.Status = "Retirement Approval Pending";
+                //            query.UPTD_By = userId;
+                //            query.UPTD_TS = DateTime.Now;
+                //            context.SaveChanges();
+                //            var lcdraftid = query.LCOpeningId;
+                //            var LCquery = context.tblLCDraftDetails.FirstOrDefault(m => m.Id == LCRetirementId);
+                //            LCquery.Status = "Retirement Approval Pending";
+                //            LCquery.UPTD_By = userId;
+                //            LCquery.UPTD_TS = DateTime.Now;
+                //            context.SaveChanges();
+                //        }
+                //    }
+                //}
+                ////bool status = coreAccountService.LCRetireBillApproved(LCRetirementId, userId);
+                //return Json(new { status = cStatus, msg = !cStatus ? "Something went wrong please contact administrator" : "" }, JsonRequestBehavior.AllowGet);
+
+                lock (LCRetWFInitlockObj)
+                {
+                    int userId = Common.GetUserid(User.Identity.Name);
+                    if (Common.ValidateLCRetirementStatus(LCRetirementId, "Retirement Open"))
+                    {
+                        var transCode = "LCR";
+                        bool cStatus = coreAccountService.LCRetireCommitmentBalanceUpdate(LCRetirementId, false, false, userId, transCode);
+                        if (!cStatus)
+                            return Json(new { status = false, msg = "There is a mismatch between the allocated available value and allocated commitment value." }, JsonRequestBehavior.AllowGet);
+                        bool status = coreAccountService.LCRetirementWFInit(LCRetirementId, userId, transCode);
+                        if (!status)
+                            coreAccountService.LCRetireCommitmentBalanceUpdate(LCRetirementId, true, false, userId, transCode);
+                        return Json(new { status = status, msg = !status ? "Bill not submited for approval" : "" }, JsonRequestBehavior.AllowGet);
+
+                    }
+                    else
+                        return Json(new { status = false, msg = "This bill already approved" }, JsonRequestBehavior.AllowGet);
+                }            }            catch (Exception ex)            {                Infrastructure.IOASException.Instance.HandleMe(       (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);                return Json(new { status = false, msg = "Something went wrong please contact administrator" }, JsonRequestBehavior.AllowGet);            }        }
 
         [HttpGet]
         public ActionResult LCRetirementApprove(int LCRetirementId)
