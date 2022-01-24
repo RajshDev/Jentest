@@ -1602,25 +1602,14 @@ namespace IOAS.Controllers
                     var command = new System.Data.SqlClient.SqlCommand();
                     command.Connection = connection;
                     command.CommandType = CommandType.Text;
-                    command.CommandText = "select ROW_NUMBER() OVER(ORDER BY [Employee ID]) AS [S. No.], [Employee ID],[Employee Name], [Designation], [Employment Mode],[DOJ],[DOE],[FromDate],[ToDate],[RelieveDate],[PF Eligibility],[ESIC Eligiblity],[Recommended Salary],[Gross Salary For the Month],[Gross Salary For the Month]as Gross,[PF-BASIC],[DaysInMonth],[Employee Working Days],[Gross Salary],[EmployeePF_CM] as [PF- BASIC For the Month],[Recovery],[Additional Pay] as [Other Payments],[EmployerPF] as [PF (13% of Basic)],[EmployeeESIC_CM] as [ESIC  (3.25% of Gross)],[LWF],[InsuranceAmount_CM],[Total],[CTC_CM],[ServiceCharges],[InvoiceAmt],[GST],[Amount]from vw_RCTOSGPayroll  where  RCTPayrollId =" + payrollId;
+                    //command.CommandText = "select ROW_NUMBER() OVER(ORDER BY [Employee ID]) AS [S. No.], [Employee ID],[Employee Name], [Designation], [Employment Mode],[DOJ],[DOE],[FromDate],[ToDate],[RelieveDate],[PF Eligibility],[ESIC Eligiblity],[Recommended Salary],[Gross Salary For the Month],[Gross Salary For the Month]as Gross,[PF-BASIC],[DaysInMonth],[Employee Working Days],[Gross Salary],[EmployeePF_CM] as [PF- BASIC For the Month],[Recovery],[Additional Pay] as [Other Payments],[EmployerPF] as [PF (13% of Basic)],[EmployeeESIC_CM] as [ESIC  (3.25% of Gross)],[LWF],[InsuranceAmount_CM],[Total],[CTC_CM],[ServiceCharges],[InvoiceAmt],[GST],[Amount]from vw_RCTOSGPayroll  where  RCTPayrollId =" + payrollId;
+                    command.CommandText = "select ROW_NUMBER() OVER(ORDER BY [Employee ID]) AS [S. No.], [Employee ID],[Employee Name], [Designation], [Employment Mode],[FromDate],[ToDate],[RelieveDate],[PF Eligibility],[ESIC Eligiblity],[Recommended Salary],[PF-BASIC],[DaysInMonth],[Employee Working Days],[Gross Salary For the Month] as GrossSalary,[PF - BASIC For the Month],[Recovery],[Additional Pay] as [Other Payments],[EmployerPF_CM] as [PF (13% of Basic)],[EmployeeESIC_CM] as [ESIC  (3.25% of Gross)],[LWF],[InsuranceAmount_CM],[Total],[CTC_CM],[ServiceCharges],[InvoiceAmount],[GST],[Amount] from vw_RCTOSGPayroll where  RCTPayrollId =" + payrollId;
                     var adapter = new SqlDataAdapter(command);
                     var dataset = new DataSet();
                     adapter.Fill(dataset);
                     dt1 = dataset.Tables[0].Copy();
-                    dt1.TableName = "OS Calculation Report";
-
-                    //var command1 = new SqlCommand();
-                    //command1.CommandText = "select ROW_NUMBER() OVER(ORDER BY [Employee ID]) AS [S. No.], [Employee ID], [Salutation], [Employee Name], [Designation], [Employment Mode], [Deapartment], [Project Number], [Commitment Number], [Process Type], [DOJ], [Recommended Salary], [Gross Salary], [PF-BASIC], [Total Working Days], [LOP], [Employee Working Days], [Gross Salary For the Month], [Recovery], [Additional Pay], [Insurance], [PF Eligibility], [ESIC Eligiblity], [Calculated Pay], [BankName], [AccountNo], [Branch], [IFSC] from vw_RCTOSGPayroll  where  RelieveDate is not null and RCTPayrollId =" + payrollId;
-                    //var adapter1 = new SqlDataAdapter(command1);
-                    //var dataset1 = new DataSet();
-                    //if (dataset1.Tables.Count > 0)
-                    //{
-                    //    adapter1.Fill(dataset1);
-                    //    dt2 = dataset1.Tables[0].Copy();
-                    //}
-                    //dt2.TableName = "OS Report";
+                    dt1.TableName = "OS Calculation Report";                           
                     ds.Tables.Add(dt1);
-                    //ds.Tables.Add(dt2);
                 }
                 return ds;
             }

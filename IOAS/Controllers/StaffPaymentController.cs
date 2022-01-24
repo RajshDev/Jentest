@@ -218,6 +218,7 @@ namespace IOAS.Controllers
             }
             catch (Exception ex)
             {
+                Infrastructure.IOASException.Instance.HandleMe(this, ex);
                 throw new Exception(ex.Message);
             }
         }

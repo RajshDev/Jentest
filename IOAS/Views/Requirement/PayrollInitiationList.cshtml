@@ -482,21 +482,21 @@
             var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
             if (item.PayrollmenuProcessId == 1 && item.SalaryStatus == "Init") {
                 //statusList = [{ id: "", name: "Select Action" }, { id: "OverWrite", name: "OverWrite Salary Process" }, { id: "mailsend", name: "Send to Accounts" }, { id: "Download", name: "Download" }]
-                statusList = [{ id: "", name: "Select Action" }, { id: "OverWrite", name: "OverWrite Salary Process" }, { id: "Download", name: "Download" }]
-            }                
+                statusList = [{ id: "", name: "Select Action" }, { id: "OverWrite", name: "OverWrite Salary Process" }, { id: "Download", name: "Download" }, { id: "DownloadCal", name: "Download Calculation" }]
+            }
             else if (item.PayrollmenuProcessId == 2 && item.SalaryStatus == "Init") { //Requested for salary processing sublimantry
                 //statusList = [{ id: "", name: "Select Action" }, { id: "OverWrite", name: "OverWrite Salary Process" }, { id: "mailsend", name: "Send to Accounts" }, { id: "Download", name: "Download" }]
-                statusList = [{ id: "", name: "Select Action" }, { id: "OverWrite", name: "OverWrite Salary Process" }, { id: "Download", name: "Download" }]
+                statusList = [{ id: "", name: "Select Action" }, { id: "OverWrite", name: "OverWrite Salary Process" }, { id: "Download", name: "Download" }, { id: "DownloadCal", name: "Download Calculation" }]
             }
             else if (item.PayrollmenuProcessId == 0 && item.SalaryStatus == "Requested for salary processing") {
-                statusList = [{ id: "", name: "Select Action" }, { id: "vendor mail", name: "Send to Vendor" }, { id: "Download", name: "Download" }]
+                statusList = [{ id: "", name: "Select Action" }, { id: "vendor mail", name: "Send to Vendor" }, { id: "Download", name: "Download" }, { id: "DownloadCal", name: "Download Calculation" }]
             }
             else if (item.PayrollmenuProcessId == 0 && item.SalaryStatus == "Overwritten") {
-                statusList = [{ id: "", name: "Select Action" }, { id: "Download", name: "Download" }]
+                statusList = [{ id: "", name: "Select Action" }, { id: "Download", name: "Download" }, { id: "DownloadCal", name: "Download Calculation" }]
             }
 
             else {
-                statusList = [{ id: "", name: "Select Action" }, { id: "StartProcess", name: "Start Processing" }, { id: "vendor mail", name: "Send to Vendor" }, { id: "Download", name: "Download" }]
+                statusList = [{ id: "", name: "Select Action" }, { id: "StartProcess", name: "Start Processing" }, { id: "vendor mail", name: "Send to Vendor" }, { id: "Download", name: "Download" }, { id: "DownloadCal", name: "Download Calculation" }]
             }
             //statusList = [{ id: "", name: "Select Action" },{ id: "mailsend", name: "Send to Vendor" }, { id: "Download", name: "Download" }]
 
@@ -576,6 +576,10 @@
                     var url = '@Url.Action("DownloadExportOSGPayrollDetail", "RCTReportMaster")?PayrollId=' + item.PayrollId;
                     window.open(url, "_blank");
                 }
+                else if (selVal == "DownloadCal") {
+                    var url = '@Url.Action("DownloadExportOSGPayrollCalculationDetail", "RCTReportMaster")?PayrollId=' + item.PayrollId;
+                    window.open(url, "_blank");
+                }
                 else if (selVal == "StartProcess") {
                     var choice = confirm("Are Sure do you want Start Processing Salary");
 
@@ -589,7 +593,7 @@
                             },
                             success: function (result) {
                                 $('.loading-bg').addClass('dis-none');
-                                if (result == 1) {
+                                if (result.msg == 1) {
                                     @*var url = '@Url.Action("DownloadOSGStartProcessingPayroll", "RCTReportMaster")?PayrollId=' + item.PayrollId;
                                     window.open(url, "_blank");*@
 
@@ -641,7 +645,7 @@
                             },
                             success: function (result) {
                                 $('.loading-bg').addClass('dis-none');
-                                if (result == 1) {
+                                if (result.msg == 1) {
                                     @*var url = '@Url.Action("DownloadOSGStartProcessingPayroll", "RCTReportMaster")?PayrollId=' + item.PayrollId;
                                     window.open(url, "_blank");*@
 

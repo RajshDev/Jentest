@@ -5063,6 +5063,7 @@ namespace IOAS.GenericServices
             }
             catch (Exception ex)
             {
+                Infrastructure.IOASException.Instance.HandleMe(this, ex);
                 Console.WriteLine(ex.ToString());
                 return null;
             }
@@ -6507,6 +6508,7 @@ namespace IOAS.GenericServices
             }
             catch (Exception ex)
             {
+                Infrastructure.IOASException.Instance.HandleMe(this, ex);
                 Console.WriteLine(ex.ToString());
                 return ds;
             }

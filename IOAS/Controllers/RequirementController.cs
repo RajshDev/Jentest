@@ -1114,7 +1114,7 @@ namespace IOAS.Controllers
                             if (StartDate > model.Appointmentstartdate || model.AppointmentEndDate > CloseDate)
                                 msg = msg == "Valid" ? "Appointment tenure must be between the project start date and project closure date." : msg + "<br /> Appointment tenure must be between the project start date and project closure date.";
 
-                            var now = DateTime.Now.Date.AddDays(-15);
+                            var now = DateTime.Now.Date.AddDays(-18);
                             if (model.TypeofappointmentId == 4 || (model.TypeofappointmentId == 3 && model.MsPhdType > 0))
                                 now = DateTime.Now.Date.AddYears(-2).AddDays(+1);
                             if (now >= StartDate && now <= CloseDate)
@@ -4542,8 +4542,11 @@ namespace IOAS.Controllers
 
                     int?[] exceptedType = { 7, 8 };
                     string[] notexpstatus = new string[] { "Rejected", "Canceled", "Cancel" };
+                    DateTime? FromDate = model.FromDate.Value.AddHours(+12);
+                    if (model.FromMeridiem == 2)
+                        FromDate = model.FromDate.Value.AddHours(+24);
 
-                    if (context.tblOrder.Any(m => m.AppointmentId == model.ApplicationID && m.AppointmentType == appointmenttype && exceptedType.Contains(m.OrderType ?? 0) && !notexpstatus.Contains(m.Status) && m.FromDate != m.ToDate && m.ToDate >= model.FromDate)) //Is only check loss of pay stop payment
+                    if (context.tblOrder.Any(m => m.AppointmentId == model.ApplicationID && m.AppointmentType == appointmenttype && exceptedType.Contains(m.OrderType ?? 0) && !notexpstatus.Contains(m.Status) && m.FromDate != m.ToDate && m.ToDate >= FromDate)) //Is only check loss of pay stop payment
                         msg = msg == "Valid" ? "stop payment / loss of pay already available for this tenure." : msg + "<br />stop payment / loss of pay already available for this tenure.";
 
                     if (context.tblOrder.Any(m => m.AppointmentId == model.ApplicationID && m.AppointmentType == appointmenttype && m.OrderType == 10 && !notexpstatus.Contains(m.Status) && m.ToDate >= model.FromDate)) //Is only check loss of pay stop payment
@@ -9360,7 +9363,7 @@ namespace IOAS.Controllers
                                 sqlComm.Parameters.AddWithValue("@PayrollId", PayrollId);
                                 sqlComm.Parameters.AddWithValue("@userId", userid);
                                 sqlComm.CommandType = CommandType.StoredProcedure;
-                                sqlComm.CommandTimeout = 1000;
+                                sqlComm.CommandTimeout = 3500;
                                 SqlDataAdapter da = new SqlDataAdapter();
                                 da.SelectCommand = sqlComm;
                                 da.Fill(dset);

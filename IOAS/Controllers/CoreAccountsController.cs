@@ -2378,13 +2378,14 @@ namespace IOAS.Controllers
             ttlGSTElg = Math.Round(ttlGSTElg, 2, MidpointRounding.AwayFromZero);
             decimal paymentBUAmt = model.PaymentBreakDetail.Select(m => m.PaymentAmount).Sum() ?? 0;
             paymentBUAmt = paymentBUAmt + (model.PaymentTDSAmount ?? 0);
-            if (model.CommitmentAmount != (model.CommitmentDetail.Sum(m => m.PaymentAmount) - (model.CommitmentDetail.Sum(m => m.ReversedAmount) ?? 0)))
-            {
-                msg = "There is a mismatch between the total commitment value and Commitment BreakUp.please contact administrator.";
-                return msg;
-            }
+           
             if (piAdvAmt < overallExp)
             {
+                if (model.CommitmentAmount != model.CommitmentDetail.Sum(m => m.PaymentAmount))
+                {
+                    msg = "There is a mismatch between the total commitment value and Commitment BreakUp.please contact administrator.";
+                    return msg;
+                }
                 foreach (var item in model.CommitmentDetail)
                 {
                     if (item.PaymentAmount > item.AvailableAmount)
@@ -2399,6 +2400,11 @@ namespace IOAS.Controllers
             }
             else if (piAdvAmt > model.OverallExpense)
             {
+                if (model.CommitmentAmount !=  model.CommitmentDetail.Sum(m => m.ReversedAmount))
+                {
+                    msg = "There is a mismatch between the total commitment value and Commitment BreakUp.please contact administrator.";
+                    return msg;
+                }
                 foreach (var item in model.CommitmentDetail)
                 {
                     if (item.PaymentAmount < item.ReversedAmount)
