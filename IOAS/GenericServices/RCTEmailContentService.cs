@@ -29,15 +29,21 @@ namespace IOAS.GenericServices
         //        return "";
         //}
 
-        private static List<string> getDefaultCC(string Apptype)
+        private static List<string> getDefaultCC(string Apptype, int mailtype = 0)
         {
             string defaultCC = string.Empty;
             List<string> list = new List<string>();
             defaultCC = WebConfigurationManager.AppSettings["RCTSTECCMail"];
             if (Apptype == "STE")
+            {
                 defaultCC = WebConfigurationManager.AppSettings["RCTSTECCMail"];
+                if (mailtype > 0)
+                    defaultCC = WebConfigurationManager.AppSettings["RCTSTECCMail" + mailtype];
+            }
             else if (Apptype == "OSG")
+            {
                 defaultCC = WebConfigurationManager.AppSettings["RCTOSGCCMail"];
+            }
             list = new List<string>(defaultCC.Split(','));
             return list;
         }
@@ -480,9 +486,10 @@ namespace IOAS.GenericServices
                         int emailcount = 0;
                         if (!string.IsNullOrEmpty(querymast.bcc))
                             ccMail = new List<string>(Regex.Split((querymast.bcc), ","));
-                        getDefaultCC(category).ForEach(mailid => { ccMail.Add(mailid); });
                         if (category == "STE")
                         {
+                            getDefaultCC(category, 2).ForEach(mailid => { ccMail.Add(mailid); });
+
                             emailcount = (from el in IOAScontext.tblRCTSTEEmailLog
                                           where el.TypeofMail == 3 && el.IsSend == true && el.STEID == appid
                                            && (el.OrderId != null && el.OrderId == orderid || orderid == null)
@@ -500,6 +507,8 @@ namespace IOAS.GenericServices
                         }
                         else if (category == "CON")
                         {
+                            getDefaultCC(category).ForEach(mailid => { ccMail.Add(mailid); });
+
                             emailcount = (from el in IOAScontext.tblRCTConsutantAppEmailLog
                                           where el.TypeofMail == 3 && el.IsSend == true && el.ConsultantAppointmentId == appid
                                           && (el.OrderId != null && el.OrderId == orderid || orderid == null)
@@ -516,6 +525,8 @@ namespace IOAS.GenericServices
                         }
                         else
                         {
+                            getDefaultCC(category).ForEach(mailid => { ccMail.Add(mailid); });
+
                             emailcount = (from el in IOAScontext.tblRCTOSGEmailLog
                                           where el.TypeofMail == 3 && el.IsSend == true && el.OSGID == appid
                                           && (el.OrderId != null && el.OrderId == orderid || orderid == null)
@@ -1117,6 +1128,8 @@ namespace IOAS.GenericServices
                         }
                         ackmodel.FromDate = String.Format("{0:dd-MMMM-yyyy}", query.AppointmentStartdate);
                         ackmodel.ToDate = String.Format("{0:dd-MMMM-yyyy}", query.AppointmentEnddate);
+                        ackmodel.PrevFromDate = String.Format("{0:dd-MMMM-yyyy}", queryVendor.ActualAppointmentStartDate);
+                        ackmodel.PrevToDate = String.Format("{0:dd-MMMM-yyyy}", queryVendor.ActualAppointmentEndDate);
                         ackmodel.PersonName = query.ProfessionalType + "" + query.CandidateName.ToUpper();
                         if (query.ApplicationType == "New" && IOAScontext.tblRCTOutsourcing.Any(x => x.EmployeersID == query.EmployeersID && x.Status == "Relieved"))
                         {
@@ -1180,29 +1193,31 @@ namespace IOAS.GenericServices
                         }
                         else if (query.ApplicationType == "Amendment")
                         {
-                            if (IOAScontext.tblOrder.Any(x => x.AppointmentId == OSGID && x.AppointmentType == 3 && x.Status == "Completed" && x.isUpdated == true))
+                            int?[] exptype = new int?[] { 1, 2, 3, 4 };
+                            if (IOAScontext.tblOrder.Any(x => x.AppointmentId == OSGID && x.AppointmentType == 3 && exptype.Contains(x.OrderType) && x.Status == "Completed" && x.isUpdated == true))
                             {
-                                int?[] exptype = new int?[] { 1, 2, 3, 4 };
                                 var queryorder = (from o in IOAScontext.tblOrder
-                                                  where o.AppointmentId == OSGID && o.AppointmentType == 3
+                                                  where o.AppointmentId == OSGID && o.AppointmentType == 3 && o.OrderId < OrderId
                                                   && o.Status == "Completed" && o.isUpdated == true && exptype.Contains(o.OrderType)
                                                   orderby o.OrderId descending
                                                   select o).FirstOrDefault();
 
                                 if (queryorder != null)
                                 {
-                                    if (IOAScontext.tblRCTOfferDetails.Any(x => x.ApplicationId == query.ApplicationId && x.Category == "OSG" && x.OfferCategory == "OfficeOrder" && x.isSend == true && x.OrderId == queryorder.OrderId))
+                                    if (IOAScontext.tblRCTOfferDetails.Any(x => x.ApplicationId == query.ApplicationId && x.Category == "OSG" && x.OfferCategory == "OfficeOrder" && x.OrderId == queryorder.OrderId))
                                     {
                                         ackmodel.FillFields = "appointment letter";
                                     }
-                                    else if (IOAScontext.tblRCTOfferDetails.Any(x => x.ApplicationId == query.ApplicationId && x.Category == "OSG" && x.OfferCategory == "Order" && x.isSend == true && x.OrderId == queryorder.OrderId))
+                                    else if (IOAScontext.tblRCTOfferDetails.Any(x => x.ApplicationId == query.ApplicationId && x.Category == "OSG" && x.OfferCategory == "Order" && x.OrderId == queryorder.OrderId))
                                     {
                                         ackmodel.FillFields = "appointment letter";
                                     }
-                                    else if (IOAScontext.tblRCTOfferDetails.Any(x => x.ApplicationId == query.ApplicationId && x.Category == "OSG" && x.OfferCategory == "OfferLetter" && x.isSend == true && x.OrderId == queryorder.OrderId))
+                                    else if (IOAScontext.tblRCTOfferDetails.Any(x => x.ApplicationId == query.ApplicationId && x.Category == "OSG" && x.OfferCategory == "OfferLetter" && x.OrderId == queryorder.OrderId))
                                     {
                                         ackmodel.FillFields = "offer letter";
                                     }
+                                    ackmodel.PrevFromDate = String.Format("{0:dd-MMMM-yyyy}", queryorder.FromDate);
+                                    ackmodel.PrevToDate = String.Format("{0:dd-MMMM-yyyy}", queryorder.ToDate);
                                 }
                                 else
                                 {
@@ -1214,9 +1229,6 @@ namespace IOAS.GenericServices
                                 ackmodel.FillFields = "offer letter";
                             }
                             ackmodel.subject = "Revised " + ackmodel.FillFields + " for " + query.CandidateName.ToUpper() + " – Outsourcing.";
-
-                            ackmodel.PrevFromDate = String.Format("{0:dd-MMMM-yyyy}", queryVendor.ActualAppointmentStartDate);
-                            ackmodel.PrevToDate = String.Format("{0:dd-MMMM-yyyy}", queryVendor.ActualAppointmentEndDate);
                         }
                         else if (query.ApplicationType == "Relieving")
                         {
@@ -1382,29 +1394,33 @@ namespace IOAS.GenericServices
                         ackmodel.FromDate = String.Format("{0:dd-MMMM-yyyy}", query.AppointmentStartdate);
                         ackmodel.ToDate = String.Format("{0:dd-MMMM-yyyy}", query.AppointmentEnddate);
                         ackmodel.PersonName = query.ProfessionalType + "" + query.CandidateName.ToUpper();
-                        if (IOAScontext.tblOrder.Any(x => x.AppointmentId == query.ApplicationId && x.AppointmentType == 3 && x.Status == "Completed" && x.isUpdated == true))
+                        ackmodel.PrevFromDate = String.Format("{0:dd-MMMM-yyyy}", queryVendor.ActualAppointmentStartDate);
+                        ackmodel.PrevToDate = String.Format("{0:dd-MMMM-yyyy}", queryVendor.ActualAppointmentEndDate);
+                        int?[] exptype = new int?[] { 1, 2, 3, 4 };
+                        if (IOAScontext.tblOrder.Any(x => x.AppointmentId == query.ApplicationId && x.AppointmentType == 3 && exptype.Contains(x.OrderType) && x.Status == "Completed" && x.isUpdated == true))
                         {
-                            int?[] exptype = new int?[] { 1, 2, 3, 4 };
                             var queryorder = (from o in IOAScontext.tblOrder
-                                              where o.AppointmentId == query.ApplicationId && o.AppointmentType == 3
+                                              where o.AppointmentId == query.ApplicationId && o.AppointmentType == 3 && o.OrderId < OrderId
                                               && o.Status == "Completed" && o.isUpdated == true && exptype.Contains(o.OrderType)
                                               orderby o.OrderId descending
                                               select o).FirstOrDefault();
 
                             if (queryorder != null)
                             {
-                                if (IOAScontext.tblRCTOfferDetails.Any(x => x.ApplicationId == query.ApplicationId && x.Category == "OSG" && x.OfferCategory == "OfficeOrder" && x.isSend == true && x.OrderId == queryorder.OrderId))
+                                if (IOAScontext.tblRCTOfferDetails.Any(x => x.ApplicationId == query.ApplicationId && x.Category == "OSG" && x.OfferCategory == "OfficeOrder" && x.OrderId == queryorder.OrderId))
                                 {
                                     ackmodel.FillFields = "appointment letter";
                                 }
-                                else if (IOAScontext.tblRCTOfferDetails.Any(x => x.ApplicationId == query.ApplicationId && x.Category == "OSG" && x.OfferCategory == "Order" && x.isSend == true && x.OrderId == queryorder.OrderId))
+                                else if (IOAScontext.tblRCTOfferDetails.Any(x => x.ApplicationId == query.ApplicationId && x.Category == "OSG" && x.OfferCategory == "Order" && x.OrderId == queryorder.OrderId))
                                 {
                                     ackmodel.FillFields = "appointment letter";
                                 }
-                                else if (IOAScontext.tblRCTOfferDetails.Any(x => x.ApplicationId == query.ApplicationId && x.Category == "OSG" && x.OfferCategory == "OfferLetter" && x.isSend == true && x.OrderId == queryorder.OrderId))
+                                else if (IOAScontext.tblRCTOfferDetails.Any(x => x.ApplicationId == query.ApplicationId && x.Category == "OSG" && x.OfferCategory == "OfferLetter" && x.OrderId == queryorder.OrderId))
                                 {
                                     ackmodel.FillFields = "offer letter";
                                 }
+                                ackmodel.PrevFromDate = String.Format("{0:dd-MMMM-yyyy}", queryorder.FromDate);
+                                ackmodel.PrevToDate = String.Format("{0:dd-MMMM-yyyy}", queryorder.ToDate);
                             }
                             else
                             {
@@ -1917,7 +1933,7 @@ namespace IOAS.GenericServices
                             foreach (var bccEmail in bcc)
                                 addcc.Add(bccEmail.Trim());
                         }
-                        getDefaultCC("STE").ForEach(mailid => { addcc.Add(mailid); });
+                        getDefaultCC("STE", 1).ForEach(mailid => { addcc.Add(mailid); });
                         npmodel.subject = "ICSR - Application status of " + query.ProfessionalType + " " + query.CandidateName;
                         npmodel.toMail = query.ToMail;
                         npmodel.cc = addcc;
@@ -2009,7 +2025,7 @@ namespace IOAS.GenericServices
                             foreach (var bccEmail in bcc)
                                 addcc.Add(bccEmail.Trim());
                         }
-                        getDefaultCC("STE").ForEach(mailid => { addcc.Add(mailid); });
+                        getDefaultCC("STE", 1).ForEach(mailid => { addcc.Add(mailid); });
                         npmodel.subject = "Deviation(s) from the norms in the application of " + query.ProfessionalType + " " + query.CandidateName;
                         npmodel.toMail = query.ToMail;
                         npmodel.cc = addcc;
@@ -2113,7 +2129,6 @@ namespace IOAS.GenericServices
                             foreach (var bccEmail in bcc)
                                 addcc.Add(bccEmail.Trim());
                         }
-                        getDefaultCC(query.Category).ForEach(mailid => { addcc.Add(mailid); });
                         var queryodr = (from o in context.tblOrder
                                         from vw in context.vw_RCTOverAllApplicationEntry
                                         where o.AppointmentId == vw.ApplicationId && o.AppointmentType == vw.AppointmentType && vw.ApplicationType == "New" && o.OrderId == orderid
@@ -2157,6 +2172,14 @@ namespace IOAS.GenericServices
                             npmodel.FillFields = "change of designation";
                         if (query.ApplicationType == "Enhancement" && queryodr.NewProjectId != queryodr.OldProjectId)
                             npmodel.FillFields = "change of project";
+
+                        if (query.ApplicationType == "Change of project")
+                            getDefaultCC(query.Category, 1).ForEach(mailid => { addcc.Add(mailid); });
+                        else if (query.ApplicationType == "Enhancement" && (queryodr.NewProjectId != queryodr.OldProjectId || queryodr.NewDesignation != queryodr.OldDesignation))
+                            getDefaultCC(query.Category, 1).ForEach(mailid => { addcc.Add(mailid); });
+                        else
+                            getDefaultCC(query.Category, 3).ForEach(mailid => { addcc.Add(mailid); });
+
                         npmodel.toMail = query.ToMail;
                         npmodel.cc = addcc;
                         npmodel.AppointmentStartDate = String.Format("{0:dd-MMMM-yyyy}", query.AppointmentStartdate);
@@ -2285,7 +2308,21 @@ namespace IOAS.GenericServices
                             foreach (var bccEmail in bcc)
                                 addcc.Add(bccEmail.Trim());
                         }
-                        getDefaultCC(query.Category).ForEach(mailid => { addcc.Add(mailid); });
+                        var queryodr = (from o in context.tblOrder where o.OrderId == orderid
+                                        select new
+                                        {
+                                            o.NewDesignation,
+                                            o.OldDesignation,
+                                            o.NewProjectId,
+                                            o.OldProjectId
+                                        }).FirstOrDefault();
+                        if (query.ApplicationType == "Change of project")
+                            getDefaultCC(query.Category, 1).ForEach(mailid => { addcc.Add(mailid); });
+                        else if (query.ApplicationType == "Enhancement" && (queryodr.NewProjectId != queryodr.OldProjectId || queryodr.NewDesignation != queryodr.OldDesignation))
+                            getDefaultCC(query.Category, 1).ForEach(mailid => { addcc.Add(mailid); });
+                        else
+                            getDefaultCC(query.Category, 3).ForEach(mailid => { addcc.Add(mailid); });
+
                         npmodel.subject = "Deviation from the norms in the term " + query.ApplicationType.ToLower() + " for " + query.ProfessionalType + " " + query.CandidateName;
                         npmodel.toMail = query.ToMail;
                         npmodel.cc = addcc;
@@ -2452,13 +2489,13 @@ namespace IOAS.GenericServices
                             foreach (var bccEmail in bcc)
                                 addcc.Add(bccEmail.Trim());
                         }
-                        getDefaultCC(query.Category).ForEach(mailid => { addcc.Add(mailid); });
                         if (IOAScontext.tblRCTOfferDetails.Any(x => x.ApplicationId == query.ApplicationId && x.Category == apptype && x.OfferCategory == "OfficeOrder" && x.isSend == true && (x.OrderId == orderid || (orderid == null && x.OrderId == null))) && querycancellog != null && (querycancellog.PreStatus == "Verification Completed" || querycancellog.PreStatus == "Completed"))
                         {
                             npmodel.Cancel_f = "Office Order";
                             npmodel.subject = "ICSR - Office order is cancelled " + query.Name;
                             var OfficeOrderDate = IOAScontext.tblRCTOfferDetails.Where(x => x.ApplicationId == query.ApplicationId && x.Category == apptype && x.OfferCategory == "OfficeOrder" && (x.OrderId == orderid || (orderid == null && x.OrderId == null))).Select(x => x.UPTD_TS).FirstOrDefault();
                             npmodel.OfficeOrderDate = string.Format("{0:dd-MMMM-yyyy}", OfficeOrderDate ?? DateTime.Now);
+                            getDefaultCC(query.Category, 2).ForEach(mailid => { addcc.Add(mailid); });
                         }
                         else if (IOAScontext.tblRCTOfferDetails.Any(x => x.ApplicationId == query.ApplicationId && x.Category == apptype && x.OfferCategory == "OfferLetter" && x.isSend == true && (x.OrderId == orderid || (orderid == null && x.OrderId == null))) && querycancellog != null && (querycancellog.PreStatus == "Verification Completed" || querycancellog.PreStatus == "Completed"))
                         {
@@ -2466,6 +2503,7 @@ namespace IOAS.GenericServices
                             npmodel.subject = "ICSR - Offer letter is cancelled " + query.Name;
                             var OfficeOrderDate = IOAScontext.tblRCTOfferDetails.Where(x => x.ApplicationId == query.ApplicationId && x.Category == apptype && x.OfferCategory == "OfferLetter" && (x.OrderId == orderid || (orderid == null && x.OrderId == null))).Select(x => x.UPTD_TS).FirstOrDefault();
                             npmodel.OfficeOrderDate = string.Format("{0:dd-MMMM-yyyy}", OfficeOrderDate ?? DateTime.Now);
+                            getDefaultCC(query.Category, 2).ForEach(mailid => { addcc.Add(mailid); });
                         }
                         else if (IOAScontext.tblRCTOfferDetails.Any(x => x.ApplicationId == query.ApplicationId && x.Category == apptype && x.OfferCategory == "Order" && x.isSend == true && x.OrderId == orderid) && querycancellog != null && querycancellog.PreStatus == "Completed")
                         {
@@ -2473,14 +2511,37 @@ namespace IOAS.GenericServices
                             npmodel.subject = "ICSR - " + query.ApplicationType + " order is cancelled " + query.Name;
                             var OfficeOrderDate = IOAScontext.tblRCTOfferDetails.Where(x => x.ApplicationId == query.ApplicationId && x.Category == apptype && x.OfferCategory == "Order" && x.OrderId == orderid).Select(x => x.UPTD_TS).FirstOrDefault();
                             npmodel.OfficeOrderDate = string.Format("{0:dd-MMMM-yyyy}", OfficeOrderDate ?? DateTime.Now);
+                            getDefaultCC(query.Category, 3).ForEach(mailid => { addcc.Add(mailid); });
                         }
                         else if (IOAScontext.tblRCTOfferDetails.Any(x => x.ApplicationId == query.ApplicationId && x.Category == apptype && x.OfferCategory == "OfferLetter" && x.isSend == true && (x.OrderId == orderid || (orderid == null && x.OrderId == null))) && querycancellog != null && querycancellog.PreStatus == "Awaiting Verification")
                         {
                             npmodel.subject = "ICSR - Offer cancellation for " + query.Name + "(" + query.TypeofAppointment + ")";
                             npmodel.Cancel_f = "Verification level";
+                            getDefaultCC(query.Category, 2).ForEach(mailid => { addcc.Add(mailid); });
                         }
                         else
+                        {
                             npmodel.subject = "ICSR - Cancellation of application for " + query.Name;
+                            if (orderid == null)
+                                getDefaultCC(query.Category, 1).ForEach(mailid => { addcc.Add(mailid); });
+                            else
+                            {
+                                var odrquery = (from o in IOAScontext.tblOrder
+                                                where o.OrderId == orderid
+                                                select o).FirstOrDefault();
+                                if (odrquery != null)
+                                {
+                                    if (odrquery.NewDesignation != odrquery.OldDesignation || odrquery.NewProjectId != odrquery.OldProjectId)
+                                        getDefaultCC(query.Category, 1).ForEach(mailid => { addcc.Add(mailid); });
+                                    else if (odrquery.OrderType == 2 || odrquery.OrderType == 3)
+                                        getDefaultCC(query.Category, 3).ForEach(mailid => { addcc.Add(mailid); });
+                                    else if (odrquery.OrderType == 4)
+                                        getDefaultCC(query.Category, 2).ForEach(mailid => { addcc.Add(mailid); });
+
+                                }
+                            }
+
+                        }
 
                         npmodel.toMail = query.ToMail;
                         npmodel.cc = addcc;
@@ -2791,7 +2852,7 @@ namespace IOAS.GenericServices
                             foreach (var bccEmail in bcc)
                                 addcc.Add(bccEmail.Trim());
                         }
-                        getDefaultCC(query.Category).ForEach(mailid => { addcc.Add(mailid); });
+                        getDefaultCC(query.Category, 2).ForEach(mailid => { addcc.Add(mailid); });
                         ackmodel.FillFields = "appointment";
                         if (query.ApplicationType.Contains("Change of project"))
                             ackmodel.FillFields = "change of project";
@@ -2992,7 +3053,7 @@ namespace IOAS.GenericServices
                             foreach (var bccEmail in bcc)
                                 addcc.Add(bccEmail.Trim());
                         }
-                        getDefaultCC(query.Category).ForEach(mailid => { addcc.Add(mailid); });
+                        getDefaultCC(query.Category, 2).ForEach(mailid => { addcc.Add(mailid); });
                         ackmodel.subject = "Office order for " + query.Name;
                         ackmodel.toMail = query.Email;
                         ackmodel.cc = addcc;
@@ -3214,7 +3275,7 @@ namespace IOAS.GenericServices
                                 foreach (var bccEmail in bcc)
                                     addcc.Add(bccEmail.Trim());
                             }
-                            getDefaultCC("STE").ForEach(mailid => { addcc.Add(mailid); });
+                            getDefaultCC("STE", 1).ForEach(mailid => { addcc.Add(mailid); });
                             npmodel.PersonName = Qry.ProfessionalType + "" + Qry.CandidateName.ToUpper();
 
                             DateTime? HRAFromDate = DateTime.Now;
@@ -3412,7 +3473,7 @@ namespace IOAS.GenericServices
                                 foreach (var bccEmail in bcc)
                                     addcc.Add(bccEmail.Trim());
                             }
-                            getDefaultCC(Qry.Category).ForEach(mailid => { addcc.Add(mailid); });
+                            getDefaultCC(Qry.Category, 4).ForEach(mailid => { addcc.Add(mailid); });
                             ackmodel.PersonName = Qry.ProfessionalType + " " + Qry.CandidateName;
 
                             if (Qry.Status == "Open")
@@ -3624,7 +3685,7 @@ namespace IOAS.GenericServices
                                 foreach (var bccEmail in bcc)
                                     addcc.Add(bccEmail.Trim());
                             }
-                            getDefaultCC(Qry.Category).ForEach(mailid => { addcc.Add(mailid); });
+                            getDefaultCC(Qry.Category, 3).ForEach(mailid => { addcc.Add(mailid); });
                             ackmodel.PersonName = Qry.ProfessionalType + " " + Qry.CandidateName;
                             ackmodel.subject = Qry.ApplicationType + " order for " + ackmodel.PersonName;
                             ackmodel.toMail = Qry.Email;
@@ -3822,7 +3883,7 @@ namespace IOAS.GenericServices
                             foreach (var bccEmail in bcc)
                                 addcc.Add(bccEmail.Trim());
                         }
-                        getDefaultCC(Qry.Category).ForEach(mailid => { addcc.Add(mailid); });
+                        getDefaultCC(Qry.Category, 4).ForEach(mailid => { addcc.Add(mailid); });
                         string ProjectNo = Common.getprojectnumber(Qry.ProjectId ?? 0);
                         ackmodel.PersonName = Qry.ProfessionalType + " " + Qry.CandidateName;
                         ackmodel.DesignationName = Qry.PostRecommended;
@@ -4007,7 +4068,7 @@ namespace IOAS.GenericServices
                                 foreach (var bccEmail in bcc)
                                     addcc.Add(bccEmail.Trim());
                             }
-                            getDefaultCC(Qry.Category).ForEach(mailid => { addcc.Add(mailid); });
+                            getDefaultCC(Qry.Category, 4).ForEach(mailid => { addcc.Add(mailid); });
                             //emodel.toMail = getPIDetails(ProjectID ?? 0).Email;
                             string ProjectNo = Common.getprojectnumber(Qry.ProjectId ?? 0);
                             ackmodel.PersonName = Qry.ProfessionalType + " " + Qry.CandidateName;
@@ -4211,7 +4272,7 @@ namespace IOAS.GenericServices
                         }
                         if (query.Email != null)
                             addcc.Add(query.Email);
-                        getDefaultCC(query.Category).ForEach(mailid => { addcc.Add(mailid); });
+                        getDefaultCC(query.Category, 2).ForEach(mailid => { addcc.Add(mailid); });
                         npmodel.subject = "ICSR - Offer cancellation reminder email for " + query.Name;
                         npmodel.toMail = query.ToMail;
                         npmodel.cc = addcc;
@@ -4341,7 +4402,6 @@ namespace IOAS.GenericServices
                 return Tuple.Create(emailcount, "");
             }
         }
-
 
         public static int SendTermEndMail(int AppId, string AppType, int UserID)
         {
@@ -4643,7 +4703,6 @@ namespace IOAS.GenericServices
             }
         }
 
-
         #region PayRoll
 
         public static int SendMailForPayrollAttachment(int Payrollid)
@@ -4765,7 +4824,7 @@ namespace IOAS.GenericServices
                             actname = "PAYROLL DATA Adhoc Main FOR THE MONTH OF " + query.SalaryMonth + ".xlsx";
                             salarytypename = "Main";
                         }
-                        else if(query.SalaryType == 0)
+                        else if (query.SalaryType == 0)
                         {
                             disname = "PAYROLL DATA Adhoc Pensioner FOR THE MONTH OF " + query.SalaryMonth + ".xlsx";
                             actname = "PAYROLL DATA Adhoc Pensioner FOR THE MONTH OF " + query.SalaryMonth + ".xlsx";

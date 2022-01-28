@@ -984,7 +984,18 @@ namespace IOAS.GenericServices
                                                    b.ClosureDate,
                                                    FirstName = j == null ? "" : j.FirstName,
                                                    DepartmentName = j == null ? "" : j.DepartmentName
-                                               }).Skip(skiprec).Take(pageSize).ToList();
+                                               }).ToList();
+
+                    if (model.SearchINStatus == null)
+                    {
+                        list.TotalRecords = QryAnnouncementList.Where(x => x.Status != 13).Count();
+                        QryAnnouncementList = QryAnnouncementList.Where(x => x.Status != 13).Skip(skiprec).Take(pageSize).ToList();
+                    }
+                    else if (model.SearchINStatus != null)
+                    {
+                        list.TotalRecords = QryAnnouncementList.Where(x => x.Status == 13).Count();
+                        QryAnnouncementList = QryAnnouncementList.Where(x => x.CodeValDetail == model.SearchINStatus).Skip(skiprec).Take(pageSize).ToList();
+                    }
                     if (QryAnnouncementList != null)
                     {
                         int sno = 0;
@@ -1018,31 +1029,32 @@ namespace IOAS.GenericServices
                         }
                     }
 
-                    list.TotalRecords = (from b in context.tblRCTAnnouncementMaster
-                                         from p in context.tblCodeControl
-                                         join pi in context.vwFacultyStaffDetails on b.PIName equals pi.UserId into lft
-                                         from j in lft.DefaultIfEmpty()
-                                         orderby b.AnnouncementID descending
-                                         where p.CodeName == "Status Of Announcement" && b.Status == p.CodeValAbbr
-                                         && (b.AnnouncementTitle.Contains(model.AnnouncementTitle) || model.AnnouncementTitle == null)
-                                         && (p.CodeValDetail.Contains(model.Status) || model.Status == null)
-                                         && (b.RefNo == model.SearchINAdvertisementNo || model.SearchINAdvertisementNo == null)
-                                         && ((b.Crt_TS >= model.FromDate && b.Crt_TS <= model.ToDate) || (model.FromDate == null || model.ToDate == null))
-                                         && ((b.RequestReceiveDate >= RequestReceivedDate.@from && b.RequestReceiveDate <= RequestReceivedDate.to) || (RequestReceivedDate.@from == null && RequestReceivedDate.to == null))
-                                         && ((b.ClosureDate >= ClosureDate.@from && b.ClosureDate <= ClosureDate.to) || (ClosureDate.@from == null && ClosureDate.to == null))
-                                         && (j == null || string.IsNullOrEmpty(model.PIName) || (j.FirstName.Contains(model.PIName) || j.DepartmentName.Contains(model.PIName)))
-                                         select new
-                                         {
-                                             b.RefNo,
-                                             b.Status,
-                                             b.AnnouncementTitle,
-                                             b.AnnouncementID,
-                                             b.RequestedBy,
-                                             b.AnnouncementCategory,
-                                             p.CodeValDetail,
-                                             b.RequestReceiveDate,
-                                             b.ClosureDate,
-                                         }).Count();
+                    //list.TotalRecords = (from b in context.tblRCTAnnouncementMaster
+                    //                     from p in context.tblCodeControl
+                    //                     join pi in context.vwFacultyStaffDetails on b.PIName equals pi.UserId into lft
+                    //                     from j in lft.DefaultIfEmpty()
+                    //                     orderby b.AnnouncementID descending
+                    //                     where p.CodeName == "Status Of Announcement" && b.Status == p.CodeValAbbr
+                    //                     && (b.AnnouncementTitle.Contains(model.AnnouncementTitle) || model.AnnouncementTitle == null)
+                    //                     && (p.CodeValDetail.Contains(model.Status) || model.Status == null)
+                    //                     && (p.CodeValDetail.Contains(model.SearchINStatus) || model.SearchINStatus == null)
+                    //                     && (b.RefNo == model.SearchINAdvertisementNo || model.SearchINAdvertisementNo == null)
+                    //                     && ((b.Crt_TS >= model.FromDate && b.Crt_TS <= model.ToDate) || (model.FromDate == null || model.ToDate == null))
+                    //                     && ((b.RequestReceiveDate >= RequestReceivedDate.@from && b.RequestReceiveDate <= RequestReceivedDate.to) || (RequestReceivedDate.@from == null && RequestReceivedDate.to == null))
+                    //                     && ((b.ClosureDate >= ClosureDate.@from && b.ClosureDate <= ClosureDate.to) || (ClosureDate.@from == null && ClosureDate.to == null))
+                    //                     && (j == null || string.IsNullOrEmpty(model.PIName) || (j.FirstName.Contains(model.PIName) || j.DepartmentName.Contains(model.PIName)))
+                    //                     select new
+                    //                     {
+                    //                         b.RefNo,
+                    //                         b.Status,
+                    //                         b.AnnouncementTitle,
+                    //                         b.AnnouncementID,
+                    //                         b.RequestedBy,
+                    //                         b.AnnouncementCategory,
+                    //                         p.CodeValDetail,
+                    //                         b.RequestReceiveDate,
+                    //                         b.ClosureDate,
+                    //                     }).Count();
                     list.AnnouncementList = AnnouncementList;
                 }
                 return list;
@@ -5485,7 +5497,7 @@ namespace IOAS.GenericServices
                                  from vw in context.vw_RCTOverAllApplicationEntry
                                  orderby b.OrderId descending
                                  where b.NewProjectId == p.ProjectId && b.AppointmentId == vw.ApplicationId && b.OrderType == 1 && b.Status != "InActive"
-                                 && vw.ApplicationType == "New" && b.AppointmentType == vw.AppointmentType && vw.Category == CategoryName
+                                 && vw.ApplicationType == "New" && b.AppointmentType == vw.AppointmentType && (vw.Category == CategoryName || CategoryName == "")
                                  && (vw.EmployeeNo.Contains(model.EmployeeNo) || model.EmployeeNo == null)
                                  && (vw.Category.Contains(model.Category) || model.Category == null)
                                  && (p.ProjectNumber.Contains(model.NewProjectNumber) || model.NewProjectNumber == null)
@@ -17834,7 +17846,7 @@ namespace IOAS.GenericServices
                                         salcalc.ID = OSGID;
                                         salcalc.AppointType = "Outsourcing";
                                         salcalc.TypeCode = "OSG";
-                                        salrycal.StatutoryId = model.StatutoryId;
+                                        salcalc.StatutoryId = model.StatutoryId;
                                         salcalc.RecommendSalary = model.RecommendedSalary;
                                         salcalc.Salutation = model.EmpSalutation;
                                         salcalc.EmpType = model.EmpType;
@@ -17861,7 +17873,7 @@ namespace IOAS.GenericServices
                                         salcalc.Status = "Active";
                                         salcalc.CrtdTS = DateTime.Now;
                                         salcalc.CrtdUserId = logged_in_userId;
-                                        salrycal.IsCurrentVersion = true;
+                                        salcalc.IsCurrentVersion = true;
                                         var datas = getGSTAgencyFee(model.VendorId ?? 0);
                                         if (datas != null)
                                         {

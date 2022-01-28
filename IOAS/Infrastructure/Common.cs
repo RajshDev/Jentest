@@ -24923,7 +24923,7 @@ namespace IOAS.Infrastructure
                     if (EmpNo != null || AppRefNo != null)
                     {
                         var qeryempno = (from vw in context.vw_RCTOverAllApplicationEntry
-                                         where (string.IsNullOrEmpty(EmpNo) || vw.EmployeersID == EmpNo) && vw.ApplicationType == "New"
+                                         where (string.IsNullOrEmpty(EmpNo) || (vw.EmployeersID == EmpNo && vw.IsActiveNow == true)) && vw.ApplicationType == "New"
                                          && (string.IsNullOrEmpty(AppRefNo) || vw.ApplicationNo == AppRefNo)
                                          orderby vw.ApplicationId descending
                                          select new { vw.Category, vw.ApplicationId }).FirstOrDefault();

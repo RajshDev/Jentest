@@ -5,29 +5,38 @@
     Layout = "~/Views/Shared/_LayoutFluid.cshtml";
 }
 <div class="row hd-tt-bg">
-    <div class="col-md-4">
+    <div class="col-md-8">
         <h3>Announcement List</h3>
+        <ul class="nav nav-pills custom-nav-pills custom-spl-nav">
+            <li class="active"><a data-toggle="tab" href="#tabunderprocess" class="brd-rd-md">Under process</a></li>
+            <li><a data-toggle="tab" href="#tabcompleted" class="brd-rd-md">Announcement completed</a></li>
+        </ul>
     </div>
-    <div id="addnewpage" class="col-md-8 flt-nav-links">
-
-        <a href="Javascript:void(0)" id="btnFilter" class="pull-right"> <i class="ion-android-funnel"></i>Filters</a>
-        @*<a href="#" id="btnaddnew" data-toggle="modal" data-target="#AddNewEntryModel"> <i class="ion-plus"></i>Add New</a>*@
+    <div id="addnewpage" class="col-md-4 flt-nav-links">
+        <ul class="nav nav-pills custom-nav-pills custom-spl-nav">
+            <li class="active"></li>
+            <li></li>
+        </ul>
         <a href="@Url.Action("CreateAnnouncement")"> <i class="ion-plus"></i>Add New</a>
-
     </div>
 </div>
 
-<div class="row mt30">
-    <div class="page-wrapper">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="custom-jsgrid-normal">
-                    <div id="AnnouncementList"></div>
-                </div>
+<div class="tab-content mt30">
+    <div id="tabunderprocess" class="tab-pane fade in active">
+        <div class="custom-jsgrid-normal">
+            <div id="AnnouncementList">
+            </div>
+        </div>
+    </div>
+    <div id="tabcompleted" class="tab-pane fade">
+        <div class="custom-jsgrid-normal">
+            <div id="CompletedList">
+
             </div>
         </div>
     </div>
 </div>
+
 @Html.AntiForgeryToken()
 <div id="popup"></div>
 <div id="getReason" class="modal fade" role="dialog" data-backdrop="static" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -96,6 +105,7 @@
 </div>
 
 <script type="text/javascript">
+    loadedList = [];
     var errMsg = '@TempData["errMsg"]';
     var succMsg = '@TempData["succMsg"]';
     $("#FromDate, #ToDate").datepicker
@@ -113,9 +123,8 @@
                }
            });
     $(document).ready(function () {
-        debugger
         if (succMsg != '') {
-            if (succMsg.includes('|')==true) {
+            if (succMsg.includes('|') == true) {
                 var Msg = succMsg.split('|');
                 $('#alertSuccess').html(Msg[0]);
                 $('#Success').modal('toggle');
@@ -131,43 +140,56 @@
             $('#FailedAlert').html(errMsg);
             $('#Failed').modal('toggle');
         }
-   
-    });
-    $('a[name="btnClose"],button[name="btnClose"]').click(function () {
-        $('#popupFilter').css("display", "none");
-    });
-    $("#btnFilter").click(function () {
-        $('#popupFilter').css("display", "Block");
-    });
-    function ResetForm() {
-        $('#srchKeyword').val('');
-        $('#srchTitle').val('');
-        $('#srchAdvNumber').val('');
-        $('#srchStatus').val('');
-        $('#FromDate').val('');
-        $('#ToDate').val('');
-    }
-    $('#btnReset').click(function () {
-        ResetForm();
-        getData(1);
-    });
-    $('#btnSearch').on('click', function () {
-        // var token = $("input[name=__RequestVerificationToken]").val();
-        getData(1);
-    });
-    function getData(page) {
-        var input = [];
-        input = {
-            SearchINAdvertisementNo: $('#srchAdvNumber').val(),
-            Status: $('#srchStatus').val(),
-            AnnouncementTitle: $('#srchTitle').val(),
-            SearchKeyword: $('#srchKeyword').val(),
-            FromDate: $('#FromDate').val() || null,
-            ToDate: $('#ToDate').val() || null
-        },
-         $("#AnnouncementList").jsGrid("search", input, pageIndex = 1, pageSize = 5);
 
+    });
+
+    function searchData(href) {
+        if (loadedList.indexOf(href) > -1)
+            return false;
+        if (href == "#tabunderprocess")
+            $("#AnnouncementList").jsGrid("search");
+        else if (href == "#tabcompleted")
+            $("#CompletedList").jsGrid("search");
     }
+    $('a[href^="#tab"]').click(function () {
+        var href = $(this).attr('href');
+        searchData(href);
+    });
+    //$('a[name="btnClose"],button[name="btnClose"]').click(function () {
+    //    $('#popupFilter').css("display", "none");
+    //});
+    //$("#btnFilter").click(function () {
+    //    $('#popupFilter').css("display", "Block");
+    //});
+    //function ResetForm() {
+    //    $('#srchKeyword').val('');
+    //    $('#srchTitle').val('');
+    //    $('#srchAdvNumber').val('');
+    //    $('#srchStatus').val('');
+    //    $('#FromDate').val('');
+    //    $('#ToDate').val('');
+    //}
+    //$('#btnReset').click(function () {
+    //    ResetForm();
+    //    getData(1);
+    //});
+    //$('#btnSearch').on('click', function () {
+    //    // var token = $("input[name=__RequestVerificationToken]").val();
+    //    getData(1);
+    //});
+    //function getData(page) {
+    //    var input = [];
+    //    input = {
+    //        SearchINAdvertisementNo: $('#srchAdvNumber').val(),
+    //        Status: $('#srchStatus').val(),
+    //        AnnouncementTitle: $('#srchTitle').val(),
+    //        SearchKeyword: $('#srchKeyword').val(),
+    //        FromDate: $('#FromDate').val() || null,
+    //        ToDate: $('#ToDate').val() || null
+    //    },
+    //     $("#AnnouncementList").jsGrid("search", input, pageIndex = 1, pageSize = 5);
+
+    //}
     var DateField = function (config) {
         jsGrid.Field.call(this, config);
     };
@@ -216,7 +238,7 @@
     $("#AnnouncementList").jsGrid({
         paging: true,
         pageIndex: 1,
-        pageSize: 5,
+        pageSize: 10,
         editing: false,
         filtering: true,
         pageLoading: true,
@@ -246,6 +268,8 @@
                             data: result.AnnouncementList,
                             itemsCount: result.TotalRecords
                         }
+                        if (loadedList.indexOf("#tabunderprocess") == -1)
+                            loadedList.push("#tabunderprocess");
                         deferred.resolve(da);
                     },
                     error: function (err) {
@@ -262,14 +286,14 @@
             { name: "SNo", title: "S.No", editing: false, width: 50 },
             { type: "number", name: "AnnouncementID", title: "Id", visible: false, width: 110 },
             { type: "text", name: "RefNo", title: "Advertisement Number", editing: false, width: 180 },
-            { type: "text", name: "AnnouncementTitle", title: "Announcement Title", editing: false,},
+            { type: "text", name: "AnnouncementTitle", title: "Announcement Title", editing: false, },
             { type: "text", name: "AnnouncementRequestBy", title: "Type", editing: false, filtering: false },
             //{ type: "text", name: "AnnouncementCategory", title: "Project / Designation", editing: false, filtering: false },
             {
                 type: "text", name: "PIName", title: "PI / Department", editing: false,
                 itemTemplate: function (item, name) {
                     return $("<td>").append(name.PIName + "<br/><span class='fn-s-xs'>(" + name.PIDepartment + ")</span>");
-    }
+                }
             },
             { type: "number", name: "StatusID", title: "StatusId", visible: false },
             { name: "strRequestReceiveDate", title: "Request Recive Date", type: "date" },
@@ -285,7 +309,7 @@
                          statusList = [{ id: "", name: "" }]
                      }
                      else if (item.StatusID == 5) {
-                         statusList = [{ id: "", name: "Action" },{ id: "Repost", name: "Repost / Close" }, { id: "Modify", name: "Modify" }, { id: "Cancel", name: "Cancel" }]
+                         statusList = [{ id: "", name: "Action" }, { id: "Repost", name: "Repost / Close" }, { id: "Modify", name: "Modify" }, { id: "Cancel", name: "Cancel" }]
                      }
                      else {
                          statusList = [{ id: "", name: "Action" }, { id: "Modify", name: "Modify" }, { id: "Cancel", name: "Cancel" }]
@@ -309,7 +333,7 @@
                                  window.location.href = url;
                              }
                              else if (selVal == "Repost") {
-                                 var url = '@Url.Action("CreateAnnouncement", "Requirement")?AnnouncementID=' + item.AnnouncementID + "&isRepost="+true;
+                                 var url = '@Url.Action("CreateAnnouncement", "Requirement")?AnnouncementID=' + item.AnnouncementID + "&isRepost=" + true;
                                  window.location.href = url;
                              }
                              else if (selVal == "Cancel") {
@@ -334,19 +358,113 @@
     });
     $("#AnnouncementList").jsGrid("option", "filtering", false);
     // loadDetails();
-    function loadDetails() {
-        var input = [];
-        input = {
-            SearchEXReferencenumber: $('#srchnegativebalnumber').val(),
-            SearchEXProjectNumber: $('#srchprojectnumber').val(),
-            SearchPIName: $('#srchPIName').val(),
-            SearchEXStatus: $('#srchStatus').val(),
-            FromDate: $('#FromDate').val() || null,
-            ToDate: $('#ToDate').val() || null
-        },
-         $("#AnnouncementList").jsGrid("search", input, pageIndex = 1, pageSize = 5);
 
-    }
+
+    $("#CompletedList").jsGrid({
+        paging: true,
+        pageIndex: 1,
+        pageSize: 10,
+        editing: false,
+        filtering: true,
+        pageLoading: true,
+        autoload: true,
+        controller: {
+
+            loadData: function (filter) {
+                var searchData = [];
+                searchData = {
+                    SearchINAdvertisementNo: filter.RefNo || null,
+                    AnnouncementTitle: filter.AnnouncementTitle || null,
+                    //Status: filter.Status || null,
+                    SearchINStatus: "Complete",
+                    SearchKeyword: filter.AnnouncementRequestBy || null,
+                    FromDate: $('#FromDate').val() || null,
+                    ToDate: $('#ToDate').val() || null,
+                    PIName: filter.PIName || null
+                },
+                filter.model = searchData;
+                var deferred = $.Deferred();
+                $.ajax({
+                    type: "post",
+                    url: 'GetAnnoncementList',
+                    data: JSON.stringify(filter),
+                    contentType: "application/json; charset=utf-8",
+                    success: function (result) {
+                        var da = {
+                            data: result.AnnouncementList,
+                            itemsCount: result.TotalRecords
+                        }
+                        deferred.resolve(da);
+                        if (loadedList.indexOf("#tabcompleted") == -1)
+                            loadedList.push("#tabcompleted");
+                    },
+                    error: function (err) {
+                        console.log("error : " + err);
+                    }
+
+                });
+                return deferred.promise();
+            }
+
+        },
+
+        fields: [
+            { name: "SNo", title: "S.No", editing: false, width: 50 },
+            { type: "number", name: "AnnouncementID", title: "Id", visible: false, width: 110 },
+            { type: "text", name: "RefNo", title: "Advertisement Number", editing: false, width: 180 },
+            { type: "text", name: "AnnouncementTitle", title: "Announcement Title", editing: false, },
+            { type: "text", name: "AnnouncementRequestBy", title: "Type", editing: false, filtering: false },
+            //{ type: "text", name: "AnnouncementCategory", title: "Project / Designation", editing: false, filtering: false },
+            {
+                type: "text", name: "PIName", title: "PI / Department", editing: false,
+                itemTemplate: function (item, name) {
+                    return $("<td>").append(name.PIName + "<br/><span class='fn-s-xs'>(" + name.PIDepartment + ")</span>");
+                }
+            },
+            { type: "number", name: "StatusID", title: "StatusId", visible: false },
+            { name: "strRequestReceiveDate", title: "Request Recive Date", type: "date" },
+            { name: "strAnnouncementClosureDate", title: "Closure date", type: "date" },
+            { type: "text", name: "Status", title: "Status", editing: false, visible: false },
+
+             {
+                 type: "control", editButton: false, deleteButton: false, width: 120, title: "Action",
+
+                 itemTemplate: function (value, item) {
+                     var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+                     statusList = [{ id: "", name: "Action" }, { id: "View", name: "View" }]
+                     var $customSelect = $("<select>")
+                             .attr("class", "form-control").prop("selectedIndex", "")
+                     $.each(statusList, function (index, itemData) {
+                         $customSelect.append($('<option/>', {
+
+                             value: itemData.id,
+                             text: itemData.name
+                         }));
+                     });
+                     $customSelect.change(function (e) {
+                         var selVal = $(this).val();
+                         if (selVal == "View") {
+                             var url = '@Url.Action("CreateAnnouncement", "Requirement")?AnnouncementID=' + item.AnnouncementID;
+                             window.location.href = url;
+                         }
+                         $(this).val("");
+                         return false;
+                         e.stopPropagation();
+                     });
+                     return $result.add($customSelect);
+                 },
+                 _createFilterSwitchButton: function () {
+                     return this._createOnOffSwitchButton("filtering", this.searchModeButtonClass, false);
+                 }
+             }
+
+
+        ],
+
+    });
+    $("#CompletedList").jsGrid("option", "filtering", false);
+
+
     $('#btnRemark').click(function () {
         if ($('#Remarks').val() == "") {
             messageBox('Please ender remarks', "warning");
