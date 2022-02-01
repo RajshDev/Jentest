@@ -1084,6 +1084,26 @@
             $('#divOld').addClass('dis-none');
         }
     });
+    var EmployeeType = $("input[name='EmployeeType']:checked").val();
+    if (EmployeeType == "Old Employee") {
+        $('#divOld').removeClass('dis-none');
+        $('#divNew').addClass('dis-none');
+        if($('#AadharNumber').val() != "")
+        {
+            $('#lblAadharnumber').text($('#AadharNumber').val());
+            $('#AadharNumber').addClass('dis-none');
+        }
+        if($('#PANNo').val() != "")
+        {
+            $('#lblPANNo').text($('#PANNo').val());
+            $('#PANNo').addClass('dis-none');
+        }
+    }
+    else {
+        $('#divNew').removeClass('dis-none');
+        $('#divOld').addClass('dis-none');
+    }
+
     var diff = 0;
     var errMsg = '@TempData["errMsg"]';
     var succMsg = '@TempData["succMsg"]';
@@ -1261,6 +1281,14 @@
 
         applyAutoComplete($('#BankName'), $('#BankId'), '@Url.Action("LoadBankNameList", "Requirement")',);
 
+    });
+
+    $('#ProjectNumber').change(function() {
+        var projectnumber = $('#ProjectNumber').val();
+        projectnumber = projectnumber.trim();
+        if(projectnumber == "")
+            $('#ProjectId').val('');
+        $("#Appointmentstartdate, #AppointmentEndDate").val('');
     });
 
     function ProjectSummary() {

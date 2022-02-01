@@ -2096,11 +2096,20 @@ namespace IOAS.Controllers
         }
         #endregion
 
-
-
-
-
-
+        //[HttpGet]
+        //public JsonResult TestUpdateSalaryPayment()
+        //{
+        //    try
+        //    {
+        //        AdhocSalaryProcess SP = new AdhocSalaryProcess();
+        //        var data = SP.TestUpdateSalaryPayment();
+        //        return Json(data, JsonRequestBehavior.AllowGet);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw new Exception(ex.Message);
+        //    }
+        //}
 
     }
 }

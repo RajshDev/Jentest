@@ -2378,7 +2378,7 @@ namespace IOAS.Controllers
             ttlGSTElg = Math.Round(ttlGSTElg, 2, MidpointRounding.AwayFromZero);
             decimal paymentBUAmt = model.PaymentBreakDetail.Select(m => m.PaymentAmount).Sum() ?? 0;
             paymentBUAmt = paymentBUAmt + (model.PaymentTDSAmount ?? 0);
-           
+
             if (piAdvAmt < overallExp)
             {
                 if (model.CommitmentAmount != model.CommitmentDetail.Sum(m => m.PaymentAmount))
@@ -2400,7 +2400,7 @@ namespace IOAS.Controllers
             }
             else if (piAdvAmt > model.OverallExpense)
             {
-                if (model.CommitmentAmount !=  model.CommitmentDetail.Sum(m => m.ReversedAmount))
+                if (model.CommitmentAmount != model.CommitmentDetail.Sum(m => m.ReversedAmount))
                 {
                     msg = "There is a mismatch between the total commitment value and Commitment BreakUp.please contact administrator.";
                     return msg;
@@ -11993,7 +11993,6 @@ namespace IOAS.Controllers
 
         public ActionResult LCRetirementView(int LCRetirementId)
         {
-
             try
             {
                 var emptyList = new List<LCOpeningModel>();
@@ -12412,7 +12411,7 @@ namespace IOAS.Controllers
                 lock (LCRetWFInitlockObj)
                 {
                     int userId = Common.GetUserid(User.Identity.Name);
-                    if (Common.ValidateLCRetirementStatus(LCRetirementId, "Retirement Open"))
+                    if (Common.ValidateLCRetirementStatus(LCRetirementId, "Final Retirement Open"))
                     {
                         var transCode = "LCR";
                         bool cStatus = coreAccountService.LCRetireCommitmentBalanceUpdate(LCRetirementId, false, false, userId, transCode);
@@ -20581,7 +20580,7 @@ namespace IOAS.Controllers
         public ActionResult PaymentTest()
         {
             // coreAccountService.PaymentTestBOATransaction(5647, 1);
-            coreAccountService.PaymentTestBOATransaction(6083, 1);
+            //coreAccountService.PaymentTestBOATransaction(6083, 1);
             return View();
 
         }

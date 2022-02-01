@@ -1203,6 +1203,8 @@ namespace IOAS.GenericServices
                     var query = context.tblLCDraftDetails.FirstOrDefault(m => m.Id == LCDraftid && m.Status == "Establish LC Approval Pending" && m.TransactionTypeCode == "LCO");
                     if (query != null)
                     {
+                        if (!coreAccountService.getLCOpeningBOAmodeldetails(LCDraftid))
+                            return false;
                         query.Status = "Established";
                         query.UPTD_By = logged_in_user;
                         query.UPTD_TS = DateTime.Now;
@@ -1229,6 +1231,8 @@ namespace IOAS.GenericServices
                     var query = context.tblLCAmmendment.FirstOrDefault(m => m.Id == LCAmmendmentid && m.Status == "Amendment Approval Pending" && m.TransactionTypeCode == "LCA");
                     if (query != null)
                     {
+                        if (!coreAccountService.getLCAmmendmentBOAmodeldetails(LCAmmendmentid))
+                            return false;
                         var lcopeningid = query.LCOpeningId ?? 0;
                         var lcquery = context.tblLCDraftDetails.FirstOrDefault(m => m.Id == lcopeningid);
                         query.Status = "LC Amended";
@@ -1259,6 +1263,8 @@ namespace IOAS.GenericServices
                     var query = context.tblLCRetirement.FirstOrDefault(m => m.Id == LCRetirmentid && m.Status == "Retirement Approval Pending" && m.TransactionTypeCode == "LCR");
                     if (query != null)
                     {
+                        if (!coreAccountService.getLCRetirementBOAmodeldetails(LCRetirmentid))
+                            return false;
                         var lcopeningid = query.LCOpeningId ?? 0;
                         var lcquery = context.tblLCDraftDetails.FirstOrDefault(m => m.Id == lcopeningid);
                         query.Status = "LC Retired";

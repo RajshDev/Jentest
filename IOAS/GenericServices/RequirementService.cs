@@ -5520,7 +5520,7 @@ namespace IOAS.GenericServices
                                                from vw in context.vw_RCTOverAllApplicationEntry
                                                orderby b.OrderId descending
                                                where b.NewProjectId == p.ProjectId && b.AppointmentId == vw.ApplicationId && b.OrderType == 1 && b.Status != "InActive"
-                                               && vw.ApplicationType == "New" && b.AppointmentType == vw.AppointmentType && vw.Category == CategoryName
+                                               && vw.ApplicationType == "New" && b.AppointmentType == vw.AppointmentType && (vw.Category == CategoryName || CategoryName == "")
                                                && (vw.EmployeeNo.Contains(model.EmployeeNo) || model.EmployeeNo == null)
                                                && (vw.Category.Contains(model.Category) || model.Category == null)
                                                && (p.ProjectNumber.Contains(model.NewProjectNumber) || model.NewProjectNumber == null)
@@ -6506,7 +6506,10 @@ namespace IOAS.GenericServices
                         model.ApplicationID = appid;
                         model.TypeCode = appType;
                         model.OrderType = 4;
-                        model.Appointmentdetails = Getmastappointmentdetails(appid, appTypeId);
+                        if(model.Status == "Completed")
+                            model.Appointmentdetails = getCompletedOldAppointmentDetails(model.OrderID);
+                        else
+                            model.Appointmentdetails = Getmastappointmentdetails(appid, appTypeId);
                         model.Experience = Common.getExperienceInWordings(appid, appType);
                         model.Qualification = Common.getQualificationWordings(appid, appType);
                         //model.ProjectDetails = getProjectSummary(projectid);
@@ -15836,8 +15839,6 @@ namespace IOAS.GenericServices
         {
             ApplicationSearchListModel appseamodel = new ApplicationSearchListModel();
             List<ApplicationListModel> list = new List<ApplicationListModel>();
-            //string []Statuslist= "Submit for approval","Awaiting commitment booking";
-
             try
             {
                 int skiprec = 0;
@@ -15863,24 +15864,26 @@ namespace IOAS.GenericServices
                                  orderby vw.ApplicationId descending
                                  where vw.Status == "Cancel"
                                  && (vw.ApplicationNo.Contains(model.ApplicationNo) || model.ApplicationNo == null)
-                                 && (vw.Category.Contains(model.Category) || model.Category == null) && vw.Category == CategoryName
+                                 && (vw.Category.Contains(model.Category) || model.Category == null) && (vw.Category == CategoryName || CategoryName == "")
                                  && (vw.CandidateName.Contains(model.CondidateName) || model.CondidateName == null)
                                  && (vw.PIName.Contains(model.PIName) || model.PIName == null)
                                  && (vw.Status.Contains(model.Status) || model.Status == null)
                                  && (vw.PIEmail.Contains(model.PIEmail) || model.PIEmail == null)
                                  && (vw.ApplicationType.Contains(model.ApplicationType) || model.ApplicationType == null)
+                                 && vw.isEmployee == true
                                  select vw).Skip(skiprec).Take(pageSize).ToList();
 
                     appseamodel.TotalRecords = (from vw in context.vw_RCTOverAllApplicationEntry.AsNoTracking()
                                                 orderby vw.ApplicationId descending
                                                 where vw.Status == "Cancel"
                                                 && (vw.ApplicationNo.Contains(model.ApplicationNo) || model.ApplicationNo == null)
-                                                && (vw.Category.Contains(model.Category) || model.Category == null) && vw.Category == CategoryName
+                                                && (vw.Category.Contains(model.Category) || model.Category == null) && (vw.Category == CategoryName || CategoryName == "")
                                                 && (vw.CandidateName.Contains(model.CondidateName) || model.CondidateName == null)
                                                 && (vw.PIName.Contains(model.PIName) || model.PIName == null)
                                                 && (vw.Status.Contains(model.Status) || model.Status == null)
                                                 && (vw.PIEmail.Contains(model.PIEmail) || model.PIEmail == null)
                                                 && (vw.ApplicationType.Contains(model.ApplicationType) || model.ApplicationType == null)
+                                                && vw.isEmployee == true
                                                 select vw).Count();
                     if (query.Count > 0)
                     {
@@ -23405,11 +23408,14 @@ namespace IOAS.GenericServices
                 int maHead = 0;
                 using (var context = new IOASDBEntities())
                 {
+                    string[] noexp = { "Add Commitment", "Close Commitment" };
+                    string[] validOtherType = { "Payment", "Deduction", "Add Commitment", "Close Commitment" };
+
                     if (model.EmployeeNumber == null || model.EmployeeNumber == "")
                         return Tuple.Create("EmployeeNumber field is required.", 0, model);
                     if (String.IsNullOrEmpty(model.OtherType))
                         return Tuple.Create("OtherType field is required.", 0, model);
-                    if (String.IsNullOrEmpty(model.HeadName))
+                    if (!noexp.Contains(model.OtherType) && String.IsNullOrEmpty(model.HeadName))
                         return Tuple.Create("HeadName field is required.", 0, model);
                     if (model.Amount == null || model.Amount == 0)
                         return Tuple.Create("Amount field is required.", 0, model);
@@ -23420,21 +23426,12 @@ namespace IOAS.GenericServices
                         return Tuple.Create("Employee Number not exists in the database.", 0, model);
                     var checkEmployeeRelived = (from vw in context.vw_RCTOverAllApplicationEntry.AsNoTracking()
                                                 orderby vw.EmployeeNo descending
-                                                where vw.EmployeeNo == EmployeeNo && vw.ApplicationType == "New" && vw.Status != "Relieved" && vw.Status != "Cancel"
+                                                where vw.EmployeeNo == EmployeeNo && vw.ApplicationType == "New" && vw.Status == "Verification Completed" //vw.Status != "Relieved" && vw.Status != "Cancel"
                                                 select vw).FirstOrDefault();
                     if (checkEmployeeRelived == null)
                         return Tuple.Create("This Employee Releived or Cancel", 0, model);
-                    if (model.OtherType != "Payment")
-                    {
-                        if (model.OtherType != "Deduction")
-                            return Tuple.Create("Payment or Deduction name not valid", 0, model);
-                    }
-                    if (model.OtherType != "Deduction")
-                    {
-                        if (model.OtherType != "Payment")
-                            return Tuple.Create("Payment or Deduction name not valid", 0, model);
-                    }
-                    //    return Tuple.Create("Payment or Deduction name not valid", 0);
+                    if (!validOtherType.Contains(model.OtherType))
+                        return Tuple.Create("Other type not valid", 0, model);
                     if (model.OtherType == "Payment")
                     {
                         var PaymentheadExist = context.tblCommonHeads.Any(m => m.Head == model.HeadName || m.Head.Contains(model.HeadName) && m.GroupId == 1 && m.CategoryId == 1);
@@ -23459,7 +23456,7 @@ namespace IOAS.GenericServices
                     }
                     var empdetails = (from vw in context.vw_RCTOverAllApplicationEntry.AsNoTracking()
                                       orderby vw.EmployeeNo descending
-                                      where vw.EmployeeNo == EmployeeNo && vw.ApplicationType == "New" && vw.Status != "Relieved" && vw.Status != "Cancel"
+                                      where vw.EmployeeNo == EmployeeNo && vw.ApplicationType == "New" && vw.Status == "Verification Completed" //vw.Status != "Relieved" && vw.Status != "Cancel"
                                       select vw).FirstOrDefault();
                     if (empdetails != null)
                     {
@@ -23470,53 +23467,60 @@ namespace IOAS.GenericServices
                             model.OtherTypeId = 1;
                         if (model.OtherType == "Deduction")
                             model.OtherTypeId = 2;
+                        if (model.OtherType == "Add Commitment")
+                            model.OtherTypeId = 3;
+                        if (model.OtherType == "Close Commitment")
+                            model.OtherTypeId = 4;
                         model.FromDate = model.FromDate;
                         model.ToDate = model.ToDate;
                         model.AppointmentType = empdetails.AppointmentType;
                         model.DesignationId = empdetails.DesignationId;
                         model.DesignationName = empdetails.PostRecommended;
                         model.EmployeeName = empdetails.CandidateName;
+
+                        model.CommitmentNumber = empdetails.CommitmentNumber;
+                        model.CommitmentAmount = empdetails.CommitmentAmount;
                     }
                     model.MonthandYear = model.MonthandYear;
                     if (model.ProjectNumber != null && model.ProjectId != null)
                     {
-
-                        if (empdetails.Category == "CON")
-                        {
-                            var querycon = (from con in context.tblRCTConsultantAppointment
-                                            orderby con.ConsultantAppointmentId descending
-                                            where con.EmployeersID == EmployeeNo && con.IsActiveNow == true && con.Status != "Relieved" && con.Status != "Cancel"
-                                            select con).FirstOrDefault();
-                            if (querycon != null)
-                            {
-                                model.CommitmentNumber = querycon.CommitmentNumber;
-                                model.CommitmentAmount = querycon.CommitmentAmount;
-                            }
-                        }
-                        else if (empdetails.Category == "STE")
-                        {
-                            var queryste = (from STE in context.tblRCTSTE
-                                            orderby STE.STEID descending
-                                            where STE.EmployeersID == EmployeeNo && STE.IsActiveNow == true && STE.Status != "Relieved" && STE.Status != "Cancel"
-                                            select STE).FirstOrDefault();
-                            if (queryste != null)
-                            {
-                                model.CommitmentNumber = queryste.CommitmentNo;
-                                model.CommitmentAmount = queryste.CommitmentAmount;
-                            }
-                        }
-                        else if (empdetails.Category == "OSG")
-                        {
-                            var queryosg = (from OSG in context.tblRCTOutsourcing
-                                            orderby OSG.OSGID descending
-                                            where OSG.EmployeersID == EmployeeNo && OSG.IsActiveNow == true && OSG.Status != "Relieved" && OSG.Status != "Cancel"
-                                            select OSG).FirstOrDefault();
-                            if (queryosg != null)
-                            {
-                                model.CommitmentNumber = queryosg.CommitmentNo;
-                                model.CommitmentAmount = queryosg.CommitmentAmount;
-                            }
-                        }
+                        //Me
+                        //if (empdetails.Category == "CON")
+                        //{
+                        //    var querycon = (from con in context.tblRCTConsultantAppointment
+                        //                    orderby con.ConsultantAppointmentId descending
+                        //                    where con.EmployeersID == EmployeeNo && con.IsActiveNow == true && con.Status != "Relieved" && con.Status != "Cancel"
+                        //                    select con).FirstOrDefault();
+                        //    if (querycon != null)
+                        //    {
+                        //        model.CommitmentNumber = querycon.CommitmentNumber;
+                        //        model.CommitmentAmount = querycon.CommitmentAmount;
+                        //    }
+                        //}
+                        //else if (empdetails.Category == "STE")
+                        //{
+                        //    var queryste = (from STE in context.tblRCTSTE
+                        //                    orderby STE.STEID descending
+                        //                    where STE.EmployeersID == EmployeeNo && STE.IsActiveNow == true && STE.Status != "Relieved" && STE.Status != "Cancel"
+                        //                    select STE).FirstOrDefault();
+                        //    if (queryste != null)
+                        //    {
+                        //        model.CommitmentNumber = queryste.CommitmentNo;
+                        //        model.CommitmentAmount = queryste.CommitmentAmount;
+                        //    }
+                        //}
+                        //else if (empdetails.Category == "OSG")
+                        //{
+                        //    var queryosg = (from OSG in context.tblRCTOutsourcing
+                        //                    orderby OSG.OSGID descending
+                        //                    where OSG.EmployeersID == EmployeeNo && OSG.IsActiveNow == true && OSG.Status != "Relieved" && OSG.Status != "Cancel"
+                        //                    select OSG).FirstOrDefault();
+                        //    if (queryosg != null)
+                        //    {
+                        //        model.CommitmentNumber = queryosg.CommitmentNo;
+                        //        model.CommitmentAmount = queryosg.CommitmentAmount;
+                        //    }
+                        //}
                         if (model.CommitmentNumber == null || model.CommitmentNumber == "")
                             return Tuple.Create("Commitment No not exists in the database.", 0, model);
                         if (!String.IsNullOrEmpty(model.CommitmentNumber))
@@ -23646,10 +23650,12 @@ namespace IOAS.GenericServices
 
                             foreach (var data in query)
                             {
+                                //Commitment based on employee sum
                                 var checkexistdata = context.tblRCTOTHPaymentDeductionUploadDetail.Any(m => m.EmployeeNumber == data.EmployeeNumber && m.OTHPaymentDeductionUploadId == uploadId && m.OTHPayDeductionId == null);
                                 if (checkexistdata)
                                 {
                                     string employeeNo = data.EmployeeNumber;
+                                    var detail = query.Where(x => x.EmployeeNumber == employeeNo).ToList();
                                     var employeedetails = (from vwoth in context.vw_RCTOverAllApplicationEntry
                                                            orderby vwoth.EmployeersID descending
                                                            where vwoth.EmployeersID == employeeNo && vwoth.ApplicationType == "New" && vwoth.IsActiveNow == true && vwoth.Status != "Cancel"
@@ -23680,7 +23686,6 @@ namespace IOAS.GenericServices
                                     string Remarks = null;
                                     data.OTHPayDeductionId = othid;
                                     context.SaveChanges();
-                                    var detail = query.Where(x => x.EmployeeNumber == empno).ToList();
                                     if (detail.Count > 0)
                                     {
                                         foreach (var item in detail)
@@ -23738,7 +23743,6 @@ namespace IOAS.GenericServices
                                             context.SaveChanges();
                                         }
                                     }
-
                                     else if (sumofpayment <= sumofdeduction)
                                     {
 
