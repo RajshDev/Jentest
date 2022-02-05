@@ -25,5 +25,7 @@ namespace IOAS.DataModel
         public string Status { get; set; }
         public string AppointmentType { get; set; }
         public Nullable<int> VendorId { get; set; }
+        public Nullable<decimal> AgencyFee { get; set; }
+        public Nullable<decimal> GST { get; set; }
     }
 }

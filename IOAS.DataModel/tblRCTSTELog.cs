@@ -125,5 +125,6 @@ namespace IOAS.DataModel
         public Nullable<System.DateTime> LOGCRTD_TS { get; set; }
         public Nullable<int> LOGCRTD_USER { get; set; }
         public Nullable<System.DateTime> OfficeOrderDate { get; set; }
+        public Nullable<int> SalaryLevelId { get; set; }
     }
 }

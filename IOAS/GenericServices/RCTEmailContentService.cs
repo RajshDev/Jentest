@@ -2540,7 +2540,6 @@ namespace IOAS.GenericServices
 
                                 }
                             }
-
                         }
 
                         npmodel.toMail = query.ToMail;

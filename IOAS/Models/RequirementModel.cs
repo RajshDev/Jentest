@@ -2122,7 +2122,7 @@ namespace IOAS.Models
         public string Status { get; set; }
         public bool isCommitmentRejection { get; set; }
         public Nullable<bool> SendOffer_f { get; set; }
-
+        public Nullable<bool> SentOffer_f { get; set; }
         public string TypeofAppointmentName { get; set; }
     }
 
@@ -2284,6 +2284,8 @@ namespace IOAS.Models
         public bool SendOrder_f { get; set; }
         public bool SendOfferLetter_f { get; set; }
         public string CommitmentNumber { get; set; }
+        public string SalaryLevel { get; set; }
+
     }
 
     public class ViewStaffAllocationListModel

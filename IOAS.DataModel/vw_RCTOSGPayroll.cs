@@ -62,5 +62,12 @@ namespace IOAS.DataModel
         public Nullable<System.DateTime> DOE { get; set; }
         public Nullable<decimal> CTC_CM { get; set; }
         public Nullable<decimal> EmployeePT { get; set; }
+        public Nullable<decimal> LWF { get; set; }
+        public Nullable<decimal> Total { get; set; }
+        public Nullable<decimal> ServiceCharges { get; set; }
+        public Nullable<decimal> InvoiceAmount { get; set; }
+        public Nullable<decimal> GST { get; set; }
+        public Nullable<decimal> Amount { get; set; }
+        public Nullable<decimal> PF___BASIC_For_the_Month { get; set; }
     }
 }

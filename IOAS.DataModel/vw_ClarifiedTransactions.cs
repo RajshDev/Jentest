@@ -14,7 +14,6 @@ namespace IOAS.DataModel
     
     public partial class vw_ClarifiedTransactions
     {
-        public string successMethod { get; set; }
         public int ProcessTransactionId { get; set; }
         public string RefNumber { get; set; }
         public string Comments { get; set; }
@@ -22,11 +21,5 @@ namespace IOAS.DataModel
         public Nullable<System.DateTime> TransactionTS { get; set; }
         public string InitiatorName { get; set; }
         public string DepartmentName { get; set; }
-        public string aActionStatus { get; set; }
-        public string bActionStatus { get; set; }
-        public string ActionLink { get; set; }
-        public Nullable<int> aApproverid { get; set; }
-        public Nullable<int> bApproverid { get; set; }
-        public Nullable<int> RefId { get; set; }
     }
 }

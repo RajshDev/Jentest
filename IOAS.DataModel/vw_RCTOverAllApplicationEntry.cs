@@ -83,5 +83,6 @@ namespace IOAS.DataModel
         public Nullable<decimal> IITMExperiencedes { get; set; }
         public string ProjectNumber { get; set; }
         public Nullable<System.DateTime> RelieveDate { get; set; }
+        public string SalaryLevel { get; set; }
     }
 }

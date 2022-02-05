@@ -207,7 +207,15 @@
             { type: "text", name: "ProjectNumber", title: "Project Number", editing: false },
             { type: "date", name: "StrFrmDate", title: "From Date", editing: false },
             { type: "date", name: "StrtoDate", title: "To Date", editing: false },
-           { type: "text", name: "Status", title: "Status", editing: false },
+           {
+               type: "text", name: "Status", title: "Status", editing: false,
+               cellRenderer: function (item, value) {
+                   if (value.SendOffer_f)
+                       return $("<td>").addClass("bg-green").append(value.Status);
+                   else
+                       return $("<td>").append(value.Status);
+               }
+           },
 
 
              {
@@ -225,10 +233,10 @@
                      else if (item.Status == "Open" && item.isCommitmentRejection) {
                          statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "Send for commitment booking" }, { id: "Cancel", name: "Cancel" }]
                      }
-                     else if (item.Status != "Cancel" && item.ExtensionEnhCategory != "Amendment" && item.SendOffer_f) {
+                     else if (item.Status != "Cancel" && item.ExtensionEnhCategory != "Amendment" && item.SendOffer_f != null && !item.SendOffer_f) {
                          statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }, { id: "Cancel", name: "Cancel" }, { id: "SendOffer", name: "Send Offerletter" }]
                      }
-                     else if (item.Status != "Cancel" && item.ExtensionEnhCategory != "Amendment" && !item.SendOffer_f) {
+                     else if (item.Status != "Cancel" && item.ExtensionEnhCategory != "Amendment" && item.SendOffer_f == true) {
                          statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }, { id: "Cancel", name: "Cancel" }]
                      }
                      else {
@@ -837,7 +845,15 @@
             { type: "text", name: "Category", title: "Category", editing: false },
             { type: "text", name: "EmployeeName", title: "Employee Name", editing: false },
             { type: "text", name: "NewProjectNumber", title: "New Project Number", editing: false },
-            { type: "text", name: "Status", title: "Status", editing: false },
+            {
+                type: "text", name: "Status", title: "Status", editing: false,
+                cellRenderer: function (item, value) {
+                    if (value.SendOffer_f)
+                        return $("<td>").addClass("bg-green").append(value.Status);
+                    else
+                        return $("<td>").append(value.Status);
+                }
+            },
 
              {
                  type: "control", editButton: false, deleteButton: false, width: 120, title: "Action",
@@ -847,7 +863,7 @@
                      if (item.Status == "Open" || item.Status == "Note to PI") {
                          statusList = [{ id: "", name: "Select Action" }, { id: "Edit", name: "Edit" }, { id: "View", name: "View" }, { id: "Cancel", name: "Cancel" }]
                      }
-                     else if (item.SendOffer_f) {
+                     else if (item.SendOffer_f != null && !item.SendOffer_f) {
                          statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }, { id: "SendOffer", name: "Send Offerletter" }]
                      }
                      else {

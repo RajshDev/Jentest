@@ -6506,7 +6506,7 @@ namespace IOAS.GenericServices
                         model.ApplicationID = appid;
                         model.TypeCode = appType;
                         model.OrderType = 4;
-                        if(model.Status == "Completed")
+                        if (model.Status == "Completed")
                             model.Appointmentdetails = getCompletedOldAppointmentDetails(model.OrderID);
                         else
                             model.Appointmentdetails = Getmastappointmentdetails(appid, appTypeId);
@@ -12362,6 +12362,7 @@ namespace IOAS.GenericServices
                                         var emppfQuery = context.tblRCTSalaryCalcDetails.Where(s => s.ID == x.AppId && (x.OrderId == 0 || s.OrderId == x.OrderId)).Select(s => s.PFBasicWages).FirstOrDefault();
                                         x.PFBasicWages = emppfQuery ?? 0;
                                     }
+                                    x.SalaryLevel = context.vw_RCTOverAllApplicationEntry.Where(m => m.ApplicationId == x.AppId && m.Category == x.AppType && m.ApplicationType == x.OrderType && ((x.OrderId == 0 && (m.OrderId == null || m.OrderId == 0)) || m.OrderId == x.OrderId)).Select(m => m.SalaryLevel).FirstOrDefault();
                                 });
                             }
                             model.ExperienceList = model.ExperienceList.Count > 0 ? model.ExperienceList : null;
@@ -12440,7 +12441,8 @@ namespace IOAS.GenericServices
                                              vw.Status,
                                              vw.TypeofAppointment,
                                              s.AppointmentType,
-                                             s.ApplicationId
+                                             s.ApplicationId,
+                                             s.OrderId
                                          }).AsEnumerable().Select((x) => new RCTPopupListModel()
                                          {
                                              AppId = x.ApplicationId ?? 0,
@@ -12456,6 +12458,7 @@ namespace IOAS.GenericServices
                                              Hra = x.HRA ?? 0,
                                              OrderType = x.OrderType,
                                              TypeofAppointment = x.TypeofAppointment,
+                                             OrderId = x.OrderId ?? 0,
                                          }).ToList();
 
                             listmodel.ForEach(x =>
@@ -12469,6 +12472,7 @@ namespace IOAS.GenericServices
                                     var emppfQuery = context.tblRCTSalaryCalcDetails.Where(s => s.ID == x.AppId && (x.OrderId == 0 || s.OrderId == x.OrderId)).Select(s => s.PFBasicWages).FirstOrDefault();
                                     x.PFBasicWages = emppfQuery ?? 0;
                                 }
+                                x.SalaryLevel = context.vw_RCTOverAllApplicationEntry.Where(m => m.ApplicationId == x.AppId && m.Category == x.AppType && m.ApplicationType == x.OrderType && ((x.OrderId == 0 && (m.OrderId == null || m.OrderId == 0)) || m.OrderId == x.OrderId)).Select(m => m.SalaryLevel).FirstOrDefault();
                             });
 
                             if (listmodel.Count > 0)
@@ -25807,7 +25811,7 @@ namespace IOAS.GenericServices
                                 foreach (var item in model.DocumentDetail)
                                 {
                                     var query = (from osg in context.tblRCTOutsourcing
-                                                 where osg.OSGID == item.DocumentId && model.AppointmentTypeName == "New Appointment"
+                                                 where osg.OSGID == item.DocumentId && model.AppointmentTypeName.Contains("New Appointment")
                                                  select osg).FirstOrDefault();
                                     if (query != null)
                                     {
@@ -25839,7 +25843,7 @@ namespace IOAS.GenericServices
 
                                     var queryOrder = (from or in context.tblOrder
                                                       join ord in context.tblOrderDetail on or.OrderId equals ord.OrderId
-                                                      where or.OrderId == item.DocumentId && model.AppointmentTypeName != "New Appointment"
+                                                      where or.OrderId == item.DocumentId && !model.AppointmentTypeName.Contains("New Appointment")
                                                       select new { ord }).FirstOrDefault();
                                     if (queryOrder != null && item.Document != null)
                                     {
@@ -27228,7 +27232,7 @@ namespace IOAS.GenericServices
                     var querylist = (from vw in context.vw_RCTRelievedEmployees.AsNoTracking()
                                      where (vw.Category == model.SearchInCategory || model.SearchInCategory == null)
                                       && (vw.EmployeersID.Contains(model.SearchInEmployeeId) || string.IsNullOrEmpty(model.SearchInEmployeeId))
-                                      && (vw.CandidateName.Contains(model.SearchInName) || string.IsNullOrEmpty(model.SearchInName))
+                                      && (vw.CandidateName.Contains(model.SearchInName) || vw.Email.Contains(model.SearchInName) || vw.PostRecommended.Contains(model.SearchInName) || string.IsNullOrEmpty(model.SearchInName))
                                       && (vw.ProjectNumber.Contains(model.SearchInProjectNumber) || string.IsNullOrEmpty(model.SearchInProjectNumber))
                                       && (vw.Status.Contains(model.SearchInStatus) || string.IsNullOrEmpty(model.SearchInStatus))
                                       && (vw.RelievingType.Contains(model.relievingType) || string.IsNullOrEmpty(model.relievingType))
@@ -27311,7 +27315,8 @@ namespace IOAS.GenericServices
                     list.TotalRecords = (from vw in context.vw_RCTRelievedEmployees.AsNoTracking()
                                          where (vw.Category == model.SearchInCategory || model.SearchInCategory == null)
                                           && (vw.EmployeersID.Contains(model.SearchInEmployeeId) || string.IsNullOrEmpty(model.SearchInEmployeeId))
-                                          && (vw.CandidateName.Contains(model.SearchInName) || string.IsNullOrEmpty(model.SearchInName))
+                                          //&& (vw.CandidateName.Contains(model.SearchInName) || string.IsNullOrEmpty(model.SearchInName))
+                                          && (vw.CandidateName.Contains(model.SearchInName) || vw.Email.Contains(model.SearchInName) || vw.PostRecommended.Contains(model.SearchInName) || string.IsNullOrEmpty(model.SearchInName))
                                           && (vw.ProjectNumber.Contains(model.SearchInProjectNumber) || string.IsNullOrEmpty(model.SearchInProjectNumber))
                                           && (vw.Status.Contains(model.SearchInStatus) || string.IsNullOrEmpty(model.SearchInStatus))
                                           && (vw.RelievingType.Contains(model.relievingType) || string.IsNullOrEmpty(model.relievingType))
@@ -27799,6 +27804,8 @@ namespace IOAS.GenericServices
                 {
                     var query = (from ord in context.vw_RCTOverAllApplicationEntry.AsNoTracking()
                                  join ordin in context.tblOrder on ord.OrderId equals ordin.OrderId
+                                 join f in context.tblRCTOfferDetails on new { OfferCategory = "OfferLetter", OrderId = ordin.OrderId } equals new { OfferCategory = f.OfferCategory, OrderId = f.OrderId ?? 0 } into lf
+                                 from f in lf.DefaultIfEmpty()
                                  join prj in context.tblProject on ordin.NewProjectId equals prj.ProjectId
                                  join vw in context.vwFacultyStaffDetails on prj.PIName equals vw.UserId
                                  orderby ord.OrderId descending
@@ -27813,7 +27820,23 @@ namespace IOAS.GenericServices
                                  && (ord.Status.Contains(model.Status) || model.Status == null)
                                   && (vw.DepartmentName.Contains(model.DepartmentName) || model.DepartmentName == null)
                                   && (ord.TypeofAppointment.Contains(model.SearchTypeofAppointmentName) || model.SearchTypeofAppointmentName == null)
-                                 select new { ord.TypeofAppointment, ord.OrderId, ordin.FromDate, ordin.ToDate, ord.Status, ord.EmployeeNo, ord.Category, ord.CandidateName, ord.ApplicationId, ord.ApplicationType, prj.ProjectNumber, ordin.isCommitmentReject, vw.DepartmentName }).Skip(skiprec).Take(pageSize).ToList();
+                                 select new
+                                 {
+                                     ord.TypeofAppointment,
+                                     ord.OrderId,
+                                     ordin.FromDate,
+                                     ordin.ToDate,
+                                     ord.Status,
+                                     ord.EmployeeNo,
+                                     ord.Category,
+                                     ord.CandidateName,
+                                     ord.ApplicationId,
+                                     ord.ApplicationType,
+                                     prj.ProjectNumber,
+                                     ordin.isCommitmentReject,
+                                     vw.DepartmentName,
+                                     SendOffer_f = f != null ? (f.isSend == null ? false : f.isSend) : null
+                                 }).Skip(skiprec).Take(pageSize).ToList();
 
                     searenhext.TotalRecords = (from ord in context.vw_RCTOverAllApplicationEntry.AsNoTracking()
                                                join ordin in context.tblOrder on ord.OrderId equals ordin.OrderId
@@ -27846,10 +27869,6 @@ namespace IOAS.GenericServices
                         }
                         for (int i = 0; i < query.Count; i++)
                         {
-                            var SendOffer_f = false;
-                            var OrderId = query[i].OrderId;
-                            SendOffer_f = context.tblRCTOfferDetails.
-                                  Where(x => x.OfferCategory == "OfferLetter" && x.OrderId == OrderId && x.isSend != true).Any();
                             list.Add(new ProjectExtentionEnhmentListModel()
                             {
                                 SNo = sno + i,
@@ -27866,7 +27885,7 @@ namespace IOAS.GenericServices
                                 isCommitmentRejection = query[i].isCommitmentReject,
                                 EmployeeDept = query[i].DepartmentName,
                                 TypeofAppointmentName = query[i].TypeofAppointment,
-                                SendOffer_f = SendOffer_f
+                                SendOffer_f = query[i].SendOffer_f,
                             });
                         }
                     }
@@ -27990,22 +28009,17 @@ namespace IOAS.GenericServices
             {
                 int skiprec = 0;
                 if (page == 1)
-                {
                     skiprec = 0;
-                }
                 else
-                {
                     skiprec = (page - 1) * pageSize;
-                }
-
-
 
                 using (var context = new IOASDBEntities())
                 {
                     var query = (from b in context.tblOrder
-                                     //from od in context.tblOrderDetail
                                  from p in context.tblProject
                                  from vw in context.vw_RCTOverAllApplicationEntry
+                                 join f in context.tblRCTOfferDetails on new { OfferCategory = "OfferLetter", OrderId = b.OrderId } equals new { OfferCategory = f.OfferCategory, OrderId = f.OrderId ?? 0 } into lf
+                                 from f in lf.DefaultIfEmpty()
                                  orderby b.OrderId descending
                                  where b.NewProjectId == p.ProjectId && b.AppointmentId == vw.ApplicationId && b.OrderType == 1 && b.Status != "InActive"
                                  && vw.ApplicationType == "New" && b.AppointmentType == vw.AppointmentType && vw.Category == Category
@@ -28022,7 +28036,8 @@ namespace IOAS.GenericServices
                                      b.Status,
                                      vw.Category,
                                      vw.ApplicationId,
-                                     vw.ApplicationType
+                                     vw.ApplicationType,
+                                     SendOffer_f = f != null ? (f.isSend == null ? false : f.isSend) : null
                                  }).Skip(skiprec).Take(pageSize).ToList();
                     seachmodel.TotalRecords = (from b in context.tblOrder
                                                    //from od in context.tblOrderDetail
@@ -28060,10 +28075,7 @@ namespace IOAS.GenericServices
                         }
                         for (int i = 0; i < query.Count; i++)
                         {
-                            var SendOffer_f = false;
-                            var OrderId = query[i].OrderId;
-                            SendOffer_f = context.tblRCTOfferDetails.
-                                  Where(x => x.OfferCategory == "OfferLetter" && x.OrderId == OrderId && x.isSend != true).Any();
+
                             list.Add(new ChangeofProjectListModel()
                             {
                                 SNo = sno + i,
@@ -28075,7 +28087,7 @@ namespace IOAS.GenericServices
                                 Status = query[i].Status,
                                 ApplicationId = query[i].ApplicationId ?? 0,
                                 ApplicationCategory = query[i].ApplicationType,
-                                SendOffer_f = SendOffer_f,
+                                SendOffer_f = query[i].SendOffer_f,
                             });
                         }
                     }

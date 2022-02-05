@@ -681,50 +681,42 @@ function applyProjectAutoComplete(ele, hiddenEle) {
     });
 }
 function applyAutoComplete(ele, hiddenEle, url, functionName, withParEle, serviceType, multiParam) {
-    var $this = $(ele).val();
-    if ($this != "") {
-        $(ele).autocomplete({
-            select: function (event, ui) {
-                event.preventDefault();
-                $(ele).val(ui.item.label);
-                $(hiddenEle).val(ui.item.value);
-                if (functionName !== undefined && withParEle === undefined) {
-                    eval(functionName + "()");
-                } else if (functionName !== undefined && withParEle !== undefined) {
-                    dispatch(functionName, $(ele));
-                }
-            },
-            focus: function (event, ui) {
-                event.preventDefault();
-                $(ele).val(ui.item.label);
-            },
-            source: function (request, response) {
-                if (serviceType !== undefined) {
-                    $.getJSON(url, { term: request.term, type: serviceType },
-                     function (locationdata) {
-                         response(locationdata);
-                     });
-                } else if (multiParam !== undefined) {
-                    multiParam.term = request.term;
-                    $.getJSON(url, multiParam,
-                     function (locationdata) {
-                         response(locationdata);
-                     });
-                } else {
-                    $.getJSON(url, { term: request.term },
-                     function (locationdata) {
-                         response(locationdata);
-                     });
-                }
-            },
-            minLength: 3
-        }).autocomplete("widget").addClass("auto-com-z-index");
-    }
-    else
-    {
-        $(hiddenEle).val("");
-    }
-   
+    $(ele).autocomplete({
+        select: function (event, ui) {
+            event.preventDefault();
+            $(ele).val(ui.item.label);
+            $(hiddenEle).val(ui.item.value);
+            if (functionName !== undefined && withParEle === undefined) {
+                eval(functionName + "()");
+            } else if (functionName !== undefined && withParEle !== undefined) {
+                dispatch(functionName, $(ele));
+            }
+        },
+        focus: function (event, ui) {
+            event.preventDefault();
+            $(ele).val(ui.item.label);
+        },
+        source: function (request, response) {
+            if (serviceType !== undefined) {
+                $.getJSON(url, { term: request.term, type: serviceType },
+                 function (locationdata) {
+                     response(locationdata);
+                 });
+            } else if (multiParam !== undefined) {
+                multiParam.term = request.term;
+                $.getJSON(url, multiParam,
+                 function (locationdata) {
+                     response(locationdata);
+                 });
+            } else {
+                $.getJSON(url, { term: request.term },
+                 function (locationdata) {
+                     response(locationdata);
+                 });
+            }
+        },
+        minLength: 3
+    }).autocomplete("widget").addClass("auto-com-z-index");
 }
 function dispatch(fn, args) {
     fn = (typeof fn == "function") ? fn : window[fn];  // Allow fn to be a function object or the name of a global function

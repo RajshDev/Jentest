@@ -135,5 +135,6 @@ namespace IOAS.DataModel
         public Nullable<decimal> CTC { get; set; }
         public Nullable<decimal> ProfessionalTax { get; set; }
         public Nullable<decimal> PFBasicWages { get; set; }
+        public Nullable<int> SalaryLevelId { get; set; }
     }
 }

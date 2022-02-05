@@ -9,45 +9,45 @@
     </div>
 </div>
 @*<div class="row">
-    <div class="white-bg ad-navbar">
-        <div class="col-md-2 ds-spl-bg">
-            <div class="ds-tt">
-                <span>Application No</span>
-                @Html.TextBox("ApplicationNumber", null, new { @class = "form-control" })
+        <div class="white-bg ad-navbar">
+            <div class="col-md-2 ds-spl-bg">
+                <div class="ds-tt">
+                    <span>Application No</span>
+                    @Html.TextBox("ApplicationNumber", null, new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="col-md-2 ds-spl-bg">
+                <div class="ds-tt">
+                    <span>PAN No</span>
+                    @Html.TextBox("PANNo", null, new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="col-md-2 ds-spl-bg">
+                <div class="ds-tt">
+                    <span>Name</span>
+                    @Html.TextBox("Name", null, new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="col-md-2 ds-spl-bg">
+                <div class="ds-tt">
+                    <span>DOB</span>
+                    @Html.TextBox("DOB", null, new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="col-md-2 ds-spl-bg dis-none">
+                <div class="ds-tt">
+                    <span>Meeting Date</span>
+                    @Html.TextBox("MeetingDate", null, new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="col-md-2 ds-spl-bg">
+                <div class="ds-tt ">
+                    <button id="srchBtn" class="btn btn-primary mt-md">Search </button>
+                    <a id="btnReset" href="javascript:void(0)">Reset</a>
+                </div>
             </div>
         </div>
-        <div class="col-md-2 ds-spl-bg">
-            <div class="ds-tt">
-                <span>PAN No</span>
-                @Html.TextBox("PANNo", null, new { @class = "form-control" })
-            </div>
-        </div>
-        <div class="col-md-2 ds-spl-bg">
-            <div class="ds-tt">
-                <span>Name</span>
-                @Html.TextBox("Name", null, new { @class = "form-control" })
-            </div>
-        </div>
-        <div class="col-md-2 ds-spl-bg">
-            <div class="ds-tt">
-                <span>DOB</span>
-                @Html.TextBox("DOB", null, new { @class = "form-control" })
-            </div>
-        </div>
-        <div class="col-md-2 ds-spl-bg dis-none">
-            <div class="ds-tt">
-                <span>Meeting Date</span>
-                @Html.TextBox("MeetingDate", null, new { @class = "form-control" })
-            </div>
-        </div>
-        <div class="col-md-2 ds-spl-bg">
-            <div class="ds-tt ">
-                <button id="srchBtn" class="btn btn-primary mt-md">Search </button>
-                <a id="btnReset" href="javascript:void(0)">Reset</a>
-            </div>
-        </div>
-    </div>
-</div>*@
+    </div>*@
 <div class="row mt30">
     <div class="page-wrapper">
         <div class="row">
@@ -201,7 +201,7 @@
                     SearchInPAN: filter.SearchInPAN || null,
                     SearchInName: filter.Name || null,
                     DepartmentName: filter.DepartmentName || null,
-                    //MeetingDate: filter.MeetingDate || null,	
+                    //MeetingDate: filter.MeetingDate || null,
                     Applicationtype: filter.ApplicationType || null
                 },
                 filter.model = searchData;
@@ -274,7 +274,23 @@
             { title: "Offer Date", name: "OfferDate", type: "date", width: 110 },
             { name: "DateofJoining", title: "Date of Joining", type: "date" },
             { type: "text", name: "Status", title: "Status", editing: false, visible: false },
-            { type: "text", name: "ApplicationType", title: "ApplicationType", editing: false },
+            {
+                type: "text", name: "ApplicationType", title: "ApplicationType", editing: false,
+                cellRenderer: function (item, value) {
+                    if (value.ApplicationType == "New") {
+                        if (!value.SendOffer_f)
+                            return $("<td>").addClass("bg-green").append(value.ApplicationType);
+                        else
+                            return $("<td>").addClass("txt-bl").append(value.ApplicationType);
+                    }
+                    else {
+                        if (!value.SendOffer_f)
+                            return $("<td>").addClass("bg-green").append(value.ApplicationType);
+                        else
+                            return $("<td>").addClass("txt-org").append(value.ApplicationType);
+                    }
+                }
+            },
             { type: "text", name: "PAN", title: "PAN No", editing: false, visible: false },
             {
                 type: "control", editButton: false, deleteButton: false, width: 120, title: "Action",
@@ -310,7 +326,7 @@
                                 statusList = [{ id: "", name: "Action" }, { id: "Verify", name: "Verify" }, { id: "EmailNf", name: "Email Reminder" + " " + item.EmailRemaindarCount }, { id: "Cancel", name: "Cancel" }]
                             }
                         }
-                        
+
                     }
                     var $customSelect;
                     if (item.Status != "Verification Completed" && item.Status != "Cancellation Initiated") {
@@ -418,7 +434,7 @@
                                     }
                                 });
                             }
-                            @*else if (selVal == "Cancel") {
+                                @*else if (selVal == "Cancel") {
                                 //var choice = confirm("Do you want to Cancel the Application");
                                 $.confirm({
                                     title: 'Do you want to cancel application ?',
@@ -520,7 +536,7 @@
                                                                     type: 'orange',
                                                                     buttons: {
                                                                         Ok: function () {
-                                                                            //close	
+                                                                            //close
                                                                         },
                                                                     },
                                                                 });
@@ -535,7 +551,7 @@
                                                                 type: 'orange',
                                                                 buttons: {
                                                                     Ok: function () {
-                                                                        //close	
+                                                                        //close
                                                                     },
                                                                 },
                                                             });

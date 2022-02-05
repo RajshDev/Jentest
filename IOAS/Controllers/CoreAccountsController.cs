@@ -11388,9 +11388,9 @@ namespace IOAS.Controllers
             try
             {
                 int userId = Common.GetUserid(User.Identity.Name);
-                //bool cStatus = coreAccountService.LCOpeningCommitmentBalanceUpdate(LCOpeningId, false, false, userId, "LCO");
-                //if (!cStatus)
-                //    return Json(new { status = false, msg = "There is a mismatch between the allocated available value and allocated commitment value." }, JsonRequestBehavior.AllowGet);
+                bool cStatus = coreAccountService.LCOpeningCommitmentBalanceUpdate(LCOpeningId, false, false, userId, "LCO");
+                if (!cStatus)
+                    return Json(new { status = false, msg = "There is a mismatch between the allocated available value and allocated commitment value." }, JsonRequestBehavior.AllowGet);
                 bool status = coreAccountService.LCOpeningBillApproved(LCOpeningId, userId);
                 return Json(new { status = status, msg = !status ? "Something went wrong please contact administrator" : "" }, JsonRequestBehavior.AllowGet);
             }
@@ -11833,9 +11833,9 @@ namespace IOAS.Controllers
             {
                 int userId = Common.GetUserid(User.Identity.Name);
 
-                //bool cStatus = coreAccountService.LCAmmendCommitmentBalanceUpdate(LCAmmendId, false, false, userId, "LCA");
-                //if (!cStatus)
-                //    return Json(new { status = false, msg = "There is a mismatch between the allocated available value and allocated commitment value." }, JsonRequestBehavior.AllowGet);
+                bool cStatus = coreAccountService.LCAmmendCommitmentBalanceUpdate(LCAmmendId, false, false, userId, "LCA");
+                if (!cStatus)
+                    return Json(new { status = false, msg = "There is a mismatch between the allocated available value and allocated commitment value." }, JsonRequestBehavior.AllowGet);
                 bool status = coreAccountService.LCAmmendBillApproved(LCAmmendId, userId);
                 return Json(new { status = status, msg = !status ? "Something went wrong please contact administrator" : "" }, JsonRequestBehavior.AllowGet);
             }
@@ -20580,7 +20580,7 @@ namespace IOAS.Controllers
         public ActionResult PaymentTest()
         {
             // coreAccountService.PaymentTestBOATransaction(5647, 1);
-            //coreAccountService.PaymentTestBOATransaction(6083, 1);
+            coreAccountService.PaymentTestBOATransaction(6291, 1);
             return View();
 
         }
