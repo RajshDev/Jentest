@@ -2941,11 +2941,11 @@ namespace DataAccessLayer
 
         public Tuple<decimal, decimal> GetReceiptsForReceiptsandPayment(DateTime FromDate, DateTime ToDate)
         {
-            decimal Amt1=0; decimal Amt2=0;
+            decimal Amt1 = 0; decimal Amt2 = 0;
             try
             {
                 ToDate = ToDate.AddDays(1).AddTicks(-10001);
-                    // var Frm = FromDate.ToString("yyyy-MM-dd HH:mm");
+                // var Frm = FromDate.ToString("yyyy-MM-dd HH:mm");
                 var Todate = ToDate.ToString("yyyy-MM-dd HH:mm:ss.fff", System.Globalization.CultureInfo.InvariantCulture);
                 using (var connection = getConnection())
                 {
@@ -2972,7 +2972,7 @@ namespace DataAccessLayer
                         }
                     }
                     return Tuple.Create(Amt1, Amt2);
-                }                  
+                }
             }
             catch (Exception ex)
             {
@@ -2997,13 +2997,13 @@ namespace DataAccessLayer
                     var command = new System.Data.SqlClient.SqlCommand();
                     command.Connection = connection;
                     command.CommandType = CommandType.Text;
-                    command.CommandText = "select HeadName as AccountHead,Sum(AmountSpent) as Amount  from vw_ProjectExpenditureReportDuplicate  where  ProjectClassification not in (4,6) and ExpenditureDate >='"+ FromDate + "' and ExpenditureDate <= '" + Todate + "' group by HeadName order by HeadName";
+                    command.CommandText = "select HeadName as AccountHead,Sum(AmountSpent) as Amount  from vw_ProjectExpenditureReportDuplicate  where  ProjectClassification not in (4,6) and ExpenditureDate >='" + FromDate + "' and ExpenditureDate <= '" + Todate + "' group by HeadName order by HeadName";
                     command.CommandTimeout = 180;
                     var adapter = new System.Data.SqlClient.SqlDataAdapter(command);
                     var dataset = new DataSet();
                     adapter.Fill(dataset);
-                     dtColumns1 = dataset.Tables[0];
-                     dtCopy = dtColumns1.Copy();
+                    dtColumns1 = dataset.Tables[0];
+                    dtCopy = dtColumns1.Copy();
                     set.Tables.Add(dtCopy);
 
                     var command1 = new System.Data.SqlClient.SqlCommand();
@@ -3014,8 +3014,8 @@ namespace DataAccessLayer
                     var adapter1 = new System.Data.SqlClient.SqlDataAdapter(command1);
                     var dataset1 = new DataSet();
                     adapter1.Fill(dataset1);
-                     dtColumns2 = dataset1.Tables[0];
-                     dtCopy2 = dtColumns2.Copy();
+                    dtColumns2 = dataset1.Tables[0];
+                    dtCopy2 = dtColumns2.Copy();
                     dtCopy2.TableName = "ICSR";
                     set.Tables.Add(dtCopy2);
                 }
@@ -3186,7 +3186,7 @@ namespace DataAccessLayer
             {
 
                 var Todate = FromDate.ToString("yyyy-MM-dd HH:mm:ss.fff", System.Globalization.CultureInfo.InvariantCulture);
-      
+
                 using (var connection = getConnection())
                 {
                     connection.Open();
@@ -3351,7 +3351,7 @@ namespace DataAccessLayer
                     dtColumns = dataset.Tables[0];
                 }
                 return dtColumns;
-            }            
+            }
             catch (Exception ex)
             {
                 return dtColumns;
@@ -3369,7 +3369,7 @@ namespace DataAccessLayer
                     var command = new System.Data.SqlClient.SqlCommand();
                     command.Connection = connection;
                     command.CommandType = CommandType.Text;
-                    command.CommandText = "select * from vw_ResearchFundBreakUp where ExpYear<="+ FinYear;
+                    command.CommandText = "select * from vw_ResearchFundBreakUp where ExpYear<=" + FinYear;
                     command.CommandTimeout = 180;
                     var adapter = new System.Data.SqlClient.SqlDataAdapter(command);
                     var dataset = new DataSet();
@@ -3394,7 +3394,7 @@ namespace DataAccessLayer
                     var command = new System.Data.SqlClient.SqlCommand();
                     command.Connection = connection;
                     command.CommandType = CommandType.Text;
-                    command.CommandText = "select * from vw_ResearchFundProjectBreakUp where ProjectFinYear<="+ FinYear;
+                    command.CommandText = "select * from vw_ResearchFundProjectBreakUp where ProjectFinYear<=" + FinYear;
                     command.CommandTimeout = 180;
                     var adapter = new System.Data.SqlClient.SqlDataAdapter(command);
                     var dataset = new DataSet();
@@ -3505,24 +3505,23 @@ namespace DataAccessLayer
                 return Amt;
             }
         }
-        public DataTable GetICSROH_2(DateTime FromDate, DateTime ToDate,string Type)
+        public DataTable GetICSROH_2(DateTime FromDate, DateTime ToDate, string Type)
         {
             DataTable dtColumns = new DataTable();
             try
             {
                 using (var connection = getConnection())
                 {
-                    ToDate = ToDate.AddDays(1).AddTicks(-10001);
                     var Fromdate = FromDate.ToString("yyyy-MM-dd HH:mm:ss.fff", System.Globalization.CultureInfo.InvariantCulture);
                     var Todate = ToDate.ToString("yyyy-MM-dd HH:mm:ss.fff", System.Globalization.CultureInfo.InvariantCulture);
                     connection.Open();
                     var command = new System.Data.SqlClient.SqlCommand();
                     command.Connection = connection;
                     command.CommandType = CommandType.Text;
-                    if(Type== "Income")
-                    command.CommandText = "select b.Groups,b.AccountHead,(isnull(sum(Credit), 0) - isnull(sum(Debit), 0)) as Amount from vw_ICSROH_2  as a right join vw_ICSROHMaster as b on a.AccountHeadId =b.AccountHeadId and  a.PostedDate >= '" + Fromdate + "' and a.PostedDate <= '" + Todate + "'   where  b.Type = '" + Type + "' group by b.Groups,b.AccountHead,b.TypeId order by b.TypeId";
+                    if (Type == "Income")
+                        command.CommandText = "select b.Groups,b.AccountHead,(isnull(sum(Credit), 0) - isnull(sum(Debit), 0)) as Amount from vw_ICSROH_2  as a right join vw_ICSROHMaster as b on a.AccountHeadId =b.AccountHeadId and  a.PostedDate >= '" + Fromdate + "' and a.PostedDate <= '" + Todate + "'   where  b.Type = '" + Type + "' group by b.Groups,b.AccountHead,b.TypeId order by b.TypeId";
                     else
-                    command.CommandText = "select b.Groups,b.AccountHead,(isnull(sum(Debit), 0) - isnull(sum(Credit), 0)) as Amount from vw_ICSROH_2  as a right join vw_ICSROHMaster as b on a.AccountHeadId =b.AccountHeadId and  a.PostedDate >= '" + Fromdate + "' and a.PostedDate <= '" + Todate + "'   where  b.Type = '" + Type + "' group by b.Groups,b.AccountHead,b.TypeId order by b.TypeId";
+                        command.CommandText = "select b.Groups,b.AccountHead,(isnull(sum(Debit), 0) - isnull(sum(Credit), 0)) as Amount from vw_ICSROH_2  as a right join vw_ICSROHMaster as b on a.AccountHeadId =b.AccountHeadId and  a.PostedDate >= '" + Fromdate + "' and a.PostedDate <= '" + Todate + "'   where  b.Type = '" + Type + "' group by b.Groups,b.AccountHead,b.TypeId order by b.TypeId";
                     command.CommandTimeout = 180;
                     var adapter = new System.Data.SqlClient.SqlDataAdapter(command);
                     var dataset = new DataSet();
@@ -3620,7 +3619,7 @@ namespace DataAccessLayer
             }
             catch (Exception ex)
             {
-            
+
                 Console.WriteLine(ex.Message);
                 return null;
             }
@@ -3629,7 +3628,7 @@ namespace DataAccessLayer
         {
             DataSet dataset = new DataSet();
             DataTable dtColumns = new DataTable();
-           // ToDate = ToDate.AddDays(1).AddTicks(-10001);
+            // ToDate = ToDate.AddDays(1).AddTicks(-10001);
             var Frm = Date.ToString("yyyy-MM-dd");
             //var Todate = ToDate.ToString("yyyy-MM-dd HH:mm");
             try

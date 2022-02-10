@@ -11314,8 +11314,10 @@ namespace IOAS.Controllers
 
                         int mainRow = 6;
                         int secSheetAmountCol = 4;
+                        int fcon = Date.Month > 3 ? (Date.Month - 3) : (Date.Month + 9);
+                        int ficon = Date.Month > 4 ? (Date.Month - 4) : (Date.Month + 8);
 
-                        for (int i = 0; i < (Date.Month - 3); i++)
+                        for (int i = 0; i < fcon; i++)
                         {
                             decimal Amt = 0;
                             int secSheetHeadRow = 6;
@@ -11323,7 +11325,7 @@ namespace IOAS.Controllers
                             FromDate = yearFromDate.AddMonths(i);
                             ToDate = FromDate.AddMonths(1);
                             ToDate = ToDate.AddTicks(-1);
-                            if (i == Date.Month - 4)
+                            if (i == ficon)
                                 ToDate = Date;
                             DataTable dt = new DataTable();
                             dt = db.GetICSROH_2(FromDate, ToDate, "Income");
@@ -11382,7 +11384,7 @@ namespace IOAS.Controllers
 
                         int ExpsecSheetAmountCol = 4;
                         int dd = Date.Month - 3;
-                        for (int i = 0; i < (Date.Month - 3); i++)
+                        for (int i = 0; i < fcon; i++)
                         {
                             int ExpsecSheetHeadRow = mainRow + 4;
                             int ExpsecSheetAmountRow = mainRow + 4;
@@ -11390,7 +11392,7 @@ namespace IOAS.Controllers
                             FromDate = yearFromDate.AddMonths(i);
                             ToDate = FromDate.AddMonths(1);
                             ToDate = ToDate.AddTicks(-1);
-                            if (i == Date.Month - 4)
+                            if (i == ficon)
                                 ToDate = Date;
                             DataTable dt = new DataTable();
                             dt = db.GetICSROH_2(FromDate, ToDate, "Expenses");

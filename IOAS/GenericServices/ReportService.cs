@@ -252,7 +252,7 @@ namespace IOAS.GenericServices
                         Head = x.AccountHead,
                         Value = Convert.ToDecimal(x.Amount)
                     }).ToList();
-                    model.PayableAmount = Qry.TotalAmount ?? 0;
+                    model.PayableAmount = Qry.BankTxAmount ?? 0;
                     model.TotalAmount = model.PayableAmount;
                     model.Rupees = CoreAccountsService.words(model.PayableAmount);
                     model.PrintedDate = String.Format("{0:dd-MMMM-yyyy}", DateTime.Now);

@@ -23688,7 +23688,14 @@ namespace IOAS.GenericServices
                                     int othid = addheadpd.OTHPayDeductionId;
                                     string empno = addheadpd.EmployeeNo;
                                     string Remarks = null;
-                                    data.OTHPayDeductionId = othid;
+                                    //data.OTHPayDeductionId = othid;
+                                    context.tblRCTOTHPaymentDeductionUploadDetail.Where(m => m.OTHPaymentDeductionUploadId == uploadId && m.EmployeeNumber == employeeNo).
+                                        ToList().ForEach(m =>
+                                    {
+                                        m.OTHPayDeductionId = othid;
+                                    });
+                                    context.SaveChanges();
+
                                     context.SaveChanges();
                                     if (detail.Count > 0)
                                     {

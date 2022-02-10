@@ -22381,7 +22381,7 @@ namespace IOAS.Infrastructure
                     decimal obRec = context.tblReceiptOB.Where(m => m.ProjectId == pId).Sum(m => m.ReceiptOpeningBalExclInterest) ?? 0;
                     recAmt += obRec;
                     negBal = (from U in context.tblNegativeBalance
-                              where U.ProjectId == pId && U.Status != "InActive" && U.Status != "Rejected"
+                              where U.ProjectId == pId && U.Status == "Approved"
                               select U).Sum(m => m.NegativeBalanceAmount) ?? 0;
                     decimal ttlAmt = 0;// recAmt + negBal;
                                        //if (negBal > 0 && amt < negBal)
