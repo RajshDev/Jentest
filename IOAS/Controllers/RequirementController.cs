@@ -202,6 +202,23 @@ namespace IOAS.Controllers
         }
 
         [HttpGet]
+        public JsonResult LoadWokrPlaceList(string term)
+        {
+            try
+            {
+                lock (lockObj)
+                {
+                    var data = Common.GetAutoCompleteWorkPlace(term);
+                    return Json(data, JsonRequestBehavior.AllowGet);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        [HttpGet]
         public JsonResult LoadVendorCodeList(string Vendor)
         {
             try
@@ -1887,6 +1904,12 @@ namespace IOAS.Controllers
                     }
                 }
             }
+            System.Reflection.PropertyInfo pi1 = output.GetType().GetProperty("Item1");
+            int Item1 = (int)(pi1.GetValue(output, null));
+            System.Reflection.PropertyInfo pi2 = output.GetType().GetProperty("Item2");
+            string Item2 = (string)(pi2.GetValue(output, null));
+            if (Item1 == 0 && string.IsNullOrEmpty(Item2))
+                output = Tuple.Create(Item1, "Mail not sent. Please contact admin");
             return Json(output, JsonRequestBehavior.AllowGet);
         }
 
@@ -1950,7 +1973,7 @@ namespace IOAS.Controllers
         }
 
         [HttpPost]
-        public JsonResult RequestCancelApplication(int appid, string apptype, string reason, int? orderid = null, HttpPostedFileBase attachement = null)
+        public JsonResult RequestCancelApplication(int appid, string apptype, string reason, int? orderid = null, HttpPostedFileBase attachement = null, bool? backdate_f = null)
         {
             try
             {
@@ -1972,7 +1995,7 @@ namespace IOAS.Controllers
                 var Valid = "Valid";
                 if (appid > 0 && !string.IsNullOrEmpty(apptype))
                 {
-                    Valid = ValidateCancelApplications(appid, apptype, orderid);
+                    Valid = ValidateCancelApplications(appid, apptype, orderid, backdate_f);
                     if (Valid != "Valid")
                         return Json(Valid, JsonRequestBehavior.AllowGet);
                 }
@@ -1994,10 +2017,13 @@ namespace IOAS.Controllers
 
         }
 
-        public static string ValidateCancelApplications(int appid, string apptype, int? orderid = null)
+        public static string ValidateCancelApplications(int appid, string apptype, int? orderid = null, bool? backdate_f = null)
         {
             try
             {
+                if (backdate_f == true)
+                    return "Valid";
+
                 using (var context = new IOASDBEntities())
                 {
                     if (appid > 0 && !string.IsNullOrEmpty(apptype))
@@ -3412,10 +3438,14 @@ namespace IOAS.Controllers
                         if (model.FromDate != null && model.ToDate != null)
                         {
                             double DiffMonth = model.ToDate.Value.Subtract(model.FromDate.Value).Days + 1;
-
                             var Days = model.ToDate.Value.Subtract(model.FromDate.Value).Days + 1;
                             decimal totdays = Common.GetAvgDaysInAYear((DateTime)model.FromDate, (DateTime)model.ToDate);
                             var Years = Convert.ToDecimal(Days) / Convert.ToDecimal(totdays);
+                            if (model.FromDate.Value.Year == model.ToDate.Value.Year && model.FromDate.Value.Month == 2 && model.FromDate.Value.Day == 1)
+                            {
+                                if (DiffMonth >= 28)
+                                    DiffMonth = 30;
+                            }
                             if ((DiffMonth <= 29 || Years > 1) && actenddate < model.FromDate)
                             {
                                 msg = msg == "Valid" ? "Appointment tenure should be minimum 1 month to 1 year." : msg + "<br /> Appointment tenure should be minimum 1 month to 1 year.";
@@ -10193,6 +10223,21 @@ namespace IOAS.Controllers
                 throw new Exception(ex.Message);
             }
         }
+
+
+        public JsonResult IITExperience()
+        {
+            try
+            {
+                object output = RequirementService.IITExperience(0, "", "IC15318");
+                return Json(output, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
 
     }
 }

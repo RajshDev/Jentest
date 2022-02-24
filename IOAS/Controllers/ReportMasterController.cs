@@ -2758,20 +2758,15 @@ namespace IOAS.Controllers
 
                 // set converter options
                 converter.Options.PdfPageSize = pageSize;
-                converter.Options.MaxPageLoadTime = 240;
+                converter.Options.MaxPageLoadTime = 600;
                 converter.Options.PdfPageOrientation = pdfOrientation;
                 converter.Options.WebPageWidth = webPageWidth;
                 converter.Options.WebPageHeight = webPageHeight;
                 converter.Options.MarginLeft = 30;
                 //converter.Options.MarginRight = 20;
 
-
-
-
                 // create a new pdf document converting an url
                 SelectPdf.PdfDocument doc = converter.ConvertUrl(url);
-
-
 
                 // save pdf document
                 byte[] pdf = doc.Save();

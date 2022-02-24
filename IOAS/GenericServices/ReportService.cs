@@ -7567,6 +7567,7 @@ namespace IOAS.GenericServices
             {
                 using (var context = new IOASDBEntities())
                 {
+                    //context.Database.CommandTimeout = 1800;//Increase timeout
                     var finQuery = context.tblFinYear.Where(m => m.FinYearId == finYearId).FirstOrDefault();
                     if (finQuery == null) return interst;
                     interst.InterestPct = finQuery.InterestPct.GetValueOrDefault(0);
@@ -7816,7 +7817,8 @@ namespace IOAS.GenericServices
             }
             catch (Exception ex)
             {
-
+                Infrastructure.IOASException.Instance.HandleMe(
+      (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
                 return interst;
             }
         }

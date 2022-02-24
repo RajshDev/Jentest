@@ -2508,6 +2508,7 @@ namespace IOAS.GenericServices
                                 editQuery.IITMPensionerOrCSIRStaff = model.IITMPensionerCSIRStaff;
                                 editQuery.PPONo = model.PPONo;
                                 editQuery.CSIRStaffPayMode = model.CSIRStaff;
+                                editQuery.StaffCategory = model.StaffCategory;
                                 editQuery.BankAccountNumber = model.BankAccountNo;
                                 editQuery.BankName = model.BankName;
                                 editQuery.BankId = model.BankId;
@@ -4202,6 +4203,11 @@ namespace IOAS.GenericServices
                                     var hisQuery = context.tblRCTOrderHistory.FirstOrDefault(x => x.OrderId == mastQuery.OrderId);
                                     if (hisQuery != null)
                                         hisQuery.IsCanceled = true;
+
+                                    var hisQuery1 = context.tblRCTOrderHistory.FirstOrDefault(x => x.ApplicationId == mastQuery.ApplicationId && x.AppointmentType == apptype && x.OrderId != mastQuery.OrderId);
+
+
+
 
                                     var efQuery = context.tblRCTOrderEffectHistory.FirstOrDefault(x => x.OrderId == mastQuery.OrderId);
                                     if (efQuery != null)
@@ -16490,14 +16496,24 @@ namespace IOAS.GenericServices
                     if (appid > 0 && !string.IsNullOrEmpty(category))
                     {
                         decimal experience = 0;
+                        string oldemployee = string.Empty;
                         int appTypeid = getAppointmentType(category);
                         int[] CourseId = new int[] { 0 };
                         if (category == "STE")
+                        {
+                            oldemployee = context.tblRCTSTE.Where(x => x.STEID == appid && x.EmployeeCategory == "Old Employee").Select(x => x.OldNumber).FirstOrDefault();
                             CourseId = context.tblRCTSTEEducationDetail.Where(x => x.STEID == appid && x.isCurrentVersion == true).Select(x => x.DisciplineID ?? 0).ToArray();
+                        }
                         else if (category == "CON")
+                        {
+                            oldemployee = context.tblRCTConsultantAppointment.Where(x => x.ConsultantAppointmentId == appid && x.EmployeeCategory == "Old Employee").Select(x => x.OldNumber).FirstOrDefault();
                             CourseId = context.tblRCTConsultantEducationDetail.Where(x => x.ConsultantAppointmentId == appid && x.Status == "Active").Select(x => x.DisciplineId ?? 0).ToArray();
+                        }
                         else if (category == "OSG")
+                        {
+                            oldemployee = context.tblRCTOutsourcing.Where(x => x.OSGID == appid && x.EmployeeCategory == "Old Employee").Select(x => x.OldNumber).FirstOrDefault();
                             CourseId = context.tblRCTOSGEducationDetail.Where(x => x.OSGId == appid && x.isCurrentVersion == true).Select(x => x.DisciplineId ?? 0).ToArray();
+                        }
 
                         int days = 0;
                         if (category == "STE")
@@ -16506,7 +16522,7 @@ namespace IOAS.GenericServices
                                 {
                                     days = days + (m.ToYear.Value.Subtract(m.FromYear.Value).Days + 1);
                                 });
-                        if (category == "CON")
+                        else if (category == "CON")
                             context.tblRCTConsultantExperienceDetail.Where(x => x.ConsultantAppointmentId == appid && x.Status == "Active").Select(x => new { x.FromYear, x.ToYear })
                                 .ToList().ForEach(m =>
                                 {
@@ -16519,6 +16535,8 @@ namespace IOAS.GenericServices
                                     days = days + (m.ToYear.Value.Subtract(m.FromYear.Value).Days + 1);
                                 });
                         experience = days / 365;
+                        if (!string.IsNullOrEmpty(oldemployee))
+                            experience += getIITExperience(oldemployee);
 
                         var query = (from m in context.vw_RCTOverAllApplicationEntry
                                      from d in context.tblRCTDesignation
@@ -18335,6 +18353,7 @@ namespace IOAS.GenericServices
                                     editQuery.ToMail = model.ToMail;
                                     editQuery.bcc = model.bcc;
                                     editQuery.CSIRStaffPayMode = model.CSIRStaff;
+                                    editQuery.StaffCategory = model.StaffCategory;
                                     editQuery.BankAccountNumber = model.BankAccountNo;
                                     editQuery.BankName = model.BankName;
                                     editQuery.BankId = model.BankId;
@@ -26061,7 +26080,6 @@ namespace IOAS.GenericServices
             {
                 using (var context = new IOASDBEntities())
                 {
-                    int?[] noexp = new int?[] { 7, 8, 9, 10 };
                     DateTime zeroTime = new DateTime(1, 1, 1);
                     TimeSpan? span = zeroTime - zeroTime;
                     span = To.AddDays(+1) - From;

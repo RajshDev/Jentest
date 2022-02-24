@@ -13,21 +13,10 @@ namespace IOAS.GenericServices
 {
     public class RCTEmailContentService
     {
-        ErrorHandler WriteLog = new ErrorHandler();
 
         private static string OfferLetter = WebConfigurationManager.AppSettings["RCTOfferLetter"];
         private static string ChecklistPath = WebConfigurationManager.AppSettings["RCTCheckListPath"];
         public static System.Globalization.CultureInfo Indian = new System.Globalization.CultureInfo("hi-IN");
-
-        //public static string ConvertStringToTitleCase(string text)
-        //{
-        //    CultureInfo cultureInfo = Thread.CurrentThread.CurrentCulture;
-        //    TextInfo textInfo = cultureInfo.TextInfo;
-        //    if (!string.IsNullOrEmpty(text))
-        //        return textInfo.ToTitleCase(text.ToLower());
-        //    else
-        //        return "";
-        //}
 
         private static List<string> getDefaultCC(string Apptype, int mailtype = 0)
         {
@@ -285,7 +274,7 @@ namespace IOAS.GenericServices
                                     CheckList = item.CheckList,
                                     devScenarios = item.CheckList,
                                     checklistId = item.checklistId ?? 0,
-                                    actNorms = "Please refer the IC&SR outsourcing norms link --> https://icsr.iitm.ac.in/file/pdf/annexure55.pdf",
+                                    actNorms = "",
                                     devinNorms = "The Candidate has " + devnormscourse + ",which is below the IC&SR norms"
                                 });
                             }
@@ -314,7 +303,7 @@ namespace IOAS.GenericServices
                                     CheckList = item.CheckList,
                                     devScenarios = item.CheckList,
                                     checklistId = item.checklistId ?? 0,
-                                    actNorms = "Please refer the IC&SR norms link --> https://icsr.iitm.ac.in/file/pdf/annexure3.pdf , https://icsr.iitm.ac.in/file/pdf/annexure56.pdf",
+                                    actNorms = "",
                                     devinNorms = "The Candidate has " + devnormscourse + ",which is below the IC&SR norms"
                                 });
                             }
@@ -349,7 +338,7 @@ namespace IOAS.GenericServices
                                     CheckList = item.CheckList,
                                     devScenarios = item.CheckList,
                                     checklistId = item.checklistId ?? 0,
-                                    actNorms = "Please refer the IC&SR norms link --> https://icsr.iitm.ac.in/file/pdf/annexure3.pdf , https://icsr.iitm.ac.in/file/pdf/annexure56.pdf",
+                                    actNorms = "",
                                     devinNorms = "The relevant experience of the candidate in IIT: " + IITExperience + " and in other organizations: " + model.Experienceinwordings + " with qualification as: " + devnormscourse
                                 });
                             }
@@ -372,7 +361,7 @@ namespace IOAS.GenericServices
                                     CheckList = item.CheckList,
                                     devScenarios = item.CheckList,
                                     checklistId = item.checklistId ?? 0,
-                                    actNorms = "Please refer the IC&SR outsourcing norms link --> https://icsr.iitm.ac.in/file/pdf/annexure55.pdf",
+                                    actNorms = "",
                                     devinNorms = "The relevant experience of the candidate in IIT: " + IITExperience + " and in other organizations: " + model.Experienceinwordings + " with qualification as: " + devnormscourse
                                 });
                             }
@@ -645,6 +634,8 @@ namespace IOAS.GenericServices
             }
             catch (Exception ex)
             {
+                ErrorHandler WriteLog = new ErrorHandler();
+                WriteLog.SendErrorToText(ex);
                 return "false";
             }
         }
@@ -773,6 +764,8 @@ namespace IOAS.GenericServices
             }
             catch (Exception ex)
             {
+                ErrorHandler WriteLog = new ErrorHandler();
+                WriteLog.SendErrorToText(ex);
                 return res;
             }
         }
@@ -1024,6 +1017,8 @@ namespace IOAS.GenericServices
             }
             catch (Exception ex)
             {
+                ErrorHandler WriteLog = new ErrorHandler();
+                WriteLog.SendErrorToText(ex);
                 return Tuple.Create(0, "");
             }
         }
@@ -1336,6 +1331,8 @@ namespace IOAS.GenericServices
             }
             catch (Exception ex)
             {
+                ErrorHandler WriteLog = new ErrorHandler();
+                WriteLog.SendErrorToText(ex);
                 return Tuple.Create(0, "");
             }
         }
@@ -1478,7 +1475,9 @@ namespace IOAS.GenericServices
             }
             catch (Exception ex)
             {
-                return Tuple.Create(0, "");
+                ErrorHandler WriteLog = new ErrorHandler();
+                WriteLog.SendErrorToText(ex);
+                return Tuple.Create(0, ex.Message);
             }
         }
 
@@ -1691,6 +1690,8 @@ namespace IOAS.GenericServices
             }
             catch (Exception ex)
             {
+                ErrorHandler WriteLog = new ErrorHandler();
+                WriteLog.SendErrorToText(ex);
                 return res;
             }
         }
@@ -1883,6 +1884,8 @@ namespace IOAS.GenericServices
             }
             catch (Exception ex)
             {
+                ErrorHandler WriteLog = new ErrorHandler();
+                WriteLog.SendErrorToText(ex);
                 return res;
             }
         }
@@ -1983,6 +1986,8 @@ namespace IOAS.GenericServices
             }
             catch (Exception ex)
             {
+                ErrorHandler WriteLog = new ErrorHandler();
+                WriteLog.SendErrorToText(ex);
                 return res;
             }
         }
@@ -2075,6 +2080,8 @@ namespace IOAS.GenericServices
             }
             catch (Exception ex)
             {
+                ErrorHandler WriteLog = new ErrorHandler();
+                WriteLog.SendErrorToText(ex);
                 return res;
             }
         }
@@ -2260,6 +2267,8 @@ namespace IOAS.GenericServices
             }
             catch (Exception ex)
             {
+                ErrorHandler WriteLog = new ErrorHandler();
+                WriteLog.SendErrorToText(ex);
                 return res;
             }
         }
@@ -2308,7 +2317,8 @@ namespace IOAS.GenericServices
                             foreach (var bccEmail in bcc)
                                 addcc.Add(bccEmail.Trim());
                         }
-                        var queryodr = (from o in context.tblOrder where o.OrderId == orderid
+                        var queryodr = (from o in context.tblOrder
+                                        where o.OrderId == orderid
                                         select new
                                         {
                                             o.NewDesignation,
@@ -2430,6 +2440,8 @@ namespace IOAS.GenericServices
             }
             catch (Exception ex)
             {
+                ErrorHandler WriteLog = new ErrorHandler();
+                WriteLog.SendErrorToText(ex);
                 return res;
             }
         }
@@ -2652,8 +2664,8 @@ namespace IOAS.GenericServices
             }
             catch (Exception ex)
             {
-                RequirementService rct = new RequirementService();
-                Infrastructure.IOASException.Instance.HandleMe(rct, ex);
+                ErrorHandler WriteLog = new ErrorHandler();
+                WriteLog.SendErrorToText(ex);
                 return Tuple.Create(0, "");
             }
         }
@@ -2768,8 +2780,8 @@ namespace IOAS.GenericServices
             }
             catch (Exception ex)
             {
-                RequirementService rct = new RequirementService();
-                Infrastructure.IOASException.Instance.HandleMe(rct, ex);
+                ErrorHandler WriteLog = new ErrorHandler();
+                WriteLog.SendErrorToText(ex);
                 return Tuple.Create(0, "");
             }
         }
@@ -2892,7 +2904,8 @@ namespace IOAS.GenericServices
                             emodel.attachmentByte = AttachmentList;
 
                             var isSend = _eb.RCTSendEmail(emodel, bodyResp.Item2);
-
+                            if (isSend)
+                                res = 1;
                             //var queryoffer = IOAScontext.tblRCTOfferDetails.Where(m => m.ApplicationId == appid && m.Category == category && m.OfferCategory == "OfferLetter" && (orderid == null || m.OrderId == orderid) && m.isSend != true).FirstOrDefault();
                             var queryoffer = IOAScontext.tblRCTOfferDetails.Where(m => m.ApplicationId == appid && m.Category == category && m.OfferCategory == "OfferLetter" && (m.OrderId == orderid || (orderid == null && m.OrderId == null)) && m.isSend != true).FirstOrDefault();
                             if (queryoffer != null)
@@ -2962,7 +2975,6 @@ namespace IOAS.GenericServices
                                 EmailStatus.OrderId = query.OrderId;
                                 IOAScontext.tblRCTSTEEmailLog.Add(EmailStatus);
                                 IOAScontext.SaveChanges();
-                                res = 1;
                             }
                             else if (query.Category == "CON")
                             {
@@ -2987,7 +2999,6 @@ namespace IOAS.GenericServices
                                 EmailStatus.OrderId = query.OrderId;
                                 IOAScontext.tblRCTConsutantAppEmailLog.Add(EmailStatus);
                                 IOAScontext.SaveChanges();
-                                res = 1;
                             }
                         }
                     }
@@ -2996,6 +3007,8 @@ namespace IOAS.GenericServices
             }
             catch (Exception ex)
             {
+                ErrorHandler WriteLog = new ErrorHandler();
+                WriteLog.SendErrorToText(ex);
                 return Tuple.Create(0, ex.Message);
             }
         }
@@ -3077,6 +3090,8 @@ namespace IOAS.GenericServices
                             var orderdoc = attachmodel.actualName;
                             emodel.attachmentByte = AttachList;
                             var isSend = _eb.RCTSendEmail(emodel, bodyResp.Item2);
+                            if (isSend)
+                                res = 1;
                             var queryoffer = IOAScontext.tblRCTOfferDetails.OrderByDescending(o => o.OfferDetailId).Where(m => m.ApplicationId == appid && m.Category == category && m.OfferCategory == "OfficeOrder" && ((orderid == null && m.OrderId == null) || m.OrderId == orderid) && m.isSend != true).FirstOrDefault();
                             if (queryoffer != null)
                             {
@@ -3160,7 +3175,6 @@ namespace IOAS.GenericServices
                                 EmailStatus.OrderId = query.OrderId;
                                 IOAScontext.tblRCTSTEEmailLog.Add(EmailStatus);
                                 IOAScontext.SaveChanges();
-                                res = 1;
                             }
                             else if (query.Category == "CON")
                             {
@@ -3185,7 +3199,6 @@ namespace IOAS.GenericServices
                                 EmailStatus.OrderId = query.OrderId;
                                 IOAScontext.tblRCTConsutantAppEmailLog.Add(EmailStatus);
                                 IOAScontext.SaveChanges();
-                                res = 1;
                             }
                             else if (query.Category == "OSG")
                             {
@@ -3210,7 +3223,6 @@ namespace IOAS.GenericServices
                                 EmailStatus.OrderId = query.OrderId;
                                 IOAScontext.tblRCTOSGEmailLog.Add(EmailStatus);
                                 IOAScontext.SaveChanges();
-                                res = 1;
                             }
                         }
                     }
@@ -3219,6 +3231,8 @@ namespace IOAS.GenericServices
             }
             catch (Exception ex)
             {
+                ErrorHandler WriteLog = new ErrorHandler();
+                WriteLog.SendErrorToText(ex);
                 return Tuple.Create(0, ex.Message);
             }
         }
@@ -3361,9 +3375,10 @@ namespace IOAS.GenericServices
                                         }
                                     }
                                 }
-
+                                var res = 0;
                                 var isSend = _eb.RCTSendEmail(emodel, bodyResp.Item2);
-
+                                if (isSend)
+                                    res = 1;
                                 var queryoffer = context.tblRCTOfferDetails.Where(m => m.OfferCategory == "Order" && m.OrderId == orderId && m.isSend != true).FirstOrDefault();
                                 if (queryoffer != null)
                                 {
@@ -3399,7 +3414,7 @@ namespace IOAS.GenericServices
                                 EmailStatus.OrderId = Qry.OrderId;
                                 context.tblRCTSTEEmailLog.Add(EmailStatus);
                                 context.SaveChanges();
-                                return Tuple.Create(1, "");
+                                return Tuple.Create(res, "");
                             }
                         }
                     }
@@ -3408,7 +3423,9 @@ namespace IOAS.GenericServices
             }
             catch (Exception ex)
             {
-                return Tuple.Create(0, "");
+                ErrorHandler WriteLog = new ErrorHandler();
+                WriteLog.SendErrorToText(ex);
+                return Tuple.Create(0, ex.Message);
             }
         }
 
@@ -3417,7 +3434,7 @@ namespace IOAS.GenericServices
         {
             List<string> addcc = new List<string>();
             List<string> AttachmentList = new List<string>();
-            var res = false;
+            var res = 0;
             try
             {
                 using (var context = new IOASDBEntities())
@@ -3528,6 +3545,8 @@ namespace IOAS.GenericServices
                                 }
                                 emodel.attachmentByte = listmodel;
                                 var isSend = _eb.RCTSendEmail(emodel, bodyResp.Item2);
+                                if (isSend)
+                                    res = 1;
                                 if (Qry.Status == "Completed" || (Qry.Status == "Open" && Qry.od.RelievingMode == 3))
                                 {
                                     var queryoffer = context.tblRCTOfferDetails.Where(m => m.OfferCategory == "Order" && m.OrderId == orderId && m.isSend != true).FirstOrDefault();
@@ -3565,7 +3584,6 @@ namespace IOAS.GenericServices
                                     EmailStatus.OrderId = Qry.OrderId;
                                     context.tblRCTConsutantAppEmailLog.Add(EmailStatus);
                                     context.SaveChanges();
-                                    return Tuple.Create(1, bodyResp.Item2);
                                 }
                                 else if (Qry.AppointmentType == 2)
                                 {
@@ -3593,7 +3611,6 @@ namespace IOAS.GenericServices
                                     EmailStatus.OrderId = Qry.OrderId;
                                     context.tblRCTSTEEmailLog.Add(EmailStatus);
                                     context.SaveChanges();
-                                    return Tuple.Create(1, bodyResp.Item2);
                                 }
                                 else if (Qry.AppointmentType == 3)
                                 {
@@ -3621,8 +3638,8 @@ namespace IOAS.GenericServices
                                     EmailStatus.OrderId = Qry.OrderId;
                                     context.tblRCTOSGEmailLog.Add(EmailStatus);
                                     context.SaveChanges();
-                                    return Tuple.Create(1, bodyResp.Item2);
                                 }
+                                return Tuple.Create(res, bodyResp.Item2);
                             }
                         }
                     }
@@ -3631,7 +3648,9 @@ namespace IOAS.GenericServices
             }
             catch (Exception ex)
             {
-                return Tuple.Create(0, "");
+                ErrorHandler WriteLog = new ErrorHandler();
+                WriteLog.SendErrorToText(ex);
+                return Tuple.Create(0, ex.Message);
             }
         }
 
@@ -3639,7 +3658,7 @@ namespace IOAS.GenericServices
         public static Tuple<int, string> SendOrder(int orderId, int logged_in_userId, bool isgetbody_f = false)
         {
             List<string> addcc = new List<string>();
-            var res = false;
+            var res = 0;
             try
             {
                 using (var context = new IOASDBEntities())
@@ -3735,6 +3754,8 @@ namespace IOAS.GenericServices
                                     }
                                 }
                                 var isSend = _eb.RCTSendEmail(emodel, bodyResp.Item2);
+                                if (isSend)
+                                    res = 1;
                                 var queryoffer = context.tblRCTOfferDetails.Where(m => m.OfferCategory == "Order" && m.OrderId == orderId && m.isSend != true).FirstOrDefault();
                                 if (queryoffer != null)
                                 {
@@ -3770,7 +3791,6 @@ namespace IOAS.GenericServices
                                     EmailStatus.OrderId = Qry.OrderId;
                                     context.tblRCTConsutantAppEmailLog.Add(EmailStatus);
                                     context.SaveChanges();
-                                    return Tuple.Create(1, "");
                                 }
                                 else if (Qry.AppointmentType == 2)
                                 {
@@ -3798,7 +3818,6 @@ namespace IOAS.GenericServices
                                     EmailStatus.OrderId = Qry.OrderId;
                                     context.tblRCTSTEEmailLog.Add(EmailStatus);
                                     context.SaveChanges();
-                                    return Tuple.Create(1, "");
                                 }
                                 else if (Qry.AppointmentType == 3)
                                 {
@@ -3826,8 +3845,8 @@ namespace IOAS.GenericServices
                                     EmailStatus.OrderId = Qry.OrderId;
                                     context.tblRCTOSGEmailLog.Add(EmailStatus);
                                     context.SaveChanges();
-                                    return Tuple.Create(1, "");
                                 }
+                                return Tuple.Create(res, "");
                             }
                         }
                     }
@@ -3836,7 +3855,9 @@ namespace IOAS.GenericServices
             }
             catch (Exception ex)
             {
-                return Tuple.Create(0, "");
+                ErrorHandler WriteLog = new ErrorHandler();
+                WriteLog.SendErrorToText(ex);
+                return Tuple.Create(0, ex.Message);
             }
         }
 
@@ -3953,7 +3974,7 @@ namespace IOAS.GenericServices
                                 EmailStatus.OrderId = Qry.OrderId;
                                 context.tblRCTConsutantAppEmailLog.Add(EmailStatus);
                                 context.SaveChanges();
-                                return true;
+                                return isSend;
                             }
                             else if (Qry.Category == "STE")
                             {
@@ -3981,7 +4002,7 @@ namespace IOAS.GenericServices
                                 EmailStatus.OrderId = Qry.OrderId;
                                 context.tblRCTSTEEmailLog.Add(EmailStatus);
                                 context.SaveChanges();
-                                return true;
+                                return isSend;
                             }
                             else if (Qry.Category == "OSG")
                             {
@@ -4009,7 +4030,7 @@ namespace IOAS.GenericServices
                                 EmailStatus.OrderId = Qry.OrderId;
                                 context.tblRCTOSGEmailLog.Add(EmailStatus);
                                 context.SaveChanges();
-                                return true;
+                                return isSend;
                             }
                         }
                     }
@@ -4018,6 +4039,8 @@ namespace IOAS.GenericServices
             }
             catch (Exception ex)
             {
+                ErrorHandler WriteLog = new ErrorHandler();
+                WriteLog.SendErrorToText(ex);
                 return false;
             }
         }
@@ -4127,7 +4150,7 @@ namespace IOAS.GenericServices
                                     EmailStatus.OrderId = Qry.OrderId;
                                     context.tblRCTConsutantAppEmailLog.Add(EmailStatus);
                                     context.SaveChanges();
-                                    return true;
+                                    return isSend;
                                 }
                                 else if (Qry.Category == "STE")
                                 {
@@ -4155,7 +4178,7 @@ namespace IOAS.GenericServices
                                     EmailStatus.OrderId = Qry.OrderId;
                                     context.tblRCTSTEEmailLog.Add(EmailStatus);
                                     context.SaveChanges();
-                                    return true;
+                                    return isSend;
                                 }
                                 else if (Qry.Category == "OSG")
                                 {
@@ -4183,7 +4206,7 @@ namespace IOAS.GenericServices
                                     EmailStatus.OrderId = Qry.OrderId;
                                     context.tblRCTOSGEmailLog.Add(EmailStatus);
                                     context.SaveChanges();
-                                    return true;
+                                    return isSend;
                                 }
                             }
                         }
@@ -4193,6 +4216,8 @@ namespace IOAS.GenericServices
             }
             catch (Exception ex)
             {
+                ErrorHandler WriteLog = new ErrorHandler();
+                WriteLog.SendErrorToText(ex);
                 return false;
             }
         }
@@ -4294,7 +4319,8 @@ namespace IOAS.GenericServices
                         if (bodyResp.Item1)
                         {
                             var isSend = _eb.RCTSendEmail(emodel, bodyResp.Item2);
-
+                            if (!isSend)
+                                emailcount = 0;
                             if (Apptype == "STE")
                             {
                                 tblRCTSTEEmailLog EmailStatus = new tblRCTSTEEmailLog();
@@ -4398,6 +4424,8 @@ namespace IOAS.GenericServices
             }
             catch (Exception ex)
             {
+                ErrorHandler WriteLog = new ErrorHandler();
+                WriteLog.SendErrorToText(ex);
                 return Tuple.Create(emailcount, "");
             }
         }
@@ -4608,7 +4636,8 @@ namespace IOAS.GenericServices
                         if (bodyResp.Item1)
                         {
                             var isSend = _eb.RCTSendEmail(emodel, bodyResp.Item2);
-
+                            if (!isSend)
+                                emailcount = 0;
                             if (AppType == "STE")
                             {
                                 tblRCTSTEEmailLog EmailStatus = new tblRCTSTEEmailLog();
@@ -4698,6 +4727,8 @@ namespace IOAS.GenericServices
             }
             catch (Exception ex)
             {
+                ErrorHandler WriteLog = new ErrorHandler();
+                WriteLog.SendErrorToText(ex);
                 return res;
             }
         }
@@ -4790,6 +4821,8 @@ namespace IOAS.GenericServices
             }
             catch (Exception ex)
             {
+                ErrorHandler WriteLog = new ErrorHandler();
+                WriteLog.SendErrorToText(ex);
                 return res = -1;
             }
         }
@@ -4888,6 +4921,8 @@ namespace IOAS.GenericServices
             }
             catch (Exception ex)
             {
+                ErrorHandler WriteLog = new ErrorHandler();
+                WriteLog.SendErrorToText(ex);
                 return res = -1;
             }
         }
@@ -5300,6 +5335,8 @@ namespace IOAS.GenericServices
             }
             catch (Exception ex)
             {
+                ErrorHandler WriteLog = new ErrorHandler();
+                WriteLog.SendErrorToText(ex);
                 return res;
             }
         }
@@ -5435,6 +5472,8 @@ namespace IOAS.GenericServices
             }
             catch (Exception ex)
             {
+                ErrorHandler WriteLog = new ErrorHandler();
+                WriteLog.SendErrorToText(ex);
                 return Tuple.Create(0, ex.Message);
             }
         }
@@ -5587,6 +5626,8 @@ namespace IOAS.GenericServices
             }
             catch (Exception ex)
             {
+                ErrorHandler WriteLog = new ErrorHandler();
+                WriteLog.SendErrorToText(ex);
                 return Tuple.Create(0, "");
             }
         }
@@ -5731,6 +5772,8 @@ namespace IOAS.GenericServices
             }
             catch (Exception ex)
             {
+                ErrorHandler WriteLog = new ErrorHandler();
+                WriteLog.SendErrorToText(ex);
                 return Tuple.Create(0, ex.Message);
             }
         }

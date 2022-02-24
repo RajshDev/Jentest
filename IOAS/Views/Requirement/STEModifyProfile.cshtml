@@ -216,7 +216,19 @@
                                             <div class="form-group custom-form-group ">
                                                 <label>Staff Category</label>
                                                 <br>
-                                                @Html.DisplayFor(m => m.StaffCategory)
+                                                @*@Html.DisplayFor(m => m.StaffCategory)*@
+                                                @if (Model != null && !String.IsNullOrWhiteSpace(Model.StaffCategory) && Model.StaffCategory == "ICSR Staff")
+                                                {
+                                                    @Html.RadioButtonFor(M => M.StaffCategory, "ICSR Staff", new { @checked = "checked" })@:&nbsp;<label>ICSR Staff </label> <br>
+                                                    @Html.RadioButtonFor(M => M.StaffCategory, "Non ICSR Staff")@:&nbsp;<label>Non ICSR Staff</label> <br>
+                                                }
+                                                else
+                                                {
+                                                    @Html.RadioButtonFor(M => M.StaffCategory, "ICSR Staff")@:&nbsp;<label>ICSR Staff </label> <br>
+                                                    @Html.RadioButtonFor(M => M.StaffCategory, "Non ICSR Staff", new { @checked = "checked" })@:&nbsp;<label>Non ICSR Staff</label> <br>
+                                                }
+                                                <div>@Html.ValidationMessageFor(m => m.StaffCategory)</div>
+
                                             </div>
                                         </div>
                                         <div class="col-md-3">
@@ -794,6 +806,7 @@
         $('.selectpicker').selectpicker('refresh');
         applyAutoComplete($('#BankName'), $('#BankId'), '@Url.Action("LoadBankNameList", "Requirement")');
         applyAutoComplete($('#AutoFillRequstedbyPI'), $('#RequestedByPI'), '@Url.Action("LoadPIList", "Requirement")');
+        applyAutoComplete($('#EmployeeWorkplace'),undefined, '@Url.Action("LoadWokrPlaceList", "Requirement")');
         var CurrDate = moment(new Date()).toDate();
         $('input[name$=".FromDate"]').datepicker({
             dateFormat: 'dd-MM-yy',
@@ -1640,7 +1653,7 @@
         }
     });
 
-    
+
     $('#formSubmit').on('keyup','textarea,input[type="text"]',function(event) {
         if($(this).attr('id') != "Comments" && $(this).attr('id') != undefined) {
             var input = event.target;

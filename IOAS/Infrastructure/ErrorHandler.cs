@@ -57,7 +57,6 @@ namespace IOAS.Infrastructure
             {
                 e.ToString();
             }
-        }
-
+        }      
     }
 }

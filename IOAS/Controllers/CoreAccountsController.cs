@@ -20580,7 +20580,7 @@ namespace IOAS.Controllers
         public ActionResult PaymentTest()
         {
             // coreAccountService.PaymentTestBOATransaction(5647, 1);
-            coreAccountService.PaymentTestBOATransaction(6291, 1);
+            coreAccountService.PaymentTestBOATransaction(6360, 1);
             return View();
 
         }

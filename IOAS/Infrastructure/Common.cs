@@ -23600,6 +23600,32 @@ namespace IOAS.Infrastructure
             }
         }
 
+        public static List<AutoCompleteModel> GetAutoCompleteWorkPlace(string term)
+        {
+            try
+            {
+                List<AutoCompleteModel> list = new List<AutoCompleteModel>();
+                List<AutoCompleteModel> list2 = new List<AutoCompleteModel>();
+                using (var context = new IOASDBEntities())
+                {
+                    list = (from C in context.tblRCTEmployeeWorkplace
+                            where C.Status == "Active" && C.DepartmentCentres.Contains(term)
+                            orderby C.DepartmentCentres
+                            select new AutoCompleteModel()
+                            {
+                                value = C.WorkplaceId.ToString(),
+                                label = C.DepartmentCentres
+                            }).ToList();
+
+                }
+                return list;
+            }
+            catch (Exception ex)
+            {
+                return new List<AutoCompleteModel>();
+            }
+        }
+
         //public static string CheckPreviousEmployeeAdhar(string adharno)
         //{
         //    string isalreadyEmp = string.Empty;

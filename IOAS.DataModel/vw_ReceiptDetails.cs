@@ -27,5 +27,6 @@ namespace IOAS.DataModel
         public Nullable<int> ProjectId { get; set; }
         public string Status { get; set; }
         public string description { get; set; }
+        public string InvoiceNumber { get; set; }
     }
 }

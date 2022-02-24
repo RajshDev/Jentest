@@ -902,3 +902,56 @@ function applyAutoCompleteDesignation(ele, hiddenEle, url, functionName, withPar
         minLength: 2
     }).autocomplete("widget").addClass("auto-com-z-index");
 }
+
+//Recruitment
+
+function monthCount(startdate, enddate) {
+    var arrmonth = [];
+    arrmonth = dateRange(startdate.getFullYear() + '-' + parseInt(startdate.getMonth() + 1) + '-' + startdate.getDate(), enddate.getFullYear() + '-' + parseInt(enddate.getMonth() + 1) + '-' + enddate.getDate())
+    var count = 0;
+    for (var i = 0; i < arrmonth.length; i++) {
+        var lastCount = arrmonth.length - 1;
+        if (i != 0 && i != lastCount)
+            count += 1;
+    }
+    return count;
+}
+
+function dateRange(startDate, endDate) {
+    var start = startDate.split('-');
+    var end = endDate.split('-');
+    var startYear = parseInt(start[0]);
+    var endYear = parseInt(end[0]);
+    var months = [];
+    for (var i = startYear; i <= endYear; i++) {
+        var endMonth = i != endYear ? 11 : parseInt(end[1]) - 1;
+        var startMon = i === startYear ? parseInt(start[1]) - 1 : 0;
+        for (var j = startMon; j <= endMonth; j = j > 12 ? j % 12 || 11 : j + 1) {
+            var month = j + 1;
+            var displayMonth = month < 10 ? '0' + month : month;
+            months.push([displayMonth]);
+        }
+    }
+    return months;
+}
+
+function endOfMonth(date) {
+    return new Date(date.getFullYear(), date.getMonth() + 1, 0);
+}
+
+function getCalDateDetails(startDate, endDate) {
+    var startdt = new Date(startDate.split('-').join('/'));
+    var enddt   = new Date(endDate.split('-').join('/'));
+    var count   = monthCount(startdt, enddt);
+    var startdatemonthend = parseInt(endOfMonth(startdt).getDate());
+    var enddatemonthend   = parseInt(endOfMonth(enddt).getDate());
+    var startworkingdays = 0, endworkingdays = 0;
+    if (startdt.getMonth() == enddt.getMonth() && startdt.getFullYear() == enddt.getFullYear()) {
+        startworkingdays = parseInt(enddt.getDate()) - parseInt(startdt.getDate()) + 1;
+    }
+    else {
+        startworkingdays = startdatemonthend - parseInt(startdt.getDate()) + 1;
+        endworkingdays = enddt.getDate();
+    }
+    return { startmonth: startdatemonthend, endmonth: enddatemonthend, startworkingdays: startworkingdays, endworkingdays: endworkingdays, monthcount: count };
+}

@@ -2531,7 +2531,7 @@ namespace DataAccessLayer
             {
                 using (var connection = getConnection())
                 {
-                    ToDate = ToDate.AddDays(1).AddTicks(-10001);
+                    //ToDate = ToDate.AddDays(1).AddTicks(-10001);
                     //var Frm = FromDate.ToString("yyyy-MM-dd HH:mm");
                     var Todate = ToDate.ToString("yyyy-MM-dd HH:mm");
                     connection.Open();
@@ -3520,8 +3520,8 @@ namespace DataAccessLayer
                     command.CommandType = CommandType.Text;
                     if (Type == "Income")
                         command.CommandText = "select b.Groups,b.AccountHead,(isnull(sum(Credit), 0) - isnull(sum(Debit), 0)) as Amount from vw_ICSROH_2  as a right join vw_ICSROHMaster as b on a.AccountHeadId =b.AccountHeadId and  a.PostedDate >= '" + Fromdate + "' and a.PostedDate <= '" + Todate + "'   where  b.Type = '" + Type + "' group by b.Groups,b.AccountHead,b.TypeId order by b.TypeId";
-                    else
-                        command.CommandText = "select b.Groups,b.AccountHead,(isnull(sum(Debit), 0) - isnull(sum(Credit), 0)) as Amount from vw_ICSROH_2  as a right join vw_ICSROHMaster as b on a.AccountHeadId =b.AccountHeadId and  a.PostedDate >= '" + Fromdate + "' and a.PostedDate <= '" + Todate + "'   where  b.Type = '" + Type + "' group by b.Groups,b.AccountHead,b.TypeId order by b.TypeId";
+                    else                    
+                        command.CommandText = "select b.Groups,b.AccountHead,(isnull(sum(Debit), 0) - isnull(sum(Credit), 0)) as Amount from vw_ICSROH_2  as a right join vw_ICSROHMaster as b on a.AccountHeadId =b.AccountHeadId and  a.PostedDate >= '" + Fromdate + "' and a.PostedDate <= '" + Todate + "'   where  b.Type = '" + Type + "' group by b.Groups,b.AccountHead,b.TypeId order by b.TypeId";                   
                     command.CommandTimeout = 180;
                     var adapter = new System.Data.SqlClient.SqlDataAdapter(command);
                     var dataset = new DataSet();

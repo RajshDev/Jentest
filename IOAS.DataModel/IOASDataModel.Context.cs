@@ -1543,6 +1543,7 @@ namespace IOAS.DataModel
         public virtual DbSet<vwTapalDetails> vwTapalDetails { get; set; }
         public virtual DbSet<vwTapalInwardDetails> vwTapalInwardDetails { get; set; }
         public virtual DbSet<vwTnMmaxOrder> vwTnMmaxOrder { get; set; }
+        public virtual DbSet<tblRCTEmployeeWorkplace> tblRCTEmployeeWorkplace { get; set; }
     
         public virtual int AnnualAccounts(Nullable<System.DateTime> date, Nullable<System.DateTime> date2)
         {

@@ -146,7 +146,7 @@ namespace IOAS.Controllers
             return View("ReportBuilder", model);
         }
 
-
+        
         [Authorize]
         public ActionResult EditReport(int ReportID)
         {
@@ -2267,6 +2267,7 @@ namespace IOAS.Controllers
                         var command = new System.Data.SqlClient.SqlCommand();
                         command.Connection = connection;
                         command.CommandType = CommandType.Text;
+                        command.CommandTimeout = 1800;
                         command.CommandText = "select * from tblOverallAnnualAccounts";
                         var adapter = new System.Data.SqlClient.SqlDataAdapter(command);
                         var dataset = new DataSet();
@@ -7825,6 +7826,7 @@ namespace IOAS.Controllers
                 workStream.Write(byteInfo, 0, byteInfo.Length);
                 //var fromdate = Convert.ToDateTime(fdate);
                 var todate = Convert.ToDateTime(tdate);
+                todate = todate.AddDays(1).AddTicks(-2001);
                 using (var context = new IOASDBEntities())
                 {
                     using (XLWorkbook wb = new XLWorkbook())
@@ -11326,7 +11328,7 @@ namespace IOAS.Controllers
                             ToDate = FromDate.AddMonths(1);
                             ToDate = ToDate.AddTicks(-1);
                             if (i == ficon)
-                                ToDate = Date;
+                                ToDate = Date.AddDays(1).AddTicks(-1);
                             DataTable dt = new DataTable();
                             dt = db.GetICSROH_2(FromDate, ToDate, "Income");
 
@@ -11393,7 +11395,7 @@ namespace IOAS.Controllers
                             ToDate = FromDate.AddMonths(1);
                             ToDate = ToDate.AddTicks(-1);
                             if (i == ficon)
-                                ToDate = Date;
+                                ToDate = Date.AddDays(1).AddTicks(-1);
                             DataTable dt = new DataTable();
                             dt = db.GetICSROH_2(FromDate, ToDate, "Expenses");
 
