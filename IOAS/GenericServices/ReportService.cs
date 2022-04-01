@@ -6985,7 +6985,7 @@ namespace IOAS.GenericServices
                     int CurrNoOfProject = TTlCurrRecQry.Select(m => m.ProjectNumber).ToList().Distinct().Count();
                     decimal CurrRec = TTlCurrRecQry.Select(mn => mn.ReceiptAmount).Sum() ?? 0;
                     decimal CurrValue = (CurrRec) / 100000;
-
+                    string[] ProjectNumber = new string[] { };
                     for (int j = 0; j < Qry.Length; j++)
                     {
                         decimal? TtlAmt = 0;
@@ -7010,6 +7010,7 @@ namespace IOAS.GenericServices
                                         && b.FacultyDetailId == null
 
                                           select new { a.ReceiptAmount, a.ReceiptOverheadValue, a.IGST, a.SGST, a.CGST, b.ProjectNumber }).ToList();
+                            ProjectNumber = ProjectNumber.Concat(RecQry.Select(mn => mn.ProjectNumber).ToArray()).ToArray();
                             decimal Rec = RecQry.Select(mn => mn.ReceiptAmount).Sum() ?? 0;
                             Amt = (Rec) / 100000;
                             TtlAmt += Amt;
@@ -7063,6 +7064,7 @@ namespace IOAS.GenericServices
                                       && ReceiptCateg.Contains(b.ReportClassification ?? 0)
                                           select new { a.ReceiptAmount, a.ReceiptOverheadValue, a.IGST, a.SGST, a.CGST, b.ProjectNumber }).ToList();
                             decimal Rec = RecQry.Select(mn => mn.ReceiptAmount).Sum() ?? 0;
+                            ProjectNumber = ProjectNumber.Concat(RecQry.Select(mn => mn.ProjectNumber).ToArray()).ToArray();
                             Amt = (Rec) / 100000;
                             TtlAmt += Amt;
                             if (i != NoOfMonth)
@@ -7111,6 +7113,7 @@ namespace IOAS.GenericServices
                                        && ReceiptCateg.Contains(b.ReportClassification ?? 0)
                                           select new { a.ReceiptAmount, a.ReceiptOverheadValue, a.IGST, a.SGST, a.CGST, b.ProjectNumber }).ToList();
                             decimal Rec = RecQry.Select(mn => mn.ReceiptAmount).Sum() ?? 0;
+                            ProjectNumber = ProjectNumber.Concat(RecQry.Select(mn => mn.ProjectNumber).ToArray()).ToArray();
                             Amt = (Rec) / 100000;
                             TtlAmt += Amt;
                             if (i != NoOfMonth)
@@ -7158,6 +7161,7 @@ namespace IOAS.GenericServices
                                           && ReceiptCateg.Contains(b.ReportClassification ?? 0) && a.Posted_f == true
                                           select new { a.ReceiptAmount, a.ReceiptOverheadValue, a.IGST, a.SGST, a.CGST, b.ProjectNumber }).ToList();
                             decimal Rec = RecQry.Select(mn => mn.ReceiptAmount).Sum() ?? 0;
+                            ProjectNumber = ProjectNumber.Concat(RecQry.Select(mn => mn.ProjectNumber).ToArray()).ToArray();
                             Amt = (Rec) / 100000;
                             TtlAmt += Amt;
                             if (i != NoOfMonth)
@@ -7202,10 +7206,10 @@ namespace IOAS.GenericServices
                         PrevNoOfProject = PrevProjCount,
                         PrevValue = String.Format("{0:0.00}", PrevRecAmt),
                         CurrNoOfProject = CurrProjCount,
-                        CurrValue = String.Format("{0:0.00}", CurrRecAmt)
+                        CurrValue = String.Format("{0:0.00}", CurrRecAmt),
+                        TotalValue = String.Format("{0:0.00}", CurrRecAmt + PrevRecAmt),
+                        TotalNoOfProject = ProjectNumber.Distinct().Count()
                     });
-
-
                     model.SponScheme = SponScheme;
                     return model;
                 }
@@ -7267,6 +7271,7 @@ namespace IOAS.GenericServices
                     {
                         var Scheme = SchemeList[m].SchemeName;
                         int SchemeId = SchemeList[m].SchemeId;
+                        string[] ProjectNumber = new string[] { };
                         var RecQry = (from a in context.tblReceipt
                                       join b in context.tblProject on a.ProjectId equals b.ProjectId
                                       where b.ConsultancyFundingCategory == SchemeId
@@ -7282,7 +7287,7 @@ namespace IOAS.GenericServices
                         {
                             return mn.ReceiptAmount - ((mn.CGST ?? 0) + (mn.SGST ?? 0) + (mn.IGST ?? 0));
                         }) / 100000) ?? 0;
-
+                        ProjectNumber = ProjectNumber.Concat(RecQry.Select(mn => mn.ProjectNumber).ToArray()).ToArray();
                         var CurrRecQry = (from a in context.tblReceipt
                                           join b in context.tblProject on a.ProjectId equals b.ProjectId
                                           where
@@ -7295,11 +7300,12 @@ namespace IOAS.GenericServices
                         int CurrNoOfProject = CurrRecQry.Select(mn => mn.ProjectNumber).Distinct().Count();
                         decimal CurrRec = CurrRecQry.Select(mn => mn.ReceiptAmount).Sum() ?? 0;
                         decimal CurrValue = (CurrRec) / 100000;
-
+                        ProjectNumber = ProjectNumber.Concat(CurrRecQry.Select(mn => mn.ProjectNumber).ToArray()).ToArray();
                         decimal ExCurrValue = (CurrRecQry.Sum(mn =>
                         {
                             return mn.ReceiptAmount - ((mn.CGST ?? 0) + (mn.SGST ?? 0) + (mn.IGST ?? 0));
                         }) / 100000) ?? 0;
+                        int totProject = ProjectNumber.Distinct().Count();
                         ConsScheme.Add(new ConsSchemeList()
                         {
                             Name = Scheme,
@@ -7308,7 +7314,10 @@ namespace IOAS.GenericServices
                             ExPrevValue = String.Format("{0:0.00}", ExPrevValue),
                             CurrNoOfProject = CurrNoOfProject,
                             CurrValue = String.Format("{0:0.00}", CurrValue),
-                            ExCurrValue = String.Format("{0:0.00}", ExCurrValue)
+                            ExCurrValue = String.Format("{0:0.00}", ExCurrValue),
+                            TotalIncValue = String.Format("{0:0.00}", PrevValue + CurrValue),
+                            TotalExValue = String.Format("{0:0.00}", ExPrevValue + ExCurrValue),
+                            TotalNoOfProject = totProject
                         });
                     }
                     model.ConsScheme = ConsScheme;
@@ -10771,11 +10780,6 @@ namespace IOAS.GenericServices
                 return model;
             }
         }
-
-
-
-
-
 
 
 

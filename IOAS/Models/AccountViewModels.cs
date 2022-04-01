@@ -1040,4 +1040,32 @@ namespace IOAS.Models
         public tblProject prj { get; set; }
         public tblCommitmentDetails ComDet { get; set; }
     }
+
+
+    public class UserManualModel
+    {
+        public string UserName { get; set; }
+        public int UserId { get; set; }
+        [Required]
+        [Display(Name = "Module")]
+        public int? ModuleId { get; set; }
+        [Required]
+        [Display(Name = "Menugroup")]
+        public int? MenugroupId { get; set; }
+        [Required]
+        [Display(Name = "Function")]
+        public int? FunctionId { get; set; }
+        public int SINo { get; set; }
+        public string Module { get; set; }
+        public string Menugroup { get; set; }
+        public string Function { get; set; }
+        public HttpPostedFileBase Attachment { get; set; }
+        public string FileName { get; set; }
+        public string ActualFileName { get; set; }
+        public string FileAddress { get; set; }
+        public string UserManualList { get; set; }
+        public int TotalRecords { get; set; }
+        public int TotalPages { get; set; }
+        public string Status { get; set; }
+    }
 }

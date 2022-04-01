@@ -35,5 +35,7 @@ namespace IOAS.DataModel
         public Nullable<System.DateTime> ProformaInvoiceDate { get; set; }
         public string Status { get; set; }
         public string Remarks { get; set; }
+        public Nullable<System.DateTime> CreatedTime { get; set; }
+        public string CurrencyCode { get; set; }
     }
 }

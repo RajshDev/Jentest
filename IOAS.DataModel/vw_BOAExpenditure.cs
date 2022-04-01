@@ -17,6 +17,7 @@ namespace IOAS.DataModel
         public int BOAExpenseDetailId { get; set; }
         public Nullable<int> RefId { get; set; }
         public string ReferenceNumber { get; set; }
+        public string PFMSReferenceNumber { get; set; }
         public string TransactionTypeCode { get; set; }
         public Nullable<int> PayeeId { get; set; }
         public string PayeeType { get; set; }

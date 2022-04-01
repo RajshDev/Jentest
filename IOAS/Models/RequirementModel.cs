@@ -720,6 +720,7 @@ namespace IOAS.Models
         public Nullable<decimal> LWFAmount { get; set; }
         public string SendSalaryStructure { get; set; }
         public Nullable<int> SalaryLevelId { get; set; }
+        public Nullable<int> WfId { get; set; }
 
     }
 
@@ -1000,6 +1001,7 @@ namespace IOAS.Models
         public Nullable<decimal> EmployeeESICPrecentage { get; set; }
         public Nullable<decimal> EmployerESICPrecentage { get; set; }
         public Nullable<decimal> LWFEmployerContribution { get; set; }
+        public Nullable<decimal> CommitmentAvailableBalance { get; set; }
         public string PIJustificationRemarks { get; set; }
         public HttpPostedFileBase[] PIJustificationFile { get; set; }
         public string List_f { get; set; }
@@ -1426,6 +1428,8 @@ namespace IOAS.Models
         public string ProjectNumber { get; set; }
         public string DesignationCode { get; set; }
         public string Designation { get; set; }
+        public string OtherDesignation { get; set; }
+
         public Nullable<int> DesignationId { get; set; }
         public int Medical { get; set; }
         public string ApplicationNo { get; set; }
@@ -1539,6 +1543,7 @@ namespace IOAS.Models
         public string ToMail { get; set; }
         public string CCMail { get; set; }
         public bool MailSent_f { get; set; }
+        public bool InitByPI_f { get; set; }
     }
 
     public class HRAOrderModel
@@ -1769,6 +1774,9 @@ namespace IOAS.Models
         public Nullable<bool> Spcomerelieving_f { get; set; }
         //public Nullable<bool> CommitmentBalance { get; set; }
         public string List_f { get; set; }
+        public bool InitByPI_f { get; set; }
+        public string PIRemarks { get; set; }
+        public string PINoDuesRemarks { get; set; }
 
     }
 
@@ -1838,6 +1846,10 @@ namespace IOAS.Models
         public decimal ArrearOrDeductionAmount { get; set; }
         public string strArrearOrDeductionTillDate { get; set; }
         public string List_f { get; set; }
+        public Nullable<int> OrderRequestId { get; set; }
+        public bool InitByPI_f { get; set; }
+        public string PIRemarks { get; set; }
+
     }
 
     public class Recruitoldmastdetails
@@ -2027,6 +2039,7 @@ namespace IOAS.Models
         public Nullable<DateTime> DateofBirth { get; set; }
         public string EmployeeEmail { get; set; }
         public Nullable<int> stopmailId { get; set; }
+        public bool Is_InitByPI { get; set; }
     }
 
     //public class ByteEmailAttachmentModel
@@ -2124,6 +2137,7 @@ namespace IOAS.Models
         public Nullable<bool> SendOffer_f { get; set; }
         public Nullable<bool> SentOffer_f { get; set; }
         public string TypeofAppointmentName { get; set; }
+        public bool InitByPI_f { get; set; }
     }
 
     public class SearchChangeofProjectModel
@@ -2151,6 +2165,7 @@ namespace IOAS.Models
         public string NewProjectNumber { get; set; }
         public string Status { get; set; }
         public Nullable<bool> SendOffer_f { get; set; }
+        public bool InitByPI_f { get; set; }
 
     }
 
@@ -2259,6 +2274,7 @@ namespace IOAS.Models
         public string ToDate { get; set; }
         public DateTime EffectFromDate { get; set; }
         public DateTime EffectToDate { get; set; }
+        public DateTime OrderDate { get; set; }
         public decimal Salary { get; set; }
         public decimal Hra { get; set; }
         public decimal PFBasicWages { get; set; }

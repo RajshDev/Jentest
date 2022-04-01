@@ -96,35 +96,503 @@ namespace IOAS.GenericServices
             }
         }
 
-        public static List<CheckListEmailModel> getDevNormsDetails(int appid, string apptype, int? orderid = null)
+        //public static List<CheckListEmailModel> getDevNormsDetails(int appid, string apptype, int? orderid = null)
+        //{
+        //    List<CheckListEmailModel> list = new List<CheckListEmailModel>();
+        //    try
+        //    {
+        //        using (var context = new IOASDBEntities())
+        //        {
+        //            var query = (from o in context.vw_RCTDeviationDetails
+        //                         where o.appid == appid && o.apptype == apptype && o.isCurrentVersion == true
+        //                         && o.IsChecked == true && (o.OrderId == orderid || orderid == null)
+        //                         select o).ToList();
+
+        //            if (query.Count > 0)
+        //            {
+        //                for (int i = 0; i < query.Count; i++)
+        //                {
+        //                    var sno = i + 1;
+        //                    list.Add(new CheckListEmailModel()
+        //                    {
+        //                        SNo = sno + 1,
+        //                        checklistId = query[i].DeviationCheckListId,
+        //                        devScenarios = query[i].CheckList,
+        //                        actNorms = query[i].ActualNorms,
+        //                        devinNorms = query[i].DeviationNorms,
+        //                        CurrentVersion = query[i].isCurrentVersion ?? false,
+        //                        OrderType = query[i].OrderType,
+        //                        FromDate = query[i].FromDate == null ? "" : string.Format("{0:dd-MMMM-YYYY}", query[i].FromDate),
+        //                        ToDate = query[i].ToDate == null ? "" : string.Format("{0:dd-MMMM-YYYY}", query[i].ToDate),
+        //                    });
+        //                }
+        //            }
+        //        }
+        //        return list;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return list;
+        //    }
+        //}
+
+        public static List<CheckListEmailModel> getDevNormsDetails(int appid, string apptype, int? orderid = null, bool? check_f = null)
         {
             List<CheckListEmailModel> list = new List<CheckListEmailModel>();
             try
             {
                 using (var context = new IOASDBEntities())
                 {
-                    var query = (from o in context.vw_RCTDeviationDetails
-                                 where o.appid == appid && o.apptype == apptype && o.isCurrentVersion == true
-                                 && o.IsChecked == true && (o.OrderId == orderid || orderid == null)
-                                 select o).ToList();
+                    CheckDevationModel model = new CheckDevationModel();
 
-                    if (query.Count > 0)
+                    var query = (from vw in context.vw_RCTOverAllApplicationEntry
+                                 where vw.ApplicationId == appid && vw.Category == apptype
+                                 && vw.ApplicationType == "New"
+                                 select new { vw }).FirstOrDefault();
+
+                    int CheckAge = Common.RCTCalculateAge(DateTime.Now, query.vw.DateofBirth ?? DateTime.Now);
+                    decimal ChekSalary = 0, OldSalary = 0, minsalary = 0, maxsalary = 0;
+                    DateTime AppointmentStartDate = DateTime.Now, AppointmentEndDate = DateTime.Now;
+                    int SNo = 1;
+                    string OrderType = "Appointment", Comments = "", devnormscourse = "";
+                    model.DisciplineId = new int?[] { };
+                    model.MasrksType = new int?[] { };
+                    model.Masrks = new decimal?[] { };
+                    model.QualificationId = new int?[] { };
+                    if (apptype == "STE")
                     {
-                        for (int i = 0; i < query.Count; i++)
+                        var queryMast = context.tblRCTSTE.Where(x => x.STEID == appid).FirstOrDefault();
+                        if (queryMast != null)
                         {
-                            var sno = i + 1;
-                            list.Add(new CheckListEmailModel()
+                            model.OldEmployee = queryMast.EmployeeCategory == "Old Employee" ? queryMast.OldNumber : queryMast.EmployeersID;
+                            model.Comments = orderid == null ? queryMast.Comments : model.Comments;
+                            model.DesignationId = queryMast.DesignationId;
+                            OldSalary = queryMast.Salary ?? 0;
+                            ChekSalary = queryMast.Salary ?? 0;
+                            model.CommitmentAmount = queryMast.CommitmentAmount ?? 0;
+                            model.AppointmentStartDate = queryMast.AppointmentStartdate ?? DateTime.Now;
+                            model.AppointmentEndDate = queryMast.AppointmentEnddate ?? DateTime.Now;
+
+                        }
+                        var queryDetail = context.tblRCTSTEEducationDetail.OrderBy(m => m.STEEducationDetailID).Where(x => x.STEID == appid && x.isCurrentVersion == true).ToArray();
+                        if (queryDetail.Length > 0)
+                        {
+                            model.DisciplineId = queryDetail.Select(x => x.DisciplineID).ToArray();
+                            model.MasrksType = queryDetail.Select(x => x.MarkType).ToArray();
+                            model.Masrks = queryDetail.Select(x => x.Marks).ToArray();
+                            model.QualificationId = queryDetail.Select(x => x.QualifiCationID).ToArray();
+
+                        }
+                    }
+                    else if (apptype == "CON")
+                    {
+                        var queryMast = context.tblRCTConsultantAppointment.Where(x => x.ConsultantAppointmentId == appid).FirstOrDefault();
+                        if (queryMast != null)
+                        {
+                            model.OldEmployee = queryMast.EmployeeCategory == "Old Employee" ? queryMast.OldNumber : queryMast.EmployeersID;
+                            model.Comments = orderid == null ? queryMast.Comments : model.Comments;
+                            model.DesignationId = queryMast.DesignationId;
+                            OldSalary = queryMast.Salary ?? 0;
+                            ChekSalary = queryMast.Salary ?? 0;
+                            model.CommitmentAmount = queryMast.CommitmentAmount ?? 0;
+                            model.AppointmentStartDate = queryMast.AppointmentStartdate ?? DateTime.Now;
+                            model.AppointmentEndDate = queryMast.AppointmentEnddate ?? DateTime.Now;
+                        }
+
+                        var queryDetail = context.tblRCTConsultantEducationDetail.OrderBy(m => m.ConsultantEducationDetailId).Where(x => x.ConsultantAppointmentId == appid && x.Status == "Active").ToArray();
+                        if (queryDetail.Length > 0)
+                        {
+                            model.DisciplineId = queryDetail.Select(x => x.DisciplineId).ToArray();
+                            model.MasrksType = queryDetail.Select(x => x.MarkType).ToArray();
+                            model.Masrks = queryDetail.Select(x => x.Marks).ToArray();
+                            model.QualificationId = queryDetail.Select(x => x.QualifiCationId).ToArray();
+
+                        }
+                    }
+                    else if (apptype == "OSG")
+                    {
+                        var queryMast = context.tblRCTOutsourcing.Where(x => x.OSGID == appid).FirstOrDefault();
+                        if (queryMast != null)
+                        {
+                            model.OldEmployee = queryMast.EmployeeCategory == "Old Employee" ? queryMast.OldNumber : queryMast.EmployeersID;
+                            model.Comments = orderid == null ? queryMast.Comments : model.Comments;
+                            model.DesignationId = queryMast.DesignationId;
+                            OldSalary = queryMast.Salary ?? 0;
+                            ChekSalary = queryMast.Salary ?? 0;
+                            model.CommitmentAmount = queryMast.CommitmentAmount ?? 0;
+                            model.AppointmentStartDate = queryMast.AppointmentStartdate ?? DateTime.Now;
+                            model.AppointmentEndDate = queryMast.AppointmentEnddate ?? DateTime.Now;
+                        }
+
+                        var queryDetail = context.tblRCTOSGEducationDetail.OrderBy(m => m.OSGEducationDetailId).Where(x => x.OSGId == appid && x.isCurrentVersion == true).ToArray();
+                        if (queryDetail.Length > 0)
+                        {
+                            model.DisciplineId = queryDetail.Select(x => x.DisciplineId).ToArray();
+                            model.MasrksType = queryDetail.Select(x => x.MarkType).ToArray();
+                            model.Masrks = queryDetail.Select(x => x.Marks).ToArray();
+                            model.QualificationId = queryDetail.Select(x => x.QualificationId).ToArray();
+                        }
+                    }
+
+                    if (orderid > 0)
+                    {
+                        var queryodr = (from o in context.tblOrder
+                                        from od in context.tblOrderDetail
+                                        from om in context.tblOrderMaster
+                                        where o.OrderId == od.OrderId && o.OrderType == om.CodeID && o.OrderId == orderid
+                                        select new { o, od, om }).FirstOrDefault();
+                        if (queryodr != null)
+                        {
+                            model.Comments = queryodr.od.Comments;
+                            model.DesignationId = queryodr.o.NewDesignation;
+                            ChekSalary = queryodr.o.Basic ?? 0;
+                            model.CommitmentAmount = queryodr.o.CommitmentAmmount ?? 0;
+                            model.AppointmentStartDate = queryodr.o.FromDate ?? DateTime.Now;
+                            model.AppointmentEndDate = queryodr.o.ToDate ?? DateTime.Now;
+                            OrderType = queryodr.om.CodeDescription;
+                        }
+                    }
+
+                    string IITExperience = RequirementService.IITExperienceInWording(model.OldEmployee);
+                    IITExperience = string.IsNullOrEmpty(IITExperience) ? "0 Years 0 Months 0 Days" : IITExperience;
+                    model.Experienceinwordings = Common.getExperienceInWordings(appid, apptype);
+
+                    if (model.DisciplineId != null && model.DisciplineId.Length > 0)
+                    {
+                        for (int i = 0; i < model.DisciplineId.Length; i++)
+                        {
+                            var courceId = model.DisciplineId[i];
+                            var marktype = model.MasrksType[i];
+                            var masrks = model.Masrks[i];
+                            devnormscourse += (from c in context.tblRCTCourseList
+                                               where c.CourseId == courceId
+                                               select c.CourseName + " with ").FirstOrDefault();
+                            devnormscourse += masrks + " " + (marktype == 1 ? "%" : "CGPA") + " ";
+                        }
+                    }
+                    if (orderid > 0)
+                    {
+                        model.devChecklist = (from c in context.tblRCTOrderDeviationCheckDetail
+                                              from f in context.tblFunctionCheckList
+                                              where c.DeviationCheckListId == f.FunctionCheckListId && c.isCurrentVersion == true
+                                              && (check_f != null || check_f == null && c.IsChecked == true) && c.OrderId == orderid
+                                              select new { c.DeviationCheckListId, f.CheckList }).AsEnumerable().Select((x, index) => new CheckListEmailModel()
+                                              {
+                                                  checklistId = x.DeviationCheckListId,
+                                                  devScenarios = x.CheckList,
+                                              }).ToList();
+                    }
+                    else if (apptype == "STE")
+                    {
+                        model.devChecklist = (from c in context.tblRCTSTEDeviationCheckDetail
+                                              from f in context.tblFunctionCheckList
+                                              where c.DeviationCheckListId == f.FunctionCheckListId && c.isCurrentVersion == true
+                                              && (check_f != null || check_f == null && c.IsChecked == true) && c.STEID == appid
+                                              select new { c.DeviationCheckListId, f.CheckList }).AsEnumerable().Select((x, index) => new CheckListEmailModel()
+                                              {
+                                                  checklistId = x.DeviationCheckListId,
+                                                  devScenarios = x.CheckList,
+                                              }).ToList();
+                    }
+                    else if (apptype == "CON")
+                    {
+                        model.devChecklist = (from c in context.tblRCTConsultantDevCheckDetail
+                                              from f in context.tblFunctionCheckList
+                                              where c.DeviationCheckListId == f.FunctionCheckListId && c.Status == "Active"
+                                              && (check_f != null || check_f == null && c.IsChecked == true) && c.ConsultantAppointmentId == appid
+                                              select new { c.DeviationCheckListId, f.CheckList }).AsEnumerable().Select((x, index) => new CheckListEmailModel()
+                                              {
+                                                  checklistId = x.DeviationCheckListId,
+                                                  devScenarios = x.CheckList,
+                                              }).ToList();
+                    }
+                    else if (apptype == "OSG")
+                    {
+                        model.devChecklist = (from c in context.tblRCTOSGDeviationCheckDetail
+                                              from f in context.tblFunctionCheckList
+                                              where c.DeviationCheckListId == f.FunctionCheckListId && c.isCurrentVersion == true
+                                              && c.IsChecked == true && c.OSGID == appid
+                                              select new { c.DeviationCheckListId, f.CheckList }).AsEnumerable().Select((x, index) => new CheckListEmailModel()
+                                              {
+                                                  checklistId = x.DeviationCheckListId,
+                                                  devScenarios = x.CheckList,
+                                              }).ToList();
+                    }
+
+
+                    var desquery = (from des in context.tblRCTDesignation
+                                    where des.DesignationId == model.DesignationId
+                                    select des).FirstOrDefault();
+
+                    if (model.devChecklist.Count > 0 && desquery != null)
+                    {
+                        minsalary = desquery.PayStructureMinMum ?? 0;
+                        maxsalary = desquery.PayStructureMaximum ?? 0;
+                        if (desquery.SalaryLevel > 0)
+                        {
+                            var salquery = (from des in context.tblRCTSalaryLevel
+                                            where des.SalaryLevelId == desquery.SalaryLevel
+                                            select des).FirstOrDefault();
+                            if (salquery != null)
                             {
-                                SNo = sno + 1,
-                                checklistId = query[i].DeviationCheckListId,
-                                devScenarios = query[i].CheckList,
-                                actNorms = query[i].ActualNorms,
-                                devinNorms = query[i].DeviationNorms,
-                                CurrentVersion = query[i].isCurrentVersion ?? false,
-                                OrderType = query[i].OrderType,
-                                FromDate = query[i].FromDate == null ? "" : string.Format("{0:dd-MMMM-YYYY}", query[i].FromDate),
-                                ToDate = query[i].ToDate == null ? "" : string.Format("{0:dd-MMMM-YYYY}", query[i].ToDate),
-                            });
+                                minsalary = salquery.MinSalary ?? 0;
+                                maxsalary = salquery.MaxSalary ?? 0;
+                            }
+                        }
+
+                        foreach (var item in model.devChecklist)
+                        {
+                            if (item.checklistId == 31 && OrderType == "Extension")
+                            {
+                                list.Add(new CheckListEmailModel()
+                                {
+                                    SNo = SNo,
+                                    CheckList = item.devScenarios,
+                                    devScenarios = item.devScenarios,
+                                    checklistId = item.checklistId ?? 0,
+                                    actNorms = "As per the norms, the minimum period of extension is 1 month and maximum is one year",
+                                    devinNorms = OrderType + " requested is for " + (model.AppointmentEndDate.Subtract(model.AppointmentStartDate).TotalDays + 1) + " days, which is below the norms.",
+                                    FromDate = string.Format("{0:dd-MMMM-yyyy}", model.AppointmentStartDate),
+                                    ToDate = string.Format("{0:dd-MMMM-yyyy}", model.AppointmentEndDate),
+                                    OrderType = OrderType
+                                });
+                            }
+                            else if (item.checklistId == 31)
+                            {
+                                list.Add(new CheckListEmailModel()
+                                {
+                                    SNo = SNo,
+                                    CheckList = item.devScenarios,
+                                    devScenarios = item.devScenarios,
+                                    checklistId = item.checklistId ?? 0,
+                                    actNorms = "As per the norms, the minimum period of 1 month and maximum is one year",
+                                    devinNorms = OrderType + " requested is for " + (model.AppointmentEndDate.Subtract(model.AppointmentStartDate).TotalDays + 1) + " days, which is below the norms.",
+                                    FromDate = string.Format("{0:dd-MMMM-yyyy}", model.AppointmentStartDate),
+                                    ToDate = string.Format("{0:dd-MMMM-yyyy}", model.AppointmentEndDate),
+                                    OrderType = OrderType
+                                });
+                            }
+                            else if (item.checklistId == 34 && apptype == "OSG")
+                            {
+                                list.Add(new CheckListEmailModel()
+                                {
+                                    SNo = SNo,
+                                    CheckList = item.devScenarios,
+                                    devScenarios = item.devScenarios,
+                                    checklistId = item.checklistId ?? 0,
+                                    actNorms = "As per ICSR norms the maximum age limit for the post of " + desquery.Designation + " is " + Convert.ToString(desquery.AgeLimit ?? 0) + " (unreserved category) and " + Convert.ToString(desquery.SCSTAgeLimit ?? 0) + " (reserved category).",
+                                    devinNorms = "The Candidate age is " + CheckAge + " which is above the norms.",
+                                    FromDate = string.Format("{0:dd-MMMM-yyyy}", model.AppointmentStartDate),
+                                    ToDate = string.Format("{0:dd-MMMM-yyyy}", model.AppointmentEndDate),
+                                    OrderType = OrderType
+
+                                });
+                            }
+                            else if (item.checklistId == 34 && apptype != "OSG")
+                            {
+                                list.Add(new CheckListEmailModel()
+                                {
+                                    SNo = SNo,
+                                    CheckList = item.devScenarios,
+                                    devScenarios = item.devScenarios,
+                                    checklistId = item.checklistId ?? 0,
+                                    actNorms = "Maximum Age limit for " + desquery.Designation + " as per IC & SR Norms is age " + Convert.ToString(desquery.AgeLimit ?? 0),
+                                    devinNorms = "The Candidate age is " + CheckAge + " which is above the norms.",
+                                    FromDate = string.Format("{0:dd-MMMM-yyyy}", model.AppointmentStartDate),
+                                    ToDate = string.Format("{0:dd-MMMM-yyyy}", model.AppointmentEndDate),
+                                    OrderType = OrderType
+
+                                });
+                            }
+                            else if (item.checklistId == 35 && apptype != "STE")
+                            {
+
+                                list.Add(new CheckListEmailModel()
+                                {
+                                    SNo = SNo,
+                                    CheckList = item.devScenarios,
+                                    devScenarios = item.devScenarios,
+                                    checklistId = item.checklistId ?? 0,
+                                    actNorms = "",
+                                    devinNorms = "The Candidate has " + devnormscourse + ",which is below the IC&SR norms",
+                                    FromDate = string.Format("{0:dd-MMMM-yyyy}", model.AppointmentStartDate),
+                                    ToDate = string.Format("{0:dd-MMMM-yyyy}", model.AppointmentEndDate),
+                                    OrderType = OrderType
+                                });
+                            }
+                            else if (item.checklistId == 35 && apptype == "STE")
+                            {
+                                list.Add(new CheckListEmailModel()
+                                {
+                                    SNo = SNo,
+                                    CheckList = item.devScenarios,
+                                    devScenarios = item.devScenarios,
+                                    checklistId = item.checklistId ?? 0,
+                                    actNorms = "",
+                                    devinNorms = "The Candidate has " + devnormscourse + ",which is below the IC&SR norms",
+                                    FromDate = string.Format("{0:dd-MMMM-yyyy}", model.AppointmentStartDate),
+                                    ToDate = string.Format("{0:dd-MMMM-yyyy}", model.AppointmentEndDate),
+                                    OrderType = OrderType
+                                });
+                            }
+                            else if (item.checklistId == 37)
+                            {
+                                list.Add(new CheckListEmailModel()
+                                {
+                                    SNo = SNo,
+                                    CheckList = item.devScenarios,
+                                    devScenarios = item.devScenarios,
+                                    checklistId = item.checklistId ?? 0,
+                                    actNorms = "As per the ICSR norms, Minimum Salary Rs." + string.Format(Indian, "{0:N0}", minsalary) + "/- and Maximum salary Rs." + string.Format(Indian, "{0:N0}", maxsalary) + "/-",
+                                    devinNorms = "Salary recommended for amount Rs." + string.Format(Indian, "{0:N0}", ChekSalary) + " /- per month, which is above the norms for the said post.",
+                                    FromDate = string.Format("{0:dd-MMMM-yyyy}", model.AppointmentStartDate),
+                                    ToDate = string.Format("{0:dd-MMMM-yyyy}", model.AppointmentEndDate),
+                                    OrderType = OrderType
+                                });
+                            }
+                            else if (item.checklistId == 38 && apptype == "STE")
+                            {
+                                string devnormscoursehigh = "";
+                                if (model.QualificationId.Length > 0)
+                                {
+                                    var maxVal = model.QualificationId.Where(x => x.Value != 4).Max() ?? 4;
+                                    var index = Array.FindIndex(model.QualificationId, row => row.Value == maxVal);
+                                    var courceId = model.DisciplineId[index];
+                                    devnormscoursehigh += (from c in context.tblRCTCourseList
+                                                           where c.CourseId == courceId
+                                                           select c.CourseName).FirstOrDefault();
+                                }
+
+                                list.Add(new CheckListEmailModel()
+                                {
+                                    SNo = SNo,
+                                    CheckList = item.devScenarios,
+                                    devScenarios = item.devScenarios,
+                                    checklistId = item.checklistId ?? 0,
+                                    actNorms = "",
+                                    devinNorms = "The relevant experience of the candidate in IIT: " + IITExperience + " and in other organizations: " + model.Experienceinwordings + " with qualification as: " + devnormscoursehigh,
+                                    FromDate = string.Format("{0:dd-MMMM-yyyy}", model.AppointmentStartDate),
+                                    ToDate = string.Format("{0:dd-MMMM-yyyy}", model.AppointmentEndDate),
+                                    OrderType = OrderType
+                                });
+                            }
+                            else if (item.checklistId == 38 && apptype == "OSG")
+                            {
+                                string devnormscoursehigh = "";
+                                if (model.QualificationId.Length > 0)
+                                {
+                                    var maxVal = model.QualificationId.Where(x => x.Value != 4).Max() ?? 4;
+                                    var index = Array.FindIndex(model.QualificationId, row => row.Value == maxVal);
+                                    var courceId = model.DisciplineId[index];
+                                    devnormscoursehigh += (from c in context.tblRCTCourseList
+                                                           where c.CourseId == courceId
+                                                           select c.CourseName).FirstOrDefault();
+                                }
+
+                                list.Add(new CheckListEmailModel()
+                                {
+                                    SNo = SNo,
+                                    CheckList = item.devScenarios,
+                                    devScenarios = item.devScenarios,
+                                    checklistId = item.checklistId ?? 0,
+                                    actNorms = "",
+                                    devinNorms = "The relevant experience of the candidate in IIT: " + IITExperience + " and in other organizations: " + model.Experienceinwordings + " with qualification as: " + devnormscoursehigh,
+                                    FromDate = string.Format("{0:dd-MMMM-yyyy}", model.AppointmentStartDate),
+                                    ToDate = string.Format("{0:dd-MMMM-yyyy}", model.AppointmentEndDate),
+                                    OrderType = OrderType
+                                });
+                            }
+                            else if (item.checklistId == 39)
+                            {
+                                list.Add(new CheckListEmailModel()
+                                {
+                                    SNo = SNo,
+                                    CheckList = item.devScenarios,
+                                    devScenarios = item.devScenarios,
+                                    checklistId = item.checklistId ?? 0,
+                                    actNorms = "The requested manpower " + desquery.Designation + " should be available in the project",
+                                    devinNorms = Comments,
+                                    FromDate = string.Format("{0:dd-MMMM-yyyy}", model.AppointmentStartDate),
+                                    ToDate = string.Format("{0:dd-MMMM-yyyy}", model.AppointmentEndDate),
+                                    OrderType = OrderType
+                                });
+                            }
+                            else if (item.checklistId == 40)
+                            {
+                                list.Add(new CheckListEmailModel()
+                                {
+                                    SNo = SNo,
+                                    CheckList = item.devScenarios,
+                                    devScenarios = item.devScenarios,
+                                    checklistId = item.checklistId ?? 0,
+                                    actNorms = "An amount of Rs." + string.Format(Indian, "{0:N0}", model.CommitmentAmount) + "/- is required in this project to Process the request.",
+                                    devinNorms = Comments,
+                                    FromDate = string.Format("{0:dd-MMMM-yyyy}", model.AppointmentStartDate),
+                                    ToDate = string.Format("{0:dd-MMMM-yyyy}", model.AppointmentEndDate),
+                                    OrderType = OrderType
+                                });
+                            }
+                            else if (item.checklistId == 41)
+                            {
+                                list.Add(new CheckListEmailModel()
+                                {
+                                    SNo = SNo,
+                                    CheckList = item.devScenarios,
+                                    devScenarios = item.devScenarios,
+                                    checklistId = item.checklistId ?? 0,
+                                    actNorms = "For " + desquery.Designation + " post, GATE Score or NET-UGC is required as per the Fellowship norms.",
+                                    devinNorms = "Candidate does not have GATE Score or NET-UGC.",
+                                    FromDate = string.Format("{0:dd-MMMM-yyyy}", model.AppointmentStartDate),
+                                    ToDate = string.Format("{0:dd-MMMM-yyyy}", model.AppointmentEndDate),
+                                    OrderType = OrderType
+                                });
+                            }
+                            else if (item.checklistId == 42)
+                            {
+                                list.Add(new CheckListEmailModel()
+                                {
+                                    SNo = SNo,
+                                    CheckList = item.devScenarios,
+                                    devScenarios = item.devScenarios,
+                                    checklistId = item.checklistId ?? 0,
+                                    actNorms = "As per IC & SR norms, maximum increments is upto 8 increments i.e Rs." + (desquery.AnnualIncrement * 8) + "/-",
+                                    devinNorms = "The requested enhancement value for the staff is Rs." + string.Format(Indian, "{0:N0}", (ChekSalary - OldSalary)) + "/-, which is above the norms.",
+                                    FromDate = string.Format("{0:dd-MMMM-yyyy}", model.AppointmentStartDate),
+                                    ToDate = string.Format("{0:dd-MMMM-yyyy}", model.AppointmentEndDate),
+                                    OrderType = OrderType
+                                });
+                            }
+                            else if (item.checklistId == 43)
+                            {
+                                list.Add(new CheckListEmailModel()
+                                {
+                                    SNo = SNo,
+                                    CheckList = item.devScenarios,
+                                    devScenarios = item.devScenarios,
+                                    checklistId = item.checklistId ?? 0,
+                                    actNorms = "Trainee period exceeds beyond 6 month condition",
+                                    devinNorms = "Candidate period exceeds 6 month",
+                                    FromDate = string.Format("{0:dd-MMMM-yyyy}", model.AppointmentStartDate),
+                                    ToDate = string.Format("{0:dd-MMMM-yyyy}", model.AppointmentEndDate),
+                                    OrderType = OrderType
+                                });
+                            }
+                            else if (item.checklistId == 32 || item.checklistId == 33)
+                            {
+                                list.Add(new CheckListEmailModel()
+                                {
+                                    SNo = SNo,
+                                    CheckList = item.devScenarios,
+                                    devScenarios = item.devScenarios,
+                                    checklistId = item.checklistId ?? 0,
+                                    actNorms = "As per the IC&SR norms, Staff service in IITM should not exceed more than five years without one year break.",
+                                    devinNorms = Comments,
+                                    FromDate = string.Format("{0:dd-MMMM-yyyy}", model.AppointmentStartDate),
+                                    ToDate = string.Format("{0:dd-MMMM-yyyy}", model.AppointmentEndDate),
+                                    OrderType = OrderType
+                                });
+                            }
+                            SNo++;
                         }
                     }
                 }
@@ -136,6 +604,34 @@ namespace IOAS.GenericServices
             }
         }
 
+        //public static List<CheckListEmailModel> getDevNormsList(int appid, string apptype)
+        //{
+        //    List<CheckListEmailModel> list = new List<CheckListEmailModel>();
+        //    try
+        //    {
+        //        using (var context = new IOASDBEntities())
+        //        {
+        //            list = (from o in context.vw_RCTDeviationDetails
+        //                    where o.appid == appid && o.apptype == apptype && o.isCurrentVersion == true
+        //                    orderby o.RowNumber
+        //                    group o by o.OrderType into grp
+        //                    select new { grp }).AsEnumerable().Select((x, index) => new CheckListEmailModel()
+        //                    {
+        //                        SNo = index + 1,
+        //                        devScenarios = x.grp == null ? "" : string.Join(", ", x.grp.Select(m => m.CheckList).ToArray()),
+        //                        OrderType = x.grp.Select(m => m.OrderType).FirstOrDefault() == null ? "" : x.grp.Select(m => m.OrderType).FirstOrDefault(),
+        //                        FromDate = x.grp.Select(m => m.FromDate).FirstOrDefault() == null ? "" : string.Format("{0:dd-MMMM-yyyy}", x.grp.Select(m => m.FromDate).FirstOrDefault()),
+        //                        ToDate = x.grp.Select(m => m.ToDate).FirstOrDefault() == null ? "" : string.Format("{0:dd-MMMM-yyyy}", x.grp.Select(m => m.ToDate).FirstOrDefault()),
+        //                    }).ToList();
+        //        }
+        //        return list;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return list;
+        //    }
+        //}
+
         public static List<CheckListEmailModel> getDevNormsList(int appid, string apptype)
         {
             List<CheckListEmailModel> list = new List<CheckListEmailModel>();
@@ -143,14 +639,40 @@ namespace IOAS.GenericServices
             {
                 using (var context = new IOASDBEntities())
                 {
-                    list = (from o in context.vw_RCTDeviationDetails
-                            where o.appid == appid && o.apptype == apptype && o.isCurrentVersion == true
-                            orderby o.RowNumber
+                    getDevNormsDetails(appid, apptype, null, false).ForEach(m =>
+                      {
+                          list.Add(new CheckListEmailModel()
+                          {
+                              SNo = m.SNo + 1,
+                              devScenarios = m.CheckList,
+                              OrderType = m.OrderType,
+                              FromDate = m.FromDate,
+                              ToDate = m.ToDate
+                          });
+                      });
+
+                    int apptypeid = apptype == "STE" ? 2 : apptype == "OSG" ? 3 : apptype == "CON" ? 3 : 0;
+                    context.tblOrder.OrderBy(m => m.OrderId).Where(m => m.AppointmentId == appid && m.AppointmentType == apptypeid).ToList().ForEach(x =>
+                    {
+                        getDevNormsDetails(appid, apptype, x.OrderId, false).ForEach(m =>
+                          {
+                              list.Add(new CheckListEmailModel()
+                              {
+                                  SNo = m.SNo + 1,
+                                  devScenarios = m.CheckList,
+                                  OrderType = m.OrderType,
+                                  FromDate = m.FromDate,
+                                  ToDate = m.ToDate
+                              });
+                          });
+                    });
+
+                    list = (from o in list
                             group o by o.OrderType into grp
                             select new { grp }).AsEnumerable().Select((x, index) => new CheckListEmailModel()
                             {
                                 SNo = index + 1,
-                                devScenarios = x.grp == null ? "" : string.Join(", ", x.grp.Select(m => m.CheckList).ToArray()),
+                                devScenarios = x.grp == null ? "" : string.Join(", ", x.grp.Select(m => m.devScenarios).ToArray()),
                                 OrderType = x.grp.Select(m => m.OrderType).FirstOrDefault() == null ? "" : x.grp.Select(m => m.OrderType).FirstOrDefault(),
                                 FromDate = x.grp.Select(m => m.FromDate).FirstOrDefault() == null ? "" : string.Format("{0:dd-MMMM-yyyy}", x.grp.Select(m => m.FromDate).FirstOrDefault()),
                                 ToDate = x.grp.Select(m => m.ToDate).FirstOrDefault() == null ? "" : string.Format("{0:dd-MMMM-yyyy}", x.grp.Select(m => m.ToDate).FirstOrDefault()),
@@ -1192,20 +1714,17 @@ namespace IOAS.GenericServices
                             if (IOAScontext.tblOrder.Any(x => x.AppointmentId == OSGID && x.AppointmentType == 3 && exptype.Contains(x.OrderType) && x.Status == "Completed" && x.isUpdated == true))
                             {
                                 var queryorder = (from o in IOAScontext.tblOrder
-                                                  where o.AppointmentId == OSGID && o.AppointmentType == 3 && o.OrderId < OrderId
+                                                  from om in IOAScontext.tblOrderMaster
+                                                  where o.OrderType == om.CodeID && o.AppointmentId == OSGID && o.AppointmentType == 3 && o.OrderId < OrderId
                                                   && o.Status == "Completed" && o.isUpdated == true && exptype.Contains(o.OrderType)
                                                   orderby o.OrderId descending
-                                                  select o).FirstOrDefault();
+                                                  select new { o.OrderId, o.FromDate, o.ToDate, Ordertye = om.CodeDescription }).FirstOrDefault();
 
                                 if (queryorder != null)
                                 {
-                                    if (IOAScontext.tblRCTOfferDetails.Any(x => x.ApplicationId == query.ApplicationId && x.Category == "OSG" && x.OfferCategory == "OfficeOrder" && x.OrderId == queryorder.OrderId))
+                                    if (IOAScontext.tblRCTOfferDetails.Any(x => x.ApplicationId == query.ApplicationId && x.Category == "OSG" && x.OfferCategory == "Order" && x.OrderId == queryorder.OrderId))
                                     {
-                                        ackmodel.FillFields = "appointment letter";
-                                    }
-                                    else if (IOAScontext.tblRCTOfferDetails.Any(x => x.ApplicationId == query.ApplicationId && x.Category == "OSG" && x.OfferCategory == "Order" && x.OrderId == queryorder.OrderId))
-                                    {
-                                        ackmodel.FillFields = "appointment letter";
+                                        ackmodel.FillFields = queryorder.Ordertye.ToLower() + " letter";
                                     }
                                     else if (IOAScontext.tblRCTOfferDetails.Any(x => x.ApplicationId == query.ApplicationId && x.Category == "OSG" && x.OfferCategory == "OfferLetter" && x.OrderId == queryorder.OrderId))
                                     {
@@ -1362,6 +1881,7 @@ namespace IOAS.GenericServices
                                      S.AppointmentStartdate,
                                      S.AppointmentEnddate,
                                      S.TypeofAppointment,
+                                     S.ApplicationType
                                  }).FirstOrDefault();
 
                     if (query != null)
@@ -1397,20 +1917,17 @@ namespace IOAS.GenericServices
                         if (IOAScontext.tblOrder.Any(x => x.AppointmentId == query.ApplicationId && x.AppointmentType == 3 && exptype.Contains(x.OrderType) && x.Status == "Completed" && x.isUpdated == true))
                         {
                             var queryorder = (from o in IOAScontext.tblOrder
-                                              where o.AppointmentId == query.ApplicationId && o.AppointmentType == 3 && o.OrderId < OrderId
+                                              from om in IOAScontext.tblOrderMaster
+                                              where o.OrderType == om.CodeID && o.AppointmentId == query.ApplicationId && o.AppointmentType == 3 && o.OrderId < OrderId
                                               && o.Status == "Completed" && o.isUpdated == true && exptype.Contains(o.OrderType)
                                               orderby o.OrderId descending
-                                              select o).FirstOrDefault();
+                                              select new { o.OrderId, o.FromDate, o.ToDate, Ordertye = om.CodeDescription }).FirstOrDefault();
 
                             if (queryorder != null)
                             {
-                                if (IOAScontext.tblRCTOfferDetails.Any(x => x.ApplicationId == query.ApplicationId && x.Category == "OSG" && x.OfferCategory == "OfficeOrder" && x.OrderId == queryorder.OrderId))
+                                if (IOAScontext.tblRCTOfferDetails.Any(x => x.ApplicationId == query.ApplicationId && x.Category == "OSG" && x.OfferCategory == "Order" && x.OrderId == queryorder.OrderId))
                                 {
-                                    ackmodel.FillFields = "appointment letter";
-                                }
-                                else if (IOAScontext.tblRCTOfferDetails.Any(x => x.ApplicationId == query.ApplicationId && x.Category == "OSG" && x.OfferCategory == "Order" && x.OrderId == queryorder.OrderId))
-                                {
-                                    ackmodel.FillFields = "appointment letter";
+                                    ackmodel.FillFields = queryorder.Ordertye.ToLower() + " letter";
                                 }
                                 else if (IOAScontext.tblRCTOfferDetails.Any(x => x.ApplicationId == query.ApplicationId && x.Category == "OSG" && x.OfferCategory == "OfferLetter" && x.OrderId == queryorder.OrderId))
                                 {
@@ -1437,6 +1954,7 @@ namespace IOAS.GenericServices
                         ackmodel.ProjectNumber = query.ProjectNumber;
                         ackmodel.DAName = Common.GetUserFirstName(UserID);
                         ackmodel.AppointmentType = query.TypeofAppointment;
+                        ackmodel.Ordertype = query.ApplicationType;
                         emodel = ackmodel;
                         var bodyResp = _eb.RunCompile("OSGAppointOrderTemplate.cshtml", "", ackmodel, typeof(NotePIModel));
                         if (bodyResp.Item1)

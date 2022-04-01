@@ -953,5 +953,9 @@ function getCalDateDetails(startDate, endDate) {
         startworkingdays = startdatemonthend - parseInt(startdt.getDate()) + 1;
         endworkingdays = enddt.getDate();
     }
-    return { startmonth: startdatemonthend, endmonth: enddatemonthend, startworkingdays: startworkingdays, endworkingdays: endworkingdays, monthcount: count };
+    var startyear  = startdt.getFullYear();
+    var endyear    = enddt.getFullYear();
+    var startmonth = startdt.getMonth() + 1;
+    var endmonth   = enddt.getMonth() + 1;
+    return { starttotaldays: startdatemonthend, endtotaldays: enddatemonthend, startworkingdays: startworkingdays, endworkingdays: endworkingdays, monthcount: count, startdateyear: startyear, enddateyear: endyear, startdatemonth: startmonth, enddatemonth: endmonth };
 }

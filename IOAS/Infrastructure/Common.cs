@@ -15642,7 +15642,7 @@ namespace IOAS.Infrastructure
                 string ccMail = WebConfigurationManager.AppSettings["PurchaseDeptMail"];
                 cc.Add(ccMail);
                 cc.Add(WebConfigurationManager.AppSettings["ImportPaymentMail"]);
-
+                cc.Add(WebConfigurationManager.AppSettings["AccountsDA"]);
                 return cc;
             }
             catch (Exception ex)
@@ -20531,9 +20531,14 @@ namespace IOAS.Infrastructure
                 CultureInfo Indian = new CultureInfo("hi-IN");
                 List<WFProposalModel> model = new List<WFProposalModel>();
                 string[] WfArr;
+                int[] SteArr;
+                int[] OsgArr;
+                var IOAScontext = new IOASDBEntities();
                 using (var context = new IOASDBEntities())
                 {
                     WfArr = context.tblWorkFlowlog.Select(m => m.WFreferencenbr).ToArray();
+                    SteArr = context.tblWorkFlowlog.Where(m => m.WFreferencetype == "ShortTermAppointment").Select(m => m.Referenceid ?? 0).ToArray();
+                    OsgArr = context.tblWorkFlowlog.Where(m => m.WFreferencetype == "OutsourcingAppointment").Select(m => m.Referenceid ?? 0).ToArray();
                 }
                 using (var context = new IOASWorkFlowEntities1())
                 {
@@ -20567,8 +20572,62 @@ namespace IOAS.Infrastructure
                         }
                     }
 
+                    if (RoleId == 102 || RoleId == 103 || RoleId == 104 || RoleId == 104 || RoleId == 105 || RoleId == 106)
+                    {
+                        var Qry = (from a in context.tblRCTSTE
+                                   orderby a.STEID descending
+                                   where !SteArr.Contains(a.STEID)
+                                   select new { a.ProjectNumber, a.STEID, a.CrtdTs }).ToList();
+                        if (Qry.Count > 0)
+                        {
+                            for (int i = 0; i < Qry.Count; i++)
+                            {
+                                string ProjectNumber = Qry[i].ProjectNumber;
+                                int Piid = IOAScontext.tblProject.Where(x => x.ProjectNumber == ProjectNumber).Select(x => x.PIName).FirstOrDefault() ?? 0;
+                                model.Add(new WFProposalModel()
+                                {
+                                    ActionLink = "/Requirement/STEJunior?STEID=0&WFid=" + Qry[i].STEID,
+                                    WFProposalNo = "WF_RCT_STE_" + Qry[i].STEID,
+                                    PIName = Common.GetPIName(Piid),
+                                    Agency = "",
+                                    Type = "ShortTermAppointment",
+                                    Value = "",
+                                    Date = String.Format("{0:dd-MMM-yyyy}", Qry[i].CrtdTs),
+                                    WFid = Qry[i].STEID
+                                });
+                            }
 
+                        }
+                    }
+                    if (RoleId == 107 || RoleId == 108 || RoleId == 109)
+                    {
+                        var Qry = (from a in context.tblRCTOutsourcing
+                                   orderby a.OSGID descending
+                                   where !OsgArr.Contains(a.OSGID)
+                                   select new { a.ProjectNumber, a.OSGID, a.CrtdTs }).ToList();
+                        if (Qry.Count > 0)
+                        {
+                            for (int i = 0; i < Qry.Count; i++)
+                            {
+                                string ProjectNumber = Qry[i].ProjectNumber;
+                                int Piid = IOAScontext.tblProject.Where(x => x.ProjectNumber == ProjectNumber).Select(x => x.PIName).FirstOrDefault() ?? 0;
+                                model.Add(new WFProposalModel()
+                                {
+                                    ActionLink = "/Requirement/Outsourcing?OSGID=0&WFid=" + Qry[i].OSGID,
+                                    WFProposalNo = "WF_RCT_OSG_" + Qry[i].OSGID,
+                                    PIName = Common.GetPIName(Piid),
+                                    Agency = "",
+                                    Type = "OutsourcingAppointment",
+                                    Value = "",
+                                    Date = String.Format("{0:dd-MMM-yyyy}", Qry[i].CrtdTs),
+                                    WFid = Qry[i].OSGID
+                                });
+                            }
+
+                        }
+                    }
                 }
+                IOAScontext.Dispose();
                 return model;
             }
             catch (Exception ex)
@@ -20635,18 +20694,35 @@ namespace IOAS.Infrastructure
                 return Acctlist;
             }
         }
-        public static MasterlistviewModel GetWFProposalNo(int Id)
+        public static MasterlistviewModel GetWFProposalNo(int Id, string Type = null)
         {
             MasterlistviewModel Model = new MasterlistviewModel();
             try
             {
                 using (var context = new IOASWorkFlowEntities1())
                 {
-                    var Qry = context.tblProposal.Where(m => m.ProposalId == Id).FirstOrDefault();
-                    if (Qry != null)
+                    if (!string.IsNullOrEmpty(Type))
                     {
-                        Model.id = Qry.ProposalId;
-                        Model.name = Qry.WorkflowNumber;
+                        if (Type == "ShortTermAppointment")
+                        {
+                            Model.id = Id;
+                            Model.name = "WF_RCT_STE_" + Id;
+                        }
+
+                        if (Type == "OutsourcingAppointment")
+                        {
+                            Model.id = Id;
+                            Model.name = "WF_RCT_OSG_" + Id;
+                        }
+                    }
+                    else
+                    {
+                        var Qry = context.tblProposal.Where(m => m.ProposalId == Id).FirstOrDefault();
+                        if (Qry != null)
+                        {
+                            Model.id = Qry.ProposalId;
+                            Model.name = Qry.WorkflowNumber;
+                        }
                     }
                     return Model;
                 }
@@ -20659,7 +20735,7 @@ namespace IOAS.Infrastructure
             }
 
         }
-        public static bool IsDeleteWFProposal(int Id, int LoginUserid)
+        public static bool IsDeleteWFProposal(int Id, int LoginUserid, string Type = null)
         {
             try
             {
@@ -20669,7 +20745,7 @@ namespace IOAS.Infrastructure
                     WfNo = Common.GetWFProposalNo(Id).name;
                     tblWorkFlowlog log = new tblWorkFlowlog();
                     log.WFreferencenbr = WfNo;
-                    log.WFreferencetype = "Proposal";
+                    log.WFreferencetype = Type;
                     log.CRTD_TS = DateTime.Now;
                     log.CRTD_BY = LoginUserid;
                     log.IsDelete_f = true;
@@ -25559,7 +25635,7 @@ namespace IOAS.Infrastructure
             }
         }
 
-        public static Tuple<decimal, bool, decimal, bool, decimal, bool> calRCTCommitmentAmount(IOASDBEntities context, DateTime From, DateTime To, decimal salary, decimal hra, int medical, int desid, bool ismsphd, int typeofappointment, string apptype = null, decimal LWFAmount = 0, decimal gst = 0)
+        public static Tuple<decimal, bool, decimal, bool, decimal, bool> calRCTCommitmentAmount(IOASDBEntities context, DateTime From, DateTime To, decimal salary, decimal hra, int medical, int desid, bool ismsphd, int typeofappointment, string apptype = null, decimal LWFAmount = 0, decimal gst = 0, DateTime? preDueDate = null)
         {
             int days = 0, startworkingdays = 0, endworkingdays = 0, starttotday = 0, endtotalday = 0;
             decimal commitmentAmt = 0, months = 0, hraval = 0, ttlVal = 0, medicalamt = 0, hrapre = 0;
@@ -25597,14 +25673,20 @@ namespace IOAS.Infrastructure
 
                 if (desid > 0)
                 {
-                    if (apptype == "OSG")
+                    if (apptype == "OSG" && preDueDate == null)
                     {
                         if (From.Year < To.Year)
                             commitmentAmt += LWFAmount > 0 ? LWFAmount : 0;
                         if ((From.Month == 12 || To.Month == 12) && From.Year == To.Year)
                             commitmentAmt += LWFAmount > 0 ? LWFAmount : 0;
                     }
-
+                    else if (apptype == "OSG" && preDueDate != null)
+                    {
+                        if (From.Year < To.Year && (From.Month != 12 && To.Month < 12 || From.Month == 12 && To.Month == 12))
+                            commitmentAmt += LWFAmount > 0 ? LWFAmount : 0;
+                        if (From.Month != 12 && To.Month == 12 && From.Year == To.Year)
+                            commitmentAmt += LWFAmount > 0 ? LWFAmount : 0;
+                    }
                     var querydes = context.tblRCTDesignation.Where(m => m.DesignationId == desid && m.RecordStatus == "Active").Select(x => x).FirstOrDefault();
 
                     if (querydes != null)
@@ -25875,20 +25957,20 @@ namespace IOAS.Infrastructure
                                        select vw).FirstOrDefault();
                         if (queryvw != null)
                         {
-                            decimal IITMExperiencedes = RequirementService.IITExperience(queryvw.ApplicationId ?? 0, queryvw.Category, model.OldEmployee);
-                            if (IITMExperiencedes > 5 && model.OrderType == null)
-                            {
-                                var diff = model.AppointmentStartDate.Subtract(queryvw.AppointmentEnddate.Value).TotalDays + 1;
-                                var diffyear = diff / 365;
-                                if (diffyear < 1)
-                                    devservicebar = true;
-                            }
+                            var Days = model.AppointmentEndDate.Subtract(model.AppointmentStartDate).TotalDays + 1;
+                            decimal totdays = GetAvgDaysInAYear(model.AppointmentStartDate, model.AppointmentEndDate);
+                            var Years = Convert.ToDecimal(Days) / Convert.ToDecimal(totdays);
+                            decimal IITMExperiencedes = 0;
+                            if (model.OrderType == null)
+                                IITMExperiencedes = RequirementService.IITExperience(queryvw.ApplicationId ?? 0, queryvw.Category, model.OldEmployee, model.AppointmentStartDate, model.AppointmentEndDate);
+                            else
+                                IITMExperiencedes = RequirementService.IITExperience(queryvw.ApplicationId ?? 0, queryvw.Category, model.OldEmployee);
+
+                            if (model.OrderType == null && IITMExperiencedes > 5)
+                                devservicebar = true;
                             if (model.AppointmentStartDate != null && model.AppointmentEndDate != null && ((model.OrderType == "Enhancement" && actualEnddate < model.AppointmentStartDate) || model.OrderType == "Extension"))
                             {
                                 decimal totIITexp = IITMExperiencedes;
-                                var Days = model.AppointmentEndDate.Subtract(model.AppointmentStartDate).TotalDays + 1;
-                                decimal totdays = GetAvgDaysInAYear(model.AppointmentStartDate, model.AppointmentEndDate);
-                                var Years = Convert.ToDecimal(Days) / Convert.ToDecimal(totdays);
                                 totIITexp = totIITexp + Years;
                                 if (totIITexp > 5)
                                     devservicebar = true;
@@ -27695,6 +27777,283 @@ namespace IOAS.Infrastructure
         }
 
 
+        #region RCT WorkFlow
+        public static STEModel GetWFEditSTE(int WFid)
+        {
+            STEModel model = new STEModel();
+            try
+            {
+                using (var context = new IOASWorkFlowEntities1())
+                {
+                    var QrySTE = (from A in context.tblRCTSTE where A.STEID == WFid select new { A }).FirstOrDefault();
+                    if (QrySTE != null)
+                    {
+                        model.Status = "";
+                        model.bccSaved = QrySTE.A.bcc != null ? true : false;
+                        //model.STEId = QrySTE.A.STEID;
+                        model.WfId = WFid;
+                        model.ApplicationNo = QrySTE.A.ApplicationNumber;
+                        model.TypeofappointmentId = QrySTE.A.TypeofAppointment;
+                        model.EmployeeType = QrySTE.A.EmployeeCategory;
+                        model.NIDNumber = QrySTE.A.NIDNumber;
+                        model.OldEmployeeNumber = QrySTE.A.OldNumber;
+                        if (!string.IsNullOrEmpty(model.OldEmployeeNumber))
+                            model.OldEmpId = model.OldEmployeeNumber;
+                        model.PersonImagePath = QrySTE.A.CandidateImage;
+                        if (!string.IsNullOrEmpty(QrySTE.A.ResumeFile))
+                            model.ResumeFileName = QrySTE.A.ResumeFile.Substring((QrySTE.A.ResumeFile.LastIndexOf('_') + 1));
+                        model.ResumeFilePath = QrySTE.A.ResumeFile;
+                        model.CantidateSignatureFilePath = QrySTE.A.CandidateSignature;
+                        model.Professional = Common.GetCodeControlName(QrySTE.A.ProfessionalType ?? 0, "RCTProfessional");
+                        model.ProfessionalId = QrySTE.A.ProfessionalType;
+                        model.Name = QrySTE.A.Name;
+                        model.Nameoftheguardian = QrySTE.A.NameoftheGuardian;
+                        if (!string.IsNullOrEmpty(QrySTE.A.AadhaarNumber))
+                            model.aadharnumber = long.Parse(QrySTE.A.AadhaarNumber == "" ? "0" : QrySTE.A.AadhaarNumber);
+                        else
+                            model.aadharnumber = null;
+                        model.PAN = QrySTE.A.PANNo;
+                        model.DateofBirth = QrySTE.A.DateofBirth;
+                        model.strDateofBirth = string.Format("{0:dd-MMMM-yyyy}", QrySTE.A.DateofBirth);
+                        model.Age = QrySTE.A.Age ?? 0;
+                        model.Sex = QrySTE.A.Sex ?? 0;
+                        model.Caste = QrySTE.A.Caste ?? 0;
+                        model.ContactNumber = QrySTE.A.ContactNumber;
+                        model.AlternativeContactNumber = QrySTE.A.AlternativeContactNumber;
+                        model.EmergencyContactNo = QrySTE.A.EmergencyContact;
+                        model.Email = QrySTE.A.Email;
+                        model.PresentAddress = QrySTE.A.PresentAddress;
+                        model.isSameasPermanentAddress = QrySTE.A.isSameAsPresentAddress ?? false;
+                        model.PermanentAddress = QrySTE.A.PermanentAddress;
+                        model.BloodGroup = QrySTE.A.Bloodgroup;
+                        model.BloodGroupRH = QrySTE.A.BloodgroupRH;
+                        model.StaffCategory = QrySTE.A.StaffCategory;
+                        model.Nationality = QrySTE.A.Nationality ?? 0;
+                        model.PhysicallyChallenged = QrySTE.A.PhysicallyChallenged == "No" ? 2 : QrySTE.A.PhysicallyChallenged == "Yes" ? 1 : 0;
+                        model.Relationship = QrySTE.A.Relationship;
+                        model.RelationshipName = QrySTE.A.RelationshipDetails;
+                        model.RelatedIITMadras = QrySTE.A.RelatedIIT;
+                        model.ApplicationEntryDate = QrySTE.A.ApplicationEntryDate;
+                        model.ApplicationReceiveDate = QrySTE.A.ApplicationReceiveDate;
+                        model.ConsolidatedPay = QrySTE.A.ConsolidatedPay ?? false;
+                        model.Fellowship = QrySTE.A.Fellowship ?? false;
+                        model.IITMPensionerCSIRStaff = QrySTE.A.IITMPensionerOrCSIRStaff;
+                        model.PPONo = QrySTE.A.PPONo;
+                        model.CSIRStaff = QrySTE.A.CSIRStaffPayMode;
+                        model.MsPhd = QrySTE.A.MsPhd ?? false;
+                        model.MsPhdType = QrySTE.A.MsPhdType;
+                        model.PhdDetail = QrySTE.A.PhdDetail;
+                        model.ProjectId = GetProjectId(QrySTE.A.ProjectNumber);
+                        model.ProjectNumber = QrySTE.A.ProjectNumber;
+                        model.DesignationId = QrySTE.A.DesignationId;
+                        //model.SalaryLevelId = QrySTE.A.SalaryLevelId;
+                        //model.Designation = QrySTE.Designation;
+                        //model.DesignationCode = QrySTE.DesignationCode;
+                        //model.MinSalary = QrySTE.PayStructureMinMum;
+                        //model.MaxSalary = QrySTE.PayStructureMaximum;
+                        model.Medical = QrySTE.A.Medical;
+                        model.Appointmentstartdate = QrySTE.A.AppointmentStartdate;
+                        model.AppointmentEndDate = QrySTE.A.AppointmentEnddate;
+                        model.MedicalAmmount = QrySTE.A.MedicalAmmount ?? 0;
+                        model.Salary = QrySTE.A.Salary;
+                        model.HRA = QrySTE.A.HRA ?? 0;
+                        model.isHRA = QrySTE.A.isHaveHRA ?? false;
+                        model.HRAPercentage = QrySTE.A.HRAPercentage ?? 0;
+                        model.CommitmentAmount = QrySTE.A.CommitmentAmount;
+                        model.SalaryPayHigh = QrySTE.A.SalaryPayHigh;
+                        model.BankAccountNo = QrySTE.A.BankAccountNumber;
+                        model.BankName = QrySTE.A.BankName;
+                        model.IFSCCode = QrySTE.A.IFSCCode;
+                        model.isHaveGateScore = QrySTE.A.isHaveGateScore == true ? "Yes" : "No";
+                        model.GateScore = QrySTE.A.GateScore;
 
+                        model.CommiteeMemberId1 = QrySTE.A.CommitteeMember ?? 0;
+                        model.CommiteeMemberId2 = QrySTE.A.CommitteeMembers ?? 0;
+                        model.ChairpersonNameId = QrySTE.A.Chairperson ?? 0;
+                        model.CommiteeMember1 = Common.GetPIName(QrySTE.A.CommitteeMember ?? 0);
+                        model.CommiteeMember2 = Common.GetPIName(QrySTE.A.CommitteeMembers ?? 0);
+                        model.ChairpersonName = Common.GetPIName(QrySTE.A.Chairperson ?? 0);
+                        model.FlowofMail = QrySTE.A.NotetoPI == true ? "NP" : QrySTE.A.NotetoCommittee == true ? "NC" : QrySTE.A.NotetoDean == true ? "NDean" : "Nd";
+                        model.EmergencyContactNo = QrySTE.A.EmergencyContact;
+                        model.EmployeeId = QrySTE.A.EmployeersID;
+                        model.ToMail = QrySTE.A.ToMail;
+                        model.bcc = QrySTE.A.bcc;
+                        model.isGovAgencyFund = QrySTE.A.isGovAgencyFund ?? false;
+                        if (QrySTE.A.NotetoCMAdmin == true)
+                            model.FlowApprover = "CMAdmin";
+                        if (QrySTE.A.NotetoDean == true)
+                            model.FlowApprover = "NDean";
+                        model.EmployeeWorkplace = QrySTE.A.EmployeeWorkplace;
+                        model.ApplicationRefNo = QrySTE.A.RefNumber;
+                        model.AutoFillRequstedbyPI = Common.GetPIName(QrySTE.A.RequestedBy ?? 0);
+                        model.RequestedByPI = QrySTE.A.RequestedBy;
+                        model.Comments = QrySTE.A.Comments + QrySTE.A.Remarks;
+                        model.PIJustificationRemarks = QrySTE.A.PICoPIComments;
+                    }
+                }
+                return model;
+            }
+            catch (Exception ex)
+            {
+                return model;
+            }
+        }
+
+        public static STEModel GetWFEditOSG(int WfId)
+        {
+            STEModel model = new STEModel();
+            List<STEEducationModel> EducationList = new List<STEEducationModel>();
+            List<STEExperienceModel> ExperienceList = new List<STEExperienceModel>();
+            List<CheckListModel> CheckListDetail = new List<CheckListModel>();
+            try
+            {
+                using (var context = new IOASWorkFlowEntities1())
+                {
+                    if (WfId > 0)
+                    {
+                        var QryOSG = (from A in context.tblRCTOutsourcing
+                                      where A.OSGID == WfId
+                                      select new { A }).FirstOrDefault();
+
+                        model.Status = "";
+                        model.bccSaved = QryOSG.A.bcc != null ? true : false;
+                        //model.STEId = QryOSG.A.OSGID;
+                        model.WfId = WfId;
+                        model.ApplicationNo = QryOSG.A.ApplicationNumber;
+                        model.TypeofappointmentId = QryOSG.A.TypeofAppointment;
+                        model.EmployeeType = QryOSG.A.EmployeeCategory;
+                        model.VendorName = QryOSG.A.VendorName;
+                        model.VendorCode = QryOSG.A.VendorCode;
+                        model.VendorId = QryOSG.A.VendorId;
+                        model.NIDNumber = QryOSG.A.NIDNumber;
+                        model.OldEmployeeNumber = QryOSG.A.OldNumber;
+                        if (!string.IsNullOrEmpty(model.OldEmployeeNumber))
+                            model.OldEmpId = model.OldEmployeeNumber;
+                        model.PersonImagePath = QryOSG.A.CandidateImage;
+                        if (QryOSG.A.ResumeFile != null)
+                            model.ResumeFileName = QryOSG.A.ResumeFile.Substring((QryOSG.A.ResumeFile.LastIndexOf('_') + 1));
+                        model.ResumeFilePath = QryOSG.A.ResumeFile;
+                        model.ProfessionalId = QryOSG.A.ProfessionalType;
+                        model.Name = QryOSG.A.Name;
+                        model.Nameoftheguardian = QryOSG.A.NameoftheGuardian;
+                        if (!string.IsNullOrEmpty(QryOSG.A.AadhaarNumber))
+                            model.aadharnumber = long.Parse(QryOSG.A.AadhaarNumber == "" ? "0" : QryOSG.A.AadhaarNumber);
+                        else
+                            model.aadharnumber = null;
+                        if (QryOSG.A.AadhaarNumber == "")
+                            model.aadharnumber = null;
+                        model.PAN = QryOSG.A.PANNo;
+                        model.DateofBirth = QryOSG.A.DateofBirth;
+                        model.strDateofBirth = string.Format("{0:dd-MMMM-yyyy}", QryOSG.A.DateofBirth);
+                        model.Age = QryOSG.A.Age ?? 0;
+                        model.Sex = QryOSG.A.Sex ?? 0;
+                        model.Caste = QryOSG.A.Caste ?? 0;
+                        model.ContactNumber = QryOSG.A.ContactNumber;
+                        model.AlternativeContactNumber = QryOSG.A.AlternativeContactNumber;
+                        model.EmergencyContactNo = QryOSG.A.EmergencyContact;
+                        model.Email = QryOSG.A.Email;
+                        model.PresentAddress = QryOSG.A.PresentAddress;
+                        model.isSameasPermanentAddress = QryOSG.A.isSameAsPresentAddress ?? false;
+                        model.PermanentAddress = QryOSG.A.PermanentAddress;
+                        model.BloodGroup = QryOSG.A.Bloodgroup ?? 0;
+                        model.BloodGroupRH = QryOSG.A.BloodgroupRH ?? 0;
+                        model.StaffCategory = QryOSG.A.StaffCategory; if (!string.IsNullOrEmpty(model.OldEmployeeNumber))
+                            model.OldEmpId = model.OldEmployeeNumber;
+                        model.PersonImagePath = QryOSG.A.CandidateImage;
+                        if (QryOSG.A.ResumeFile != null)
+                            model.ResumeFileName = QryOSG.A.ResumeFile.Substring((QryOSG.A.ResumeFile.LastIndexOf('_') + 1));
+                        model.ResumeFilePath = QryOSG.A.ResumeFile;
+                        model.ProfessionalId = QryOSG.A.ProfessionalType;
+                        model.Name = QryOSG.A.Name;
+                        model.Nameoftheguardian = QryOSG.A.NameoftheGuardian;
+                        if (!string.IsNullOrEmpty(QryOSG.A.AadhaarNumber))
+                            model.aadharnumber = long.Parse(QryOSG.A.AadhaarNumber == "" ? "0" : QryOSG.A.AadhaarNumber);
+                        else
+                            model.aadharnumber = null;
+                        if (QryOSG.A.AadhaarNumber == "")
+                            model.aadharnumber = null;
+                        model.PAN = QryOSG.A.PANNo;
+                        model.DateofBirth = QryOSG.A.DateofBirth;
+                        model.strDateofBirth = string.Format("{0:dd-MMMM-yyyy}", QryOSG.A.DateofBirth);
+                        model.Age = QryOSG.A.Age ?? 0;
+                        model.Sex = QryOSG.A.Sex ?? 0;
+                        model.Caste = QryOSG.A.Caste ?? 0;
+                        model.ContactNumber = QryOSG.A.ContactNumber;
+                        model.AlternativeContactNumber = QryOSG.A.AlternativeContactNumber;
+                        model.EmergencyContactNo = QryOSG.A.EmergencyContact;
+                        model.Email = QryOSG.A.Email;
+                        model.PresentAddress = QryOSG.A.PresentAddress;
+                        model.isSameasPermanentAddress = QryOSG.A.isSameAsPresentAddress ?? false;
+                        model.PermanentAddress = QryOSG.A.PermanentAddress;
+                        model.BloodGroup = QryOSG.A.Bloodgroup ?? 0;
+                        model.BloodGroupRH = QryOSG.A.BloodgroupRH ?? 0;
+                        model.StaffCategory = QryOSG.A.StaffCategory;
+                        model.Nationality = QryOSG.A.Nationality ?? 0;
+                        model.PhysicallyChallenged = QryOSG.A.PhysicallyChallenged == "No" ? 2 : QryOSG.A.PhysicallyChallenged == "Yes" ? 1 : 0;
+                        model.Relationship = QryOSG.A.Relationship;
+                        model.RelationshipName = QryOSG.A.RelationshipDetails;
+                        model.RelatedIITMadras = QryOSG.A.RelatedIIT;
+                        model.ApplicationEntryDate = QryOSG.A.ApplicationEntryDate;
+                        model.ApplicationReceiveDate = QryOSG.A.ApplicationReceiveDate;
+                        model.ConsolidatedPay = QryOSG.A.ConsolidatedPay ?? false;
+                        model.Fellowship = QryOSG.A.Fellowship ?? false;
+                        model.IITMPensionerCSIRStaff = QryOSG.A.IITMPensionerOrCSIRStaff ?? 0;
+                        model.PPONo = QryOSG.A.PPONo;
+                        model.CSIRStaff = QryOSG.A.CSIRStaffPayMode ?? 0;
+                        model.MsPhd = QryOSG.A.MsPhd ?? false;
+                        model.MsPhdType = QryOSG.A.MsPhdType;
+                        model.PhdDetail = QryOSG.A.PhdDetail;
+                        model.ProjectId = GetProjectId(QryOSG.A.ProjectNumber);
+                        model.ProjectNumber = QryOSG.A.ProjectNumber;
+                        model.DesignationId = QryOSG.A.DesignationId;
+                        model.Medical = QryOSG.A.Medical ?? 0;
+                        model.Appointmentstartdate = QryOSG.A.AppointmentStartdate;
+                        model.AppointmentEndDate = QryOSG.A.AppointmentEnddate;
+                        model.MedicalAmmount = QryOSG.A.MedicalAmmount ?? 0;
+                        model.Salary = QryOSG.A.Salary ?? 0;
+                        model.HRA = QryOSG.A.HRA ?? 0;
+                        model.isHRA = QryOSG.A.isHaveHRA ?? false;
+                        model.CommitmentAmount = QryOSG.A.CommitmentAmount ?? 0;
+                        model.SalaryPayHigh = QryOSG.A.SalaryPayHigh;
+                        //model.PIJustificationFilePath = QrySTE.A.PIJustificationDocument1;
+                        model.BankAccountNo = QryOSG.A.BankAccountNumber;
+                        model.BankName = QryOSG.A.BankName;
+                        model.IFSCCode = QryOSG.A.IFSCCode;
+                        model.isHaveGateScore = QryOSG.A.isHaveGateScore == true ? "Yes" : "No";
+                        model.GateScore = QryOSG.A.GateScore ?? 0;
+                        model.EmployeeWorkplace = QryOSG.A.EmployeeWorkplace;
+
+
+                        model.CommiteeMemberId1 = QryOSG.A.CommitteeMember ?? 0;
+                        model.CommiteeMemberId2 = QryOSG.A.CommitteeMembers ?? 0;
+                        model.ChairpersonNameId = QryOSG.A.Chairperson ?? 0;
+                        model.CommiteeMember1 = Common.GetPIName(QryOSG.A.CommitteeMember ?? 0);
+                        model.CommiteeMember2 = Common.GetPIName(QryOSG.A.CommitteeMembers ?? 0);
+                        model.ChairpersonName = Common.GetPIName(QryOSG.A.Chairperson ?? 0);
+                        model.FlowofMail = QryOSG.A.NotetoPI == true ? "NP" : QryOSG.A.NotetoCommittee == true ? "NC" : QryOSG.A.NotetoDean == true ? "NDean" : "Nd";
+
+                        model.EmergencyContactNo = QryOSG.A.EmergencyContact;
+                        model.EmployeeId = QryOSG.A.EmployeersID;
+                        model.ToMail = QryOSG.A.ToMail;
+                        model.bcc = QryOSG.A.bcc;
+                        if (QryOSG.A.NotetoCMAdmin == true)
+                            model.FlowApprover = "CMAdmin";
+                        if (QryOSG.A.NotetoDean == true)
+                            model.FlowApprover = "NDean";
+                        model.ApplicationRefNo = QryOSG.A.RefNumber;
+                        model.AutoFillRequstedbyPI = Common.GetPIName(QryOSG.A.RequestedBy ?? 0);
+                        model.RequestedByPI = QryOSG.A.RequestedBy;
+                        model.Comments = QryOSG.A.Comments + QryOSG.A.Remarks;
+                        model.PIJustificationRemarks = QryOSG.A.PICoPIComments;
+                    }
+                }
+                return model;
+            }
+            catch (Exception ex)
+            {
+                return model;
+            }
+        }
+        #endregion
     }
 }

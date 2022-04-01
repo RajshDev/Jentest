@@ -64,5 +64,6 @@ namespace IOAS.DataModel
         public Nullable<bool> InitByPI_f { get; set; }
         public Nullable<int> WFSeqId { get; set; }
         public Nullable<int> SalaryLevelId { get; set; }
+        public Nullable<int> OrderRequestId { get; set; }
     }
 }

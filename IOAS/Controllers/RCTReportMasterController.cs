@@ -1104,6 +1104,7 @@ namespace IOAS.Controllers
                 converter.Options.PdfPageOrientation = pdfOrientation;
                 converter.Options.WebPageWidth = webPageWidth;
                 converter.Options.WebPageHeight = webPageHeight;
+                converter.Options.MaxPageLoadTime = 300;     
                 SelectPdf.PdfDocument doc = converter.ConvertUrl(url);
                 byte[] pdf = doc.Save();
                 doc.Close();
@@ -1179,16 +1180,16 @@ namespace IOAS.Controllers
                     var command = new System.Data.SqlClient.SqlCommand();
                     command.Connection = connection;
                     command.CommandType = CommandType.Text;
-                    command.CommandText = "select ROW_NUMBER() OVER(ORDER BY [Employee ID]) AS [S. No.], [Employee ID], [Salutation], [Employee Name], [Designation], [Employment Mode], [Deapartment], [Project Number], [Commitment Number], [Process Type], [DOJ], [Recommended Salary], [Gross Salary], [PF-BASIC], [Total Working Days], [Employee Working Days], [Gross Salary For the Month],[Additional Pay],[LOP],[Recovery], [Insurance], [PF Eligibility], [ESIC Eligiblity], [Calculated Pay], [BankName], [AccountNo], [Branch], [IFSC] from vw_RCTOSGPayroll  where  RelieveDate is null and RCTPayrollId =" + payrollId;
+                    command.CommandText = "select ROW_NUMBER() OVER(ORDER BY [Employee ID]) AS [S. No.], [Employee ID], [Salutation], [Employee Name], [Designation], [Employment Mode], [Deapartment], [Project Number], [Commitment Number], [Process Type], [DOJ],[ToDate] as DOE, [Recommended Salary],[FromDate],[ToDate],[RelieveDate], [Gross Salary], [PF-BASIC],[DaysInMonth], [Total Working Days], [Employee Working Days], [Gross Salary For the Month],[PF - BASIC For the Month],[Additional Pay],[LOP],[Recovery], [Insurance], [PF Eligibility], [ESIC Eligiblity], [Calculated Pay], [BankName], [AccountNo], [Branch], [IFSC] from vw_RCTOSGPayroll  where  RelieveDate is null and RCTPayrollId =" + payrollId;
                     //command.CommandText = "select ROW_NUMBER() OVER(ORDER BY [Employee ID]) AS [S.No.],* from [vw_RCTOSGPayroll] where RelieveDate is null and RCTPayrollId =" + payrollId;
                     var adapter = new SqlDataAdapter(command);
                     var dataset = new DataSet();
-                    adapter.Fill(dataset);
+                    adapter.Fill(dataset);                    
                     dt1 = dataset.Tables[0].Copy();
                     dt1.TableName = "Active_Employee";
 
                     var command1 = new SqlCommand();
-                    command1.CommandText = "select ROW_NUMBER() OVER(ORDER BY [Employee ID]) AS [S. No.], [Employee ID], [Salutation], [Employee Name], [Designation], [Employment Mode], [Deapartment], [Project Number], [Commitment Number], [Process Type], [DOJ], [Recommended Salary], [Gross Salary], [PF-BASIC], [Total Working Days], [LOP], [Employee Working Days], [Gross Salary For the Month], [Recovery], [Additional Pay], [Insurance], [PF Eligibility], [ESIC Eligiblity], [Calculated Pay], [BankName], [AccountNo], [Branch], [IFSC] from vw_RCTOSGPayroll  where  RelieveDate is not null and RCTPayrollId =" + payrollId;
+                    command1.CommandText = "select ROW_NUMBER() OVER(ORDER BY [Employee ID]) AS [S. No.], [Employee ID], [Salutation], [Employee Name], [Designation], [Employment Mode], [Deapartment], [Project Number], [Commitment Number], [Process Type], [DOJ],[ToDate] as DOE, [Recommended Salary],[FromDate],[ToDate],[RelieveDate], [Gross Salary], [PF-BASIC],[DaysInMonth], [Total Working Days], [LOP], [Employee Working Days], [Gross Salary For the Month],[PF - BASIC For the Month], [Additional Pay],[LOP],[Recovery], [Insurance], [PF Eligibility], [ESIC Eligiblity], [Calculated Pay], [BankName], [AccountNo], [Branch], [IFSC] from vw_RCTOSGPayroll  where  RelieveDate is not null and RCTPayrollId =" + payrollId;
                     //command1.CommandText = "select ROW_NUMBER() OVER(ORDER BY [Employee ID]) AS [S.No.],* from [vw_RCTOSGPayroll] where RelieveDate is not null and RCTPayrollId =" + payrollId;
                     var adapter1 = new SqlDataAdapter(command1);
                     var dataset1 = new DataSet();

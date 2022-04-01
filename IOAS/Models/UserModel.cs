@@ -84,6 +84,7 @@ namespace IOAS.Models
         public string Actionname { get; set; }
         public string Controllername { get; set; }
 
+        public string FileName { get; set; }
 
     }
 

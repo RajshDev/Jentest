@@ -1742,6 +1742,172 @@ namespace IOAS.Controllers
             object output = AccountService.Getagenctlist(model, pageIndex, pageSize);
             return Json(output, JsonRequestBehavior.AllowGet);
         }
-        
+
+
+        #region UserManual
+        [HttpGet]
+        public ActionResult UserManualList()
+        {
+            try
+            {
+                return View();
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+        [HttpPost]
+        public JsonResult getUserManualList(int pageIndex, int pageSize, UserManualModel model)
+        {
+            try
+            {
+                var data = AccountService.getUserManualList(pageIndex, pageSize, model);
+                return Json(data, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+        [HttpGet]
+        public ActionResult UserManual(int FunctionId = 0)
+        {
+            try
+            {
+                var emptyList = new List<MasterlistviewModel>();
+                var model = new UserManualModel();
+                ViewBag.VBModules = AccountService.getModulesList();
+                ViewBag.VBMenugroup = emptyList;
+                ViewBag.VBFunction = emptyList;
+                if (FunctionId > 0)
+                {
+                    model = AccountService.EditUserManual(FunctionId);
+                    ViewBag.VBMenugroup = AccountService.GetMenuGroupBasedonModule(model.ModuleId);
+                    ViewBag.VBFunction = AccountService.GetFunctionBasedonMenugroup(model.MenugroupId);
+                }
+                return View(model);
+            }
+            catch (Exception er)
+            {
+                throw;
+            }
+        }
+        [HttpPost]
+        public ActionResult UserManual(UserManualModel model)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    model.UserName = User.Identity.Name;
+                    var emptyList = new List<MasterlistviewModel>();
+                    var result = AccountService.SaveUserManual(model);
+                    ViewBag.VBModules = AccountService.getModulesList();
+                    ViewBag.VBMenugroup = emptyList;
+                    ViewBag.VBFunction = emptyList;
+                    if (result == 1)
+                    {
+                        TempData["succMsg"] = "Record updated succesfully";
+                        return RedirectToAction("UserManualList");
+                    }
+                    else
+                    {
+                        TempData["errMsg"] = "Something went wrong please contact administrator";
+                    }
+                }
+                else
+                {
+                    TempData["alertMsg"] = "Select all field and upload the .pdf file";
+                    var emptyList = new List<MasterlistviewModel>();
+                    ViewBag.VBModules = AccountService.getModulesList();
+                    ViewBag.VBMenugroup = AccountService.GetMenuGroupBasedonModule(model.ModuleId);
+                    ViewBag.VBFunction = AccountService.GetFunctionBasedonMenugroup(model.MenugroupId);
+                }
+                return View(model);
+            }
+            catch (Exception er)
+            {
+                throw;
+            }
+        }
+        [HttpGet]
+        public ActionResult ActiveState(int FunctionId = 0, int Status = 0)
+        {
+            try
+            {
+                var result = AccountService.SaveState(FunctionId, Status);
+                if (result != 1)
+                {
+                    TempData["errMsg"] = "Errors Occured";
+                }
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+            return RedirectToAction("UserManualList");
+        }
+        [HttpGet]
+        public JsonResult GetMenuGroupBasedonModule(int ModuleId = 0)
+        {
+            try
+            {
+
+                var Menugroup = AccountService.GetMenuGroupBasedonModule(ModuleId);
+                return Json(Menugroup, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+            }
+        }
+        [HttpGet]
+        public JsonResult GetFunctionBasedonMenugroup(int MenugroupId = 0)
+        {
+            try
+            {
+                var Function = AccountService.GetFunctionBasedonMenugroup(MenugroupId);
+                return Json(Function, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+            }
+        }
+        [HttpGet]
+        public ActionResult UserManualMenu()
+        {
+            try
+            {
+                List<MenuListViewModel> addmenu = new List<MenuListViewModel>();
+                var UserName = User.Identity.Name;
+                var UserId = Common.GetUserid(UserName);
+                var modeule = AccountService.getModulesList();
+
+                addmenu = AccountService.GetUserMenu();
+                //foreach (var a in addmenu)
+                //{
+                //    var module = a.submodule;
+                //    foreach (var b in module)
+                //    {
+                //        var function = b.Submenu;
+                //        foreach (var c in function)
+                //        {
+                //            c.FileName = AccountService.GetFilename(c.FunctionId);
+                //        }
+                //    }
+                //}
+                return View(addmenu);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+        #endregion
+
     }
 }

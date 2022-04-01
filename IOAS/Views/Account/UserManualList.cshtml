@@ -1,0 +1,193 @@
+﻿@model IOAS.Models.UserManualModel
+@{
+    ViewBag.Title = "UserManualList";
+    ViewBag.Subtitle = "UserManualList";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<div class="Dashboard">
+
+
+
+    <div class="row hd-tt-bg">
+        <div class="col-md-4">
+            <h3>User Manual </h3>
+        </div>
+        <div class="col-md-8 flt-nav-links">
+            <a id="btnadd" href="@Url.Action("UserManual")"> <i class="ion-plus"></i>Add New</a>
+        </div>
+    </div>
+    <div class="row mt30">
+        <div class="page-wrapper">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="custom-jsgrid-normal">
+                        <div id="Datagrid"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        //  $("#UserManual").hide();
+        var errMsg = '@TempData["errMsg"]';
+        var succMsg = '@TempData["succMsg"]';
+        var alertMsg = '@TempData["alertMsg"]';
+
+        if (succMsg != '') {
+            $('#Success').modal('toggle');
+            $("#alertSuccess").html(succMsg)
+        }
+        if (alertMsg != '') {
+            $('#Validation').html('toggle');
+            $("#alert").text(alertMsg)
+        }
+        if (errMsg = '') {
+            $('#Failed').modal('toggle');
+            $("#FailedAlert").html(errMsg)
+        }
+    });
+    $("#Datagrid").jsGrid({
+        paging: true,
+        pageIndex: 1,
+        pageSize: 5,
+        editing: false,
+        filtering: true,
+        pageLoading: true,
+        autoload: true,
+        controller: {
+
+            loadData: function (filter) {
+
+                var searchData = [];
+                searchData = {
+                    Module: filter.Module,
+                    Menugroup: filter.Menugroup,
+                    Function: filter.Function,
+                    FileName: filter.FileName,
+                    Status: filter.Status
+                },
+                filter.model = searchData;
+                var deferred = $.Deferred();
+                $.ajax({
+                    type: "post",
+                    url: 'getUserManualList',
+                    data: JSON.stringify(filter),
+                    contentType: "application/json; charset=utf-8",
+                    success: function (result) {
+                        debugger;
+                        var da = {
+                            data: result.Data,
+                            itemsCount: result.TotalPages
+                        }
+
+                        deferred.resolve(da);
+                    },
+                    error: function (err) {
+                        console.log("error : " + err);
+                    }
+
+                });
+                return deferred.promise();
+            }
+
+        },
+        fields: [
+
+            { type: "Number", name: "SINo", title: "SI.No", editing: false, width: 50 },
+            { type: "text", name: "Module", title: "Module Name", editing: true },
+            { type: "text", name: "Menugroup", title: "Menugroup", editing: true },
+            { type: "text", name: "Function", title: "Function Name", editing: true },
+              { type: "Number", name: "FunctionId", visible: false },
+                       {
+                           name: "FileName",
+                           title: "Document", width: 100,
+                           itemTemplate: function (value, item) {
+                               var elementDiv1 = $("<div>");
+                               elementDiv1.attr("class", "ls-dts");
+                               var $link1 = "";
+                               if (value == null) {
+                                   $link1 = $("<label>").attr("value", "Nill").html('-');
+                               } else {
+                                   //window.open('/ControllerName/ActionName?FilePath=' + FilePath+ '&FileName=' + FileName,"PopupWindow", 'width=600px,height=600px,top=150,left=250');  
+                                   $link1 = $("<a>").attr("href", "/Account/ShowDocument?file=" + item.ActualFileName + "&filepath=UserManual").attr("target", "_blank").html(item.FileName);
+                               }
+                               elementDiv1.append($link1);
+                               return elementDiv1;
+                           }
+                       },
+
+                {
+                    name: "Status", type: "select", title: "Status", items: [
+                    { Name: "Select", Id: null },
+                    { Name: "Open", Id: 1 },
+                    { Name: "Active", Id: 2 },
+                    ], valueField: "Name", textField: "Name",
+                    filterTemplate: function () {
+                        var $select = jsGrid.fields.select.prototype.filterTemplate.call(this);
+                        return $select;
+
+                    }
+                },
+
+        //{ type: "text", name: "Status", title: "Status", editing: true },
+        {
+
+            type: "control", editButton: false, deleteButton: false, title: "Action", width: 80,
+            itemTemplate: function (value, item) {
+                var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+                if (item.Status == "Active") {
+                    statusList = [{ id: "", name: "Select Action" }, { id: 2, name: "Delete" }/*, { id: "Edit", name: "Edit" }, { id: "View", name: "View" }*/]
+                }
+                else if (item.Status == "Open") {
+                    statusList = [{ id: "", name: "Select Action" }, { id: 1, name: "Active" }, { id: 2, name: "Delete" }, { id: "Edit", name: "Edit" }/*, { id: "View", name: "View" }*/]
+                }
+                var $customSelect = $("<select>")
+                    .attr("class", "form-control").prop("selectedIndex", "")
+
+                $.each(statusList, function (index, itemData) {
+                    $customSelect.append($('<option/>', {
+
+                        value: itemData.id,
+                        text: itemData.name
+                    }));
+                });
+
+                $customSelect.change(function (e) {
+                    var selVal = $(this).val();
+                    debugger;
+                    if (selVal > 0) {
+                        if (selVal == 1) {
+                           var active =confirm("Are you sure do you want to Activate this record?")
+                        }
+                        else if (selVal == 2) {
+                            var active = confirm("Are you sure do you want to Delete this record?")
+                        }
+                        if (active == true) {
+                            var url = '@Url.Action("ActiveState")?FunctionId=' + item.FunctionId + "&Status=" + selVal;
+                            window.location.href = url;
+                        }                       
+                    }                   
+                    if (selVal == "Edit") {
+                        var url = '@Url.Action("UserManual")?FunctionId=' + item.FunctionId;
+                        window.location.href = url;
+                    }
+                    $(this).val("");
+                    return false;
+                    e.stopPropagation();
+                });
+
+                return $result.add($customSelect);
+            },
+            _createFilterSwitchButton: function () {
+                return this._createOnOffSwitchButton("filtering", this.searchModeButtonClass, false);
+            }
+        },
+
+        ],
+
+    });
+    $("#Datagrid").jsGrid("option", "filtering", false);
+
+</script>

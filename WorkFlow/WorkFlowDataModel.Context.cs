@@ -37,7 +37,6 @@ namespace WorkFlow
         public virtual DbSet<tblAdvanceTravelInvoiceDetail> tblAdvanceTravelInvoiceDetail { get; set; }
         public virtual DbSet<tblAdvanceTravelPaymentBreakUpDetail> tblAdvanceTravelPaymentBreakUpDetail { get; set; }
         public virtual DbSet<tblAgencyDocument> tblAgencyDocument { get; set; }
-        public virtual DbSet<tblAgencyMaster> tblAgencyMaster { get; set; }
         public virtual DbSet<tblDocumentType> tblDocumentType { get; set; }
         public virtual DbSet<tblDomesticTravelBill> tblDomesticTravelBill { get; set; }
         public virtual DbSet<tblDomesticTravelBillBreakUpDetail> tblDomesticTravelBillBreakUpDetail { get; set; }
@@ -73,5 +72,7 @@ namespace WorkFlow
         public virtual DbSet<tblTemporaryAdvance> tblTemporaryAdvance { get; set; }
         public virtual DbSet<tblTemporaryAdvanceDocumentDetail> tblTemporaryAdvanceDocumentDetail { get; set; }
         public virtual DbSet<AgencyMaster> AgencyMaster { get; set; }
+        public virtual DbSet<tblRCTOutsourcing> tblRCTOutsourcing { get; set; }
+        public virtual DbSet<tblRCTSTE> tblRCTSTE { get; set; }
     }
 }

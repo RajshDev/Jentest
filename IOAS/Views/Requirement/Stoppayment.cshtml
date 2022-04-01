@@ -20,6 +20,8 @@
         @Html.HiddenFor(m => m.OrderType)
         @Html.HiddenFor(m => m.Status)
         @Html.HiddenFor(m => m.TypeCode)
+        @Html.HiddenFor(m => m.OrderRequestId)
+        @Html.HiddenFor(m => m.InitByPI_f)
         @Html.HiddenFor(m => m.Appointmentdetails.AppointmentStartDate)
         <div class="col-md-12">
             @if (Model.OrderType == 7)
@@ -98,7 +100,7 @@
                                         <div class="col-md-2">
                                             <div class="form-group custom-form-group">
                                                 <label class="required">From Date</label>
-                                                @if (Model.OrderID > 0)
+                                                @if (Model.OrderID > 0 && Model.OrderRequestId == null)
                                                 {
                                                     <h4 id="FromDate">@Html.DisplayFor(m => m.FromDateStr)</h4>
                                                     @Html.HiddenFor(m => m.FromDateStr)
@@ -113,7 +115,7 @@
                                         <div class="col-md-1 pdl-null">
                                             <div class="form-group custom-form-group mt-mlg">
                                                 <label></label>
-                                                @if (Model.OrderID > 0)
+                                                @if (Model.OrderID > 0 && Model.OrderRequestId == null)
                                                 {
                                                     <h4 id="txt-FromMeridiem">@Html.DisplayFor(m => m.lblFromMeridiem)</h4>
                                                     @Html.HiddenFor(m => m.FromMeridiem)
@@ -128,7 +130,7 @@
                                         <div class="col-md-2">
                                             <div class="form-group custom-form-group">
                                                 <label class="required">To Date</label>
-                                                @if (Model.OrderID > 0)
+                                                @if (Model.OrderID > 0 && Model.OrderRequestId == null)
                                                 {
                                                     <h4 id="ToDate">@Html.DisplayFor(m => m.ToDateStr)</h4>
                                                     @Html.HiddenFor(m => m.ToDateStr)
@@ -143,7 +145,7 @@
                                         <div class="col-md-1 pdl-null">
                                             <div class="form-group custom-form-group mt-mlg">
                                                 <label></label>
-                                                @if (Model.OrderID > 0)
+                                                @if (Model.OrderID > 0 && Model.OrderRequestId == null)
                                                 {
                                                     <h4 id="txt-ToMeridiem">@Html.DisplayFor(m => m.lblToMeridiem)</h4>
                                                     @Html.HiddenFor(m => m.ToMeridiem)
@@ -153,6 +155,12 @@
                                                     @Html.DropDownListFor(m => m.ToMeridiem, new SelectList(ViewBag.Meridiem, "id", "name"), "Select", new { @class = "form-control" })
                                                     <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.ToMeridiem)</div>
                                                 }
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group custom-form-group">
+                                                <label class="">PI Remarks</label>
+                                                <h4>@Html.DisplayFor(m => m.PIRemarks)</h4>
                                             </div>
                                         </div>
                                         @*<div class="col-md-2">
@@ -236,7 +244,7 @@
                                         <div class="col-md-3" id="">
                                             <div class="form-group custom-form-group">
                                                 <label class="required">PI Approval Letter</label><br>
-                                                @if (Model.OrderID > 0)
+                                                @if (Model.OrderID > 0 && Model.OrderRequestId == null)
                                                 {
                                                     if (Model.PILetterPath != null)
                                                     {
@@ -245,6 +253,17 @@
                                                     else
                                                     {
                                                         <b>-</b>
+                                                    }
+                                                }
+                                                else if (Model.OrderID > 0)
+                                                {
+                                                    if (Model.PILetterPath != null)
+                                                    {
+                                                        <b>@Html.ActionLink(Model.PILetterFileName, "ShowFile", new { Controller = "Requirement", filepath = "~/Content/Requirement", file = Model.PILetterPath }, new { @name = "DocDownload", @target = "_blank" })</b>
+                                                    }
+                                                    else
+                                                    {
+                                                        <input type="file" name="PILetter" class="pull-left">
                                                     }
                                                 }
                                                 else
@@ -258,7 +277,7 @@
                                         <div class="col-md-3">
                                             <div class="form-group custom-form-group">
                                                 <label class="required">Application Receive Date</label>
-                                                @if (Model.OrderID > 0)
+                                                @if (Model.OrderID > 0 && Model.OrderRequestId == null)
                                                 {
                                                     <h4>@Html.DisplayFor(m => m.ApplicationRevDate)</h4>
                                                 }
@@ -683,7 +702,7 @@
     }
 
     $('#ToDate').change(function () {
-          if($("#FromDate").val() != "" && $("#ToDate").val() != "") {
+        if($("#FromDate").val() != "" && $("#ToDate").val() != "") {
             CalculateLeave();
             calWithdrawalAmount()
         }
@@ -709,9 +728,9 @@
         if(day.length == 1)
             day = '0' + day;
         var strrejoindate =  day + '-' + monthNames[month] + '-' + year;
-		var start = new Date($("#FromDateStr").val().split("-").join('/'));
+        var start = new Date($("#FromDateStr").val().split("-").join('/'));
         if($("#FromMeridiem").val() == 2)
-            start.setHours(12);		
+            start.setHours(12);
         $.ajax({
             type: "POST",
             url: '@Url.Action("CalculateWithdrawalAmount", "Requirement")',
@@ -719,7 +738,7 @@
                 appid : appid,
                 apptype : apptype,
                 From : start.toISOString(),
-                To :  strrejoindate,              
+                To :  strrejoindate,
             },
             success: function (result) {
                 $('#WithdrawalAmount').text(Math.round(result));
@@ -759,7 +778,7 @@
         if($("#FromDate").val() != "" && $("#ToDate").val() != "") {
             var appid = @Html.Raw(Json.Encode(Model.ApplicationID)) || 0;
             var apptype = @Html.Raw(Json.Encode(Model.TypeCode)) || "";
-			var start = new Date($("#FromDate").val().split("-").join('/'));
+            var start = new Date($("#FromDate").val().split("-").join('/'));
             var end   = new Date($("#ToDate").val().split("-").join('/'));
             if($("#FromMeridiem").val() == 2)
                 start.setHours(12);
@@ -791,7 +810,7 @@
             $('#Failed').modal('toggle');
         }
     }
-    
+
     CalculateLeave();
 
     $('#FromMeridiem,#ToMeridiem').change(function () {
@@ -805,11 +824,11 @@
         var end   = "";
         if(rejoin_f == undefined)
             rejoin_f = false;
-			
-		if($("#FromMeridiem").val() == "" || $("#ToMeridiem").val() == "")
-			return;
-          
-        if(OrderID > 0)
+
+        if($("#FromMeridiem").val() == "" || $("#ToMeridiem").val() == "")
+            return;
+
+        if(OrderID > 0&& @Html.Raw(Json.Encode(Model.InitByPI_f)) == false)
         {
             start = new Date($("#FromDateStr").val().split("-").join('/'));
             end   = rejoin_f == true ? new Date($("#RejoinDate").val().split("-").join('/')) : new Date($("#ToDate").text().split("-").join('/'));
@@ -824,7 +843,7 @@
             else
                 return;
         }
-		if($("#FromMeridiem").val() == 2)
+        if($("#FromMeridiem").val() == 2)
             start.setHours(12);
         if($("#ToMeridiem").val() == 1)
             end.setHours(12);

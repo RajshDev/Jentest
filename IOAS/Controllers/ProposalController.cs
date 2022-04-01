@@ -519,10 +519,10 @@ namespace IOAS.Controllers
         }
 
         [HttpPost]
-        public JsonResult DeleteWFProposal(int WFid)
+        public JsonResult DeleteWFProposal(int WFid, string Type)
         {
             int logged_in_userId = Common.GetUserid(User.Identity.Name);
-            object output = Common.IsDeleteWFProposal(WFid, logged_in_userId);
+            object output = Common.IsDeleteWFProposal(WFid, logged_in_userId, Type);
             return Json(output, JsonRequestBehavior.AllowGet);
         }
       

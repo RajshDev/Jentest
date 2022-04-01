@@ -49,5 +49,6 @@ namespace IOAS.DataModel
         public string AdvanceValue { get; set; }
         public string Advancerefnumber { get; set; }
         public Nullable<System.DateTime> CashBookDate { get; set; }
+        public string PFMSReferenceNumber { get; set; }
     }
 }

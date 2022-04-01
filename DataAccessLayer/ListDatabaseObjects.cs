@@ -1189,12 +1189,24 @@ namespace DataAccessLayer
         public DataSet GetPrevNegativeBalance(string ProjectStr)
         {
             var connection = getConnection();
-            SqlParameter[] ReportParam = new SqlParameter[1];
-            ReportParam[0] = new SqlParameter("@ProjectStr", SqlDbType.VarChar, 8000);
-            ReportParam[0].Value = ProjectStr;
+            //SqlParameter[] ReportParam = new SqlParameter[1];
+            //ReportParam[0] = new SqlParameter("@ProjectStr", SqlDbType.VarChar, 8000);
+            //ReportParam[0].Value = ProjectStr;
             try
             {
-                return SqlHelper.ExecuteDataset(connection, CommandType.StoredProcedure, "PrevNegativeBalance", ReportParam);
+                //return SqlHelper.ExecuteDataset(connection, CommandType.StoredProcedure, "PrevNegativeBalance", ReportParam);
+                DataSet ds = new DataSet();
+                using (SqlConnection conn = getConnection())
+                {
+                    SqlCommand sqlComm = new SqlCommand("PrevNegativeBalance", conn);
+                    sqlComm.Parameters.AddWithValue("@ProjectStr", ProjectStr);
+                    sqlComm.CommandType = CommandType.StoredProcedure;
+                    sqlComm.CommandTimeout = 1000;
+                    SqlDataAdapter da = new SqlDataAdapter();
+                    da.SelectCommand = sqlComm;
+                    da.Fill(ds);
+                    return ds;
+                }
             }
             catch (Exception ex)
             {
@@ -1926,7 +1938,7 @@ namespace DataAccessLayer
                     var command = new System.Data.SqlClient.SqlCommand();
                     command.Connection = connection;
                     command.CommandType = CommandType.Text;
-                    command.CommandText = "select BillNumber,ProjectNumber,ProjectType,CommitmentNumber,HeadName,AmountSpent,CommitmentDate as Date from vw_ProjectExpenditureReport where CommitmentDate >='" + Frm + "' and CommitmentDate <= '" + Todate + "' and AllocationHeadId in (5,7) and FunctionName!='Distribution'";
+                    command.CommandText = "select BillNumber,ProjectNumber,ProjectType,CommitmentNumber,HeadName,AmountSpent,CommitmentDate as Date from vw_ProjectExpenditureReport where CommitmentDate >='" + Frm + "' and CommitmentDate <= '" + Todate + "' and AllocationHeadId in (5,7) and FunctionName!='Distribution' and Posted_f=1";
                     var adapter = new System.Data.SqlClient.SqlDataAdapter(command);
                     var dataset = new DataSet();
                     adapter.Fill(dataset);

@@ -541,18 +541,18 @@
                                                         </div>
                                                     </div>
                                                     @*<div class="col-md-4">
-                                                        <div class="form-group custom-form-group">
-                                                            <label>Designation Code</label>
-                                                            @if (Model.OrderID > 0)
-                                                            {
-                                                                <h4>@Html.DisplayFor(m => m.DesignationCode)</h4>
-                                                            }
-                                                            else
-                                                            {
-                                                                <h4>@Html.DisplayFor(m => m.OldPrjDetailModel.DesignationCode)</h4>
-                                                            }
-                                                        </div>
-                                                    </div>*@
+                                                            <div class="form-group custom-form-group">
+                                                                <label>Designation Code</label>
+                                                                @if (Model.OrderID > 0)
+                                                                {
+                                                                    <h4>@Html.DisplayFor(m => m.DesignationCode)</h4>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <h4>@Html.DisplayFor(m => m.OldPrjDetailModel.DesignationCode)</h4>
+                                                                }
+                                                            </div>
+                                                        </div>*@
                                                     <div class="col-md-4">
                                                         <div class="form-group custom-form-group">
                                                             <label>Designation</label>
@@ -1517,7 +1517,6 @@
     var IsMsphd = @Html.Raw(Json.Encode(Model.IsMsPhd)) || false;
     var OrderID = @Json.Encode(Model.OrderID) || 0;
     var Status = @Html.Raw(Json.Encode(Model.Status)) || "";
-    const monthNames = ["January", "February", "March", "April", "May", "June","July", "August", "September", "October", "November", "December"];
     $(document).ready(function () {
         $('[data-toggle="tooltip"]').tooltip();
         if (succMsg != '') {
@@ -1813,162 +1812,125 @@
         }
     });
 
-
-    function monthcount(startdate,enddate)
-    {
-        var MonthCount = [];
-        MonthCount = dateRange(startdate.getFullYear() + '-' + parseInt(startdate.getMonth() + 1) + '-' + startdate.getDate(), enddate.getFullYear() + '-' + parseInt(enddate.getMonth() + 1) + '-' + enddate.getDate())
-        var count = 0;
-        for (var i = 0; i < MonthCount.length; i++) {
-            var lastCount = MonthCount.length - 1;
-            if (i != 0 && i != lastCount) {
-                count += 1;
-            }
-        }
-        return count;
-    }
-
     function calcommitmentamount(isarrearpay)
     {
-        var appointmentstartdt = $('#Appointmentstartdate').val();
-        var WithdrawTillDate = "";
-        var strWithdrawTillDate = "";
+        var appointmentstartdt    = $('#Appointmentstartdate').val();
+        var appointmentenddt      = $('#AppointmentEndDate').val();
+        var withdrawtilldate      = "";
+        var appointmentstartdtmin = "";
+
         if($('#WithdrawTillDate').val() != "") {
-            WithdrawTillDate = new Date($('#WithdrawTillDate').val().split('-').join('/'));
-            WithdrawTillDate.setDate(WithdrawTillDate.getDate() + 1);
-            strWithdrawTillDate =  WithdrawTillDate.getDate() + '-' + monthNames[WithdrawTillDate.getMonth()] + '-' + WithdrawTillDate.getFullYear();
-            appointmentstartdt = strWithdrawTillDate;
+            withdrawtilldate   = moment(new Date($('#WithdrawTillDate').val().split('-').join('/'))).add(+1,'days').toDate();
+            withdrawtilldate   =  $.datepicker.formatDate('dd-MM-yy', withdrawtilldate);
+
+            appointmentstartdtmin = moment(new Date(appointmentstartdt.split('-').join('/'))).add(-1,'days').toDate();
+            appointmentstartdtmin = $.datepicker.formatDate('dd-MM-yy', appointmentstartdtmin);
         }
-        var appointmentenddt = $('#AppointmentEndDate').val();
         if(isarrearpay == true) {
             appointmentstartdt = $('#OldAppointmentStartDate').text();
-            appointmentenddt = $('#ArrearOrDeductionTillDate').val();
+            appointmentenddt   = $('#ArrearOrDeductionTillDate').val();
         }
         if (appointmentstartdt != "" && appointmentenddt != "") {
-            var startdate = new Date(appointmentstartdt.split('-').join('/'));
-            var enddate = new Date(appointmentenddt.split('-').join('/'));
-            var count = 0;
-            //define moments for the startdate and enddate
-            var startmonthend = parseInt(endOfMonth(startdate).getDate());
-            var enddtmonthend = parseInt(endOfMonth(enddate).getDate());
-            var startworingdays = 0 , endworkingdays = 0;
+            var objData = getCalDateDetails(appointmentstartdt,appointmentenddt);
+            var startmonthend   = objData.starttotaldays || 0;
+            var enddtmonthend   = objData.endtotaldays || 0;
+            var startworingdays = objData.startworkingdays || 0;
+            var endworkingdays  = objData.endworkingdays || 0;
+            var count  = objData.monthcount || 0;
+            var months = objData.monthcount || 0;
+            var startyear  = objData.startdateyear;
+            var endyear    = objData.enddateyear;
+            var startmonth = objData.startdatemonth;
+            var endmonth   = objData.enddatemonth;
 
-            if (startdate.getMonth() == enddate.getMonth() && startdate.getFullYear() == enddate.getFullYear()) {
-                startworingdays = parseInt(enddate.getDate()) - parseInt(startdate.getDate()) + 1;
-            }
-            else {
-                startworingdays = startmonthend - parseInt(startdate.getDate()) + 1;
-                endworkingdays = enddate.getDate();
-            }
-            count = monthcount(startdate,enddate);
-            var totaldays = startworingdays + endworkingdays;
-            var months = count || 0;
-            var days = totaldays || 0;
-            var HRAValue = 0 , ttlVal = 0;
-            var Medical = parseFloat($('#MedicalAmmount').val()) || 0;
-            var Salary =  0;
-            var Total = 0;
+            var days = startworingdays + endworkingdays;
+            var hravalue = 0 , ttlVal = 0;
+            var medical  = parseFloat($('#MedicalAmmount').val()) || 0;
+            var salary   =  0;
+            var totalVal = 0;
             if (typcategory == "OSG")
             {
-                Salary = parseFloat($('input[name=EmployeeCTC]').val()) || 0;
+                salary = parseFloat($('input[name=EmployeeCTC]').val()) || 0;
                 var lwfamt = 0;
-                var startyear = startdate.getFullYear();
-                var endyear = enddate.getFullYear();
-                var startmonth = startdate.getMonth() + 1;
-                var endmonth = enddate.getMonth() + 1;
+
                 if (startyear < endyear)
                 {
                     lwfamt = parseFloat($('input[name=LWFAmount]').val()) || 0;
                     if(lwfamt > 0)
-                    {
-                        Total += lwfamt;
-                    }
+                        totalVal += lwfamt;
                 }
                 if (startmonth == 12 ||  endmonth == 12)
                 {
                     lwfamt = parseFloat($('input[name=LWFAmount]').val()) || 0;
                     if(lwfamt > 0)
-                    {
-                        Total += lwfamt;
-                    }
+                        totalVal += lwfamt;
                 }
             }
             else
             {
-                Salary = parseFloat($('#Salary').val()) || 0;
+                salary = parseFloat($('#Salary').val()) || 0;
             }
 
-            var HRA = parseFloat($("#HRA").val()) || 0;
+            var hra        = parseFloat($("#HRA").val()) || 0;
             var hrapercent = parseFloat($('#HRAPercentage').val()) || 0;
-            var HRAPer = hrapercent / 100;
-            if(HRA > 0)
+            var hraper     = hrapercent / 100;
+            if(hra > 0)
             {
                 if (getBoolean($('#isHRA').val())) {
-                    HRAValue = Salary * HRAPer;
-                    if(HRAValue < HRA || HRAValue > HRA)
+                    var hravalue = salary * hraper;
+                    if(hravalue < hra || hravalue > hra)
                     {
-                        HRA = HRAValue;
-                        $("#HRA").val(HRA.toFixed(2));
+                        hra = hravalue;
+                        $("#HRA").val(hra.toFixed(2));
                     }
                 }
-                else {
-                    HRA = 0;
-                }
             }
-
             if (getBoolean(IsMsphd) || Typeofappointment == 2) {
-                Medical = 0;
-                if (Typeofappointment == 2) {
-                    HRA = 0;
-                }
+                medical = 0;
+                if (Typeofappointment == 2)
+                    hra = 0;
             }
-            else if (parseInt($('#Medical').val()) != 1) {
-                //if Medical include
-                Medical = 0;
-            }
+            else if (parseInt($('#Medical').val()) != 1)
+                medical = 0;
 
-            ttlVal = Medical + Salary + HRA;
+            ttlVal = medical + salary + hra;
             var startperday = ttlVal / startmonthend;
             var endperday = ttlVal / enddtmonthend;
-            var MonthlyAmt = ttlVal;
+            var monthlyamt = ttlVal;
             if (months > 0) {
-                Total += MonthlyAmt * count;
+                totalVal += monthlyamt * count;
             }
             if (days > 0) {
-                Total += startworingdays * startperday;
-                Total += endworkingdays * endperday;
+                totalVal += startworingdays * startperday;
+                totalVal += endworkingdays * endperday;
             }
             if(isarrearpay == true)
-                return Total;
+                return totalVal;
             if (parseInt($('#Medical').val()) != 3) {
                 $('#MedicalAmmount').val(parseFloat($('#DesignationMedicalamount').val()));
             }
-            else{
+            else {
                 $('#MedicalAmmount').val(0);
             }
             if (getBoolean($('#isHRA').val()) == false){
                 $("#HRA").val(0);
             }
 
-            $('#CommitmentAmount').val(Math.round(Total));
-            @*var oldCommitmentAmount = @Html.Raw(Json.Encode(Model.OldPrjDetailModel.CommitmentAmmount)) || 0;*@
-            var CommitmentBalance = @Html.Raw(Json.Encode(Model.OldPrjDetailModel.CommitmentBalance)) || 0;
+            $('#CommitmentAmount').val(Math.round(totalVal));
 
-            var AppointmentendDate = @Html.Raw(Json.Encode(Model.OldPrjDetailModel.AppointmentClosureDate));
-            var PreTenureAmount = 0;
-            //if(WithdrawTillDate != appointmentstartdt && WithdrawTillDate != "") {
-            PreTenureAmount = calcoldcommitmentamount(strWithdrawTillDate,AppointmentendDate);
-            //}
-
-            if ($("#WithdrawnFullAmount").is(':checked')) {
-                $('#WithdrawalAmount').val(CommitmentBalance);
+            var commitmentbalance = @Html.Raw(Json.Encode(Model.OldPrjDetailModel.CommitmentBalance)) || 0;
+            var pretermamount     = calcoldcommitmentamount(withdrawtilldate,appointmentstartdtmin) || 0;
+            if ($("#WithdrawnFullAmount").is(':checked'))
+            {
+                $('#WithdrawalAmount').val(commitmentbalance);
             }
-            else {
-                var WidrawAmt = CommitmentBalance - PreTenureAmount;
-                if(WidrawAmt <= 0)
-                    $('#WithdrawalAmount').val(CommitmentBalance);
+            else
+            {
+                var withdrawamount = commitmentbalance - pretermamount;
+                if (withdrawamount <= 0)
+                    $('#WithdrawalAmount').val(commitmentbalance);
                 else
-                    $('#WithdrawalAmount').val(Math.round(PreTenureAmount));
+                    $('#WithdrawalAmount').val(Math.round(withdrawamount));
             }
         }
     }
@@ -1976,68 +1938,42 @@
     function calcoldcommitmentamount(startDt,endDt)
     {
         if (startDt != "" && endDt != "") {
-            var startdate = new Date(startDt.split('-').join('/'));
-            var enddate = new Date(endDt.split('-').join('/'));
-            //define moments for the startdate and enddate
-            var startmonthend = parseInt(endOfMonth(startdate).getDate());
-            var enddtmonthend = parseInt(endOfMonth(enddate).getDate());
-            var startworingdays = 0 , endworkingdays = 0;
-            if (startdate.getMonth() == enddate.getMonth() && startdate.getFullYear() == enddate.getFullYear()) {
-                startworingdays = parseInt(enddate.getDate()) - parseInt(startdate.getDate()) + 1;
-            }
-            else {
-                startworingdays = startmonthend - parseInt(startdate.getDate()) + 1;
-                endworkingdays = enddate.getDate();
-            }
-
-            var startdateMoment = moment(startdate);
-            var enddateMoment = moment(enddate);
-            var count = 0;
-
-            count = monthcount(startdate,enddate);
-            var years = 0,Woringdays = 0;
-            //getting the difference in years
-            years = enddateMoment.diff(startdateMoment, 'years');//Don't Care
-            totaldays = startworingdays + endworkingdays;
-
-            var months = count || 0;
-            var days = totaldays || 0;
-            var HRAValue = 0;
-            var ttlVal = 0;
-            var Medical = @Html.Raw(Json.Encode(Model.OldPrjDetailModel.MedicalAmmount)) || 0;
-            var Salary = @Html.Raw(Json.Encode(Model.OldPrjDetailModel.Salary)) || 0;
+            var objData    = getCalDateDetails(startDt,endDt);
+            var startmonthend   = objData.starttotaldays;
+            var enddtmonthend   = objData.endtotaldays;
+            var startworingdays = objData.startworkingdays;
+            var endworkingdays  = objData.endworkingdays;
+            var months   = objData.monthcount || 0;
+            var days     = startworingdays + endworkingdays || 0;
+            var ttlVal   = 0;
+            var medical  = @Html.Raw(Json.Encode(Model.OldPrjDetailModel.MedicalAmmount)) || 0;
+            var salary   = @Html.Raw(Json.Encode(Model.OldPrjDetailModel.Salary)) || 0;
             if (typcategory == "OSG")
-                Salary = @Html.Raw(Json.Encode(Model.OldPrjDetailModel.EmployeeCTC)) || 0;
-
-            var HRA = @Html.Raw(Json.Encode(Model.OldPrjDetailModel.HRA)) || 0;
-            var HRAPer = @Html.Raw(Json.Encode(Model.OldPrjDetailModel.HRAPercentage)) / 100;
-            if (@Json.Encode(Model.OldPrjDetailModel.isHRA) == false) {
-                HRA = 0;
-            }
-            var Total = 0;
-
+                salary = @Html.Raw(Json.Encode(Model.OldPrjDetailModel.EmployeeCTC)) || 0;
+            var hra = @Html.Raw(Json.Encode(Model.OldPrjDetailModel.HRA)) || 0;
+            if (@Json.Encode(Model.OldPrjDetailModel.isHRA) == false)
+                hra = 0;
+            var totalVal = 0;
             if (getBoolean(IsMsphd) || Typeofappointment == 2) {
-                Medical = 0;
-                if (Typeofappointment == 2) {
-                    HRA = 0;
-                }
+                medical = 0;
+                if (Typeofappointment == 2)
+                    hra = 0;
             }
-            else if (@Html.Raw(Json.Encode(Model.OldPrjDetailModel.Medical)) != 1) {
-                Medical = 0;
-            }
+            else if (@Html.Raw(Json.Encode(Model.OldPrjDetailModel.Medical)) != 1)
+                medical = 0;
 
-            ttlVal = Medical + Salary + HRA;
+            ttlVal = medical + salary + hra;
             var startperday = ttlVal / startmonthend;
-            var endperday = ttlVal / enddtmonthend;
-            var MonthlyAmt = ttlVal;
-            if (months > 0) {
-                Total += MonthlyAmt * count;
-            }
+            var endperday   = ttlVal / enddtmonthend;
+            var monthlyAmt  = ttlVal;
+            if (months > 0)
+                totalVal += monthlyAmt * count;
+
             if (days > 0) {
-                Total += startworingdays * startperday;
-                Total += endworkingdays * endperday;
+                totalVal += startworingdays * startperday;
+                totalVal += endworkingdays * endperday;
             }
-            return Math.ceil(Total);
+            return Math.ceil(totalVal);
         }
     }
 
@@ -2802,29 +2738,6 @@
     });
     }
 
-
-    function dateRange(startDate, endDate) {
-        var start = startDate.split('-');
-        var end = endDate.split('-');
-        var startYear = parseInt(start[0]);
-        var endYear = parseInt(end[0]);
-        var months = [];
-        for (var i = startYear; i <= endYear; i++) {
-            var endMonth = i != endYear ? 11 : parseInt(end[1]) - 1;
-            var startMon = i === startYear ? parseInt(start[1]) - 1 : 0;
-            for (var j = startMon; j <= endMonth; j = j > 12 ? j % 12 || 11 : j + 1) {
-                var month = j + 1;
-                var displayMonth = month < 10 ? '0' + month : month;
-                months.push([displayMonth]);
-            }
-        }
-        return months;
-    }
-
-    function endOfMonth(date) {
-        return new Date(date.getFullYear(), date.getMonth() + 1, 0);
-    }
-
     $("#Appointmentstartdate, #AppointmentEndDate,#WithdrawTillDate").change(function () {
         validDateDiff();
         if(typcategory == "OSG")
@@ -2847,7 +2760,7 @@
     $('#Appointmentstartdate').change(function () {
         $('#AppointmentEndDate').val('');
         var defaultstartDateDate = moment($('#Appointmentstartdate').val().split('-').join('/')).add(+1,'days').toDate();
-        var defaultendDate = moment($('#OldAppointmentClosureDate').text().split('-').join('/')).toDate();
+        var defaultendDate       = moment($('#OldAppointmentClosureDate').text().split('-').join('/')).toDate();
         $('#AppointmentEndDate').datepicker({
             dateFormat: 'dd-MM-yy',
             changeYear: true
@@ -2865,7 +2778,7 @@
         var strstartdate = $("#Appointmentstartdate").val();
         var strclosedate = $("#AppointmentEndDate").val();
         var startdate = new Date(strstartdate.split('-').join('/'));
-        var enddate = new Date(strclosedate.split('-').join('/'));
+        var enddate   = new Date(strclosedate.split('-').join('/'));
         var prjStartDate = $("#lblProjectStartDate").text();
         if (prjStartDate == "") {
             $("#Appointmentstartdate").val('')
@@ -2885,7 +2798,8 @@
         }
     }
 
-    function FillData() {
+    function FillData()
+    {
         $('#CldivCSIR').removeClass('dis-none');
         $('#lblPIName').text($('#lblPIName').text());
         $('#lblDepartname').text($('#lblDepartmentName').text());
@@ -2906,7 +2820,8 @@
             $('#MedicalAmmount').val(0);
         calcommitmentamount();
 
-        if($('#ArrearOrDeductionTillDate').val() != "") {
+        if($('#ArrearOrDeductionTillDate').val() != "")
+        {
             var Arrearamount = calcommitmentamount(true) || 0;
             $('#ArrearOrDeductionAmount').val(Math.round(Arrearamount));
         }
@@ -2916,19 +2831,19 @@
         var currentdate = moment(new Date()).toDate();
         if(OrderID > 0)
         {
-            var DateRD = "@string.Format("{0:dd/MMMM/yyyy}", Model.ApplicationReceiveDate)";
-            var ApplicationRD = moment(DateRD.split('-').join('/')).toDate();
-            var SourceEmailDate = "@string.Format("{0:dd/MMMM/yyyy}", Model.SourceEmailDate)";
-            var SourceOfEmailDt = moment(SourceEmailDate.split('-').join('/')).toDate();
+            var strappreceivedate = "@string.Format("{0:dd/MMMM/yyyy}", Model.ApplicationReceiveDate)";
+            var appreceivedt      = moment(strappreceivedate.split('-').join('/')).toDate();
+            var sourceofemaildate = "@string.Format("{0:dd/MMMM/yyyy}", Model.SourceEmailDate)";
+            var sourceofemaildt   = moment(sourceofemaildate.split('-').join('/')).toDate();
             $('#ApplicationReceiveDate').datepicker({
                 dateFormat: 'dd-MM-yy',
                 changeYear: true
-            }).datepicker("option", "maxDate", currentdate).datepicker("option", "minDate", ApplicationRD);
+            }).datepicker("option", "maxDate", currentdate).datepicker("option", "minDate", appreceivedt);
 
             $('#SourceEmailDate').datepicker({
                 dateFormat: 'dd-MM-yy',
                 changeYear: true
-            }).datepicker("option", "maxDate", currentdate).datepicker("option", "minDate", SourceOfEmailDt);
+            }).datepicker("option", "maxDate", currentdate).datepicker("option", "minDate", sourceofemaildt);
 
         }
         else
@@ -3074,7 +2989,7 @@
             document.getElementById("prevBtn").style.display = "inline";
         }
         if (n == (x.length - 1)) {
-            if ($('#Status').val() == "" || $('#Status').val().includes("Open") || $('#Status').val().includes("Note to PI")) {
+            if ($('#Status').val() == "" || $('#Status').val().includes("Open") || $('#Status').val().includes("Note to PI") || $('#Status').val().includes("PI Initiated")) {
                 document.getElementById("nextBtn").style.display = "inline";
                 document.getElementById("nextBtn").innerHTML = "Submit";
             }
@@ -3201,7 +3116,7 @@
                 } // set our flag if there was an error
             }
         });
-        if (!hadError && n != 2 && ($('#Status').val() == "" || $('#Status').val().includes("Open") || $('#Status').val().includes("Note to PI"))) {
+        if (!hadError && n != 2 && ($('#Status').val() == "" || $('#Status').val().includes("Open") || $('#Status').val().includes("Note to PI") || $('#Status').val().includes("PI Initiated"))) {
             if ($('#DesignationId').val() != null || $('#DesignationId').val() != "") {
                 checkDevation();
             }
@@ -3258,7 +3173,7 @@
                     buttons: {
                         Ok: function () {
                             //submit
-                            if (isValid && ($('#Status').val() == "" || $('#Status').val().includes("Open") || $('#Status').val().includes("Note to PI"))){
+                            if (isValid && ($('#Status').val() == "" || $('#Status').val().includes("Open") || $('#Status').val().includes("Note to PI") || $('#Status').val().includes("PI Initiated"))){
                                 $('#formSTEJuniorApp').submit();
                             }
                             else {
@@ -3276,7 +3191,7 @@
             }
             else if(document.getElementById("IsSendSalaryStructure").checked == true)
             {
-                if (isValid && ($('#Status').val() == "" || $('#Status').val().includes("Open") || $('#Status').val().includes("Note to PI"))){
+                if (isValid && ($('#Status').val() == "" || $('#Status').val().includes("Open") || $('#Status').val().includes("Note to PI") || $('#Status').val().includes("PI Initiated"))){
                     $('#formSTEJuniorApp').submit();
                 }
                 else {
@@ -3288,7 +3203,7 @@
         }
         else
         {
-            if (isValid && ($('#Status').val() == "" || $('#Status').val().includes("Open") || $('#Status').val().includes("Note to PI"))){
+            if (isValid && ($('#Status').val() == "" || $('#Status').val().includes("Open") || $('#Status').val().includes("Note to PI") || $('#Status').val().includes("PI Initiated"))){
                 $('#formSTEJuniorApp').submit();
             }
             else {
@@ -3406,10 +3321,12 @@
     });
 
     $(document).on('click', 'a.removeFile', function () {
-        if ($('div#divPIJustification').length == 1) {
+        if ($('div#divPIJustification').length == 1)
+        {
             $('div#divPIJustification').find("input").val("").end();
         }
-        else {
+        else
+        {
             $(this).closest('div').remove();
             UpdateUploadedDoc();
             $(document).find('input[name^="PIJustificationFile"]').each(function(idx,ele) {
@@ -3427,15 +3344,17 @@
         if($(this).val() != "")
         {
             // Read selected files
-            var allowedExtensions =[".pdf", ".doc",".docx"];
-            var fileName = document.getElementById('PIJustificationFile_'+id).files[0].name;
-            var extension = fileName.substr((fileName.lastIndexOf('.') + 1)).toLowerCase();
-            var validFormat=allowedExtensions.includes('.'+extension);
-            if(validFormat){
+            var allowedExtensions = [".pdf", ".doc",".docx"];
+            var fileName    = document.getElementById('PIJustificationFile_'+id).files[0].name;
+            var extension   = fileName.substr((fileName.lastIndexOf('.') + 1)).toLowerCase();
+            var validFormat = allowedExtensions.includes('.' + extension);
+            if(validFormat)
+            {
                 var _size = document.getElementById('PIJustificationFile_'+id).files[0].size;
                 var iSize = (_size / 1024);
                 iSize = (Math.round(iSize * 100) / 100)
-                if (iSize > 5120) {
+                if (iSize > 5120)
+                {
                     $('#FailedAlert').html('Documents size should be allow below 5MB');
                     $('#Failed').modal('toggle');
                     $(this).val('');
@@ -3443,14 +3362,16 @@
                 }
                 UpdateUploadedDoc();
             }
-            else {
+            else
+            {
                 $('#FailedAlert').html('PIJustification allowed document type [pdf,doc,docx]');
                 $('#Failed').modal('toggle');
                 $(this).val('');
                 return;
             }
         }
-        else{
+        else
+        {
             UpdateUploadedDoc()
         }
 
@@ -3461,16 +3382,17 @@
         var form_data = new FormData();
         $('#fileAppend').empty();
         $(document).find('input[name^="PIJustificationFile"]').each(function(idx,ele){
-            var val=$(this).val();
-            var ID=$(this).attr('id');
-            if(val!=""){
-                var tmppath= URL.createObjectURL(document.getElementById(ID).files[0]);
-                var fileN = document.getElementById(ID).files[0].name;
-                var ele = document.createElement('a');
-                var elebr = document.createElement('br');
-                ele.href =tmppath
-                ele.text=fileN;
-                ele.name="DocDownload";
+            var val = $(this).val();
+            var id  = $(this).attr('id');
+            if(val != "")
+            {
+                var tmppath = URL.createObjectURL(document.getElementById(id).files[0]);
+                var fileN   = document.getElementById(id).files[0].name;
+                var ele     = document.createElement('a');
+                var elebr   = document.createElement('br');
+                ele.href = tmppath;
+                ele.text = fileN;
+                ele.name = "DocDownload";
                 document.getElementById('fileAppend').appendChild(ele);
                 document.getElementById('fileAppend').appendChild(elebr);
             }
@@ -3507,7 +3429,8 @@
         });
         if (!hadError)
             $('#formSTEJuniorApp').submit();
-        else {
+        else
+        {
             $.confirm({
                 title: 'Warning!',
                 content: 'Invalid data exist',
@@ -3526,17 +3449,17 @@
 
     var findtabs = $(".cust-tab");
     $(findtabs[0]).find('textarea,input[type="text"]').each(function () {
-        var ID = $(this).attr('id');
+        var id   = $(this).attr('id');
         var name = $(this).attr('name').split('.')[1];
-        var NotinID = ["DesignationCode" , "ProjectNumber" , "Comments"];
-        var NotinEndName = ["DesignationautoComplete"];
-        if (!NotinID.includes(ID) && !NotinEndName.includes(name)) {
+        var notinid   = ["DesignationCode" , "ProjectNumber" , "Comments"];
+        var notinname = ["DesignationautoComplete"];
+        if (!notinid.includes(id) && !notinname.includes(name))
             $(this).attr('style', 'text-transform:uppercase');
-        }
     });
 
     $(document).on('keyup','textarea,input[type="text"]',function(event) {
-        if($(this).attr('id') != "Comments" && $(this).attr('id') != "Remarks" && $(this).attr('id') != undefined) {
+        if($(this).attr('id') != "Comments" && $(this).attr('id') != "Remarks" && $(this).attr('id') != undefined)
+        {
             var input = event.target;
             var start = input.selectionStart;
             var end = input.selectionEnd;
@@ -3544,16 +3467,6 @@
             input.setSelectionRange(start, end);
         }
     });
-
-    function FormDisabled() {
-        $("#formSTEJuniorApp").find("input, select, textarea").each(function () {
-            var idDisabled = $(this).is(":disabled");
-            var id = $(this).attr('id');
-            if (!idDisabled) {
-                $(this).attr("disabled", "disabled");
-            }
-        });
-    }
 
 
     $('input[name="PILetter"]').change(function (event) {
@@ -3565,18 +3478,22 @@
         // Read selected files
         var allowedExtensions = [".pdf", ".doc", ".docx"];
         var totalfiles = document.getElementById('PILetter').files.length;
-        for (var index = 0; index < totalfiles; index++) {
-            var fileName = document.getElementById('PILetter').files[index].name;
-            var extension = fileName.substr((fileName.lastIndexOf('.') + 1)).toLowerCase();
+        for (var index = 0; index < totalfiles; index++)
+        {
+            var fileName    = document.getElementById('PILetter').files[index].name;
+            var extension   = fileName.substr((fileName.lastIndexOf('.') + 1)).toLowerCase();
             var validFormat = allowedExtensions.includes('.' + extension);
-            if (!validFormat) {
+            if (!validFormat)
+            {
                 $('#FailedAlert').html('PI Letter File should be allowed olny document type [pdf,doc,docx]');
                 $('#Failed').modal('toggle');
                 $(this).val('');
                 return;
             }
-            else {
-                if (iSize > 5120) {
+            else
+            {
+                if (iSize > 5120)
+                {
                     $('#FailedAlert').html('Documents size should be allow below 5MB');
                     $('#Failed').modal('toggle');
                     $(this).val('');
@@ -3679,16 +3596,16 @@
 
     function FormDisabled() {
         $("#formSTEJuniorApp").find("input, select, textarea").each(function () {
-            var idDisabled = $(this).is(":disabled");
+            var disable_f = $(this).is(":disabled");
             var id = $(this).attr('id');
-            if (!idDisabled) {
+            if (!disable_f) {
                 $(this).attr("disabled", "disabled");
             }
         });
     }
 
-    var isDisabledStatus = ["","Open","Note to PI"];
-    if (!isDisabledStatus.includes(Status)) {
+    var statusdisable = ["","Open","Note to PI","PI Initiated"];
+    if (!statusdisable.includes(Status)) {
         FormDisabled();
         $('#btnViewSummary').removeAttr('disabled');
         $('#btnViewStaffAllocation').removeAttr('disabled');

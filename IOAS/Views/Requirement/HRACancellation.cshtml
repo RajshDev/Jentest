@@ -372,9 +372,6 @@
                                                     <h4 id="tx-todate"></h4>
                                                     @Html.HiddenFor(m => m.ToDate, new { @class = "form-control", @required = "required" })
                                                     <div>@Html.ValidationMessageFor(m => m.ToDate)</div>
-                                                    @Html.Hidden("TotalYear")
-                                                    @Html.Hidden("TotalMonth")
-                                                    @Html.Hidden("TotalDays")
                                                 </div>
                                             </div>
                                         </div>
@@ -499,19 +496,19 @@
 
         if (OrderID > 0)
         {
-            var DateRD = "@string.Format("{0:dd/MMMM/yyyy}", Model.ApplicationReceiveDate)";
-            var ApplicationRD = moment(DateRD.split('-').join('/')).toDate();
-            var SourceEmailDate = "@string.Format("{0:dd/MMMM/yyyy}", Model.SourceEmailDate)";
-            var SourceOfEmailDt = moment(SourceEmailDate.split('-').join('/')).toDate();
+            var appreceivedate  = "@string.Format("{0:dd/MMMM/yyyy}", Model.ApplicationReceiveDate)";
+            var appreceivedt    = moment(appreceivedate.split('-').join('/')).toDate();
+            var sourceemaildate = "@string.Format("{0:dd/MMMM/yyyy}", Model.SourceEmailDate)";
+            var sourceemaildt   = moment(sourceemaildate.split('-').join('/')).toDate();
             $('#ApplicationReceiveDate').datepicker({
                 dateFormat: 'dd-MM-yy',
                 changeYear: true
-            }).datepicker("option", "maxDate", currentdate).datepicker("option", "minDate", ApplicationRD);
+            }).datepicker("option", "maxDate", currentdate).datepicker("option", "minDate", appreceivedt);
 
             $('#SourceEmailDate').datepicker({
                 dateFormat: 'dd-MM-yy',
                 changeYear: true
-            }).datepicker("option", "maxDate", currentdate).datepicker("option", "minDate", SourceOfEmailDt);
+            }).datepicker("option", "maxDate", currentdate).datepicker("option", "minDate", sourceemaildt);
 
         }
         else
@@ -546,9 +543,9 @@
         LoadFillDesignation()
 
     function LoadFillDesignation() {
-        var DesignationID = $('#DesignationId').val();
-        if (DesignationID > 0) {
-            $.getJSON("@Url.Action("LoadDesignationDetails", "Requirement")", { DesignationID: DesignationID },
+        var designationId = $('#DesignationId').val();
+        if (designationId > 0) {
+            $.getJSON("@Url.Action("LoadDesignationDetails", "Requirement")", { DesignationID: designationId },
              function (result) {
                  if (result.DesignationData.DestinationID > 0) {
                      $("#MinSalary").val(result.DesignationData.MinSalary);
@@ -563,21 +560,16 @@
     }
 
     function UpdatedatePicker() {
-
-        if ($('#FromDate').val() != "" || $('#ToDate').val() != "") {
-            //Set FromDate Todate Differance
-            LoadcalcDateDiff();
-        }
         var setappstrdat = "";
         var currentdate = moment(new Date()).toDate();
-        var AppointmentStartDate = moment($('#HRAFrom').text().split('-').join('/')).toDate();
-        var AppointmentEndDate = moment($('#HRATo').text().split('-').join('/')).toDate();
-        var defaultappstrToDate = moment(AppointmentEndDate).add(-1, 'days').toDate();
+        var appointmentstartdate = moment($('#HRAFrom').text().split('-').join('/')).toDate();
+        var appointmentenddate   = moment($('#HRATo').text().split('-').join('/')).toDate();
+        var defaultappstrToDate  = moment(appointmentenddate).add(-1, 'days').toDate();
 
         $('#ArrearOrDeductionTillDate').datepicker({
             dateFormat: 'dd-MM-yy',
             changeYear: true
-        }).datepicker("option", "minDate", AppointmentStartDate).datepicker("option", "maxDate", AppointmentEndDate);
+        }).datepicker("option", "minDate", appointmentstartdate).datepicker("option", "maxDate", appointmentenddate);
 
         if (OrderID > 0) {
             var fromdate = @Html.Raw(Json.Encode(Model.FromDate));
@@ -588,10 +580,10 @@
             }).datepicker("option", "minDate", fromdate).datepicker("option", "maxDate", defaultappstrToDate);
         }
         else {
-            setappstrdat = AppointmentStartDate;
-            if (AppointmentStartDate <= currentdate) {
+            setappstrdat = appointmentstartdate;
+            if (appointmentstartdate <= currentdate) {
                 var beginDate = moment(new Date()).add(-currentdate.getDate(), 'days').add(+1, 'days').toDate();
-                if (AppointmentStartDate <= beginDate && beginDate <= AppointmentEndDate) {
+                if (appointmentstartdate <= beginDate && beginDate <= appointmentenddate) {
                     setappstrdat = beginDate;
                 }
             }
@@ -613,54 +605,25 @@
 
     function calculatetaxTotal(isarrear) {
         if ($('#FromDate').val() != "" && $('#ToDate').val() != "") {
-            var startdate = new Date($('#FromDate').val().split('-').join('/'));
-            var enddate = new Date($('#ToDate').val().split('-').join('/'));
-
+            var startdate = $('#FromDate').val();
+            var enddate   = $('#ToDate').val();
             if(isarrear == true)
-                enddate = new Date($('#ArrearOrDeductionTillDate').val().split('-').join('/'));
+                enddate = $('#ArrearOrDeductionTillDate').val();
+            var objData = getCalDateDetails(startdate,enddate);
+            var StartDateTotalMonth = objData.starttotaldays;
+            var EndDateTotalMonth   = objData.endtotaldays;
+            var StartWorkingDays    = objData.startworkingdays;
+            var EndWorkingDays      = objData.endworkingdays;
 
-            var MonthCount = [];
-            MonthCount = dateRange(startdate.getFullYear() + '-' + parseInt(startdate.getMonth() + 1) + '-' + startdate.getDate(), enddate.getFullYear() + '-' + parseInt(enddate.getMonth() + 1) + '-' + enddate.getDate())
-            //define moments for the startdate and enddate
-            var StartDateTotalMonth = parseInt(endOfMonth(startdate).getDate());
-            var EndDateTotalMonth = parseInt(endOfMonth(enddate).getDate());
-            var StartWorkingDays = 0;
-            var EndWorkingDays = 0;
-            if (startdate.getMonth() == enddate.getMonth() && startdate.getFullYear() == enddate.getFullYear()) {
-                StartWorkingDays = parseInt(enddate.getDate()) - parseInt(startdate.getDate()) + 1;
-            }
-            else {
-                StartWorkingDays = StartDateTotalMonth - parseInt(startdate.getDate()) + 1;
-                EndWorkingDays = enddate.getDate();
-            }
-            var startdateMoment = moment(startdate);
-            var enddateMoment = moment(enddate);
-            var count = 0;
-            for (var i = 0; i < MonthCount.length; i++) {
-                var lastCount = MonthCount.length - 1;
-                if (i != 0 && i != lastCount) {
-                    count += 1;
-                }
-            }
-
-            if (startdateMoment.isValid() === true && enddateMoment.isValid() === true) {
-                //getting the difference in years
-                var years = enddateMoment.diff(startdateMoment, 'years');//Don't Care
-                var days = StartWorkingDays + EndWorkingDays;
-                $('#TotalYear').val(years);
-                $('#TotalMonth').val(count);
-                $('#TotalDays').val(days);
-            }
-            var Year = parseInt($('#TotalYear').val()) || 0;
-            var months = parseInt($('#TotalMonth').val()) || 0;
-            var days = parseInt($('#TotalDays').val()) || 0;
+            var months = objData.monthcount;
+            var days   = StartWorkingDays + EndWorkingDays;        
             var HRA = parseFloat(@Json.Encode(Model.Appointmentdetails.HRA)) || 0;
             var Tot = 0;
             var StartPerDay = HRA / StartDateTotalMonth;
-            var EndPerDay = HRA / EndDateTotalMonth;
-            var MonthlyAmt = HRA;
+            var EndPerDay   = HRA / EndDateTotalMonth;
+            var MonthlyAmt  = HRA;
             if (months > 0) {
-                Tot += MonthlyAmt * count;
+                Tot += MonthlyAmt * months;
             }
             if (days > 0) {
                 Tot += StartWorkingDays * StartPerDay;
@@ -671,28 +634,6 @@
             $('#WithdrawalAmount').val(Math.round(Tot));
 
         }
-    }
-
-    function dateRange(startDate, endDate) {
-        var start = startDate.split('-');
-        var end = endDate.split('-');
-        var startYear = parseInt(start[0]);
-        var endYear = parseInt(end[0]);
-        var months = [];
-        for (var i = startYear; i <= endYear; i++) {
-            var endMonth = i != endYear ? 11 : parseInt(end[1]) - 1;
-            var startMon = i === startYear ? parseInt(start[1]) - 1 : 0;
-            for (var j = startMon; j <= endMonth; j = j > 12 ? j % 12 || 11 : j + 1) {
-                var month = j + 1;
-                var displayMonth = month < 10 ? '0' + month : month;
-                months.push([displayMonth]);
-            }
-        }
-        return months;
-    }
-
-    function endOfMonth(date) {
-        return new Date(date.getFullYear(), date.getMonth() + 1, 0);
     }
 
     $("#FromDate, #ToDate").change(function () {
@@ -710,56 +651,7 @@
         hrato = hrato != null ? hrato.split('-').join('/') : hrato;
         $('#ToDate').val(hrato);
 
-    })
-
-
-    function LoadcalcDateDiff() {
-        if ($('#FromDate').val() != "" && $('#ToDate').val() != "") {
-            var startdate = new Date($('#FromDate').val().split('-').join('/'));
-            var enddate = new Date($('#ToDate').val().split('-').join('/'));
-
-            //Month Differance
-            var MonthCount = [];
-            var strStartDate = startdate.getFullYear() + '-' + parseInt(startdate.getMonth() + 1) + '-' + startdate.getDate();
-            var strToDate = enddate.getFullYear() + '-' + parseInt(enddate.getMonth() + 1) + '-' + enddate.getDate();
-            MonthCount = dateRange(strStartDate, strToDate)
-
-            //Calculate total days of month and calculate working days
-            var StartDateTotalMonth = parseInt(endOfMonth(startdate).getDate());
-            var EndDateTotalMonth = parseInt(endOfMonth(enddate).getDate());
-            var StartWorkingDays = 0;
-            var EndWorkingDays = 0;
-            if (startdate.getMonth() == enddate.getMonth() && startdate.getFullYear() == enddate.getFullYear()) {
-                StartWorkingDays = parseInt(enddate.getDate()) - parseInt(startdate.getDate()) + 1;
-            }
-            else {
-                StartWorkingDays = StartDateTotalMonth - parseInt(startdate.getDate()) + 1;
-                EndWorkingDays = enddate.getDate();
-            }
-            //
-
-            var startdateMoment = moment(startdate);
-            var enddateMoment = moment(enddate);
-            var count = 0;
-            for (var i = 0; i < MonthCount.length; i++) {
-                var lastCount = MonthCount.length - 1;
-                if (i != 0 && i != lastCount) {
-                    count += 1;
-                }
-            }
-            if (startdateMoment.isValid() === true && enddateMoment.isValid() === true) {
-                //getting the difference in years
-                var years = enddateMoment.diff(startdateMoment, 'years');//Don't Care
-                var days = StartWorkingDays + EndWorkingDays;
-                $('#TotalYear').val(years);
-                $('#TotalMonth').val(count);
-                $('#TotalDays').val(days);
-            }
-            var MinSalary = parseFloat($('#MinSalary').val());
-            var MaxSalary = parseFloat($('#MaxSalary').val());
-        }
-
-    }
+    })  
 
     function parseDate(s) {
         var months = {

@@ -9809,7 +9809,7 @@ namespace IOAS.Controllers
                 NegativeBalanceModel model = new NegativeBalanceModel();
                 model = coreAccountService.GetNegativeBalanceDetailsView(id);
                 model.PFInit = Pfinit;
-                var paymentVal = model.ClaimAmount ?? 0;
+                var paymentVal = model.TotalClaimAmount ?? 0;
                 int pgId = 0;
                 var data = Common.GetProjectType(model.ProjectId ?? 0);
                 int pType = data.Item1;
@@ -17675,11 +17675,11 @@ namespace IOAS.Controllers
             return View();
         }
         [HttpGet]
-        public JsonResult GetPaymentProcessInitList()
+        public JsonResult GetPaymentProcessInitList(string VoucherNumber, string Status, string UTRStatus, int pageIndex, int pageSize, DateFilterModel VoucherDate)
         {
             try
             {
-                object output = coreAccountService.PaymentProcessInitList();
+                object output = coreAccountService.PaymentProcessInitList(pageIndex, pageSize, VoucherNumber, Status, UTRStatus, VoucherDate);
                 return Json(output, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -20567,11 +20567,11 @@ namespace IOAS.Controllers
             return Json(temppass, JsonRequestBehavior.AllowGet);
         }
 
-        //public ActionResult Testdistri()
-        //{
-        //    coreAccountService.test();
-        //    return View();
-        //}
+        public ActionResult DistributionICSROHPosting(int billId)
+        {
+            coreAccountService.DistributionICSROHPosting(billId);
+            return View();
+        }
         //public ActionResult TestOus()
         //{
         //    coreAccountService.TestOus();
@@ -20685,6 +20685,6 @@ namespace IOAS.Controllers
                 throw new Exception(ex.Message);
             }
         }
-        #endregion
+        #endregion      
     }
 }

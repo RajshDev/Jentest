@@ -5538,6 +5538,7 @@ namespace IOAS.Models
         public bool PFInit { get; set; }
         public Nullable<decimal> TotalPrevNegBalAmount { get; set; }
         public Nullable<decimal> CurrentClaimAmount { get; set; }
+        public Nullable<decimal> TotalClaimAmount { get; set; }
     }
     public class PrevNegativeBalanceModel
     {
@@ -6461,6 +6462,9 @@ namespace IOAS.Models
         public string ReferenceNumber { get; set; }
         public int SlNo { get; set; }
         public Nullable<decimal> PayableAmount { get; set; }
+
+        public List<PaymentProcessVoucherModel> PaymentList { get; set; }
+        public int TotalRecords { get; set; }
     }
     public class PaymentProcessVoucherModel
     {
@@ -6515,6 +6519,7 @@ namespace IOAS.Models
         public string PrintedBy { get; set; }
         public string GSTIN { get; set; }
         public string PAN { get; set; }
+        public string BankGuaranteeRemarks { get; set; }
         public List<PayableModel> Payable { get; set; }
         public List<CommListModel> Comm { get; set; }
         public List<TDSITListModel> TDSIT { get; set; }

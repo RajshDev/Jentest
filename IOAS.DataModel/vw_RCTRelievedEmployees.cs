@@ -35,5 +35,6 @@ namespace IOAS.DataModel
         public Nullable<System.DateTime> DateofBirth { get; set; }
         public string Email { get; set; }
         public string ProjectNumber { get; set; }
+        public Nullable<bool> InitByPI_f { get; set; }
     }
 }

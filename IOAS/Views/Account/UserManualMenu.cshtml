@@ -1,0 +1,92 @@
+﻿@model IEnumerable<IOAS.Models.MenuListViewModel>
+<html lang="en-US">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    @{
+        ViewBag.Title = "IOAS – Documentation";
+        ViewBag.Subtitle = "Create UserManual";
+    }
+    @*<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">*@
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>   
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    @*<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.943/pdf.min.js"> </script>*@   
+    <link href="@Url.Content("~/Content/IOASContent/css/UserManualMenu.css")" rel="stylesheet" />   
+</head>
+<body>
+
+    <div id="page-container" class="container-fluid">
+        <div class="">
+            <div class="row">
+                <header class="main-header">
+                    <div class="header-logo">
+                        <a href="#">
+                            <img src="/Content/IOASContent/img/iitm-logo.png" width="45">
+                        
+                            <span>Integrated Office and Accounting System</span>
+                        </a>
+                    </div>
+                </header>
+                <div class="left-side-navbar">
+                    <nav class="header-menu">
+                        <ul id="menu-primary" class="menu">
+                            @if (Model != null)
+                            {
+                                var incr = 0;
+                                foreach (var item in Model)
+                                {                                   
+                                    <li class="faqs-acc menu-item">
+                                        <a data-toggle="collapse" data-target="#acc_@incr" aria-expanded="false" class="drop-down-menu">@item.Modulename</a>
+                                        <ul id="acc_@incr"  aria-expanded="false"  class="collapse sb-menu" style="">
+
+                                            @foreach (var submodule in item.submodule)
+                                            {
+                                              
+                                                    <li class="menu-item">
+                                                        <a data-toggle="collapse" data-target="#accc_@submodule.Menugroupid" aria-expanded="false"  id="menugroupname">@submodule.Menugroupname</a>
+                                                        <ul id="accc_@submodule.Menugroupid" class="collapse sb-menu" aria-expanded="false">
+                                                            @foreach (var submenu in submodule.Submenu)
+                                                            {
+                                                                    <li class="menu-item">
+                                                                        @Html.HiddenFor(m => submenu.FileName)
+                                                                        <a role="button" data-toggle="collapse" data-parent="#accordion"  id="FunctionId" value="@submenu.FunctionId" aria-expanded="false" aria-controls="collapseOne">
+                                                                            @Html.DisplayFor(m => submenu.Functioname)
+                                                                        </a>
+                                                                    </li>                                                               
+                                                            }
+                                                        </ul>
+                                                    </li>                                                                                            
+                                            }
+
+                                        </ul>
+
+                                    </li>
+                                    incr++;
+                                }
+                            }
+
+                        </ul>
+                    </nav>
+                </div>
+                <div>                   
+                    <section>
+                        <iframe class="right-side-panel"></iframe>
+                    </section>
+                </div>
+                <footer class="footer-bg">
+                    <p class="copyrights">© @DateTime.Now.Year IIT Madras - All rights reserved</p>
+                </footer>
+
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+<script>
+    $('a[id^="FunctionId"]').click(function () {      
+        var FileName = $(this).parent('li').find('input').val();
+        var Url = "/Account/ShowDocument?file=" + FileName + "&filepath=UserManual";
+        $('.right-side-panel').attr('src', Url);
+    });
+   
+</script>

@@ -603,23 +603,22 @@
         {
             if(@Html.Raw(Json.Encode(Model.ApplicationReceiveDate)) != null)
             {
-                var DateRD = "@string.Format("{0:dd/MMMM/yyyy}", Model.ApplicationReceiveDate)";
-                var ApplicationRD = moment(DateRD).toDate();
-
+                var appreceivedate = "@string.Format("{0:dd/MMMM/yyyy}", Model.ApplicationReceiveDate)";
+                var appreceivedt   = moment(appreceivedate).toDate();
                 $('#ApplicationReceiveDate').datepicker({
                     dateFormat: 'dd-MM-yy',
                     changeYear: true
-                }).datepicker("option", "maxDate", currentdate).datepicker("option", "minDate", ApplicationRD);
+                }).datepicker("option", "maxDate", currentdate).datepicker("option", "minDate", appreceivedt);
 
             }
             if(@Html.Raw(Json.Encode(Model.SourceEmailDate)) != null){
-                var SourceEmailDate = "@string.Format("{0:dd/MMMM/yyyy}", Model.SourceEmailDate)";
-                var SourceOfEmailDt = moment(SourceEmailDate).toDate();
+                var sourceemaildate = "@string.Format("{0:dd/MMMM/yyyy}", Model.SourceEmailDate)";
+                var sourceofemaildt = moment(sourceemaildate).toDate();
 
                 $('#SourceEmailDate').datepicker({
                     dateFormat: 'dd-MM-yy',
                     changeYear: true
-                }).datepicker("option", "maxDate", currentdate).datepicker("option", "minDate", SourceOfEmailDt);
+                }).datepicker("option", "maxDate", currentdate).datepicker("option", "minDate", sourceofemaildt);
             }
         }
         else
@@ -664,11 +663,11 @@
 
     if(OrderID == 0)
     {
-        var strappointmentstart =  @Html.Raw(Json.Encode(Model.Appointmentdetails.AppointmentStartDate)) || "";
-        var strappointmentend =  @Html.Raw(Json.Encode(Model.Appointmentdetails.AppointmentClosureDate)) || "";
-        var appointmentstartdt = moment(strappointmentstart.split('-').join('/')).toDate();
-        var appointmentenddt = moment(strappointmentend.split('-').join('/')).toDate();
-        var projectenddate = @Html.Raw(Json.Encode(Model.Appointmentdetails.ProjectClosureDate)) || "";
+        var strappointmentstart = @Html.Raw(Json.Encode(Model.Appointmentdetails.AppointmentStartDate)) || "";
+        var strappointmentend   = @Html.Raw(Json.Encode(Model.Appointmentdetails.AppointmentClosureDate)) || "";
+        var appointmentstartdt  = moment(strappointmentstart.split('-').join('/')).toDate();
+        var appointmentenddt    = moment(strappointmentend.split('-').join('/')).toDate();
+        var projectenddate      = @Html.Raw(Json.Encode(Model.Appointmentdetails.ProjectClosureDate)) || "";
         if (projectenddate != "")
             projectenddate = new Date(projectenddate.split('-').join('/'));
         var currentdate = moment(new Date()).toDate();
@@ -714,73 +713,7 @@
 
     }
 
-
-
     var addyear = 0;
-
-    @*if ($("#ProjectId").val() > 0)
-        ProjectSummary()
-
-    if ($("#DesignationId").val() > 0)
-        LoadFillDesignation()
-
-    function LoadFillDesignation() {
-        var DesignationID = $("#DesignationId").val() || 0;
-        if (DesignationID > 0) {
-            $.getJSON("@Url.Action("LoadDesignationDetails", "Requirement")", { DesignationID: DesignationID },
-                function (result) {
-                    if (result.DesignationData.DestinationID > 0) {
-                        $("#MinSalary").val(result.DesignationData.MinSalary);
-                        $("#MaxSalary").val(result.DesignationData.MaxSalary);
-                        if(isMsPhd == false && TypeOfAppointment != 2)
-                        {
-                            if (result.DesignationData.Medical)
-                            {
-                                $('#isMedical').val(true)
-                                $('#DesignationMedicalamount').val(result.DesignationData.MedicalAmount);
-                                UpdateMedical(2);
-                            }
-                            else
-                            {
-                                $('#isMedical').val(false)
-                                $('#DesignationMedicalamount').val(0);
-                                UpdateMedical(3);
-                            }
-                        }
-                        else
-                        {
-                            $('#MedicalAmmount').val(0);
-                            $('#DesignationMedicalamount').val(0);
-                            $('#isMedical').val(false)
-                            UpdateMedical(3);
-                        }
-
-                        if (result.DesignationData.HRA && TypeOfAppointment != 2)
-                        {
-                            $('#HRAText').addClass('dis-none');
-                            $('#HRA').removeClass('dis-none');
-                            $('#HRAPercentage').val(result.DesignationData.HRAPercentage)
-                            HRAPercentage = parseFloat(result.DesignationData.HRAPercentage);
-                            $('#isHRA').val(true);
-                        }
-                        else
-                        {
-                            $('#HRAText').text('0');
-                            $('#isHRA').val(false);
-                            $('#HRA').val(0);
-                            $('#HRAPercentage').val(result.DesignationData.HRAPercentage)
-                            HRAPercentage = parseFloat(result.DesignationData.HRAPercentage);
-                            $('#HRAText').removeClass('dis-none');
-                            $('#HRA').addClass('dis-none');
-                        }
-                        if(OrderID > 0)
-                        {
-                            calculatetaxTotal();
-                        }
-                    }
-                });
-        }
-    }*@
 
     $('#RequestReference').change(function () {
         var selSource = $(this).val();
@@ -830,60 +763,39 @@
 
     function calculatetaxTotal()
     {
-        var isNotHighSalary = false;
-        var Year = 0,months = 0,days = 0;
-        var starttotaldays = 0,EndDateTotalMonth = 0,StartWorkingDays = 0,EndWorkingDays = 0;
-        var actualAppointmentstartdt = @Html.Raw(Json.Encode(Model.Appointmentdetails.AppointmentStartDate)) || "";
-        var actualAppointmentenddt = @Html.Raw(Json.Encode(Model.Appointmentdetails.AppointmentClosureDate)) || "";
+        var Year = 0, months = 0, days = 0;
+        var StartTotalDays = 0, EndTotalDays = 0, StartWorkingDays = 0, EndWorkingDays = 0;
+        var actualAppointmentstartdt   = @Html.Raw(Json.Encode(Model.Appointmentdetails.AppointmentStartDate)) || "";
+        var actualAppointmentenddt     = @Html.Raw(Json.Encode(Model.Appointmentdetails.AppointmentClosureDate)) || "";
         var actualAppointmentstartdate = new Date(actualAppointmentstartdt.split('-').join('/'));
-        var actualAppointmentenddate = new Date(actualAppointmentenddt.split('-').join('/'));
-        var startdate = "";
-        var enddate = "";
+        var actualAppointmentenddate   = new Date(actualAppointmentenddt.split('-').join('/'));
+        var startdate = "", enddate = "";
         if ($('#FromDate').val() != "" && $('#ToDate').val() != "")
         {
-            var startdate = new Date($('#FromDate').val().split('-').join('/'));
-            var enddate = new Date($('#ToDate').val().split('-').join('/'));
-            var MonthCount = [];
-            var FromDate=getFormattedDate(startdate);
-            var ToDate=getFormattedDate(enddate);
-            MonthCount = dateRange(FromDate,ToDate)//define moments for the startdate and enddate
-            starttotaldays = parseInt(endOfMonth(startdate).getDate());
-            EndDateTotalMonth = parseInt(endOfMonth(enddate).getDate());
-            StartWorkingDays =0 , EndWorkingDays=0;
-            if(startdate.getMonth() == enddate.getMonth()&&startdate.getFullYear() == enddate.getFullYear()){
-                StartWorkingDays=parseInt(enddate.getDate()) - parseInt(startdate.getDate())+1;
-            }
-            else{
-                StartWorkingDays = starttotaldays - parseInt(startdate.getDate()) + 1;
-                EndWorkingDays = enddate.getDate();
-            }
-            var count = 0;
-            for (var i = 0; i < MonthCount.length; i++) {
-                var lastCount = MonthCount.length - 1;
-                if (i != 0 && i != lastCount) {
-                    count += 1;
-                }
-            }
-            var Workingdays = StartWorkingDays + EndWorkingDays;
-            months = count || 0;
-            days = Workingdays||0;
+            var ObjData = getCalDateDetails($('#FromDate').val(),$('#ToDate').val());
+            startdate   = new Date($('#FromDate').val().split('-').join('/'));
+            enddate     = new Date($('#ToDate').val().split('-').join('/'));
+            StartTotalDays    = ObjData.starttotaldays;
+            EndTotalDays      = ObjData.endtotaldays;
+            StartWorkingDays  = ObjData.startworkingdays;
+            EndWorkingDays    = ObjData.endworkingdays;
+            months = ObjData.monthcount || 0;
+            days   = StartWorkingDays + EndWorkingDays;
         }
-        else {
+        else
+        {
             return;
         }
 
         if(typcategory == "STE")
         {
-            var Medical = @Html.Raw(Json.Encode(Model.Appointmentdetails.Medical)) || 0;
-            var Salary = @Html.Raw(Json.Encode(Model.Appointmentdetails.Salary)) || 0;
+            var Medical  = @Html.Raw(Json.Encode(Model.Appointmentdetails.Medical)) || 0;
+            var Salary   = @Html.Raw(Json.Encode(Model.Appointmentdetails.Salary)) || 0;
             var HRAValue = @Html.Raw(Json.Encode(Model.Appointmentdetails.HRA)) || 0;
-            var ttlVal = 0,MedicalAmount = 0;
-            var isHRA = @Json.Encode(Model.Appointmentdetails.isHRA) || false;
-            if(HRA > 0)
-            {
-                if (isHRA != true)
-                    HRAValue = 0;
-            }
+            var ttlVal   = 0,MedicalAmount = 0;
+            var isHRA    = @Json.Encode(Model.Appointmentdetails.isHRA) || false;
+            if (isHRA != true)
+                HRAValue = 0;
             var Tot = 0;
             //check is ConsolidatedPay or Part time appointment
             if (isMsPhd || TypeOfAppointment == 2) {
@@ -900,8 +812,8 @@
                 MedicalAmount = 0;
             }
             ttlVal = MedicalAmount + Salary + HRAValue;
-            var StartPerDay = ttlVal / starttotaldays;
-            var EndPerDay = ttlVal / EndDateTotalMonth;
+            var StartPerDay = ttlVal / StartTotalDays;
+            var EndPerDay = ttlVal / EndTotalDays;
             var MonthlyAmt = ttlVal;
             if (months > 0) {
                 Tot += MonthlyAmt * months;
@@ -927,15 +839,15 @@
 
             if(actualAppointmentenddate > startdate)
             {
-                var totalcommitment = 0;
+                var totalcommitment = 0, frontadd = 0, frontminus = 0, backminus = 0, backadd = 0;
                 if(actualAppointmentstartdate > startdate)
-                    var frontadd = calcoldcommitmentamount(startdate,actualAppointmentstartdate);
+                    frontadd = calcoldcommitmentamount(startdate,actualAppointmentstartdate);
                 if(actualAppointmentstartdate < startdate)
-                    var frontminus = calcoldcommitmentamount(actualAppointmentstartdate,startdate);
+                    frontminus = calcoldcommitmentamount(actualAppointmentstartdate,startdate);
                 if(actualAppointmentenddate > enddate)
-                    var backminus = calcoldcommitmentamount(enddate,actualAppointmentenddate);
+                    backminus = calcoldcommitmentamount(enddate,actualAppointmentenddate);
                 if(actualAppointmentenddate < enddate)
-                    var backadd = calcoldcommitmentamount(actualAppointmentenddate,enddate);
+                    backadd = calcoldcommitmentamount(actualAppointmentenddate,enddate);
                 if(frontadd > 0)
                     totalcommitment = totalcommitment + frontadd;
                 if(backadd > 0)
@@ -975,8 +887,8 @@
 
             var taxVal = parseFloat($('#GST').val()) || 0;
             ttlVal = Salary +(Salary * taxVal / 100);
-            var StartPerDay = ttlVal / starttotaldays;
-            var EndPerDay = ttlVal / EndDateTotalMonth;
+            var StartPerDay = ttlVal / StartTotalDays;
+            var EndPerDay = ttlVal / EndTotalDays;
             var MonthlyAmt = ttlVal;
             if (months > 0) {
                 Tot += MonthlyAmt * count;
@@ -988,15 +900,15 @@
 
             if(actualAppointmentenddate > startdate)
             {
-                var totalcommitment = 0;
+                var totalcommitment = 0, frontadd = 0, frontminus = 0, backminus = 0, backadd = 0;
                 if(actualAppointmentstartdate > startdate)
-                    var frontadd = calcoldcommitmentamount(startdate,actualAppointmentstartdate);
+                    frontadd = calcoldcommitmentamount(startdate,actualAppointmentstartdate);
                 if(actualAppointmentstartdate < startdate)
-                    var frontminus = calcoldcommitmentamount(actualAppointmentstartdate,startdate);
+                    frontminus = calcoldcommitmentamount(actualAppointmentstartdate,startdate);
                 if(actualAppointmentenddate > enddate)
-                    var backminus = calcoldcommitmentamount(enddate,actualAppointmentenddate);
+                    backminus = calcoldcommitmentamount(enddate,actualAppointmentenddate);
                 if(actualAppointmentenddate < enddate)
-                    var backadd = calcoldcommitmentamount(actualAppointmentenddate,enddate);
+                    backadd = calcoldcommitmentamount(actualAppointmentenddate,enddate);
                 if(frontadd > 0)
                     totalcommitment = totalcommitment + frontadd;
                 if(backadd > 0)
@@ -1057,8 +969,8 @@
                 MedicalAmount = 0;
             }
             ttlVal = MedicalAmount + Salary + HRAValue;
-            var StartPerDay = ttlVal / starttotaldays;
-            var EndPerDay = ttlVal / EndDateTotalMonth;
+            var StartPerDay = ttlVal / StartTotalDays;
+            var EndPerDay = ttlVal / EndTotalDays;
             var MonthlyAmt = ttlVal;
             if (months > 0) {
                 Tot += MonthlyAmt * months;
@@ -1084,15 +996,15 @@
 
             if(actualAppointmentenddate > startdate)
             {
-                var totalcommitment = 0;
+                var totalcommitment = 0, frontadd = 0, frontminus = 0, backminus = 0, backadd = 0;
                 if(actualAppointmentstartdate > startdate)
-                    var frontadd = calcoldcommitmentamount(startdate,actualAppointmentstartdate);
+                    frontadd = calcoldcommitmentamount(startdate,actualAppointmentstartdate);
                 if(actualAppointmentstartdate < startdate)
-                    var frontminus = calcoldcommitmentamount(actualAppointmentstartdate,startdate);
+                    frontminus = calcoldcommitmentamount(actualAppointmentstartdate,startdate);
                 if(actualAppointmentenddate > enddate)
-                    var backminus = calcoldcommitmentamount(enddate,actualAppointmentenddate);
+                    backminus = calcoldcommitmentamount(enddate,actualAppointmentenddate);
                 if(actualAppointmentenddate < enddate)
-                    var backadd = calcoldcommitmentamount(actualAppointmentenddate,enddate);
+                    backadd = calcoldcommitmentamount(actualAppointmentenddate,enddate);
                 if(frontadd > 0)
                     totalcommitment = totalcommitment + frontadd;
                 if(backadd > 0)
@@ -1161,17 +1073,7 @@
                 startworingdays = startmonthend - parseInt(startDt.getDate());
                 endworkingdays = endDt.getDate();
             }
-
-            var startfrom = getFormattedDate(startDt);
-            var startto = getFormattedDate(endDt);
-            MonthCount = dateRange(startfrom,startto)
-            var count = 0;
-            for (var i = 0; i < MonthCount.length; i++) {
-                var lastCount = MonthCount.length - 1;
-                if (i != 0 && i != lastCount) {
-                    count += 1;
-                }
-            }
+            var  count = monthCount(startDt,endDt) || 0;
             totaldays = startworingdays + endworkingdays;
             var months = count || 0;
             var days = totaldays || 0;
@@ -1212,30 +1114,6 @@
             }
             return total;
         }
-    }
-
-
-
-    function dateRange(startDate, endDate) {
-        var start = startDate.split('-');
-        var end = endDate.split('-');
-        var startYear = parseInt(start[0]);
-        var endYear = parseInt(end[0]);
-        var months = [];
-        for (var i = startYear; i <= endYear; i++) {
-            var endMonth = i != endYear ? 11 : parseInt(end[1]) - 1;
-            var startMon = i === startYear ? parseInt(start[1]) - 1 : 0;
-            for (var j = startMon; j <= endMonth; j = j > 12 ? j % 12 || 11 : j + 1) {
-                var month = j + 1;
-                var displayMonth = month < 10 ? '0' + month : month;
-                months.push([displayMonth]);
-            }
-        }
-        return months;
-    }
-
-    function endOfMonth(date) {
-        return new Date(date.getFullYear(), date.getMonth() + 1, 0);
     }
 
     $("#FromDate, #ToDate").change(function () {

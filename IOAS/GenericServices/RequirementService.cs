@@ -1466,7 +1466,27 @@ namespace IOAS.GenericServices
                                 context.tblRCTSTE.Add(add);
                                 context.SaveChanges();
                                 STEID = add.STEID;
-
+                                if (model.WfId > 0)
+                                {
+                                    tblWorkFlowlog log = new tblWorkFlowlog();
+                                    log.Referenceid = model.WfId;
+                                    log.Referencenbr = add.ApplicationNumber;
+                                    log.WFreferencenbr = "WF_RCT_STE_" + model.WfId;
+                                    log.WFreferencetype = "ShortTermAppointment";
+                                    log.CRTD_TS = DateTime.Now;
+                                    log.CRTD_BY = logged_in_userId;
+                                    context.tblWorkFlowlog.Add(log);
+                                    context.SaveChanges();
+                                    //using (var WFContext = new IOASWorkFlowEntities1())
+                                    //{
+                                    //    //var Qry = WFContext.tblProposal.Where(m => m.ProposalId == model.WFproposalid).FirstOrDefault();
+                                    //    //if (Qry != null)
+                                    //    //{
+                                    //    //    Qry.WorkflowStatus = true;
+                                    //    //    WFContext.SaveChanges();
+                                    //    //}
+                                    //}
+                                }
                                 if (model.PIJustificationFile != null)
                                 {
                                     foreach (var pifile in model.PIJustificationFile)
@@ -1593,6 +1613,9 @@ namespace IOAS.GenericServices
                                         }
                                     }
                                 }
+
+
+
                                 if (STEID > 0)//Result message flag
                                     res = (add.Status == "Open" || add.Status == "Draft") ? 1 : add.Status.Contains("Note") ? 2 : 0;
                             }
@@ -4203,16 +4226,22 @@ namespace IOAS.GenericServices
                                     var hisQuery = context.tblRCTOrderHistory.FirstOrDefault(x => x.OrderId == mastQuery.OrderId);
                                     if (hisQuery != null)
                                         hisQuery.IsCanceled = true;
-
-                                    var hisQuery1 = context.tblRCTOrderHistory.FirstOrDefault(x => x.ApplicationId == mastQuery.ApplicationId && x.AppointmentType == apptype && x.OrderId != mastQuery.OrderId);
-
-
-
-
                                     var efQuery = context.tblRCTOrderEffectHistory.FirstOrDefault(x => x.OrderId == mastQuery.OrderId);
                                     if (efQuery != null)
                                         efQuery.IsCanceled = true;
+                                    context.SaveChanges();
 
+                                    if ((odrQuery.OrderType == 1 || odrQuery.OrderType == 2) && odrQuery.isExtended != true)
+                                    {
+                                        DateTime preDueDate = odrQuery.FromDate.Value.AddDays(-1);
+                                        var preQuery = context.tblRCTOrderHistory.OrderByDescending(x => x.HistoryID).Where(x => x.ApplicationId == mastQuery.ApplicationId && x.AppointmentType == apptype && x.IsCanceled != false && (x.ActualAppointmentEndDate == preDueDate || x.ActualAppointmentEndDate == odrQuery.FromDate)).FirstOrDefault();
+                                        if (preQuery != null)
+                                            preQuery.ActualAppointmentEndDate = null;
+
+                                        var preEffectQuery = context.tblRCTOrderEffectHistory.OrderByDescending(x => x.HistoryID).Where(x => x.ApplicationId == mastQuery.ApplicationId && x.AppointmentType == apptype && x.IsCanceled != false && (x.ActualAppointmentEndDate == preDueDate || x.ActualAppointmentEndDate == odrQuery.FromDate)).FirstOrDefault();
+                                        if (preEffectQuery != null)
+                                            preEffectQuery.ActualAppointmentEndDate = null;
+                                    }
                                     context.SaveChanges();
                                 }
                                 else
@@ -5028,7 +5057,8 @@ namespace IOAS.GenericServices
                                          vw.ProjectNumber,
                                          vw.TypeofAppointment,
                                          vw.DateofBirth,
-                                         vw.Email
+                                         vw.Email,
+                                         vw.InitByPI_f
                                      }).Skip(skiprec).Take(pageSize).ToList();
                     //var querylist = (from vw in context.vw_RCTRelievedEmployees
                     //                 where (vw.Category == CategoryName || CategoryName == null)
@@ -5084,7 +5114,6 @@ namespace IOAS.GenericServices
                                 SendMailType = "Send Relieve Order / Service Certificate";
                             else if (Status == "Completed" && querylist[i].RelievingType != "Termination" && ((querylist[i].Category == "CON" && context.tblRCTConsutantAppEmailLog.Where(x => x.OrderId == OrderID && x.TypeofMail == 12).ToList().Count == 1) || (querylist[i].Category == "STE" && context.tblRCTSTEEmailLog.Where(x => x.OrderId == OrderID && x.TypeofMail == 12).ToList().Count == 1) || (querylist[i].Category == "OSG" && context.tblRCTOSGEmailLog.Where(x => x.OrderId == OrderID && x.TypeofMail == 12).ToList().Count == 1)) && context.tblRCTOfferDetails.Any(x => x.OrderId == OrderID && x.isSend != true))
                                 SendMailType = "Send Service Certificate";
-
                             EmployeeList.Add(new OrderListModel()
                             {
                                 SNo = sno + i,
@@ -5108,6 +5137,7 @@ namespace IOAS.GenericServices
                                 TypeofAppointmentName = querylist[i].TypeofAppointment,
                                 EmployeeEmail = querylist[i].Email,
                                 EmployeeDateofBirth = string.Format("{0:s}", querylist[i].DateofBirth),
+                                Is_InitByPI = querylist[i].InitByPI_f ?? false
                             });
                         }
                     }
@@ -6681,6 +6711,52 @@ namespace IOAS.GenericServices
                                 OrderDetail.PIJustificationRemarks = model.PIJustificationRemarks;
                                 context.tblOrderDetail.Add(OrderDetail);
                                 context.SaveChanges();
+                                if (AppTypeId == 3)
+                                {
+                                    var saldetQuery = (from s in context.tblRCTSalaryCalcDetails
+                                                       where s.ID == model.ApplicationID && s.Status == "Active"
+                                                       && s.IsCurrentVersion == true
+                                                       select s).FirstOrDefault();
+                                    if (saldetQuery != null)
+                                    {
+                                        tblRCTSalaryCalcDetails SalaryCal = new tblRCTSalaryCalcDetails();
+                                        SalaryCal.ID = saldetQuery.ID;
+                                        SalaryCal.AppointType = "Outsourcing";
+                                        SalaryCal.TypeCode = "OSG";
+                                        SalaryCal.RecommendSalary = saldetQuery.RecommendSalary;
+                                        SalaryCal.Salutation = saldetQuery.Salutation;
+                                        SalaryCal.EmpName = saldetQuery.EmpName;
+                                        SalaryCal.EmpDesignation = saldetQuery.EmpDesignation;
+                                        SalaryCal.PhysicallyHandicapped = saldetQuery.PhysicallyHandicapped;
+                                        SalaryCal.PFBasicWages = saldetQuery.PFBasicWages;
+                                        SalaryCal.EmployeePF = saldetQuery.EmployeePF;
+                                        SalaryCal.EmployeeESIC = saldetQuery.EmployeeESIC;
+                                        SalaryCal.EmpProfessionalTax = saldetQuery.EmpProfessionalTax;//
+                                        SalaryCal.EmpTotalDeduction = saldetQuery.EmpTotalDeduction;
+                                        SalaryCal.EmpNetSalary = saldetQuery.EmpNetSalary;
+                                        SalaryCal.EmployerPF = saldetQuery.EmployerPF;
+                                        SalaryCal.EmployerInsurance = saldetQuery.EmployerInsurance;
+                                        SalaryCal.EmployerESIC = saldetQuery.EmployerESIC;
+                                        SalaryCal.EmployerCTC = saldetQuery.EmployerCTC;
+                                        SalaryCal.EmployerAgencyFee = saldetQuery.EmployerAgencyFee;
+                                        SalaryCal.EmployerGST = saldetQuery.EmployerGST;
+                                        SalaryCal.EmployerCTCWithAgencyFee = saldetQuery.EmployerCTCWithAgencyFee;
+                                        SalaryCal.TotalCostPerMonth = saldetQuery.TotalCostPerMonth;
+                                        SalaryCal.EmployerTotalContribution = saldetQuery.EmployerTotalContribution;
+                                        SalaryCal.CrtdTS = DateTime.Now;
+                                        SalaryCal.CrtdUserId = logged_in_userId;
+                                        SalaryCal.Status = "Active";
+                                        SalaryCal.IsCurrentVersion = false;
+                                        SalaryCal.OrderId = OrderID;
+                                        SalaryCal.FromDate = saldetQuery.FromDate;
+                                        SalaryCal.ToDate = model.ToDate;
+                                        SalaryCal.StatutoryId = saldetQuery.StatutoryId;
+                                        SalaryCal.GSTPercentage = saldetQuery.GSTPercentage;
+                                        SalaryCal.AgencyFeePercentage = saldetQuery.AgencyFeePercentage;
+                                        context.tblRCTSalaryCalcDetails.Add(SalaryCal);
+                                        context.SaveChanges();
+                                    }
+                                }
                                 res = 1;
                             }
                             transaction.Commit();
@@ -6927,6 +7003,8 @@ namespace IOAS.GenericServices
                                 model.DesignationCode = QryDes.DesignationCode;
                                 model.Designation = QryDes.Designation;
                             }
+                            if (NewdesignationID == 0)
+                                model.OtherDesignation = context.tblRCTOrderRequest.Where(x => x.OrderRequestId == QryOrder.OrderRequestId).Select(x => x.OtherDesignation).FirstOrDefault();
 
                             model.DesignationId = NewdesignationID;
                             model.ApplicationReceiveDate = QryOrder.OrderDate;
@@ -6971,6 +7049,7 @@ namespace IOAS.GenericServices
                             model.OrderType = QryOrder.OrderType ?? 0;
                             model.RequestedByPI = QryOrder.RequestedBy;
                             model.AutoFillRequstedbyPI = Common.GetPIName(QryOrder.RequestedBy ?? 0);
+                            model.InitByPI_f = QryOrder.InitByPI_f ?? false;
                             model.SalaryLevelId = QryOrder.SalaryLevelId;
                             if (model.SalaryLevelId > 0)
                             {
@@ -7214,7 +7293,7 @@ namespace IOAS.GenericServices
                             string prestatus = "", newstatus = "";
 
                             var edQuery = (from e in context.tblOrder
-                                           where (e.Status.Contains("Note") || e.Status.Contains("Open")) && e.isCommitmentReject != true
+                                           where (e.Status.Contains("Note") || e.Status.Contains("Open") || e.Status.Contains("PI Initiated")) && e.isCommitmentReject != true
                                            && e.isGovAgencyFund != true && e.OrderId == model.OrderID
                                            select e).FirstOrDefault();
                             if (edQuery != null)
@@ -7273,7 +7352,7 @@ namespace IOAS.GenericServices
                                         decimal amount = 0;
                                         if (model.WithdrawTillDate != null)
                                         {
-                                            var widthdrawdata = Common.calRCTCommitmentAmount(context, model.WithdrawTillDate.Value.AddDays(+1), mastQuery.AppointmentEnddate ?? DateTime.Now, oldsalary, mastQuery.HRA ?? 0, mastQuery.MedicalType ?? 0, mastQuery.DesignationId ?? 0, mastQuery.isMsPhd ?? false, mastQuery.TypeofAppointmentinInt ?? 0, model.TypeCode, lwfAmount, oldGST);
+                                            var widthdrawdata = Common.calRCTCommitmentAmount(context, model.WithdrawTillDate.Value.AddDays(+1), model.Appointmentstartdate.Value.AddDays(-1), oldsalary, mastQuery.HRA ?? 0, mastQuery.MedicalType ?? 0, mastQuery.DesignationId ?? 0, mastQuery.isMsPhd ?? false, mastQuery.TypeofAppointmentinInt ?? 0, model.TypeCode, lwfAmount, oldGST);
                                             if (!widthdrawdata.Item6)
                                                 return Tuple.Create(0, "");
                                             amount = widthdrawdata.Item1;
@@ -7282,8 +7361,6 @@ namespace IOAS.GenericServices
                                         var widthdrawAmount = CommitmentBalance - amount;
                                         if (widthdrawAmount <= 0)
                                             widthdrawAmount = CommitmentBalance;
-                                        else
-                                            widthdrawAmount = amount;
                                         edQuery.WithdrawAmmount = decimal.Round(widthdrawAmount, 2);
                                     }
 
@@ -7291,12 +7368,12 @@ namespace IOAS.GenericServices
                                     if (model.TypeCode == "OSG")
                                         newsalary = model.EmployeeCTC ?? 0;
 
-                                    DateTime? StartDate = null;
-                                    StartDate = model.Appointmentstartdate;
-                                    if (model.WithdrawTillDate != null)
-                                        StartDate = model.WithdrawTillDate.Value.AddDays(+1);
+                                    //DateTime? StartDate = null;
+                                    //StartDate = model.Appointmentstartdate;
+                                    //if (model.WithdrawTillDate != null)
+                                    //    StartDate = model.WithdrawTillDate.Value.AddDays(+1);
 
-                                    var commitmentdata = Common.calRCTCommitmentAmount(context, StartDate ?? DateTime.Now, model.AppointmentEndDate ?? DateTime.Now, newsalary, model.HRA ?? 0, model.Medical, mastQuery.DesignationId ?? 0, mastQuery.isMsPhd ?? false, mastQuery.TypeofAppointmentinInt ?? 0, model.TypeCode, model.LWFAmount ?? 0, model.GST ?? 0);
+                                    var commitmentdata = Common.calRCTCommitmentAmount(context, model.Appointmentstartdate ?? DateTime.Now, model.AppointmentEndDate ?? DateTime.Now, newsalary, model.HRA ?? 0, model.Medical, mastQuery.DesignationId ?? 0, mastQuery.isMsPhd ?? false, mastQuery.TypeofAppointmentinInt ?? 0, model.TypeCode, model.LWFAmount ?? 0, model.GST ?? 0);
                                     edQuery.CommitmentAmmount = commitmentdata.Item1;
 
                                     if (!commitmentdata.Item6)
@@ -7416,6 +7493,50 @@ namespace IOAS.GenericServices
                                                     salQuery.GSTPercentage = data.Item1;
                                                     salQuery.AgencyFeePercentage = data.Item2;
                                                 }
+                                                context.SaveChanges();
+                                            }
+                                            else
+                                            {
+                                                tblRCTSalaryCalcDetails salcalc = new tblRCTSalaryCalcDetails();
+                                                salcalc.ID = model.ApplicationID;
+                                                salcalc.StatutoryId = model.StatutoryId;
+                                                salcalc.AppointType = "Outsourcing";
+                                                salcalc.TypeCode = "OSG";
+                                                salcalc.RecommendSalary = model.RecommendedSalary;
+                                                salcalc.Salutation = model.EmpSalutation;
+                                                salcalc.EmpType = model.EmpType;
+                                                salcalc.EmpName = model.EmpName;
+                                                salcalc.EmpDesignation = model.EmpDesig;
+                                                salcalc.PhysicallyHandicapped = model.PhysicalyHandicaped;
+                                                salcalc.PFBasicWages = model.EmpPFBasicWages;
+                                                salcalc.EmployeePF = model.EmployeePF;
+                                                salcalc.EmployeeESIC = model.EmployeeESIC;
+                                                salcalc.EmpProfessionalTax = model.EmployeeProfessionalTax;
+                                                salcalc.EmpTotalDeduction = model.EmployeeTtlDeduct;
+                                                salcalc.EmpNetSalary = model.EmployeeNetSalary;
+                                                salcalc.EmployerPF = model.EmployerPF;
+                                                salcalc.EmployerInsurance = model.EmployerIns;
+                                                salcalc.EmployerESIC = model.EmployerESIC;
+                                                salcalc.EmployerTotalContribution = model.EmployerTtlContribute;
+                                                salcalc.EmployerCTC = model.EmployeeCTC;
+                                                salcalc.EmployerAgencyFee = model.AgencyFee;
+                                                salcalc.EmployerCTCWithAgencyFee = model.CTCwithAgencyFee;
+                                                salcalc.EmployerGST = model.SalaryGST;
+                                                salcalc.TotalCostPerMonth = model.TotalCTC;
+                                                salcalc.FromDate = model.FromDate;
+                                                salcalc.ToDate = model.ToDate;
+                                                salcalc.OrderId = edQuery.OrderId;
+                                                salcalc.IsCurrentVersion = false;
+                                                salcalc.Status = "Active";
+                                                salcalc.CrtdTS = DateTime.Now;
+                                                salcalc.CrtdUserId = logged_in_userId;
+                                                var datas = getGSTAgencyFee(model.VendorId ?? 0);
+                                                if (datas != null)
+                                                {
+                                                    salcalc.GSTPercentage = datas.Item1;
+                                                    salcalc.AgencyFeePercentage = datas.Item2;
+                                                }
+                                                context.tblRCTSalaryCalcDetails.Add(salcalc);
                                                 context.SaveChanges();
                                             }
                                         }
@@ -7572,11 +7693,11 @@ namespace IOAS.GenericServices
                                         lwfAmount = getEmployeeLWFAmount(mastQuery.ApplicationId ?? 0);
                                         newsalary = model.EmployeeCTC ?? 0;
                                     }
-                                    DateTime? StartDate = null;
-                                    StartDate = model.Appointmentstartdate;
-                                    if (model.WithdrawTillDate != null)
-                                        StartDate = model.WithdrawTillDate.Value.AddDays(+1);
-                                    var commitmentdata = Common.calRCTCommitmentAmount(context, StartDate ?? DateTime.Now, model.AppointmentEndDate ?? DateTime.Now, newsalary, model.HRA ?? 0, model.Medical, model.DesignationId ?? 0, mastQuery.isMsPhd ?? false, mastQuery.TypeofAppointmentinInt ?? 0, model.TypeCode, model.LWFAmount ?? 0, model.GST ?? 0);
+                                    //DateTime? StartDate = null;
+                                    //StartDate = model.Appointmentstartdate;
+                                    //if (model.WithdrawTillDate != null)
+                                    //    StartDate = model.WithdrawTillDate.Value.AddDays(+1);
+                                    var commitmentdata = Common.calRCTCommitmentAmount(context, model.Appointmentstartdate ?? DateTime.Now, model.AppointmentEndDate ?? DateTime.Now, newsalary, model.HRA ?? 0, model.Medical, model.DesignationId ?? 0, mastQuery.isMsPhd ?? false, mastQuery.TypeofAppointmentinInt ?? 0, model.TypeCode, model.LWFAmount ?? 0, model.GST ?? 0);
                                     Order.CommitmentAmmount = commitmentdata.Item1;
                                     if (!commitmentdata.Item6)
                                         return Tuple.Create(0, "");
@@ -7591,7 +7712,7 @@ namespace IOAS.GenericServices
                                         decimal amount = 0;
                                         if (model.WithdrawTillDate != null)
                                         {
-                                            var withdrawdata = Common.calRCTCommitmentAmount(context, model.WithdrawTillDate.Value.AddDays(+1), mastQuery.AppointmentEnddate ?? DateTime.Now, oldsalary, mastQuery.HRA ?? 0, mastQuery.MedicalType ?? 0, mastQuery.DesignationId ?? 0, mastQuery.isMsPhd ?? false, mastQuery.TypeofAppointmentinInt ?? 0, model.TypeCode, lwfAmount, oldGST);
+                                            var withdrawdata = Common.calRCTCommitmentAmount(context, model.WithdrawTillDate.Value.AddDays(+1), model.Appointmentstartdate.Value.AddDays(-1), oldsalary, mastQuery.HRA ?? 0, mastQuery.MedicalType ?? 0, mastQuery.DesignationId ?? 0, mastQuery.isMsPhd ?? false, mastQuery.TypeofAppointmentinInt ?? 0, model.TypeCode, lwfAmount, oldGST);
                                             amount = withdrawdata.Item1;
                                             amount = Math.Ceiling(amount);
                                             if (!withdrawdata.Item6)
@@ -7875,7 +7996,7 @@ namespace IOAS.GenericServices
                             string prestatus = "", newstatus = "";
                             var odQuery = (from o in context.tblOrder
                                            from od in context.tblOrderDetail
-                                           where o.OrderId == od.OrderId && (o.Status.Contains("Note to PI") || o.Status.Contains("Open"))
+                                           where o.OrderId == od.OrderId && (o.Status.Contains("Note to PI") || o.Status.Contains("Open") || o.Status.Contains("PI Initiated"))
                                            && o.isGovAgencyFund != true && o.isCommitmentReject != true && o.OrderType == 3
                                            && o.OrderId == model.OrderID
                                            select new { o, od }).FirstOrDefault();
@@ -7968,6 +8089,50 @@ namespace IOAS.GenericServices
                                             salQuery.GSTPercentage = data.Item1;
                                             salQuery.AgencyFeePercentage = data.Item2;
                                         }
+                                        context.SaveChanges();
+                                    }
+                                    else if (apptype == 3)
+                                    {
+                                        tblRCTSalaryCalcDetails salcalc = new tblRCTSalaryCalcDetails();
+                                        salcalc.StatutoryId = model.StatutoryId;
+                                        salcalc.ID = model.ApplicationID;
+                                        salcalc.AppointType = "Outsourcing";
+                                        salcalc.TypeCode = "OSG";
+                                        salcalc.RecommendSalary = model.RecommendedSalary;
+                                        salcalc.Salutation = model.EmpSalutation;
+                                        salcalc.EmpType = model.EmpType;
+                                        salcalc.EmpName = model.EmpName;
+                                        salcalc.EmpDesignation = model.EmpDesig;
+                                        salcalc.PhysicallyHandicapped = model.PhysicalyHandicaped;
+                                        salcalc.PFBasicWages = model.EmpPFBasicWages;
+                                        salcalc.EmployeePF = model.EmployeePF;
+                                        salcalc.EmployeeESIC = model.EmployeeESIC;
+                                        salcalc.EmpProfessionalTax = model.EmployeeProfessionalTax;
+                                        salcalc.EmpTotalDeduction = model.EmployeeTtlDeduct;
+                                        salcalc.EmpNetSalary = model.EmployeeNetSalary;
+                                        salcalc.EmployerPF = model.EmployerPF;
+                                        salcalc.EmployerInsurance = model.EmployerIns;
+                                        salcalc.EmployerESIC = model.EmployerESIC;
+                                        salcalc.EmployerTotalContribution = model.EmployerTtlContribute;
+                                        salcalc.EmployerCTC = model.EmployeeCTC;
+                                        salcalc.EmployerAgencyFee = model.AgencyFee;
+                                        salcalc.EmployerCTCWithAgencyFee = model.CTCwithAgencyFee;
+                                        salcalc.EmployerGST = model.SalaryGST;
+                                        salcalc.TotalCostPerMonth = model.TotalCTC;
+                                        salcalc.FromDate = model.FromDate;
+                                        salcalc.ToDate = model.ToDate;
+                                        salcalc.OrderId = odQuery.o.OrderId;
+                                        salcalc.IsCurrentVersion = false;
+                                        salcalc.Status = "Active";
+                                        salcalc.CrtdTS = DateTime.Now;
+                                        salcalc.CrtdUserId = logged_in_userId;
+                                        var datas = getGSTAgencyFee(model.VendorId ?? 0);
+                                        if (datas != null)
+                                        {
+                                            salcalc.GSTPercentage = datas.Item1;
+                                            salcalc.AgencyFeePercentage = datas.Item2;
+                                        }
+                                        context.tblRCTSalaryCalcDetails.Add(salcalc);
                                         context.SaveChanges();
                                     }
                                 }
@@ -8468,7 +8633,7 @@ namespace IOAS.GenericServices
                             var newstatus = "";
                             var _qryOrderID = context.tblOrderMaster.FirstOrDefault(m => m.CodeDescription == "Enhancement").CodeID;
                             var odQuery = (from o in context.tblOrder
-                                           where (o.Status.Contains("Note") || o.Status == "Open")
+                                           where (o.Status.Contains("Note") || o.Status == "Open" || o.Status.Contains("PI Initiated"))
                                            && o.OrderType == _qryOrderID && o.isGovAgencyFund != true && o.isCommitmentReject != true
                                            && o.OrderId == model.OrderID
                                            select o).FirstOrDefault();
@@ -8536,6 +8701,51 @@ namespace IOAS.GenericServices
                                             salQuery.GSTPercentage = data.Item1;
                                             salQuery.AgencyFeePercentage = data.Item2;
                                         }
+                                        context.SaveChanges();
+                                    }
+                                    else
+                                    {
+                                        var _qryOSG = context.tblRCTOutsourcing.FirstOrDefault(m => m.OSGID == model.ApplicationID);
+                                        tblRCTSalaryCalcDetails salcalc = new tblRCTSalaryCalcDetails();
+                                        salcalc.StatutoryId = model.StatutoryId;
+                                        salcalc.ID = _qryOSG.OSGID;
+                                        salcalc.AppointType = "Outsourcing";
+                                        salcalc.TypeCode = "OSG";
+                                        salcalc.RecommendSalary = model.RecommendedSalary;
+                                        salcalc.Salutation = model.EmpSalutation;
+                                        salcalc.EmpType = model.EmpType;
+                                        salcalc.EmpName = model.EmpName;
+                                        salcalc.EmpDesignation = model.EmpDesig;
+                                        salcalc.PhysicallyHandicapped = model.PhysicalyHandicaped;
+                                        salcalc.PFBasicWages = model.EmpPFBasicWages;
+                                        salcalc.EmployeePF = model.EmployeePF;
+                                        salcalc.EmployeeESIC = model.EmployeeESIC;
+                                        salcalc.EmpProfessionalTax = model.EmployeeProfessionalTax;
+                                        salcalc.EmpTotalDeduction = model.EmployeeTtlDeduct;
+                                        salcalc.EmpNetSalary = model.EmployeeNetSalary;
+                                        salcalc.EmployerPF = model.EmployerPF;
+                                        salcalc.EmployerInsurance = model.EmployerIns;
+                                        salcalc.EmployerESIC = model.EmployerESIC;
+                                        salcalc.EmployerTotalContribution = model.EmployerTtlContribute;
+                                        salcalc.EmployerCTC = model.EmployeeCTC;
+                                        salcalc.EmployerAgencyFee = model.AgencyFee;
+                                        salcalc.EmployerCTCWithAgencyFee = model.CTCwithAgencyFee;
+                                        salcalc.EmployerGST = model.SalaryGST;
+                                        salcalc.TotalCostPerMonth = model.TotalCTC;
+                                        salcalc.FromDate = model.FromDate;
+                                        salcalc.ToDate = model.ToDate;
+                                        salcalc.OrderId = odQuery.OrderId;
+                                        salcalc.IsCurrentVersion = false;
+                                        salcalc.Status = "Active";
+                                        salcalc.CrtdTS = DateTime.Now;
+                                        salcalc.CrtdUserId = logged_in_userId;
+                                        var datas = getGSTAgencyFee(model.VendorId ?? 0);
+                                        if (datas != null)
+                                        {
+                                            salcalc.GSTPercentage = datas.Item1;
+                                            salcalc.AgencyFeePercentage = datas.Item2;
+                                        }
+                                        context.tblRCTSalaryCalcDetails.Add(salcalc);
                                         context.SaveChanges();
                                     }
                                 }
@@ -10309,6 +10519,8 @@ namespace IOAS.GenericServices
                             model.ApplicationReceiveDate = odrQuery.o.OrderDate;
                             model.OrderID = odrQuery.o.OrderId;
                             model.Status = odrQuery.o.Status;
+                            model.InitByPI_f = odrQuery.o.InitByPI_f ?? false;
+
                             model.WithdrawalAmount = odrQuery.o.WithdrawAmmount ?? 0;
                             model.RelievingMode = odrQuery.d.RelievingMode ?? 0;
                             model.ForenoonOrAfternoon = odrQuery.d.isForenoon == true ? "FN" : "AF";
@@ -10321,6 +10533,10 @@ namespace IOAS.GenericServices
                             model.SourceEmailDate = odrQuery.d.RequestEmailDate;
                             model.NODuesFilePath = odrQuery.d.NOCForm != "" ? odrQuery.d.NOCForm.Split(',') : null;
                             model.NODuesFileName = odrQuery.d.NOCFormName != "" ? odrQuery.d.NOCFormName.Split(',') : null;
+                            model.PIRemarks = odrQuery.d.PIJustificationRemarks;
+                            if (odrQuery.o.OrderRequestId > 0)
+                                model.PINoDuesRemarks = (from r in context.tblRCTOrderRequest where r.OrderRequestId == odrQuery.o.OrderRequestId select r.NoDuesRemark).FirstOrDefault();
+
                         }
                     }
                     //master table details
@@ -10419,12 +10635,103 @@ namespace IOAS.GenericServices
                         try
                         {
                             int AppointmentType = getAppointmentType(model.TypeCode);
+                            string CommitmentNumber = string.Empty;
+                            DateTime? appointmentfromdate = DateTime.Now;
+                            DateTime? appointmenttodate = DateTime.Now;
                             var odQuery = (from m in context.tblOrder
-                                           where m.OrderId == model.OrderID && m.Status == "Open"
+                                           where m.OrderId == model.OrderID && (m.Status == "Open" || m.Status == "PI Initiated")
                                            select m).FirstOrDefault();
                             if (odQuery != null)
                             {
                                 prestatus = odQuery.Status;
+
+                                if (odQuery.Status == "PI Initiated")
+                                {
+                                    odQuery.Status = "Relieving initiated";
+                                    if (AppointmentType == 1)
+                                    {
+                                        var mastQuery = (from c in context.tblRCTConsultantAppointment
+                                                         where c.ConsultantAppointmentId == model.ApplicationID
+                                                         select c).FirstOrDefault();
+                                        if (mastQuery != null)
+                                        {
+                                            odQuery.GST = mastQuery.GSTPercentage;
+                                            odQuery.Basic = mastQuery.Salary;
+                                            odQuery.MedicalAmount = 0;
+                                            odQuery.NewDesignation = mastQuery.DesignationId;
+                                            odQuery.OldDesignation = mastQuery.DesignationId;
+                                            odQuery.OldHRA = 0;
+                                            odQuery.HRA = 0;
+                                            odQuery.NewProjectId = mastQuery.ProjectId;
+                                            odQuery.OldProjectId = mastQuery.ProjectId;
+                                            odQuery.isMedical = false;
+                                            odQuery.isHRA = false;
+                                            CommitmentNumber = mastQuery.CommitmentNo;
+                                            appointmentfromdate = mastQuery.AppointmentStartdate;
+                                            appointmenttodate = mastQuery.AppointmentEnddate;
+                                        }
+                                    }
+                                    else if (AppointmentType == 2)
+                                    {
+
+                                        var mastQuery = (from c in context.tblRCTSTE
+                                                         where c.STEID == model.ApplicationID
+                                                         select c).FirstOrDefault();
+                                        if (mastQuery != null)
+                                        {
+                                            odQuery.Basic = mastQuery.Salary;
+                                            odQuery.MedicalAmount = mastQuery.MedicalAmmount;
+                                            odQuery.MedicalType = mastQuery.Medical;
+                                            odQuery.NewDesignation = mastQuery.DesignationId;
+                                            odQuery.OldDesignation = mastQuery.DesignationId;
+                                            odQuery.OldHRA = mastQuery.HRA;
+                                            odQuery.HRA = mastQuery.HRA;
+                                            odQuery.NewProjectId = mastQuery.ProjectId;
+                                            odQuery.OldProjectId = mastQuery.ProjectId;
+                                            odQuery.isMedical = mastQuery.Medical == 2 ? true : false;
+                                            odQuery.isHRA = mastQuery.isHaveHRA ?? false;
+                                            CommitmentNumber = mastQuery.CommitmentNo;
+                                            appointmentfromdate = mastQuery.AppointmentStartdate;
+                                            appointmenttodate = mastQuery.AppointmentEnddate;
+                                        }
+                                    }
+                                    else if (AppointmentType == 3)
+                                    {
+                                        var mastQuery = (from c in context.tblRCTOutsourcing
+                                                         where c.OSGID == model.ApplicationID
+                                                         select c).FirstOrDefault();
+                                        if (mastQuery != null)
+                                        {
+                                            odQuery.Basic = mastQuery.Salary;
+                                            odQuery.MedicalAmount = mastQuery.MedicalAmmount;
+                                            odQuery.MedicalType = mastQuery.Medical;
+                                            odQuery.NewDesignation = mastQuery.DesignationId;
+                                            odQuery.OldDesignation = mastQuery.DesignationId;
+                                            odQuery.OldHRA = mastQuery.HRA;
+                                            odQuery.HRA = mastQuery.HRA;
+                                            odQuery.NewProjectId = mastQuery.ProjectId;
+                                            odQuery.OldProjectId = mastQuery.ProjectId;
+                                            odQuery.isMedical = mastQuery.Medical == 2 ? true : false;
+                                            odQuery.isHRA = mastQuery.isHaveHRA ?? false;
+                                            CommitmentNumber = mastQuery.CommitmentNo;
+                                            appointmentfromdate = mastQuery.AppointmentStartdate;
+                                            appointmenttodate = mastQuery.AppointmentEnddate;
+                                        }
+                                    }
+                                }
+
+
+                                if (model.CommitmentOption == 3)
+                                {
+                                    odQuery.WithdrawAmmount = Common.GetCommitmentBalance(CommitmentNumber);
+                                }
+                                else if (model.CommitmentOption == 1)
+                                {
+                                    if (model.RelievingDate > appointmentfromdate)
+                                        appointmentfromdate = model.RelievingDate;
+                                    odQuery.WithdrawAmmount = Common.calculateWithdrawalAmount(model.ApplicationID, model.TypeCode, appointmentfromdate ?? DateTime.Now, appointmenttodate ?? DateTime.Now);
+                                }
+
                                 string[] noduesfilepath = new string[model.NODuesFile == null ? 0 : model.NODuesFile.Count()];
                                 string[] noduesfilename = new string[model.NODuesFile == null ? 0 : model.NODuesFile.Count()];
                                 if (model.NODuesFile != null)
@@ -10462,7 +10769,16 @@ namespace IOAS.GenericServices
                                     detQuery.NOCDocSubmitted = noduesfilepath.Count() > 0 ? true : false;
                                     NOC = string.Join(",", noduesfilepath);
                                     detQuery.NOCDocSubmitted = !string.IsNullOrEmpty(NOC) ? true : false;
+                                    if (odQuery.InitByPI_f == true)
+                                    {
+                                        detQuery.CommitmentOption = Convert.ToString(model.CommitmentOption);
+                                        detQuery.RelievingMode = model.RelievingMode;
+                                        detQuery.isForenoon = model.ForenoonOrAfternoon == "FN" ? true : false;
+                                        detQuery.RelievingDate = model.RelievingDate;
+                                    }
                                 }
+                                if (odQuery.OrderRequestId > 0)//PI initiate relieve are no need to upload no dues
+                                    NOC = context.tblRCTOrderRequest.Where(x => x.OrderRequestId == odQuery.OrderRequestId).Select(x => x.NoDuesRemark).FirstOrDefault();
                                 odQuery.Status = !string.IsNullOrEmpty(NOC) ? "Completed" : "Open";
                                 newstatus = odQuery.Status;
                                 context.SaveChanges();
@@ -10480,9 +10796,6 @@ namespace IOAS.GenericServices
                             {
 
                                 decimal? WithdrawalAmount = null;
-                                string CommitmentNumber = string.Empty;
-                                DateTime? appointmentfromdate = DateTime.Now;
-                                DateTime? appointmenttodate = DateTime.Now;
                                 tblOrder order = new tblOrder();
                                 tblOrderDetail orderdetail = new tblOrderDetail();
                                 order.AppointmentId = model.ApplicationID;
@@ -10756,7 +11069,8 @@ namespace IOAS.GenericServices
                             odrmodel.TypeCode = appType;
                             odrmodel.ApplicationReceiveDate = QryOrder.OrderDate;
                             odrmodel.ApplicationRevDate = string.Format("{0:dd-MMMM-yyyy}", QryOrder.OrderDate);
-
+                            odrmodel.InitByPI_f = QryOrder.InitByPI_f ?? false;
+                            odrmodel.OrderRequestId = QryOrder.OrderRequestId;
                             odrmodel.OrderID = QryOrder.OrderId;
                             odrmodel.Status = QryOrder.Status;
                             odrmodel.FromDateStr = string.Format("{0:dd-MMMM-yyyy}", QryOrder.FromDate);
@@ -10783,6 +11097,7 @@ namespace IOAS.GenericServices
                                 odrmodel.RequestReference = QryOrderDetail.RequestReference ?? 0;
                                 odrmodel.ReferenceNo = QryOrderDetail.RequestReferenceNo;
                                 odrmodel.SourceEmailDate = QryOrderDetail.RequestEmailDate;
+                                odrmodel.PIRemarks = QryOrderDetail.PIJustificationRemarks;
                                 //odrmodel.Rejoin = QryOrderDetail.isRejoined;
                                 odrmodel.RejoinDate = QryOrderDetail.RejoinDate;
                                 odrmodel.RejoiningLetterPath = QryOrderDetail.RejoinLetterPath;
@@ -10873,6 +11188,11 @@ namespace IOAS.GenericServices
                             string prestatus = string.Empty;
 
                             int AppTypeId = getAppointmentType(model.TypeCode);
+                            var queryPIorder = (from o in context.tblOrder
+                                                from od in context.tblOrderDetail
+                                                where o.OrderId == od.OrderId && o.OrderId == model.OrderID
+                                                && o.Status == "PI Initiated" && o.OrderType == 8
+                                                select new { o, od }).FirstOrDefault();
                             var queryorder = (from o in context.tblOrder
                                               from od in context.tblOrderDetail
                                               where o.OrderId == od.OrderId && o.OrderId == model.OrderID
@@ -10993,6 +11313,63 @@ namespace IOAS.GenericServices
                                 }
                                 context.SaveChanges();
                                 res = 2;
+                            }
+                            else if (queryPIorder != null)
+                            {
+                                Status = "Initiated";
+                                queryPIorder.o.Status = Status;
+                                decimal WidthdrawAmmount = 0;
+                                var query = context.vw_RCTOverAllApplicationEntry.Where(m => m.ApplicationId == model.ApplicationID && m.Category == model.TypeCode && m.ApplicationType == "New")
+                                      .Select(m => new
+                                      {
+                                          m.BasicPay,
+                                          m.HRA,
+                                          m.ProjectId,
+                                          m.DesignationId,
+                                          m.MedicalAmmount,
+                                          m.MedicalType
+                                      }).FirstOrDefault();
+                                if (query != null)
+                                {
+                                    queryPIorder.o.Basic = query.BasicPay;
+                                    queryPIorder.o.OldHRA = query.HRA;
+                                    queryPIorder.o.OldProjectId = query.ProjectId;
+                                    queryPIorder.o.OldDesignation = query.DesignationId;
+                                    queryPIorder.o.HRA = query.HRA;
+                                    queryPIorder.o.MedicalAmount = query.MedicalAmmount;
+                                    queryPIorder.o.MedicalType = query.MedicalType;
+                                    queryPIorder.o.CommitmentAmmount = 0;
+                                }
+
+                                if (model.FromMeridiem == 2)
+                                    model.FromDate = model.FromDate.Value.AddHours(+12);
+                                if (model.ToMeridiem == 1)
+                                    model.ToDate = model.ToDate.Value.AddHours(+12);
+                                WidthdrawAmmount = Common.calculateWithdrawalAmount(model.ApplicationID, model.TypeCode, model.FromDate ?? DateTime.Now, model.ToDate ?? DateTime.Now, true);
+                                queryPIorder.o.FromDate = model.FromDate;
+                                queryPIorder.o.ToDate = model.ToDate;
+                                queryPIorder.o.WithdrawAmmount = WidthdrawAmmount;
+                                context.SaveChanges();
+                                if (model.PILetter != null)
+                                {
+                                    string docpath = "";
+                                    string docname = "";
+                                    docname = System.IO.Path.GetFileName(model.PILetter.FileName);
+                                    var docfileId = Guid.NewGuid().ToString();
+                                    docpath = docfileId + "_" + docname;
+                                    model.PILetter.UploadFile("Requirement", docpath);
+                                    queryPIorder.od.PILetter = docpath;
+                                    queryPIorder.od.PILetterFileName = docname;
+                                }
+                                queryPIorder.od.RequestReference = model.RequestReference;
+                                queryPIorder.od.RequestReferenceNo = model.ReferenceNo;
+                                queryPIorder.od.RequestEmailDate = model.SourceEmailDate;
+                                queryPIorder.od.FromMeridiem = model.FromMeridiem;
+                                queryPIorder.od.ToMeridiem = model.ToMeridiem;
+                                queryPIorder.od.RejoinDate = model.ToDate;
+                                queryPIorder.od.isRejoined = true;
+                                context.SaveChanges();
+                                res = 1;
                             }
                             else if (model.OrderID > 0)
                             {
@@ -12275,7 +12652,10 @@ namespace IOAS.GenericServices
                         model.Designation = listmodel[0].Designation;
                     }
                     else
+                    {
                         model.SalaryPerMonth = listmodel[listmodel.Count - 1].Salary;
+                        model.Designation = listmodel[listmodel.Count - 1].Designation;
+                    }
                     model.ExperienceList = listmodel.Count > 1 ? listmodel : null;
                 }
                 return model;
@@ -14532,6 +14912,22 @@ namespace IOAS.GenericServices
                                                     empdetls.AppointmentEnddate = orderquery.ToDate;
                                                     empdetls.UptdUser = logged_in_userId;
                                                     empdetls.UptdTs = DateTime.Now;
+                                                    var salpredetQuery = (from s in context.tblRCTSalaryCalcDetails
+                                                                          where s.ID == orderquery.AppointmentId && s.IsCurrentVersion == true
+                                                                          select s).FirstOrDefault();
+                                                    if (salpredetQuery != null)
+                                                    {
+                                                        salpredetQuery.IsCurrentVersion = false;
+                                                    }
+                                                    context.SaveChanges();
+                                                    var saldetQuery = (from s in context.tblRCTSalaryCalcDetails
+                                                                       where s.OrderId == commitrequest.OrderId
+                                                                       select s).FirstOrDefault();
+                                                    if (saldetQuery != null)
+                                                    {
+                                                        saldetQuery.IsCurrentVersion = true;
+                                                    }
+
                                                     context.SaveChanges();
                                                 }
                                             }
@@ -17139,7 +17535,27 @@ namespace IOAS.GenericServices
                                 }
                                 //----end----
 
-
+                                if (model.WfId > 0)
+                                {
+                                    tblWorkFlowlog log = new tblWorkFlowlog();
+                                    log.Referenceid = model.WfId;
+                                    log.Referencenbr = OSG.ApplicationNumber;
+                                    log.WFreferencenbr = "WF_RCT_OSG_" + model.WfId;
+                                    log.WFreferencetype = "OutsourcingAppointment";
+                                    log.CRTD_TS = DateTime.Now;
+                                    log.CRTD_BY = logged_in_userId;
+                                    context.tblWorkFlowlog.Add(log);
+                                    context.SaveChanges();
+                                    //using (var WFContext = new IOASWorkFlowEntities1())
+                                    //{
+                                    //    //var Qry = WFContext.tblProposal.Where(m => m.ProposalId == model.WFproposalid).FirstOrDefault();
+                                    //    //if (Qry != null)
+                                    //    //{
+                                    //    //    Qry.WorkflowStatus = true;
+                                    //    //    WFContext.SaveChanges();
+                                    //    //}
+                                    //}
+                                }
                                 if (model.PIJustificationFile != null)
                                 {
                                     foreach (var FileDoc in model.PIJustificationFile)
@@ -18155,7 +18571,9 @@ namespace IOAS.GenericServices
                         var detQuery = (from d in context.tblRCTSalaryCalcDetails where d.ID == OSGID && (d.OrderId == OdrId || OdrId == 0) && d.TypeCode == "OSG"/* && d.IsCurrentVersion == true*/select d).FirstOrDefault();
                         if (mastQuery != null && detQuery != null)
                         {
-                            var statutoryQuery = (from S in context.tblRCTStatutory where S.StatutoryId == detQuery.StatutoryId select S).FirstOrDefault();
+                            var statutoryQuery = (from S in context.tblRCTStatutory
+                                                  where S.StatutoryId == detQuery.StatutoryId
+                                                  select S).FirstOrDefault();
                             model.Name = mastQuery.ProfessionalType + " " + mastQuery.CandidateName;
                             model.Typeofappointment = mastQuery.TypeofAppointment;
                             model.ProjectNumber = Common.GetProjectNameandNumber(mastQuery.ProjectId ?? 0);
@@ -18189,6 +18607,12 @@ namespace IOAS.GenericServices
                             model.EmployeeESICPrecentage = statutoryQuery != null ? statutoryQuery.ESICEmployeePercentage : null;
                             model.EmployerESICPrecentage = statutoryQuery != null ? statutoryQuery.ESICEmployerPercentage : null;
                             model.LWFEmployerContribution = statutoryQuery != null ? statutoryQuery.LWFEmployerContribution : null;
+                            var comQuery = (from c in context.tblRCTCommitmentRequest
+                                            where c.ReferenceNumber == mastQuery.ApplicationNo
+                                            && c.OrderId == OdrId && !string.IsNullOrEmpty(c.CommitmentNumber)
+                                            orderby c.RecruitmentRequestId descending
+                                            select c.CommitmentNumber).FirstOrDefault();
+                            model.CommitmentAvailableBalance = Common.GetCommitmentBalance(comQuery);
                         }
                     }
                     else
@@ -18236,7 +18660,12 @@ namespace IOAS.GenericServices
                             model.EmployeeESICPrecentage = statutoryQuery != null ? statutoryQuery.ESICEmployeePercentage : null;
                             model.EmployerESICPrecentage = statutoryQuery != null ? statutoryQuery.ESICEmployerPercentage : null;
                             model.LWFEmployerContribution = statutoryQuery != null ? statutoryQuery.LWFEmployerContribution : null;
-
+                            var comQuery = (from c in context.tblRCTCommitmentRequest
+                                            where c.ReferenceNumber == mastQuery.M.ApplicationNumber && c.RequestType == "New Appointment"
+                                            && !string.IsNullOrEmpty(c.CommitmentNumber)
+                                            orderby c.RecruitmentRequestId descending
+                                            select c.CommitmentNumber).FirstOrDefault();
+                            model.CommitmentAvailableBalance = Common.GetCommitmentBalance(comQuery);
                         }
                     }
 
@@ -22867,7 +23296,7 @@ namespace IOAS.GenericServices
 
         #endregion
 
-        public static bool PostOfferDetails(int appid, string apptype, string offercategory, int userId, int? Orderid = null)
+        public static bool PostOfferDetails(int appid, string apptype, string offercategory, int userId, int? orderId = null)
         {
             try
             {
@@ -22875,7 +23304,7 @@ namespace IOAS.GenericServices
                 {
                     var chkQuery = (from c in context.tblRCTOfferDetails
                                     where c.ApplicationId == appid && c.Category == apptype && c.OfferCategory == offercategory
-                                    && ((Orderid == null && c.OrderId == null) || c.OrderId == Orderid)
+                                    && ((orderId == null && c.OrderId == null) || c.OrderId == orderId)
                                     select c).FirstOrDefault();
                     if (chkQuery != null)
                     {
@@ -22889,7 +23318,7 @@ namespace IOAS.GenericServices
                     tblRCTOfferDetails offer = new tblRCTOfferDetails();
                     offer.ApplicationId = appid;
                     offer.Category = apptype;
-                    offer.OrderId = Orderid;
+                    offer.OrderId = orderId;
                     offer.OfferCategory = offercategory;
                     if (offercategory == "OfferLetter")
                     {
@@ -22907,7 +23336,7 @@ namespace IOAS.GenericServices
                     {
                         var query = (from o in context.tblOrder
                                      from od in context.tblOrderMaster
-                                     where o.OrderType == od.CodeID && o.OrderId == Orderid
+                                     where o.OrderType == od.CodeID && o.OrderId == orderId
                                      select new { o.OrderType, OrderTypeStr = od.CodeDescription }).FirstOrDefault();
                         if (query != null)
                         {
@@ -25938,16 +26367,15 @@ namespace IOAS.GenericServices
                         {
                             var relievedemp = context.vw_RCTEmployeeHistory.AsNoTracking().Where(x => x.EmployeeId == EmployeeNo && x.OrderTypeId == 9 && x.ApplicationId == m.ApplicationId && x.IsCanceled != true).Select(x => x.EffectiveFrom).FirstOrDefault();
                             if (m.EffectiveFrom <= relievedemp && m.EffectiveTo >= relievedemp)
-                            {
                                 span += relievedemp.Value.AddDays(+1) - m.EffectiveFrom;
-                            }
                             else
-                            {
                                 span += m.EffectiveTo.Value.AddDays(+1) - m.EffectiveFrom;
-                            }
                         }
                         else
+                        {
                             span += m.EffectiveTo.Value.AddDays(+1) - m.EffectiveFrom;
+                        }
+
                     });
                     int ms = (int)span.Value.TotalMilliseconds;
                     var spanc = span.Value.TotalMilliseconds;
@@ -25960,11 +26388,11 @@ namespace IOAS.GenericServices
             }
             catch (Exception ex)
             {
-                return "0 Years 0 months 0 days";
+                return "";
             }
         }
 
-        public static decimal IITExperience(int ID, string Category, string EmployeeNo = null)
+        public static decimal IITExperience(int ID, string Category, string EmployeeNo = null, DateTime? From = null, DateTime? To = null)
         {
             try
             {
@@ -25974,15 +26402,26 @@ namespace IOAS.GenericServices
                     decimal dateDiff = 0;
                     DateTime? EffectiveFrom = null;
                     DateTime? EffectiveTo = null;
-
+                    List<RCTPopupListModel> list1 = new List<RCTPopupListModel>();
                     var list = context.vw_RCTEmployeeHistory.AsNoTracking().Where(x => x.EmployeeId == EmployeeNo && exptype.Contains(x.OrderTypeId) && x.IsCanceled != true && x.isExtended == true)
-                   .OrderByDescending(x => new { x.OrderId, x.OrderDate, x.EffectiveFrom }).Select(m => new RCTPopupListModel()
-                   {
-                       AppId = m.ApplicationId ?? 0,
-                       EffectFromDate = m.EffectiveFrom ?? DateTime.Now,
-                       EffectToDate = m.EffectiveTo ?? DateTime.Now,
-                   }).ToList();
-
+                        .Select(m => new RCTPopupListModel()
+                        {
+                            AppId = m.ApplicationId ?? 0,
+                            EffectFromDate = m.EffectiveFrom ?? DateTime.Now,
+                            EffectToDate = m.EffectiveTo ?? DateTime.Now,
+                            OrderDate = m.OrderDate ?? DateTime.Now
+                        }).ToList();
+                    if (From != null && To != null)
+                    {
+                        list.Add(new RCTPopupListModel()
+                        {
+                            AppId = 0,
+                            EffectFromDate = From ?? DateTime.Now,
+                            EffectToDate = To ?? DateTime.Now,
+                            OrderDate = DateTime.Now
+                        });
+                    }
+                    list = list.OrderByDescending(x => x.OrderDate).ThenByDescending(x => x.EffectFromDate).ToList();
                     list.ForEach(m =>
                     {
                         if (context.vw_RCTEmployeeHistory.AsNoTracking().Where(x => x.EmployeeId == EmployeeNo && x.OrderTypeId == 9 && x.ApplicationId == m.AppId && x.IsCanceled != true).Any())
@@ -26021,7 +26460,8 @@ namespace IOAS.GenericServices
             }
             catch (Exception ex)
             {
-                return 0;
+                decimal dateDiff = Convert.ToDecimal(5.5);
+                return dateDiff;
             }
         }
 
@@ -26411,6 +26851,7 @@ namespace IOAS.GenericServices
 
         #endregion
 
+        //Don't remove this method. This method refers from view
         public static string GetTenWorkingDates(DateTime OfferDate, DateTime AppointmentStartDate)
         {
             int i = 0;
@@ -27283,7 +27724,8 @@ namespace IOAS.GenericServices
                                          vw.ProjectNumber,
                                          vw.TypeofAppointment,
                                          vw.DateofBirth,
-                                         vw.Email
+                                         vw.Email,
+                                         vw.InitByPI_f
                                      }).Skip(skiprec).Take(pageSize).ToList();
 
 
@@ -27333,6 +27775,7 @@ namespace IOAS.GenericServices
                                 TypeofAppointmentName = querylist[i].TypeofAppointment,
                                 EmployeeEmail = querylist[i].Email,
                                 EmployeeDateofBirth = string.Format("{0:s}", querylist[i].DateofBirth),
+                                Is_InitByPI = querylist[i].InitByPI_f ?? false
                             });
                         }
                     }
@@ -27407,6 +27850,7 @@ namespace IOAS.GenericServices
                                         TypeCategory = c.CodeValDetail,
                                         MaternityOrderID = b.MeternityOrderId ?? 0,
                                         isLossOfPay = c.CodeValAbbr == 8 ? true : false,
+                                        Is_InitByPI = b.InitByPI_f ?? false
                                     });
                     var predicate = PredicateBuilder.BaseAnd<OrderListModel>();
                     if (!string.IsNullOrEmpty(model.SearchInName))
@@ -27860,7 +28304,8 @@ namespace IOAS.GenericServices
                                      prj.ProjectNumber,
                                      ordin.isCommitmentReject,
                                      vw.DepartmentName,
-                                     SendOffer_f = f != null ? (f.isSend == null ? false : f.isSend) : null
+                                     SendOffer_f = f != null ? (f.isSend == null ? false : f.isSend) : null,
+                                     ordin.InitByPI_f
                                  }).Skip(skiprec).Take(pageSize).ToList();
 
                     searenhext.TotalRecords = (from ord in context.vw_RCTOverAllApplicationEntry.AsNoTracking()
@@ -27911,6 +28356,7 @@ namespace IOAS.GenericServices
                                 EmployeeDept = query[i].DepartmentName,
                                 TypeofAppointmentName = query[i].TypeofAppointment,
                                 SendOffer_f = query[i].SendOffer_f,
+                                InitByPI_f = query[i].InitByPI_f ?? false
                             });
                         }
                     }
@@ -28062,7 +28508,8 @@ namespace IOAS.GenericServices
                                      vw.Category,
                                      vw.ApplicationId,
                                      vw.ApplicationType,
-                                     SendOffer_f = f != null ? (f.isSend == null ? false : f.isSend) : null
+                                     SendOffer_f = f != null ? (f.isSend == null ? false : f.isSend) : null,
+                                     b.InitByPI_f
                                  }).Skip(skiprec).Take(pageSize).ToList();
                     seachmodel.TotalRecords = (from b in context.tblOrder
                                                    //from od in context.tblOrderDetail
@@ -28113,6 +28560,7 @@ namespace IOAS.GenericServices
                                 ApplicationId = query[i].ApplicationId ?? 0,
                                 ApplicationCategory = query[i].ApplicationType,
                                 SendOffer_f = query[i].SendOffer_f,
+                                InitByPI_f = query[i].InitByPI_f ?? false
                             });
                         }
                     }

@@ -25,7 +25,7 @@ namespace IOAS.GenericServices
         public static int Logon(LogOnModel logon)
         {
             try
-            {                
+            {
                 using (var context = new IOASDBEntities())
                 {
                     String Encpassword = Cryptography.Encrypt(logon.Password, "LFPassW0rd");
@@ -413,7 +413,7 @@ namespace IOAS.GenericServices
                 using (var context = new IOASDBEntities())
                 {
                     var query = (from R in context.tblRole
-                                 where ( R.Status == "Active")
+                                 where (R.Status == "Active")
                                  orderby R.RoleName
                                  select new { R.RoleId, R.RoleName }).ToList();
                     if (query.Count > 0)
@@ -1543,12 +1543,12 @@ namespace IOAS.GenericServices
                                  from cl in CO.DefaultIfEmpty()
                                  orderby A.AgencyId descending
                                  where A.Status == "Active" && A.AgencyType == 2
-                                 && (A.AgencyName.Contains(model.InName)|| A.GSTIN.Contains(model.InName) || model.InName == null)
+                                 && (A.AgencyName.Contains(model.InName) || A.GSTIN.Contains(model.InName) || model.InName == null)
                                  && (A.AgencyCode.Contains(model.InCode) || model.InCode == null)
                                  && (A.AgencyName.Contains(model.ExName) || A.GSTIN.Contains(model.ExName) || model.ExName == null)
                                  && (A.AgencyCode.Contains(model.Excode) || model.Excode == null)
                                  && (A.Country == model.ExCountry || model.ExCountry == null)
-                                 select new { A.GSTIN,A.AgencyId, A.AgencyName, A.AgencyCode, A.ContactPerson, A.ContactEmail, A.Country, cl.countryName }).Skip(skiprec).Take(pageSize).ToList();
+                                 select new { A.GSTIN, A.AgencyId, A.AgencyName, A.AgencyCode, A.ContactPerson, A.ContactEmail, A.Country, cl.countryName }).Skip(skiprec).Take(pageSize).ToList();
                     agysearch.TotalRecords = (from A in context.tblAgencyMaster
                                               join C in context.tblCountries on A.Country equals C.countryID into CO
                                               from cl in CO.DefaultIfEmpty()
@@ -1578,7 +1578,7 @@ namespace IOAS.GenericServices
                             {
                                 sno = sno,
                                 AgencyId = query[i].AgencyId,
-                                AgencyName = query[i].AgencyName+" - "+ query[i].GSTIN,
+                                AgencyName = query[i].AgencyName + " - " + query[i].GSTIN,
                                 AgencyCode = query[i].AgencyCode,
                                 CountryName = country,
                             });
@@ -1862,10 +1862,10 @@ namespace IOAS.GenericServices
                         acctheadreg.CrtdUserId = model.userid;
                         acctheadreg.CrtdTS = DateTime.Now;
                         acctheadreg.Status = "Active";
-                      if(  model.AccountGroupId==61 || model.AccountGroupId == 38)
-                       acctheadreg.Bank_f = true;
-                       else
-                        acctheadreg.Bank_f = false;
+                        if (model.AccountGroupId == 61 || model.AccountGroupId == 38)
+                            acctheadreg.Bank_f = true;
+                        else
+                            acctheadreg.Bank_f = false;
                         acctheadreg.SeqNbr = Convert.ToInt32((Sqnbr + 1).ToString().PadLeft(4, '1'));
                         context.tblAccountHead.Add(acctheadreg);
                         context.SaveChanges();
@@ -1874,9 +1874,9 @@ namespace IOAS.GenericServices
                                      where b.AccountHeadId != acctheadreg.AccountHeadId && b.AccountGroupId
                                      == model.AccountGroupId
                                      select b.AccountHeadId).FirstOrDefault();
-                        
+
                         var Acchedgrp = context.tblAccountHeadandgroup.Where(m => m.AccountHeadId == Hedid).FirstOrDefault();
-                        if(Acchedgrp != null)
+                        if (Acchedgrp != null)
                         {
                             tblAccountHeadandgroup hedgrp = new tblAccountHeadandgroup();
                             hedgrp.Accounts = Acchedgrp.Accounts;
@@ -4029,7 +4029,7 @@ namespace IOAS.GenericServices
                     string absoluteLink = HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority) + HttpContext.Current.Request.ApplicationPath + "/CoreAccounts/ShowUploadedDocument";
                     var Path = "~/Content/CommitmentDocument/";
                     GetDetail = (from C in context.tblCommitment
-                                // from D  in context.tblCommitmentDetails
+                                     // from D  in context.tblCommitmentDetails
                                  from P in context.tblProject
                                      //where C.Status == "Active"
                                  where (C.ProjectId == P.ProjectId)
@@ -4057,7 +4057,7 @@ namespace IOAS.GenericServices
                                      Newhref = absoluteLink + "?file=" + x.C.AttachmentPath + "&filepath=" + Path
                                  }).Skip(skiprec).Take(pageSize).ToList();
                     list.TotalRecords = (from C in context.tblCommitment
-                                       
+
                                          from P in context.tblProject
                                              //where C.Status == "Active"
                                          where (C.ProjectId == P.ProjectId)
@@ -4068,7 +4068,7 @@ namespace IOAS.GenericServices
                                          && (C.CommitmentBalance == model.AvilableAmount || model.AvilableAmount == null)
                                          && (C.Status.Contains(model.Status) || model.Status == null)
                                          orderby C.CommitmentId descending
-                                         select new { C}).Count();
+                                         select new { C }).Count();
 
                     //if (query.Count > 0)
                     //{
@@ -4188,7 +4188,7 @@ namespace IOAS.GenericServices
                                 transaction.Rollback();
                                 return Tuple.Create(-1, "Something went wrong please contact administrator");
                             }
-                             
+
                         }
                         else
                         {
@@ -4274,7 +4274,7 @@ namespace IOAS.GenericServices
             }
             catch (Exception ex)
             {
-                
+
                 return Tuple.Create(-1, "Something went wrong please contact administrator");
             }
         }
@@ -4387,7 +4387,7 @@ namespace IOAS.GenericServices
                     model.commitmentAmount = String.Format(Indian, "{0:N}", cModel.commitmentValue);
                     model.commitmentNo = cModel.CommitmentNo;
                     model.date = String.Format("{0:s}", DateTime.Now);
-                    
+
                     EmailBuilder _eb = new EmailBuilder();
                     EmailModel emodel = model;
                     var bodyResp = _eb.RunCompile("UAYProjectCommitmentBooking.cshtml", "", model, typeof(UAYEmailModel));
@@ -4472,7 +4472,7 @@ namespace IOAS.GenericServices
                     ProjectService _PS = new ProjectService();
                     Commit.prjDetails = _PS.getProjectSummary(Commit.SelProjectNumber);
                     Commit.AllocationDtls = Common.getAllocationValue(Commit.SelProjectNumber, Commit.selAllocationHead);
-                    Commit.ProjectDetail= Common.GetProjectsDetails(query.D.ProjectId??0);
+                    Commit.ProjectDetail = Common.GetProjectsDetails(query.D.ProjectId ?? 0);
                 }
                 return Commit;
             }
@@ -4598,7 +4598,7 @@ namespace IOAS.GenericServices
                                 AmountSpent = query[i].AmountSpent ?? 0,
                                 CreatedDate = String.Format("{0:ddd dd-MMM-yyyy}", query[i].CRTD_TS),
                                 Status = query[i].Status,
-                                ProjectId= query[i].ProjectId ?? 0
+                                ProjectId = query[i].ProjectId ?? 0
                             });
 
                         }
@@ -4632,13 +4632,13 @@ namespace IOAS.GenericServices
                         skiprec = (page - 1) * pageSize;
                     }
                     var prequery = from C in context.tblCommitment
-                                   join D  in context.tblCommitmentDetails on C.CommitmentId equals D.CommitmentId
+                                   join D in context.tblCommitmentDetails on C.CommitmentId equals D.CommitmentId
                                    join P in context.tblProject on C.ProjectId equals P.ProjectId
                                    select new CommitmentPredicate
                                    {
                                        com = C,
                                        prj = P,
-                                       ComDet=D
+                                       ComDet = D
                                    };
                     var predicate = PredicateBuilder.BaseAnd<CommitmentPredicate>();
                     predicate = predicate.And(d => d.com.Status == "Active");
@@ -4681,7 +4681,7 @@ namespace IOAS.GenericServices
                                 AmountSpent = query[i].com.AmountSpent ?? 0,
                                 CreatedDate = String.Format("{0:ddd dd-MMM-yyyy}", query[i].com.CRTD_TS),
                                 Status = query[i].com.Status,
-                                ProjectId= query[i].com.ProjectId??0,
+                                ProjectId = query[i].com.ProjectId ?? 0,
                             });
 
                         }
@@ -4905,5 +4905,366 @@ namespace IOAS.GenericServices
             }
 
         }
+
+        #region UserManual
+        public static List<MasterlistviewModel> getModulesList()
+        {
+            try
+            {
+                List<MasterlistviewModel> category = new List<MasterlistviewModel>();
+
+                using (var context = new IOASDBEntities())
+                {
+
+                    var query = (from C in context.tblModules
+                                 from D in context.tblFunction
+                                 where C.ModuleID == D.ModuleID
+                                 select C).Distinct().ToList();
+                    if (query.Count > 0)
+                    {
+                        for (int i = 0; i < query.Count; i++)
+                        {
+                            category.Add(new MasterlistviewModel()
+                            {
+                                id = query[i].ModuleID,
+                                name = query[i].ModuleName,
+
+                            });
+                        }
+                    }
+
+                    return category;
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+        public static List<MasterlistviewModel> GetMenuGroupBasedonModule(int? ModuleId = 0)
+        {
+            try
+            {
+                List<MasterlistviewModel> category = new List<MasterlistviewModel>();
+
+                using (var context = new IOASDBEntities())
+                {
+
+
+
+                    var query = (from C in context.tblMenuGroup
+                                 from D in context.tblFunction
+                                 where C.ModuleID == ModuleId && D.MenuGroupID == C.MenuGroupID
+                                 select C).Distinct().ToList();
+                    if (query.Count > 0)
+                    {
+                        for (int i = 0; i < query.Count; i++)
+                        {
+                            category.Add(new MasterlistviewModel()
+                            {
+                                id = query[i].MenuGroupID,
+                                name = query[i].MenuGroup,
+
+                            });
+                        }
+                    }
+
+                    return category;
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+        public static List<MasterlistviewModel> GetFunctionBasedonMenugroup(int? MenugrpId = 0)
+        {
+            try
+            {
+                List<MasterlistviewModel> category = new List<MasterlistviewModel>();
+
+                using (var context = new IOASDBEntities())
+                {
+
+                    var query = (from D in context.tblFunction
+                                 where D.MenuGroupID == MenugrpId
+                                 select D).ToList();
+                    if (query.Count > 0)
+                    {
+                        for (int i = 0; i < query.Count; i++)
+                        {
+                            category.Add(new MasterlistviewModel()
+                            {
+                                id = query[i].FunctionId,
+                                name = query[i].FunctionName,
+
+                            });
+                        }
+                    }
+
+                    return category;
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+        public static int SaveUserManual(UserManualModel model)
+        {
+            try
+            {
+                int result = 0;
+                using (var context = new IOASDBEntities())
+                {
+                    var Rec = new tblFunction();
+                    var check = (from m in context.tblFunction
+                                 where m.FunctionId == model.FunctionId
+                                 select m).FirstOrDefault();
+                    if (check != null)
+                    {
+
+                        string _FileName = Path.GetFileName(model.Attachment.FileName);
+                        check.FileName = _FileName;
+                        _FileName = Guid.NewGuid() + "_" + _FileName;
+                        model.Attachment.UploadFile("UserManual", _FileName);
+                        check.ActualFileName = _FileName;
+                        check.Status = "Open";
+                        check.Updt_TS = DateTime.Now;
+                        check.Updt_UserId = Common.GetUserid(model.UserName);
+                        // context.tblFunction.Add(Rec);
+                        context.SaveChanges();
+                        result = 1;
+                    }
+                }
+                return result;
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+        public static PagedData<UserManualModel> getUserManualList(int page, int pageSize, UserManualModel model)
+        {
+            List<UserManualModel> list = new List<UserManualModel>();
+            PagedData<UserManualModel> SearchData = new PagedData<UserManualModel>();
+            int skiprec = 0;
+            if (page == 1)
+            {
+                skiprec = 0;
+            }
+            else
+            {
+                skiprec = (page - 1) * pageSize;
+            }
+            try
+            {
+                using (var Context = new IOASDBEntities())
+                {
+                    var getdata = (from r in Context.tblModules
+                                   join m in Context.tblMenuGroup on r.ModuleID equals m.ModuleID
+                                   join n in Context.tblFunction on m.MenuGroupID equals n.MenuGroupID
+                                   where
+                                    ((n.FunctionName.Contains(model.Function) || model.Function == null)
+                                        && (r.ModuleName.Contains(model.Module) || model.Module == null)
+                                         && (m.MenuGroup.Contains(model.Menugroup) || model.Menugroup == null)
+                                          && (n.Status == (model.Status) || model.Status == "Select" || model.Status == null)
+                                          && ((n.Status == "Active") || (n.Status == "Open")))
+                                   orderby n.FunctionName
+                                   select new
+                                   {
+                                       n.FileName,
+                                       n.FunctionName,
+                                       n.ActualFileName,
+                                       n.Status,
+                                       n.FunctionId,
+                                       r.ModuleName,
+                                       m.MenuGroup
+                                   }).Skip(skiprec).Take(pageSize).ToList();
+
+                    if (getdata.Count > 0)
+                    {
+                        for (var i = 0; i < getdata.Count; i++)
+                        {
+                            list.Add(new UserManualModel()
+                            {
+                                SINo = i + 1 + skiprec,
+                                Module = getdata[i].ModuleName,
+                                Menugroup = getdata[i].MenuGroup,
+                                Function = getdata[i].FunctionName,
+                                FileName = getdata[i].FileName,
+                                ActualFileName = getdata[i].ActualFileName,
+                                Status = getdata[i].Status,
+                                FunctionId = getdata[i].FunctionId,
+                            });
+                        }
+                    }
+                    var totcount = (from r in Context.tblModules
+                                    join m in Context.tblMenuGroup on r.ModuleID equals m.ModuleID
+                                    join n in Context.tblFunction on m.MenuGroupID equals n.MenuGroupID
+                                    where
+                                     //(r.FileName.Contains(model.FileName) || model.FileName == null) &&
+                                     ((n.FunctionName.Contains(model.Function) || model.Function == null)
+                                         && (r.ModuleName.Contains(model.Module) || model.Module == null)
+                                          && (m.MenuGroup.Contains(model.Menugroup) || model.Menugroup == null)
+                                           && (n.Status == (model.Status) || model.Status == "Select" || model.Status == null)
+                                           && ((n.Status == "Active") || (n.Status == "Open")))
+                                    orderby n.FunctionName
+                                    select new
+                                    {
+                                        n.FunctionName,
+                                        r.ModuleName,
+                                        m.MenuGroup
+                                    }).Count();
+                    SearchData.TotalPages = totcount;
+                    SearchData.Data = list;
+                    return SearchData;
+                }
+            }
+            catch (Exception ex)
+            {
+                SearchData.Data = list;
+                return SearchData;
+            }
+        }
+        public static int SaveState(int FunctionId, int Status)
+        {
+            int result = 0;
+            try
+            {
+
+                using (var context = new IOASDBEntities())
+                {
+                    var query = (from t in context.tblFunction
+                                 where t.FunctionId == FunctionId
+                                 select t).FirstOrDefault();
+                    if (query != null)
+                    {
+                        if (Status == 1)
+                            query.Status = "Active";
+                        else if (Status == 2)
+                            query.Status = "InActive";
+                        context.SaveChanges();
+                        result = 1;
+                    }
+                }
+            }
+            catch (Exception er)
+            {
+
+                throw;
+            }
+            return result;
+        }
+        public static UserManualModel EditUserManual(int FunctionId)
+        {
+            var model = new UserManualModel();
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    var query = (from c in context.tblFunction
+                                 join d in context.tblModules on c.ModuleID equals d.ModuleID
+                                 join e in context.tblMenuGroup on c.MenuGroupID equals e.MenuGroupID
+                                 where c.FunctionId == FunctionId
+                                 select new { c.FunctionId, d.ModuleID, e.MenuGroupID, c.FileName, c.ActualFileName }).FirstOrDefault();
+                    if (query != null)
+                    {
+                        model.FunctionId = query.FunctionId;
+                        model.MenugroupId = query.MenuGroupID;
+                        model.ModuleId = query.ModuleID;
+                        model.FileName = query.FileName;
+                        model.ActualFileName = query.ActualFileName;
+
+                    }
+                }
+                return model;
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+        public static List<MenuListViewModel> GetUserMenu()
+        {
+            List<MenuListViewModel> addmenu = new List<MenuListViewModel>();
+
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    var query = (from F in context.tblFunction
+                                 from M in context.tblModules
+                                 from MG in context.tblMenuGroup
+                                 where (F.ModuleID == M.ModuleID && F.MenuGroupID == MG.MenuGroupID && F.ActualFileName != null)
+                                 select new { F.FunctionId, F.FunctionName, F.ActualFileName, M.ModuleID, M.ModuleIcon, M.ModuleName, MG.MenuGroup, MG.MenuGroupID, F.MenuSeq }).Distinct().ToList();
+
+                    if (query.Count > 0)
+                    {
+                        //This query using get modules in query count using distinct
+                        var module = query.Select(m => m.ModuleName).Distinct().ToArray();
+                        var modulId = query.Select(m => m.ModuleID).Distinct().ToArray();
+                        var menugroup = query.Select(m => m.MenuGroup).Distinct().ToArray();
+                        var menugroupId = query.Select(m => m.MenuGroupID).Distinct().ToArray();
+
+                        for (int m = 0; m < module.Length; m++)
+                        {
+                            string moduleName = module[m];
+                            int moduleId = (from C in query where C.ModuleName == moduleName select C.ModuleID).FirstOrDefault();
+                            var moduleIconName = (from C in query where C.ModuleName == moduleName select C.ModuleIcon).FirstOrDefault(); //query.Select(S => S.ModuleName == moduleName).FirstOrDefault();
+                            List<submodulemenuviewmodel> submodules = new List<submodulemenuviewmodel>();
+                            for (int i = 0; i < menugroup.Length; i++)
+                            {
+                                string submodule = menugroup[i];
+                                // int submoduleId=men
+                                var menu = query.Where(S => S.ModuleName == moduleName && S.MenuGroup == submodule).FirstOrDefault();
+                                var submoduleId = (from S in query where S.ModuleName == moduleName && S.MenuGroup == submodule select S.MenuGroupID).FirstOrDefault();
+                                if (menu != null)
+                                {
+                                    submodules.Add(new submodulemenuviewmodel()
+                                    {
+                                        Menugroupname = submodule,
+                                        Menugroupid = submoduleId,
+                                        Submenu = (from sm in query
+                                                   where sm.ModuleName == moduleName && sm.MenuGroup == submodule
+                                                   orderby sm.MenuSeq
+                                                   select new SubmenuViewModel()
+                                                   {
+                                                       FunctionId = sm.FunctionId,
+                                                       Functioname = sm.FunctionName,
+                                                       FileName = sm.ActualFileName,
+                                                   }).Distinct().ToList()
+                                    });
+                                }
+                            }
+                            addmenu.Add(new MenuListViewModel()
+                            {
+                                Modulename = moduleName,
+                                Moduleid = moduleId,
+                                submodule = submodules,
+                                ModuleIconName = moduleIconName,
+                            });
+
+                        }
+                    }
+
+                    return addmenu;
+                }
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+        #endregion
     }
 }

@@ -35,6 +35,7 @@
                     @Html.HiddenFor(m => m.Appointmentdetails.AppointmentClosureDate)
                     @Html.HiddenFor(m => m.Appointmentdetails.CommitmentBalance)
                     @Html.HiddenFor(m => m.Spcomerelieving_f)
+                    @Html.HiddenFor(m => m.InitByPI_f)
                     <span>Request Reference</span>
                     @Html.DropDownListFor(m => m.RequestReference, new SelectList(ViewBag.ReferenceType, "id", "name"), "Select", new { @class = "form-control" })
                     <div>@Html.ValidationMessageFor(m => m.RequestReference)</div>
@@ -152,6 +153,10 @@
                                                 {
                                                     @Html.ActionLink(Model.PILetterFileName, "ShowDocument", new { Controller = "Account", filepath = "Requirement", file = Model.PILetterPath }, new { @target = "_blank" })
                                                 }
+                                                else if (Model.InitByPI_f == true)
+                                                {
+                                                    <input type="file" id="PILetter" name="PILetter">
+                                                }
                                                 else
                                                 {
                                                     <input type="file" id="PILetter" name="PILetter" required>
@@ -207,6 +212,21 @@
                                                 <div>@Html.ValidationMessageFor(m => m.WithdrawalAmount)</div>
                                             </div>
                                         </div>
+                                        @if (Model.InitByPI_f == true)
+                                        {
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="">PI Remarks</label>
+                                                    <h4>@Html.DisplayFor(m => m.PIRemarks)</h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="">PI  NO Dues Remarks</label>
+                                                    <h4>@Html.DisplayFor(m => m.PINoDuesRemarks)</h4>
+                                                </div>
+                                            </div>
+                                        }
                                     </div>
                                     <div class="row">
                                         <div class="col-md-6">
@@ -224,7 +244,7 @@
                                                         Count++;
                                                     }
                                                 }
-                                                else if (Model.OrderID > 0 && Model.NODuesFilePath == null)
+                                                else if (Model.OrderID > 0 && Model.InitByPI_f == false && Model.NODuesFilePath == null)
                                                 {
                                                     <div id="divNOC_0">
                                                         <div class="row">

@@ -349,6 +349,8 @@ namespace IOAS.Models
         public string PrintedDate { get; set; }
         public string PrintedBy { get; set; }
         public string TravelerName { get; set; }
+        public string BankGuaranteeRemarks { get; set; }
+
         public decimal DisSalary { get; set; }
         public decimal HonSalary { get; set; }
         public decimal MdySalary { get; set; }
@@ -759,6 +761,9 @@ namespace IOAS.Models
         public string PrevValue { get; set; }
         public int CurrNoOfProject { get; set; }
         public string CurrValue { get; set; }
+        public int TotalNoOfProject { get; set; }
+        public string TotalValue { get; set; }
+
     }
     public class MonthListReportModel
     {
@@ -786,6 +791,10 @@ namespace IOAS.Models
         public int CurrNoOfProject { get; set; }
         public string CurrValue { get; set; }
         public string ExCurrValue { get; set; }
+        public string TotalIncValue { get; set; }
+        public string TotalExValue { get; set; }
+        public int TotalNoOfProject { get; set; }
+
     }
     public class ConsMonthListReportModel
     {

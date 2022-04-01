@@ -1316,7 +1316,7 @@ namespace IOAS.GenericServices
                     //ParameterInfo param = method.GetParameters();
                     ProcessSuccessService pss = new ProcessSuccessService();
                     ProcessCompleteDelegate pi;
-                    pi = (ProcessCompleteDelegate)Delegate.CreateDelegate(typeof(ProcessCompleteDelegate), pss, methodName, false);
+                    pi = (ProcessCompleteDelegate)Delegate.CreateDelegate(typeof(ProcessCompleteDelegate), pss, methodName, false);                    
                     var status = pi(this._refId, this._userId);
                     if (!status)
                     {

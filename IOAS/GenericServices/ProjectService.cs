@@ -6408,7 +6408,7 @@ namespace IOAS.GenericServices
 
                     var ProjectExpQry = (from C in context.vw_ProjectExpenditureReport.AsNoTracking()
                                          where C.ProjectId == ProjectId
-                                         select C
+                                         select new {C.AllocationHeadId,C.AmountSpent,C.Posted_f,C.NewAmount}
                                          ).ToList();
                     if (TotalHead.Length > 0)
                     {

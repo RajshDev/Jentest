@@ -17,6 +17,7 @@ namespace IOAS.DataModel
         public string ReceiptNumber { get; set; }
         public Nullable<System.DateTime> ReceiptDate { get; set; }
         public string Source { get; set; }
+        public string InvoiceNumber { get; set; }
         public string ProjectNumber { get; set; }
         public string TransactionNumber { get; set; }
         public string TransactionDate { get; set; }
@@ -27,6 +28,5 @@ namespace IOAS.DataModel
         public Nullable<int> ProjectId { get; set; }
         public string Status { get; set; }
         public string description { get; set; }
-        public string InvoiceNumber { get; set; }
     }
 }

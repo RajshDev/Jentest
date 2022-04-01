@@ -629,7 +629,7 @@ namespace IOAS.Controllers
             }
         }
 
-        public ActionResult STEJunior(int STEID = 0)
+        public ActionResult STEJunior(int STEID = 0, int WFid = 0)
         {
             STEModel model = new STEModel();
             try
@@ -667,6 +667,10 @@ namespace IOAS.Controllers
                         ViewBag.processGuideLineId = Common.GetProcessGuidelineId(192, "STEFlowDean", 0);
                     else
                         ViewBag.processGuideLineId = Common.GetProcessGuidelineId(192, "STE Flow", 0);
+                }
+                else if (WFid > 0 && STEID == 0)
+                {
+                    model = Common.GetWFEditSTE(WFid);
                 }
                 else
                 {
@@ -5629,7 +5633,7 @@ namespace IOAS.Controllers
             }
         }
 
-        public ActionResult RCTOverAllView(int ApplicationId = 0, string AppType = "", int orderid = 0, bool daf = false)
+        public ActionResult RCTOverAllView(int ApplicationId = 0, string AppType = "", int orderid = 0, string listf = null)
         {
             try
             {
@@ -5737,7 +5741,7 @@ namespace IOAS.Controllers
                             ViewBag.processGuideLineId = Common.GetProcessGuidelineId(190, "RCT / STE HRA Flow", 0);
                     }
                 }
-                model.Adminintif = daf;
+                model.List_f = getEmployeeActionLink(listf);
                 return View(model);
             }
             catch (Exception ex)
@@ -10222,21 +10226,7 @@ namespace IOAS.Controllers
             {
                 throw new Exception(ex.Message);
             }
-        }
-
-
-        public JsonResult IITExperience()
-        {
-            try
-            {
-                object output = RequirementService.IITExperience(0, "", "IC15318");
-                return Json(output, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
+        }  
 
 
     }

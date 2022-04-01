@@ -19,7 +19,7 @@
         z-index: 1001 !important;
     }
 </style>
-@using (Html.BeginForm("HRABooking", "Requirement", FormMethod.Post, new { @class = "", role = "form", @id = "formExtension", enctype = "multipart/form-data" }))
+@using (Html.BeginForm("HRABooking", "Requirement", FormMethod.Post, new { @class = "", role = "form", @id = "formHRA", enctype = "multipart/form-data" }))
 {
     <div class="row hd-tt-bg">
         <div class="col-md-12">
@@ -525,19 +525,19 @@
 
         if(OrderID > 0)
         {
-            var DateRD = "@string.Format("{0:dd/MMMM/yyyy}", Model.ApplicationReceiveDate)";
-            var ApplicationRD = moment(DateRD.split('-').join('/')).toDate();
-            var SourceEmailDate = "@string.Format("{0:dd/MMMM/yyyy}", Model.SourceEmailDate)";
-            var SourceOfEmailDt = moment(SourceEmailDate.split('-').join('/')).toDate();
+            var appreceivedate = "@string.Format("{0:dd/MMMM/yyyy}", Model.ApplicationReceiveDate)";
+            var appreceivedt = moment(appreceivedate.split('-').join('/')).toDate();
+            var appsourceofemaildate = "@string.Format("{0:dd/MMMM/yyyy}", Model.SourceEmailDate)";
+            var appsourceofemaildt = moment(appsourceofemaildate.split('-').join('/')).toDate();
             $('#ApplicationReceiveDate').datepicker({
                 dateFormat: 'dd-MM-yy',
                 changeYear: true
-            }).datepicker("option", "maxDate", currentdate).datepicker("option", "minDate", ApplicationRD);
+            }).datepicker("option", "maxDate", currentdate).datepicker("option", "minDate", appreceivedt);
 
             $('#SourceEmailDate').datepicker({
                 dateFormat: 'dd-MM-yy',
                 changeYear: true
-            }).datepicker("option", "maxDate", currentdate).datepicker("option", "minDate", SourceOfEmailDt);
+            }).datepicker("option", "maxDate", currentdate).datepicker("option", "minDate", appsourceofemaildt);
 
         }
         else
@@ -597,27 +597,27 @@
 
     function Updatedatepicker()
     {
-        var isFulltenure = @Html.Raw(Json.Encode(Model.isHRAFullTenure)) || false;
+        var fulltenure_f = @Html.Raw(Json.Encode(Model.isHRAFullTenure)) || false;
         var setappstrdat = "";
         var currentdate = moment(new Date()).toDate();
-        var appointmentStartDate = moment($('#lblAppointmentStartDate').text().split('-').join('/')).toDate();
-        var appointmentEndDate = moment($('#lblAppointmentEndDate').text().split('-').join('/')).toDate();
-        setappstrdat = appointmentStartDate;
-        if(isFulltenure != true)
+        var appointmentstartDate = moment($('#lblAppointmentStartDate').text().split('-').join('/')).toDate();
+        var appointmentendDate   = moment($('#lblAppointmentEndDate').text().split('-').join('/')).toDate();
+        setappstrdat = appointmentstartDate;
+        if(fulltenure_f != true)
         {
-            if (appointmentStartDate <= currentdate) {
-                var BeginDate = moment(new Date()).add(-currentdate.getDate(), 'days').add(+1, 'days').toDate();
-                if (appointmentStartDate <= BeginDate && BeginDate <= appointmentEndDate)
-                    setappstrdat = BeginDate;
+            if (appointmentstartDate <= currentdate) {
+                var currmonthbegin = moment(new Date()).add(-currentdate.getDate(), 'days').add(+1, 'days').toDate();
+                if (appointmentstartDate <= currmonthbegin && currmonthbegin <= appointmentendDate)
+                    setappstrdat = currmonthbegin;
             }
         }
 
-        var setappenddat = moment(appointmentEndDate).add(-1, 'days').toDate();
+        var setappenddat = moment(appointmentendDate).add(-1, 'days').toDate();
 
         $('#ArrearOrDeductionTillDate').datepicker({
             dateFormat: 'dd-MM-yy',
             changeYear: true
-        }).datepicker("option", "minDate", appointmentStartDate).datepicker("option", "maxDate", appointmentEndDate);
+        }).datepicker("option", "minDate", appointmentstartDate).datepicker("option", "maxDate", appointmentendDate);
 
         $('#FromDate').datepicker({
             dateFormat: 'dd-MM-yy',
@@ -640,96 +640,49 @@
     function calculatetaxTotal(isarrear) {
 
         if ($('#FromDate').val() != "" && $('#ToDate').val() != "") {
-            var startdate = new Date($('#FromDate').val().split('-').join('/'));
-            var enddate = new Date($('#ToDate').val().split('-').join('/'));
-
+            var startdate = $('#FromDate').val();
+            var enddate = $('#ToDate').val();
             if(isarrear == true)
-                enddate = new Date($('#ArrearOrDeductionTillDate').val().split('-').join('/'));
+                enddate = $('#ArrearOrDeductionTillDate').val();
+            var objData = getCalDateDetails(startdate,enddate);
 
-            var MonthCount = [];
-            MonthCount = dateRange(startdate.getFullYear() + '-' + parseInt(startdate.getMonth() + 1) + '-' + startdate.getDate(), enddate.getFullYear() + '-' + parseInt(enddate.getMonth() + 1) + '-' + enddate.getDate())
-            //define moments for the startdate and enddate
-            var startdatemonthend = parseInt(endOfMonth(startdate).getDate());
-            var enddatemonthend = parseInt(endOfMonth(enddate).getDate());
-            var startworkingdays = 0,endworkingdays = 0;
-            if(startdate.getMonth() == enddate.getMonth() && startdate.getFullYear() == enddate.getFullYear()) {
-                startworkingdays = parseInt(enddate.getDate()) - parseInt(startdate.getDate())+1;
-            }
-            else {
-                startworkingdays = startdatemonthend - parseInt(startdate.getDate()) + 1;
-                endworkingdays = enddate.getDate();
-            }
-
-            var startdateMoment = moment(startdate);
-            var enddateMoment = moment(enddate);
-            var count = 0;
-            for (var i = 0; i < MonthCount.length; i++) {
-                var lastCount = MonthCount.length - 1;
-                if (i != 0 && i != lastCount) {
-                    count += 1;
-                }
-            }
+            var startdatemonthend = objData.starttotaldays;
+            var enddatemonthend   = objData.endtotaldays;
+            var startworkingdays  = objData.startworkingdays;
+            var endworkingdays    = objData.endworkingdays;
             var months = 0,days = 0;
             days = startworkingdays + endworkingdays;
-            months = count || 0;
-
-            var HRA = parseFloat($("#HRA").val()) || 0;
-
-            var HRAPer = $('#HRAPercentage').val() || 0;
-            HRAPer = HRAPer / 100;
-            HRA =  Salary * HRAPer;
-            $("#HRA").val(HRA);
+            months = objData.monthcount || 0;
+            var hra = parseFloat($("#HRA").val()) || 0;
+            var hraper = $('#HRAPercentage').val() || 0;
+            hraper = hraper / 100;
+            hra =  Salary * hraper;
+            $("#HRA").val(hra);
 
             var Tot = 0;
             if (TypeOfAppointment == 2) {
-                HRA = 0;
+                hra = 0;
             }
 
-            var StartPerDay = HRA / startdatemonthend;
-            var EndPerDay = HRA / enddatemonthend;
-            var MonthlyAmt = HRA;
+            var startperday = hra / startdatemonthend;
+            var endperday   = hra / enddatemonthend;
+            var monthlyamt  = hra;
             if (months > 0) {
-                Tot += MonthlyAmt * count;
+                Tot += monthlyamt * months;
             }
             if (days > 0) {
-                Tot += startworkingdays * StartPerDay;
-                Tot += endworkingdays * EndPerDay;
+                Tot += startworkingdays * startperday;
+                Tot += endworkingdays * endperday;
             }
 
             if(isarrear == true)
                 return Math.round(Tot);
-
-
             if (TypeOfAppointment == 2)
                 $("#HRA").val(0);
-
-
             $('#CommitmentAmount').val(Math.round(Tot));
         }
     }
-
-    function dateRange(startDate, endDate) {
-        var start = startDate.split('-');
-        var end = endDate.split('-');
-        var startYear = parseInt(start[0]);
-        var endYear = parseInt(end[0]);
-        var months = [];
-        for (var i = startYear; i <= endYear; i++) {
-            var endMonth = i != endYear ? 11 : parseInt(end[1]) - 1;
-            var startMon = i === startYear ? parseInt(start[1]) - 1 : 0;
-            for (var j = startMon; j <= endMonth; j = j > 12 ? j % 12 || 11 : j + 1) {
-                var month = j + 1;
-                var displayMonth = month < 10 ? '0' + month : month;
-                months.push([displayMonth]);
-            }
-        }
-        return months;
-    }
-
-    function endOfMonth(date) {
-        return new Date(date.getFullYear(), date.getMonth() + 1, 0);
-    }
-
+ 
     $("#FromDate, #ToDate").change(function () {
         calculatetaxTotal()
     });
@@ -912,7 +865,7 @@
         // This function deals with validation of the form fields
         var isValid = false;
         var hadError = false;
-        var tabs = $("#formExtension");
+        var tabs = $("#formHRA");
         var inputs = $(":input, textarea, select"); // get all the form inputs and selects
         var stepElements = $(tabs).find(inputs); // get inputs for current step
         var count = stepElements.length; // check that there are inputs
@@ -947,11 +900,11 @@
 
     function formSave() {
         $('#isDraftbtn').val(false);
-        var isValid = $('#formExtension').valid();
+        var isValid = $('#formHRA').valid();
         if (!isValid)
             return false;
         if (isValid)
-            $('#formExtension').submit();
+            $('#formHRA').submit();
     }
 
     $(document).on('click', '#btnViewSummary', function () {
@@ -1044,11 +997,11 @@
 
     var findtabs = $(".cust-tab");
     $(findtabs[0]).find('textarea,input[type="text"]').each(function () {
-        var ID = $(this).attr('id');
+        var id = $(this).attr('id');
         var name = $(this).attr('name').split('.')[1];
-        var NotinID = ["DesignationCode", "ProjectNumber"];
-        var NotinEndName = ["DesignationautoComplete"];
-        if (!NotinID.includes(ID) && !NotinEndName.includes(name)) {
+        var notinid    = ["DesignationCode", "ProjectNumber"];
+        var notinename = ["DesignationautoComplete"];
+        if (!notinid.includes(id) && !notinename.includes(name)) {
             $(this).attr('style', 'text-transform:uppercase');
         }
     });
@@ -1090,18 +1043,17 @@
 
 
     function FormDisabled() {
-        $("#formExtension").find("input, select, textarea").each(function () {
-            var idDisabled = $(this).is(":disabled");
-            var id = $(this).attr('id');
-            if (!idDisabled) {
+        $("#formHRA").find("input, select, textarea").each(function () {
+            var disabled_f = $(this).is(":disabled");
+            if (!disabled_f) {
                 $(this).attr("disabled", "disabled");
             }
         });
     }
 
 
-    var isDisabledStatus = ["", "Open", "Note to PI"];
-    if (!isDisabledStatus.includes(Status)) {
+    var disabledStatus = ["", "Open", "Note to PI"];
+    if (!disabledStatus.includes(Status)) {
         FormDisabled();
         $('#btnViewSummary').removeAttr('disabled');
         $('#btnViewStaffAllocation').removeAttr('disabled');
@@ -1155,9 +1107,6 @@
         var value=$(this).val();
         $('#ApplicationReceiveDate').val(value);
     });
-
-
-
 
     $(document).on('click', 'a[class="rct-del-doc"]', function () {
         if (OrderID > 0) {

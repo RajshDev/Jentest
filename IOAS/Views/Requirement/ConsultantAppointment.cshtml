@@ -1358,73 +1358,25 @@
         calculatetaxTotal();
     });
 
-    function dateRange(startDate, endDate) {
-        var start = startDate.split('-');
-        var end = endDate.split('-');
-        var startYear = parseInt(start[0]);
-        var endYear = parseInt(end[0]);
-        var months = [];
-        for(var i = startYear; i <= endYear; i++) {
-            var endMonth = i != endYear ? 11 : parseInt(end[1]) - 1;
-            var startMon = i === startYear ? parseInt(start[1])-1 : 0;
-            for(var j = startMon; j <= endMonth; j = j > 12 ? j % 12 || 11 : j+1) {
-                var month = j+1;
-                var displayMonth = month < 10 ? '0'+month : month;
-                months.push([displayMonth]);
-            }
-        }
-        return months;
-    }
-
-    function endOfMonth(date)
-    {
-        return new Date(date.getFullYear(), date.getMonth() + 1, 0);
-    }
-
     function calculatetaxTotal() {
 
         var startdate = $('#Appointmentstartdate').val();
         var enddate = $('#AppointmentEndDate').val();
         if(startdate != "" && enddate != "")
         {
-            var startdt = new Date(startdate.split('-').join('/'));
-            var enddt = new Date(enddate.split('-').join('/'));
-            //Month count
-            var monthCount = [],count=0;
-            var fromDate = getFormattedDate(startdt);
-            var toDate = getFormattedDate(enddt);
-            monthCount = dateRange(fromDate,toDate)
-            for (var i=0; i < monthCount.length; i++)
-            {
-                var lastCount = monthCount.length - 1;
-                if(i != 0 && i != lastCount)
-                    count+=1;
-            }
-            //---end---
-
-
-            //define moments for the startdate and enddate
-            var startdateTotalDays = parseInt(endOfMonth(startdt).getDate());
-            var enddateTotalDays = parseInt(endOfMonth(enddt).getDate());
-            var startworkingdays = 0 , endworkingdays = 0;
-            if(startdt.getMonth() == enddt.getMonth() && startdt.getFullYear() == enddt.getFullYear())
-            {
-                startworkingdays = parseInt(enddt.getDate()) - parseInt(startdt.getDate()) + 1;
-            }
-            else
-            {
-                startworkingdays = startdateTotalDays - parseInt(startdt.getDate()) + 1;
-                endworkingdays = enddt.getDate();
-            }
-            //---end---
-            var months = count || 0;
-            var days = startworkingdays + endworkingdays;
-            var ttlVal = 0;
-            var Salary = parseFloat($('#Salary').val()) || 0;
+            var objData = getCalDateDetails(startdate,enddate);
+            var startdateTotalDays = objData.starttotaldays;
+            var enddateTotalDays   = objData.endtotaldays;
+            var startworkingdays   = objData.startworkingdays;
+            var endworkingdays     = objData.endworkingdays;
+            var months  = objData.monthcount || 0;
+            var days    = startworkingdays + endworkingdays;
+            var ttlVal  = 0;
+            var Salary  = parseFloat($('#Salary').val()) || 0;
             var baseVal = parseFloat($('#Salary').val()) || 0;
             var GSTapplicable = parseInt($('#GSTapplicable').val()) || 0;
             var taxVal = 0;
-            var Tot = 0;
+            var Tot    = 0;
             if(GSTapplicable == 2)
                 taxVal = parseFloat($('#GST').val()) || 0;
             ttlVal = baseVal + (baseVal * (taxVal / 100));
@@ -1449,35 +1401,6 @@
             $('#lblCommitmentAmount').text(Math.round(Tot));
         }
     }
-
-    function getFormattedDate(date)
-    {
-        var year = date.getFullYear();
-        var month = (1 + date.getMonth()).toString();
-        var day = date.getDate().toString();
-        return year + '-' + month + '-' + day;
-    }
-
-    function dateRange(startDate, endDate)
-    {
-        var start = startDate.split('-');
-        var end = endDate.split('-');
-        var startYear = parseInt(start[0]);
-        var endYear = parseInt(end[0]);
-        var months = [];
-        for(var i = startYear; i <= endYear; i++) {
-            var endMonth = i != endYear ? 11 : parseInt(end[1]) - 1;
-            var startMon = i === startYear ? parseInt(start[1])-1 : 0;
-            for(var j = startMon; j <= endMonth; j = j > 12 ? j % 12 || 11 : j+1) {
-                var month = j+1;
-                var displayMonth = month < 10 ? '0'+month : month;
-                months.push([displayMonth]);
-            }
-        }
-        return months;
-    }
-
-
 
     $('#Appointmentstartdate').change(function () {
         var enddatepicker = "";
@@ -1521,15 +1444,6 @@
     $("#Appointmentstartdate,#AppointmentEndDate").change(function () {
         calculatetaxTotal();
     });
-
-    function parseDate(s) {
-        var months = {
-            january: 0, february: 1, march: 2, april: 3, may: 4, june: 5,
-            july: 6, august: 7, september: 8, october: 9, november: 10, december: 11
-        };
-        var p = s.split('-');
-        return new Date(p[2], months[p[1].toLowerCase()], p[0]);
-    }
 
     /* Tab Sections Start*/
     var currentTab = 0; // Current tab is set to be the first tab (0)

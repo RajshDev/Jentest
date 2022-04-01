@@ -21,5 +21,10 @@ namespace IOAS.DataModel
         public Nullable<int> ModuleID { get; set; }
         public Nullable<int> MenuGroupID { get; set; }
         public Nullable<int> MenuSeq { get; set; }
+        public string Status { get; set; }
+        public string FileName { get; set; }
+        public string ActualFileName { get; set; }
+        public Nullable<int> Updt_UserId { get; set; }
+        public Nullable<System.DateTime> Updt_TS { get; set; }
     }
 }

@@ -146,7 +146,7 @@ namespace IOAS.Controllers
             return View("ReportBuilder", model);
         }
 
-        
+
         [Authorize]
         public ActionResult EditReport(int ReportID)
         {
@@ -1362,6 +1362,8 @@ namespace IOAS.Controllers
                         ws.Cell(firstrow, 3).Value = "Values for Prev Month";
                         ws.Cell(firstrow, 4).Value = "No Of Projects for Curr Month";
                         ws.Cell(firstrow, 5).Value = "Values for Curr Month";
+                        ws.Cell(firstrow, 6).Value = "Total Projects";
+                        ws.Cell(firstrow, 7).Value = "Total Values";
                         firstrow = firstrow + 1;
                         foreach (DataRow row in dtColumns6.Rows)
                         {
@@ -1370,6 +1372,8 @@ namespace IOAS.Controllers
                             ws.Cell(firstrow, 3).Value = row["PrevValue"];
                             ws.Cell(firstrow, 4).Value = row["CurrNoOfProject"].ToString();
                             ws.Cell(firstrow, 5).Value = row["CurrValue"];
+                            ws.Cell(firstrow, 6).Value = row["TotalNoOfProject"];
+                            ws.Cell(firstrow, 7).Value = row["TotalValue"];
                             firstrow++;
                         }
                         var ws1 = wb.Worksheets.Add("Consultancy");
@@ -1423,6 +1427,9 @@ namespace IOAS.Controllers
                         ws1.Cell(fistrow, 5).Value = "No Of Projects for Curr Month ";
                         ws1.Cell(fistrow, 6).Value = "Values for Curr Month (Inclusive Of Tax)";
                         ws1.Cell(fistrow, 7).Value = "Values for Curr Month (Exclusive Of Tax)";
+                        ws1.Cell(fistrow, 8).Value = "Total Projects";
+                        ws1.Cell(fistrow, 9).Value = "Total Value (Inclusive Of Tax)";
+                        ws1.Cell(fistrow, 10).Value = "Total Value (Exclusive Of Tax)";
                         fistrow = fistrow + 2;
                         foreach (DataRow row in dtColumns7.Rows)
                         {
@@ -1433,6 +1440,9 @@ namespace IOAS.Controllers
                             ws1.Cell(fistrow, 5).Value = row["CurrNoOfProject"];
                             ws1.Cell(fistrow, 6).Value = row["CurrValue"];
                             ws1.Cell(fistrow, 7).Value = row["ExCurrValue"];
+                            ws1.Cell(fistrow, 8).Value = row["TotalNoOfProject"];
+                            ws1.Cell(fistrow, 9).Value = row["TotalIncValue"];
+                            ws1.Cell(fistrow, 10).Value = row["TotalExValue"];
                             fistrow++;
                         }
                         //var ws2 = wb.Worksheets.Add("Summary");

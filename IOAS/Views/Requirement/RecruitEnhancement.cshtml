@@ -426,6 +426,10 @@
                                                     <label>Designation Code</label>
                                                     @Html.TextBoxFor(m => m.DesignationCode, new { @class = "form-control required", @autocomplete = "off" })
                                                     <div>@Html.ValidationMessageFor(m => m.DesignationCode)</div>
+                                                    @if (!string.IsNullOrEmpty(Model.OtherDesignation)) 
+                                                    {
+                                                        <em style="color:red;font-size:15px;"><b>PI requested designation : @Html.DisplayFor(m => m.OtherDesignation)</b></em>
+                                                    }
                                                 </div>
                                             </div>
                                             <div class="col-md-3">
@@ -1592,19 +1596,19 @@
         var currentdate = moment(new Date()).toDate();
         if(OrderID > 0)
         {
-            var DateRD = "@string.Format("{0:dd/MMMM/yyyy}", Model.ApplicationReceiveDate)";
-            var ApplicationRD = moment(DateRD.split('-').join('/')).toDate();
-            var SourceEmailDate = "@string.Format("{0:dd/MMMM/yyyy}", Model.SourceEmailDate)";
-            var SourceOfEmailDt = moment(SourceEmailDate.split('-').join('/')).toDate();
+            var appreceivedate = "@string.Format("{0:dd/MMMM/yyyy}", Model.ApplicationReceiveDate)";
+            var appreceivedt   = moment(appreceivedate.split('-').join('/')).toDate();
+            var sourceemaildate = "@string.Format("{0:dd/MMMM/yyyy}", Model.SourceEmailDate)";
+            var sourceemaildt   = moment(sourceemaildate.split('-').join('/')).toDate();
             $('#ApplicationReceiveDate').datepicker({
                 dateFormat: 'dd-MM-yy',
                 changeYear: true
-            }).datepicker("option", "maxDate", currentdate).datepicker("option", "minDate", ApplicationRD);
+            }).datepicker("option", "maxDate", currentdate).datepicker("option", "minDate", appreceivedt);
 
             $('#SourceEmailDate').datepicker({
                 dateFormat: 'dd-MM-yy',
                 changeYear: true
-            }).datepicker("option", "maxDate", currentdate).datepicker("option", "minDate", SourceOfEmailDt);
+            }).datepicker("option", "maxDate", currentdate).datepicker("option", "minDate", sourceemaildt);
         }
         else
         {
@@ -1713,7 +1717,7 @@
             var strdate = new Date(appointmentenddate);
             strdate = strdate.setDate(strdate.getDate() + 1,'days');
             strdate =  new Date(strdate);
-            var formatdate = formattedDate(strdate);
+            var formatdate = $.datepicker.formatDate('dd-MM-yy', strdate);
 
             $('#FromDate').datepicker({
                 dateFormat: 'dd-MM-yy',
@@ -1788,7 +1792,7 @@
                         $('#FromDate').datepicker({
                             dateFormat: 'dd-MM-yy',
                             changeYear: true
-                        }).datepicker("option", "minDate", setappstrdat).datepicker("option", "maxDate",datepickerenddate);
+                        }).datepicker("option", "minDate", momentfromdt).datepicker("option", "maxDate",datepickerenddate);
 
                         $('#ToDate').datepicker({
                             dateFormat: 'dd-MM-yy',
@@ -1901,20 +1905,6 @@
         }
     }
 
-    function formattedDate(date) {
-        var fromdt = date;
-        const monthNames = ["January", "February", "March", "April", "May", "June","July", "August", "September", "October", "November", "December"];
-        var year = fromdt.getFullYear();
-        var month = fromdt.getMonth();
-        var day = fromdt.getDate().toString();
-        if(day.length == 1){
-            day = '0' + day;
-        }
-        var month = monthNames[month];
-        month = month.toUpperCase();
-        var formattedDate =  day + '-' + month + '-' + year;
-        return formattedDate;
-    }
 
     $('#Salary').keyup(function () {
         if(typcategory == "OSG")
@@ -2020,10 +2010,7 @@
                 if(isarrearpay == true) {
                     enddate = new Date($('#ArrearOrDeductionTillDate').val().split('-').join('/'));
                 }
-                var MonthCount = [];
-                var FromDate=getFormattedDate(startdate);
-                var ToDate=getFormattedDate(enddate);
-                MonthCount = dateRange(FromDate,ToDate)
+                var count = monthCount(startdate,enddate);
                 //define moments for the startdate and enddate
                 var StartDateTotalDays = parseInt(endOfMonth(startdate).getDate());
                 var EndDateTotalDays = parseInt(endOfMonth(enddate).getDate());
@@ -2037,13 +2024,6 @@
                     EndWorkingDays = enddate.getDate();
                 }
 
-                var count = 0;
-                for (var i = 0; i < MonthCount.length; i++) {
-                    var lastCount = MonthCount.length - 1;
-                    if (i != 0 && i != lastCount) {
-                        count += 1;
-                    }
-                }
                 var months =count || 0;
                 var days = StartWorkingDays + EndWorkingDays;
                 var HRAValue = 0;
@@ -2146,11 +2126,7 @@
                 if(isarrearpay == true) {
                     enddate = new Date($('#ArrearOrDeductionTillDate').val().split('-').join('/'));
                 }
-                var MonthCount = [];
-                var FromDate=getFormattedDate(startdate);
-                var ToDate=getFormattedDate(enddate);
-                MonthCount = dateRange(FromDate,ToDate)
-
+                var count = monthCount(startdate,enddate);
                 //define moments for the startdate and enddate
                 var StartDateTotalMonth = parseInt(endOfMonth(startdate).getDate());
                 var EndDateTotalMonth = parseInt(endOfMonth(enddate).getDate());
@@ -2164,15 +2140,6 @@
                     EndWorkingDays = enddate.getDate();
                 }
 
-                //var startdateMoment = moment(startdate);
-                //var enddateMoment = moment(enddate);
-                var count = 0;
-                for (var i = 0; i < MonthCount.length; i++) {
-                    var lastCount = MonthCount.length - 1;
-                    if (i != 0 && i != lastCount) {
-                        count += 1;
-                    }
-                }
                 var months = count || 0;
                 var days = StartWorkingDays + EndWorkingDays;
                 var HRAValue = 0;
@@ -2288,10 +2255,7 @@
                     enddate = new Date($('#ArrearOrDeductionTillDate').val().split('-').join('/'));
                 }
                 var lwfamt = 0;
-                var MonthCount = [];
-                var FromDate=getFormattedDate(startdate);
-                var ToDate=getFormattedDate(enddate);
-                MonthCount = dateRange(FromDate,ToDate)
+                var count = monthCount(startdate,enddate);
                 //define moments for the startdate and enddate
                 var StartDateTotalDays = parseInt(endOfMonth(startdate).getDate());
                 var EndDateTotalDays = parseInt(endOfMonth(enddate).getDate());
@@ -2303,13 +2267,6 @@
                 else{
                     StartWorkingDays=StartDateTotalDays - parseInt(startdate.getDate()) + 1;
                     EndWorkingDays = enddate.getDate();
-                }
-                var count = 0;
-                for (var i = 0; i < MonthCount.length; i++) {
-                    var lastCount = MonthCount.length - 1;
-                    if (i != 0 && i != lastCount) {
-                        count += 1;
-                    }
                 }
                 var months =count || 0;
                 var days = StartWorkingDays + EndWorkingDays;
@@ -2457,36 +2414,6 @@
             }
         }
         textForCommitment();
-    }
-
-
-    function getFormattedDate(date) {
-        var year = date.getFullYear();
-        var month = (1 + date.getMonth()).toString();
-        var day = date.getDate().toString();
-        return year + '-' + month + '-' + day;
-    }
-
-    function dateRange(startDate, endDate) {
-        var start = startDate.split('-');
-        var end = endDate.split('-');
-        var startYear = parseInt(start[0]);
-        var endYear = parseInt(end[0]);
-        var months = [];
-        for (var i = startYear; i <= endYear; i++) {
-            var endMonth = i != endYear ? 11 : parseInt(end[1]) - 1;
-            var startMon = i === startYear ? parseInt(start[1]) - 1 : 0;
-            for (var j = startMon; j <= endMonth; j = j > 12 ? j % 12 || 11 : j + 1) {
-                var month = j + 1;
-                var displayMonth = month < 10 ? '0' + month : month;
-                months.push([displayMonth]);
-            }
-        }
-        return months;
-    }
-
-    function endOfMonth(date) {
-        return new Date(date.getFullYear(), date.getMonth() + 1, 0);
     }
 
     $("#ToDate").change(function () {
@@ -2720,7 +2647,7 @@
             document.getElementById("prevBtn").style.display = "inline";
         }
         if (n == (x.length - 1)) {
-            if ($('#Status').val() == "" || $('#Status').val().includes("Open") || $('#Status').val().includes("Note to PI")) {
+            if ($('#Status').val() == "" || $('#Status').val().includes("Open") || $('#Status').val().includes("Note to PI") || $('#Status').val().includes("PI Initiated")) {
                 document.getElementById("nextBtn").style.display = "inline";
                 document.getElementById("nextBtn").innerHTML = "Submit";
             }
@@ -2862,7 +2789,7 @@
                 } // set our flag if there was an error
             }
         });
-        if (!hadError && n != 2 && ($('#Status').val() == "" || $('#Status').val().includes("Open") || $('#Status').val().includes("Note to PI"))) {
+        if (!hadError && n != 2 && ($('#Status').val() == "" || $('#Status').val().includes("Open") || $('#Status').val().includes("Note to PI") || $('#Status').val().includes("PI Initiated"))) {
 
             if ($('#FromDate').val() == "" || $('#ToDate').val() == "") {
                 $.confirm({
@@ -3431,7 +3358,7 @@
         });
     }
     var Status = '@Model.Status';
-    var isDisabledStatus = ["","Open","Note to PI"];
+    var isDisabledStatus = ["","Open","Note to PI" , "PI Initiated"];
     if (!isDisabledStatus.includes(Status)) {
         FormDisabled();
         $('#btnViewSummary').removeAttr('disabled');
@@ -3541,6 +3468,7 @@
             if(isemppfwages == true && emppfbasicwages == 0)
             {
                 $('input[name=EmpPFBasicWages]').val(emppfbasicwages);
+                $("#lblEmpPFBasicWages").html(emppfbasicwages);
                 $('input[name=EmployeePF]').val(0);
                 $("#lblEmployeePF").html(0);
                 //$('input[name=EmployeeESIC]').val(0);
@@ -3570,6 +3498,7 @@
             if(typeofappoint == "Part time")
             {
                 $('input[name=EmpPFBasicWages]').val(0);
+                $("#lblEmpPFBasicWages").html(0);
                 $('input[name=EmployeePF]').val(0);
                 $("#lblEmployeePF").html(0);
                 $('input[name=EmpPFBasicWages]').attr('readonly',true);
@@ -3697,6 +3626,7 @@
             if(typeofappoint == "Part time")
             {
                 $('input[name=EmpPFBasicWages]').val(0);
+                $("#lblEmpPFBasicWages").html(0);
                 $('input[name=EmployeePF]').val(0);
                 $("#lblEmployeePF").html(0);
                 $('input[name=EmpPFBasicWages]').attr('readonly',true);
@@ -3830,6 +3760,7 @@
             if(typeofappoint == "Part time")
             {
                 $('input[name=EmpPFBasicWages]').val(0);
+                $("#lblEmpPFBasicWages").html(0);
                 $('input[name=EmployeePF]').val(0);
                 $("#lblEmployeePF").html(0);
                 $('input[name=EmpPFBasicWages]').attr('readonly',true);
@@ -3963,6 +3894,7 @@
             if(typeofappoint == "Part time")
             {
                 $('input[name=EmpPFBasicWages]').val(0);
+                $("#lblEmpPFBasicWages").html(0);
                 $('input[name=EmployeePF]').val(0);
                 $("#lblEmployeePF").html(0);
                 $('input[name=EmpPFBasicWages]').attr('readonly',true);
@@ -4097,6 +4029,7 @@
             if(typeofappoint == "Part time")
             {
                 $('input[name=EmpPFBasicWages]').val(0);
+                $("#lblEmpPFBasicWages").html(0);
                 $('input[name=EmployeePF]').val(0);
                 $("#lblEmployeePF").html(0);
                 $('input[name=EmpPFBasicWages]').attr('readonly',true);
