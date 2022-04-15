@@ -76,7 +76,6 @@ namespace IOAS.Controllers
             return View("SalaryInitGrid", model);
         }
 
-
         [HttpPost]
         public ActionResult Salary(ValidateSalary model, FormCollection formCollection)
         {

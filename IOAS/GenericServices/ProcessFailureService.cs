@@ -842,7 +842,7 @@ namespace IOAS.GenericServices
             {
                 using (var context = new IOASDBEntities())
                 {
-                    var query = context.tblImprestBillRecoupment.FirstOrDefault(m => m.ImprestBillRecoupId == ImprestBillRecoupId && m.Status == "Approval Pending" && m.TransactionTypeCode == "IBR");
+                    var query = context.tblImprestBillRecoupment.FirstOrDefault(m => m.ImprestBillRecoupId == ImprestBillRecoupId && m.Status == "Submit for approval" && m.TransactionTypeCode == "IBR");
                     if (query != null)
                     {
                         query.Status = "Rejected";

@@ -37,8 +37,10 @@ namespace IOAS.GenericServices
                             }
                             if (model.AccountNumber != null)
                             {
-                                var chkAccNo = context.tblVendorMaster.FirstOrDefault(M => M.AccountNumber == model.AccountNumber && M.Status != "InActive");
-                                if (chkAccNo != null)
+                                //var chkAccNo = context.tblVendorMaster.FirstOrDefault(M => M.AccountNumber == model.AccountNumber && M.Status != "InActive");
+                                //if (chkAccNo != null)
+                                //    return 2;
+                                if (context.tblVendorMaster.Any(M => M.AccountNumber == model.AccountNumber && M.Status != "InActive" && M.GSTIN == model.GSTIN))
                                     return 2;
                             }
                             var sqnbr = (from S in context.tblVendorMaster
@@ -440,7 +442,7 @@ namespace IOAS.GenericServices
                                     }
                                 }
 
-                                if(model.GSTDocumentType != null)
+                                if (model.GSTDocumentType != null)
                                 {
                                     if (model.GSTDocumentType.Length > 0)
                                     {
@@ -525,7 +527,7 @@ namespace IOAS.GenericServices
 
                                 }
 
-                                if(model.VendorDocumentType != null)
+                                if (model.VendorDocumentType != null)
                                 {
                                     if (model.VendorDocumentType.Length > 0)
                                     {
@@ -606,10 +608,10 @@ namespace IOAS.GenericServices
 
                                     }
                                 }
-                               
 
 
-                                if(model.TDSDocumentType != null)
+
+                                if (model.TDSDocumentType != null)
                                 {
                                     if (model.TDSDocumentType.Length > 0)
                                     {
@@ -689,9 +691,9 @@ namespace IOAS.GenericServices
 
                                     }
                                 }
-                                
 
-                                if(model.Section != null)
+
+                                if (model.Section != null)
                                 {
                                     if (model.Section[0] != 0)
                                     {
@@ -733,7 +735,7 @@ namespace IOAS.GenericServices
                                         }
                                     }
                                 }
-                               
+
                             }
                             transaction.Commit();
                             return 3;

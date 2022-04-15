@@ -6408,7 +6408,7 @@ namespace IOAS.GenericServices
 
                     var ProjectExpQry = (from C in context.vw_ProjectExpenditureReport.AsNoTracking()
                                          where C.ProjectId == ProjectId
-                                         select new {C.AllocationHeadId,C.AmountSpent,C.Posted_f,C.NewAmount}
+                                         select new { C.AllocationHeadId, C.AmountSpent, C.Posted_f, C.NewAmount }
                                          ).ToList();
                     if (TotalHead.Length > 0)
                     {
@@ -6456,13 +6456,13 @@ namespace IOAS.GenericServices
                             List.Add(new HeadWiseDetailModel()
                             {
                                 AllocationId = headId,
-                                AllocationHeadName = BudgetHeadQry==null?"": BudgetHeadQry.HeadName,
+                                AllocationHeadName = BudgetHeadQry == null ? "" : BudgetHeadQry.HeadName,
                                 Amount = TotBudgetAmt,
                                 BalanceAmount = BalComm,
                                 Expenditure = SpentAmount + OB,
                                 Total = BalComm + SpentAmount + OB,
                                 Available = TotBudgetAmt - (BalComm + SpentAmount + OB),
-                                Validate_f = BudgetHeadQry == null ? false : BudgetHeadQry.IsNonValidate_f??false
+                                Validate_f = BudgetHeadQry == null ? false : BudgetHeadQry.IsNonValidate_f ?? false
                             });
                         }
                     }
@@ -7208,8 +7208,8 @@ namespace IOAS.GenericServices
                 {
                     var query = (from P in context.tblProject
                                  join vw in context.vwFacultyStaffDetails on P.PIName equals vw.UserId
-                                 where 
-                                // P.Status != "InActive" && 
+                                 where
+                                 // P.Status != "InActive" && 
                                  id.Contains(P.ProjectClassification ?? 0)
                                  && (P.ProjectNumber.Contains(model.ProjectNumber) || model.ProjectNumber == null)
                                  && (vw.FirstName.Contains(model.PIName) || model.PIName == null)
@@ -7219,7 +7219,7 @@ namespace IOAS.GenericServices
                                  select new { P.ProjectId, P.ProjectNumber, vw.FirstName, P.SanctionValue, P.Status }).Skip(skiprec).Take(pageSize).ToList();
                     searrecords.TotalRecords = (from P in context.tblProject
                                                 join vw in context.vwFacultyStaffDetails on P.PIName equals vw.UserId
-                                                where 
+                                                where
                                                 //P.Status != "InActive" &&
                                                 id.Contains(P.ProjectClassification ?? 0)
                                                && (P.ProjectNumber.Contains(model.ProjectNumber) || model.ProjectNumber == null)

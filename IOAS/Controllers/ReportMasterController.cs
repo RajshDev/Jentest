@@ -25,7 +25,10 @@ namespace IOAS.Controllers
         string strDatabase = ConfigurationManager.AppSettings["DataBaseName"].ToString();
         string strUserID = ConfigurationManager.AppSettings["UserId"].ToString();
         string strPwd = ConfigurationManager.AppSettings["Password"].ToString();
-        
+        string BillMode = ConfigurationManager.AppSettings["BillMode"].ToString();
+        string BillMonth = ConfigurationManager.AppSettings["BillMonth"].ToString();
+        string BillDate = ConfigurationManager.AppSettings["BillDate"].ToString();
+
         #region CashBook
         [HttpGet]
         public ActionResult CashBookReport()
@@ -1149,6 +1152,8 @@ namespace IOAS.Controllers
                 LCOpeningModel model = new LCOpeningModel();
                 CoreAccountsService coreAccountService = new CoreAccountsService();
                 model = coreAccountService.GetLCRetirementDetailsbyId(id);
+                if (BillMode == "Old")
+                    model.LCRetireDate = BillDate;
                 return PartialView(model);
             }
             catch (Exception ex)

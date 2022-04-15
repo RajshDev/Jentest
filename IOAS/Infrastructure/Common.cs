@@ -20508,7 +20508,7 @@ namespace IOAS.Infrastructure
                     var Qry = context.tblImprestRecoupment.Where(m => !Status.Contains(m.Status) && m.ImprestUserDetailsId == ImpId).ToList();
                     var RecQry = (from a in context.tblImprestRecoupment
                                   join b in context.tblImprestBillRecoupment on a.RecoupmentId equals b.ImprestBillId
-                                  where b.Status != "Completed" && a.ImprestUserDetailsId == ImpId
+                                  where b.Status != "Completed" && b.Status != "InActive" && a.ImprestUserDetailsId == ImpId
                                   select b).ToList();
                     if (Qry.Count > 0 || RecQry.Count > 0)
                         return "Some Transactions pending (Bill Booking,Recoupment)";

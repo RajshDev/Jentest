@@ -2795,6 +2795,7 @@ namespace IOAS.Models
         [Display(Name = "Sanction Order No.")]
         public string SanctionOrderNo { get; set; }
         public bool IsBudgetHeadPosting { get; set; }
+        public Nullable<Decimal> ToBeTaxDebited { get; set; }
     }
     public class ReceiptOverheadListModel
     {

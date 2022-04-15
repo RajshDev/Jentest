@@ -10778,15 +10778,31 @@ namespace IOAS.GenericServices
                                     }
                                 }
                                 if (odQuery.OrderRequestId > 0)//PI initiate relieve are no need to upload no dues
+                                {
                                     NOC = context.tblRCTOrderRequest.Where(x => x.OrderRequestId == odQuery.OrderRequestId).Select(x => x.NoDuesRemark).FirstOrDefault();
-                                odQuery.Status = !string.IsNullOrEmpty(NOC) ? "Completed" : "Open";
+                                    detQuery.NOCDocSubmitted = !string.IsNullOrEmpty(NOC) ? true : false;
+                                }
+                                else
+                                    odQuery.Status = !string.IsNullOrEmpty(NOC) ? "Completed" : "Open";
                                 newstatus = odQuery.Status;
                                 context.SaveChanges();
                                 transaction.Commit();
+                                PostOrderStatusLog(OrderID, prestatus, newstatus, logged_in_userId);
+                                if (newstatus == "Relieving initiated")
+                                {
+                                    var data = RecruitRelieveWFInit(OrderID, logged_in_userId);
+                                    if (!data.Item1)
+                                        return Tuple.Create(0, data.Item2);
+                                    if (string.IsNullOrEmpty(NOC))
+                                        return Tuple.Create(1, "Employee Relieved successfully. Please upload No dues certificate for further action.");
+                                    else
+                                        return Tuple.Create(1, "Employee Relieved successfully");
+                                }
                                 if (odQuery.Status == "Completed")
                                     return Tuple.Create(1, "Employee Relieved successfully");
                                 else
                                     return Tuple.Create(1, "Employee Relieved successfully. Please upload No dues certificate for further action.");
+
                             }
                             else if (model.OrderID > 0)
                             {
@@ -11086,10 +11102,21 @@ namespace IOAS.GenericServices
                                                   select O).FirstOrDefault();
                             if (QryOrderDetail != null)
                             {
-                                odrmodel.ToMeridiem = QryOrderDetail.ToMeridiem ?? 0;
-                                odrmodel.FromMeridiem = QryOrderDetail.FromMeridiem ?? 0;
-                                odrmodel.lblToMeridiem = QryOrderDetail.ToMeridiem == 1 ? "AM" : "PM";
-                                odrmodel.lblFromMeridiem = QryOrderDetail.FromMeridiem == 1 ? "AM" : "PM";
+
+                                if (QryOrder.Status == "PI Initiated")
+                                {
+                                    odrmodel.ToMeridiem = 2;
+                                    odrmodel.FromMeridiem = 1;
+                                    odrmodel.lblToMeridiem = odrmodel.ToMeridiem == 1 ? "AM" : "PM";
+                                    odrmodel.lblFromMeridiem = odrmodel.FromMeridiem == 1 ? "AM" : "PM";
+                                }
+                                else
+                                {
+                                    odrmodel.ToMeridiem = QryOrderDetail.ToMeridiem ?? 0;
+                                    odrmodel.FromMeridiem = QryOrderDetail.FromMeridiem ?? 0;
+                                    odrmodel.lblToMeridiem = QryOrderDetail.ToMeridiem == 1 ? "AM" : "PM";
+                                    odrmodel.lblFromMeridiem = QryOrderDetail.FromMeridiem == 1 ? "AM" : "PM";
+                                }
                                 //odrmodel.Signature = QryOrderDetail.Signature ?? 0;
                                 //odrmodel.lblSignature = Common.GetCodeControlName(QryOrderDetail.Signature ?? 0, "Signature");
                                 odrmodel.PILetterPath = QryOrderDetail.PILetter;
@@ -11317,6 +11344,7 @@ namespace IOAS.GenericServices
                             else if (queryPIorder != null)
                             {
                                 Status = "Initiated";
+                                OrderID = queryPIorder.o.OrderId;
                                 queryPIorder.o.Status = Status;
                                 decimal WidthdrawAmmount = 0;
                                 var query = context.vw_RCTOverAllApplicationEntry.Where(m => m.ApplicationId == model.ApplicationID && m.Category == model.TypeCode && m.ApplicationType == "New")
@@ -12619,7 +12647,7 @@ namespace IOAS.GenericServices
                                         Designation = Designation,
                                         FromDate = string.Format("{0:dd-MMMM-yyyy}", effctivefrom),
                                         ToDate = string.Format("{0:dd-MMMM-yyyy}", effctiveto),
-                                        Salary = Convert.ToDecimal(list[i].Basic),
+                                        Salary = Convert.ToDecimal(list[i - 1].Basic),
                                         EmployeeDepartmentname = data.Item2
                                     });
 
@@ -24106,13 +24134,16 @@ namespace IOAS.GenericServices
                                 var checkexistdata = context.tblRCTOTHPaymentDeductionUploadDetail.Any(m => m.EmployeeNumber == data.EmployeeNumber && m.OTHPaymentDeductionUploadId == uploadId && m.OTHPayDeductionId == null);
                                 if (checkexistdata)
                                 {
+                                    string Remarks = null;
                                     string employeeNo = data.EmployeeNumber;
                                     var detail = query.Where(x => x.EmployeeNumber == employeeNo).ToList();
                                     var employeedetails = (from vwoth in context.vw_RCTOverAllApplicationEntry
                                                            orderby vwoth.EmployeersID descending
                                                            where vwoth.EmployeersID == employeeNo && vwoth.ApplicationType == "New" && vwoth.IsActiveNow == true && vwoth.Status != "Cancel"
                                                            select vwoth).FirstOrDefault();
-
+                                    string[] arrRemark = detail.Where(x => !string.IsNullOrEmpty(x.Remarks)).Select(x => x.Remarks).ToArray();
+                                    if (arrRemark.Length > 0)
+                                        Remarks = string.Join(",", arrRemark);
                                     tblRCTOTHPaymentDeduction addheadpd = new tblRCTOTHPaymentDeduction();
                                     addheadpd.EmployeeNo = data.EmployeeNumber;
                                     addheadpd.AppointmentId = data.AppointmentId;
@@ -24134,16 +24165,13 @@ namespace IOAS.GenericServices
                                     context.tblRCTOTHPaymentDeduction.Add(addheadpd);
                                     context.SaveChanges();
                                     int othid = addheadpd.OTHPayDeductionId;
-                                    string empno = addheadpd.EmployeeNo;
-                                    string Remarks = null;
+                                    //string empno = addheadpd.EmployeeNo;
                                     //data.OTHPayDeductionId = othid;
                                     context.tblRCTOTHPaymentDeductionUploadDetail.Where(m => m.OTHPaymentDeductionUploadId == uploadId && m.EmployeeNumber == employeeNo).
                                         ToList().ForEach(m =>
                                     {
                                         m.OTHPayDeductionId = othid;
                                     });
-                                    context.SaveChanges();
-
                                     context.SaveChanges();
                                     if (detail.Count > 0)
                                     {
@@ -24168,67 +24196,63 @@ namespace IOAS.GenericServices
                                     decimal sumofpayment = (from othd in context.tblRCTOTHPaymentDeductionDetail
                                                             where othd.OTHPayDeductionId == othid && othd.OtherType == 1 && othd.Status != "InActive"
                                                             select othd.Amount).Sum() ?? 0;
+                                    sumofpayment += (from othd in context.tblRCTOTHPaymentDeductionUploadDetail
+                                                     where othd.OTHPaymentDeductionUploadId == uploadId && othd.EmployeeNumber == employeeNo && othd.OtherTypeId == 3 && othd.ValidationMessage == "Valid"
+                                                     select othd.Amount).Sum() ?? 0;
                                     decimal sumofdeduction = (from othd in context.tblRCTOTHPaymentDeductionDetail
                                                               where othd.OTHPayDeductionId == othid && othd.OtherType == 2 && othd.Status != "InActive"
                                                               select othd.Amount).Sum() ?? 0;
+                                    sumofdeduction += (from othd in context.tblRCTOTHPaymentDeductionUploadDetail
+                                                       where othd.OTHPaymentDeductionUploadId == uploadId && othd.EmployeeNumber == employeeNo && othd.OtherTypeId == 4 && othd.ValidationMessage == "Valid"
+                                                       select othd.Amount).Sum() ?? 0;
                                     int commitmentid = context.tblCommitment.Where(x => x.CommitmentNumber == data.CommitmentNumber).Select(x => x.CommitmentId).FirstOrDefault();
+                                    var verct = (from vw in context.vw_RCTOverAllApplicationEntry.AsNoTracking()
+                                                 where vw.EmployeeNo == employeeNo && vw.ApplicationType == "New" && vw.IsActiveNow == true
+                                                 select vw).FirstOrDefault();
                                     CommitmentResultModel commit = new CommitmentResultModel();
                                     tblRCTCommitmentRequest AddCommitment = new tblRCTCommitmentRequest();
-                                    if (sumofpayment >= sumofdeduction)
+                                    if (sumofpayment >= sumofdeduction && commitmentid > 0)
                                     {
-                                        //AddCommitment.RequestType = "Add Commitment";
-                                        if (commitmentid > 0)
-                                        {
-                                            commit.LogTypeId = 1;
-                                            var verct = (from vw in context.vw_RCTOverAllApplicationEntry.AsNoTracking()
-                                                         where vw.EmployeeNo == empno && vw.ApplicationType == "New" && vw.IsActiveNow == true
-                                                         select vw).FirstOrDefault();
-                                            AddCommitment.ReferenceNumber = verct.ApplicationNo;
-                                            AddCommitment.TypeCode = verct.Category;
-                                            AddCommitment.CandidateName = verct.CandidateName;
-                                            AddCommitment.CandidateDesignation = verct.PostRecommended;
-                                            AddCommitment.ProjectId = addheadpd.ProjectId;
-                                            AddCommitment.ProjectNumber = Common.getprojectnumber(addheadpd.ProjectId ?? 0);
-                                            AddCommitment.TotalSalary = verct.BasicPay;
-                                            AddCommitment.RefId = addheadpd.OTHPayDeductionId;
-                                            AddCommitment.RequestType = "Add Commitment";
-                                            AddCommitment.AppointmentType = "OtherPayment";
-                                            AddCommitment.Status = "Awaiting Commitment Booking";
-                                            AddCommitment.RequestedCommitmentAmount = Math.Round(sumofpayment - sumofdeduction);
-                                            AddCommitment.Crtd_TS = DateTime.Now;
-                                            AddCommitment.Crtd_UserId = userId;
-                                            AddCommitment.EmpNumber = verct.EmployeersID;
-                                            context.tblRCTCommitmentRequest.Add(AddCommitment);
-                                            context.SaveChanges();
-                                        }
+                                        commit.LogTypeId = 1;
+                                        AddCommitment.ReferenceNumber = verct.ApplicationNo;
+                                        AddCommitment.TypeCode = verct.Category;
+                                        AddCommitment.CandidateName = verct.CandidateName;
+                                        AddCommitment.CandidateDesignation = verct.PostRecommended;
+                                        AddCommitment.ProjectId = addheadpd.ProjectId;
+                                        AddCommitment.ProjectNumber = Common.getprojectnumber(addheadpd.ProjectId ?? 0);
+                                        AddCommitment.TotalSalary = verct.BasicPay;
+                                        AddCommitment.RefId = addheadpd.OTHPayDeductionId;
+                                        AddCommitment.RequestType = "Add Commitment";
+                                        AddCommitment.AppointmentType = "OtherPayment";
+                                        AddCommitment.Status = "Awaiting Commitment Booking";
+                                        AddCommitment.RequestedCommitmentAmount = Math.Round(sumofpayment - sumofdeduction);
+                                        AddCommitment.Crtd_TS = DateTime.Now;
+                                        AddCommitment.Crtd_UserId = userId;
+                                        AddCommitment.EmpNumber = verct.EmployeersID;
+                                        context.tblRCTCommitmentRequest.Add(AddCommitment);
+                                        context.SaveChanges();
                                     }
-                                    else if (sumofpayment <= sumofdeduction)
+                                    else if (sumofpayment <= sumofdeduction && commitmentid > 0)
                                     {
 
-                                        if (commitmentid > 0)
-                                        {
-                                            commit.LogTypeId = 2;
-                                            var verct = (from vw in context.vw_RCTOverAllApplicationEntry.AsNoTracking()
-                                                         where vw.EmployeeNo == empno && vw.ApplicationType == "New" && vw.IsActiveNow == true
-                                                         select vw).FirstOrDefault();
-                                            AddCommitment.ReferenceNumber = verct.ApplicationNo;
-                                            AddCommitment.TypeCode = verct.Category;
-                                            AddCommitment.CandidateName = verct.CandidateName;
-                                            AddCommitment.CandidateDesignation = verct.PostRecommended;
-                                            AddCommitment.ProjectId = addheadpd.ProjectId;
-                                            AddCommitment.ProjectNumber = Common.getprojectnumber(addheadpd.ProjectId ?? 0);
-                                            AddCommitment.TotalSalary = verct.BasicPay;
-                                            AddCommitment.RefId = addheadpd.OTHPayDeductionId;
-                                            AddCommitment.RequestType = "Withdraw Commitment";
-                                            AddCommitment.AppointmentType = "OtherDeduction";
-                                            AddCommitment.Status = "Awaiting Commitment Booking";
-                                            AddCommitment.Crtd_TS = DateTime.Now;
-                                            AddCommitment.Crtd_UserId = userId;
-                                            AddCommitment.EmpNumber = verct.EmployeersID;
-                                            AddCommitment.RequestedCommitmentAmount = Math.Round(sumofdeduction - sumofpayment);
-                                            context.tblRCTCommitmentRequest.Add(AddCommitment);
-                                            context.SaveChanges();
-                                        }
+                                        commit.LogTypeId = 2;
+                                        AddCommitment.ReferenceNumber = verct.ApplicationNo;
+                                        AddCommitment.TypeCode = verct.Category;
+                                        AddCommitment.CandidateName = verct.CandidateName;
+                                        AddCommitment.CandidateDesignation = verct.PostRecommended;
+                                        AddCommitment.ProjectId = addheadpd.ProjectId;
+                                        AddCommitment.ProjectNumber = Common.getprojectnumber(addheadpd.ProjectId ?? 0);
+                                        AddCommitment.TotalSalary = verct.BasicPay;
+                                        AddCommitment.RefId = addheadpd.OTHPayDeductionId;
+                                        AddCommitment.RequestType = "Withdraw Commitment";
+                                        AddCommitment.AppointmentType = "OtherDeduction";
+                                        AddCommitment.Status = "Awaiting Commitment Booking";
+                                        AddCommitment.Crtd_TS = DateTime.Now;
+                                        AddCommitment.Crtd_UserId = userId;
+                                        AddCommitment.EmpNumber = verct.EmployeersID;
+                                        AddCommitment.RequestedCommitmentAmount = Math.Round(sumofdeduction - sumofpayment);
+                                        context.tblRCTCommitmentRequest.Add(AddCommitment);
+                                        context.SaveChanges();
                                     }
 
                                     int requestcomid = AddCommitment.RecruitmentRequestId;
@@ -25554,7 +25578,6 @@ namespace IOAS.GenericServices
                         masterid = model.OTHUploadMasterId ?? 0;
                     }
                     res = 1;
-
                     var checkValidStatus = context.tblRCTOTHPaymentDeductionUploadDetail.Any(m => m.ValidationMessage != "Valid" && m.OTHPaymentDeductionUploadId == model.UploadId);
                     if (!checkValidStatus)
                     {
@@ -27864,7 +27887,7 @@ namespace IOAS.GenericServices
                     if (!string.IsNullOrEmpty(model.SearchInStatus))
                         predicate = predicate.And(d => d.Status.Contains(model.SearchInStatus));
 
-                    var query = prequery.Where(predicate).OrderByDescending(m => m.ID).Skip(skiprec).Take(pageSize).ToList();
+                    var query = prequery.Where(predicate).OrderByDescending(m => m.OrderID).Skip(skiprec).Take(pageSize).ToList();
                     if (query != null)
                     {
                         int sno = 0;
@@ -27971,7 +27994,7 @@ namespace IOAS.GenericServices
                         predicate = predicate.And(d => d.ProjectNumber.Contains(model.SearchInProjectNumber) || d.PIName.Contains(model.SearchInProjectNumber));
                     if (!string.IsNullOrEmpty(model.SearchInStatus))
                         predicate = predicate.And(d => d.Status.Contains(model.SearchInStatus));
-                    var QryEmployeeList = prequery.Where(predicate).OrderByDescending(m => m.ID).Skip(skiprec).Take(pageSize).ToList();
+                    var QryEmployeeList = prequery.Where(predicate).OrderByDescending(m => m.OrderID).Skip(skiprec).Take(pageSize).ToList();
                     if (QryEmployeeList != null)
                     {
                         for (int i = 0; i < QryEmployeeList.Count; i++)

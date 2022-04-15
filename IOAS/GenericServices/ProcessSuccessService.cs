@@ -55,7 +55,7 @@ namespace IOAS.GenericServices
         private static readonly Object JVlockObj = new Object();
         private static readonly Object TXPlockObj = new Object();
         private static readonly Object IMElockObj = new Object();
-        
+
         CoreAccountsService coreAccountService = new CoreAccountsService();
         public bool TADWFInitSuccess(int travelBillId, int logged_in_user)
         {

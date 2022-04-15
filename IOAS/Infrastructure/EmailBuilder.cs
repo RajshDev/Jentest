@@ -225,7 +225,7 @@ namespace IOAS.Infrastructure
             }
         }
 
-        public bool RCTSendEmail(EmailModel model, string eBody)        {            try            {                bool enableSSL = true;                string mail = WebConfigurationManager.AppSettings["fromMail"];                string mailpassword = WebConfigurationManager.AppSettings["fromMailPassword"];                string smtpAddress = WebConfigurationManager.AppSettings["smtpAddress"];                int portNumber = Convert.ToInt32(WebConfigurationManager.AppSettings["portNumber"]);                var tomail = model.toMail;
+        public bool RCTSendEmail(EmailModel model, string eBody)        {            try            {                bool enableSSL = true;                string mail = WebConfigurationManager.AppSettings["RCTfromMail"];                string mailpassword = WebConfigurationManager.AppSettings["RCTfromMailPassword"];                string smtpAddress = WebConfigurationManager.AppSettings["smtpAddress"];                int portNumber = Convert.ToInt32(WebConfigurationManager.AppSettings["portNumber"]);                var tomail = model.toMail;
                 using (MailMessage mm = new MailMessage(mail, tomail))                {
                     // string url = HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority) + HttpContext.Current.Request.ApplicationPath + "/Account/Login";
                     mm.Subject = model.subject;                    mm.Body = eBody;                    mm.IsBodyHtml = true;

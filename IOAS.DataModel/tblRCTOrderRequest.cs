@@ -36,13 +36,16 @@ namespace IOAS.DataModel
         public Nullable<decimal> WithdrawAmount { get; set; }
         public Nullable<decimal> CommitmentAmount { get; set; }
         public Nullable<int> CRTD_BY { get; set; }
-        public Nullable<int> CRTD_TS { get; set; }
+        public Nullable<System.DateTime> CRTD_TS { get; set; }
         public Nullable<int> UPTD_BY { get; set; }
-        public Nullable<int> UPTD_TS { get; set; }
+        public Nullable<System.DateTime> UPTD_TS { get; set; }
         public Nullable<int> RelieveMode { get; set; }
         public Nullable<bool> NoDues_f { get; set; }
         public string NoDuesRemark { get; set; }
         public string NoDuesDoc { get; set; }
         public string NoDuesDocName { get; set; }
+        public Nullable<System.DateTime> ExistingFromDate { get; set; }
+        public Nullable<System.DateTime> ExistingToDate { get; set; }
+        public string OtherDesignation { get; set; }
     }
 }

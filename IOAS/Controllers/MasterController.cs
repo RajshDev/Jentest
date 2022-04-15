@@ -115,7 +115,7 @@ namespace IOAS.Controllers
                     }
                     else if (vendorStatus == 2)
                     {
-                        ViewBag.Msg = "This Vendor Account Number Already Exits";
+                        ViewBag.Msg = "This Vendor Account Number and GSTIN Number Already Exits";
                         return View(model);
                     }
                     else if (vendorStatus == 3)
@@ -518,7 +518,7 @@ namespace IOAS.Controllers
                 }
                 else if (vendorStatus == 2)
                 {
-                    ViewBag.Msg = "This Vendor Account Number Already Exits";
+                    ViewBag.Msg = "This Vendor Account Number and GSTIN Number Already Exits";
                     return View(model);
                 }
                 else if (vendorStatus == 3)

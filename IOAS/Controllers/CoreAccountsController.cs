@@ -1356,8 +1356,7 @@ namespace IOAS.Controllers
                 return Json(new { status = false, msg = "Something went wrong please contact administrator" }, JsonRequestBehavior.AllowGet);
             }
         }
-
-
+       
         [HttpGet]
         public JsonResult GetBillPaymentList(string typeCode)
         {
@@ -20579,8 +20578,9 @@ namespace IOAS.Controllers
         //}
         public ActionResult PaymentTest()
         {
-            // coreAccountService.PaymentTestBOATransaction(5647, 1);
-            coreAccountService.PaymentTestBOATransaction(6360, 1);
+        //    coreAccountService.testBRSDelete(242);
+        //    // coreAccountService.PaymentTestBOATransaction(5647, 1);
+        //    //coreAccountService.PaymentTestBOATransaction(6360, 1);
             return View();
 
         }
@@ -20685,6 +20685,14 @@ namespace IOAS.Controllers
                 throw new Exception(ex.Message);
             }
         }
-        #endregion      
+        #endregion
+
+
+        public JsonResult DOPExpPosting(string RefNo)
+        {
+            var res = coreAccountService.DOPExpPosting(RefNo);
+            return Json(res, JsonRequestBehavior.AllowGet);
+        }
+
     }
 }

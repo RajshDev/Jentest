@@ -11,6 +11,7 @@ using System.Linq;
 using System.Web;
 using DataAccessLayer;
 using System.Reflection;
+using System.Configuration;
 
 namespace IOAS.GenericServices
 {
@@ -18,6 +19,9 @@ namespace IOAS.GenericServices
     {
         ProjectService ProjSer = new ProjectService();
         CoreAccountsService coreAccountService = new CoreAccountsService();
+        string BillMode = ConfigurationManager.AppSettings["BillMode"].ToString();
+        string BillMonth = ConfigurationManager.AppSettings["BillMonth"].ToString();
+        string BillDate = ConfigurationManager.AppSettings["BillDate"].ToString();
         #region General Voucher Report
         public TravelBillReportModel GetGeneralVoucherBillReport(int Id = 0)
         {
@@ -259,6 +263,12 @@ namespace IOAS.GenericServices
                     model.Remarks = Qry.Remarks;
                     model.StudentName = Common.GetCodeControlName(Convert.ToInt32(Qry.CategoryId), "PaymentCategory");
                     model.TravelerName = Common.GetUserNameBasedonId(Convert.ToInt32(Qry.CRTD_By));
+                    if (BillMode == "Old")
+                    {
+                        model.BillMonth = BillMonth;
+                        model.BillDate = BillDate;
+                        model.PrintedDate = BillDate;
+                    }
                     return model;
                 }
             }
@@ -636,6 +646,12 @@ namespace IOAS.GenericServices
                     model.Rupees = CoreAccountsService.words(model.PayableAmount);
                     model.PrintedDate = String.Format("{0:dd-MMMM-yyyy}", DateTime.Now);
                     model.TravelerName = Common.GetVWCombineStaffName(Convert.ToInt32(qry.PI), "Professor");
+                    if (BillMode == "Old")
+                    {
+                        model.BillMonth = BillMonth;
+                        model.BillDate = BillDate;
+                        model.PrintedDate = BillDate;
+                    }
                     return model;
 
                 }
@@ -861,6 +877,12 @@ namespace IOAS.GenericServices
                     model.PrintedDate = String.Format("{0:dd-MMMM-yyyy}", DateTime.Now);
                     model.Remarks = Qry.RequestReceivedFrom;
                     model.TravelerName = Common.GetUserNameBasedonId(Convert.ToInt32(Qry.CRTD_By));
+                    if (BillMode == "Old")
+                    {
+                        model.BillMonth = BillMonth;
+                        model.BillDate = BillDate;
+                        model.PrintedDate = BillDate;
+                    }
                     return model;
                 }
             }
@@ -1138,6 +1160,12 @@ namespace IOAS.GenericServices
                     model.Rupees = CoreAccountsService.words(model.PayableAmount);
                     model.PrintedDate = String.Format("{0:dd-MMMM-yyyy}", DateTime.Now);
                 }
+                if (BillMode == "Old")
+                {
+                    model.BillMonth = BillMonth;
+                    model.BillDate = BillDate;
+                    model.PrintedDate = BillDate;
+                }
                 return model;
             }
             catch (Exception ex)
@@ -1321,6 +1349,12 @@ namespace IOAS.GenericServices
                     model.Rupees = CoreAccountsService.words(model.TotalBillValue);
                     model.PrintedDate = String.Format("{0:dd-MMMM-yyyy}", DateTime.Now);
                 }
+                if (BillMode == "Old")
+                {
+                    model.BillMonth = BillMonth;
+                    model.BillDate = BillDate;
+                    model.PrintedDate = BillDate;
+                }
                 return model;
             }
             catch (Exception ex)
@@ -1479,6 +1513,12 @@ namespace IOAS.GenericServices
                     model.PrintedDate = String.Format("{0:dd-MMMM-yyyy}", DateTime.Now);
                     model.TotalBillValue = Convert.ToDecimal(qry.TemporaryAdvanceAmountReceived);
                     model.Remarks = qry.Remarks;
+                    if (BillMode == "Old")
+                    {
+                        model.BillMonth = BillMonth;
+                        model.BillDate = BillDate;
+                        model.PrintedDate = BillDate;
+                    }
                     return model;
                 }
             }
@@ -1625,6 +1665,12 @@ namespace IOAS.GenericServices
                     model.Rupees = CoreAccountsService.words(model.TotalBillValue);
                     model.PrintedDate = String.Format("{0:dd-MMMM-yyyy}", DateTime.Now);
                     model.Remarks = Qry.Remarks;
+                }
+                if (BillMode == "Old")
+                {
+                    model.BillMonth = BillMonth;
+                    model.BillDate = BillDate;
+                    model.PrintedDate = BillDate;
                 }
                 return model;
             }
@@ -1799,6 +1845,12 @@ namespace IOAS.GenericServices
                     model.Rupees = CoreAccountsService.words(model.TotalBillValue);
                     model.PrintedDate = String.Format("{0:dd-MMMM-yyyy}", DateTime.Now);
                     model.Remarks = Qry.Remarks;
+                }
+                if (BillMode == "Old")
+                {
+                    model.BillMonth = BillMonth;
+                    model.BillDate = BillDate;
+                    model.PrintedDate = BillDate;
                 }
                 return model;
             }
@@ -1996,6 +2048,12 @@ namespace IOAS.GenericServices
                     model.Rupees = CoreAccountsService.words(CommTotalAmt);
                     model.PrintedDate = String.Format("{0:dd-MMMM-yyyy}", DateTime.Now);
                     // model.TotalBillValue = Convert.ToDecimal(qry.TemporaryAdvanceAmountReceived);
+                    if (BillMode == "Old")
+                    {
+                        model.BillMonth = BillMonth;
+                        model.BillDate = BillDate;
+                        model.PrintedDate = BillDate;
+                    }
                     return model;
                 }
             }
@@ -2168,6 +2226,12 @@ namespace IOAS.GenericServices
                     model.PrintedDate = String.Format("{0:dd-MMMM-yyyy}", DateTime.Now);
 
                 }
+                if (BillMode == "Old")
+                {
+                    model.BillMonth = BillMonth;
+                    model.BillDate = BillDate;
+                    model.PrintedDate = BillDate;
+                }
                 return model;
             }
             catch (Exception ex)
@@ -2225,6 +2289,12 @@ namespace IOAS.GenericServices
                     model.PrintedDate = String.Format("{0:dd-MMMM-yyyy}", DateTime.Now);
                     model.TotalBillValue = Convert.ToDecimal(Qry.Amount);
                     model.Remarks = Qry.Narration;
+                    if (BillMode == "Old")
+                    {
+                        model.BillMonth = BillMonth;
+                        model.BillDate = BillDate;
+                        model.PrintedDate = BillDate;
+                    }
                     return model;
                 }
             }
@@ -2292,6 +2362,12 @@ namespace IOAS.GenericServices
                               }).ToList();
                     model.Rupees = CoreAccountsService.words(Qry.Amount);
                     model.PrintedDate = String.Format("{0:dd-MMMM-yyyy}", DateTime.Now);
+                    if (BillMode == "Old")
+                    {
+                        model.BillMonth = BillMonth;
+                        model.BillDate = BillDate;
+                        model.PrintedDate = BillDate;
+                    }
                     return model;
                 }
             }
@@ -2379,6 +2455,12 @@ namespace IOAS.GenericServices
                     model.Rupees = CoreAccountsService.words(Qry.Amount);
                     model.PrintedDate = String.Format("{0:dd-MMMM-yyyy}", DateTime.Now);
                 }
+                if (BillMode == "Old")
+                {
+                    model.BillMonth = BillMonth;
+                    model.BillDate = BillDate;
+                    model.PrintedDate = BillDate;
+                }
                 return model;
             }
             catch (Exception ex)
@@ -2437,6 +2519,12 @@ namespace IOAS.GenericServices
                     model.TotalBillValue = Convert.ToDecimal(Qry.Amount);
                     model.Remarks = Qry.Narration;
                     model.RefNumber = Qry.BillRefNumber;
+                }
+                if (BillMode == "Old")
+                {
+                    model.BillMonth = BillMonth;
+                    model.BillDate = BillDate;
+                    model.PrintedDate = BillDate;
                 }
                 return model;
             }
@@ -2522,6 +2610,12 @@ namespace IOAS.GenericServices
                         model.PrintedDate = String.Format("{0:dd-MMMM-yyyy}", DateTime.Now);
                         model.TotalBillValue = Convert.ToDecimal(Qry.Amount);
                         model.Remarks = Qry.Narration;
+                    }
+                    if (BillMode == "Old")
+                    {
+                        model.BillMonth = BillMonth;
+                        model.BillDate = BillDate;
+                        model.PrintedDate = BillDate;
                     }
                     return model;
                 }
@@ -2806,6 +2900,7 @@ namespace IOAS.GenericServices
                     Dailmodel.ProjClassification = Common.GetCodeControlName(Convert.ToInt32(qryProject.ProjectClassification), "ProjectClassification");
                     Dailmodel.ReportDate = String.Format("{0:dd-MMMM-yyyy}", Date);
                 }
+                
                 return Dailmodel;
             }
             catch (Exception ex)
@@ -3082,6 +3177,7 @@ namespace IOAS.GenericServices
                         model.MICRCode = "600015085";
                         model.SWIFTCode = "CNRBINBBIIT";
                     }
+                    
                     return model;
                 }
             }
@@ -3352,6 +3448,7 @@ namespace IOAS.GenericServices
                     model.BalanceCommitments = BalanceAmt;
                     model.NetBalance = model.Balance - model.BalanceCommitments;
                 }
+                
                 return model;
             }
             catch (Exception ex)
@@ -3661,7 +3758,7 @@ namespace IOAS.GenericServices
 
                     }
 
-
+                   
                     return model;
                 }
             }
@@ -3704,6 +3801,7 @@ namespace IOAS.GenericServices
                     }
                     model.Copi = copi;
                     model.ProjectNo = ProjDet.ProjectNumber;
+                    
                     return model;
                 }
             }
@@ -4640,7 +4738,7 @@ namespace IOAS.GenericServices
                         int? TotalProj_A = PrevProj_A + CurrProj_A;
                         ////// B //////
                         var ProjDet_B = context.tblProject.Where(m => m.CrtdTS >= fromdate && OfficeCateg.Contains(m.ReportClassification ?? 0) && m.CrtdTS <= todate && m.FinancialYear == FinId && m.FacultyDetailId == DeptCode && m.ProjectType == 1 && m.SchemeName == 33 && !m.ProjectNumber.Contains("ISRO")).ToList();
-                        var PrevProjDet_B = context.tblProject.Where(m => m.CrtdTS >= startDate && OfficeCateg.Contains(m.ReportClassification ?? 0) && m.CrtdTS <= endDate && m.ProjectType == 1 && m.SchemeName == 33 && !m.ProjectNumber.Contains("ISRO")).ToList();
+                        var PrevProjDet_B = context.tblProject.Where(m => m.CrtdTS >= startDate && OfficeCateg.Contains(m.ReportClassification ?? 0) && m.CrtdTS <= endDate && m.FinancialYear == FinId && m.FacultyDetailId == DeptCode && m.ProjectType == 1 && m.SchemeName == 33 && !m.ProjectNumber.Contains("ISRO")).ToList();
                         int[] EnhanceArr_B = ProjDet_B.Select(m => m.ProjectId).ToArray();
                         var ListEnhance_B = (from aa in context.tblProjectEnhancement
                                              join b in context.tblProject on aa.ProjectId equals b.ProjectId
@@ -8037,6 +8135,12 @@ namespace IOAS.GenericServices
                                          }).ToList();
                     model.InvoiceList = InvoiceList;
                     model.PrintedDate = String.Format("{0:dd-MMMM-yyyy}", DateTime.Now);
+                    if (BillMode == "Old")
+                    {
+                        model.BillMonth = BillMonth;
+                        model.BillDate = BillDate;
+                        model.PrintedDate = BillDate;
+                    }
                 }
                 return model;
             }
@@ -8110,6 +8214,7 @@ namespace IOAS.GenericServices
                         dtls.BillDetails = list;
                     }
                 }
+                
                 return dtls;
             }
             catch (Exception ex)
@@ -8757,6 +8862,7 @@ namespace IOAS.GenericServices
                         model.MICRCode = "600015085";
                         model.SWIFTCode = "CNRBINBBIIT";
                     }
+                    
                     return model;
                 }
             }
@@ -9664,6 +9770,12 @@ namespace IOAS.GenericServices
                     model.PrintedDate = String.Format("{0:dd-MMMM-yyyy}", DateTime.Now);
                     model.Remarks = Qry.Remarks;
                     model.TravelerName = Common.GetUserNameBasedonId(Convert.ToInt32(Qry.CRTD_By));
+                    if (BillMode == "Old")
+                    {
+                        model.BillMonth = BillMonth;
+                        model.BillDate = BillDate;
+                        model.PrintedDate = BillDate;
+                    }
                     return model;
                 }
             }
@@ -9809,6 +9921,12 @@ namespace IOAS.GenericServices
                     model.PrintedDate = String.Format("{0:dd-MMMM-yyyy}", DateTime.Now);
                     model.Remarks = Qry.Remark;
                     model.TravelerName = Common.GetUserNameBasedonId(Convert.ToInt32(Qry.CRTD_By));
+                    if (BillMode == "Old")
+                    {
+                        model.BillMonth = BillMonth;
+                        model.BillDate = BillDate;
+                        model.PrintedDate = BillDate;
+                    }
                     return model;
                 }
             }
@@ -9893,6 +10011,12 @@ namespace IOAS.GenericServices
                     model.PrintedDate = String.Format("{0:dd-MMMM-yyyy}", DateTime.Now);
                     model.Remarks = Qry.Remarks;
                     model.PrintedBy = Common.GetUserNameBasedonId(Convert.ToInt32(Qry.CRTD_By));
+                    if (BillMode == "Old")
+                    {
+                        model.BillMonth = BillMonth;
+                        model.BillDate = BillDate;
+                        model.PrintedDate = BillDate;
+                    }
                     return model;
                 }
             }
@@ -9995,6 +10119,12 @@ namespace IOAS.GenericServices
                     model.PrintedDate = String.Format("{0:dd-MMMM-yyyy}", DateTime.Now);
                     model.Remarks = Qry.Remark;
                     model.PrintedBy = Common.GetUserNameBasedonId(Convert.ToInt32(Qry.CRTD_By));
+                    if (BillMode == "Old")
+                    {
+                        model.BillMonth = BillMonth;
+                        model.BillDate = BillDate;
+                        model.PrintedDate = BillDate;
+                    }
                     return model;
                 }
             }
@@ -10186,6 +10316,12 @@ namespace IOAS.GenericServices
                     model.PrintedDate = String.Format("{0:dd-MMMM-yyyy}", DateTime.Now);
                     model.Remarks = Qry.Remarks;
                     model.TravelerName = Common.GetUserNameBasedonId(Convert.ToInt32(Qry.CRTD_By));
+                    if (BillMode == "Old")
+                    {
+                        model.BillMonth = BillMonth;
+                        model.BillDate = BillDate;
+                        model.PrintedDate = BillDate;
+                    }
                     return model;
                 }
             }
@@ -10306,6 +10442,12 @@ namespace IOAS.GenericServices
                     model.PrintedDate = String.Format("{0:dd-MMMM-yyyy}", DateTime.Now);
                     model.Remarks = Qry.Remark;
                     model.TravelerName = Common.GetUserNameBasedonId(Convert.ToInt32(Qry.CRTD_By));
+                    if (BillMode == "Old")
+                    {
+                        model.BillMonth = BillMonth;
+                        model.BillDate = BillDate;
+                        model.PrintedDate = BillDate;
+                    }
                     return model;
                 }
             }
@@ -10785,12 +10927,19 @@ namespace IOAS.GenericServices
 
 
 
+
+
         #region GstOffset Bill Report        public TravelBillReportModel GetGstOffsetBillReport(int Id = 0)        {            TravelBillReportModel model = new TravelBillReportModel();            try            {                using (var context = new IOASDBEntities())                {                    var Qry = context.tblGSTOffset.Where(m => m.GSTOffsetid == Id).FirstOrDefault();                    string FromDate = "01-April-2019";                    string ToDate = String.Format("{0:dd-MMMM-yyyy}", Qry.CRTD_TS);                    var ExpQry = context.tblGSTOffsetExpenseDetail.Where(m => m.GSTOffsetId == Id).ToList();                    int[] headid = { 38, 61 };                    var BankHeadId = ExpQry.Where(m => m.AccountGroupId == 38).Select(m => m.AccountHeadId).FirstOrDefault();                    if (BankHeadId != null)                        model.BankAccount = context.tblAccountHead.Where(m => m.AccountHeadId == BankHeadId).Select(m => m.AccountHead).FirstOrDefault();                    model.BillId = Id;                    model.BillMonth = String.Format("{0:MMM yyyy}", Qry.CRTD_TS);                    model.BillNumber = Qry.GSTOffsetNumber;                    model.BillType = "Tax Voucher";                    model.BillDate = String.Format("{0:dd-MMMM-yyyy}", Qry.CRTD_TS);                    model.Reason = Qry.Remarks;                    model.GSTInput = ExpQry.Where(m => m.AccountGroupId == 13 && m.TransactionType == "Credit").Select(m => m.Amount).Sum() ?? 0;                    model.GSTOutput = ExpQry.Where(m => m.AccountGroupId == 14).Select(m => m.Amount).Sum() ?? 0;                    int[] TDSReceivable = { 27, 296, 297 };                    model.TDSReceivable = ExpQry.Where(m => TDSReceivable.Contains(m.AccountHeadId ?? 0)).Select(m => m.Amount).Sum() ?? 0;                    model.RoundOffCredit = ExpQry.Where(m => m.AccountHeadId == 319).Select(m => m.Amount).Sum() ?? 0;                    model.RoundOffDebit = ExpQry.Where(m => m.AccountHeadId == 320).Select(m => m.Amount).Sum() ?? 0;
                     //
                     //decimal Amt = ExpQry.Where(m => m.AccountGroupId == 38).Select(m => m.Amount).Sum() ?? 0;
                     decimal Amt = (model.GSTOutput + model.RoundOffDebit) - (model.GSTInput + model.TDSReceivable + model.RoundOffCredit);                    model.PayableAmount = Amt;                    model.TotalBillValue = Amt;                    model.TotalAmount = Amt;                    model.Rupees = CoreAccountsService.words(Amt);
                     //
-                    model.PrintedDate = String.Format("{0:dd-MMMM-yyyy}", DateTime.Now);                    model.Remarks = Qry.Remarks;                    model.TravelerName = Common.GetUserNameBasedonId(Convert.ToInt32(Qry.CRTD_By));                    return model;                }            }            catch (Exception ex)            {                return model;            }        }        #endregion
+                    model.PrintedDate = String.Format("{0:dd-MMMM-yyyy}", DateTime.Now);                    model.Remarks = Qry.Remarks;                    model.TravelerName = Common.GetUserNameBasedonId(Convert.ToInt32(Qry.CRTD_By));                    if (BillMode == "Old")
+                    {
+                        model.BillMonth = BillMonth;
+                        model.BillDate = BillDate;
+                        model.PrintedDate = BillDate;
+                    }                    return model;                }            }            catch (Exception ex)            {                return model;            }        }        #endregion
 
     }
 }
