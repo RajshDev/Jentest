@@ -1702,7 +1702,7 @@ namespace IOAS.GenericServices
                         if (query != null)
                         {
 
-                            bool nofund_f = Common.IsAvailablefundProject(query.S.ProjectId ?? 0, query.S.CommitmentAmount ?? 0);
+                            bool nofund_f = Common.IsAvailablefundProject(query.S.ProjectId ?? 0, query.S.CommitmentAmount ?? 0,query.S.TypeofAppointment);
                             if (query.S.CSIRStaffPayMode == 2)
                             {
                                 query.S.Status = "Awaiting Committee Approval";
@@ -1869,7 +1869,7 @@ namespace IOAS.GenericServices
                                 query.UpdtTS = DateTime.Now;
                                 if (query.OrderType == 5)
                                 {
-                                    var nofund_f = Common.IsAvailablefundProject(querymast.ProjectId ?? 0, query.CommitmentAmmount ?? 0);
+                                    var nofund_f = Common.IsAvailablefundProject(querymast.ProjectId ?? 0, query.CommitmentAmmount ?? 0,querymast.TypeofAppointment);
                                     if (querymast.CSIRStaffPayMode == 2)//Payment through agencies
                                     {
                                         query.Status = "Completed";

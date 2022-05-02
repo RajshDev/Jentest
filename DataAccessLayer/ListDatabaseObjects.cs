@@ -2702,14 +2702,30 @@ namespace DataAccessLayer
         }
         public void ExceuteInterestRefund(int FinYear, int Userid)
         {
-            var connection = getConnection();
-            SqlParameter[] ReportParam = new SqlParameter[2];
-            ReportParam[0] = new SqlParameter("@FinYear", SqlDbType.Int, 50);
-            ReportParam[0].Value = FinYear;
-            ReportParam[1] = new SqlParameter("@Userid", SqlDbType.Int, 50);
-            ReportParam[1].Value = Userid;
+            //var connection = getConnection();
+            //SqlParameter[] ReportParam = new SqlParameter[2];
+            //ReportParam[0] = new SqlParameter("@FinYear", SqlDbType.Int, 50);
+            //ReportParam[0].Value = FinYear;
+            //ReportParam[1] = new SqlParameter("@Userid", SqlDbType.Int, 50);
+            //ReportParam[1].Value = Userid;
+            //SqlHelper.voidExecuteDataset(connection, CommandType.StoredProcedure, "InterestRefund", ReportParam);
 
-            SqlHelper.voidExecuteDataset(connection, CommandType.StoredProcedure, "InterestRefund", ReportParam);
+            using (SqlConnection connection = getConnection())
+            {
+                SqlCommand sqlComm = new SqlCommand("InterestRefund", connection);
+                sqlComm.Parameters.AddWithValue("@FinYear", FinYear);
+                sqlComm.Parameters.AddWithValue("@Userid", Userid);
+                sqlComm.CommandType = CommandType.StoredProcedure;
+                sqlComm.CommandTimeout = 18000;
+                connection.Open();
+                SqlDataAdapter da = new SqlDataAdapter(sqlComm);
+
+                DataSet ds = new DataSet();
+                SqlDataAdapter da1 = new SqlDataAdapter();
+                da1.SelectCommand = sqlComm;
+                da1.Fill(ds);
+                //sqlComm.Parameters.Clear();
+            }
         }
         public DataTable GetInterestRefund(int FinYear)
         {
@@ -3532,8 +3548,8 @@ namespace DataAccessLayer
                     command.CommandType = CommandType.Text;
                     if (Type == "Income")
                         command.CommandText = "select b.Groups,b.AccountHead,(isnull(sum(Credit), 0) - isnull(sum(Debit), 0)) as Amount from vw_ICSROH_2  as a right join vw_ICSROHMaster as b on a.AccountHeadId =b.AccountHeadId and  a.PostedDate >= '" + Fromdate + "' and a.PostedDate <= '" + Todate + "'   where  b.Type = '" + Type + "' group by b.Groups,b.AccountHead,b.TypeId order by b.TypeId";
-                    else                    
-                        command.CommandText = "select b.Groups,b.AccountHead,(isnull(sum(Debit), 0) - isnull(sum(Credit), 0)) as Amount from vw_ICSROH_2  as a right join vw_ICSROHMaster as b on a.AccountHeadId =b.AccountHeadId and  a.PostedDate >= '" + Fromdate + "' and a.PostedDate <= '" + Todate + "'   where  b.Type = '" + Type + "' group by b.Groups,b.AccountHead,b.TypeId order by b.TypeId";                   
+                    else
+                        command.CommandText = "select b.Groups,b.AccountHead,(isnull(sum(Debit), 0) - isnull(sum(Credit), 0)) as Amount from vw_ICSROH_2  as a right join vw_ICSROHMaster as b on a.AccountHeadId =b.AccountHeadId and  a.PostedDate >= '" + Fromdate + "' and a.PostedDate <= '" + Todate + "'   where  b.Type = '" + Type + "' group by b.Groups,b.AccountHead,b.TypeId order by b.TypeId";
                     command.CommandTimeout = 180;
                     var adapter = new System.Data.SqlClient.SqlDataAdapter(command);
                     var dataset = new DataSet();

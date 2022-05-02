@@ -211,7 +211,7 @@
                type: "text", name: "Status", title: "Status", editing: false,
                cellRenderer: function (item, value) {
                    if (value.InitByPI_f)
-                       return $("<td>").append(value.Status + "<span class='gd-msg-hgt'>Init by PI</span>");
+                       return $("<td>").append(value.Status + "<br/><span class='gd-msg-hgt'>Init by PI</span>");
                    else if (value.SendOffer_f)
                        return $("<td>").addClass("bg-green").append(value.Status);
                    else
@@ -225,25 +225,27 @@
 
                  itemTemplate: function (value, item) {
                      var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
-
+                     var statusList;
                      if ((item.Status == "Open" && !item.isCommitmentRejection) || item.Status == "Note to PI" || item.Status == "PI Initiated") {
-                         statusList = [{ id: "", name: "Select Action" }, { id: "Edit", name: "Edit" }, { id: "View", name: "View" }, { id: "Cancel", name: "Cancel" }]
+                         statusList = [{ id: "", name: "Select Action" }, { id: "Edit", name: "Edit" }, { id: "View", name: "View" }]
                      }
                      else if (item.Status == "Committee Clarify") {
-                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "Send for commitee approval" }, { id: "Cancel", name: "Cancel" }]
+                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "Send for commitee approval" }]
                      }
                      else if (item.Status == "Open" && item.isCommitmentRejection) {
-                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "Send for commitment booking" }, { id: "Cancel", name: "Cancel" }]
+                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "Send for commitment booking" }]
                      }
                      else if (item.Status != "Cancel" && item.ExtensionEnhCategory != "Amendment" && item.SendOffer_f != null && !item.SendOffer_f) {
-                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }, { id: "Cancel", name: "Cancel" }, { id: "SendOffer", name: "Send Offerletter" }]
+                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }, { id: "SendOffer", name: "Send Offerletter" }]
                      }
                      else if (item.Status != "Cancel" && item.ExtensionEnhCategory != "Amendment" && item.SendOffer_f == true) {
-                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }, { id: "Cancel", name: "Cancel" }]
+                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }]
                      }
                      else {
-                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }, { id: "Cancel", name: "Cancel" }]
+                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }]
                      }
+                     if (item.Cancel_f)
+                         statusList.push({ id: "Cancel", name: "Cancel" });
                      var $customSelect = $("<select>")
                          .attr("class", "form-control").prop("selectedIndex", "")
                      $.each(statusList, function (index, itemData) {
@@ -779,7 +781,7 @@
                 type: "text", name: "Status", title: "Status", editing: false,
                 cellRenderer: function (item, value) {
                     if (value.InitByPI_f)
-                        return $("<td>").append(value.Status + "<span class='gd-msg-hgt'>Init by PI</span>");
+                        return $("<td>").append(value.Status + "<br/><span class='gd-msg-hgt'>Init by PI</span>");
                     else if (value.SendOffer_f)
                         return $("<td>").addClass("bg-green").append(value.Status);
                     else
@@ -792,16 +794,21 @@
 
                  itemTemplate: function (value, item) {
                      var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+                     var statusList;
                      if (item.Status == "Open" || item.Status == "Note to PI" || item.Status == "PI Initiated") {
-                         statusList = [{ id: "", name: "Select Action" }, { id: "Edit", name: "Edit" }, { id: "View", name: "View" }, { id: "Cancel", name: "Cancel" }]
+                         statusList = [{ id: "", name: "Select Action" }, { id: "Edit", name: "Edit" }, { id: "View", name: "View" }]
+                     }
+                     else if (item.Status == "Committee Clarify") {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "Send for commitee approval" }]
                      }
                      else if (item.SendOffer_f != null && !item.SendOffer_f) {
-                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }, { id: "SendOffer", name: "Send Offerletter" }, { id: "Cancel", name: "Cancel" }]
+                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }, { id: "SendOffer", name: "Send Offerletter" }]
                      }
                      else {
-                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }, { id: "Cancel", name: "Cancel" }]
+                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }]
                      }
-
+                     if (item.Cancel_f)
+                         statusList.push({ id: "Cancel", name: "Cancel" });
                      var $customSelect = $("<select>")
                          .attr("class", "form-control").prop("selectedIndex", "")
                      $.each(statusList, function (index, itemData) {
@@ -818,8 +825,14 @@
                              window.location.href = url;
                          }
                          else if (selVal == "View") {
-                             var url = '@Url.Action("RecruitCOPView", "Requirement")?OrderId=' + item.OrderId + '&listf=DA';
-                             window.location.href = url;
+                             if (item.Status != "Cancellation Initiated" && item.Status == "Committee Clarify") {
+                                 var url = '@Url.Action("RCTOverAllView", "Requirement")?orderid=' + item.OrderId + '&listf=DA';
+                                 window.location.href = url;
+                             }
+                             else {
+                                 var url = '@Url.Action("RecruitCOPView", "Requirement")?OrderId=' + item.OrderId + '&listf=DA';
+                                 window.location.href = url;
+                             }
                          }
                          else if (selVal == "SendOffer") {
                              $.confirm({

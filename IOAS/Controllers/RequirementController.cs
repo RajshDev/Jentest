@@ -2578,6 +2578,28 @@ namespace IOAS.Controllers
                     TempData["alertMsg"] = data.Item2;
                     return RedirectToAction(model.List_f);
                 }
+
+                var listcommitte = Common.GetCommittee();
+                if (listcommitte.Item1.Count > 0)
+                {
+                    for (int i = 0; i < listcommitte.Item1.Count; i++)
+                    {
+                        if (i == 0)
+                        {
+                            model.CommiteeMemberId1 = listcommitte.Item1[i].id ?? 0;
+                            model.CommiteeMember1 = listcommitte.Item1[i].name;
+                        }
+                        if (i == 1)
+                        {
+                            model.CommiteeMemberId2 = listcommitte.Item1[i].id ?? 0;
+                            model.CommiteeMember2 = listcommitte.Item1[i].name;
+                        }
+                    }
+                }
+                var datacharperson = Common.GetChairPerson();
+                model.ChairpersonNameId = datacharperson.Item1;
+                model.ChairpersonName = datacharperson.Item2;
+                model.isConsolidatePay = "ConsolidatedPay";
                 return View(model);
             }
             catch (Exception ex)
@@ -2873,6 +2895,28 @@ namespace IOAS.Controllers
                     TempData["alertMsg"] = data.Item2;
                     return RedirectToAction(actionLink);
                 }
+
+                var listcommitte = Common.GetCommittee();
+                if (listcommitte.Item1.Count > 0)
+                {
+                    for (int i = 0; i < listcommitte.Item1.Count; i++)
+                    {
+                        if (i == 0)
+                        {
+                            model.CommiteeMemberId1 = listcommitte.Item1[i].id ?? 0;
+                            model.CommiteeMember1 = listcommitte.Item1[i].name;
+                        }
+                        if (i == 1)
+                        {
+                            model.CommiteeMemberId2 = listcommitte.Item1[i].id ?? 0;
+                            model.CommiteeMember2 = listcommitte.Item1[i].name;
+                        }
+                    }
+                }
+                var datacharperson = Common.GetChairPerson();
+                model.ChairpersonNameId = datacharperson.Item1;
+                model.ChairpersonName = datacharperson.Item2;
+
                 model.List_f = actionLink;
                 return View(model);
             }
@@ -3211,6 +3255,26 @@ namespace IOAS.Controllers
                     return RedirectToAction(actionLink);
                 }
                 model.List_f = actionLink;
+                var listcommitte = Common.GetCommittee();
+                if (listcommitte.Item1.Count > 0)
+                {
+                    for (int i = 0; i < listcommitte.Item1.Count; i++)
+                    {
+                        if (i == 0)
+                        {
+                            model.CommiteeMemberId1 = listcommitte.Item1[i].id ?? 0;
+                            model.CommiteeMember1 = listcommitte.Item1[i].name;
+                        }
+                        if (i == 1)
+                        {
+                            model.CommiteeMemberId2 = listcommitte.Item1[i].id ?? 0;
+                            model.CommiteeMember2 = listcommitte.Item1[i].name;
+                        }
+                    }
+                }
+                var datacharperson = Common.GetChairPerson();
+                model.ChairpersonNameId = datacharperson.Item1;
+                model.ChairpersonName = datacharperson.Item2;
                 return View(model);
             }
             catch (Exception ex)
@@ -3678,7 +3742,7 @@ namespace IOAS.Controllers
             string msg = "Valid";
             using (var context = new IOASDBEntities())
             {
-                var mastQuery = context.vw_RCTOverAllApplicationEntry.Where(m => m.ApplicationId == model.ApplicationID && m.Category == model.TypeCode && m.ApplicationType == "New").Select(m => new { m.ProjectId, m.AppointmentStartdate, m.AppointmentEnddate }).FirstOrDefault();
+                var mastQuery = context.vw_RCTOverAllApplicationEntry.Where(m => m.ApplicationId == model.ApplicationID && m.Category == model.TypeCode && m.ApplicationType == "New").Select(m => new { m.ProjectId, m.AppointmentStartdate, m.AppointmentEnddate, m.TypeofAppointmentinInt }).FirstOrDefault();
                 if (mastQuery != null)
                 {
                     var projectDetail = Common.GetProjectsDetails(mastQuery.ProjectId ?? 0);
@@ -3700,7 +3764,7 @@ namespace IOAS.Controllers
                                 msg = msg == "Valid" ? "Appointment to date must be lesser than appointment end date." : msg + "<br /> Appointment to date must be lesser than appointment end date.";
                             if (model.isWithdrawCommitment != true)
                             {
-                                if (Common.IsAvailablefundProject(mastQuery.ProjectId ?? 0, model.CommitmentAmount ?? 0))
+                                if (Common.IsAvailablefundProject(mastQuery.ProjectId ?? 0, model.CommitmentAmount ?? 0, mastQuery.TypeofAppointmentinInt))
                                     msg = msg == "Valid" ? "Project fund not available." : msg + "<br /> Project fund not available.";
                             }
                         }
@@ -6528,7 +6592,8 @@ namespace IOAS.Controllers
 
                 string aadhar = Convert.ToString(model.aadharnumber);
                 var vwQuery = (from vw in context.vw_RCTOverAllApplicationEntry.AsNoTracking()
-                               where (vw.AadhaarNo.Contains(aadhar) || vw.PANNo.Contains(model.PAN)) && vw.ApplicationType == "New"
+                               where ((string.IsNullOrEmpty(aadhar) || vw.AadhaarNo.Contains(aadhar))
+                               && (string.IsNullOrEmpty(model.PAN) || vw.PANNo.Contains(model.PAN))) && vw.ApplicationType == "New"
                                && vw.Status == "Relieved"
                                orderby vw.ApplicationEntryDate descending
                                select vw).FirstOrDefault();
@@ -9061,6 +9126,7 @@ namespace IOAS.Controllers
                 }
                 ViewBag.Finyearmonth = monthlist;
                 ViewBag.SalaryType = Common.GetCodeControlList("PayOfBill");
+                ViewBag.OSGVendor = Common.GetAgencyMasterList();
                 ViewBag.EmployeeCategory = Common.GetCodeControlList("RCTEmployeeCategory");
                 return View();
             }
@@ -9084,6 +9150,7 @@ namespace IOAS.Controllers
                 ViewBag.Finyearmonth = monthlist;
                 ViewBag.SalaryType = Common.GetCodeControlList("PayOfBill");
                 ViewBag.EmployeeCategory = Common.GetCodeControlList("RCTEmployeeCategory");
+                ViewBag.OSGVendor = Common.GetAgencyMasterList();
                 return View();
             }
         }
@@ -9387,7 +9454,7 @@ namespace IOAS.Controllers
                     if (query != null)
                     {
                         string month = query.SalaryMonth;
-                        if (!context.tblAgencySalary.Any(x => x.MonthYearStr == month /*&& x.VendorId == query.VendorId*/ && x.Status == "Completed"))
+                        if (!context.tblAgencySalary.Any(x => x.MonthYearStr == month && x.VendorId == query.VendorId && x.Status == "Completed"))
                         {
                             excelname = "PAYROLL DATA Process Main OSG THE MONTH OF" + "-" + query.SalaryMonth;
                             DataSet dset = new DataSet();
@@ -10226,7 +10293,7 @@ namespace IOAS.Controllers
             {
                 throw new Exception(ex.Message);
             }
-        }  
+        }
 
 
     }

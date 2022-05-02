@@ -128,27 +128,27 @@
                                         </div>
                                         @if (Model.ApplicationID > 0 && (Model.TypeCode == "STE" || Model.TypeCode == "OSG" || Model.TypeCode == "CON"))
                                         {
-                                        <div class="col-md-3">
-                                            <div class="form-group custom-form-group">
-                                                <label>Type of appointment </label>
-                                                <h4>@Html.DisplayFor(m => m.Typeofappointment)</h4>
-                                                @if (Model.TypeCode == "OSG")
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Type of appointment </label>
+                                                    <h4>@Html.DisplayFor(m => m.Typeofappointment)</h4>
+                                                    @if (Model.TypeCode == "OSG")
                                                     {
-                                                    @Html.DropDownListFor(m => m.TypeofappointmentId, new SelectList(ViewBag.Apptype, "id", "name"), "Select Appointment", new { @class = "form-control dis-none" })
-                                                    @Html.DropDownListFor(m => m.PhysicallyChallenged, new SelectList(ViewBag.YesNo, "id", "name"), "Select", new { @class = "form-control dis-none", @id = "PhysicallyChallenged", @data_val = "false" })
+                                                        @Html.DropDownListFor(m => m.TypeofappointmentId, new SelectList(ViewBag.Apptype, "id", "name"), "Select Appointment", new { @class = "form-control dis-none" })
+                                                        @Html.DropDownListFor(m => m.PhysicallyChallenged, new SelectList(ViewBag.YesNo, "id", "name"), "Select", new { @class = "form-control dis-none", @id = "PhysicallyChallenged", @data_val = "false" })
                                                     }
                                                     else
                                                     {
-                                                    @Html.HiddenFor(m => m.TypeofappointmentId)
+                                                        @Html.HiddenFor(m => m.TypeofappointmentId)
                                                     }
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <div class="form-group custom-form-group">
-                                                <label>Pay Type</label>
-                                                <h4>@Html.DisplayFor(m => m.PayType)</h4>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Pay Type</label>
+                                                    <h4>@Html.DisplayFor(m => m.PayType)</h4>
+                                                </div>
                                             </div>
-                                        </div>
                                         }
                                         <div class="col-md-3">
                                             <div class="form-group custom-form-group">
@@ -191,12 +191,12 @@
                                             </div>
                                             @if (Model.IsMsPhd)
                                             {
-                                            <div class="col-md-6">
-                                                <div class="form-group custom-form-group">
-                                                    <label>Roll Number</label>
-                                                    <h4>@Html.DisplayFor(m => m.PhdDetail)</h4>
+                                                <div class="col-md-6">
+                                                    <div class="form-group custom-form-group">
+                                                        <label>Roll Number</label>
+                                                        <h4>@Html.DisplayFor(m => m.PhdDetail)</h4>
+                                                    </div>
                                                 </div>
-                                            </div>
                                             }
                                         </div>
                                     </div>
@@ -239,16 +239,22 @@
                                         <div class="col-md-3">
                                             <div class="form-group custom-form-group">
                                                 <label class="required">PI Letter </label>
+                                                @Html.HiddenFor(M => M.InitByPI_f)
                                                 @if (Model.OrderID > 0 && !string.IsNullOrEmpty(Model.PILetterPath))
                                                 {
-                                                <input type="file" id="PILetter" name="PILetter">
-                                                @Html.ActionLink(Model.PILetterFileName, "ShowDocument", new { Controller = "Account", filepath = "Requirement", file = Model.PILetterPath }, new { @name = "DocDownload", @target = "_blank" })
-                                                <div>@Html.ValidationMessage("PILetter")</div>
+                                                    <input type="file" id="PILetter" name="PILetter">
+                                                    @Html.ActionLink(Model.PILetterFileName, "ShowDocument", new { Controller = "Account", filepath = "Requirement", file = Model.PILetterPath }, new { @name = "DocDownload", @target = "_blank" })
+                                                    <div>@Html.ValidationMessage("PILetter")</div>
+                                                }
+                                                else if (Model.InitByPI_f == true)
+                                                {
+                                                    <input type="file" id="PILetter" name="PILetter">
+                                                    <div>@Html.ValidationMessage("PILetter")</div>
                                                 }
                                                 else
                                                 {
-                                                <input type="file" id="PILetter" name="PILetter" required>
-                                                <div>@Html.ValidationMessage("PILetter")</div>
+                                                    <input type="file" id="PILetter" name="PILetter" required>
+                                                    <div>@Html.ValidationMessage("PILetter")</div>
                                                 }
                                             </div>
                                         </div>
@@ -289,13 +295,13 @@
                                                     <label>Project Number</label>
                                                     @if (Model.OrderID > 0)
                                                     {
-                                                    <h4>@Html.DisplayFor(m => m.ProjectNumber)</h4>
-                                                    @Html.HiddenFor(m => m.ProjectId)
+                                                        <h4>@Html.DisplayFor(m => m.ProjectNumber)</h4>
+                                                        @Html.HiddenFor(m => m.ProjectId)
                                                     }
                                                     else
                                                     {
-                                                    <h4>@Html.DisplayFor(m => m.OldPrjDetailModel.ProjectNumber)</h4>
-                                                    @Html.Hidden("ProjectId", Model.OldPrjDetailModel.ProjectID)
+                                                        <h4>@Html.DisplayFor(m => m.OldPrjDetailModel.ProjectNumber)</h4>
+                                                        @Html.Hidden("ProjectId", Model.OldPrjDetailModel.ProjectID)
                                                     }
                                                 </div>
                                             </div>
@@ -392,26 +398,26 @@
                                                     <label>Designation</label>
                                                     @if (Model.OrderID > 0)
                                                     {
-                                                    <h4 id="Designation">@Html.DisplayFor(m => m.Designation)</h4>
-                                                    @Html.HiddenFor(m => m.DesignationId)
+                                                        <h4 id="Designation">@Html.DisplayFor(m => m.Designation)</h4>
+                                                        @Html.HiddenFor(m => m.DesignationId)
                                                     }
                                                     else
                                                     {
-                                                    <h4 id="Designation">@Html.DisplayFor(m => m.OldPrjDetailModel.Designation)</h4>
-                                                    @Html.Hidden("DesignationId", Model.OldPrjDetailModel.DesignationId)
+                                                        <h4 id="Designation">@Html.DisplayFor(m => m.OldPrjDetailModel.Designation)</h4>
+                                                        @Html.Hidden("DesignationId", Model.OldPrjDetailModel.DesignationId)
                                                     }
                                                     @Html.Hidden("DesignationMedicalamount", Model.MedicalAmmount)
                                                 </div>
                                             </div>
                                             @if (Model.ApplicationID > 0 && (Model.TypeCode == "STE" || Model.TypeCode == "OSG"))
                                             {
-                                            <div class="col-md-3">
-                                                <div class="form-group custom-form-group">
-                                                    <label>Medical</label> <br>
-                                                    <h4 id="MedicalText"></h4>
-                                                    @Html.DropDownListFor(m => m.Medical, new SelectList(ViewBag.Medical, "id", "name"), "Select Medical", new { @class = "form-control dis-none", @data_val = "false" })
+                                                <div class="col-md-3">
+                                                    <div class="form-group custom-form-group">
+                                                        <label>Medical</label> <br>
+                                                        <h4 id="MedicalText"></h4>
+                                                        @Html.DropDownListFor(m => m.Medical, new SelectList(ViewBag.Medical, "id", "name"), "Select Medical", new { @class = "form-control dis-none", @data_val = "false" })
+                                                    </div>
                                                 </div>
-                                            </div>
                                             }
                                         </div>
                                         <div class="row">
@@ -429,81 +435,81 @@
                                                     {
                                                         if (Model.TypeCode == "OSG")
                                                         {
-                                                    @Html.TextBoxFor(m => m.Salary, new { @class = "form-control", @onkeypress = "return isNumberKey(event)", @autocomplete = "off", @onchange = "FillSalaryCalcDetls();" })
+                                                            @Html.TextBoxFor(m => m.Salary, new { @class = "form-control", @onkeypress = "return isNumberKey(event)", @autocomplete = "off", @onchange = "FillSalaryCalcDetls();" })
                                                         }
                                                         else
                                                         {
-                                                    @Html.TextBoxFor(m => m.Salary, new { @class = "form-control", @onkeypress = "return isNumberKey(event)", @autocomplete = "off" })
+                                                            @Html.TextBoxFor(m => m.Salary, new { @class = "form-control", @onkeypress = "return isNumberKey(event)", @autocomplete = "off" })
                                                         }
-                                                    <div>@Html.ValidationMessageFor(m => m.Salary)</div>
+                                                        <div>@Html.ValidationMessageFor(m => m.Salary)</div>
                                                     }
                                                     else
                                                     {
                                                         if (Model.TypeCode == "OSG")
                                                         {
-                                                    @Html.TextBox("Salary", Model.OldPrjDetailModel.Salary, new { @class = "form-control", @onkeypress = "return isNumberKey(event)", @autocomplete = "off", @onchange = "FillSalaryCalcDetls();" })
+                                                            @Html.TextBox("Salary", Model.OldPrjDetailModel.Salary, new { @class = "form-control", @onkeypress = "return isNumberKey(event)", @autocomplete = "off", @onchange = "FillSalaryCalcDetls();" })
                                                         }
                                                         else
                                                         {
-                                                    @Html.TextBox("Salary", Model.OldPrjDetailModel.Salary, new { @class = "form-control", @onkeypress = "return isNumberKey(event)", @autocomplete = "off" })
+                                                            @Html.TextBox("Salary", Model.OldPrjDetailModel.Salary, new { @class = "form-control", @onkeypress = "return isNumberKey(event)", @autocomplete = "off" })
                                                         }
-                                                    <div>@Html.ValidationMessage("Salary")</div>
+                                                        <div>@Html.ValidationMessage("Salary")</div>
                                                     }
                                                     @Html.Hidden("MinSalary", 0)
                                                     @Html.Hidden("MaxSalary", 0)
                                                     @if (Model.TypeCode == "OSG")
                                                     {
-                                                    <a href="#" class="bl-bg-txt" onclick="salarycalcpopup();">Salary Calculation</a>       }
+                                                        <a href="#" class="bl-bg-txt" onclick="salarycalcpopup();">Salary Calculation</a>       }
                                                 </div>
                                             </div>
                                             @if (Model.ApplicationID > 0 && Model.TypeCode == "STE")
                                             {
-                                            <div class="col-md-3">
-                                                <div class="form-group custom-form-group">
-                                                    <label>HRA</label>
-                                                    <h4 id="HRAText"></h4>
-                                                    @if (Model.OrderID > 0)
+                                                <div class="col-md-3">
+                                                    <div class="form-group custom-form-group">
+                                                        <label>HRA</label>
+                                                        <h4 id="HRAText"></h4>
+                                                        @if (Model.OrderID > 0)
                                                         {
-                                                        @Html.TextBoxFor(m => m.HRA, new { @class = "form-control", @onkeypress = "return isNumberKey(event)", @autocomplete = "off" })
-                                                        <div>@Html.ValidationMessageFor(m => m.HRA)</div>
+                                                            @Html.TextBoxFor(m => m.HRA, new { @class = "form-control", @onkeypress = "return isNumberKey(event)", @autocomplete = "off" })
+                                                            <div>@Html.ValidationMessageFor(m => m.HRA)</div>
                                                         }
                                                         else
                                                         {
-                                                        @Html.TextBox("HRA", Model.OldPrjDetailModel.HRA, new { @class = "form-control", @onkeypress = "return isNumberKey(event)", @autocomplete = "off" })
-                                                        <div>@Html.ValidationMessage("HRA")</div>
+                                                            @Html.TextBox("HRA", Model.OldPrjDetailModel.HRA, new { @class = "form-control", @onkeypress = "return isNumberKey(event)", @autocomplete = "off" })
+                                                            <div>@Html.ValidationMessage("HRA")</div>
                                                         }
-                                                    @Html.HiddenFor(m => m.isHRA)
-                                                    @Html.HiddenFor(m => m.HRAPercentage)
+                                                        @Html.HiddenFor(m => m.isHRA)
+                                                        @Html.HiddenFor(m => m.HRAPercentage)
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="col-md-3">
-                                                <div class="form-group custom-form-group">
-                                                    <label>Medical Amount</label>
-                                                    <h4 id="MedicalAmmountText">0</h4>
-                                                    @Html.HiddenFor(m => m.MedicalAmmount)
-                                                    @Html.HiddenFor(m => m.isMedical)
+                                                <div class="col-md-3">
+                                                    <div class="form-group custom-form-group">
+                                                        <label>Medical Amount</label>
+                                                        <h4 id="MedicalAmmountText">0</h4>
+                                                        @Html.HiddenFor(m => m.MedicalAmmount)
+                                                        @Html.HiddenFor(m => m.isMedical)
+                                                    </div>
                                                 </div>
-                                            </div>
                                             }
                                             else if (Model.ApplicationID > 0 && Model.TypeCode == "CON")
                                             {
-                                            <div class="col-md-3">
-                                                <div class="form-group custom-form-group">
-                                                    <label>GST</label>
-                                                    @if (Model.OrderID > 0)
+                                                <div class="col-md-3">
+                                                    <div class="form-group custom-form-group">
+                                                        <label>GST</label>
+                                                        @if (Model.OrderID > 0)
                                                         {
-                                                        @Html.TextBoxFor(m => m.GST, new { @class = "form-control", @onkeypress = "return isNumberKey(event)", @autocomplete = "off" })
-                                                        <div>@Html.ValidationMessageFor(m => m.GST)</div>
+                                                            @Html.TextBoxFor(m => m.GST, new { @class = "form-control", @onkeypress = "return isNumberKey(event)", @autocomplete = "off" })
+                                                            <div>@Html.ValidationMessageFor(m => m.GST)</div>
                                                         }
                                                         else
                                                         {
-                                                        @Html.TextBox("GST", Model.OldPrjDetailModel.GST, new { @class = "form-control", @onkeypress = "return isNumberKey(event)", @autocomplete = "off" })
-                                                        <div>@Html.ValidationMessage("GST")</div>
+                                                            @Html.TextBox("GST", Model.OldPrjDetailModel.GST, new { @class = "form-control", @onkeypress = "return isNumberKey(event)", @autocomplete = "off" })
+                                                            <div>@Html.ValidationMessage("GST")</div>
                                                         }
-                                                    @Html.Hidden("IsGSTapplicable")
-                                                    @Html.Hidden("OldGST", Model.OldPrjDetailModel.GST)
+                                                        @Html.Hidden("IsGSTapplicable")
+                                                        @Html.Hidden("OldGST", Model.OldPrjDetailModel.GST)
+                                                    </div>
                                                 </div>
-                                            </div>
                                             }
                                             <div class="col-md-3  reg-no custom-reg-no">
                                                 <div class="form-group custom-form-group">
@@ -626,11 +632,11 @@
                                                 <label>M.S/Ph.D</label> <br>
                                                 @if (Model.IsMsPhd)
                                                 {
-                                                <h4>@Html.DisplayFor(m => m.PhdDetail)</h4>
+                                                    <h4>@Html.DisplayFor(m => m.PhdDetail)</h4>
                                                 }
                                                 else
                                                 {
-                                                <h4>-</h4>
+                                                    <h4>-</h4>
                                                 }
                                             </div>
                                         </div>
@@ -640,11 +646,11 @@
                                                 <label>Designation: </label>
                                                 @if (Model.OrderID > 0)
                                                 {
-                                                <h4>@Html.DisplayFor(m => m.Designation)</h4>
+                                                    <h4>@Html.DisplayFor(m => m.Designation)</h4>
                                                 }
                                                 else
                                                 {
-                                                <h4>@Html.DisplayFor(m => m.OldPrjDetailModel.Designation)</h4>
+                                                    <h4>@Html.DisplayFor(m => m.OldPrjDetailModel.Designation)</h4>
                                                 }
                                             </div>
                                         </div>
@@ -697,11 +703,11 @@
                                             <div class="form-group custom-form-group">
                                                 @if (Model.ConsolidatedPay)
                                                 {
-                                                <input id="ConsolidatedPay1" name="ClConsolidatedPay" type="checkbox" checked disabled> <span>Consolidated pay </span><br>
+                                                    <input id="ConsolidatedPay1" name="ClConsolidatedPay" type="checkbox" checked disabled> <span>Consolidated pay </span><br>
                                                 }
                                                 @if (Model.Fellowship)
                                                 {
-                                                <input id="FellowshipPay1" name="ClFellowship" type="checkbox" checked disabled> <span>Fellowship</span> <br>
+                                                    <input id="FellowshipPay1" name="ClFellowship" type="checkbox" checked disabled> <span>Fellowship</span> <br>
                                                 }
                                             </div>
                                         </div>
@@ -734,15 +740,15 @@
                                                         {
                                                             if (item.FilePath != "")
                                                             {
-                                                <h4>
-                                                    @Html.ActionLink(item.FileName, "ShowDocument", new { Controller = "Account", filepath = "Requirement", file = item.FilePath }, new { @name = "DocDownload", @target = "_blank" })
+                                                                <h4>
+                                                                    @Html.ActionLink(item.FileName, "ShowDocument", new { Controller = "Account", filepath = "Requirement", file = item.FilePath }, new { @name = "DocDownload", @target = "_blank" })
 
-                                                    @if (Model.Status == "Draft" || Model.Status == "Open" || Model.Status.Contains("Note"))
+                                                                    @if (Model.Status == "Draft" || Model.Status == "Open" || Model.Status.Contains("Note"))
                                                                     {
 
-                                                <a class="rct-del-doc" value="@item.FilePath">Delete</a>
+                                                                        <a class="rct-del-doc" value="@item.FilePath">Delete</a>
                                                                     }
-                                                </h4><br>
+                                                                </h4><br>
                                                             }
                                                         }
                                                     }
@@ -859,11 +865,11 @@
                                                     <label>Designation Code</label>
                                                     @if (Model.OrderID > 0)
                                                     {
-                                                    <h4>@Html.DisplayFor(m => m.DesignationCode)</h4>
+                                                        <h4>@Html.DisplayFor(m => m.DesignationCode)</h4>
                                                     }
                                                     else
                                                     {
-                                                    <h4>@Html.DisplayFor(m => m.OldPrjDetailModel.DesignationCode)</h4>
+                                                        <h4>@Html.DisplayFor(m => m.OldPrjDetailModel.DesignationCode)</h4>
                                                     }
                                                 </div>
                                             </div>
@@ -872,11 +878,11 @@
                                                     <label>Designation</label>
                                                     @if (Model.OrderID > 0)
                                                     {
-                                                    <h4>@Html.DisplayFor(m => m.Designation)</h4>
+                                                        <h4>@Html.DisplayFor(m => m.Designation)</h4>
                                                     }
                                                     else
                                                     {
-                                                    <h4>@Html.DisplayFor(m => m.OldPrjDetailModel.Designation)</h4>
+                                                        <h4>@Html.DisplayFor(m => m.OldPrjDetailModel.Designation)</h4>
                                                     }
                                                 </div>
                                             </div>
@@ -903,6 +909,29 @@
 
                                         </div>
                                         <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Committee member</label>
+                                                    @Html.TextBoxFor(m => m.CommiteeMember1, new { @class = "form-control", @readonly = "readonly" })
+                                                    @Html.HiddenFor(m => m.CommiteeMemberId1)
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Committee member</label>
+                                                    @Html.TextBoxFor(m => m.CommiteeMember2, new { @class = "form-control", @readonly = "readonly" })
+                                                    @Html.HiddenFor(m => m.CommiteeMemberId2)
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label> Chairperson</label>
+                                                    @Html.TextBoxFor(m => m.ChairpersonName, new { @class = "form-control", @readonly = "readonly" })
+                                                    @Html.HiddenFor(m => m.ChairpersonNameId)
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
                                             <div class="col-md-6">
                                                 <div class="form-group custom-form-group">
                                                     @Html.RadioButtonFor(m => m.FlowofMail, "NP", new { @id = "IsNotePI" })<label class="ml-sm ">Send for PI Justification</label>
@@ -915,11 +944,11 @@
                                             </div>
                                             @if (Model.TypeCode == "OSG")
                                             {
-                                            <div class="col-md-4">
-                                                <div class="form-group custom-form-group">
-                                                    @Html.RadioButtonFor(m => m.SendSalaryStructure, "SST", new { @id = "IsSendSalaryStructure", @onclick = "checkuncheck(this)" }) <label class="ml-sm "> Send Pay Structure</label>
+                                                <div class="col-md-4">
+                                                    <div class="form-group custom-form-group">
+                                                        @Html.RadioButtonFor(m => m.SendSalaryStructure, "SST", new { @id = "IsSendSalaryStructure", @onclick = "checkuncheck(this)" }) <label class="ml-sm "> Send Pay Structure</label>
+                                                    </div>
                                                 </div>
-                                            </div>
                                             }
                                         </div>
                                         <div id="Deviation">
@@ -1431,7 +1460,7 @@
     var TypeOfAppointment = @Html.Raw(Json.Encode(Model.TypeofappointmentId)) || 0;
     var OrderID = @Html.Raw(Json.Encode(Model.OrderID)) || 0;
     var Medical = @Html.Raw(Json.Encode(Model.Medical)) || 0;
-    
+
     var flowApp = @Html.Raw(Json.Encode(Model.FlowApprover)) || "";
     if(flowApp == "CMAdmin")
     {
@@ -2515,18 +2544,26 @@
     }
 
     function UpdateMedical(value) {
+        var isHaveMedical = false;
+        var checkmedical = getBoolean($('#isMedical').val());
         if(value == 1 || value == 2) {
             $('#Medical').removeClass('dis-none');
             $('#MedicalText').addClass('dis-none');
             $('#Medical').val(value);
             $('#MedicalAmmount').val(parseFloat($('#DesignationMedicalamount').val()))
         }
-        else if(value == 3) {
-            if(!getBoolean($('#isMedical').val())) {
+        else if(value == 3 || value == 0) {
+            if(!getBoolean($('#isMedical').val())) 
+            {
                 $('#Medical').addClass('dis-none');
                 $('#MedicalText').removeClass('dis-none');
             }
-            $('#Medical').val(3);
+            else
+            {
+                $('#Medical').removeClass('dis-none');
+                $('#MedicalText').addClass('dis-none');
+            }
+            $('#Medical').val(value);
             $('#MedicalAmmount').val(0)
         }
         $('#MedicalText,#txtMedical').text($("#Medical option:selected").text());
@@ -2593,14 +2630,14 @@
         }
     });
 
-    function UpdateUploadedDoc() 
+    function UpdateUploadedDoc()
     {
         var form_data = new FormData();
         $('#fileAppend').empty();
         $(document).find('input[name^="PIJustificationFile"]').each(function(idx,ele) {
             var val = $(this).val();
             var id  = $(this).attr('id');
-            if(val != "") 
+            if(val != "")
             {
                 var tmppath = URL.createObjectURL(document.getElementById(id).files[0]);
                 var fileN   = document.getElementById(id).files[0].name;

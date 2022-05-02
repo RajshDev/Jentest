@@ -296,6 +296,7 @@
                 type: "control", editButton: false, deleteButton: false, width: 120, title: "Action",
                 itemTemplate: function (value, item) {
                     var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+                    var statusList;
                     if (item.OrderId > 0 && item.SendOffer_f) {
                         statusList = [{ id: "", name: "Action" }, { id: "Verifyorder", name: "Verify" }, { id: "Cancel", name: "Cancel" }, { id: "SendOffer", name: "Send Offerletter" }]
                     }
@@ -326,8 +327,9 @@
                                 statusList = [{ id: "", name: "Action" }, { id: "Verify", name: "Verify" }, { id: "EmailNf", name: "Email Reminder" + " " + item.EmailRemaindarCount }, { id: "Cancel", name: "Cancel" }]
                             }
                         }
-
                     }
+                    if (item.Cancel_f)
+                        statusList.push({ id: "Cancel", name: "Cancel" });
                     var $customSelect;
                     if (item.Status != "Verification Completed" && item.Status != "Cancellation Initiated") {
                         $customSelect = $("<select>")

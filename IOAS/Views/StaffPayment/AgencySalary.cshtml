@@ -1,7 +1,7 @@
 ﻿@model IOAS.Models.AgencySalaryModel
 
 @{
-    ViewBag.Title = "T & M Salary";
+    ViewBag.Title = Html.DisplayFor(m => m.VendorName) + " Salary";
     Layout = "~/Views/Shared/_LayoutFluid.cshtml";
 }
 
@@ -10,7 +10,8 @@
 
     <div class="row hd-tt-bg">
         <div class="col-md-12">
-            <h4><b>T & M Salary</b> </h4>
+            <h4><b>@Html.DisplayFor(m => m.VendorName) Salary</b></h4>
+            @Html.HiddenFor(m => m.VendorName)
         </div>
     </div>
 
@@ -25,6 +26,7 @@
                         @Html.HiddenFor(m => m.SubCode)
                         @Html.Hidden("TransactionTypeCode", "SLA")
                         @Html.HiddenFor(m => m.NeedUpdateTransDetail)
+                        @Html.HiddenFor(m => m.AgencyId)
                     </div>
                 </div>
             </div>
@@ -144,7 +146,7 @@
                                                                     <label>Total salary:</label>@Html.TextBoxFor(m => m.TotalAmount, new { @class = "form-control", @readonly = "readonly" })
                                                                 </div>
                                                                 <div class="form-group custom-form-group">
-                                                                    <label>Service charge(1.94%):</label>@Html.TextBoxFor(m => m.ServiceCharge, new { @class = "form-control", @readonly = "readonly" })
+                                                                    <label>Service charge(@Html.DisplayFor(m => m.displayServiceCharge)%):</label>@Html.TextBoxFor(m => m.ServiceCharge, new { @class = "form-control", @readonly = "readonly" })
                                                                 </div>
                                                                 <div class="form-group custom-form-group">
                                                                     <label>Net salary:</label>@Html.TextBoxFor(m => m.NetAmount, new { @class = "form-control", @readonly = "readonly" })
@@ -902,6 +904,7 @@
                 filter.__RequestVerificationToken = token;
                 filter.AgencySalaryId = AgencySalId;
                 filter.MonthYear = monthYear;
+                filter.vendorId = $('#AgencyId').val() || 0;
                 $.ajax({
                     type: "post",
                     url: 'SearchAgencySalaryList',

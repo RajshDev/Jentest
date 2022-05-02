@@ -139,27 +139,28 @@
 
                  itemTemplate: function (value, item) {
                      var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+                     var statusList;
                      if (item.Status == "Open"&& !item.isCommitmentRejection) {
-                         statusList = [{ id: "", name: "Select Action" }, { id: "Edit", name: "Edit" }, { id: "View", name: "View" }, { id: "Cancel", name: "Cancel" }]
+                         statusList = [{ id: "", name: "Select Action" }, { id: "Edit", name: "Edit" }, { id: "View", name: "View" }]
                      }
                      else if (item.Status == "Open" && item.isCommitmentRejection) {
-                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "Send for commitment booking" }, { id: "Cancel", name: "Cancel" }]
+                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "Send for commitment booking" }]
                      }
                      else if (item.Status == "Draft")
                      {
-                         statusList = [{ id: "", name: "Select Action" }, { id: "Edit", name: "Edit" }, { id: "View", name: "View" }, { id: "Cancel", name: "Cancel" }]
+                         statusList = [{ id: "", name: "Select Action" }, { id: "Edit", name: "Edit" }, { id: "View", name: "View" }]
                      }
                      else if (item.Status == "Note to PI") {
                          if (item.EmailRemaindarCount ==0) {
-                             statusList = [{ id: "", name: "Select Action" }, { id: "Edit", name: "Edit" }, { id: "EmailNf", name: "Email Notification" }, { id: "Cancel", name: "Cancel" }, { id: "View", name: "View" }]
+                             statusList = [{ id: "", name: "Select Action" }, { id: "Edit", name: "Edit" }, { id: "EmailNf", name: "Email Notification" }, { id: "View", name: "View" }]
                          }
                          else if(item.EmailRemaindarCount==1)
                          {
-                             statusList = [{ id: "", name: "Select Action" }, { id: "Edit", name: "Edit" }, { id: "EmailNf", name: "Email Remainder " + " " + item.EmailRemaindarCount }, { id: "Cancel", name: "Cancel" }, { id: "View", name: "View" }]
+                             statusList = [{ id: "", name: "Select Action" }, { id: "Edit", name: "Edit" }, { id: "EmailNf", name: "Email Remainder " + " " + item.EmailRemaindarCount }, { id: "View", name: "View" }]
                          }
                          else
                          {
-                             statusList = [{ id: "", name: "Select Action" }, { id: "Edit", name: "Edit" }, { id: "EmailNf", name: "Email Reminder" + " " + item.EmailRemaindarCount }, { id: "Cancel", name: "Cancel" }, { id: "View", name: "View" }]
+                             statusList = [{ id: "", name: "Select Action" }, { id: "Edit", name: "Edit" }, { id: "EmailNf", name: "Email Reminder" + " " + item.EmailRemaindarCount }, { id: "View", name: "View" }]
                          }
                      }
                      else if (item.Status == "Awaiting Verification" && item.SendOffer_f) {
@@ -168,6 +169,10 @@
                      else {
                          statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }]
                      }
+
+                     if (item.Cancel_f)
+                         statusList.push({ id: "Cancel", name: "Cancel" });
+
                      var $customSelect = $("<select>")
                          .attr("class", "form-control").prop("selectedIndex", "")
                      $.each(statusList, function (index, itemData) {

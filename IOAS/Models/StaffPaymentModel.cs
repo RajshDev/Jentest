@@ -525,6 +525,8 @@ namespace IOAS.Models
     {
         public int SlNo { get; set; }
         public Nullable<int> AgencySalaryID { get; set; }
+        public Nullable<int> AgencyId { get; set; }
+        public string AgencyName { get; set; }
         public string PaymentNo { get; set; }
         public string MonthYear { get; set; }
         public string DateOfPayment { get; set; }
@@ -546,6 +548,8 @@ namespace IOAS.Models
 
         public PagedData<AgencyStaffDetailsModel> EmployeeDetails { get; set; }
         public PagedData<AgencyStaffDetailsModel> VerifiedDetails { get; set; }
+        public Nullable<decimal> displayServiceCharge { get; set; }
+        public string VendorName { get; set; }
     }
 
     public class AgencyStaffDetailsModel

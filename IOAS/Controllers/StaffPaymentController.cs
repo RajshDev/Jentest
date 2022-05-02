@@ -1856,9 +1856,9 @@ namespace IOAS.Controllers
         //}
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public JsonResult SearchAgencySalaryList(int pageIndex, int pageSize, int AgencySalaryId, string MonthYear, string EmployeeId, string Name)
+        public JsonResult SearchAgencySalaryList(int vendorId, int pageIndex, int pageSize, int AgencySalaryId, string MonthYear, string EmployeeId, string Name)
         {
-            object output = payment.GetAgencyEmployeeSalary(pageIndex, pageSize, AgencySalaryId, MonthYear, EmployeeId, Name);
+            object output = payment.GetAgencyEmployeeSalary(vendorId,pageIndex, pageSize, AgencySalaryId, MonthYear, EmployeeId, Name);
             return Json(output, JsonRequestBehavior.AllowGet);
         }
         [HttpGet]

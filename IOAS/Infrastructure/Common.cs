@@ -13422,7 +13422,8 @@ namespace IOAS.Infrastructure
     (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
                 throw ex;
             }
-        }
+        }      
+
         public static Decimal getAgencySalaryTotalAmount(int agencySalaryId)
         {
             try
@@ -14183,17 +14184,20 @@ namespace IOAS.Infrastructure
                 var checkNum = "COM/" + GetCurrentFinYear() + "/";
                 using (var context = new IOASDBEntities())
                 {
-                    var num = (from b in context.tblCommitment
-                               where (b.CommitmentNumber.Contains(checkNum))
-                               select b).Max(m => m.SequenceNo) ?? 0;
+                    using (var transaction = context.Database.BeginTransaction(IsolationLevel.ReadCommitted))
+                    {
+                        var num = (from b in context.tblCommitment
+                                   where (b.CommitmentNumber.Contains(checkNum))
+                                   select b).Max(m => m.SequenceNo) ?? 0;
 
-                    if (num > 0)
-                    {
-                        seqNo = num + 1;
-                    }
-                    else
-                    {
-                        seqNo = 1;
+                        if (num > 0)
+                        {
+                            seqNo = num + 1;
+                        }
+                        else
+                        {
+                            seqNo = 1;
+                        }
                     }
                 }
                 return seqNo;
@@ -20742,7 +20746,7 @@ namespace IOAS.Infrastructure
                 string WfNo = "";
                 using (var context = new IOASDBEntities())
                 {
-                    WfNo = Common.GetWFProposalNo(Id).name;
+                    WfNo = Common.GetWFProposalNo(Id,Type).name;
                     tblWorkFlowlog log = new tblWorkFlowlog();
                     log.WFreferencenbr = WfNo;
                     log.WFreferencetype = Type;
@@ -22448,7 +22452,7 @@ namespace IOAS.Infrastructure
                 using (var context = new IOASDBEntities())
                 {
                     decimal sancVal = GetSanctionValue(pId);
-                    var query = context.tblReceipt.Where(r => r.ProjectId == pId && r.ReceiptId != recId && r.CategoryId != 16 && r.Status != "InActive").ToList();
+                    var query = context.tblReceipt.Where(r => r.ProjectId == pId && r.ReceiptId != recId && r.CategoryId != 16 && r.Status == "Completed").ToList();
                     recAmt = query.Sum(m => m.ReceiptAmount) ?? 0;
                     decimal cgst = query.Sum(m => m.CGST) ?? 0;
                     decimal sgst = query.Sum(m => m.SGST) ?? 0;
@@ -25829,11 +25833,13 @@ namespace IOAS.Infrastructure
             return age;
         }
 
-        public static bool IsAvailablefundProject(int projectid, decimal CommitmentAmount)
+        public static bool IsAvailablefundProject(int projectid, decimal commitmentAmount, int? typeOfAppointment = null)
         {
             bool funddeviation = false;
+            bool otherGov_f = false;
             try
             {
+                otherGov_f = typeOfAppointment == 4 ? true : false;
                 ProjectService _PS = new ProjectService();
                 var prjDetail = _PS.getProjectSummaryDetails(projectid);
                 decimal netBalance = prjDetail.PrjSummary.NetBalance;
@@ -25843,22 +25849,31 @@ namespace IOAS.Infrastructure
                     var totalAllocation = prjDetail.HeadWise.Sum(m => m.Amount);
                     if (totalAllocation <= 0)
                     {
-                        if (netBalance < CommitmentAmount)
+                        if (netBalance < commitmentAmount)
                             funddeviation = true;
+                    }
+                    else if (otherGov_f == true)
+                    {
+                        if (!prjDetail.HeadWise.Any(m => m.Available >= commitmentAmount))
+                            funddeviation = true;
+                        if (!funddeviation)
+                        {
+                            if (netBalance < commitmentAmount)
+                                funddeviation = true;
+                        }
                     }
                     else if (!prjDetail.HeadWise.Any(m => m.AllocationId == 1))
                         funddeviation = true;
                     else if (prjDetail.HeadWise.Any(m => m.AllocationId == 1))
                     {
                         var headwisedata = prjDetail.HeadWise.Where(x => x.AllocationId == 1).FirstOrDefault();
-                        var AllocationAmt = headwisedata.Amount;
                         var AvailableAmt = headwisedata.Available;
-                        if (AvailableAmt < CommitmentAmount)
+                        if (AvailableAmt < commitmentAmount)
                             funddeviation = true;
 
-                        if (AvailableAmt >= CommitmentAmount && !funddeviation)
+                        if (AvailableAmt >= commitmentAmount && !funddeviation)
                         {
-                            if (netBalance < CommitmentAmount)
+                            if (netBalance < commitmentAmount)
                                 funddeviation = true;
                         }
                     }
@@ -25998,7 +26013,7 @@ namespace IOAS.Infrastructure
                     #region Projectfund
                     bool funddeviation = false;
                     if (model.StaffCatecory == "Non ICSR Staff" && !model.PaymentthroughAgency)
-                        funddeviation = IsAvailablefundProject(model.ProjectID ?? 0, model.CommitmentAmount);
+                        funddeviation = IsAvailablefundProject(model.ProjectID ?? 0, model.CommitmentAmount, model.TypeOfAppointment);
 
                     if (funddeviation)
                     {
@@ -26699,7 +26714,7 @@ namespace IOAS.Infrastructure
                     if (model.StaffCatecory == "Non ICSR Staff" && model.PaymentthroughAgency == false)
                     {
                         ProjectService _PS = new ProjectService();
-                        var funddeviation = IsAvailablefundProject(model.ProjectID ?? 0, model.CommitmentAmount);
+                        var funddeviation = IsAvailablefundProject(model.ProjectID ?? 0, model.CommitmentAmount, model.TypeOfAppointment);
                         if (funddeviation)
                         {
                             var query = (from age in context.tblFunctionCheckList
@@ -27887,8 +27902,8 @@ namespace IOAS.Infrastructure
                         model.ApplicationRefNo = QrySTE.A.RefNumber;
                         model.AutoFillRequstedbyPI = Common.GetPIName(QrySTE.A.RequestedBy ?? 0);
                         model.RequestedByPI = QrySTE.A.RequestedBy;
-                        model.Comments = QrySTE.A.Comments + QrySTE.A.Remarks;
-                        model.PIJustificationRemarks = QrySTE.A.PICoPIComments;
+                        model.Comments = QrySTE.A.Comments;
+                        model.PIJustificationRemarks = QrySTE.A.PICoPIComments + " , " + QrySTE.A.Remarks;
                     }
                 }
                 return model;
@@ -28043,8 +28058,8 @@ namespace IOAS.Infrastructure
                         model.ApplicationRefNo = QryOSG.A.RefNumber;
                         model.AutoFillRequstedbyPI = Common.GetPIName(QryOSG.A.RequestedBy ?? 0);
                         model.RequestedByPI = QryOSG.A.RequestedBy;
-                        model.Comments = QryOSG.A.Comments + QryOSG.A.Remarks;
-                        model.PIJustificationRemarks = QryOSG.A.PICoPIComments;
+                        model.Comments = QryOSG.A.Comments;
+                        model.PIJustificationRemarks = QryOSG.A.PICoPIComments + " , " + QryOSG.A.Remarks;
                     }
                 }
                 return model;

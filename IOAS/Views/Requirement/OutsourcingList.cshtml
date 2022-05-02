@@ -146,30 +146,31 @@
                  itemTemplate: function (value, item) {
 
                      var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+                     var statusList;
                      if (item.Status == "Open" && !item.isGovAgencyFund && !item.isCommitmentRejection) {
-                         statusList = [{ id: "", name: "Action" }, { id: "Edit", name: "Edit" }, { id: "View", name: "View" }, { id: "Cancel", name: "Cancel" }, { id: "Send for Approval", name: "Send for Approval" }]
+                         statusList = [{ id: "", name: "Action" }, { id: "Edit", name: "Edit" }, { id: "View", name: "View" }, { id: "Send for Approval", name: "Send for Approval" }]
                      }
                      else if (item.Status == "Open" && item.isGovAgencyFund) {
-                         statusList = [{ id: "", name: "Action" }, { id: "View", name: "Commitment Booking" }, { id: "Cancel", name: "Cancel" }]
+                         statusList = [{ id: "", name: "Action" }, { id: "View", name: "Commitment Booking" }]
                      }
                      else if (item.Status == "Committee Clarify") {
-                         statusList = [{ id: "", name: "Action" }, { id: "View", name: "Send for commitee approval" }, { id: "Cancel", name: "Cancel" }]
+                         statusList = [{ id: "", name: "Action" }, { id: "View", name: "Send for commitee approval" }]
                      }
                      else if (item.Status == "Open" && item.isCommitmentRejection) {
-                         statusList = [{ id: "", name: "Action" }, { id: "View", name: "Send for commitment booking" }, { id: "Cancel", name: "Cancel" }]
+                         statusList = [{ id: "", name: "Action" }, { id: "View", name: "Send for commitment booking" }]
                      }
                      else if (item.Status == "Draft") {
-                         statusList = [{ id: "", name: "Action" }, { id: "Edit", name: "Edit" }, { id: "View", name: "View" }, { id: "Cancel", name: "Cancel" }]
+                         statusList = [{ id: "", name: "Action" }, { id: "Edit", name: "Edit" }, { id: "View", name: "View" }]
                      }
                      else if (item.Status.includes('Note') && item.Status != "Note to Dean") {
                          if (item.EmailRemaindarCount == 0) {
-                             statusList = [{ id: "", name: "Action" }, { id: "Edit", name: "Edit" }, { id: "EmailNf", name: "Email Notification" }, { id: "Cancel", name: "Cancel" }]
+                             statusList = [{ id: "", name: "Action" }, { id: "Edit", name: "Edit" }, { id: "EmailNf", name: "Email Notification" }]
                          }
                          else if (item.EmailRemaindarCount == 1) {
-                             statusList = [{ id: "", name: "Action" }, { id: "Edit", name: "Edit" }, { id: "EmailNf", name: "Email Remainder " + " " + item.EmailRemaindarCount }, { id: "Cancel", name: "Cancel" }]
+                             statusList = [{ id: "", name: "Action" }, { id: "Edit", name: "Edit" }, { id: "EmailNf", name: "Email Remainder " + " " + item.EmailRemaindarCount }]
                          }
                          else {
-                             statusList = [{ id: "", name: "Action" }, { id: "Edit", name: "Edit" }, { id: "EmailNf", name: "Email Reminder" + " " + item.EmailRemaindarCount }, { id: "Cancel", name: "Cancel" }]
+                             statusList = [{ id: "", name: "Action" }, { id: "Edit", name: "Edit" }, { id: "EmailNf", name: "Email Reminder" + " " + item.EmailRemaindarCount }]
                          }
                      }
                      else if (item.Status == "Awaiting Verification" && item.SendOffer_f) {
@@ -178,6 +179,8 @@
                      else {
                          statusList = [{ id: "", name: "Action" }, { id: "View", name: "View" }]
                      }
+                     if (item.Cancel_f)
+                         statusList.push({ id: "Cancel", name: "Cancel" });
                      var $customSelect = $("<select>")
                          .attr("class", "form-control").prop("selectedIndex", "")
                      $.each(statusList, function (index, itemData) {

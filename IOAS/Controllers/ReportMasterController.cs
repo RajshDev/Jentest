@@ -3538,8 +3538,6 @@ namespace IOAS.Controllers
                 listdata.ExceuteInterestRefund(model.FinYear, logged_in_user);
                 TempData["succMsg"] = "Interest is calculating in Back end .It will take more than a hour";
                 return View(model);
-
-
             }
         }
         [HttpPost]
