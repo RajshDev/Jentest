@@ -32,5 +32,6 @@ namespace IOAS.DataModel
         public string SchemeName { get; set; }
         public int ProjectId { get; set; }
         public string Status { get; set; }
+        public Nullable<System.DateTime> SanctionOrderDate { get; set; }
     }
 }

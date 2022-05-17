@@ -1,16 +1,16 @@
 ﻿@model IOAS.Models.AgencySalaryModel
 
 @{
-    ViewBag.Title = "T & M Salary";
+    ViewBag.Title = Html.DisplayFor(m => m.VendorName) + " Salary";
     Layout = "~/Views/Shared/_LayoutFluid.cshtml";
 }
 
 @using (Html.BeginForm("AgencySalary", "StaffPayment", FormMethod.Post, new { @class = "", role = "form", @id = "formAS", enctype = "multipart/form-data" }))
 {
-
     <div class="row hd-tt-bg">
         <div class="col-md-12">
-            <h4><b>T & M Salary</b> </h4>
+            <h4><b>@Html.DisplayFor(m => m.VendorName) Salary</b></h4>
+            @Html.HiddenFor(m => m.VendorName)
         </div>
     </div>
 
@@ -25,6 +25,7 @@
                         @Html.HiddenFor(m => m.SubCode)
                         @Html.Hidden("TransactionTypeCode", "SAL")
                         @Html.HiddenFor(m => m.NeedUpdateTransDetail)
+                        @Html.HiddenFor(m => m.AgencyId)
                     </div>
                 </div>
             </div>
@@ -917,6 +918,7 @@
                 filter.__RequestVerificationToken = token;
                 filter.AgencySalaryId = AgencySalId;
                 filter.MonthYear = monthYear;
+                filter.vendorId = $('#AgencyId').val();
                 $.ajax({
                     type: "post",
                     url: 'SearchAgencySalaryList',

@@ -91,6 +91,7 @@
                     @Html.HiddenFor(m => m.VendorId)
                     @Html.HiddenFor(m => m.TypeCode)
                     @Html.HiddenFor(M => M.StatutoryId)
+                    @Html.HiddenFor(M => M.InitByPI_f)
                     <span>Request Reference</span>
                     @Html.DropDownListFor(m => m.RequestReference, new SelectList(ViewBag.ReferenceType, "id", "name"), "Select", new { @class = "form-control" })
                     <div>@Html.ValidationMessageFor(m => m.RequestReference)</div>
@@ -651,6 +652,11 @@
                                                                 @Html.ActionLink(Model.PILetterFileName, "ShowDocument", new { Controller = "Account", filepath = "Requirement", file = Model.PILetterPath }, new { @name = "DocDownload", @target = "_blank", @style = "color:white;" })
                                                                 <div>@Html.ValidationMessage("PILetter")</div>
                                                             }
+                                                            else if (Model.InitByPI_f == true)
+                                                            {
+                                                                <input type="file" id="PILetter" name="PILetter">
+                                                                <div>@Html.ValidationMessage("PILetter")</div>
+                                                            }
                                                             else
                                                             {
                                                                 <input type="file" id="PILetter" name="PILetter" required>
@@ -1006,6 +1012,29 @@
                                                 </div>
                                             </div>
 
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Committee member</label>
+                                                    @Html.TextBoxFor(m => m.CommiteeMember1, new { @class = "form-control", @readonly = "readonly" })
+                                                    @Html.HiddenFor(m => m.CommiteeMemberId1)
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Committee member</label>
+                                                    @Html.TextBoxFor(m => m.CommiteeMember2, new { @class = "form-control", @readonly = "readonly" })
+                                                    @Html.HiddenFor(m => m.CommiteeMemberId2)
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label> Chairperson</label>
+                                                    @Html.TextBoxFor(m => m.ChairpersonName, new { @class = "form-control", @readonly = "readonly" })
+                                                    @Html.HiddenFor(m => m.ChairpersonNameId)
+                                                </div>
+                                            </div>
                                         </div>
                                         <div class="row">
                                             <div class="col-md-6">
@@ -1823,8 +1852,10 @@
             withdrawtilldate   = moment(new Date($('#WithdrawTillDate').val().split('-').join('/'))).add(+1,'days').toDate();
             withdrawtilldate   =  $.datepicker.formatDate('dd-MM-yy', withdrawtilldate);
 
-            appointmentstartdtmin = moment(new Date(appointmentstartdt.split('-').join('/'))).add(-1,'days').toDate();
-            appointmentstartdtmin = $.datepicker.formatDate('dd-MM-yy', appointmentstartdtmin);
+            //appointmentstartdtmin = moment(new Date(appointmentstartdt.split('-').join('/'))).add(-1,'days').toDate();
+            //appointmentstartdtmin = $.datepicker.formatDate('dd-MM-yy', appointmentstartdtmin);
+
+            appointmentstartdt = withdrawtilldate;
         }
         if(isarrearpay == true) {
             appointmentstartdt = $('#OldAppointmentStartDate').text();
@@ -1919,18 +1950,26 @@
             $('#CommitmentAmount').val(Math.round(totalVal));
 
             var commitmentbalance = @Html.Raw(Json.Encode(Model.OldPrjDetailModel.CommitmentBalance)) || 0;
-            var pretermamount     = calcoldcommitmentamount(withdrawtilldate,appointmentstartdtmin) || 0;
+            var appointmentenddate = @Html.Raw(Json.Encode(Model.OldPrjDetailModel.AppointmentClosureDate));
+            var pretermamount     = calcoldcommitmentamount(withdrawtilldate,appointmentenddate) || 0;
+
+            var PreTenureAmount = 0;
+            if(withdrawtilldate != appointmentstartdt && withdrawtilldate != "") {
+                PreTenureAmount = calcoldcommitmentamount(withdrawtilldate,appointmentenddate);
+            }
+
+
             if ($("#WithdrawnFullAmount").is(':checked'))
             {
                 $('#WithdrawalAmount').val(commitmentbalance);
             }
             else
             {
-                var withdrawamount = commitmentbalance - pretermamount;
-                if (withdrawamount <= 0)
+                //var withdrawamount = commitmentbalance - pretermamount;
+                if (pretermamount <= 0)
                     $('#WithdrawalAmount').val(commitmentbalance);
                 else
-                    $('#WithdrawalAmount').val(Math.round(withdrawamount));
+                    $('#WithdrawalAmount').val(Math.round(pretermamount));
             }
         }
     }
@@ -1967,7 +2006,7 @@
             var endperday   = ttlVal / enddtmonthend;
             var monthlyAmt  = ttlVal;
             if (months > 0)
-                totalVal += monthlyAmt * count;
+                totalVal += monthlyAmt * months;
 
             if (days > 0) {
                 totalVal += startworingdays * startperday;
@@ -3077,7 +3116,7 @@
                 $('#ShowDeviationNP').show();
                 PopupConfirm()
             }//Process mail Preview is occur only once for application save
-            else if ($('input[name="FlowofMail"]:checked').val() == "Nd"  && (typcategory == "STE" || typcategory == "CON"  || (typcategory == "OSG" && $('input[name="SendSalaryStructure"]:checked').val() == "SST"))) {
+            else if ($('input[name="FlowofMail"]:checked').val() == "Nd"  && ((@Html.Raw(Json.Encode(Model.MailSent_f)) == false && (typcategory == "STE" || typcategory == "CON"))  || (typcategory == "OSG" && $('input[name="SendSalaryStructure"]:checked').val() == "SST"))) {
                 $('#ShowDeviationND').empty();
                 $('#ShowDeviationNP').hide();
                 $('#ShowDeviationND').show();

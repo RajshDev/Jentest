@@ -4700,7 +4700,7 @@ namespace IOAS.GenericServices
                     for (int a = 0; a < NonCenter.Count(); a++)
                     {
                         var DeptName = NonCenter[a].Head;
-                        int DeptCode = NonCenter[a].HeadId;
+                        int DeptCode = NonCenter[a].HeadId;                       
                         decimal TotalAmt_A = 0; decimal AmtforPrevMonth_A = 0; decimal AmtforCurMonth_A = 0; decimal receiptAmt = 0; decimal QryRecAMt = 0;
                         decimal TotalAmt_B = 0; decimal AmtforPrevMonth_B = 0; decimal AmtforCurMonth_B = 0;
                         //////A///////
@@ -4796,7 +4796,7 @@ namespace IOAS.GenericServices
                                           && b.ProjectType == 1 && aa.Status == "Completed" && !aa.ReceiptNumber.Contains("RBU")
                                           && ReceiptCateg.Contains(b.ReportClassification ?? 0) && aa.Posted_f == true
                                           && !Categ.Contains(aa.CategoryId ?? 0) && !b.ProjectNumber.Contains("ISRO")
-                                          && ((b.ProjectNumber.StartsWith("DIA") || b.FacultyDetailId == 67) || (
+                                          && ((b.ProjectNumber.StartsWith("DIA") || b.FacultyDetailId == 67) ||  (
                                           b.FacultyDetailId == DeptCode && aa.CrtdTS >= fromdate && aa.CrtdTS <= todate
                                        && b.ProjectType == 1 && aa.Status == "Completed" && !aa.ReceiptNumber.Contains("RBU")
                                        && !Categ.Contains(aa.CategoryId ?? 0) && !b.ProjectNumber.Contains("ISRO")
@@ -4834,7 +4834,7 @@ namespace IOAS.GenericServices
                             LbAmtforPrevMonth_B = "*" + String.Format("{0:0.00}", AmtforPrevMonth_B);
                         else
                             LbAmtforPrevMonth_B = String.Format("{0:0.00}", AmtforPrevMonth_B);
-                        if (AmtforCurMonth_A > 0 || AmtforCurMonth_B > 0 || TotalAmt_A > 0 || TotalAmt_B > 0 || TotalRecAmt > 0)
+                        if (AmtforCurMonth_A > 0 || AmtforCurMonth_B > 0 || TotalAmt_A > 0 || TotalAmt_B > 0)
                         {
                             List.Add(new OfficeMonthlyListReportModel()
                             {

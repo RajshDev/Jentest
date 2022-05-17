@@ -1274,7 +1274,7 @@ namespace IOAS.GenericServices
                             EmailStatus.CRTD_Ts = DateTime.Now;
                             EmailStatus.CRTD_By = UserID;
                             EmailStatus.IsSend = isSend;
-                            EmailStatus.TypeofMail = 1;
+                            EmailStatus.TypeofMail = isdeviation ? 2 : 1;
                             EmailStatus.OSGID = OSGID;
                             IOAScontext.tblRCTOSGEmailLog.Add(EmailStatus);
                             IOAScontext.SaveChanges();
@@ -2677,6 +2677,18 @@ namespace IOAS.GenericServices
                             npmodel.Offer_f = true;
                             npmodel.FillFields = "revision of pay";
                         }
+                        else if (query.ApplicationType == "Enhancement" && queryodr.NewProjectId != queryodr.OldProjectId)
+                        {
+                            npmodel.FillFields = "change of project";
+                            npmodel.subject = "Change of project status for " + query.ProfessionalType + " " + query.CandidateName;
+                            npmodel.Offer_f = true;
+                        }
+                        else if (query.ApplicationType == "Enhancement" && queryodr.NewDesignation != queryodr.OldDesignation)
+                        {
+                            npmodel.FillFields = "change of designation";
+                            npmodel.subject = "Change of designation status for " + query.ProfessionalType + " " + query.CandidateName;
+                            npmodel.Offer_f = true;
+                        }
                         else if (query.ApplicationType == "Enhancement" && (queryodr.NewSalary == queryodr.OldSalary || queryodr.OldSalary < queryodr.NewSalary) && queryodr.NewDesignation == queryodr.OldDesignation && queryodr.NewProjectId == queryodr.OldProjectId)
                         {
                             npmodel.subject = "Salary enhancement status for " + query.ProfessionalType + " " + query.CandidateName;
@@ -2692,11 +2704,8 @@ namespace IOAS.GenericServices
                             npmodel.subject = query.ApplicationType + " status for " + query.ProfessionalType + " " + query.CandidateName;
                             npmodel.Offer_f = true;
                         }
-
-                        if (query.ApplicationType == "Enhancement" && queryodr.NewDesignation != queryodr.OldDesignation)
-                            npmodel.FillFields = "change of designation";
-                        if (query.ApplicationType == "Enhancement" && queryodr.NewProjectId != queryodr.OldProjectId)
-                            npmodel.FillFields = "change of project";
+                        if (query.ApplicationType == "Enhancement" && queryodr.NewDesignation != queryodr.OldDesignation && queryodr.OldSalary == queryodr.NewSalary && queryodr.NewProjectId == queryodr.OldProjectId)
+                            npmodel.OnlyDesignationDiff_f = true;
 
                         if (query.ApplicationType == "Change of project")
                             getDefaultCC(query.Category, 1).ForEach(mailid => { addcc.Add(mailid); });
@@ -2836,13 +2845,19 @@ namespace IOAS.GenericServices
                                 addcc.Add(bccEmail.Trim());
                         }
                         var queryodr = (from o in context.tblOrder
-                                        where o.OrderId == orderid
+                                        from a in context.tblRCTSTE
+                                        where o.AppointmentId == a.STEID && o.AppointmentType == 2
+                                        && o.OrderId == orderid
                                         select new
                                         {
                                             o.NewDesignation,
                                             o.OldDesignation,
                                             o.NewProjectId,
-                                            o.OldProjectId
+                                            o.OldProjectId,
+                                            o.OrderType,
+                                            NewSalary = o.Basic,
+                                            OldSalary = a.Salary,
+                                            o.isExtended
                                         }).FirstOrDefault();
                         if (query.ApplicationType == "Change of project")
                             getDefaultCC(query.Category, 1).ForEach(mailid => { addcc.Add(mailid); });
@@ -2850,13 +2865,33 @@ namespace IOAS.GenericServices
                             getDefaultCC(query.Category, 1).ForEach(mailid => { addcc.Add(mailid); });
                         else
                             getDefaultCC(query.Category, 3).ForEach(mailid => { addcc.Add(mailid); });
+                        npmodel.PersonName = query.ProfessionalType + " " + query.CandidateName;
+                        npmodel.subject = "Deviation from the norms in the term " + query.ApplicationType.ToLower() + " for " + npmodel.PersonName;
 
-                        npmodel.subject = "Deviation from the norms in the term " + query.ApplicationType.ToLower() + " for " + query.ProfessionalType + " " + query.CandidateName;
+                        if (queryodr.OrderType == 2)
+                        {
+                            if (queryodr.NewProjectId != queryodr.OldProjectId)
+                            {
+                                npmodel.subject = "Deviation from the norms in the Change of project request for " + npmodel.PersonName;
+                            }
+                            else if (queryodr.NewDesignation != queryodr.OldDesignation)
+                            {
+                                npmodel.subject = "Deviation from the norms in the Change of designation for " + npmodel.PersonName;
+                            }
+                            else if ((queryodr.NewSalary == queryodr.OldSalary || queryodr.OldSalary < queryodr.NewSalary) && queryodr.NewDesignation == queryodr.OldDesignation && queryodr.NewProjectId == queryodr.OldProjectId)
+                            {
+                                npmodel.subject = "Deviation from the norms in the Salary enhancement for " + npmodel.PersonName;
+                            }
+                            else if (queryodr.OldSalary > queryodr.NewSalary && queryodr.NewDesignation == queryodr.OldDesignation && queryodr.NewProjectId == queryodr.OldProjectId)
+                            {
+                                npmodel.subject = "Deviation from the norms in the Revision of pay for " + npmodel.PersonName;
+                            }
+                        }
+
                         npmodel.toMail = query.ToMail;
                         npmodel.cc = addcc;
                         npmodel.AppointmentStartDate = String.Format("{0:dd-MMMM-yyyy}", query.AppointmentStartdate);
                         npmodel.AppointmentEndDate = String.Format("{0:dd-MMMM-yyyy}", query.AppointmentEnddate);
-                        npmodel.PersonName = query.ProfessionalType + " " + query.CandidateName;
                         npmodel.ProjectNumber = Common.getprojectnumber(query.ProjectId ?? 0); ;
                         npmodel.Ordertype = query.ApplicationType.ToLower();
                         npmodel.checkdetails = getDevNormsDetails(query.ApplicationId ?? 0, query.Category, orderid);
@@ -3797,9 +3832,9 @@ namespace IOAS.GenericServices
                             EmailModel emodel = new EmailModel();
                             NotePIModel npmodel = new NotePIModel();
                             if (Send_f)
-                                addcc.Add(Qry.ToMail);
-                            else
                                 addcc.Add(Qry.Email);
+                            //else
+                            //    addcc.Add(Qry.ToMail);
                             if (Qry.bcc != null)
                             {
                                 var bcc = Qry.bcc.Split(',');
@@ -3849,10 +3884,10 @@ namespace IOAS.GenericServices
                             {
                                 npmodel.subject = "ICSR - House Rent Allowance stopped for " + npmodel.PersonName;
                             }
-                            if (Send_f)
-                                npmodel.toMail = Qry.Email;
-                            else
-                                npmodel.toMail = Qry.ToMail;
+                            //if (Send_f)
+                            //    npmodel.toMail = Qry.Email;
+                            //else
+                            npmodel.toMail = Qry.ToMail;
                             npmodel.cc = addcc;
                             npmodel.AppointmentStartDate = string.Format("{0:dd-MMM-yyyy}", Qry.AppointmentStartdate);
                             npmodel.AppointmentEndDate = string.Format("{0:dd-MMM-yyyy}", Qry.AppointmentEnddate);
@@ -3863,7 +3898,7 @@ namespace IOAS.GenericServices
                             npmodel.Ack_f = Ack_f;
                             npmodel.Send_f = Send_f;
                             npmodel.BasicPay = string.Format("{0:#,##0.############}", Qry.HRA);
-                            npmodel.DAName = Common.GetUserFirstName(logged_in_userId);
+                            npmodel.DAName = Common.GetUserFirstName(Qry.crtdUserId ?? 0);
                             emodel = npmodel;
                             var bodyResp = _eb.RunCompile("RCTHRAMailTemplate.cshtml", "", npmodel, typeof(NotePIModel));
                             if (bodyResp.Item1)
@@ -4157,7 +4192,7 @@ namespace IOAS.GenericServices
                                     context.tblRCTOSGEmailLog.Add(EmailStatus);
                                     context.SaveChanges();
                                 }
-                                return Tuple.Create(res, bodyResp.Item2);
+                                return Tuple.Create(res, "");
                             }
                         }
                     }
@@ -5456,7 +5491,7 @@ namespace IOAS.GenericServices
                                  where pah.RCTPayrollId == Payrollid
                                  select pah).FirstOrDefault();
                     var vendordetails = (from ven in context.tblSalaryAgencyMaster
-                                         where ven.Status == "Active"
+                                         where ven.SalaryAgencyId == query.VendorId
                                          select ven).FirstOrDefault();
                     if (query != null)
                     {
@@ -5541,7 +5576,7 @@ namespace IOAS.GenericServices
                                     select pah).FirstOrDefault();
                     //Mapping vendor id
                     var venQuery = (from ven in context.tblSalaryAgencyMaster
-                                    where ven.SalaryAgencyId == 2
+                                    where ven.SalaryAgencyId == payQuery.VendorId
                                     select ven).FirstOrDefault();
 
                     if (payQuery != null && venQuery != null)

@@ -522,6 +522,7 @@ namespace IOAS.Controllers
         public JsonResult DeleteWFProposal(int WFid, string Type)
         {
             int logged_in_userId = Common.GetUserid(User.Identity.Name);
+            Type = (Type == "Sponser" || Type == "Cons") ? null : Type;
             object output = Common.IsDeleteWFProposal(WFid, logged_in_userId, Type);
             return Json(output, JsonRequestBehavior.AllowGet);
         }

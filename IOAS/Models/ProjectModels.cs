@@ -1175,6 +1175,7 @@ namespace IOAS.Models
         public string PIDepartment { get; set; }
         public string AgencyName { get; set; }
         public bool PFInit { get; set; }
+        public Nullable<decimal> Enhancedtaxvalue { get; set; }
         public List<ProjectEnhanementAllocationViewModel> AllocationHeadList { get; set; }
         //public List<ProjectEnhancementSupportingDocModel> SupportingDoc { get; set; }
     }

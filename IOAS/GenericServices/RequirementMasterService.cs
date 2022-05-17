@@ -483,7 +483,8 @@ namespace IOAS.GenericServices
                                      ds.Medical,
                                      ds.Status,
                                      ds.DesignationId,
-                                     ds.RecordStatus
+                                     ds.RecordStatus,
+                                     ds.SalaryLevel
                                  }
                                       ).Skip(skiprec).Take(pageSize).ToList();
                     searchdata.TotalRecords = (from ds in context.tblRCTDesignation
@@ -509,7 +510,8 @@ namespace IOAS.GenericServices
                                                    ds.Medical,
                                                    ds.Status,
                                                    ds.DesignationId,
-                                                   ds.RecordStatus
+                                                   ds.RecordStatus,
+                                                   ds.SalaryLevel
                                                }
                                       ).Count();
 
@@ -534,8 +536,8 @@ namespace IOAS.GenericServices
                                 TypeofAccountName = query[i].CodeValDetail,
                                 DesignationCode = query[i].DesignationCode,
                                 Designation = query[i].Designation,
-                                PayStructureMinMum = query[i].PayStructureMinMum,
-                                PayStructureMaximum = query[i].PayStructureMaximum,
+                                PayStructureMinMum = query[i].SalaryLevel>0?Common.GetSalaryLevelMin(query[i].SalaryLevel??0): query[i].PayStructureMinMum,
+                                PayStructureMaximum = query[i].SalaryLevel>0? Common.GetSalaryLevelMax(query[i].SalaryLevel ?? 0):query[i].PayStructureMaximum,
                                 HRAType = query[i].HRA == true ? "Yes" : "No",
                                 MedicalType = query[i].Medical == true ? "Yes" : "No",
                                 Status = query[i].Status,

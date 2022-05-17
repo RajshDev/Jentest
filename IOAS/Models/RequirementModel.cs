@@ -1006,6 +1006,8 @@ namespace IOAS.Models
         public HttpPostedFileBase[] PIJustificationFile { get; set; }
         public string List_f { get; set; }
         public bool MailSent_f { get; set; }
+        public string IITMExperience { get; set; }
+
     }
 
     public class STEVerificationModel
@@ -1172,7 +1174,7 @@ namespace IOAS.Models
         public string RequestedfromPI { get; set; }
         public string SalaryLevel { get; set; }
         public string SalaryLevelDescription { get; set; }
-
+        public bool Cancel_f { get; set; }
     }
 
     public class SearchSTEVerificationModel
@@ -1298,6 +1300,8 @@ namespace IOAS.Models
         public string Status { get; set; }
         public Nullable<int> UserID { get; set; }
         public Nullable<int> RoleId { get; set; }
+        public bool Cancel_f { get; set; }
+        public Nullable<DateTime> AppointmentStartDate { get; set; }
     }
 
     public class STESearchModel
@@ -1347,6 +1351,8 @@ namespace IOAS.Models
         public bool RequestRelieving { get; set; }
         public Nullable<int> RoleId { get; set; }
         public Nullable<int> UserId { get; set; }
+        public bool Cancel_f { get; set; }
+        public Nullable<DateTime> AppointmentStartDate { get; set; }
     }
     public class SearchEmployeeModel
     {
@@ -1544,6 +1550,14 @@ namespace IOAS.Models
         public string CCMail { get; set; }
         public bool MailSent_f { get; set; }
         public bool InitByPI_f { get; set; }
+
+        public string CommiteeMember1 { get; set; }
+        public Nullable<int> CommiteeMemberId1 { get; set; }
+        public string CommiteeMember2 { get; set; }
+        public Nullable<int> CommiteeMemberId2 { get; set; }
+        public string ChairpersonName { get; set; }
+        public Nullable<int> ChairpersonNameId { get; set; }
+        public bool AcknowledgementSent_f { get; set; }
     }
 
     public class HRAOrderModel
@@ -2138,6 +2152,7 @@ namespace IOAS.Models
         public Nullable<bool> SentOffer_f { get; set; }
         public string TypeofAppointmentName { get; set; }
         public bool InitByPI_f { get; set; }
+        public bool Cancel_f { get; set; }
     }
 
     public class SearchChangeofProjectModel
@@ -2166,6 +2181,8 @@ namespace IOAS.Models
         public string Status { get; set; }
         public Nullable<bool> SendOffer_f { get; set; }
         public bool InitByPI_f { get; set; }
+        public bool Cancel_f { get; set; }
+
 
     }
 
@@ -2509,6 +2526,7 @@ namespace IOAS.Models
         public List<EducationModel> ConEductiondetail { get; set; }
         public List<ExperienceModel> ConExpereience { get; set; }
         public List<OtherDetailModel> OtherDetail { get; set; }
+        public string IITMExperience { get; set; }
     }
     //public class RCTOfficeOrderModel
     //{
@@ -2939,7 +2957,7 @@ namespace IOAS.Models
         public string AutoFillRequstedbyPI { get; set; }
         public string RequestedfromPI { get; set; }
         public string List_f { get; set; }
-        
+        public bool Cancel_f { get; set; }
     }
 
     public class PIJustificationModel

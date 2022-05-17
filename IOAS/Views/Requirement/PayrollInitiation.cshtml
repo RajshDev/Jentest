@@ -28,7 +28,7 @@
                                         <div>@Html.ValidationMessageFor(m => m.SalaryMonth)</div>
                                     </div>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-4" id="divSalaryType">
                                     <div class="form-group custom-form-group">
                                         <label class="required">Salary Type</label>
                                         @Html.DropDownListFor(m => m.SalaryType, new SelectList(ViewBag.SalaryType, "id", "name"), "Select Type"
@@ -61,6 +61,18 @@
                                     </div>
                                 </div>
                             </div>
+                            @if (Model.RoleId == 107 || Model.RoleId == 108 || Model.RoleId == 109)
+                            {
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group">
+                                            <label class="required">Vendor</label>
+                                            @Html.DropDownListFor(m => m.VendorId, new SelectList(ViewBag.OSGVendor, "id", "name"), "Select Vendor", new { @class = "form-control required" })
+                                            <div>@Html.ValidationMessageFor(m => m.VendorId)</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
                         </div>
                     </div>
                 </div>
@@ -81,6 +93,10 @@
     var errMsg = '@TempData["errMsg"]';
     var succMsg = '@TempData["succMsg"]';
     var alertMsg = '@TempData["alertMsg"]';
+    var roleid = @Html.Raw(Json.Encode(Model.RoleId)) || 0;
+    if(roleid == 107 || roleid == 108 || roleid == 109) {
+        $('#divSalaryType').attr('style','display:none');
+    }
     $(document).ready(function () {
         if (succMsg != '') {
             $('#alertTitle').html("Success");
@@ -99,6 +115,9 @@
     function GetSalarymonth() {
         var month = $('#SalaryMonth').val();
         var typeid = $('#SalaryType').val();
+        if(roleid == 107 || roleid == 108 || roleid == 109) {
+            typeid = 1
+        }
         if (month != "" && typeid != "") {
             $.getJSON("@Url.Action("LoadPayRollInitaDate", "Requirement")", { MonthAndYear: month, SalaryType: typeid },
              function (result) {

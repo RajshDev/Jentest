@@ -25,6 +25,36 @@ namespace IOAS.DataModel
         public Nullable<decimal> Equipment { get; set; }
         public Nullable<decimal> Overheads { get; set; }
         public Nullable<decimal> Others { get; set; }
+        public Nullable<decimal> Consumables { get; set; }
+        public Nullable<decimal> Contingencies { get; set; }
+        public Nullable<decimal> Travel { get; set; }
+        public Nullable<decimal> Component { get; set; }
+        public Nullable<decimal> Publication_Monograph { get; set; }
+        public Nullable<decimal> Workshop_Symposium { get; set; }
+        public Nullable<decimal> Scientific_Social_Responsibility { get; set; }
+        public Nullable<decimal> IP_Fee { get; set; }
+        public Nullable<decimal> Miscellaneous { get; set; }
+        public Nullable<decimal> Field_Testing_Demo_Training { get; set; }
+        public Nullable<decimal> Software { get; set; }
+        public Nullable<decimal> Consumables_Travel_Contingencies { get; set; }
+        public Nullable<decimal> Consumables_Travel { get; set; }
+        public Nullable<decimal> Refundofunspentbalance { get; set; }
+        public Nullable<decimal> Refundofunspentinterest { get; set; }
+        public Nullable<decimal> FieldWork { get; set; }
+        public Nullable<decimal> EquipmentandStudyMaterial { get; set; }
+        public Nullable<decimal> PublicationofReport { get; set; }
+        public Nullable<decimal> Overheads_Contingencies { get; set; }
+        public Nullable<decimal> Consultants { get; set; }
+        public Nullable<decimal> ConsumablesandAccessories { get; set; }
+        public Nullable<decimal> ConsultancyFees { get; set; }
+        public Nullable<decimal> OtherInstituteShare { get; set; }
+        public Nullable<decimal> UnspentBalance { get; set; }
+        public Nullable<decimal> InterestRefund { get; set; }
+        public Nullable<decimal> Distribution_ { get; set; }
+        public Nullable<decimal> Outsourcing { get; set; }
+        public Nullable<decimal> InternalTransfer { get; set; }
+        public Nullable<decimal> TransfertoOtherInstitute { get; set; }
+        public Nullable<decimal> Fellowship { get; set; }
         public string FY { get; set; }
         public string AllocationStatus { get; set; }
     }

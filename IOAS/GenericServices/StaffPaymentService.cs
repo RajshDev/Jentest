@@ -1057,7 +1057,8 @@ namespace IOAS.GenericServices
                                 d.DateOfPayment,
                                 d.TotalEmployees,
                                 d.NetPayable,
-                                d.Status
+                                d.Status,
+                                d.VendorId
                             })
                                  .AsEnumerable()
                                  .Select((x, index) => new AgencySalaryModel()
@@ -1065,6 +1066,7 @@ namespace IOAS.GenericServices
                                      SlNo = index + 1,
                                      AgencySalaryID = x.AgencySalaryId,
                                      PaymentNo = x.PaymentNo,
+                                     AgencyName = x.VendorId > 0 ? Common.GetSalaryAgencyName(x.VendorId ?? 0) : "",
                                      MonthYear = x.MonthYearStr,
                                      DateOfPayment = String.Format("{0:dd-MMMM-yyyy}", x.DateOfPayment),
                                      TotalEmployee = x.TotalEmployees ?? 0,
@@ -1116,7 +1118,14 @@ namespace IOAS.GenericServices
                         bill.NetPayable = query.NetPayable;
                         bill.PaymentNo = query.PaymentNo;
                         bill.ServiceCharge = query.ServiceCharge;
+                        bill.AgencyId = query.VendorId;
                         //bill.SGST = query.SGST;
+                        var agencyQuery = context.tblSalaryAgencyMaster.Where(x => x.SalaryAgencyId == bill.AgencyId).Select(x => new { x.Agencyfee, x.AgencyName }).FirstOrDefault();
+                        if (agencyQuery != null)
+                        {
+                            bill.displayServiceCharge = agencyQuery.Agencyfee;
+                            bill.VendorName = agencyQuery.AgencyName;
+                        }
                         bill.TotalAmount = query.TotalAmount;
                         bill.CommitmentAmount = context.tblAgencySalaryCommitmentDetail.Where(m => m.AgencySalaryId == agencySalaryId).Sum(m => m.Amount);
                         bill.ExpenseAmount = query.ExpenseAmount;
@@ -1274,7 +1283,7 @@ namespace IOAS.GenericServices
             }
         }
 
-        public PagedData<AgencyStaffDetailsModel> GetAgencyEmployeeSalary(int page, int pageSize, int AgencySalaryID, string MonthYear, string EmployeeId, string Name)
+        public PagedData<AgencyStaffDetailsModel> GetAgencyEmployeeSalary(int vendorId, int page, int pageSize, int AgencySalaryID, string MonthYear, string EmployeeId, string Name)
         {
             var searchData = new PagedData<AgencyStaffDetailsModel>();
             List<AgencyStaffDetailsModel> model = new List<AgencyStaffDetailsModel>();
@@ -1297,18 +1306,22 @@ namespace IOAS.GenericServices
                         MonthYear = Common.getAgencySalaryPaymentMonth(AgencySalaryID);
                     DateTime payStartMonth = Common.GetMonthFirstDate(MonthYear);
                     DateTime payEndMonth = Common.GetMonthLastDate(MonthYear);
-                    var queryMYExists = context.tblAgencySalary.Any(m => m.MonthYearStr == MonthYear);
-                    if (queryMYExists && AgencySalaryID == 0)
+                    var queryMYExists = context.tblAgencySalary.Any(m => m.MonthYearStr == MonthYear && m.VendorId == vendorId);
+                    if (AgencySalaryID == 0)
                     {
-                        searchData.Data = model;
-                        searchData.TotalRecords = 0;
-                        searchData.TotalPages = 0;
-                        return searchData;
+                        if (queryMYExists)
+                        {
+                            searchData.Data = model;
+                            searchData.TotalRecords = 0;
+                            searchData.TotalPages = 0;
+                            return searchData;
+                        }
                     }
 
                     var query = (from p in context.tblRCTPayroll
                                  join sm in context.vw_RCTOSGPayroll on p.RCTPayrollId equals sm.RCTPayrollId
                                  where p.Status == "Requested for salary processing" && p.SalaryMonth == MonthYear && p.AppointmentType == "OSG"
+                                 && p.VendorId == vendorId
                                  && (String.IsNullOrEmpty(Name) || sm.Employee_Name.Contains(Name))
                                  && (String.IsNullOrEmpty(EmployeeId) || sm.Employee_ID.Contains(EmployeeId))
                                  && !context.tblAgencyVerifiedSalary.Any(m => m.RCTPayrollDetailId == sm.RCTPayrollDetailId)
@@ -2026,12 +2039,16 @@ namespace IOAS.GenericServices
                 }
                 else
                 {
-                    string payMonthStr = Common.getAgencySalaryPaymentMonth(AgencySalaryID);
+                    //string payMonthStr = Common.getAgencySalaryPaymentMonth(AgencySalaryID);
+                    var slaryData = Common.getAgencySalaryMonthVendorId(AgencySalaryID);
+                    string payMonthStr = slaryData.Item2;
+                    int vendorId = slaryData.Item1;
                     var qrySalary = (from p in context.tblRCTPayroll
                                      join sm in context.vw_RCTOSGPayroll on p.RCTPayrollId equals sm.RCTPayrollId
                                      join d in context.tblRCTPayrollDetail on sm.RCTPayrollDetailId equals d.RCTPayrollDetailId
                                      where p.Status == "Requested for salary processing" && p.SalaryMonth == MonthYear && p.AppointmentType == "OSG"
                                       && !context.tblAgencyVerifiedSalary.Any(m => m.RCTPayrollDetailId == sm.RCTPayrollDetailId)
+                                 && p.VendorId == vendorId
                                      orderby sm.Employee_ID
                                      select sm).ToList();
                     if (qrySalary.Count > 0)
@@ -2456,6 +2473,7 @@ namespace IOAS.GenericServices
                         //var queryEmpExists = context.tblAgencyVerifiedSalary.Any(m => m.MonthYear == MonthYear && m.EmployeeID == EmployeeID && m.AgencySalaryId == AgencySalaryID);
                         //if (queryEmpExists)
                         // return "Salary process already initiated for this employee.";
+
                     }
                     var checkCommitment = (from sm in context.vw_RCTOSGPayroll
                                            join c in context.tblCommitment on sm.Commitment_Number equals c.CommitmentNumber
@@ -6546,7 +6564,14 @@ namespace IOAS.GenericServices
                                 // });
                                 // }
                                 //}
-                                txList = (from c in context.tblAdhocSalaryCommitmentDetail                                          join det in context.tblCommitmentDetails on c.CommitmentDetailId equals det.ComitmentDetailId                                          join com in context.tblCommitment on det.CommitmentId equals com.CommitmentId                                          where c.PaymentHeadId == PaymentHeadId && c.Status == "Active"                                          select new BillCommitmentDetailModel()                                          {                                              CommitmentDetailId = c.CommitmentDetailId,                                              PaymentAmount = c.Amount,                                              CommitmentId = com.CommitmentId,                                              ReversedAmount = c.Amount                                          }).ToList();                                result = true;                                //result = coreAccountService.UpdateCommitmentBalance(txList, false, false, userId, PaymentHeadId, "SAL");                                //if (!result)                                //{                                //    transaction.Rollback();                                //    return false;                                //}                                BOAModel model = new BOAModel();                                CoreAccountsService coreAccounts = new CoreAccountsService();                                List<BOATransactionModel> txDet = new List<BOATransactionModel>();                                model.TempVoucherNumber = pyamentHead.PaymentNo;                                model.PostedDate = DateTime.Now;                                model.VoucherType = 3;                                model.VoucherNumber = pyamentHead.PaymentNo;                                model.BOAValue = pyamentHead.Amount;                                model.RefNumber = pyamentHead.PaymentNo;                                model.RefTransactionCode = "SAL";                                model.TransactionTypeCode = "SAL";                                txDet = (from exp in context.tblSalaryTransactionDetail                                         where exp.PaymentHeadId == PaymentHeadId                                         select new BOATransactionModel()                                         {                                             AccountHeadId = exp.AccountHeadId,                                             Amount = exp.Amount,                                             TransactionType = exp.TransactionType                                         }).ToList();                                var bankHeadDet = (from exp in context.tblSalaryTransactionDetail                                                   join h in context.tblAccountHead on exp.AccountHeadId equals h.AccountHeadId                                                   where exp.PaymentHeadId == PaymentHeadId && h.Bank_f == true && exp.Amount > 0                                                   select exp).FirstOrDefault();
+                                txList = (from c in context.tblAdhocSalaryCommitmentDetail                                          join det in context.tblCommitmentDetails on c.CommitmentDetailId equals det.ComitmentDetailId                                          join com in context.tblCommitment on det.CommitmentId equals com.CommitmentId                                          where c.PaymentHeadId == PaymentHeadId && c.Status == "Active"                                          select new BillCommitmentDetailModel()                                          {                                              CommitmentDetailId = c.CommitmentDetailId,                                              PaymentAmount = c.Amount,                                              CommitmentId = com.CommitmentId,                                              ReversedAmount = c.Amount                                          }).ToList();                                result = true;
+                                //result = coreAccountService.UpdateCommitmentBalance(txList, false, false, userId, PaymentHeadId, "SAL");
+                                //if (!result)
+                                //{
+                                //    transaction.Rollback();
+                                //    return false;
+                                //}
+                                BOAModel model = new BOAModel();                                CoreAccountsService coreAccounts = new CoreAccountsService();                                List<BOATransactionModel> txDet = new List<BOATransactionModel>();                                model.TempVoucherNumber = pyamentHead.PaymentNo;                                model.PostedDate = DateTime.Now;                                model.VoucherType = 3;                                model.VoucherNumber = pyamentHead.PaymentNo;                                model.BOAValue = pyamentHead.Amount;                                model.RefNumber = pyamentHead.PaymentNo;                                model.RefTransactionCode = "SAL";                                model.TransactionTypeCode = "SAL";                                txDet = (from exp in context.tblSalaryTransactionDetail                                         where exp.PaymentHeadId == PaymentHeadId                                         select new BOATransactionModel()                                         {                                             AccountHeadId = exp.AccountHeadId,                                             Amount = exp.Amount,                                             TransactionType = exp.TransactionType                                         }).ToList();                                var bankHeadDet = (from exp in context.tblSalaryTransactionDetail                                                   join h in context.tblAccountHead on exp.AccountHeadId equals h.AccountHeadId                                                   where exp.PaymentHeadId == PaymentHeadId && h.Bank_f == true && exp.Amount > 0                                                   select exp).FirstOrDefault();
 
                                 //var paymentQuery = (from sp in context.tblSalaryPayment
                                 // join b in context.vwAdhocBankDetails on sp.EmployeeId equals b.Fileno into g

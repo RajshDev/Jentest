@@ -1056,7 +1056,8 @@ namespace IOAS.Controllers
                 converter.Options.PdfPageOrientation = pdfOrientation;
                 converter.Options.WebPageWidth = webPageWidth;
                 converter.Options.WebPageHeight = webPageHeight;
-
+                converter.Options.MarginTop = 15;
+                converter.Options.MarginBottom = 15;
                 // create a new pdf document converting an url
                 SelectPdf.PdfDocument doc = converter.ConvertUrl(url);
 
@@ -3538,8 +3539,6 @@ namespace IOAS.Controllers
                 listdata.ExceuteInterestRefund(model.FinYear, logged_in_user);
                 TempData["succMsg"] = "Interest is calculating in Back end .It will take more than a hour";
                 return View(model);
-
-
             }
         }
         [HttpPost]

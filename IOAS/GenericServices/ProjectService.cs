@@ -6531,6 +6531,7 @@ namespace IOAS.GenericServices
                         viewextension.TotalEnchncedValue = Convert.ToDecimal(query.TotalEnhancedValue);
                         viewextension.TotalAllocationValue = Convert.ToDecimal(query.TotalAllocatedValue);
                         viewextension.EnhanceId = EnhanceId;
+                        viewextension.Enhancedtaxvalue = query.EnhancedTaxValue;
                         //viewextension.PresentDueDate =Convert.ToDateTime(query.PresentDueDate);
                         if (query.PresentDueDate != null)
                         {

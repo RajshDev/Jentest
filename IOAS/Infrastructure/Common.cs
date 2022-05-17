@@ -4802,15 +4802,15 @@ namespace IOAS.Infrastructure
                             msg = "You can't do the extension for subproject";
                         }
                     }
-                    if (model.Enhancement_Qust_1 == "Yes")
-                    {
-                        var query = context.tblProject.Any(m => m.MainProjectId == model.ProjectID && m.Status == "Active");
-                        if (query)
-                        {
+                    //if (model.Enhancement_Qust_1 == "Yes")
+                    //{
+                    //    var query = context.tblProject.Any(m => m.MainProjectId == model.ProjectID && m.Status == "Active");
+                    //    if (query)
+                    //    {
 
-                            msg = "You can't do the enhancement for  main project";
-                        }
-                    }
+                    //        msg = "You can't do the enhancement for  main project";
+                    //    }
+                    //}
                 }
                 return msg;
             }
@@ -4850,15 +4850,15 @@ namespace IOAS.Infrastructure
                                     context.SaveChanges();
 
                                     int mainProjectId = Query.MainProjectId ?? 0;
-                                    (from p in context.tblProject
-                                     join enh in context.tblProjectEnhancement on p.ProjectId equals enh.ProjectId
-                                     where (p.MainProjectId == mainProjectId && p.Status == "Active" && enh.Status == "Active")
-                                     select enh)
-                                           .ToList()
-                                           .ForEach(m =>
-                                           {
-                                               mainPrjAmt += (m.EnhancedSanctionValue ?? 0);
-                                           });
+                                    //(from p in context.tblProject
+                                    // join enh in context.tblProjectEnhancement on p.ProjectId equals enh.ProjectId
+                                    // where (p.MainProjectId == mainProjectId && p.Status == "Active" && enh.Status == "Active")
+                                    // select enh)
+                                    //       .ToList()
+                                    //       .ForEach(m =>
+                                    //       {
+                                    //           mainPrjAmt += (m.EnhancedSanctionValue ?? 0);
+                                    //       });
                                     context.tblProjectEnhancement.Where(p => p.ProjectId == mainProjectId && p.Status == "Active")
                                       .ToList()
                                       .ForEach(m =>
@@ -13423,6 +13423,7 @@ namespace IOAS.Infrastructure
                 throw ex;
             }
         }
+
         public static Decimal getAgencySalaryTotalAmount(int agencySalaryId)
         {
             try
@@ -14183,17 +14184,20 @@ namespace IOAS.Infrastructure
                 var checkNum = "COM/" + GetCurrentFinYear() + "/";
                 using (var context = new IOASDBEntities())
                 {
-                    var num = (from b in context.tblCommitment
-                               where (b.CommitmentNumber.Contains(checkNum))
-                               select b).Max(m => m.SequenceNo) ?? 0;
+                    using (var transaction = context.Database.BeginTransaction(IsolationLevel.ReadCommitted))
+                    {
+                        var num = (from b in context.tblCommitment
+                                   where (b.CommitmentNumber.Contains(checkNum))
+                                   select b).Max(m => m.SequenceNo) ?? 0;
 
-                    if (num > 0)
-                    {
-                        seqNo = num + 1;
-                    }
-                    else
-                    {
-                        seqNo = 1;
+                        if (num > 0)
+                        {
+                            seqNo = num + 1;
+                        }
+                        else
+                        {
+                            seqNo = 1;
+                        }
                     }
                 }
                 return seqNo;
@@ -20742,9 +20746,10 @@ namespace IOAS.Infrastructure
                 string WfNo = "";
                 using (var context = new IOASDBEntities())
                 {
-                    WfNo = Common.GetWFProposalNo(Id).name;
+                    WfNo = Common.GetWFProposalNo(Id, Type).name;
                     tblWorkFlowlog log = new tblWorkFlowlog();
                     log.WFreferencenbr = WfNo;
+                    log.Referenceid = Id;
                     log.WFreferencetype = Type;
                     log.CRTD_TS = DateTime.Now;
                     log.CRTD_BY = LoginUserid;
@@ -22428,6 +22433,14 @@ namespace IOAS.Infrastructure
                                    join d in context.tblConOHPReceiptLog on m.Id equals d.OHPId
                                    where m.Status == "Completed" && d.ReceiptId == recId
                                    select d).Any();
+                    if (!isValid)
+                    {
+                        var checkohPostingzero = (from rc in context.tblReceipt
+                                                  where rc.ReceiptId == recId&&rc.Status== "Completed" && (rc.ReceiptOverheadValue == 0 || rc.ReceiptOverheadValue == null)
+                                                  select rc).FirstOrDefault();
+                        if (checkohPostingzero != null)
+                            isValid = true;
+                    }
                 }
                 return isValid;
             }
@@ -22448,7 +22461,7 @@ namespace IOAS.Infrastructure
                 using (var context = new IOASDBEntities())
                 {
                     decimal sancVal = GetSanctionValue(pId);
-                    var query = context.tblReceipt.Where(r => r.ProjectId == pId && r.ReceiptId != recId && r.CategoryId != 16 && r.Status != "InActive").ToList();
+                    var query = context.tblReceipt.Where(r => r.ProjectId == pId && r.ReceiptId != recId && r.CategoryId != 16 && r.Status == "Completed").ToList();
                     recAmt = query.Sum(m => m.ReceiptAmount) ?? 0;
                     decimal cgst = query.Sum(m => m.CGST) ?? 0;
                     decimal sgst = query.Sum(m => m.SGST) ?? 0;
@@ -22627,7 +22640,7 @@ namespace IOAS.Infrastructure
         //        return model;
         //    }
         //}
-        public static OtherReceiptModel GetReversalReceiptLedger(int receiptId)        {            OtherReceiptModel model = new OtherReceiptModel();            List<BillExpenseDetailModel> listcr = new List<BillExpenseDetailModel>();            try            {                using (var context = new IOASDBEntities())                {                    var query = context.tblReceipt.FirstOrDefault(m => m.ReceiptId == receiptId);                    if (query != null)                    {                        model.Bank = query.BankAccountHeadDr;                        model.BankAmount = query.BankAmountDr;                        listcr = (from d in context.tblReceiptRecivables                                  join e in context.tblAccountHead on d.ReceivablesHeadId equals e.AccountHeadId                                  where d.ReceiptId == receiptId && d.ReceivabesAmount > 0 && d.Tax_f != true                                  select new                                  {                                      e.AccountGroupId,                                      d.ReceivabesAmount,                                      d.ReceivablesHeadId,                                      d.TransactionType,                                      d.Tax_f,                                  })                                                .AsEnumerable()                                                .Select((x) => new BillExpenseDetailModel()                                                {                                                    AccountHeadId = x.ReceivablesHeadId,                                                    Amount = x.ReceivabesAmount,                                                    TransactionType = x.TransactionType == "Credit" ? "Debit" : "Credit",                                                    AccountGroupList = Common.GetAccountGroup(x.AccountGroupId ?? 0),                                                    AccountGroupId = x.AccountGroupId,                                                    AccountHeadList = Common.GetAccountHeadList(x.AccountGroupId ?? 0)                                                }).ToList();                        listcr.Add(new BillExpenseDetailModel()                        {                            AccountHeadId = 10,                            Amount = query.ReceivedAmount,                            TransactionType = "Debit",                            AccountGroupList = Common.GetAccountGroupByAccountHead(10),                            AccountGroupId = Common.GetAccountGroupIdbyAcId(10),                            AccountHeadList = Common.GetAccountHeadListByAccountHead(10)                        });                    }                }                model.ExpenseDetail = listcr;                return model;            }            catch (Exception ex)            {                model.ExpenseDetail = listcr;                return model;            }        }
+        public static OtherReceiptModel GetReversalReceiptLedger(int receiptId)        {            OtherReceiptModel model = new OtherReceiptModel();            List<BillExpenseDetailModel> listcr = new List<BillExpenseDetailModel>();            try            {                using (var context = new IOASDBEntities())                {                    var query = context.tblReceipt.FirstOrDefault(m => m.ReceiptId == receiptId);                    if (query != null)                    {                        model.Bank = query.BankAccountHeadDr;                        model.BankAmount = query.BankAmountDr;                        listcr = (from d in context.tblReceiptRecivables                                  join e in context.tblAccountHead on d.ReceivablesHeadId equals e.AccountHeadId                                  where d.ReceiptId == receiptId && d.Tax_f != true                                  select new                                  {                                      e.AccountGroupId,                                      d.ReceivabesAmount,                                      d.ReceivablesHeadId,                                      d.TransactionType,                                      d.Tax_f,                                  })                                                .AsEnumerable()                                                .Select((x) => new BillExpenseDetailModel()                                                {                                                    AccountHeadId = x.ReceivablesHeadId,                                                    Amount = x.ReceivabesAmount,                                                    TransactionType = x.TransactionType == "Credit" ? "Debit" : "Credit",                                                    AccountGroupList = Common.GetAccountGroup(x.AccountGroupId ?? 0),                                                    AccountGroupId = x.AccountGroupId,                                                    AccountHeadList = Common.GetAccountHeadList(x.AccountGroupId ?? 0)                                                }).ToList();                        listcr.Add(new BillExpenseDetailModel()                        {                            AccountHeadId = 10,                            Amount = query.ReceivedAmount,                            TransactionType = "Debit",                            AccountGroupList = Common.GetAccountGroupByAccountHead(10),                            AccountGroupId = Common.GetAccountGroupIdbyAcId(10),                            AccountHeadList = Common.GetAccountHeadListByAccountHead(10)                        });                    }                }                model.ExpenseDetail = listcr;                return model;            }            catch (Exception ex)            {                model.ExpenseDetail = listcr;                return model;            }        }
         public static List<AttachmentDetailModel> GetProjectDocument(int pId)
         {
             List<AttachmentDetailModel> list = new List<AttachmentDetailModel>();
@@ -23234,14 +23247,14 @@ namespace IOAS.Infrastructure
                     {
                         for (int i = 0; i < query.Count; i++)
                         {
-                            if (i > 0)
-                            {
+                            //if (i > 0)
+                            //{
                                 list.Add(new MasterlistviewModel()
                                 {
                                     id = query[i].CodeValAbbr,
                                     name = query[i].CodeValDetail
                                 });
-                            }
+                            //}
                         }
                     }
                     return list;
@@ -25143,6 +25156,8 @@ namespace IOAS.Infrastructure
                                                                      strFromDate = string.Format("{0:dd-MMMM-yyyy}", x.FromYear),
                                                                      strToDate = string.Format("{0:dd-MMMM-yyyy}", x.ToYear)
                                                                  }).ToList();
+                                    if(EmpNo!=null)
+                                    EmpModel.IITMExperience = RequirementService.IITExperienceInWording(EmpNo);
                                 }
                             }
                             else if (qeryempno.Category == "OSG")
@@ -25264,6 +25279,8 @@ namespace IOAS.Infrastructure
                                                                 OtherDetailFilePath = c.AttachmentPath,
                                                                 Remarks = c.Remarks,
                                                             }).ToList();
+                                    if (EmpNo != null)
+                                        EmpModel.IITMExperience = RequirementService.IITExperienceInWording(EmpNo);
                                 }
                             }
                             else if (qeryempno.Category == "CON")
@@ -25373,6 +25390,8 @@ namespace IOAS.Infrastructure
                                                                    strFromDate = string.Format("{0:dd-MMMM-yyyy}", x.FromYear),
                                                                    strToDate = string.Format("{0:dd-MMMM-yyyy}", x.ToYear)
                                                                }).ToList();
+                                    if (EmpNo != null)
+                                        EmpModel.IITMExperience = RequirementService.IITExperienceInWording(EmpNo);
                                 }
                             }
                         }
@@ -25829,11 +25848,13 @@ namespace IOAS.Infrastructure
             return age;
         }
 
-        public static bool IsAvailablefundProject(int projectid, decimal CommitmentAmount)
+        public static bool IsAvailablefundProject(int projectid, decimal commitmentAmount, int? typeOfAppointment = null)
         {
             bool funddeviation = false;
+            bool otherGov_f = false;
             try
             {
+                otherGov_f = typeOfAppointment == 4 ? true : false;
                 ProjectService _PS = new ProjectService();
                 var prjDetail = _PS.getProjectSummaryDetails(projectid);
                 decimal netBalance = prjDetail.PrjSummary.NetBalance;
@@ -25843,22 +25864,31 @@ namespace IOAS.Infrastructure
                     var totalAllocation = prjDetail.HeadWise.Sum(m => m.Amount);
                     if (totalAllocation <= 0)
                     {
-                        if (netBalance < CommitmentAmount)
+                        if (netBalance < commitmentAmount)
                             funddeviation = true;
+                    }
+                    else if (otherGov_f == true)
+                    {
+                        if (!prjDetail.HeadWise.Any(m => m.Available >= commitmentAmount))
+                            funddeviation = true;
+                        if (!funddeviation)
+                        {
+                            if (netBalance < commitmentAmount)
+                                funddeviation = true;
+                        }
                     }
                     else if (!prjDetail.HeadWise.Any(m => m.AllocationId == 1))
                         funddeviation = true;
                     else if (prjDetail.HeadWise.Any(m => m.AllocationId == 1))
                     {
                         var headwisedata = prjDetail.HeadWise.Where(x => x.AllocationId == 1).FirstOrDefault();
-                        var AllocationAmt = headwisedata.Amount;
                         var AvailableAmt = headwisedata.Available;
-                        if (AvailableAmt < CommitmentAmount)
+                        if (AvailableAmt < commitmentAmount)
                             funddeviation = true;
 
-                        if (AvailableAmt >= CommitmentAmount && !funddeviation)
+                        if (AvailableAmt >= commitmentAmount && !funddeviation)
                         {
-                            if (netBalance < CommitmentAmount)
+                            if (netBalance < commitmentAmount)
                                 funddeviation = true;
                         }
                     }
@@ -25998,7 +26028,7 @@ namespace IOAS.Infrastructure
                     #region Projectfund
                     bool funddeviation = false;
                     if (model.StaffCatecory == "Non ICSR Staff" && !model.PaymentthroughAgency)
-                        funddeviation = IsAvailablefundProject(model.ProjectID ?? 0, model.CommitmentAmount);
+                        funddeviation = IsAvailablefundProject(model.ProjectID ?? 0, model.CommitmentAmount, model.TypeOfAppointment);
 
                     if (funddeviation)
                     {
@@ -26699,7 +26729,7 @@ namespace IOAS.Infrastructure
                     if (model.StaffCatecory == "Non ICSR Staff" && model.PaymentthroughAgency == false)
                     {
                         ProjectService _PS = new ProjectService();
-                        var funddeviation = IsAvailablefundProject(model.ProjectID ?? 0, model.CommitmentAmount);
+                        var funddeviation = IsAvailablefundProject(model.ProjectID ?? 0, model.CommitmentAmount, model.TypeOfAppointment);
                         if (funddeviation)
                         {
                             var query = (from age in context.tblFunctionCheckList
@@ -27776,7 +27806,42 @@ namespace IOAS.Infrastructure
             }
         }
 
-
+        public static decimal GetSalaryLevelMin(int id)
+        {
+            decimal MinSalary = 0;
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    MinSalary = (from salmin in context.tblRCTSalaryLevel
+                                 where salmin.SalaryLevelId == id
+                                 select salmin.MinSalary ?? 0).FirstOrDefault();
+                }
+                return MinSalary;
+            }
+            catch(Exception ex)
+            {
+                return MinSalary;
+            }
+        }
+        public static decimal GetSalaryLevelMax(int id)
+        {
+            decimal MaxSalary = 0;
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    MaxSalary = (from salmin in context.tblRCTSalaryLevel
+                                 where salmin.SalaryLevelId == id
+                                 select salmin.MaxSalary ?? 0).FirstOrDefault();
+                }
+                return MaxSalary;
+            }
+            catch (Exception ex)
+            {
+                return MaxSalary;
+            }
+        }
         #region RCT WorkFlow
         public static STEModel GetWFEditSTE(int WFid)
         {
@@ -27887,8 +27952,8 @@ namespace IOAS.Infrastructure
                         model.ApplicationRefNo = QrySTE.A.RefNumber;
                         model.AutoFillRequstedbyPI = Common.GetPIName(QrySTE.A.RequestedBy ?? 0);
                         model.RequestedByPI = QrySTE.A.RequestedBy;
-                        model.Comments = QrySTE.A.Comments + QrySTE.A.Remarks;
-                        model.PIJustificationRemarks = QrySTE.A.PICoPIComments;
+                        model.Comments = QrySTE.A.Comments;
+                        model.PIJustificationRemarks = QrySTE.A.PICoPIComments + " , " + QrySTE.A.Remarks;
                     }
                 }
                 return model;
@@ -28043,8 +28108,8 @@ namespace IOAS.Infrastructure
                         model.ApplicationRefNo = QryOSG.A.RefNumber;
                         model.AutoFillRequstedbyPI = Common.GetPIName(QryOSG.A.RequestedBy ?? 0);
                         model.RequestedByPI = QryOSG.A.RequestedBy;
-                        model.Comments = QryOSG.A.Comments + QryOSG.A.Remarks;
-                        model.PIJustificationRemarks = QryOSG.A.PICoPIComments;
+                        model.Comments = QryOSG.A.Comments;
+                        model.PIJustificationRemarks = QryOSG.A.PICoPIComments + " , " + QryOSG.A.Remarks;
                     }
                 }
                 return model;

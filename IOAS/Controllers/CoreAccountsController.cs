@@ -1356,7 +1356,7 @@ namespace IOAS.Controllers
                 return Json(new { status = false, msg = "Something went wrong please contact administrator" }, JsonRequestBehavior.AllowGet);
             }
         }
-       
+
         [HttpGet]
         public JsonResult GetBillPaymentList(string typeCode)
         {
@@ -20578,10 +20578,11 @@ namespace IOAS.Controllers
         //}
         public ActionResult PaymentTest()
         {
-        //    coreAccountService.testBRSDelete(242);
-        //    // coreAccountService.PaymentTestBOATransaction(5647, 1);
-        //    //coreAccountService.PaymentTestBOATransaction(6360, 1);
+            //coreAccountService.BackendReceipt();
+            //    // coreAccountService.PaymentTestBOATransaction(5647, 1);
+            //coreAccountService.PaymentTestBOATransaction(6360, 1);
             return View();
+
 
         }
         //public ActionResult BackEndPostingOHAR()
@@ -20693,6 +20694,23 @@ namespace IOAS.Controllers
             var res = coreAccountService.DOPExpPosting(RefNo);
             return Json(res, JsonRequestBehavior.AllowGet);
         }
-
+        public ActionResult UploadBulkdatechange()
+        {
+            try
+            {
+                int logged_in_user = Common.GetUserid(User.Identity.Name);
+                bool chckstaus = coreAccountService.UpdateBillDateBulk(logged_in_user);
+                bool chkrbm = coreAccountService.UploadReimbursBillDate(logged_in_user);
+                bool chkrecp = coreAccountService.UploadReceiptBillDate(logged_in_user);
+                bool chkibrrec = coreAccountService.UploadImprestRecoupBillDate(logged_in_user);
+                bool chkPDT = coreAccountService.UploadPDTBillDate(logged_in_user);
+                //bool chkhon = coreAccountService.UploadHonorBillDate(logged_in_user);
+                return View();
+            }
+            catch (Exception ex)
+            {
+                return View();
+            }
+        }
     }
 }

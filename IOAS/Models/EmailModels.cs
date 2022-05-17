@@ -192,6 +192,7 @@ namespace IOAS.Models
         public string Reminder1 { get; set; }
         public string Reminder2 { get; set; }
         public bool DesignationDiff_f { get; set; }
+        public bool OnlyDesignationDiff_f { get; set; }
 
     }
 

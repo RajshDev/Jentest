@@ -20,9 +20,9 @@ namespace IOAS.DataModel
         public IOASDBEntities()
             : base("name=IOASDBEntities")
         {
-            this.Database.CommandTimeout = 180;
-            this.Database.ExecuteSqlCommand("SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;");        }
-
+            this.Database.CommandTimeout = 180;            this.Database.ExecuteSqlCommand("SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;");
+        }
+    
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             throw new UnintentionalCodeFirstException();
@@ -1469,7 +1469,9 @@ namespace IOAS.DataModel
         public virtual DbSet<Vw_rctEmployeeDetails> Vw_rctEmployeeDetails { get; set; }
         public virtual DbSet<vw_RCTEmployeeExperience> vw_RCTEmployeeExperience { get; set; }
         public virtual DbSet<vw_RCTEmployeeHistory> vw_RCTEmployeeHistory { get; set; }
+        public virtual DbSet<vw_RCTEmployeeHistoryReport> vw_RCTEmployeeHistoryReport { get; set; }
         public virtual DbSet<vw_RCTMSPHDEmployees> vw_RCTMSPHDEmployees { get; set; }
+        public virtual DbSet<vw_RCTOngoingRelieving> vw_RCTOngoingRelieving { get; set; }
         public virtual DbSet<vw_RCTOSGAgencyMasterReport> vw_RCTOSGAgencyMasterReport { get; set; }
         public virtual DbSet<vw_RCTOSGAmendmentReport> vw_RCTOSGAmendmentReport { get; set; }
         public virtual DbSet<vw_RCTOSGAttendanceReport> vw_RCTOSGAttendanceReport { get; set; }

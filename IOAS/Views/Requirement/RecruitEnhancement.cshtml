@@ -10,7 +10,7 @@
     .modal-dialog {
         width: 850px;
     }
-
+     
     .rt-tb-scrl {
         width: 100%;
         height: 400px;
@@ -79,6 +79,7 @@
                     @Html.HiddenFor(m => m.isDADashboard)
                     @Html.HiddenFor(m => m.VendorId)
                     @Html.HiddenFor(M => M.StatutoryId)
+                    @Html.HiddenFor(M => M.InitByPI_f)
                     <span>Request Reference</span>
                     @Html.DropDownListFor(m => m.RequestReference, new SelectList(ViewBag.ReferenceType, "id", "name"), "Select", new { @class = "form-control" })
                     <div>@Html.ValidationMessageFor(m => m.RequestReference)</div>
@@ -258,10 +259,16 @@
                                         <div class="col-md-3">
                                             <div class="form-group custom-form-group">
                                                 <label class="required">PI Letter </label>
+                                                @Html.HiddenFor(M => M.InitByPI_f)
                                                 @if (Model.OrderID > 0 && !string.IsNullOrEmpty(Model.PILetterPath))
                                                 {
                                                     <input type="file" id="PILetter" name="PILetter" style="width:300px;">
                                                     <h4>@Html.ActionLink(Model.PILetterFileName, "ShowDocument", new { Controller = "Account", filepath = "Requirement", file = Model.PILetterPath }, new { @name = "DocDownload", @target = "_blank" })</h4>
+                                                    <div>@Html.ValidationMessage("PILetter")</div>
+                                                }
+                                                else if (Model.InitByPI_f == true)
+                                                {
+                                                    <input type="file" id="PILetter" name="PILetter">
                                                     <div>@Html.ValidationMessage("PILetter")</div>
                                                 }
                                                 else
@@ -977,6 +984,29 @@
                                                 </div>
                                             </div>
 
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Committee member</label>
+                                                    @Html.TextBoxFor(m => m.CommiteeMember1, new { @class = "form-control", @readonly = "readonly" })
+                                                    @Html.HiddenFor(m => m.CommiteeMemberId1)
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Committee member</label>
+                                                    @Html.TextBoxFor(m => m.CommiteeMember2, new { @class = "form-control", @readonly = "readonly" })
+                                                    @Html.HiddenFor(m => m.CommiteeMemberId2)
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label> Chairperson</label>
+                                                    @Html.TextBoxFor(m => m.ChairpersonName, new { @class = "form-control", @readonly = "readonly" })
+                                                    @Html.HiddenFor(m => m.ChairpersonNameId)
+                                                </div>
+                                            </div>
                                         </div>
                                         <div class="row">
                                             <div class="col-md-6">
@@ -2415,7 +2445,7 @@
         }
         textForCommitment();
     }
-
+    calculatetaxTotal()
     $("#ToDate").change(function () {
         ValidateDateDiff();
         calculatetaxTotal()
@@ -2576,7 +2606,7 @@
                     $("input[name=FlowofMail][value=Nd]").prop('checked', true);
                     document.getElementById("nextBtn").innerHTML = "Send for approval";
                 }
-                if (Status == "Open" || Status == "" || Status == "Draft" || Status.includes("Note")) {
+                if (Status == "PI Initiated" || Status == "Open" || Status == "" || Status == "Draft" || Status.includes("Note")) {
                     $("#Deviation").html(result.output);
                     $("#ShowDeviationNP").html(result.template);
                 }
@@ -2727,7 +2757,7 @@
                 $('#ShowDeviationNP').show();
                 PopupConfirm()
             }
-            else if ($('input[name="FlowofMail"]:checked').val() == "Nd" && (typcategory == "STE" || typcategory == "CON"  || (typcategory == "OSG" && $('input[name="SendSalaryStructure"]:checked').val() == "SST")))
+            else if ($('input[name="FlowofMail"]:checked').val() == "Nd" && ((@Html.Raw(Json.Encode(Model.MailSent_f)) == false && (typcategory == "STE" || typcategory == "CON"))  || (typcategory == "OSG" && $('input[name="SendSalaryStructure"]:checked').val() == "SST")))
             {
                 //Process mail Preview is occur only once for application save
                 $('#ShowDeviationND').empty();
@@ -2756,8 +2786,8 @@
     }
 
 
-
-    $('#txt-WithdrawCommitment').text('@Json.Encode(Model.WithdrawalAmount)');
+    if(@Json.Encode(Model.WithdrawalAmount) > 0)
+        $('#txt-WithdrawCommitment').text('@Json.Encode(Model.WithdrawalAmount)');
     textForCommitment();
     function textForCommitment(){
         if(getBoolean($('#isWithdrawCommitment').val()))
@@ -3248,11 +3278,19 @@
             $('#MedicalText').addClass('dis-none');
 
         }
-        else if(value == 3) {
-            $('#Medical').val(3);
+        else if(value == 3 || value == 0) {
+            if(!getBoolean($('#isMedical').val())) {
+                $('#Medical').addClass('dis-none');
+                $('#MedicalText').removeClass('dis-none');
+            }
+            else
+            {
+                $('#Medical').removeClass('dis-none');
+                $('#MedicalText').addClass('dis-none');
+            }
+            $('#Medical').val(value);
             $('#MedicalAmmount').val(0);
-            $('#Medical').addClass('dis-none');
-            $('#MedicalText').removeClass('dis-none');
+
         }
         $('#MedicalText,#txtMedical1').text($("#Medical option:selected").text());
     }

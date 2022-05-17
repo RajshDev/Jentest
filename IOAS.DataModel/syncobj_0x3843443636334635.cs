@@ -65,5 +65,8 @@ namespace IOAS.DataModel
         public Nullable<int> WFSeqId { get; set; }
         public Nullable<int> SalaryLevelId { get; set; }
         public Nullable<int> OrderRequestId { get; set; }
+        public Nullable<int> CommitteeMember { get; set; }
+        public Nullable<int> CommitteeMembers { get; set; }
+        public Nullable<int> Chairperson { get; set; }
     }
 }

@@ -75,7 +75,7 @@ namespace IOAS.DataModel
         public string AadhaarNo { get; set; }
         public Nullable<decimal> ExperienceDes { get; set; }
         public Nullable<int> crtdUserId { get; set; }
-        public int UserRoleId { get; set; }
+        public Nullable<int> UserRoleId { get; set; }
         public string StaffCategory { get; set; }
         public string PhysicallyChallenged { get; set; }
         public Nullable<bool> IsActiveNow { get; set; }
