@@ -636,7 +636,6 @@ namespace IOAS.DataModel
         public virtual DbSet<tblITDeclaration> tblITDeclaration { get; set; }
         public virtual DbSet<tblOldExpenditure> tblOldExpenditure { get; set; }
         public virtual DbSet<tblOldreceipts> tblOldreceipts { get; set; }
-        public virtual DbSet<tblOrder> tblOrder { get; set; }
         public virtual DbSet<tblOrderDetailPILog> tblOrderDetailPILog { get; set; }
         public virtual DbSet<tblOrderPILog> tblOrderPILog { get; set; }
         public virtual DbSet<tblOverallAnnualAccountsWithOpenRecExp> tblOverallAnnualAccountsWithOpenRecExp { get; set; }
@@ -1552,6 +1551,7 @@ namespace IOAS.DataModel
         public virtual DbSet<vwTapalDetails> vwTapalDetails { get; set; }
         public virtual DbSet<vwTapalInwardDetails> vwTapalInwardDetails { get; set; }
         public virtual DbSet<vwTnMmaxOrder> vwTnMmaxOrder { get; set; }
+        public virtual DbSet<tblOrder> tblOrder { get; set; }
     
         public virtual int AnnualAccounts(Nullable<System.DateTime> date, Nullable<System.DateTime> date2)
         {
