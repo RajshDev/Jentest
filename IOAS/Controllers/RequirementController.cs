@@ -9198,7 +9198,8 @@ namespace IOAS.Controllers
                 ViewBag.Finyearmonth = monthlist;
                 ViewBag.SalaryType = Common.GetCodeControlList("PayOfBill");
                 ViewBag.EmployeeCategory = Common.GetCodeControlList("RCTEmployeeCategory");
-                return View();
+                ViewBag.OSGVendor = Common.GetAgencyMasterList();
+                return View(model);
             }
         }
         [AcceptVerbs(HttpVerbs.Get)]
