@@ -179,7 +179,9 @@ namespace IOAS.Controllers
                 }
                 catch (Exception ex)
                 {
-                    ViewBag.Msg = "Something went to wrong please contact administrator"; ;
+                    ViewBag.Msg = "Something went to wrong please contact administrator";
+                    Infrastructure.IOASException.Instance.HandleMe(
+       (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
                 }
             }
             return View();

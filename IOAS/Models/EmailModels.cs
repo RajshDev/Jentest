@@ -19,6 +19,10 @@ namespace IOAS.Models
         public List<EmailAttachmentModel> attachmentlist { get; set; }
 
     }
+    //public class EmailDataListModel
+    //{
+    //    public List<EmailModel> ListEmailmodel = new List<EmailModel>();
+    //}
     public class PaymentEmailModel : EmailModel
     {
         public string mode { get; set; }
@@ -37,6 +41,7 @@ namespace IOAS.Models
         public Nullable<int> bankId { get; set; }
         public Nullable<int> payeeTypeId { get; set; }
         public Nullable<int> payeeId { get; set; }
+        public Nullable<int> PaymentPayeeId { get; set; }
         public string rollNo { get; set; }
         public string TransactionTypeCode { get; set; }
         public string ttlInvoiceAmount { get; set; }

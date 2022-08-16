@@ -22,6 +22,7 @@ namespace IOAS.DataModel
         public Nullable<System.DateTime> Receiver1inwardsdate { get; set; }
         public string FinalReceiver { get; set; }
         public Nullable<System.DateTime> FinalReceiverinwardsdate { get; set; }
+        public string FinalReceiverDept { get; set; }
         public string BillNumber { get; set; }
         public string BillType { get; set; }
         public Nullable<decimal> Amount { get; set; }

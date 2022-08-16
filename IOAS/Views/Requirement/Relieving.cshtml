@@ -192,6 +192,12 @@
                                                     <h4 id="date-relieving" style="display:none;"></h4>
                                                     @Html.EditorFor(m => m.RelievingDate, new { @class = "form-control required" })
                                                     <div>@Html.ValidationMessageFor(m => m.RelievingDate)</div>
+                                                    @if (!string.IsNullOrEmpty(Model.PIrequestedRelievingDate))
+                                                    {
+                                                        <br />
+                                                        <label class="required">PI Requested Relieving Date</label>
+                                                        <h4 style="color:red">@Html.DisplayFor(m=>m.PIrequestedRelievingDate)</h4>
+                                                    }
                                                 @*}*@
                                             </div>
                                         </div>
@@ -493,6 +499,7 @@
                     startdate = beginDate;
                 if (enddate >= currentdate)
                     enddate = currentdate;
+               
             }
             $('#RelievingDate').datepicker({
                 dateFormat: 'dd-MM-yy',
@@ -616,6 +623,36 @@
     else if (Status == "Completed")
     {
         formDisabled();
+    }
+    else if(Status == "PI Initiated")
+    {
+        var valuerelfmode=$('select[name="RelievingMode"]').val();
+        if(stoppayement_f == false)
+        {
+            if (valuerelfmode == 1)
+            {
+                //$('#WithdrawalAmount').val(0);
+                //$('#WithdrawalAmount').attr('readonly', 'readonly');
+                //$('#CommitmentOption').val(2);
+                //$('#cmt-opt').text($('#CommitmentOption option:selected').text());
+                $('#RelievingDate').val(@Html.Raw(Json.Encode(Model.Appointmentdetails.AppointmentClosureDate)));
+                //$('#RelievingDate,#CommitmentOption').attr('style','display:none');
+                $('#RelievingDate').attr('style','display:none');
+                $('#date-relieving').text(@Html.Raw(Json.Encode(Model.Appointmentdetails.AppointmentClosureDate)));
+                //$('#date-relieving,#cmt-opt').removeAttr('style');
+                $('#date-relieving').removeAttr('style');
+            }
+            else
+            {
+                $('#CommitmentOption').val('').trigger('change');
+                $('#RelievingDate').removeAttr('style');
+                $('#date-relieving').attr('style','display:none');
+            }
+            if($("#RelievingDate").val() != "")
+            {
+                calWithdrawalAmount();
+            }
+        }
     }
     $('#List_f').removeAttr('disabled');
     $('select[name="RelievingMode"]').on('change', function () {

@@ -3611,6 +3611,8 @@ namespace IOAS.GenericServices
                         List<string> attachmentList = new List<string>();
                         ByteEmailAttachmentModel attachmodel = new ByteEmailAttachmentModel();
                         List<ByteEmailAttachmentModel> AttachList = new List<ByteEmailAttachmentModel>();
+                        attachmentList.Add(ChecklistPath + "PROJECT STAFF GUIDELINES.pdf");
+                        ackmodel.attachment = attachmentList;
                         addcc.Add(query.ToMail);
                         if (query.bcc != null)
                         {

@@ -2697,6 +2697,28 @@ namespace IOAS.Infrastructure
                 return Country;
             }
         }
+        public static string GetProjectCountryName(int Id)
+        {
+            string Country = "";
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    if (Id > 0)
+                    {
+                        var qry = context.tblCountries.Where(m => m.countryID == Id).Select(m => m.countryName).FirstOrDefault();
+                        Country = qry;
+                    }
+                    return Country;
+                }
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+ (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                return Country;
+            }
+        }
         public static int GetProjectSequenceNumber(int financialyear)
         {
             try
@@ -4956,33 +4978,33 @@ namespace IOAS.Infrastructure
                         {
                             if (isUpdate == true)
                             {
-                                context.tblProject.Where(p => p.MainProjectId == projectId && p.Status == "Active")
-                                .ToList()
-                                .ForEach(m =>
-                                {
-                                    m.ActuaClosingDate = enhanQuery.ExtendedDueDate;
-                                    m.TentativeCloseDate = enhanQuery.ExtendedDueDate;
-                                });
+                                //context.tblProject.Where(p => p.MainProjectId == projectId && p.Status == "Active")
+                                //.ToList()
+                                //.ForEach(m =>
+                                //{
+                                //    m.ActuaClosingDate = enhanQuery.ExtendedDueDate;
+                                //    m.TentativeCloseDate = enhanQuery.ExtendedDueDate;
+                                //});
                                 Query.ActuaClosingDate = enhanQuery.ExtendedDueDate;
                                 Query.TentativeCloseDate = enhanQuery.ExtendedDueDate;
                                 context.SaveChanges();
                             }
                             return enhanQuery.ExtendedDueDate;
                         }
-                        else
-                        {
-                            if (isUpdate == true)
-                            {
-                                context.tblProject.Where(p => p.MainProjectId == projectId && p.Status == "Active")
-                                .ToList()
-                                .ForEach(m =>
-                                {
-                                    m.ActuaClosingDate = Query.ActuaClosingDate;
-                                    m.TentativeCloseDate = Query.ActuaClosingDate;
-                                });
-                                context.SaveChanges();
-                            }
-                        }
+                        //else
+                        //{
+                        //    if (isUpdate == true)
+                        //    {
+                        //        context.tblProject.Where(p => p.MainProjectId == projectId && p.Status == "Active")
+                        //        .ToList()
+                        //        .ForEach(m =>
+                        //        {
+                        //            m.ActuaClosingDate = Query.ActuaClosingDate;
+                        //            m.TentativeCloseDate = Query.ActuaClosingDate;
+                        //        });
+                        //        context.SaveChanges();
+                        //    }
+                        //}
 
                     }
                     //else
@@ -23657,7 +23679,66 @@ namespace IOAS.Infrastructure
                 return new List<AutoCompleteModel>();
             }
         }
-
+        public static List<AutoCompleteModel> GetAutoCompleteRCTSTEEmployee(string term, string apptype = null)
+        {
+            try
+            {
+                List<AutoCompleteModel> list = new List<AutoCompleteModel>();
+                using (var context = new IOASDBEntities())
+                {
+                    list = (from U in context.tblRCTSTE
+                            where (string.IsNullOrEmpty(term) || U.EmployeersID.Contains(term))
+                            && (U.Status == "Relieved" || U.Status == "Cancel") && U.IsActiveNow == true
+                            //&& (U.Category == apptype || apptype == null) && U.ApplicationType == "New"
+                            select new
+                            {
+                                EmployeersID = U.EmployeersID,
+                            })
+                            .Distinct()
+                            .AsEnumerable()
+                            .Select((x, index) => new AutoCompleteModel()
+                            {
+                                value = x.EmployeersID.ToString(),
+                                label = x.EmployeersID
+                            }).ToList();
+                }
+                return list;
+            }
+            catch (Exception ex)
+            {
+                return new List<AutoCompleteModel>();
+            }
+        }
+        public static List<AutoCompleteModel> GetAutoCompleteRCTOSGEmployee(string term, string apptype = null)
+        {
+            try
+            {
+                List<AutoCompleteModel> list = new List<AutoCompleteModel>();
+                using (var context = new IOASDBEntities())
+                {
+                    list = (from U in context.tblRCTOutsourcing
+                            where (string.IsNullOrEmpty(term) || U.EmployeersID.Contains(term))
+                            &&(U.Status== "Relieved"||U.Status== "Cancel") &&U.IsActiveNow==true
+                            //&& (U.Category == apptype || apptype == null) && U.ApplicationType == "New"
+                            select new
+                            {
+                                EmployeersID = U.EmployeersID,
+                            })
+                            .Distinct()
+                            .AsEnumerable()
+                            .Select((x, index) => new AutoCompleteModel()
+                            {
+                                value = x.EmployeersID.ToString(),
+                                label = x.EmployeersID
+                            }).ToList();
+                }
+                return list;
+            }
+            catch (Exception ex)
+            {
+                return new List<AutoCompleteModel>();
+            }
+        }
 
         public static List<AutoCompleteModel> GetAutoCompleteApplicationNumber(string term, string apptype = null)
         {
@@ -23672,6 +23753,37 @@ namespace IOAS.Infrastructure
                             select new
                             {
                                 ApplicationNo = U.ApplicationNo,
+                            })
+                            .Distinct()
+                            .AsEnumerable()
+                            .Select((x, index) => new AutoCompleteModel()
+                            {
+                                value = x.ApplicationNo.ToString(),
+                                label = x.ApplicationNo
+                            }).ToList();
+                }
+                return list;
+            }
+            catch (Exception ex)
+            {
+                return new List<AutoCompleteModel>();
+            }
+        }
+
+        public static List<AutoCompleteModel> GetAutoCompleteSTEApplicationNumber(string term, string apptype = null)
+        {
+            try
+            {
+                List<AutoCompleteModel> list = new List<AutoCompleteModel>();
+                using (var context = new IOASDBEntities())
+                {
+                    list = (from U in context.tblRCTSTE
+                            where (string.IsNullOrEmpty(term) || U.ApplicationNumber.Contains(term))
+                            &&(U.Status== "Cancel")
+                            //&& (U.Category == apptype || apptype == null) && U.ApplicationType == "New"
+                            select new
+                            {
+                                ApplicationNo = U.ApplicationNumber,
                             })
                             .Distinct()
                             .AsEnumerable()
@@ -25910,8 +26022,13 @@ namespace IOAS.Infrastructure
             return days;
         }
 
-        public static decimal GetAvgDaysInAYear(DateTime From, DateTime To)
+        public static decimal GetAvgDaysInAYear(DateTime From, DateTime To, bool iscalswape=false)
         {
+            if(iscalswape==true)
+            {
+                From = To;
+                To = From;
+            }
             decimal totdays = 0;
             int count = 0;
             for (int x = From.Year; x <= To.Year; x++)
@@ -28119,6 +28236,139 @@ namespace IOAS.Infrastructure
                 return model;
             }
         }
+        #endregion
+        #region RecuirmentCommitmentValidation
+        public static bool CheckRCTCommitmentRequest(int id)
+        {
+            bool isvalidRequest = false;
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    var QryRecruitCommitReq = (from A in context.tblRCTCommitmentRequest
+                                               where A.RecruitmentRequestId == id&&A.Status== "Awaiting Commitment Booking"
+                                               && (A.IsBookedFullRequestAmount == false || A.IsBookedFullRequestAmount == null)
+                                               select new { A }).FirstOrDefault();
+                    if (QryRecruitCommitReq != null)
+                        isvalidRequest = true;
+                }
+                return isvalidRequest;
+            }
+            catch(Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+   (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                return isvalidRequest;
+            }
+        }
+        #endregion
+        public static List<MasterlistviewModel> GetHonororiumTdsSection()
+        {
+            List<MasterlistviewModel> list = new List<MasterlistviewModel>();
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    var query = (from ah in context.tblAccountHead
+                                 where ah.AccountGroupId == 15
+                                 select new { ah.AccountHeadId, ah.AccountHead }).ToList();
+                    if (query.Count > 0)
+                    {
+                        for (int i = 0; i < query.Count; i++)
+                        {
+                            list.Add(new MasterlistviewModel()
+                            {
+                                id = query[i].AccountHeadId,
+                                name = query[i].AccountHead
+                            });
+                        }
+                    }
+                }
+                return list;
+            }
+            catch (Exception ex)
+            {
+                return list;
+            }
+        }
+        public static bool CheckPaymentFailedEmail(int boadraftId)
+        {
+            bool issendFailedEmail = false;
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    issendFailedEmail = context.tblFailedEmail.Any(x => x.boaDraftId == boadraftId && x.IssendMail == false && x.FailedTypeofMail == 3);
+                    
+                }
+                return issendFailedEmail;
+            }
+
+            catch (Exception ex)
+            {
+                return issendFailedEmail;
+            }
+        }
+        public static bool CheckUTRFailedEmail(int boadraftId)
+        {
+            bool issendFailedEmail = false;
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    issendFailedEmail = context.tblFailedEmail.Any(x => x.boaDraftId == boadraftId && x.IssendMail == false && x.FailedTypeofMail == 2);
+                   
+                }
+                return issendFailedEmail;
+            }
+
+            catch (Exception ex)
+            {
+                return issendFailedEmail;
+            }
+        }
+        #region CheckPostingProjectInvoice
+        public static bool CheckBOAPostingProjectInvoice(int id)
+        {
+            bool IscheckedInvoice = false;
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    var query = (from pi in context.tblProjectInvoice
+                                 where pi.InvoiceId == id && pi.Status == "Approval Pending"
+                                 select pi).FirstOrDefault();
+                    if (query != null)
+                       IscheckedInvoice = true;
+                }
+                return IscheckedInvoice;
+            }
+            catch(Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+    (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                return IscheckedInvoice;
+            }
+        }
+        #endregion
+        #region CheckGstCreditDetail
+        //public static bool CheckGSTCreditPostDetails(GSTCredit model)
+        //{
+        //    try
+        //    {
+        //        var gstidlist = model.CreditList.Where(x => x.CreditCheckBox == true).Select(x => x.Id).ToArray();
+        //        using (var context = new IOASDBEntities())
+        //        {
+        //            var query = (from gs in context.tblGSTCreditDetails
+        //                         where gstidlist.Contains(gs.Id ?? 0)
+        //                       )
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+
+        //    }
+        //}
         #endregion
     }
 }

@@ -90,16 +90,40 @@
         pageSize: 5,
         editing: false,
         filtering: true,
+        pageLoading: true,
+        autoload: true,
         controller: {
 
             loadData: function (filter) {
-                return $.grep(db, function (ow) {
-                    return (!filter.TransferNumber || ow.TransferNumber.toLowerCase().indexOf(filter.TransferNumber.toLowerCase()) > -1)
-                   && (!filter.DebitProject || ow.DebitProject.toLowerCase().indexOf(filter.DebitProject.toLowerCase()) > -1)
-                        && (!filter.CreditProject || ow.CreditProject.toLowerCase().indexOf(filter.CreditProject.toLowerCase()) > -1)
-                   && (!filter.PostedDate.from || new Date(ow.PostedDate) >= filter.PostedDate.from)
-                   && (!filter.PostedDate.to || new Date(ow.PostedDate) <= filter.PostedDate.to);
+                var SearchData = [];
+                SearchData = {
+                    ProjectFundTransferNumber: filter.TransferNumber || null,
+                    FrmFundProjectNumber: filter.DebitProject || null,
+                    ToFundProjectNumber: filter.CreditProject || null,
+                    FundAmount: filter.CreditAmount || null,
+                    Status: filter.Status||null
+                },
+                filter.model = SearchData;
+                var deferred = $.Deferred();
+                $.ajax({
+                    type: "post",
+                    url: 'GetProjectFundTransferList',
+                    data: JSON.stringify(filter),
+                    contentType: "application/json; charset=utf-8",
+                    success: function (result) {
+
+                        var da = {
+                            data: result.prjfundlist,
+                            itemsCount: result.TotalRecords
+                        }
+                        deferred.resolve(da);
+                    },
+                    error: function (err) {
+                        console.log("error : " + err);
+                    }
+
                 });
+                return deferred.promise();
             }
 
         },
@@ -112,7 +136,7 @@
             { type: "text", name: "CreditProject", title: "To Project", editing: false },
             { name: "PostedDate", title: "Posted Date", type: "date", width: 100, align: "center" },
             { name: "CreditAmount", title: "Amount", editing: false },
-            { name: "Status", title: "Status", editing: false },
+            { type: "text",name: "Status", title: "Status", editing: false },
              {
                  type: "control", editButton: false, deleteButton: false, width: 120, title: "Action",
 
@@ -210,7 +234,7 @@
 
     });
     $("#ProjectFundTransferList").jsGrid("option", "filtering", false);
-    loadDetails();
+    @*loadDetails();
     function loadDetails() {
         $.ajax({
             type: "GET",
@@ -226,5 +250,5 @@
             }
 
         });
-    }
+    }*@
 </script>

@@ -15,6 +15,7 @@ using Rotativa.Core;
 using Rotativa.Core.Options;
 using System.Configuration;
 using DataAccessLayer;
+using SelectPdf;
 
 namespace IOAS.Controllers
 {
@@ -1976,7 +1977,12 @@ namespace IOAS.Controllers
                 converter.Options.MaxPageLoadTime = 240;
                 converter.Options.WebPageWidth = webPageWidth;
                 converter.Options.WebPageHeight = webPageHeight;
-
+                converter.Options.MarginTop = 15;
+                converter.Options.MarginBottom = 15;
+                // page numbers can be added using a PdfTextSection object
+                PdfTextSection text = new PdfTextSection(0, 3, "Page: {page_number} of {total_pages}  ", new System.Drawing.Font("Arial", 8));
+                text.HorizontalAlign = PdfTextHorizontalAlign.Right;
+                converter.Footer.Add(text);
                 // create a new pdf document converting an url
                 SelectPdf.PdfDocument doc = converter.ConvertUrl(url);
 
@@ -2527,6 +2533,7 @@ namespace IOAS.Controllers
                     }
                 };
                 return yourpdf;
+                //return PartialView(model);
             }
             catch (Exception ex)
             {

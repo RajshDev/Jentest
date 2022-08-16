@@ -440,7 +440,7 @@ namespace IOAS.GenericServices
             {
                 Infrastructure.IOASException.Instance.HandleMe(
       (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
-                //  coreAccountService.RollBackLastApproved(id, 63);
+                  //coreAccountService.RollBackLastApproved(id, 63);
                 return false;
             }
         }
@@ -1266,11 +1266,19 @@ namespace IOAS.GenericServices
                             return false;
                         var lcopeningid = query.LCOpeningId ?? 0;
                         var lcquery = context.tblLCDraftDetails.FirstOrDefault(m => m.Id == lcopeningid);
+                        var lcretire = (from r in context.tblLCRetirement
+                                        where r.LCOpeningId == lcopeningid && r.Status != "InActive"
+                                        orderby r.Id descending
+                                        select r).ToList();
+                        decimal lcdrafRemittance= lcretire.Sum(m => m.LCValueInForeignCurrency) ?? 0;
                         query.Status = "LC Retired";
                         query.UPTD_By = logged_in_user;
                         query.UPTD_TS = DateTime.Now;
                         context.SaveChanges();
-                        lcquery.Status = "LC Retired";
+                        if (lcdrafRemittance == lcquery.RemittanceAmount)
+                            lcquery.Status = "LC Retired";
+                        else
+                            lcquery.Status = "Retirement Open";
                         context.SaveChanges();
                         return true;
                     }

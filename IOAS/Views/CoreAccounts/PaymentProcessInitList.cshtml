@@ -152,8 +152,22 @@
             { name: "ChequeTotal", title: "Total Cheque Payment", editing: false },
             { name: "TotalAmount", title: "Total Amount", editing: false },
             { name: "VoucherDate", title: "Voucher Date", type: "date", width: 100, align: "center",filtering: false },
-            {type: "text", name: "Status", title: "Status", editing: false },
-             {type: "text", name: "UTRStatus", title: "UTR Status", editing: false },
+            {type: "text", name: "Status", title: "Status", editing: false,
+            cellRenderer: function (item, value) {
+                if (value.IsendPaymentFailedMail)
+                    return $("<td>").append(value.Status + "<span class='gd-msg-hgt'>Email Failed</span>");
+                else
+                    return $("<td>").append(value.Status);
+            }
+            },
+             {type: "text", name: "UTRStatus", title: "UTR Status", editing: false,
+             cellRenderer: function (item, value) {
+                 if (value.IsendUTRFailedMail)
+                     return $("<td>").append(value.UTRStatus + "<span class='gd-msg-hgt'>Email Failed</span>");
+                 else
+                     return $("<td>").append(value.UTRStatus);
+             }
+             },
              {
                  type: "control", editButton: false, deleteButton: false, width: 120, title: "Action",
 
@@ -166,11 +180,19 @@
                          statusList = [{ id: "", name: "Select Action" },  { id: "Edit", name: "Edit" },{ id: "Submit for approval", name: "Submit for approval" },{ id: "Bank Advice", name: "Bank Advice" }, { id: "View", name: "View" }]
 
                      }else if (item.Status == "Completed" && item.UTRStatus != "Completed") {
-                         statusList = [{ id: "", name: "Select Action" }, { id: "Bank Advice", name: "Bank Advice" }, { id: "Upload UTR", name: "Upload UTR" }, { id: "View", name: "View" }]
-
+                         if(item.IsendPaymentFailedMail)
+                         statusList = [{ id: "", name: "Select Action" }, { id: "Bank Advice", name: "Bank Advice" }, { id: "Upload UTR", name: "Upload UTR" }, { id: "View", name: "View" },{ id: "SendPaymentFailedMail", name: "Resend Payment Failed Mail" }]
+                         else
+                             statusList = [{ id: "", name: "Select Action" }, { id: "Bank Advice", name: "Bank Advice" }, { id: "Upload UTR", name: "Upload UTR" }, { id: "View", name: "View" }]
+                     }
+                     else if (item.Status == "Completed" && item.UTRStatus == "Completed"&&item.IsendPaymentFailedMail) {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "Bank Advice", name: "Bank Advice" }, { id: "View", name: "View" },{ id: "SendPaymentFailedMail", name: "Resend Payment Failed Mail" }]  
                      }
                      else {
-                         statusList = [{ id: "", name: "Select Action" }, { id: "Bank Advice", name: "Bank Advice" }, { id: "View", name: "View" }]
+                         if(item.IsendUTRFailedMail)
+                             statusList = [{ id: "", name: "Select Action" }, { id: "Bank Advice", name: "Bank Advice" }, { id: "View", name: "View" },{ id: "SendUTRFailedMail", name: "Resend UTR Failed Mail" }]
+                         else
+                             statusList = [{ id: "", name: "Select Action" }, { id: "Bank Advice", name: "Bank Advice" }, { id: "View", name: "View" }]
                      }
                      var $customSelect = $("<select>")
                          .attr("class", "form-control").prop("selectedIndex", "")
@@ -236,6 +258,62 @@
                                              loadDetails();
                                          } else if (result == false) {
                                              $('#FailedAlert').html("Some of the payment are partially verified.");
+                                             $('#Failed').modal('toggle');
+                                         }
+                                         $('.loading-bg').addClass('dis-none');
+                                     },
+                                     error: function (err) {
+                                         $('.loading-bg').addClass('dis-none');
+                                         console.log("error1 : " + err);
+                                     }
+                                 });
+                             }
+                         }
+                         else if (selVal == "SendPaymentFailedMail") {
+                             var choice = confirm("Are you sure, Do you want to send mail?");
+                             if (choice === true) {
+                                 $('.loading-bg').removeClass('dis-none');
+                                 $.ajax({
+                                     type: "GET",
+                                     url: '@Url.Action("SendPaymentFaildEmail", "CoreAccounts")',
+                                     data: {boaDraftId: item.BOADraftId  },
+                                     contentType: "application/json; charset=utf-8",
+                                     dataType: "json",
+                                     success: function (result) {
+                                         if (result == false) {
+                                             $('#alertSuccess').html("Send all payment email done.");
+                                             $('#Success').modal('toggle');
+                                             loadDetails();
+                                         } else if (result == true) {
+                                             $('#FailedAlert').html("Some mail are not send try after some time.");
+                                             $('#Failed').modal('toggle');
+                                         }
+                                         $('.loading-bg').addClass('dis-none');
+                                     },
+                                     error: function (err) {
+                                         $('.loading-bg').addClass('dis-none');
+                                         console.log("error1 : " + err);
+                                     }
+                                 });
+                             }
+                         }
+                         else if (selVal == "SendUTRFailedMail") {
+                             var choice = confirm("Are you sure, Do you want to send mail?");
+                             if (choice === true) {
+                                 $('.loading-bg').removeClass('dis-none');
+                                 $.ajax({
+                                     type: "GET",
+                                     url: '@Url.Action("SendUTRFaildEmail", "CoreAccounts")',
+                                     data: {boaDraftId: item.BOADraftId  },
+                                     contentType: "application/json; charset=utf-8",
+                                     dataType: "json",
+                                     success: function (result) {
+                                         if (result == false) {
+                                             $('#alertSuccess').html("Send all UTR email done.");
+                                             $('#Success').modal('toggle');
+                                             loadDetails();
+                                         } else if (result == true) {
+                                             $('#FailedAlert').html("Some mail are not send try after some time.");
                                              $('#Failed').modal('toggle');
                                          }
                                          $('.loading-bg').addClass('dis-none');

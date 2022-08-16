@@ -23,7 +23,7 @@ namespace IOAS.DataModel
         public Nullable<decimal> AmountWithdrawn { get; set; }
         public string UserName { get; set; }
         public string Reason { get; set; }
-        public string WithdrawType { get; set; }
+        public string ActionType { get; set; }
         public Nullable<System.DateTime> AddorCloseDate { get; set; }
         public int CommitmentId { get; set; }
     }

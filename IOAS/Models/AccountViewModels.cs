@@ -280,6 +280,7 @@ namespace IOAS.Models
         public int selFundingBody { get; set; }
         public CommitAllocationHeadDetails AllocationDtls { get; set; }
         public ProjectDetailModel ProjectDetail { get; set; }
+        public int FinYearId { get; set; } = Infrastructure.Common.GetCurrentFinYearId();
     } 
     public class CommitmentResultModel
     {

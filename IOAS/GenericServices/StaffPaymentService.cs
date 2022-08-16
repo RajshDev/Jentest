@@ -2046,7 +2046,7 @@ namespace IOAS.GenericServices
                     var qrySalary = (from p in context.tblRCTPayroll
                                      join sm in context.vw_RCTOSGPayroll on p.RCTPayrollId equals sm.RCTPayrollId
                                      join d in context.tblRCTPayrollDetail on sm.RCTPayrollDetailId equals d.RCTPayrollDetailId
-                                     where p.Status == "Requested for salary processing" && p.SalaryMonth == MonthYear && p.AppointmentType == "OSG"
+                                     where p.Status == "Requested for salary processing" && p.SalaryMonth == payMonthStr && p.AppointmentType == "OSG"
                                       && !context.tblAgencyVerifiedSalary.Any(m => m.RCTPayrollDetailId == sm.RCTPayrollDetailId)
                                  && p.VendorId == vendorId
                                      orderby sm.Employee_ID
@@ -2728,7 +2728,7 @@ namespace IOAS.GenericServices
                         }
                     }
                     /////// Future Month Salary Data  ////////
-
+                  
                     for (int j = 0; j < SecondNoOfMonth; j++)
                     {
                         start = LastSalaryDate.AddMonths(j);
@@ -6456,14 +6456,49 @@ namespace IOAS.GenericServices
                                              SP.ProfTax,
                                              SP.MonthlyTax,
                                              SP.DirectAllowance,
-                                             SP.Deduction
+                                             SP.Deduction,
+                                             SP.RCTPayrollProcessDetailId
                                          }).ToList();
 
                     for (int i = 0; i < queryVerified.Count; i++)
                     {
                         var EmployeeID = queryVerified[i].EmployeeID;
-                        var EmployeeMasterQry = context.vw_RCTAdhocEmployeeMaster.Where(m => m.EmployeeId == EmployeeID).FirstOrDefault();
-
+                        var empname = string.Empty;
+                        var DEP = string.Empty;
+                        var DOfB=DateTime.Now;
+                        var DesCode = string.Empty;
+                        var BankName = string.Empty;
+                        var IFSCCode = string.Empty;
+                        var BankAccountNumber = string.Empty;
+                        if (queryVerified[i].RCTPayrollProcessDetailId == null)
+                        {
+                            var EmployeeMasterQry = context.vw_RCTAdhocEmployeeMaster.Where(m => m.EmployeeId == EmployeeID).OrderByDescending(m => m.EffectiveFrom).FirstOrDefault();
+                            if(EmployeeMasterQry!=null)
+                            {
+                                empname = EmployeeMasterQry.NAME;
+                                DEP = EmployeeMasterQry.DEPARTMENT;
+                                DOfB = EmployeeMasterQry.DOB?? DateTime.Now;
+                                DesCode = EmployeeMasterQry.DesignationCode;
+                                BankName = EmployeeMasterQry.BankName;
+                                IFSCCode = EmployeeMasterQry.IFSCCode;
+                                BankAccountNumber = EmployeeMasterQry.BankAccountNumber;
+                            }
+                        }
+                        else
+                        {
+                            int rctpaydetailid = queryVerified[i].RCTPayrollProcessDetailId??0;
+                            var rctpayrolldetails = context.tblRCTPayrollProcessDetail.Where(x => x.RCTPayrollProcessDetailId == rctpaydetailid).FirstOrDefault();
+                            if(rctpayrolldetails!=null)
+                            {
+                                empname = rctpayrolldetails.CandidateName;
+                                DEP = rctpayrolldetails.DepartmentName;
+                                DOfB = rctpayrolldetails.DOB ?? DateTime.Now;
+                                DesCode = rctpayrolldetails.DesignationCode;
+                                BankName = rctpayrolldetails.BankName;
+                                IFSCCode = rctpayrolldetails.IFSC;
+                                BankAccountNumber = rctpayrolldetails.AccountNo;
+                            }
+                        }
                         int paymentId = queryVerified[i].PaymentId;
                         var oaQuery = (from soa in context.tblAdhocSalaryOtherAllowance
                                        join oa in context.tblEmpOtherAllowance on soa.EmpOtherAllowanceId equals oa.id
@@ -6490,10 +6525,10 @@ namespace IOAS.GenericServices
                             bankHd = "Canara Bank-01741-NON-PFMS";
                         var row = dtVerify.NewRow();
                         row["Employee No"] = queryVerified[i].EmployeeID;
-                        row["Name"] = EmployeeMasterQry.NAME;
+                        row["Name"] = empname;
                         row["Project No"] = queryVerified[i].PROJECTNO;
                         //row["Commitment No"] = queryVerified[i].commitmentNo;
-                        row["Dept"] = EmployeeMasterQry.DEPARTMENT;
+                        row["Dept"] = DEP;
                         row["Basic Salary"] = Convert.ToDecimal(queryVerified[i].basic);
                         row["Gross Salary"] = Convert.ToDecimal(queryVerified[i].gross);
                         row["Net Salary"] = Convert.ToDecimal(queryVerified[i].NetSalary);
@@ -6509,12 +6544,12 @@ namespace IOAS.GenericServices
                         row["Direct Allowance"] = Convert.ToDecimal(queryVerified[i].DirectAllowance);
                         row["Deduction"] = Convert.ToDecimal(queryVerified[i].Deduction);
                         row["Debit Bank"] = bankHd;
-                        row["DOB"] = EmployeeMasterQry.DOB;
-                        row["Designation Code"] = EmployeeMasterQry.DesignationCode;
+                        row["DOB"] = DOfB;
+                        row["Designation Code"] = DesCode;
 
-                        row["Bank"] = EmployeeMasterQry.BankName;
-                        row["IFSC"] = EmployeeMasterQry.IFSCCode;
-                        row["Account Number"] = EmployeeMasterQry.BankAccountNumber;
+                        row["Bank"] = BankName;
+                        row["IFSC"] = IFSCCode;
+                        row["Account Number"] = BankAccountNumber;
 
                         dtVerify.Rows.Add(row);
 

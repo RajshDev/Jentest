@@ -741,6 +741,24 @@
                                                 <h4 id="labelExperience"></h4>
                                             </div>
                                         </div>
+                                        @if (!string.IsNullOrEmpty(Model.IITMExperience))
+                                        {
+                                            <div class="col-md-6">
+                                                <div class="form-group custom-form-group">
+                                                    <label>IITM Experience: </label>
+                                                    <h4>@Html.DisplayFor(m => m.IITMExperience)</h4>
+                                                </div>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="col-md-6">
+                                                <div class="form-group custom-form-group">
+                                                    <label>IITM Experience: </label>
+                                                    <h4 id="labelIITMExperience"></h4>
+                                                </div>
+                                            </div>
+                                        }
                                         <div class="col-md-6">
                                             <div class="form-group custom-form-group">
                                                 <label>Pay: </label>
@@ -2695,7 +2713,11 @@
             $('#MsPhdTypeValid').val(false);
             $('#phdDetails').addClass('dis-none');
             if($('#TypeofappointmentId').val() != 2)
+            {
                 UpdateMedical(2);
+                if(MedicalAmount==0&&$("#Medical").val()==2)
+                    FillDesignation();
+            }
             else
                 UpdateMedical(3);
         }
@@ -3247,9 +3269,9 @@
         }
     });
 
-    applyAutoComplete($('#OldEmployeeNumber'), $('#OldEmpId'),'@Url.Action("LoadRCTEmployeeList", "Requirement")?apptype=STE','AddOldEmployeeDetails',true);
+    applyAutoComplete($('#OldEmployeeNumber'), $('#OldEmpId'),'@Url.Action("LoadRCTSTEEmployeeList", "Requirement")?apptype=STE','AddOldEmployeeDetails',true);
 
-    applyAutoComplete($('#ApplicationRefNo'), $('#ApplicationRefNo'),'@Url.Action("LoadRCTApplicationNumberList", "Requirement")?apptype=STE','AddOldEmployeeDetails',true);
+    applyAutoComplete($('#ApplicationRefNo'), $('#ApplicationRefNo'),'@Url.Action("LoadRCTSTEApplicationNumberList", "Requirement")?apptype=STE','AddOldEmployeeDetails',true);
 
 
     function AddOldEmployeeDetails() {
@@ -3285,11 +3307,11 @@
                     }
                     if(result.IITMExperience!=null)
                     {
-                        $("#labelExperience").text(result.IITMExperience);
+                        $("#labelIITMExperience").text(result.IITMExperience);
                     }
                     else
                     {
-                        $("#labelExperience").text('0 Years 0 months 0 days');
+                        $("#labelIITMExperience").text('0 Years 0 months 0 days');
                     }
                     if(result.aadharnumber!=null)
                     {

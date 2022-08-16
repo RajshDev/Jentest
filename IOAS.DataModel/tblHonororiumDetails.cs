@@ -30,5 +30,6 @@ namespace IOAS.DataModel
         public string Status { get; set; }
         public string TDSPercentage { get; set; }
         public string PAN { get; set; }
+        public Nullable<int> HonororiumTDSSection { get; set; }
     }
 }

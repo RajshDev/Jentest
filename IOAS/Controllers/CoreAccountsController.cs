@@ -18,8 +18,10 @@ using System.Web.Script.Serialization;
 namespace IOAS.Controllers
 {
     [Authorized]
+   
     public class CoreAccountsController : Controller
     {
+        
         CoreAccountsService coreAccountService = new CoreAccountsService();
         //  private static readonly Object lockObj = new Object();
         StaffPaymentService payment = new StaffPaymentService();
@@ -68,6 +70,7 @@ namespace IOAS.Controllers
         private static readonly Object AVOApprovelockObj = new Object();
         private static readonly Object AVOWFInitlockObj = new Object();
         public static readonly object ReceiptBUlockObj = new Object();
+        private static readonly Object lockInvoiceBOArequestObj = new Object();
         #region Payment
         #region Purchase Order
         #region Advance
@@ -876,7 +879,16 @@ namespace IOAS.Controllers
 
         public ActionResult SettlementBillPaymentList()
         {
-            return View();
+            try
+            {
+                return View();
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+       (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                return View();
+            }
 
         }
 
@@ -7922,12 +7934,12 @@ namespace IOAS.Controllers
         {
             return View();
         }
-        [HttpGet]
-        public JsonResult GetProjectFundTransferList()
+        [HttpPost]
+        public JsonResult GetProjectFundTransferList(SearchProjectFunTransferModel model, int pageIndex, int pageSize, DateFilterModel PostedDate)
         {
             try
             {
-                object output = coreAccountService.GetProjectFundTransferList();
+                object output = coreAccountService.GetProjectFundTransferList(model,pageIndex,  pageSize,PostedDate);
                 return Json(output, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -8197,6 +8209,11 @@ namespace IOAS.Controllers
                         TempData["errMsg"] = "There is a mismatch between the payment value and allocated commitment value. Please update the value to continue.";
                         return View(model);
                     }
+                    if(!Common.ValidateProjectBalanceOnReceipt(model.CreditProjectId ?? 0,0,model.DebitAmount ?? 0))
+                    {
+                        TempData["errMsg"] = "Should not exceed the credit project sanction value. Please update the value to continue.";
+                        return View(model);
+                    }
                     if (model.Document != null)
                     {
                         var allowedExtensions = new[] { ".pdf", ".doc", ".docx", ".DOC", ".DOCX", ".PDF" };
@@ -8301,6 +8318,7 @@ namespace IOAS.Controllers
                 {
                     if (Common.ValidateProjectDirectTransferStatus(id, "Open"))
                     {
+                       
                         int userId = Common.GetUserid(User.Identity.Name);
                         bool cStatus = coreAccountService.ProjectTransferCommitmentBalanceUpdate(id, false, false, userId, "PDT");
                         if (!cStatus)
@@ -12375,7 +12393,11 @@ namespace IOAS.Controllers
             return msg;
         }
 
-        [HttpGet]        public ActionResult LCRetirementSubmitforApproval(int LCRetirementId)        {            try            {
+        [HttpGet]
+        public ActionResult LCRetirementSubmitforApproval(int LCRetirementId)
+        {
+            try
+            {
                 //int userId = Common.GetUserid(User.Identity.Name);
 
                 //bool cStatus = coreAccountService.LCRetireCommitmentBalanceUpdate(LCRetirementId, false, false, userId, "LCR");
@@ -12424,7 +12446,15 @@ namespace IOAS.Controllers
                     }
                     else
                         return Json(new { status = false, msg = "This bill already approved" }, JsonRequestBehavior.AllowGet);
-                }            }            catch (Exception ex)            {                Infrastructure.IOASException.Instance.HandleMe(       (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);                return Json(new { status = false, msg = "Something went wrong please contact administrator" }, JsonRequestBehavior.AllowGet);            }        }
+                }
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+       (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                return Json(new { status = false, msg = "Something went wrong please contact administrator" }, JsonRequestBehavior.AllowGet);
+            }
+        }
 
         [HttpGet]
         public ActionResult LCRetirementApprove(int LCRetirementId)
@@ -12837,6 +12867,7 @@ namespace IOAS.Controllers
             }
 
         }
+       
         [HttpGet]
         public ActionResult Honororium(int HonorId = 0)
         {
@@ -12863,6 +12894,7 @@ namespace IOAS.Controllers
                 ViewBag.AccountHeadList = emptyList;
                 ViewBag.ProjectNumberList = Common.GetProjectNumberList();
                 ViewBag.DocmentTypeList = Common.GetDocTypeList(63);
+                ViewBag.HonTdsSection = Common.GetHonororiumTdsSection();
                 var ptypeList = Common.getprojecttype();
                 int firstPType = ptypeList != null ? ptypeList[0].codevalAbbr : 0;
                 ViewBag.ProjectTypeList = ptypeList;
@@ -12920,6 +12952,7 @@ namespace IOAS.Controllers
                 ViewBag.ProjectTypeList = ptypeList;
                 ViewBag.ProjectNumberList = ProjectService.LoadProjecttitledetails(firstPType);
                 ViewBag.HonDateList = fo.GetAllMonths();
+                ViewBag.HonTdsSection = Common.GetHonororiumTdsSection();
                 if (model.ExpenseDetail != null)
                 {
                     foreach (var item in model.ExpenseDetail)
@@ -13383,7 +13416,10 @@ namespace IOAS.Controllers
                 }
                 else
                 {
-                    TempData["errMsg"] = "Something went wrong please contact administrator.";
+                    if (model.FellowShipId > 0 && result == -3)
+                        TempData["errMsg"] = "This already Posted in Fellowship Salary.";
+                    else
+                        TempData["errMsg"] = "Something went wrong please contact administrator.";
                 }
             }
             else
@@ -14194,7 +14230,6 @@ namespace IOAS.Controllers
         }
 
         #endregion
-
         #region Institute Salary Payment
         [HttpPost]
         public JsonResult GetInstituteSalaryPaymentList()
@@ -14508,7 +14543,6 @@ namespace IOAS.Controllers
         }
 
         #endregion
-
         #region ManDay
         public ActionResult ManDay(int Mandayid = 0)
         {
@@ -14805,7 +14839,6 @@ namespace IOAS.Controllers
             }
         }
         #endregion
-
         #region Overheads Posting
         public ActionResult OverheadsPostingList()
         {
@@ -15121,7 +15154,6 @@ namespace IOAS.Controllers
         //    }
         //}
         #endregion
-
         #region OverHead Posting Payment Process
         public ActionResult OverHeadPaymentProcess()
         {
@@ -15806,7 +15838,6 @@ namespace IOAS.Controllers
             }
         }
         #endregion
-
         #region Receipt
         public ActionResult ReceiptBreakupList()
         {
@@ -15829,10 +15860,33 @@ namespace IOAS.Controllers
         }
 
 
-        public ActionResult ReceiptBreakup(int receiptBreakupId = 0)        {            ReceiptBreakupModel model = new ReceiptBreakupModel();            if (receiptBreakupId > 0 && Common.ValidateReceiptBreakupStatus(receiptBreakupId, "Open"))            {
-                model = coreAccountService.GetReceiptBreakup(receiptBreakupId);                return View(model);            }            else                return View(model);        }
+        public ActionResult ReceiptBreakup(int receiptBreakupId = 0)
+        {
+            ReceiptBreakupModel model = new ReceiptBreakupModel();
+            if (receiptBreakupId > 0 && Common.ValidateReceiptBreakupStatus(receiptBreakupId, "Open"))
+            {
+                model = coreAccountService.GetReceiptBreakup(receiptBreakupId);
+                return View(model);
+            }
+            else
+                return View(model);
+        }
 
-        public ActionResult ReceiptBreakupView(int receiptBreakupId)        {            try            {                var model = coreAccountService.GetReceiptBreakup(receiptBreakupId);                ViewBag.VwReceiptBreakupId = receiptBreakupId;                ViewBag.processGuideLineId = Common.GetProcessGuidelineId(217, "Others", 0);                return View(model);            }            catch (Exception ex)            {                return RedirectToAction("ReceiptBreakupList");            }        }
+        public ActionResult ReceiptBreakupView(int receiptBreakupId)
+        {
+            try
+            {
+                var model = coreAccountService.GetReceiptBreakup(receiptBreakupId);
+                ViewBag.VwReceiptBreakupId = receiptBreakupId;
+                ViewBag.processGuideLineId = Common.GetProcessGuidelineId(217, "Others", 0);
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("ReceiptBreakupList");
+            }
+
+        }
 
         [HttpPost]
         public ActionResult ReceiptBreakup(ReceiptBreakupModel model)
@@ -16406,43 +16460,55 @@ namespace IOAS.Controllers
         {
             try
             {
-                var roleId = Common.GetRoleId(User.Identity.Name);
-                var loggedinuser = User.Identity.Name;
-                var loggedinuserid = Common.GetUserid(loggedinuser);
-                var servicetype = Common.getservicetype();
-                var invoicetype = Common.getinvoicetype();
-                var projecttype = Common.getprojecttype();
-                ViewBag.typeofservice = servicetype;
-                ViewBag.TypeofInvoice = invoicetype;
-                ViewBag.projecttype = projecttype;
-                ViewBag.state = Common.GetStatelist();
-                ViewBag.countryList = Common.getCountryList();
-                ViewBag.AccGroupId = Common.GetAccountGroup(28);
-                ViewBag.AccHeadId = Common.GetAccountHeadListbyGroup(28);
-                ViewBag.IndianSEZTaxCategoryList = Common.GetCodeControlList("IndianSEZTaxCategory");
-                ViewBag.Currency = Common.getCurrency();
-                var InvoiceID = coreAccountService.CreateInvoice(model, loggedinuserid, true);
-                if (InvoiceID > 0 && model.ProjectType == 2)
+                lock (lockInvoiceBOArequestObj)
                 {
-                    var InvoiceNumber = Common.getinvoicenumber(InvoiceID);
-                    coreAccountService.InvoiceEmailSend(InvoiceID);
-                    ViewBag.succMsg = "Invoice - " + InvoiceNumber + " has been approved successfully.";
-                }
-                else if (InvoiceID > 0 && model.ProjectType == 1)
-                {
-                    var InvoiceNumber = Common.getinvoicenumber(InvoiceID);
+                 bool IsValidRequest = Common.CheckBOAPostingProjectInvoice(model.InvoiceId ?? 0);
+                    if (IsValidRequest)
+                    {
+                        var roleId = Common.GetRoleId(User.Identity.Name);
+                        var loggedinuser = User.Identity.Name;
+                        var loggedinuserid = Common.GetUserid(loggedinuser);
+                        var servicetype = Common.getservicetype();
+                        var invoicetype = Common.getinvoicetype();
+                        var projecttype = Common.getprojecttype();
+                        ViewBag.typeofservice = servicetype;
+                        ViewBag.TypeofInvoice = invoicetype;
+                        ViewBag.projecttype = projecttype;
+                        ViewBag.state = Common.GetStatelist();
+                        ViewBag.countryList = Common.getCountryList();
+                        ViewBag.AccGroupId = Common.GetAccountGroup(28);
+                        ViewBag.AccHeadId = Common.GetAccountHeadListbyGroup(28);
+                        ViewBag.IndianSEZTaxCategoryList = Common.GetCodeControlList("IndianSEZTaxCategory");
+                        ViewBag.Currency = Common.getCurrency();
+                        var InvoiceID = coreAccountService.CreateInvoice(model, loggedinuserid, true);
+                        if (InvoiceID > 0 && model.ProjectType == 2)
+                        {
+                            var InvoiceNumber = Common.getinvoicenumber(InvoiceID);
+                            coreAccountService.InvoiceEmailSend(InvoiceID);
+                            ViewBag.succMsg = "Invoice - " + InvoiceNumber + " has been approved successfully.";
+                        }
+                        else if (InvoiceID > 0 && model.ProjectType == 1)
+                        {
+                            var InvoiceNumber = Common.getinvoicenumber(InvoiceID);
 
-                    ViewBag.succMsg = "Invoice - " + InvoiceNumber + " has been approved successfully.";
-                }
-                else if (InvoiceID == -12)
-                {
-                    ViewBag.errMsg = "server not responding .try again after sometime";
-                }
-                else
-                {
-                    ViewBag.errMsg = "Something went wrong please contact administrator";
-                }
-                return View(model);
+                            ViewBag.succMsg = "Invoice - " + InvoiceNumber + " has been approved successfully.";
+                        }
+                        else if (InvoiceID == -12)
+                        {
+                            ViewBag.errMsg = "server not responding .try again after sometime";
+                        }
+                        else
+                        {
+                            ViewBag.errMsg = "Something went wrong please contact administrator";
+                        }
+                        return View(model);
+                    }
+                    else
+                    {
+                        ViewBag.errMsg = "This Request already Approved";
+                        return View(model);
+                    }
+            }
             }
             catch (Exception ex)
             {
@@ -16985,12 +17051,157 @@ namespace IOAS.Controllers
         //}
 
 
-        public ActionResult OtherReceipt(int id = 0)        {            try            {                OtherReceiptModel model = new OtherReceiptModel();                var emptyList = new List<MasterlistviewModel>();                ViewBag.NegReceiptList =                ViewBag.AccountHeadList = emptyList;                ViewBag.TransactionTypeList = Common.GetCodeControlList("Transaction Type");                ViewBag.CategoryList = Common.GetCodeControlList("ReceiptCategory", "Adhoc");                ViewBag.AccountGroupList = Common.GetAccountGroup(false);                ViewBag.BankList = Common.GetBankAccountHeadList(true);                ViewBag.ModeOfReceiptList = Common.GetCodeControlList("ModeofReceipt");
+        public ActionResult OtherReceipt(int id = 0)
+        {
+            try
+            {
+                OtherReceiptModel model = new OtherReceiptModel();
+                var emptyList = new List<MasterlistviewModel>();
+                ViewBag.NegReceiptList =
+                ViewBag.AccountHeadList = emptyList;
+                ViewBag.TransactionTypeList = Common.GetCodeControlList("Transaction Type");
+                ViewBag.CategoryList = Common.GetCodeControlList("ReceiptCategory", "Adhoc");
+                ViewBag.AccountGroupList = Common.GetAccountGroup(false);
+                ViewBag.BankList = Common.GetBankAccountHeadList(true);
+                ViewBag.ModeOfReceiptList = Common.GetCodeControlList("ModeofReceipt");
                 //var ptypeList = Common.getprojecttype();
                 //int firstPType = ptypeList != null ? ptypeList[0].codevalAbbr : 0;
                 //ViewBag.ProjectTypeList = ptypeList;
                 //ViewBag.ProjectNumberList = ProjectService.LoadProjecttitledetails(firstPType);
-                if (id > 0 && Common.ValidateReceiptStatus(id, "Open"))                {                    model = coreAccountService.GetOtherReceiptDetails(id);                    if (model.Category == 18)                        ViewBag.NegReceiptList = Common.GetReceiptNoByInvoice(model.InvoiceId.GetValueOrDefault(0));                    if (model.DeductionDetail.Count == 0)                    {                        int[] heads = { 36, 37, 38 };                        model.DeductionDetail = coreAccountService.GetTaxHeadDetails(heads);                    }                }                else                {                    ViewBag.NegReceiptList = emptyList;                    int[] heads = { 36, 37, 38 };                    model.DeductionDetail = coreAccountService.GetTaxHeadDetails(heads);                }                return View(model);            }            catch (Exception ex)            {                return RedirectToAction("Dashboard", "Home");            }        }        [HttpPost]        public ActionResult OtherReceipt(OtherReceiptModel model)        {            try            {                var emptyList = new List<MasterlistviewModel>();                ViewBag.AccountHeadList =                ViewBag.AccountHeadList =                ViewBag.NegReceiptList = emptyList;                ViewBag.TransactionTypeList = Common.GetCodeControlList("Transaction Type");                ViewBag.CategoryList = Common.GetCodeControlList("ReceiptCategory", "Adhoc");                ViewBag.AccountGroupList = Common.GetAccountGroup(false);                ViewBag.BankList = Common.GetBankAccountHeadList(true);                ViewBag.ModeOfReceiptList = Common.GetCodeControlList("ModeofReceipt");                if (model.Category == 18)                {                    for (int i = 0; i < model.ExpenseDetail.Count(); i++)                    {                        ModelState.Remove("ExpenseDetail[" + i + "].AccountGroupId");                        ModelState.Remove("ExpenseDetail[" + i + "].AccountHeadId");                        ModelState.Remove("ExpenseDetail[" + i + "].TransactionType");                        ModelState.Remove("ExpenseDetail[" + i + "].Amount");                    }                    if (model.InvoiceId > 0)                        ViewBag.NegReceiptList = Common.GetReceiptNoByInvoice(model.InvoiceId.GetValueOrDefault(0));                }                foreach (var item in model.ExpenseDetail)                {                    int headId = item.AccountGroupId ?? 0;                    item.AccountHeadList = Common.GetAccountHeadList(headId);                }                if (ModelState.IsValid)                {                    string validationMsg = ValidateOtherReceipt(model);                    if (validationMsg != "Valid")                    {                        TempData["errMsg"] = validationMsg;                        return View(model);                    }                    if (model.file != null)                    {                        var allowedExtensions = new[] { ".pdf", ".doc", ".docx", ".DOC", ".DOCX", ".PDF" };                        string taxprooffilename = Path.GetFileName(model.file.FileName);                        var docextension = Path.GetExtension(taxprooffilename);                        if (!allowedExtensions.Contains(docextension))                        {                            TempData["errMsg"] = "Please upload any one of these type doc [.pdf, .doc, .docx]";                            return View(model);                        }                    }                    int logged_in_user = Common.GetUserid(User.Identity.Name);                    model.ClassificationOfReceipt = 1;                    int result = coreAccountService.OtherReceiptIU(model, logged_in_user);                    if (model.ReceiptId == null && result > 0)                    {                        TempData["succMsg"] = "Receipt has been added successfully.";                        return RedirectToAction("OtherReceiptList");                    }                    else if (model.ReceiptId > 0 && result > 0)                    {                        TempData["succMsg"] = "Receipt has been updated successfully.";                        return RedirectToAction("OtherReceiptList");                    }                    else if (result == -2)                    {                        TempData["errMsg"] = "Total receipts amount should not be greater than sanction value of the project.";                        return RedirectToAction("OtherReceiptList");                    }                    else if (result == -3)                    {                        TempData["errMsg"] = "Not a valid entry. Credit and Debit value are not equal.";                        return RedirectToAction("OtherReceiptList");                    }                    else                        TempData["errMsg"] = "Something went wrong please contact administrator.";                }                else                {                    string messages = string.Join("<br />", ModelState.Values                                        .SelectMany(x => x.Errors)                                        .Select(x => x.ErrorMessage));                    TempData["errMsg"] = messages;                }                return View(model);            }            catch (Exception ex)            {                var emptyList = new List<MasterlistviewModel>();                ViewBag.AccountHeadList =                ViewBag.AccountHeadList =                ViewBag.NegReceiptList = emptyList;                ViewBag.TransactionTypeList = Common.GetCodeControlList("Transaction Type");                ViewBag.CategoryList = Common.GetCodeControlList("ReceiptCategory", "Adhoc");                ViewBag.AccountGroupList = Common.GetAccountGroup(false);                ViewBag.BankList = Common.GetBankAccountHeadList(false);                ViewBag.ModeOfReceiptList = Common.GetCodeControlList("ModeofReceipt");                if (model.InvoiceId > 0)                    ViewBag.NegReceiptList = Common.GetReceiptNoByInvoice(model.InvoiceId.GetValueOrDefault(0));                foreach (var item in model.ExpenseDetail)                {                    int headId = item.AccountGroupId ?? 0;                    item.AccountHeadList = Common.GetAccountHeadList(headId);                }                return View(model);            }        }
+                if (id > 0 && Common.ValidateReceiptStatus(id, "Open"))
+                {
+                    model = coreAccountService.GetOtherReceiptDetails(id);
+                    if (model.Category == 18)
+                        ViewBag.NegReceiptList = Common.GetReceiptNoByInvoice(model.InvoiceId.GetValueOrDefault(0));
+                    if (model.DeductionDetail.Count == 0)
+                    {
+                        int[] heads = { 36, 37, 38 };
+                        model.DeductionDetail = coreAccountService.GetTaxHeadDetails(heads);
+                    }
+                }
+                else
+                {
+                    ViewBag.NegReceiptList = emptyList;
+                    int[] heads = { 36, 37, 38 };
+                    model.DeductionDetail = coreAccountService.GetTaxHeadDetails(heads);
+                }
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Dashboard", "Home");
+            }
+        }
+
+        [HttpPost]
+        public ActionResult OtherReceipt(OtherReceiptModel model)
+        {
+            try
+            {
+                var emptyList = new List<MasterlistviewModel>();
+                ViewBag.AccountHeadList =
+                ViewBag.AccountHeadList =
+                ViewBag.NegReceiptList = emptyList;
+                ViewBag.TransactionTypeList = Common.GetCodeControlList("Transaction Type");
+                ViewBag.CategoryList = Common.GetCodeControlList("ReceiptCategory", "Adhoc");
+                ViewBag.AccountGroupList = Common.GetAccountGroup(false);
+                ViewBag.BankList = Common.GetBankAccountHeadList(true);
+                ViewBag.ModeOfReceiptList = Common.GetCodeControlList("ModeofReceipt");
+                if (model.Category == 18)
+                {
+                    for (int i = 0; i < model.ExpenseDetail.Count(); i++)
+                    {
+                        ModelState.Remove("ExpenseDetail[" + i + "].AccountGroupId");
+                        ModelState.Remove("ExpenseDetail[" + i + "].AccountHeadId");
+                        ModelState.Remove("ExpenseDetail[" + i + "].TransactionType");
+                        ModelState.Remove("ExpenseDetail[" + i + "].Amount");
+                    }
+                    if (model.InvoiceId > 0)
+                        ViewBag.NegReceiptList = Common.GetReceiptNoByInvoice(model.InvoiceId.GetValueOrDefault(0));
+                }
+                foreach (var item in model.ExpenseDetail)
+                {
+                    int headId = item.AccountGroupId ?? 0;
+                    item.AccountHeadList = Common.GetAccountHeadList(headId);
+                }
+                if (ModelState.IsValid)
+                {
+                    string validationMsg = ValidateOtherReceipt(model);
+                    if (validationMsg != "Valid")
+                    {
+                        TempData["errMsg"] = validationMsg;
+                        return View(model);
+                    }
+                    if (model.file != null)
+                    {
+                        var allowedExtensions = new[] { ".pdf", ".doc", ".docx", ".DOC", ".DOCX", ".PDF" };
+                        string taxprooffilename = Path.GetFileName(model.file.FileName);
+                        var docextension = Path.GetExtension(taxprooffilename);
+                        if (!allowedExtensions.Contains(docextension))
+                        {
+                            TempData["errMsg"] = "Please upload any one of these type doc [.pdf, .doc, .docx]";
+                            return View(model);
+                        }
+                    }
+                    int logged_in_user = Common.GetUserid(User.Identity.Name);
+                    model.ClassificationOfReceipt = 1;
+                    int result = coreAccountService.OtherReceiptIU(model, logged_in_user);
+                    if (model.ReceiptId == null && result > 0)
+                    {
+                        TempData["succMsg"] = "Receipt has been added successfully.";
+                        return RedirectToAction("OtherReceiptList");
+                    }
+                    else if (model.ReceiptId > 0 && result > 0)
+                    {
+                        TempData["succMsg"] = "Receipt has been updated successfully.";
+                        return RedirectToAction("OtherReceiptList");
+                    }
+                    else if (result == -2)
+                    {
+                        TempData["errMsg"] = "Total receipts amount should not be greater than sanction value of the project.";
+                        return RedirectToAction("OtherReceiptList");
+                    }
+                    else if (result == -3)
+                    {
+                        TempData["errMsg"] = "Not a valid entry. Credit and Debit value are not equal.";
+                        return RedirectToAction("OtherReceiptList");
+                    }
+                    else
+                        TempData["errMsg"] = "Something went wrong please contact administrator.";
+
+                }
+                else
+                {
+                    string messages = string.Join("<br />", ModelState.Values
+                                        .SelectMany(x => x.Errors)
+                                        .Select(x => x.ErrorMessage));
+
+                    TempData["errMsg"] = messages;
+                }
+                return View(model);
+
+            }
+            catch (Exception ex)
+            {
+                var emptyList = new List<MasterlistviewModel>();
+                ViewBag.AccountHeadList =
+                ViewBag.AccountHeadList =
+                ViewBag.NegReceiptList = emptyList;
+                ViewBag.TransactionTypeList = Common.GetCodeControlList("Transaction Type");
+                ViewBag.CategoryList = Common.GetCodeControlList("ReceiptCategory", "Adhoc");
+                ViewBag.AccountGroupList = Common.GetAccountGroup(false);
+                ViewBag.BankList = Common.GetBankAccountHeadList(false);
+                ViewBag.ModeOfReceiptList = Common.GetCodeControlList("ModeofReceipt");
+                if (model.InvoiceId > 0)
+                    ViewBag.NegReceiptList = Common.GetReceiptNoByInvoice(model.InvoiceId.GetValueOrDefault(0));
+                foreach (var item in model.ExpenseDetail)
+                {
+                    int headId = item.AccountGroupId ?? 0;
+                    item.AccountHeadList = Common.GetAccountHeadList(headId);
+                }
+                return View(model);
+            }
+        }
 
         public ActionResult OtherReceiptView(int id, bool Pfinit = false)
         {
@@ -17944,7 +18155,35 @@ namespace IOAS.Controllers
                 throw new Exception();
             }
         }
+        [HttpGet]
+        public JsonResult SendPaymentFaildEmail(int boaDraftId)
+        {
+            try
+            {
 
+                bool valid = coreAccountService.PaymentFailedEmailSend(boaDraftId);
+                //bool valid = coreAccountService.PaymentEmailBackendSend(boaDraftId);
+                return Json(valid, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        [HttpGet]
+        public JsonResult SendUTRFaildEmail(int boaDraftId)
+        {
+            try
+            {
+
+                bool valid = coreAccountService.UTRFailedEmailSend(boaDraftId);
+                return Json(valid, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
         #endregion
         #region Project Summary
         public ActionResult ProjectSummary(int ProjectId = 0)
@@ -19056,7 +19295,6 @@ namespace IOAS.Controllers
         }
 
         #endregion
-
         #region GST Credit
         public ActionResult GSTCredit()
         {
@@ -19550,84 +19788,6 @@ namespace IOAS.Controllers
             {
                 Common com = new Common();
                 object data = com.GetTdsPaymentCurrentDate(RefNumber);
-                return Json(data, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-        #endregion
-        #region Bills InActive
-        [HttpGet]
-        public ActionResult BillInActive(string TypeCode, string Refno)
-        {
-            BillStatusModel model = new BillStatusModel();
-            ViewBag.Funlist = Common.GetInActiveFunList();
-            return View(model);
-        }
-        [HttpPost]
-        public ActionResult BillInActive(BillStatusModel model)
-        {
-            ViewBag.Funlist = Common.GetInActiveFunList();
-            bool data = true;
-            if (model.Message == "STM" || model.Message == "ADV" || model.Message == "PTM")
-            {
-                data = CoreAccountsService.InActiveVendorBill(model.RefNumber);
-            }
-            if (model.Message == "DTV" || model.Message == "TAD" || model.Message == "TST")
-            {
-                data = CoreAccountsService.InActiveTravelBill(model.RefNumber);
-            }
-            if (model.Message == "GVR")
-            {
-                data = CoreAccountsService.InActiveGVRBill(model.RefNumber);
-            }
-            if (model.Message == "CLP")
-            {
-                data = CoreAccountsService.InActiveCLPBill(model.RefNumber);
-            }
-            if (model.Message == "PTM")
-            {
-                data = CoreAccountsService.InActivePTPBill(model.RefNumber);
-            }
-            if (model.Message == "REM")
-            {
-                data = CoreAccountsService.InActiveREMBill(model.RefNumber);
-            }
-            if (model.Message == "PDT")
-            {
-                data = CoreAccountsService.InActivePDT(model.RefNumber);
-            }
-            if (model.Message == "PFT")
-            {
-                data = CoreAccountsService.InActivePFT(model.RefNumber);
-            }
-            if (model.Message == "FRM")
-            {
-                data = CoreAccountsService.InActiveFRMBill(model.RefNumber);
-            }
-            if (model.Message == "CTR")
-            {
-                data = CoreAccountsService.InActiveCTR(model.RefNumber);
-            }
-            if (model.Message == "OHAR")
-            {
-                data = CoreAccountsService.InActiveOHAddandRev(model.RefNumber);
-            }
-            if (model.Message == "PTP")
-            {
-                data = CoreAccountsService.InActivePTPBill(model.RefNumber);
-            }
-            TempData["errMsg"] = data == true ? "Success" : "Failed";
-            return View(model);
-        }
-        [HttpGet]
-        public JsonResult LoadAutoCompleteRefNumberList(string term, string type)
-        {
-            try
-            {
-                var data = Common.GetAutoCompleteReferenceNumber(term, type);
                 return Json(data, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -20311,7 +20471,6 @@ namespace IOAS.Controllers
             }
         }
         #endregion
-
         #region Pay in slip
         public ActionResult PayinslipList()
         {
@@ -20354,7 +20513,6 @@ namespace IOAS.Controllers
             }
         }
         #endregion
-
         #region CommonProjectSearchModelLoadRefernceNumber
         [HttpPost]
         public JsonResult GetCommonProjectSearch(string TypeCode, int RefId, bool inv_f = false, bool commit_f = false, bool project_f = false)
@@ -20363,7 +20521,6 @@ namespace IOAS.Controllers
             return Json(locationdata, JsonRequestBehavior.AllowGet);
         }
         #endregion
-
         #region Common
 
         [Authorized]
@@ -20403,7 +20560,6 @@ namespace IOAS.Controllers
             return Json(result, JsonRequestBehavior.AllowGet);
         }
         #endregion
-
         #region UTR
         public ActionResult UTR(int boaDraftId)
         {
@@ -20543,104 +20699,16 @@ namespace IOAS.Controllers
                 {
                     msg = "Please Upload Files in .xls or .xlsx format";
                 }
+                //if(path1!="")
+                //    System.IO.File.Delete(path1);
             }
             model.BOADraftId = boaDraftId;
             model.txDetail = list;
             if (list.Count > 0)
                 model = coreAccountService.VerifyUTR(model);
-            return Json(new { status = msg, data = model }, JsonRequestBehavior.AllowGet);
+           return Json(new { status = msg, data = model }, JsonRequestBehavior.AllowGet);
         }
         #endregion
-
-        #region Test
-        public JsonResult TestPass(int userid)
-        {
-            var Pass = "";
-            using (var context = new IOASDBEntities())
-            {
-                var userquery = context.tblUser.SingleOrDefault(dup => dup.UserId == userid && dup.Status == "Active");
-                if (userquery != null)
-                    Pass = userquery.Password;
-            }
-            string temppass = Cryptography.Decrypt(Pass, "LFPassW0rd");
-            return Json(temppass, JsonRequestBehavior.AllowGet);
-        }
-
-        public ActionResult DistributionICSROHPosting(int billId)
-        {
-            coreAccountService.DistributionICSROHPosting(billId);
-            return View();
-        }
-        //public ActionResult TestOus()
-        //{
-        //    coreAccountService.TestOus();
-        //    return View();
-        //}
-        public ActionResult PaymentTest()
-        {
-            //coreAccountService.BackendReceipt();
-            //    // coreAccountService.PaymentTestBOATransaction(5647, 1);
-            //coreAccountService.PaymentTestBOATransaction(6360, 1);
-            return View();
-
-
-        }
-        //public ActionResult BackEndPostingOHAR()
-        //{
-        //    if (coreAccountService.TestOverHeadsReversalBackEndPosting(25683))
-        //        return RedirectToAction("AdminVoucherList");
-        //    else
-        //        return RedirectToAction("GSTOffsetList");
-        //}
-        //public ActionResult BOABackendExpenditure()
-        //{
-        //    if (coreAccountService.BOABackendExpenditure())
-        //        return RedirectToAction("AdminVoucherList");
-        //    else
-        //        return RedirectToAction("GSTOffsetList");
-        //}
-        //public ActionResult PostMissedBatchItems(int draftId)
-        //{
-        //    if (coreAccountService.PaymentTestBOATransaction(draftId, 1))
-        //        return RedirectToAction("AdminVoucherList");
-        //    else
-        //        return RedirectToAction("GSTOffsetList");
-        //}
-        //public ActionResult BackEndPostingEXP()
-        //{
-        //    // bool PBAT=    coreAccountService.PaymentBOABETransaction();
-        //    bool DIS = coreAccountService.getDistributionBOABEmodeldetails();
-        //    //bool FRM = coreAccountService.getForeignRemittanceBOABEmodeldetails();
-        //    //bool PDT = coreAccountService.ApproveProjectTransferBE();
-        //    return RedirectToAction("AdminVoucherList");
-
-        //}
-        //public FileStreamResult TestCreditNote()
-        //{
-        //    try
-        //    {
-        //        List<OtherReceiptModel> ORmodel = new List<OtherReceiptModel>();
-        //        CoreAccountsService db = new CoreAccountsService();
-        //        DataTable dtResult = new DataTable();
-        //        ORmodel = db.TestCreditNote();
-        //        string json = Newtonsoft.Json.JsonConvert.SerializeObject(ORmodel);
-        //        dtResult = JsonConvert.DeserializeObject<DataTable>(json);
-        //        return db.toSpreadSheet(dtResult);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw ex;
-        //    }
-        //}
-
-        //public JsonResult TestPayment(int id)
-        //{
-        //    var temppass = coreAccountService.testBRSDelete(id);
-        //    return Json(temppass, JsonRequestBehavior.AllowGet);
-        //}
-
-        #endregion
-
         #region Journal Date
         [HttpGet]
         public ActionResult JournalBillDateChange()
@@ -20687,30 +20755,22 @@ namespace IOAS.Controllers
             }
         }
         #endregion
-
-
-        public JsonResult DOPExpPosting(string RefNo)
+        #region Test
+        
+        public JsonResult TestPass(int userid)
         {
-            var res = coreAccountService.DOPExpPosting(RefNo);
-            return Json(res, JsonRequestBehavior.AllowGet);
-        }
-        public ActionResult UploadBulkdatechange()
-        {
-            try
+            var Pass = "";
+            using (var context = new IOASDBEntities())
             {
-                int logged_in_user = Common.GetUserid(User.Identity.Name);
-                bool chckstaus = coreAccountService.UpdateBillDateBulk(logged_in_user);
-                bool chkrbm = coreAccountService.UploadReimbursBillDate(logged_in_user);
-                bool chkrecp = coreAccountService.UploadReceiptBillDate(logged_in_user);
-                bool chkibrrec = coreAccountService.UploadImprestRecoupBillDate(logged_in_user);
-                bool chkPDT = coreAccountService.UploadPDTBillDate(logged_in_user);
-                //bool chkhon = coreAccountService.UploadHonorBillDate(logged_in_user);
-                return View();
+                var userquery = context.tblUser.SingleOrDefault(dup => dup.UserId == userid && dup.Status == "Active");
+                if (userquery != null)
+                    Pass = userquery.Password;
             }
-            catch (Exception ex)
-            {
-                return View();
-            }
+            string temppass = Cryptography.Decrypt(Pass, "LFPassW0rd");
+            return Json(temppass, JsonRequestBehavior.AllowGet);
         }
+        
+        #endregion
+
     }
 }

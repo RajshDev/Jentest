@@ -649,9 +649,17 @@
         var isValid = $('#formHC').valid();
         if (!isValid)
             return false;
-
-        $('#formHC').submit();
+        if (isValid) {
+            $('#formHC').submit(function () {
+                var id = $(this).attr('Id');
+                $('button[type="submit"],input[type="submit"],#nextBtn,#btnSave').attr('disabled', 'true');
+            });
+            $('#formHC').submit();
+        }
     }
+    $('#formHC').submit(function () {
+        $('.loading-bg').removeClass('dis-none');
+    });
     function ValidateCommitment() {
         var msg = 'valid';
         var commitmentAmt = parseFloat($('#CommitmentAmount').val()) || 0;

@@ -418,12 +418,12 @@ namespace IOAS.Controllers
                         ViewBag.errMsg = "The enhanced sanction value is not equal to enhanced allocation value. Please check the values.";
                         return View(model);
                     }
-                    string errMsg = Common.ValidateEnhancementAndExtension(model);
-                    if (errMsg != "Valid")
-                    {
-                        ViewBag.errMsg = errMsg;
-                        return View(model);
-                    }
+                    //string errMsg = Common.ValidateEnhancementAndExtension(model);
+                    //if (errMsg != "Valid")
+                    //{
+                    //    ViewBag.errMsg = errMsg;
+                    //    return View(model);
+                    //}
                     var allowedExtensions = new[] { ".pdf", ".doc", ".docx", ".DOC", ".DOCX", ".PDF" };
 
                     if (file != null)

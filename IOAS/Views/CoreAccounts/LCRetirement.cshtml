@@ -636,7 +636,20 @@
             }
             isValid = true;
         }
-
+        if ($("#txtretireamtinforncurr").val() != "")
+        {
+            var amtinforgncurr = parseFloat($("#txtretireamtinforncurr").val()) || 0;
+            var lcdraftamt = parseFloat($('#txtlcdraftamt').val()) || 0;
+            var prevamtinforgncurr = parseFloat($('#txtprevRemittanceamtinforgncurr').val()) || 0;
+            var curramtinforgncurr = parseFloat($('#txtcurrRemittanceamtinforgncurr').val()) || 0;
+            var diffval = lcdraftamt - (prevamtinforgncurr + amtinforgncurr - curramtinforgncurr)
+            if (diffval <= 0) {
+                $("#alert").text('LC Retirement value cannot exceed the total LC Value');
+                $('#Validation').modal('show');
+                return false;
+            }
+            isValid = true;
+        }
         if (isValid)
             $('#formSI').submit();
     }

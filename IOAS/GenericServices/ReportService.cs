@@ -4389,7 +4389,7 @@ namespace IOAS.GenericServices
                     }
                     ////////Center ////////
                     List<OfficeMonthlyCenterListReportModel> CenterList = new List<OfficeMonthlyCenterListReportModel>();
-                    int[] Center = { 59, 62, 65, 72, 73, 79, 83, 85, 86, 87, 94, 109, 132, 135, 138, 145, 146, 152, 156, 158, 159, 160, 167, 180 };
+                    int[] Center = { 59, 62, 65, 72, 73, 79, 83, 85, 86, 87, 94, 109, 132, 135, 138, 145, 146, 152, 156, 158, 159, 160, 167, 180, 216 };
                     if (Center.Length > 0)
                     {
 
@@ -4522,7 +4522,7 @@ namespace IOAS.GenericServices
                             LbAmtforPrevMonth_B = String.Format("{0:0.00}", AmtforPrevMonth_B);
                         List.Add(new OfficeMonthlyListReportModel()
                         {
-                            DepartmentName = "AAR,ADM,NPT,TAP,CAT,CSH,ICW,IGC,SOL,STL,SHS,RBC",
+                            DepartmentName = "AAR,ADM,NPT,TAP,CAT,CSH,ICW,IGC,SOL,STL,SHS,RBC,GWC",
                             Type = Type,
                             NoOfProjCurMonth_A = CurrProj_A ?? 0,
                             NoOfProjPrevMonth_A = PrevProj_A ?? 0,
@@ -4700,7 +4700,8 @@ namespace IOAS.GenericServices
                     for (int a = 0; a < NonCenter.Count(); a++)
                     {
                         var DeptName = NonCenter[a].Head;
-                        int DeptCode = NonCenter[a].HeadId;                       
+                        int DeptCode = NonCenter[a].HeadId;
+                       
                         decimal TotalAmt_A = 0; decimal AmtforPrevMonth_A = 0; decimal AmtforCurMonth_A = 0; decimal receiptAmt = 0; decimal QryRecAMt = 0;
                         decimal TotalAmt_B = 0; decimal AmtforPrevMonth_B = 0; decimal AmtforCurMonth_B = 0;
                         //////A///////
@@ -4834,7 +4835,7 @@ namespace IOAS.GenericServices
                             LbAmtforPrevMonth_B = "*" + String.Format("{0:0.00}", AmtforPrevMonth_B);
                         else
                             LbAmtforPrevMonth_B = String.Format("{0:0.00}", AmtforPrevMonth_B);
-                        if (AmtforCurMonth_A > 0 || AmtforCurMonth_B > 0 || TotalAmt_A > 0 || TotalAmt_B > 0)
+                        if (AmtforCurMonth_A > 0 || AmtforCurMonth_B > 0 || TotalAmt_A > 0 || TotalAmt_B > 0|| receiptAmt!=0)
                         {
                             List.Add(new OfficeMonthlyListReportModel()
                             {
@@ -5045,6 +5046,9 @@ namespace IOAS.GenericServices
                     }
 
                     model.List = List;
+
+                    decimal checktoa = Math.Round((model.List.Sum(m => m.AmtforRecCurMonth) / 2), 2);
+
                 }
                 return model;
             }
