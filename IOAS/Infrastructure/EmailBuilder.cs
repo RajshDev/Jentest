@@ -101,16 +101,18 @@ namespace IOAS.Infrastructure
                 string mailpassword = WebConfigurationManager.AppSettings["fromMailPassword"];
                 string smtpAddress = WebConfigurationManager.AppSettings["smtpAddress"];
                 int portNumber = Convert.ToInt32(WebConfigurationManager.AppSettings["portNumber"]);
-                using (MailMessage mm = new MailMessage(mail, model.toMail))
+                using (MailMessage mm = new MailMessage(mail, "icsrit14@icsrpis.iitm.ac.in"))
                 {
                     // string url = HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority) + HttpContext.Current.Request.ApplicationPath + "/Account/Login";
                     mm.Subject = model.subject;
                     mm.Body = eBody;
                     mm.IsBodyHtml = true;
                     foreach (var cc in model.cc ?? new List<string>())
-                        mm.CC.Add(cc);
+                        if (!string.IsNullOrEmpty(cc))
+                            mm.CC.Add(cc);
                     foreach (var bc in model.bcc ?? new List<string>())
-                        mm.Bcc.Add(bc);
+                        if (!string.IsNullOrEmpty(bc))
+                            mm.Bcc.Add(bc);
                     foreach (var attach in model.attachment ?? new List<string>())
                         mm.Attachments.Add(new Attachment(attach));
                     if (model.attachmentByte != null)

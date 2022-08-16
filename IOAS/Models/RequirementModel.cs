@@ -721,7 +721,7 @@ namespace IOAS.Models
         public string SendSalaryStructure { get; set; }
         public Nullable<int> SalaryLevelId { get; set; }
         public Nullable<int> WfId { get; set; }
-
+        public string IITMExperience { get; set; }
     }
 
     public class STEEducationModel
@@ -1791,7 +1791,7 @@ namespace IOAS.Models
         public bool InitByPI_f { get; set; }
         public string PIRemarks { get; set; }
         public string PINoDuesRemarks { get; set; }
-
+        public string PIrequestedRelievingDate { get; set; }
     }
 
     public class StopaymentlosspayModel
@@ -2004,7 +2004,29 @@ namespace IOAS.Models
         public string RequestType { get; set; }
 
     }
-
+    public class RelivingOrderList
+    {
+        public Nullable<int> OrderId { get; set; }
+        public Nullable<int> ApplicationId { get; set; }
+        public Nullable<int> AppointmentType { get; set; }
+        public string Category { get; set; }
+        public string EmployeersID { get; set; }
+        public string ApplicationNo { get; set; }
+        public string CandidateName { get; set; }
+        public string PIName { get; set; }
+        public string Status { get; set; }
+        public string PostRecommended { get; set; }
+        public string RelievingType { get; set; }
+        public bool NOCDocSubmitted { get; set; }
+        public bool isGenarateRelieveOrder { get; set; }
+        public bool isGenarateFinalSettlement { get; set; }
+        public bool isGenarateServiceCertificate { get; set; }
+        public string ProjectNumber { get; set; }
+        public string TypeofAppointment { get; set; }
+        public Nullable<DateTime> DateofBirth { get; set; }
+        public string Email { get; set; }
+        public bool InitByPI_f { get; set; }
+    }
     public class OrderListModel
     {
         public int SNo { get; set; }

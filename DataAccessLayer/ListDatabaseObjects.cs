@@ -1938,7 +1938,7 @@ namespace DataAccessLayer
                     var command = new System.Data.SqlClient.SqlCommand();
                     command.Connection = connection;
                     command.CommandType = CommandType.Text;
-                    command.CommandText = "select BillNumber,ProjectNumber,ProjectType,CommitmentNumber,HeadName,AmountSpent,CommitmentDate as Date from vw_ProjectExpenditureReport where CommitmentDate >='" + Frm + "' and CommitmentDate <= '" + Todate + "' and AllocationHeadId in (5,7) and FunctionName!='Distribution' and Posted_f=1";
+                    command.CommandText = "select BillNumber,ProjectNumber,ProjectType,CommitmentNumber,HeadName,AmountSpent,CommitmentDate as Date from vw_ProjectExpenditureReport where CommitmentDate >='" + Frm + "' and CommitmentDate <= '" + Todate + "' and AllocationHeadId in (5,7) and Posted_f=1";
                     var adapter = new System.Data.SqlClient.SqlDataAdapter(command);
                     var dataset = new DataSet();
                     adapter.Fill(dataset);
@@ -3439,16 +3439,31 @@ namespace DataAccessLayer
         public DataSet getCashBook(string FromDate, string ToDate, int BankId)
         {
             var connection = getConnection();
-            SqlParameter[] ReportParam = new SqlParameter[3];
-            ReportParam[0] = new SqlParameter("@FromDate", SqlDbType.DateTime, 50);
-            ReportParam[0].Value = FromDate;
-            ReportParam[1] = new SqlParameter("@ToDate", SqlDbType.DateTime, 150);
-            ReportParam[1].Value = ToDate;
-            ReportParam[2] = new SqlParameter("@BankId", SqlDbType.Int, 150);
-            ReportParam[2].Value = BankId;
+            //SqlParameter[] ReportParam = new SqlParameter[3];
+            //ReportParam[0] = new SqlParameter("@FromDate", SqlDbType.DateTime, 50);
+            //ReportParam[0].Value = FromDate;
+            //ReportParam[1] = new SqlParameter("@ToDate", SqlDbType.DateTime, 150);
+            //ReportParam[1].Value = ToDate;
+            //ReportParam[2] = new SqlParameter("@BankId", SqlDbType.Int, 150);
+            //ReportParam[2].Value = BankId;
+
             try
             {
-                return SqlHelper.ExecuteDataset(connection, CommandType.StoredProcedure, "CashBook", ReportParam);
+                //return SqlHelper.ExecuteDataset(connection, CommandType.StoredProcedure, "CashBook", ReportParam);
+                DataSet ds = new DataSet();
+                using (SqlConnection conn = getConnection())
+                {
+                    SqlCommand sqlComm = new SqlCommand("CashBook", conn);
+                    sqlComm.Parameters.AddWithValue("@FromDate", FromDate);
+                    sqlComm.Parameters.AddWithValue("@ToDate", ToDate);
+                    sqlComm.Parameters.AddWithValue("@BankId", BankId);
+                    sqlComm.CommandType = CommandType.StoredProcedure;
+                    sqlComm.CommandTimeout = 2000;
+                    SqlDataAdapter da = new SqlDataAdapter();
+                    da.SelectCommand = sqlComm;
+                    da.Fill(ds);
+                    return ds;
+                }
             }
             catch (Exception ex)
             {

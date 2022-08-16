@@ -1278,7 +1278,7 @@ namespace IOAS.GenericServices
                                        PGU.StartApprover_level,
                                        WF.ApproverId,
                                        WF.ApproverLevel,
-                                       PGH.FunctionId
+                                       PT.FunctionId
                                    }).ToList();
 
                     var ProcessSeqNumber = (from PTD in context.tblProcessTransactionDetail
@@ -1407,6 +1407,7 @@ namespace IOAS.GenericServices
 
                     if (records != null && records.Count > 0)
                     {
+                        
                         model.ProcessTransactionId = Convert.ToInt32(records[0].ProcessTransactionId);
                         model.ProcessGuidelineDetailId = records[0].ProcessGuidelineDetailId;
                         model.InitiatedUserId = this._userId;
@@ -1418,7 +1419,12 @@ namespace IOAS.GenericServices
                         model.RefId = this._refId;
                         model.RefTable = "";
                         model.RefFieldName = this._refFieldName;
-                        funcId = Convert.ToInt32(records[0].FunctionId);
+                        if (model.ProcessTransactionId > 0)
+                        {
+                            
+                            funcId = context.tblProcessTransaction.Where(x => x.ProcessTransactionId == model.ProcessTransactionId).Select(x => x.FunctionId).FirstOrDefault()??0;
+                            //funcId = Convert.ToInt32(records[0].FunctionId);
+                        }
                     }
 
                 }
@@ -1523,7 +1529,12 @@ namespace IOAS.GenericServices
                         model.RefId = this._refId;
                         model.RefTable = "";
                         model.RefFieldName = this._refFieldName;
-                        funcId = Convert.ToInt32(records[0].FunctionId);
+                        if (model.ProcessTransactionId > 0)
+                        {
+
+                            funcId = context.tblProcessTransaction.Where(x => x.ProcessTransactionId == model.ProcessTransactionId).Select(x => x.FunctionId).FirstOrDefault() ?? 0;
+                            //funcId = Convert.ToInt32(records[0].FunctionId);
+                        }
                     }
 
                 }

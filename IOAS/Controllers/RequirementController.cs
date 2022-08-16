@@ -23,6 +23,10 @@ namespace IOAS.Controllers
     public class RequirementController : Controller
     {
         private static readonly Object lockObj = new Object();
+        private static readonly Object lockCommitCloserequestObj = new Object();
+        private static readonly Object lockCommitAddrequestObj = new Object();
+        private static readonly Object lockCommitbookrequestObj = new Object();
+        private static readonly Object lockCommitrejectrequestObj = new Object();
         ErrorHandler WriteLog = new ErrorHandler();
         RequirementService recruitmentService = new RequirementService();
         Utility _uty = new Utility();
@@ -1847,6 +1851,7 @@ namespace IOAS.Controllers
                     var curr = DateTime.Now.Date;
                     return context.tblRCTSTE.Any(m => m.STEID == STEID && m.AppointmentStartdate <= curr && m.AppointmentEnddate >= curr);
                 }
+               
             }
             catch (Exception ex)
             {
@@ -2045,6 +2050,8 @@ namespace IOAS.Controllers
         {
             try
             {
+                if(orderid== 5006||orderid== 8892)
+                    return "Valid";
                 if (backdate_f == true)
                     return "Valid";
 
@@ -2548,7 +2555,7 @@ namespace IOAS.Controllers
         }
 
         [HttpPost]
-        public JsonResult GetEmployeeList(SearchEmployeeModel model, int pageIndex, int pageSize, DateFilterModel DateOfBirth, DateFilterModel DateOfJoining)
+        public JsonResult GetEmployeeList(SearchEmployeeModel model, int pageIndex, int pageSize, DateFilterModel strDateofBirth, DateFilterModel strDateofJoining)
         {
             try
             {
@@ -2556,7 +2563,7 @@ namespace IOAS.Controllers
                 var user = Common.getUserIdAndRole(username);
                 int userid = user.Item1;
                 int roleid = user.Item2;
-                object output = recruitmentService.GetEmployeeList(model, pageIndex, pageSize, DateOfBirth, DateOfJoining, userid, roleid);
+                object output = recruitmentService.GetEmployeeList(model, pageIndex, pageSize, strDateofBirth, strDateofJoining, userid, roleid);
                 return Json(output, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -4370,20 +4377,25 @@ namespace IOAS.Controllers
                     {
                         var appointmenttype = RequirementService.getAppointmentType(model.TypeCode);
                         string[] notexpstatus = new string[] { "Rejected", "Canceled", "Cancel" };
-                        if (context.tblOrder.Any(m => m.AppointmentId == model.ApplicationID && m.AppointmentType == appointmenttype && m.OrderType == 10))
+                        if (model.Status != "PI Initiated")
                         {
-                            var query = (from o in context.tblOrder
-                                         from od in context.tblOrderDetail
-                                         where o.OrderId == od.OrderId && o.AppointmentId == model.ApplicationID
-                                         && o.AppointmentType == appointmenttype
-                                         && !notexpstatus.Contains(o.Status) && o.OrderType == 10
-                                         && ((od.RejoinDate == null || od.RejoinDate < model.FromDate) && (od.RejoinDate != null || o.ToDate < model.FromDate))
-                                         orderby o.OrderId descending
-                                         select o).FirstOrDefault();
-                            if (query == null)
-                                msg = msg == "Valid" ? "Maternity leave already available for this tenure." : msg + "<br /> Maternity leave already available for this tenure.";
-                        }
+                            if (context.tblOrder.Any(m => m.AppointmentId == model.ApplicationID && m.AppointmentType == appointmenttype && m.OrderType == 10))
+                            {
 
+                                var query = (from o in context.tblOrder
+                                             from od in context.tblOrderDetail
+                                             where o.OrderId == od.OrderId && o.AppointmentId == model.ApplicationID
+                                             && o.AppointmentType == appointmenttype
+                                             && !notexpstatus.Contains(o.Status) && o.OrderType == 10
+                                             && ((od.RejoinDate == null || od.RejoinDate < model.FromDate) && (od.RejoinDate != null || o.ToDate < model.FromDate))
+                                             orderby o.OrderId descending
+                                             select o).FirstOrDefault();
+
+                                if (query == null)
+                                    msg = msg == "Valid" ? "Maternity leave already available for this tenure." : msg + "<br /> Maternity leave already available for this tenure.";
+
+                            }
+                        }
                         int?[] exceptedType = new int?[] { 1, 2, 3 };
                         if (context.tblOrder.Any(m => m.AppointmentId == model.ApplicationID && m.AppointmentType == appointmenttype && exceptedType.Contains(m.OrderType) && !notexpstatus.Contains(m.Status) && m.isUpdated != true && (m.FromDate <= model.ToDate/* || m.FromDate <= model.FromDate*/)))
                             msg = msg == "Valid" ? "Maternity leave only for the current tenure." : msg + "<br /> Maternity leave only for the current tenure.";
@@ -4437,7 +4449,8 @@ namespace IOAS.Controllers
 
                         if (context.tblOrder.Any(m => m.Status == "Open" && m.OrderType == 10 && m.AppointmentType == appointmenttype && m.AppointmentId == appid))
                             return "Valid";
-
+                        if (context.tblOrder.Any(m => m.Status == "PI Initiated" && m.OrderType == 10 && m.AppointmentType == appointmenttype && m.AppointmentId == appid))
+                            return "Valid";
                         if (context.tblOrder.Any(m => m.Status == "Initiated" && m.OrderType == 10 && m.AppointmentType == appointmenttype && m.AppointmentId == appid && m.Is_Clarify == true))
                             return "Valid";
 
@@ -5052,83 +5065,94 @@ namespace IOAS.Controllers
         {
             try
             {
-                CommitmentModel commit = new CommitmentModel();
-                ViewBag.IITMPensionerOrCSIRStaff = Common.GetCodeControlList("IITMPensioner/CSIRStaff");
-                ViewBag.Medical = Common.GetCodeControlList("SETMedical");
-                var username = User.Identity.Name;
-                int userid = Common.GetUserid(username);
-                //model = recruitmentService.GetRecruitBookCommitDetails(Id);
-                ProjSummaryModel psModel = new ProjSummaryModel();
-                //ProjectSummaryModel psModel = new ProjectSummaryModel();
-                ProjectService pro = new ProjectService();
-                var ProjectId = model.ProjectId ?? 0;
-                if (ProjectId > 0)
+                lock (lockCommitbookrequestObj)
                 {
-                    ViewBag.AllocationHead = Common.getAllocationHeadBasedOnProject(ProjectId);
-                    psModel.Detail = pro.getProjectSummaryDetails(ProjectId);
-                    psModel.Summary = pro.getProjectSummary(ProjectId);
-                    psModel.Common = Common.GetProjectsDetails(ProjectId);
-                    psModel.ProjectStartDate = string.Format("{0:dd-MMM-yyyy}", psModel.Common.SancationDate);
-                    psModel.ProjectCloseDate = string.Format("{0:dd-MMM-yyyy}", psModel.Common.CloseDate);
-                    psModel.ProjId = ProjectId;
-                    psModel.DistributionAmount = Common.GetDistribuAmount(ProjectId);
-                    psModel.ExpAmt = psModel.Summary.AmountSpent;
-                    model.Projsummary = psModel;
-                }
-                commit.commitmentValue = model.CommitReqModel.CommitmentAmount ?? 0;
-                commit.selAllocationHead = model.CommitReqModel.AllocationHeadId ?? 0;
-                commit.Remarks = model.CommitReqModel.Remarks;
-                commit.SelProjectNumber = model.ProjectId ?? 0;
-                commit.AllocationValue = model.CommitReqModel.CommitmentAmount ?? 0;
-                commit.selCommitmentType = 1;
-                var basicpayandmedical = Common.getbasicpay(model.CommitReqModel.ReferenceNumber, model.CommitReqModel.AppointmentTypeCode);
-                commit.BasicPay = basicpayandmedical.Item1;
-                commit.MedicalAllowance = basicpayandmedical.Item2;
-                commit.StartDate = basicpayandmedical.Item3;
-                commit.CloseDate = basicpayandmedical.Item4;
-
-                AccountService _AS = new AccountService();
-                var commitmentId = _AS.SaveCommitDetails(commit, userid, true);
-                if (commitmentId.Item1 > 1)
-                {
-                    var comitreqid = 0;
-                    if (model.CommitReqModel.ApplicationType == "Change of Project" || model.CommitReqModel.ApplicationType == "Enhancement" || model.CommitReqModel.ApplicationType == "Extension")
+                    bool isValidRequest = Common.CheckRCTCommitmentRequest(model.CommitReqModel.CommitmentRequestId);
+                    if (isValidRequest)
                     {
-                        comitreqid = recruitmentService.UpdateNewCommitDetails(model, commitmentId.Item1, userid);
+                        CommitmentModel commit = new CommitmentModel();
+                        ViewBag.IITMPensionerOrCSIRStaff = Common.GetCodeControlList("IITMPensioner/CSIRStaff");
+                        ViewBag.Medical = Common.GetCodeControlList("SETMedical");
+                        var username = User.Identity.Name;
+                        int userid = Common.GetUserid(username);
+                        //model = recruitmentService.GetRecruitBookCommitDetails(Id);
+                        ProjSummaryModel psModel = new ProjSummaryModel();
+                        //ProjectSummaryModel psModel = new ProjectSummaryModel();
+                        ProjectService pro = new ProjectService();
+                        var ProjectId = model.ProjectId ?? 0;
+                        if (ProjectId > 0)
+                        {
+                            ViewBag.AllocationHead = Common.getAllocationHeadBasedOnProject(ProjectId);
+                            psModel.Detail = pro.getProjectSummaryDetails(ProjectId);
+                            psModel.Summary = pro.getProjectSummary(ProjectId);
+                            psModel.Common = Common.GetProjectsDetails(ProjectId);
+                            psModel.ProjectStartDate = string.Format("{0:dd-MMM-yyyy}", psModel.Common.SancationDate);
+                            psModel.ProjectCloseDate = string.Format("{0:dd-MMM-yyyy}", psModel.Common.CloseDate);
+                            psModel.ProjId = ProjectId;
+                            psModel.DistributionAmount = Common.GetDistribuAmount(ProjectId);
+                            psModel.ExpAmt = psModel.Summary.AmountSpent;
+                            model.Projsummary = psModel;
+                        }
+                        commit.commitmentValue = model.CommitReqModel.CommitmentAmount ?? 0;
+                        commit.selAllocationHead = model.CommitReqModel.AllocationHeadId ?? 0;
+                        commit.Remarks = model.CommitReqModel.Remarks;
+                        commit.SelProjectNumber = model.ProjectId ?? 0;
+                        commit.AllocationValue = model.CommitReqModel.CommitmentAmount ?? 0;
+                        commit.selCommitmentType = 1;
+                        var basicpayandmedical = Common.getbasicpay(model.CommitReqModel.ReferenceNumber, model.CommitReqModel.AppointmentTypeCode);
+                        commit.BasicPay = basicpayandmedical.Item1;
+                        commit.MedicalAllowance = basicpayandmedical.Item2;
+                        commit.StartDate = basicpayandmedical.Item3;
+                        commit.CloseDate = basicpayandmedical.Item4;
+
+                        AccountService _AS = new AccountService();
+                        var commitmentId = _AS.SaveCommitDetails(commit, userid, true);
+                        if (commitmentId.Item1 > 1)
+                        {
+                            var comitreqid = 0;
+                            if (model.CommitReqModel.ApplicationType == "Change of Project" || model.CommitReqModel.ApplicationType == "Enhancement" || model.CommitReqModel.ApplicationType == "Extension")
+                            {
+                                comitreqid = recruitmentService.UpdateNewCommitDetails(model, commitmentId.Item1, userid);
+                            }
+                            else
+                            {
+                                comitreqid = recruitmentService.UpdateCommitDetails(model, commitmentId.Item1, userid);
+                            }
+
+                            if (comitreqid > 0)
+                            {
+                                TempData["succMsg"] = "Commitment booked successfully.";
+                                return RedirectToAction("RecruitmentCommitmentRequestList", "Requirement");
+                            }
+                            else
+                            {
+                                TempData["errMsg"] = "Commitment booked but something went wrong in data updation. Please contact administrator";
+                                return RedirectToAction("RecruitmentCommitmentRequestList", "Requirement");
+                            }
+                        }
+                        else
+                        {
+                            model = recruitmentService.GetRecruitBookCommitDetails(model.CommitReqModel.CommitmentRequestId, model.CommitReqModel.ApplicationType);
+                            psModel.Detail = pro.getProjectSummaryDetails(ProjectId);
+                            psModel.Summary = pro.getProjectSummary(ProjectId);
+                            psModel.Common = Common.GetProjectsDetails(ProjectId);
+                            psModel.ProjectStartDate = string.Format("{0:dd-MMM-yyyy}", psModel.Common.SancationDate);
+                            psModel.ProjectCloseDate = string.Format("{0:dd-MMM-yyyy}", psModel.Common.CloseDate);
+                            psModel.ProjId = ProjectId;
+                            psModel.DistributionAmount = Common.GetDistribuAmount(ProjectId);
+                            psModel.ExpAmt = psModel.Summary.AmountSpent;
+                            model.Projsummary = psModel;
+
+                            TempData["errMsg"] = commitmentId.Item2;
+                            return View(model);
+                        }
                     }
                     else
                     {
-                        comitreqid = recruitmentService.UpdateCommitDetails(model, commitmentId.Item1, userid);
-                    }
-
-                    if (comitreqid > 0)
-                    {
-                        TempData["succMsg"] = "Commitment booked successfully.";
-                        return RedirectToAction("RecruitmentCommitmentRequestList", "Requirement");
-                    }
-                    else
-                    {
-                        TempData["errMsg"] = "Commitment booked but something went wrong in data updation. Please contact administrator";
+                        TempData["errMsg"] = "This Request already Booked are not Vaild booking Request.";
                         return RedirectToAction("RecruitmentCommitmentRequestList", "Requirement");
                     }
                 }
-                else
-                {
-                    model = recruitmentService.GetRecruitBookCommitDetails(model.CommitReqModel.CommitmentRequestId, model.CommitReqModel.ApplicationType);
-                    psModel.Detail = pro.getProjectSummaryDetails(ProjectId);
-                    psModel.Summary = pro.getProjectSummary(ProjectId);
-                    psModel.Common = Common.GetProjectsDetails(ProjectId);
-                    psModel.ProjectStartDate = string.Format("{0:dd-MMM-yyyy}", psModel.Common.SancationDate);
-                    psModel.ProjectCloseDate = string.Format("{0:dd-MMM-yyyy}", psModel.Common.CloseDate);
-                    psModel.ProjId = ProjectId;
-                    psModel.DistributionAmount = Common.GetDistribuAmount(ProjectId);
-                    psModel.ExpAmt = psModel.Summary.AmountSpent;
-                    model.Projsummary = psModel;
-
-                    TempData["errMsg"] = commitmentId.Item2;
-                    return View(model);
-                }
-
             }
             catch (Exception ex)
             {
@@ -5234,84 +5258,96 @@ namespace IOAS.Controllers
         {
             try
             {
-                CommitmentResultModel commit = new CommitmentResultModel();
-                ViewBag.IITMPensionerOrCSIRStaff = Common.GetCodeControlList("IITMPensioner/CSIRStaff");
-                ViewBag.Medical = Common.GetCodeControlList("SETMedical");
-                ViewBag.Reason = Common.GetCommitmentAction();
-                var username = User.Identity.Name;
-                int userid = Common.GetUserid(username);
-
-                //model = recruitmentService.GetRecruitBookCommitDetails(Id);
-                ProjSummaryModel psModel = new ProjSummaryModel();
-                //ProjectSummaryModel psModel = new ProjectSummaryModel();
-                ProjectService pro = new ProjectService();
-                var ProjectId = model.ProjectId ?? 0;
-                if (ProjectId > 0)
+                lock(lockCommitAddrequestObj)
                 {
-                    ViewBag.AllocationHead = Common.getAllocationHeadBasedOnProject(ProjectId);
-                    psModel.Detail = pro.getProjectSummaryDetails(ProjectId);
-                    psModel.Summary = pro.getProjectSummary(ProjectId);
-                    psModel.Common = Common.GetProjectsDetails(ProjectId);
-                    psModel.ProjectStartDate = string.Format("{0:dd-MMM-yyyy}", psModel.Common.SancationDate);
-                    psModel.ProjectCloseDate = string.Format("{0:dd-MMM-yyyy}", psModel.Common.CloseDate);
-                    psModel.ProjId = ProjectId;
-                    psModel.DistributionAmount = Common.GetDistribuAmount(ProjectId);
-                    psModel.ExpAmt = psModel.Summary.AmountSpent;
-                    model.Projsummary = psModel;
-                }
-                commit.LogTypeId = 1;
-                commit.ComitmentId = model.CommitReqModel.CommitmentId ?? 0;
-                commit.strRemarks = model.CommitReqModel.Remarks;
-                commit.AddCloseAmt = model.CommitReqModel.AddCommitmentAmount ?? 0;
-                commit.ProjectId = ProjectId;
-                commit.Reason = model.CommitReqModel.Reason;
-                commit.AllHeadId = model.CommitReqModel.AllocationHeadId ?? 0;
-                //commit.selAllocationHead = model.CommitReqModel.AllocationHeadId ?? 0;
-                commit.Remarks = model.CommitReqModel.Remarks;
-                //commit.SelProjectNumber = model.ProjectId ?? 0;
-                //commit.AllocationValue = model.CommitReqModel.CommitmentAmount ?? 0;
-                //commit.selCommitmentType = 1;
-                //var basicpayandmedical = Common.getbasicpay(model.CommitReqModel.ReferenceNumber, model.CommitReqModel.AppointmentTypeCode);
-                //commit.BasicPay = basicpayandmedical.Item1;
-                //commit.MedicalAllowance = basicpayandmedical.Item2;
-                //commit.StartDate = basicpayandmedical.Item3;
-                //commit.CloseDate = basicpayandmedical.Item4;
-                int commitmentid = model.CommitReqModel.CommitmentId ?? 0;
-                if (commit.LogTypeId == 1 && Common.IsInUcCommitment(commitmentid))
-                {
-                    TempData["errMsg"] = "You can't add any addition value to this commitment. Becouse this commitment treated as expenditure in UC.";
-                    return RedirectToAction("RecruitmentCommitmentRequestList");
-                }
-                AccountService _AS = new AccountService();
-                var result = AccountService.CloseThisCommitment(commit, userid);
-                if (result == 1)
-                {
-                    var comitreqid = recruitmentService.UpdateAddCommitDetails(model, commitmentid, userid);
-                    if (comitreqid > 0)
+                    bool isValidRequest = Common.CheckRCTCommitmentRequest(model.CommitReqModel.CommitmentRequestId);
+                    if (isValidRequest)
                     {
-                        TempData["succMsg"] = "Commitment amount added successfully.";
-                        return RedirectToAction("RecruitmentCommitmentRequestList", "Requirement");
+                        CommitmentResultModel commit = new CommitmentResultModel();
+                        ViewBag.IITMPensionerOrCSIRStaff = Common.GetCodeControlList("IITMPensioner/CSIRStaff");
+                        ViewBag.Medical = Common.GetCodeControlList("SETMedical");
+                        ViewBag.Reason = Common.GetCommitmentAction();
+                        var username = User.Identity.Name;
+                        int userid = Common.GetUserid(username);
+
+                        //model = recruitmentService.GetRecruitBookCommitDetails(Id);
+                        ProjSummaryModel psModel = new ProjSummaryModel();
+                        //ProjectSummaryModel psModel = new ProjectSummaryModel();
+                        ProjectService pro = new ProjectService();
+                        var ProjectId = model.ProjectId ?? 0;
+                        if (ProjectId > 0)
+                        {
+                            ViewBag.AllocationHead = Common.getAllocationHeadBasedOnProject(ProjectId);
+                            psModel.Detail = pro.getProjectSummaryDetails(ProjectId);
+                            psModel.Summary = pro.getProjectSummary(ProjectId);
+                            psModel.Common = Common.GetProjectsDetails(ProjectId);
+                            psModel.ProjectStartDate = string.Format("{0:dd-MMM-yyyy}", psModel.Common.SancationDate);
+                            psModel.ProjectCloseDate = string.Format("{0:dd-MMM-yyyy}", psModel.Common.CloseDate);
+                            psModel.ProjId = ProjectId;
+                            psModel.DistributionAmount = Common.GetDistribuAmount(ProjectId);
+                            psModel.ExpAmt = psModel.Summary.AmountSpent;
+                            model.Projsummary = psModel;
+                        }
+                        commit.LogTypeId = 1;
+                        commit.ComitmentId = model.CommitReqModel.CommitmentId ?? 0;
+                        commit.strRemarks = model.CommitReqModel.Remarks;
+                        commit.AddCloseAmt = model.CommitReqModel.AddCommitmentAmount ?? 0;
+                        commit.ProjectId = ProjectId;
+                        commit.Reason = model.CommitReqModel.Reason;
+                        commit.AllHeadId = model.CommitReqModel.AllocationHeadId ?? 0;
+                        //commit.selAllocationHead = model.CommitReqModel.AllocationHeadId ?? 0;
+                        commit.Remarks = model.CommitReqModel.Remarks;
+                        //commit.SelProjectNumber = model.ProjectId ?? 0;
+                        //commit.AllocationValue = model.CommitReqModel.CommitmentAmount ?? 0;
+                        //commit.selCommitmentType = 1;
+                        //var basicpayandmedical = Common.getbasicpay(model.CommitReqModel.ReferenceNumber, model.CommitReqModel.AppointmentTypeCode);
+                        //commit.BasicPay = basicpayandmedical.Item1;
+                        //commit.MedicalAllowance = basicpayandmedical.Item2;
+                        //commit.StartDate = basicpayandmedical.Item3;
+                        //commit.CloseDate = basicpayandmedical.Item4;
+                        int commitmentid = model.CommitReqModel.CommitmentId ?? 0;
+                        if (commit.LogTypeId == 1 && Common.IsInUcCommitment(commitmentid))
+                        {
+                            TempData["errMsg"] = "You can't add any addition value to this commitment. Becouse this commitment treated as expenditure in UC.";
+                            return RedirectToAction("RecruitmentCommitmentRequestList");
+                        }
+                        AccountService _AS = new AccountService();
+                        var result = AccountService.CloseThisCommitment(commit, userid);
+                        if (result == 1)
+                        {
+                            var comitreqid = recruitmentService.UpdateAddCommitDetails(model, commitmentid, userid);
+                            if (comitreqid > 0)
+                            {
+                                TempData["succMsg"] = "Commitment amount added successfully.";
+                                return RedirectToAction("RecruitmentCommitmentRequestList", "Requirement");
+                            }
+                            else
+                            {
+                                TempData["errMsg"] = "Commitment amount added successfully but something went wrong in data updation. Please contact administrator";
+                                return RedirectToAction("RecruitmentCommitmentRequestList", "Requirement");
+                            }
+                        }
+                        else
+                        {
+                            model = recruitmentService.GetRecruitBookCommitDetails(model.CommitReqModel.CommitmentRequestId);
+                            psModel.Detail = pro.getProjectSummaryDetails(ProjectId);
+                            psModel.Summary = pro.getProjectSummary(ProjectId);
+                            psModel.Common = Common.GetProjectsDetails(ProjectId);
+                            psModel.ProjectStartDate = string.Format("{0:dd-MMM-yyyy}", psModel.Common.SancationDate);
+                            psModel.ProjectCloseDate = string.Format("{0:dd-MMM-yyyy}", psModel.Common.CloseDate);
+                            psModel.ProjId = ProjectId;
+                            psModel.DistributionAmount = Common.GetDistribuAmount(ProjectId);
+                            psModel.ExpAmt = psModel.Summary.AmountSpent;
+                            model.Projsummary = psModel;
+                            TempData["errMsg"] = "Commitment amount not updated. Please try again or contact administrator.";
+                            return View(model);
+                        }
                     }
                     else
                     {
-                        TempData["errMsg"] = "Commitment amount added successfully but something went wrong in data updation. Please contact administrator";
+                        TempData["errMsg"] = "This Request already Booked are not Vaild booking Request";
                         return RedirectToAction("RecruitmentCommitmentRequestList", "Requirement");
                     }
-                }
-                else
-                {
-                    model = recruitmentService.GetRecruitBookCommitDetails(model.CommitReqModel.CommitmentRequestId);
-                    psModel.Detail = pro.getProjectSummaryDetails(ProjectId);
-                    psModel.Summary = pro.getProjectSummary(ProjectId);
-                    psModel.Common = Common.GetProjectsDetails(ProjectId);
-                    psModel.ProjectStartDate = string.Format("{0:dd-MMM-yyyy}", psModel.Common.SancationDate);
-                    psModel.ProjectCloseDate = string.Format("{0:dd-MMM-yyyy}", psModel.Common.CloseDate);
-                    psModel.ProjId = ProjectId;
-                    psModel.DistributionAmount = Common.GetDistribuAmount(ProjectId);
-                    psModel.ExpAmt = psModel.Summary.AmountSpent;
-                    model.Projsummary = psModel;
-                    TempData["errMsg"] = "Commitment amount not updated. Please try again or contact administrator.";
-                    return View(model);
                 }
             }
             catch (Exception ex)
@@ -5373,100 +5409,110 @@ namespace IOAS.Controllers
         {
             try
             {
-                CommitmentResultModel commit = new CommitmentResultModel();
-                ViewBag.IITMPensionerOrCSIRStaff = Common.GetCodeControlList("IITMPensioner/CSIRStaff");
-                ViewBag.Medical = Common.GetCodeControlList("SETMedical");
-                ViewBag.Reason = Common.GetCommitmentAction();
-                var username = User.Identity.Name;
-                int userid = Common.GetUserid(username);
-                //model = recruitmentService.GetRecruitBookCommitDetails(Id);
-                ProjSummaryModel psModel = new ProjSummaryModel();
-                //ProjectSummaryModel psModel = new ProjectSummaryModel();
-                ProjectService pro = new ProjectService();
-                var ProjectId = model.ProjectId ?? 0;
-                if (ProjectId > 0)
+                lock (lockCommitCloserequestObj) { 
+                    bool isValidRequest = Common.CheckRCTCommitmentRequest(model.CommitReqModel.CommitmentRequestId);
+                if (isValidRequest)
                 {
-                    ViewBag.AllocationHead = Common.getAllocationHeadBasedOnProject(ProjectId);
-                    psModel.Detail = pro.getProjectSummaryDetails(ProjectId);
-                    psModel.Summary = pro.getProjectSummary(ProjectId);
-                    psModel.Common = Common.GetProjectsDetails(ProjectId);
-                    psModel.ProjectStartDate = string.Format("{0:dd-MMM-yyyy}", psModel.Common.SancationDate);
-                    psModel.ProjectCloseDate = string.Format("{0:dd-MMM-yyyy}", psModel.Common.CloseDate);
-                    psModel.ProjId = ProjectId;
-                    psModel.DistributionAmount = Common.GetDistribuAmount(ProjectId);
-                    psModel.ExpAmt = psModel.Summary.AmountSpent;
-                    model.Projsummary = psModel;
-                }
-                using (var context = new IOASDBEntities())
-                {
-                    commit.LogTypeId = 2;
-                    var comitrquestid = model.CommitReqModel.CommitmentRequestId;
-                    var commitrequest = (from prj in context.tblRCTCommitmentRequest
-                                         where prj.RecruitmentRequestId == comitrquestid
-                                         select prj).FirstOrDefault();
-                    if (commitrequest != null)
+                    CommitmentResultModel commit = new CommitmentResultModel();
+                    ViewBag.IITMPensionerOrCSIRStaff = Common.GetCodeControlList("IITMPensioner/CSIRStaff");
+                    ViewBag.Medical = Common.GetCodeControlList("SETMedical");
+                    ViewBag.Reason = Common.GetCommitmentAction();
+                    var username = User.Identity.Name;
+                    int userid = Common.GetUserid(username);
+                    //model = recruitmentService.GetRecruitBookCommitDetails(Id);
+                    ProjSummaryModel psModel = new ProjSummaryModel();
+                    //ProjectSummaryModel psModel = new ProjectSummaryModel();
+                    ProjectService pro = new ProjectService();
+                    var ProjectId = model.ProjectId ?? 0;
+                    if (ProjectId > 0)
                     {
-                        if (commitrequest.AppointmentType.Contains("Change of Project"))
-                            commit.LogTypeId = 3;
-                        else if (commitrequest.AppointmentType.Contains("Relieving"))
-                            commit.LogTypeId = 3;
+                        ViewBag.AllocationHead = Common.getAllocationHeadBasedOnProject(ProjectId);
+                        psModel.Detail = pro.getProjectSummaryDetails(ProjectId);
+                        psModel.Summary = pro.getProjectSummary(ProjectId);
+                        psModel.Common = Common.GetProjectsDetails(ProjectId);
+                        psModel.ProjectStartDate = string.Format("{0:dd-MMM-yyyy}", psModel.Common.SancationDate);
+                        psModel.ProjectCloseDate = string.Format("{0:dd-MMM-yyyy}", psModel.Common.CloseDate);
+                        psModel.ProjId = ProjectId;
+                        psModel.DistributionAmount = Common.GetDistribuAmount(ProjectId);
+                        psModel.ExpAmt = psModel.Summary.AmountSpent;
+                        model.Projsummary = psModel;
                     }
-                }
-                commit.ComitmentId = model.CommitReqModel.CommitmentId ?? 0;
-                commit.strRemarks = model.CommitReqModel.Remarks;
-                commit.AddCloseAmt = model.CommitReqModel.AddCommitmentAmount ?? 0;
-                commit.ProjectId = ProjectId;
-                commit.Reason = model.CommitReqModel.Reason;
-                commit.AllHeadId = model.CommitReqModel.AllocationHeadId ?? 0;
-                //commit.selAllocationHead = model.CommitReqModel.AllocationHeadId ?? 0;
-                commit.Remarks = model.CommitReqModel.Remarks;
-                //commit.SelProjectNumber = model.ProjectId ?? 0;
-                //commit.AllocationValue = model.CommitReqModel.CommitmentAmount ?? 0;
-                //commit.selCommitmentType = 1;
-                //var basicpayandmedical = Common.getbasicpay(model.CommitReqModel.ReferenceNumber, model.CommitReqModel.AppointmentTypeCode);
-                //commit.BasicPay = basicpayandmedical.Item1;
-                //commit.MedicalAllowance = basicpayandmedical.Item2;
-                //commit.StartDate = basicpayandmedical.Item3;
-                //commit.CloseDate = basicpayandmedical.Item4;
-                int commitmentid = model.CommitReqModel.CommitmentId ?? 0;
-                if (model.CommitReqModel.LogTypeId == 1 && Common.IsInUcCommitment(commitmentid))
-                {
-                    TempData["errMsg"] = "You can't add any addition value to this commitment. Becouse this commitment treated as expenditure in UC.";
-                    return RedirectToAction("RecruitmentCommitmentRequestList");
-                }
-                AccountService _AS = new AccountService();
-                var result = AccountService.CloseThisCommitment(commit, userid);
-                if (result == 1)
-                {
-                    var comitreqid = recruitmentService.UpdateCloseCommitDetails(model, commitmentid, userid);
-                    if (comitreqid > 0)
+                    using (var context = new IOASDBEntities())
                     {
-                        TempData["succMsg"] = "Commitment amount withdrawn successfully.";
-                        return RedirectToAction("RecruitmentCommitmentRequestList", "Requirement");
+                        commit.LogTypeId = 2;
+                        var comitrquestid = model.CommitReqModel.CommitmentRequestId;
+                        var commitrequest = (from prj in context.tblRCTCommitmentRequest
+                                             where prj.RecruitmentRequestId == comitrquestid
+                                             select prj).FirstOrDefault();
+                        if (commitrequest != null)
+                        {
+                            if (commitrequest.AppointmentType.Contains("Change of Project"))
+                                commit.LogTypeId = 3;
+                            else if (commitrequest.AppointmentType.Contains("Relieving"))
+                                commit.LogTypeId = 3;
+                        }
+                    }
+                    commit.ComitmentId = model.CommitReqModel.CommitmentId ?? 0;
+                    commit.strRemarks = model.CommitReqModel.Remarks;
+                    commit.AddCloseAmt = model.CommitReqModel.AddCommitmentAmount ?? 0;
+                    commit.ProjectId = ProjectId;
+                    commit.Reason = model.CommitReqModel.Reason;
+                    commit.AllHeadId = model.CommitReqModel.AllocationHeadId ?? 0;
+                    //commit.selAllocationHead = model.CommitReqModel.AllocationHeadId ?? 0;
+                    commit.Remarks = model.CommitReqModel.Remarks;
+                    //commit.SelProjectNumber = model.ProjectId ?? 0;
+                    //commit.AllocationValue = model.CommitReqModel.CommitmentAmount ?? 0;
+                    //commit.selCommitmentType = 1;
+                    //var basicpayandmedical = Common.getbasicpay(model.CommitReqModel.ReferenceNumber, model.CommitReqModel.AppointmentTypeCode);
+                    //commit.BasicPay = basicpayandmedical.Item1;
+                    //commit.MedicalAllowance = basicpayandmedical.Item2;
+                    //commit.StartDate = basicpayandmedical.Item3;
+                    //commit.CloseDate = basicpayandmedical.Item4;
+                    int commitmentid = model.CommitReqModel.CommitmentId ?? 0;
+                    if (model.CommitReqModel.LogTypeId == 1 && Common.IsInUcCommitment(commitmentid))
+                    {
+                        TempData["errMsg"] = "You can't add any addition value to this commitment. Becouse this commitment treated as expenditure in UC.";
+                        return RedirectToAction("RecruitmentCommitmentRequestList");
+                    }
+                    AccountService _AS = new AccountService();
+                    var result = AccountService.CloseThisCommitment(commit, userid);
+                    if (result == 1)
+                    {
+                        var comitreqid = recruitmentService.UpdateCloseCommitDetails(model, commitmentid, userid);
+                        if (comitreqid > 0)
+                        {
+                            TempData["succMsg"] = "Commitment amount withdrawn successfully.";
+                            return RedirectToAction("RecruitmentCommitmentRequestList", "Requirement");
+                        }
+                        else
+                        {
+                            TempData["errMsg"] = "Commitment amount withdrawn successfully but something went wrong in data updation. Please contact administrator";
+                            return RedirectToAction("RecruitmentCommitmentRequestList", "Requirement");
+                        }
                     }
                     else
                     {
-                        TempData["errMsg"] = "Commitment amount withdrawn successfully but something went wrong in data updation. Please contact administrator";
-                        return RedirectToAction("RecruitmentCommitmentRequestList", "Requirement");
+                        model = recruitmentService.GetRecruitBookCommitDetails(model.CommitReqModel.CommitmentRequestId);
+                        psModel.Detail = pro.getProjectSummaryDetails(ProjectId);
+                        psModel.Summary = pro.getProjectSummary(ProjectId);
+                        psModel.Common = Common.GetProjectsDetails(ProjectId);
+                        psModel.ProjectStartDate = string.Format("{0:dd-MMM-yyyy}", psModel.Common.SancationDate);
+                        psModel.ProjectCloseDate = string.Format("{0:dd-MMM-yyyy}", psModel.Common.CloseDate);
+                        psModel.ProjId = ProjectId;
+                        psModel.DistributionAmount = Common.GetDistribuAmount(ProjectId);
+                        psModel.ExpAmt = psModel.Summary.AmountSpent;
+                        model.Projsummary = psModel;
+
+                        TempData["errMsg"] = "Commitment amount not updated. Please try again or contact administrator.";
+                        return View(model);
                     }
                 }
                 else
                 {
-                    model = recruitmentService.GetRecruitBookCommitDetails(model.CommitReqModel.CommitmentRequestId);
-                    psModel.Detail = pro.getProjectSummaryDetails(ProjectId);
-                    psModel.Summary = pro.getProjectSummary(ProjectId);
-                    psModel.Common = Common.GetProjectsDetails(ProjectId);
-                    psModel.ProjectStartDate = string.Format("{0:dd-MMM-yyyy}", psModel.Common.SancationDate);
-                    psModel.ProjectCloseDate = string.Format("{0:dd-MMM-yyyy}", psModel.Common.CloseDate);
-                    psModel.ProjId = ProjectId;
-                    psModel.DistributionAmount = Common.GetDistribuAmount(ProjectId);
-                    psModel.ExpAmt = psModel.Summary.AmountSpent;
-                    model.Projsummary = psModel;
-
-                    TempData["errMsg"] = "Commitment amount not updated. Please try again or contact administrator.";
-                    return View(model);
-                }
-
+                    TempData["errMsg"] = "This Request already Booked are not Vaild booking Request.";
+                     return RedirectToAction("RecruitmentCommitmentRequestList", "Requirement");
+                    }
+            }
             }
             catch (Exception ex)
             {
@@ -5517,77 +5563,88 @@ namespace IOAS.Controllers
         {
             try
             {
-                CommitmentResultModel commit = new CommitmentResultModel();
-                ViewBag.IITMPensionerOrCSIRStaff = Common.GetCodeControlList("IITMPensioner/CSIRStaff");
-                ViewBag.Medical = Common.GetCodeControlList("SETMedical");
-                ViewBag.Reason = Common.GetCommitmentAction();
-                var username = User.Identity.Name;
-                int userid = Common.GetUserid(username);
-                //model = recruitmentService.GetRecruitBookCommitDetails(Id);
-                ProjSummaryModel psModel = new ProjSummaryModel();
-                //ProjectSummaryModel psModel = new ProjectSummaryModel();
-                ProjectService pro = new ProjectService();
-                var ProjectId = model.ProjectId ?? 0;
-                if (ProjectId > 0)
+                lock (lockCommitrejectrequestObj)
                 {
-                    ViewBag.AllocationHead = Common.getAllocationHeadBasedOnProject(ProjectId);
-                    psModel.Detail = pro.getProjectSummaryDetails(ProjectId);
-                    psModel.Summary = pro.getProjectSummary(ProjectId);
-                    psModel.Common = Common.GetProjectsDetails(ProjectId);
-                    psModel.ProjectStartDate = string.Format("{0:dd-MMM-yyyy}", psModel.Common.SancationDate);
-                    psModel.ProjectCloseDate = string.Format("{0:dd-MMM-yyyy}", psModel.Common.CloseDate);
-                    psModel.ProjId = ProjectId;
-                    psModel.DistributionAmount = Common.GetDistribuAmount(ProjectId);
-                    psModel.ExpAmt = psModel.Summary.AmountSpent;
-                    model.Projsummary = psModel;
-                }
-                commit.LogTypeId = 2;
-                commit.ComitmentId = model.CommitReqModel.CommitmentId ?? 0;
-                commit.strRemarks = model.CommitReqModel.Remarks;
-                commit.AddCloseAmt = model.CommitReqModel.AddCommitmentAmount ?? 0;
-                commit.ProjectId = ProjectId;
-                commit.Reason = model.CommitReqModel.Reason;
-                commit.AllHeadId = model.CommitReqModel.AllocationHeadId ?? 0;
-                //commit.selAllocationHead = model.CommitReqModel.AllocationHeadId ?? 0;
-                commit.Remarks = model.CommitReqModel.Remarks;
-                //commit.SelProjectNumber = model.ProjectId ?? 0;
-                //commit.AllocationValue = model.CommitReqModel.CommitmentAmount ?? 0;
-                //commit.selCommitmentType = 1;
-                //var basicpayandmedical = Common.getbasicpay(model.CommitReqModel.ReferenceNumber, model.CommitReqModel.AppointmentTypeCode);
-                //commit.BasicPay = basicpayandmedical.Item1;
-                //commit.MedicalAllowance = basicpayandmedical.Item2;
-                //commit.StartDate = basicpayandmedical.Item3;
-                //commit.CloseDate = basicpayandmedical.Item4;
-                int commitmentid = model.CommitReqModel.CommitmentId ?? 0;
-                if (model.CommitReqModel.LogTypeId == 1 && Common.IsInUcCommitment(commitmentid))
-                {
-                    TempData["errMsg"] = "You can't add any addition value to this commitment. Becouse this commitment treated as expenditure in UC.";
-                    return RedirectToAction("RecruitmentCommitmentRequestList");
-                }
-                AccountService _AS = new AccountService();
-                var result = recruitmentService.RejectCommitRequestDetails(model, userid);
-                if (result == 1)
-                {
-                    TempData["succMsg"] = "Commitment Request is Rejected.";
-                    return RedirectToAction("RecruitmentCommitmentRequestList", "Requirement");
-                }
-                else
-                {
-                    model = recruitmentService.GetRecruitBookCommitDetails(model.CommitReqModel.CommitmentRequestId);
-                    psModel.Detail = pro.getProjectSummaryDetails(ProjectId);
-                    psModel.Summary = pro.getProjectSummary(ProjectId);
-                    psModel.Common = Common.GetProjectsDetails(ProjectId);
-                    psModel.ProjectStartDate = string.Format("{0:dd-MMM-yyyy}", psModel.Common.SancationDate);
-                    psModel.ProjectCloseDate = string.Format("{0:dd-MMM-yyyy}", psModel.Common.CloseDate);
-                    psModel.ProjId = ProjectId;
-                    psModel.DistributionAmount = Common.GetDistribuAmount(ProjectId);
-                    psModel.ExpAmt = psModel.Summary.AmountSpent;
-                    model.Projsummary = psModel;
+                    bool isValidRequest = Common.CheckRCTCommitmentRequest(model.CommitReqModel.CommitmentRequestId);
+                    if (isValidRequest)
+                    {
+                        CommitmentResultModel commit = new CommitmentResultModel();
+                        ViewBag.IITMPensionerOrCSIRStaff = Common.GetCodeControlList("IITMPensioner/CSIRStaff");
+                        ViewBag.Medical = Common.GetCodeControlList("SETMedical");
+                        ViewBag.Reason = Common.GetCommitmentAction();
+                        var username = User.Identity.Name;
+                        int userid = Common.GetUserid(username);
+                        //model = recruitmentService.GetRecruitBookCommitDetails(Id);
+                        ProjSummaryModel psModel = new ProjSummaryModel();
+                        //ProjectSummaryModel psModel = new ProjectSummaryModel();
+                        ProjectService pro = new ProjectService();
+                        var ProjectId = model.ProjectId ?? 0;
+                        if (ProjectId > 0)
+                        {
+                            ViewBag.AllocationHead = Common.getAllocationHeadBasedOnProject(ProjectId);
+                            psModel.Detail = pro.getProjectSummaryDetails(ProjectId);
+                            psModel.Summary = pro.getProjectSummary(ProjectId);
+                            psModel.Common = Common.GetProjectsDetails(ProjectId);
+                            psModel.ProjectStartDate = string.Format("{0:dd-MMM-yyyy}", psModel.Common.SancationDate);
+                            psModel.ProjectCloseDate = string.Format("{0:dd-MMM-yyyy}", psModel.Common.CloseDate);
+                            psModel.ProjId = ProjectId;
+                            psModel.DistributionAmount = Common.GetDistribuAmount(ProjectId);
+                            psModel.ExpAmt = psModel.Summary.AmountSpent;
+                            model.Projsummary = psModel;
+                        }
+                        commit.LogTypeId = 2;
+                        commit.ComitmentId = model.CommitReqModel.CommitmentId ?? 0;
+                        commit.strRemarks = model.CommitReqModel.Remarks;
+                        commit.AddCloseAmt = model.CommitReqModel.AddCommitmentAmount ?? 0;
+                        commit.ProjectId = ProjectId;
+                        commit.Reason = model.CommitReqModel.Reason;
+                        commit.AllHeadId = model.CommitReqModel.AllocationHeadId ?? 0;
+                        //commit.selAllocationHead = model.CommitReqModel.AllocationHeadId ?? 0;
+                        commit.Remarks = model.CommitReqModel.Remarks;
+                        //commit.SelProjectNumber = model.ProjectId ?? 0;
+                        //commit.AllocationValue = model.CommitReqModel.CommitmentAmount ?? 0;
+                        //commit.selCommitmentType = 1;
+                        //var basicpayandmedical = Common.getbasicpay(model.CommitReqModel.ReferenceNumber, model.CommitReqModel.AppointmentTypeCode);
+                        //commit.BasicPay = basicpayandmedical.Item1;
+                        //commit.MedicalAllowance = basicpayandmedical.Item2;
+                        //commit.StartDate = basicpayandmedical.Item3;
+                        //commit.CloseDate = basicpayandmedical.Item4;
+                        int commitmentid = model.CommitReqModel.CommitmentId ?? 0;
+                        if (model.CommitReqModel.LogTypeId == 1 && Common.IsInUcCommitment(commitmentid))
+                        {
+                            TempData["errMsg"] = "You can't add any addition value to this commitment. Becouse this commitment treated as expenditure in UC.";
+                            return RedirectToAction("RecruitmentCommitmentRequestList");
+                        }
+                        AccountService _AS = new AccountService();
+                        var result = recruitmentService.RejectCommitRequestDetails(model, userid);
+                        if (result == 1)
+                        {
+                            TempData["succMsg"] = "Commitment Request is Rejected.";
+                            return RedirectToAction("RecruitmentCommitmentRequestList", "Requirement");
+                        }
+                        else
+                        {
+                            model = recruitmentService.GetRecruitBookCommitDetails(model.CommitReqModel.CommitmentRequestId);
+                            psModel.Detail = pro.getProjectSummaryDetails(ProjectId);
+                            psModel.Summary = pro.getProjectSummary(ProjectId);
+                            psModel.Common = Common.GetProjectsDetails(ProjectId);
+                            psModel.ProjectStartDate = string.Format("{0:dd-MMM-yyyy}", psModel.Common.SancationDate);
+                            psModel.ProjectCloseDate = string.Format("{0:dd-MMM-yyyy}", psModel.Common.CloseDate);
+                            psModel.ProjId = ProjectId;
+                            psModel.DistributionAmount = Common.GetDistribuAmount(ProjectId);
+                            psModel.ExpAmt = psModel.Summary.AmountSpent;
+                            model.Projsummary = psModel;
 
-                    TempData["errMsg"] = "Rejection of Commitment Request has failed. Please try later or contact administrator";
-                    return View(model);
+                            TempData["errMsg"] = "Rejection of Commitment Request has failed. Please try later or contact administrator";
+                            return View(model);
+                        }
+                    }
+                    else
+                    {
+                        TempData["errMsg"] = "This Request already Booked are not Vaild booking Request.";
+                        return View(model);
+                    }
                 }
-
             }
             catch (Exception ex)
             {
@@ -7775,7 +7832,38 @@ namespace IOAS.Controllers
                 throw new Exception(ex.Message);
             }
         }
-
+        [HttpGet]
+        public JsonResult LoadRCTOSGEmployeeList(string term, string apptype = null)
+        {
+            try
+            {
+                lock (lockObj)
+                {
+                    var data = Common.GetAutoCompleteRCTOSGEmployee(term, apptype);
+                    return Json(data, JsonRequestBehavior.AllowGet);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        [HttpGet]
+        public JsonResult LoadRCTSTEEmployeeList(string term, string apptype = null)
+        {
+            try
+            {
+               lock (lockObj)
+                {
+                    var data = Common.GetAutoCompleteRCTSTEEmployee(term, "STE");
+                    return Json(data, JsonRequestBehavior.AllowGet);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
         [HttpGet]
         public JsonResult LoadRCTApplicationNumberList(string term, string apptype = null)
         {
@@ -7784,6 +7872,22 @@ namespace IOAS.Controllers
                 lock (lockObj)
                 {
                     var data = Common.GetAutoCompleteApplicationNumber(term, apptype);
+                    return Json(data, JsonRequestBehavior.AllowGet);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        [HttpGet]
+        public JsonResult LoadRCTSTEApplicationNumberList(string term, string apptype = null)
+        {
+            try
+            {
+                lock (lockObj)
+                {
+                    var data = Common.GetAutoCompleteSTEApplicationNumber(term, apptype);
                     return Json(data, JsonRequestBehavior.AllowGet);
                 }
             }
@@ -9195,6 +9299,8 @@ namespace IOAS.Controllers
                         });
                     }
                 }
+                var user = Common.getUserIdAndRole(User.Identity.Name);
+                model.RoleId = user.Item2;
                 ViewBag.Finyearmonth = monthlist;
                 ViewBag.SalaryType = Common.GetCodeControlList("PayOfBill");
                 ViewBag.EmployeeCategory = Common.GetCodeControlList("RCTEmployeeCategory");
@@ -10129,7 +10235,7 @@ namespace IOAS.Controllers
             return View();
         }
         [HttpPost]
-        public JsonResult GetOSGEmployeeList(SearchEmployeeModel model, int pageIndex, int pageSize, DateFilterModel DateOfBirth, DateFilterModel DateOfJoining)
+        public JsonResult GetOSGEmployeeList(SearchEmployeeModel model, int pageIndex, int pageSize, DateFilterModel strDateofBirth, DateFilterModel strDateofJoining)
         {
             try
             {
@@ -10137,7 +10243,7 @@ namespace IOAS.Controllers
                 var user = Common.getUserIdAndRole(username);
                 int userid = user.Item1;
                 int roleid = user.Item2;
-                object output = recruitmentService.GetOSGEmployeeList(model, pageIndex, pageSize, DateOfBirth, DateOfJoining);
+                object output = recruitmentService.GetOSGEmployeeList(model, pageIndex, pageSize, strDateofBirth, strDateofJoining);
                 return Json(output, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -10345,7 +10451,53 @@ namespace IOAS.Controllers
                 throw new Exception(ex.Message);
             }
         }
+        #region Test
+        //public JsonResult GetServicebarExperirence()
+        //{
+        //    decimal iitmExp = RequirementService.IITExperience(34260,2,"IC34809");
+        //    return Json(iitmExp, JsonRequestBehavior.AllowGet);
+        //}
+        //public ActionResult CheckEMPExp(int id)
+        //{
+        //    string exp=Common.getExperienceInWordings(id, "STE");
+        //    return View(exp);
+        //}
+        //InCase recuirment commitmentbooked not changed status run this service
+        //public JsonResult UpdateSteCommitmentRequesttable()
+        //{
+        //    STEViewModel model = new STEViewModel();
+        //    RecruitCommitRequestModel reqmodel = new RecruitCommitRequestModel();
+        //    reqmodel.CommitmentRequestId = 17854;
+        //    reqmodel.AllocationHeadId = 34;
+        //    reqmodel.CommitmentAmount = 240000;
+        //    int logged_in_userId = 119;
+        //    int commitmentId = 195640;
+        //    model.CommitReqModel = reqmodel;
+        //    int status = recruitmentService.UpdateCommitDetails(model, commitmentId, logged_in_userId);
+        //    return Json(status, JsonRequestBehavior.AllowGet);
+        //}
+        //InCase Extension Process not Updated in Commitment Requesttable Run this service
+        //public JsonResult UpdateExtensionCommitmentRequesttable()
+        //{
+        //    STEViewModel model = new STEViewModel();
+        //    RecruitCommitRequestModel reqmodel = new RecruitCommitRequestModel();
+        //    reqmodel.CommitmentRequestId = 18476;
+        //    int commitmentid = 195532;
+        //    reqmodel.CommitmentBookedId = 18172;
+        //    reqmodel.AllocationHeadId = 34;
+        //    reqmodel.AddCommitmentAmount = 420000;
+        //    int logged_in_userId = 119;
+        //    model.CommitReqModel = reqmodel;
+        //    int status=recruitmentService.UpdateAddCommitDetails(model, commitmentid, logged_in_userId);
+        //    return Json(status, JsonRequestBehavior.AllowGet);
+        //}
+        //public JsonResult UpdateCommitmentinRCTRequesttable()
+        //{
+        //    bool status = recruitmentService.UpdateEnhancementDetails(11646, 201);
+        //    return Json(status, JsonRequestBehavior.AllowGet);
+        //}
 
+        #endregion
 
     }
 }

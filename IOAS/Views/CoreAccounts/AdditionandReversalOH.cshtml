@@ -558,7 +558,32 @@
                 return msg;
             }
         });
-      
+        var overallRecieptAmount = 0;
+        $("#ReceiptList tr").each(function (idx, val) {
+            overallRecieptAmount+= parseFloat($(this).closest('tr').find("input[name$='.Amount']").val()) || 0;
+            
+        });
+        if (overallRecieptAmount > 0)
+        {
+            var overallAmt = parseFloat($("#Amount").val());
+            var courpsAmt = parseFloat($("#Corpus").text());
+            var tatRecipt = (overallAmt - courpsAmt);
+            var rounofAmt = (overallRecieptAmount - tatRecipt);
+            var amtvalid = "not valid";
+            if (rounofAmt == 0)
+                amtvalid = "valid";
+            else if (rounofAmt == 1)
+                amtvalid = "valid";
+            else if (rounofAmt == -1)
+                amtvalid = "valid";
+            else
+                amtvalid = "not valid"
+            if (amtvalid == "not valid")
+            {
+                msg = 'The Receipt amount not equal to over all Receipt detail Projects';
+                return msg;
+            }
+        }
         return msg;
     }
     $(document).on('click', '#ProjectNo', function () {

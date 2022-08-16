@@ -256,6 +256,7 @@ namespace IOAS.Models
         public Nullable<decimal> BillTaxAmount { get; set; }
 
         public string Status { get; set; }
+        [StringLength(200, ErrorMessage = "The Remarks cannot exceed 200 characters. ")]
         public string Remarks { get; set; }
         public string Vendor { get; set; }
         public string PostedDate { get; set; }
@@ -1372,6 +1373,7 @@ namespace IOAS.Models
         public bool PFInit { get; set; }
         public int CloseId { get; set; }
         public int LedBankId { get; set; }
+        public Nullable<decimal> ExistingImpresetBalance { get; set; }
     }
     public class ImprestBillListModel
     {
@@ -2952,6 +2954,16 @@ namespace IOAS.Models
         public string SourceEmail { get; set; }
         public bool PFInit { get; set; }
     }
+    public class SearchProjectFunTransferModel
+    {
+        public string ProjectFundTransferNumber { get; set; }
+        public string FrmFundProjectNumber { get; set; }
+        public string ToFundProjectNumber { get; set; }
+        public Nullable<decimal> FundAmount { get; set; }
+        public string Status { get; set; }
+        public int TotalRecords { get; set; }
+        public List<ProjectFundTransferModel> prjfundlist { get; set; }
+    }
     public class ProjectTransferSearch
     {
         public string ProjectTransferNumber { get; set; }
@@ -3216,7 +3228,8 @@ namespace IOAS.Models
         public string NonAutoComplete { get; set; }
         public string PaymentModeName { get; set; }
         public string TDSPercent { get; set; }
-
+        public Nullable<int> HonororiumTdsSection { get; set; }
+        public string SelectedTdssection { get; set; }
     }
     public class HonororiumPCFModel
     {
@@ -5103,13 +5116,18 @@ namespace IOAS.Models
         public string RollNo { get; set; }
         public string Name { get; set; }
         public string autoComplete { get; set; }
+        public Nullable<int> PaymentMode { get; set; }
+        [RequiredIf("PaymentMode", 2, ErrorMessage = "Bank Name field is required")]
         public string BankName { get; set; }
+        [RequiredIf("PaymentMode", 2, ErrorMessage = "Account Number field is required")]
         public string AccountNumber { get; set; }
+        [RequiredIf("PaymentMode", 2, ErrorMessage = "Branch field is required")]
         public string BranchName { get; set; }
+        [RequiredIf("PaymentMode", 2, ErrorMessage = "IFSC field is required")]
         public string IFSCCode { get; set; }
         public string Description { get; set; }
         public string AdhocPaymentDate { get; set; }
-        public Nullable<int> PaymentMode { get; set; }
+        
         public Nullable<int> PaymentType { get; set; }
         public List<AdhocPaymentListModel> PaymentDetails { get; set; }
         public AdhocPaySearchFieldModel SearchField { get; set; }
@@ -6486,6 +6504,8 @@ namespace IOAS.Models
         public string BankHeadName { get; set; }
         public bool PFInit { get; set; }
         public string UTRStatus { get; set; }
+        public bool IsendPaymentFailedMail { get; set; }
+        public bool IsendUTRFailedMail { get; set; }
     }
 
     #endregion

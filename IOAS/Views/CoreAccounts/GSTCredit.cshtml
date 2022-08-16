@@ -210,7 +210,8 @@
     </div>
 </div>
 <div class="custom-nav-btn text-right " id="SubmitBtn">
-    <button type="button" class="btn btn-primary pull-right"onclick="formSave()">Submit</button>
+    @*<button type="button" class="btn btn-primary pull-right"onclick="formSave()">Submit</button>*@
+    <button type="button" class="btn btn-primary pull-right" id="btnFrmGstCredit">Submit</button>
     <button type="button" class="btn btn-default pull-right" id="CloseBtn" onclick="window.location.href='@Url.Action("Dashboard", "Home")';">Close</button>
 </div>
 }
@@ -321,7 +322,23 @@
         var RefNo = $('#refno').val();
         LoadGST(GSTIN, InvoiceNo, RefNo);
     });
-    function formSave() {
-        $('#formGSTCredit').submit();        
-    }
+    //function formSave() {
+    //    $('.loading-bg').removeClass('dis-none');
+    //    $('#formGSTCredit').submit();        
+    //}
+    $('#btnFrmGstCredit').off('click').on('click', function () {
+        var tatamount = $("#Amt").val() || 0;
+        var isvalid = true;
+        if (tatamount == 0) {
+            $('#alert').html("Please select any one Check box");
+            $('#Validation').modal('toggle');
+            isvalid = false;
+            return false;
+        }
+        if(isvalid)
+        {
+            $('.loading-bg').removeClass('dis-none');
+            $('#formGSTCredit').submit();
+        }
+    });
 </script>

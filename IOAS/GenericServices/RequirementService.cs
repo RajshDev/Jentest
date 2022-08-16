@@ -2265,6 +2265,8 @@ namespace IOAS.GenericServices
                         model.AutoFillRequstedbyPI = Common.GetPIName(QrySTE.A.RequestedBy ?? 0);
                         model.RequestedByPI = QrySTE.A.RequestedBy;
                         model.Comments = QrySTE.A.Comments;
+                        if (QrySTE.A.EmployeeCategory == "Old Employee")
+                            model.IITMExperience = IITExperienceInWording(QrySTE.A.OldNumber);
                     }
                 }
                 return model;
@@ -2483,6 +2485,10 @@ namespace IOAS.GenericServices
                         viewmodel.CommitmentBalance = Common.GetCommitmentBalance(viewmodel.CommitmentNo);
                         viewmodel.ApplicationRefNo = query.A.RefNumber;
                         viewmodel.AutoFillRequstedbyPI = Common.GetPIName(query.A.RequestedBy ?? 0);
+                        //if (query.A.EmployeeCategory == "New Employee")
+                        //    viewmodel.NIDNumber = query.A.NIDNumber;
+                        //else if(query.A.EmployeeCategory== "Old Employee")
+
                     }
                 }
                 return viewmodel;
@@ -3834,12 +3840,12 @@ namespace IOAS.GenericServices
                         predicate = predicate.And(d => d.DepartmentName.Contains(model.DepartmentName));
                     if (OfferDate.@from != null && OfferDate.to != null)
                     {
-                        OfferDate.@from = OfferDate.@from.Value.Date.AddDays(1).AddTicks(-2);
+                        OfferDate.to = OfferDate.to.Value.Date.AddDays(1).AddTicks(-2);
                         predicate = predicate.And(d => d.OfferActualDate >= OfferDate.@from && d.OfferActualDate <= OfferDate.to);
                     }
                     if (DateOfJoining.@from != null && DateOfJoining.to != null)
                     {
-                        DateOfJoining.@from = DateOfJoining.@from.Value.Date.AddDays(1).AddTicks(-2);
+                        DateOfJoining.to = DateOfJoining.to.Value.Date.AddDays(1).AddTicks(-2);
                         predicate = predicate.And(d => d.JoiningDate >= DateOfJoining.@from && d.JoiningDate <= DateOfJoining.to);
                     }
                     if (!string.IsNullOrEmpty(model.Applicationtype))
@@ -4864,7 +4870,7 @@ namespace IOAS.GenericServices
                     }
                     if (DateOfJoining.@from != null && DateOfJoining.to != null)
                     {
-                        DateOfJoining.@from = DateOfJoining.@from.Value.Date.AddDays(1).AddTicks(-2);
+                        DateOfJoining.to = DateOfJoining.to.Value.Date.AddDays(1).AddTicks(-2);
                         predicate = predicate.And(d => d.DateofJoining >= DateOfJoining.@from && d.DateofJoining <= DateOfJoining.to);
                     }
 
@@ -7257,9 +7263,12 @@ namespace IOAS.GenericServices
                                               from D in context.tblRCTDesignation
                                               where A.DesignationId == D.DesignationId && A.OSGID == appid
                                               select new { A, D }).FirstOrDefault();
-                                var Qrysalcalc = (from A in context.tblRCTSalaryCalcDetails
-                                                  where A.ID == appid && A.OrderId == Orderid && A.Status == "Active"
-                                                  select A).FirstOrDefault();
+                                //var Qrysalcalc = (from A in context.tblRCTSalaryCalcDetails
+                                //                  where A.ID == appid && A.OrderId == Orderid && A.Status == "Active"
+                                //                  select A).FirstOrDefault();
+                                //var Qrysalcalc = (from A in context.tblRCTSalaryCalcDetails
+                                //                  where ((A.ID == appid && A.OrderId == Orderid) || (A.ID == appid && A.IsCurrentVersion == true)) && A.Status == "Active"
+                                //                  select A).FirstOrDefault();
 
                                 model.ApplicationNo = QryOSG.A.ApplicationNumber;
                                 model.EmployeeID = QryOSG.A.EmployeersID;
@@ -7309,38 +7318,79 @@ namespace IOAS.GenericServices
                                 model.ToMail = QryOSG.A.ToMail;
                                 model.CCMail = QryOSG.A.bcc;
                                 model.MailSent_f = context.tblRCTOSGEmailLog.Any(m => m.OrderId == orderid && m.TypeofMail == 6 && !m.Subject.Contains("structure approval"));
-                                if (Qrysalcalc != null)
+                                if (appid >0  && orderid > 0)
                                 {
-                                    model.RecommendedSalary = Qrysalcalc.RecommendSalary;
-                                    model.EmpSalutation = Qrysalcalc.Salutation;
-                                    model.EmpName = QryOSG.A.Name;
-                                    model.EmpDesig = Qrysalcalc.EmpDesignation;
-                                    model.EmpType = Qrysalcalc.EmpType;
-                                    model.PhysicalyHandicaped = Qrysalcalc.PhysicallyHandicapped;
-                                    model.EmpPFBasicWages = Qrysalcalc.PFBasicWages;
-                                    model.EmployeePF = Qrysalcalc.EmployeePF;
-                                    model.EmployeeESIC = Qrysalcalc.EmployeeESIC;
-                                    model.EmployeeProfessionalTax = Qrysalcalc.EmpProfessionalTax;
-                                    model.EmployeeTtlDeduct = Qrysalcalc.EmpTotalDeduction;
-                                    model.EmployeeNetSalary = Qrysalcalc.EmpNetSalary;
-                                    model.EmployerPF = Qrysalcalc.EmployerPF;
-                                    model.EmployerIns = Qrysalcalc.EmployerInsurance;
-                                    model.EmployerESIC = Qrysalcalc.EmployerESIC;
-                                    model.EmployerTtlContribute = Qrysalcalc.EmployerTotalContribution;
-                                    model.EmployeeCTC = Qrysalcalc.EmployerCTC;
-                                    model.AgencyFee = Qrysalcalc.EmployerAgencyFee;
-                                    model.SalaryGST = Qrysalcalc.EmployerGST;
-                                    model.CTCwithAgencyFee = Qrysalcalc.EmployerCTCWithAgencyFee;
-                                    model.TotalCTC = Qrysalcalc.TotalCostPerMonth;
+                                    var Qrysalcalc = (from A in context.tblRCTSalaryCalcDetails
+                                                      where A.ID == appid && A.OrderId == Orderid && A.Status == "Active"
+                                                      select A).FirstOrDefault();
+                                    if (Qrysalcalc != null)
+                                    {
+                                        model.RecommendedSalary = Qrysalcalc.RecommendSalary;
+                                        model.EmpSalutation = Qrysalcalc.Salutation;
+                                        model.EmpName = QryOSG.A.Name;
+                                        model.EmpDesig = Qrysalcalc.EmpDesignation;
+                                        model.EmpType = Qrysalcalc.EmpType;
+                                        model.PhysicalyHandicaped = Qrysalcalc.PhysicallyHandicapped;
+                                        model.EmpPFBasicWages = Qrysalcalc.PFBasicWages;
+                                        model.EmployeePF = Qrysalcalc.EmployeePF;
+                                        model.EmployeeESIC = Qrysalcalc.EmployeeESIC;
+                                        model.EmployeeProfessionalTax = Qrysalcalc.EmpProfessionalTax;
+                                        model.EmployeeTtlDeduct = Qrysalcalc.EmpTotalDeduction;
+                                        model.EmployeeNetSalary = Qrysalcalc.EmpNetSalary;
+                                        model.EmployerPF = Qrysalcalc.EmployerPF;
+                                        model.EmployerIns = Qrysalcalc.EmployerInsurance;
+                                        model.EmployerESIC = Qrysalcalc.EmployerESIC;
+                                        model.EmployerTtlContribute = Qrysalcalc.EmployerTotalContribution;
+                                        model.EmployeeCTC = Qrysalcalc.EmployerCTC;
+                                        model.AgencyFee = Qrysalcalc.EmployerAgencyFee;
+                                        model.SalaryGST = Qrysalcalc.EmployerGST;
+                                        model.CTCwithAgencyFee = Qrysalcalc.EmployerCTCWithAgencyFee;
+                                        model.TotalCTC = Qrysalcalc.TotalCostPerMonth;
 
-                                    var oldEmployeeCTC = (from A in context.tblRCTSalaryCalcDetails
-                                                          where A.ID == appid && A.IsCurrentVersion == true && A.Status == "Active"
-                                                          orderby A.SalaryDetailsId descending
-                                                          select A.EmployerCTC).FirstOrDefault();
-                                    model.OldTotalCTC = oldEmployeeCTC;
+                                        var oldEmployeeCTC = (from A in context.tblRCTSalaryCalcDetails
+                                                              where A.ID == appid && A.IsCurrentVersion == true && A.Status == "Active"
+                                                              orderby A.SalaryDetailsId descending
+                                                              select A.EmployerCTC).FirstOrDefault();
+                                        model.OldTotalCTC = oldEmployeeCTC;
+                                    }
+                                }
+                                else
+                                {
+                                    var Qrysalcalc = (from A in context.tblRCTSalaryCalcDetails
+                                                      where (A.ID == appid && A.IsCurrentVersion == true && A.Status == "Active")
+                                                      select A).FirstOrDefault();
+                                    if (Qrysalcalc != null)
+                                    {
+                                        model.RecommendedSalary = Qrysalcalc.RecommendSalary;
+                                        model.EmpSalutation = Qrysalcalc.Salutation;
+                                        model.EmpName = QryOSG.A.Name;
+                                        model.EmpDesig = Qrysalcalc.EmpDesignation;
+                                        model.EmpType = Qrysalcalc.EmpType;
+                                        model.PhysicalyHandicaped = Qrysalcalc.PhysicallyHandicapped;
+                                        model.EmpPFBasicWages = Qrysalcalc.PFBasicWages;
+                                        model.EmployeePF = Qrysalcalc.EmployeePF;
+                                        model.EmployeeESIC = Qrysalcalc.EmployeeESIC;
+                                        model.EmployeeProfessionalTax = Qrysalcalc.EmpProfessionalTax;
+                                        model.EmployeeTtlDeduct = Qrysalcalc.EmpTotalDeduction;
+                                        model.EmployeeNetSalary = Qrysalcalc.EmpNetSalary;
+                                        model.EmployerPF = Qrysalcalc.EmployerPF;
+                                        model.EmployerIns = Qrysalcalc.EmployerInsurance;
+                                        model.EmployerESIC = Qrysalcalc.EmployerESIC;
+                                        model.EmployerTtlContribute = Qrysalcalc.EmployerTotalContribution;
+                                        model.EmployeeCTC = Qrysalcalc.EmployerCTC;
+                                        model.AgencyFee = Qrysalcalc.EmployerAgencyFee;
+                                        model.SalaryGST = Qrysalcalc.EmployerGST;
+                                        model.CTCwithAgencyFee = Qrysalcalc.EmployerCTCWithAgencyFee;
+                                        model.TotalCTC = Qrysalcalc.TotalCostPerMonth;
+
+                                        var oldEmployeeCTC = (from A in context.tblRCTSalaryCalcDetails
+                                                              where A.ID == appid && A.IsCurrentVersion == true && A.Status == "Active"
+                                                              orderby A.SalaryDetailsId descending
+                                                              select A.EmployerCTC).FirstOrDefault();
+                                        model.OldTotalCTC = oldEmployeeCTC;
+                                    }
                                 }
                             }
-
                         }
                     }
                 }
@@ -9582,7 +9632,7 @@ namespace IOAS.GenericServices
                                                 select o).FirstOrDefault();
                                 if (ordQuery != null)
                                 {
-                                    if (!context.tblOrder.Any(m => m.OrderId > ordQuery.OrderId && m.AppointmentId == queryorder.O.AppointmentId && m.AppointmentType == 2 && m.OrderType == 5 && m.Status != "Cancel" && m.Status != "Rejected"))
+                                    if (!context.tblOrder.Any(m => m.OrderId > ordQuery.OrderId && m.AppointmentId == queryorder.O.AppointmentId && m.AppointmentType == 2 && m.OrderType == 5 && m.Status == "Completed"))
                                         model.isHRAFullTenure = true;
                                 }
                                 else
@@ -10214,6 +10264,12 @@ namespace IOAS.GenericServices
                                                   where o.Status == "Initiated" && o.OrderType == 10
                                                   && o.OrderId == od.OrderId && o.OrderId == model.OrderID && o.Is_Clarify == true
                                                   select new { o, od }).FirstOrDefault();
+                                var odPIInQuery = (from o in context.tblOrder
+                                               from od in context.tblOrderDetail
+                                               where o.Status == "PI Initiated" && o.OrderType == 10
+                                               && o.OrderId == od.OrderId && o.OrderId == model.OrderID
+                                               select new { o, od }).FirstOrDefault();
+                                
                                 if (odQuery != null)
                                 {
                                     OrderID = odQuery.o.OrderId;
@@ -10439,6 +10495,30 @@ namespace IOAS.GenericServices
                                     context.SaveChanges();
                                     res = 1;
                                 }
+                                else if(odPIInQuery != null)
+                                {
+                                    odPIInQuery.o.Status = "Initiated";
+                                    prestatus = "PI Initiated";
+                                    newstatus = "Initiated";
+                                    odPIInQuery.o.FromDate = model.FromDate;
+                                    odPIInQuery.o.ToDate = model.ToDate;
+                                    odPIInQuery.o.UpdtTS = DateTime.Now;
+                                    odPIInQuery.o.UpdtUser = logged_in_userId;
+                                    OrderID = odPIInQuery.o.OrderId;
+                                    string docpath = "";
+                                    string docname = "";
+                                    if (model.PILetter != null)
+                                    {
+                                        docname = System.IO.Path.GetFileName(model.PILetter.FileName);
+                                        var docfileId = Guid.NewGuid().ToString();
+                                        docpath = docfileId + "_" + docname;
+                                        model.PILetter.UploadFile("Requirement", docpath);
+                                        odPIInQuery.od.PILetter = docpath;
+                                        odPIInQuery.od.PILetterFileName = docname;
+                                    }
+                                    context.SaveChanges();
+                                    res = 1;
+                                }
                                 else
                                     return Tuple.Create(0, "Something went wrong please contact administrator");
                             }
@@ -10545,6 +10625,7 @@ namespace IOAS.GenericServices
                                 context.SaveChanges();
                                 res = 1;
                             }
+                            
                             if (res > 0)
                                 transaction.Commit();
                             //if (lossPayOrderId > 0) //Intiate loss of pay
@@ -10631,7 +10712,8 @@ namespace IOAS.GenericServices
                             model.PIRemarks = odrQuery.d.PIJustificationRemarks;
                             if (odrQuery.o.OrderRequestId > 0)
                                 model.PINoDuesRemarks = (from r in context.tblRCTOrderRequest where r.OrderRequestId == odrQuery.o.OrderRequestId select r.NoDuesRemark).FirstOrDefault();
-
+                            if(odrQuery.o.OrderRequestId>0&& odrQuery.o.InitByPI_f==true)
+                                model.PIrequestedRelievingDate= string.Format("{0:dd-MMMM-yyyy}", odrQuery.d.RelievingDate);
                         }
                     }
                     //master table details
@@ -10826,7 +10908,10 @@ namespace IOAS.GenericServices
                                         appointmentfromdate = model.RelievingDate;
                                     odQuery.WithdrawAmmount = Common.calculateWithdrawalAmount(model.ApplicationID, model.TypeCode, appointmentfromdate ?? DateTime.Now, appointmenttodate ?? DateTime.Now);
                                 }
-
+                                if(odQuery.InitByPI_f == true&&model.CommitmentOption==2)
+                                {
+                                    odQuery.WithdrawAmmount = 0;
+                                }
                                 string[] noduesfilepath = new string[model.NODuesFile == null ? 0 : model.NODuesFile.Count()];
                                 string[] noduesfilename = new string[model.NODuesFile == null ? 0 : model.NODuesFile.Count()];
                                 if (model.NODuesFile != null)
@@ -10887,8 +10972,10 @@ namespace IOAS.GenericServices
                                     detQuery.NOCFormName = orderreqQuery.NoDuesDocName;
                                     NOC = !string.IsNullOrEmpty(orderreqQuery.NoDuesDocName) ? orderreqQuery.NoDuesDocName : !string.IsNullOrEmpty(orderreqQuery.NoDuesRemark) ? orderreqQuery.NoDuesRemark : "";
                                     detQuery.NOCDocSubmitted = !string.IsNullOrEmpty(NOC) ? true : false;
+                                    //if (orderreqQuery.NoDues_f == false)
+                                    //   detQuery.NOCDocSubmitted = true;
                                 }
-                                else
+                                if (odQuery.InitByPI_f == false || odQuery.InitByPI_f == null)
                                     odQuery.Status = !string.IsNullOrEmpty(NOC) ? "Completed" : "Open";
                                 newstatus = odQuery.Status;
                                 context.SaveChanges();
@@ -12524,6 +12611,8 @@ namespace IOAS.GenericServices
             }
             catch (Exception ex)
             {
+                ErrorHandler WriteLog = new ErrorHandler();
+                WriteLog.SendErrorToText(ex);
                 return model;
             }
         }
@@ -13227,15 +13316,16 @@ namespace IOAS.GenericServices
                             var QryNote = (from c in context.tblRCTSTEPIJustificationDocs
                                            where c.STEID == STEID && c.Deleted_f != true
                                            orderby c.DocsID descending
-                                           select new { c.Description, }
+                                           group c by c.Description into grp
+                                           select new { grp.Key }
                                        ).ToArray();
                             if (QryNote != null)
                             {
                                 for (int i = 0; i < QryNote.Count(); i++)
                                 {
-                                    if (!string.IsNullOrEmpty(QryNote[i].Description))
+                                    if (!string.IsNullOrEmpty(QryNote[i].Key))
                                     {
-                                        PICommands.Add(QryNote[i].Description);
+                                        PICommands.Add(QryNote[i].Key);
                                     }
                                 }
                             }
@@ -13244,9 +13334,10 @@ namespace IOAS.GenericServices
                             model.Notes = (from c in context.tblRCTSTENotes
                                            where c.STEID == STEID
                                            orderby c.NotesID descending
+                                           group c by c.PICommends into grp
                                            select new STENotes()
                                            {
-                                               PICommends = c.PICommends,
+                                               PICommends = grp.Key,
                                            }).ToList();
                             model.CommiteeMember1 = Common.GetPIName(QrySTE.A.CommitteeMember ?? 0);
                             model.CommiteeMember2 = Common.GetPIName(QrySTE.A.CommitteeMembers ?? 0);
@@ -13594,15 +13685,16 @@ namespace IOAS.GenericServices
                                     var QryNote = (from c in context.tblRCTSTEPIJustificationDocs
                                                    where c.STEID == STEID && c.Deleted_f != true
                                                    orderby c.DocsID descending
-                                                   select new { c.Description, }
+                                                   group c by c.Description into grp
+                                                   select new { grp.Key }
                                                ).ToArray();
                                     if (QryNote != null)
                                     {
                                         for (int i = 0; i < QryNote.Count(); i++)
                                         {
-                                            if (!string.IsNullOrEmpty(QryNote[i].Description))
+                                            if (!string.IsNullOrEmpty(QryNote[i].Key))
                                             {
-                                                PICommands.Add(QryNote[i].Description);
+                                                PICommands.Add(QryNote[i].Key);
                                             }
                                         }
                                     }
@@ -13610,9 +13702,10 @@ namespace IOAS.GenericServices
                                     model.Notes = (from c in context.tblRCTSTENotes
                                                    where c.STEID == STEID
                                                    orderby c.NotesID descending
+                                                   group c by c.PICommends into grp
                                                    select new STENotes()
                                                    {
-                                                       PICommends = c.PICommends,
+                                                       PICommends = grp.Key,
                                                    }).ToList();
                                     model.CommiteeMember1 = Common.GetPIName(QrySTE.A.CommitteeMember ?? 0);
                                     model.CommiteeMember2 = Common.GetPIName(QrySTE.A.CommitteeMembers ?? 0);
@@ -13727,15 +13820,16 @@ namespace IOAS.GenericServices
                                     var QryNote = (from c in context.tblRCTCONPIJustificationDocument
                                                    where c.ConsultantAppointmentId == STEID
                                                    orderby c.CONPIJustificationDocumentId descending
-                                                   select new { c.PIJustificationDescription, }
+                                                   group c by c.PIJustificationDescription into grp
+                                                   select new { grp.Key }
                                                ).ToArray();
                                     if (QryNote != null)
                                     {
                                         for (int i = 0; i < QryNote.Count(); i++)
                                         {
-                                            if (!string.IsNullOrEmpty(QryNote[i].PIJustificationDescription))
+                                            if (!string.IsNullOrEmpty(QryNote[i].Key))
                                             {
-                                                PICommands.Add(QryNote[i].PIJustificationDescription);
+                                                PICommands.Add(QryNote[i].Key);
                                             }
                                         }
                                     }
@@ -13861,15 +13955,16 @@ namespace IOAS.GenericServices
                                     var QryNote = (from c in context.tblRCTOSGPIJustificationDoc
                                                    where c.OSGID == STEID && c.Deleted_f != true
                                                    orderby c.DocsID descending
-                                                   select new { c.Description, }
+                                                   group c by c.Description into grp
+                                                   select new { grp.Key }
                                                ).ToArray();
                                     if (QryNote != null)
                                     {
                                         for (int i = 0; i < QryNote.Count(); i++)
                                         {
-                                            if (!string.IsNullOrEmpty(QryNote[i].Description))
+                                            if (!string.IsNullOrEmpty(QryNote[i].Key))
                                             {
-                                                PICommands.Add(QryNote[i].Description);
+                                                PICommands.Add(QryNote[i].Key);
                                             }
                                         }
                                     }
@@ -14013,15 +14108,16 @@ namespace IOAS.GenericServices
                                     var QryNote = (from c in context.tblRCTSTEPIJustificationDocs
                                                    where c.STEID == STEID && c.Deleted_f != true
                                                    orderby c.DocsID descending
-                                                   select new { c.Description, }
+                                                   group c by c.Description into grp
+                                                   select new { grp.Key }
                                                ).ToArray();
                                     if (QryNote != null)
                                     {
                                         for (int i = 0; i < QryNote.Count(); i++)
                                         {
-                                            if (!string.IsNullOrEmpty(QryNote[i].Description))
+                                            if (!string.IsNullOrEmpty(QryNote[i].Key))
                                             {
-                                                PICommands.Add(QryNote[i].Description);
+                                                PICommands.Add(QryNote[i].Key);
                                             }
                                         }
                                     }
@@ -14146,15 +14242,16 @@ namespace IOAS.GenericServices
                                     var QryNote = (from c in context.tblRCTCONPIJustificationDocument
                                                    where c.ConsultantAppointmentId == STEID
                                                    orderby c.CONPIJustificationDocumentId descending
-                                                   select new { c.PIJustificationDescription, }
+                                                   group c by c.PIJustificationDescription into grp
+                                                   select new { grp.Key }
                                                ).ToArray();
                                     if (QryNote != null)
                                     {
                                         for (int i = 0; i < QryNote.Count(); i++)
                                         {
-                                            if (!string.IsNullOrEmpty(QryNote[i].PIJustificationDescription))
+                                            if (!string.IsNullOrEmpty(QryNote[i].Key))
                                             {
-                                                PICommands.Add(QryNote[i].PIJustificationDescription);
+                                                PICommands.Add(QryNote[i].Key);
                                             }
                                         }
                                     }
@@ -14280,15 +14377,16 @@ namespace IOAS.GenericServices
                                     var QryNote = (from c in context.tblRCTOSGPIJustificationDoc
                                                    where c.OSGID == STEID && c.Deleted_f != true
                                                    orderby c.DocsID descending
-                                                   select new { c.Description, }
+                                                   group c by c.Description into grp
+                                                   select new { grp.Key }
                                                ).ToArray();
                                     if (QryNote != null)
                                     {
                                         for (int i = 0; i < QryNote.Count(); i++)
                                         {
-                                            if (!string.IsNullOrEmpty(QryNote[i].Description))
+                                            if (!string.IsNullOrEmpty(QryNote[i].Key))
                                             {
-                                                PICommands.Add(QryNote[i].Description);
+                                                PICommands.Add(QryNote[i].Key);
                                             }
                                         }
                                     }
@@ -15715,15 +15813,16 @@ namespace IOAS.GenericServices
                                 var QryNote = (from c in context.tblRCTSTEPIJustificationDocs
                                                where c.STEID == STEID && c.Deleted_f != true
                                                orderby c.DocsID descending
-                                               select new { c.Description, }
+                                               group c by c.Description into grp
+                                               select new { grp.Key }
                                            ).ToArray();
                                 if (QryNote != null)
                                 {
                                     for (int i = 0; i < QryNote.Count(); i++)
                                     {
-                                        if (!string.IsNullOrEmpty(QryNote[i].Description))
+                                        if (!string.IsNullOrEmpty(QryNote[i].Key))
                                         {
-                                            PICommands.Add(QryNote[i].Description);
+                                            PICommands.Add(QryNote[i].Key);
                                         }
                                     }
                                 }
@@ -15833,15 +15932,16 @@ namespace IOAS.GenericServices
                                 var QryNote = (from c in context.tblRCTCONPIJustificationDocument
                                                where c.ConsultantAppointmentId == STEID
                                                orderby c.CONPIJustificationDocumentId descending
-                                               select new { c.PIJustificationDescription, }
+                                               group c by c.PIJustificationDescription into grp
+                                               select new { grp.Key }
                                            ).ToArray();
                                 if (QryNote != null)
                                 {
                                     for (int i = 0; i < QryNote.Count(); i++)
                                     {
-                                        if (!string.IsNullOrEmpty(QryNote[i].PIJustificationDescription))
+                                        if (!string.IsNullOrEmpty(QryNote[i].Key))
                                         {
-                                            PICommands.Add(QryNote[i].PIJustificationDescription);
+                                            PICommands.Add(QryNote[i].Key);
                                         }
                                     }
                                 }
@@ -15948,15 +16048,16 @@ namespace IOAS.GenericServices
                                 var QryNote = (from c in context.tblRCTOSGPIJustificationDoc
                                                where c.OSGID == STEID && c.Deleted_f != true
                                                orderby c.DocsID descending
-                                               select new { c.Description, }
+                                               group c by c.Description into grp
+                                               select new { grp.Key }
                                            ).ToArray();
                                 if (QryNote != null)
                                 {
                                     for (int i = 0; i < QryNote.Count(); i++)
                                     {
-                                        if (!string.IsNullOrEmpty(QryNote[i].Description))
+                                        if (!string.IsNullOrEmpty(QryNote[i].Key))
                                         {
-                                            PICommands.Add(QryNote[i].Description);
+                                            PICommands.Add(QryNote[i].Key);
                                         }
                                     }
                                 }
@@ -16568,8 +16669,8 @@ namespace IOAS.GenericServices
                                     //item.UploadFile("Requirement", docName);
                                     attachement.UploadFile("Requirement", docName);
                                     doc.OrderId = Query.OrderId;
-                                    doc.FileName = docName;
-                                    doc.DocsName = actName;
+                                    doc.FileName = actName;
+                                    doc.DocsName = docName;
                                     doc.Description = Comments;
                                     doc.Crt_Ts = DateTime.Now;
                                     doc.CrtUser = loggedinUser;
@@ -17473,6 +17574,8 @@ namespace IOAS.GenericServices
                         model.RequestedByPI = QryOSG.A.RequestedBy;
                         model.SalaryLevelId = QryOSG.A.SalaryLevelId;
                         model.Comments = QryOSG.A.Comments;
+                        if (QryOSG.A.EmployeeCategory == "Old Employee")
+                         model.IITMExperience = IITExperienceInWording(QryOSG.A.OldNumber);
                     }
                 }
                 return model;
@@ -19372,17 +19475,16 @@ namespace IOAS.GenericServices
                         model.Qualification = Common.getQualificationWordings(OSGID, "OSG");
                         List<string> PICommands = new List<string>();
                         var QryNote = (from c in context.tblRCTOSGPIJustificationDoc
-                                       where c.OSGID == OSGID && c.Deleted_f != true
-                                       orderby c.DocsID descending
-                                       select new { c.Description, }
-                                       ).ToArray();
+                                       where c.OSGID == OSGID && !string.IsNullOrEmpty(c.Description) && c.Deleted_f != true
+                                       group c by c.Description into grp
+                                       select new { grp.Key }).ToArray();
                         if (QryNote != null)
                         {
                             for (int i = 0; i < QryNote.Count(); i++)
                             {
-                                if (!string.IsNullOrEmpty(QryNote[i].Description))
+                                if (!string.IsNullOrEmpty(QryNote[i].Key))
                                 {
-                                    PICommands.Add(QryNote[i].Description);
+                                    PICommands.Add(QryNote[i].Key);
                                 }
                             }
                         }
@@ -20322,8 +20424,8 @@ namespace IOAS.GenericServices
                         //}
                         model.PIJustificationCommands = (from c in context.tblRCTOSGPIJustificationDoc
                                                          where c.OSGID == OSGID && !string.IsNullOrEmpty(c.Description) && c.Deleted_f != true
-                                                         orderby c.DocsID descending
-                                                         select c.Description).ToList();
+                                                         group c by c.Description into grp
+                                                         select grp.Key).ToList();
                         var justificdocs = (from c in context.tblRCTOSGPIJustificationDoc
                                             where c.OSGID == OSGID && c.Deleted_f != true
                                             select c).ToList();
@@ -25919,11 +26021,26 @@ namespace IOAS.GenericServices
                                         context.SaveChanges();
                                     }
                                 }
-
-                                if (query.od.NOCDocSubmitted)
-                                    query.o.Status = "Completed";
+                                if (query.o.InitByPI_f == true && query.od.NOCDocSubmitted != true)
+                                {
+                                    int ordreqid = query.o.OrderRequestId ?? 0;
+                                    bool nocf = context.tblRCTOrderRequest.Where(x => x.OrderRequestId == ordreqid).Select(x => x.NoDues_f).FirstOrDefault() ?? false;
+                                    if (nocf == false)
+                                    {
+                                        query.o.Status = "Completed";
+                                    }
+                                    else
+                                    {
+                                        query.o.Status = "Open";
+                                    }
+                                }
                                 else
-                                    query.o.Status = "Open";
+                                {
+                                    if (query.od.NOCDocSubmitted)
+                                        query.o.Status = "Completed";
+                                    else
+                                        query.o.Status = "Open";
+                                }
                                 query.o.UpdtUser = logged_in_userId;
                                 query.o.UpdtTS = DateTime.Now;
                                 context.SaveChanges();
@@ -26584,8 +26701,10 @@ namespace IOAS.GenericServices
                             EffectiveTo = item.EffectToDate;
                         if (EffectiveFrom != null && EffectiveTo != null)
                         {
-                            decimal totaldays = Common.GetAvgDaysInAYear(EffectiveTo ?? DateTime.Now, EffectiveFrom ?? DateTime.Now);
+                            //decimal totaldays = Common.GetAvgDaysInAYear(EffectiveTo ?? DateTime.Now, EffectiveFrom ?? DateTime.Now);
+                            decimal totaldays = Common.GetAvgDaysInAYear(EffectiveFrom ?? DateTime.Now, EffectiveTo ?? DateTime.Now,true);
                             var Differance = EffectiveFrom.Value.Subtract(EffectiveTo.Value).Days + 1;
+                            //var Differance = EffectiveTo.Value.Subtract(EffectiveFrom.Value).Days + 1;
                             var totalYear = Differance / totaldays;
                             if (totalYear >= 1)
                                 break;
@@ -27859,40 +27978,53 @@ namespace IOAS.GenericServices
                     if (EmployeeDateofBirth.@from != null && EmployeeDateofBirth.to != null)
                         EmployeeDateofBirth.to = EmployeeDateofBirth.to.Value.Date.AddDays(1).AddTicks(-2);
 
-                    var querylist = (from vw in context.vw_RCTRelievedEmployees.AsNoTracking()
-                                     where (vw.Category == model.SearchInCategory || model.SearchInCategory == null)
-                                      && (vw.EmployeersID.Contains(model.SearchInEmployeeId) || string.IsNullOrEmpty(model.SearchInEmployeeId))
-                                      && (vw.CandidateName.Contains(model.SearchInName) || vw.Email.Contains(model.SearchInName) || vw.PostRecommended.Contains(model.SearchInName) || string.IsNullOrEmpty(model.SearchInName))
-                                      && (vw.ProjectNumber.Contains(model.SearchInProjectNumber) || string.IsNullOrEmpty(model.SearchInProjectNumber))
-                                      && (vw.Status.Contains(model.SearchInStatus) || string.IsNullOrEmpty(model.SearchInStatus))
-                                      && (vw.RelievingType.Contains(model.relievingType) || string.IsNullOrEmpty(model.relievingType))
-                                      && ((vw.DateofBirth >= EmployeeDateofBirth.@from && vw.DateofBirth <= EmployeeDateofBirth.to) || (EmployeeDateofBirth.@from == null || EmployeeDateofBirth.to == null))
+                    var prequery = (from vw in context.vw_RCTRelievedEmployees.AsNoTracking()
+                                     where (vw.Category == model.SearchInCategory)
+                                      //&& (vw.EmployeersID.Contains(model.SearchInEmployeeId) || string.IsNullOrEmpty(model.SearchInEmployeeId))
+                                      //&& (vw.CandidateName.Contains(model.SearchInName) || vw.Email.Contains(model.SearchInName) || vw.PostRecommended.Contains(model.SearchInName) || string.IsNullOrEmpty(model.SearchInName))
+                                      //&& (vw.ProjectNumber.Contains(model.SearchInProjectNumber) || string.IsNullOrEmpty(model.SearchInProjectNumber))
+                                      //&& (vw.Status.Contains(model.SearchInStatus) || string.IsNullOrEmpty(model.SearchInStatus))
+                                      //&& (vw.RelievingType.Contains(model.relievingType) || string.IsNullOrEmpty(model.relievingType))
+                                      //&& ((vw.DateofBirth >= EmployeeDateofBirth.@from && vw.DateofBirth <= EmployeeDateofBirth.to) || (EmployeeDateofBirth.@from == null || EmployeeDateofBirth.to == null))
                                      orderby vw.OrderId descending
-                                     select new
+                                     select new RelivingOrderList()
                                      {
-                                         vw.OrderId,
-                                         vw.ApplicationId,
-                                         vw.AppointmentType,
-                                         vw.Category,
-                                         vw.EmployeersID,
-                                         vw.ApplicationNo,
-                                         vw.CandidateName,
-                                         vw.PIName,
-                                         vw.Status,
-                                         vw.PostRecommended,
-                                         vw.RelievingType,
-                                         vw.NOCDocSubmitted,
-                                         vw.isGenarateRelieveOrder,
-                                         vw.isGenarateFinalSettlement,
-                                         vw.isGenarateServiceCertificate,
-                                         vw.ProjectNumber,
-                                         vw.TypeofAppointment,
-                                         vw.DateofBirth,
-                                         vw.Email,
-                                         vw.InitByPI_f
-                                     }).Skip(skiprec).Take(pageSize).ToList();
-
-
+                                         OrderId=vw.OrderId,
+                                         ApplicationId=vw.ApplicationId,
+                                         AppointmentType=vw.AppointmentType,
+                                         Category=vw.Category,
+                                         EmployeersID=vw.EmployeersID,
+                                         ApplicationNo=vw.ApplicationNo,
+                                         CandidateName=vw.CandidateName,
+                                         PIName=vw.PIName,
+                                         Status=vw.Status,
+                                         PostRecommended=vw.PostRecommended,
+                                         RelievingType=vw.RelievingType,
+                                         NOCDocSubmitted=vw.NOCDocSubmitted??false,
+                                         isGenarateRelieveOrder=vw.isGenarateRelieveOrder ?? false,
+                                         isGenarateFinalSettlement=vw.isGenarateFinalSettlement ?? false,
+                                         isGenarateServiceCertificate=vw.isGenarateServiceCertificate ?? false,
+                                         ProjectNumber=vw.ProjectNumber,
+                                         TypeofAppointment=vw.TypeofAppointment,
+                                         DateofBirth=vw.DateofBirth,
+                                         Email=vw.Email,
+                                         InitByPI_f=vw.InitByPI_f ?? false
+                                     });
+                    var predicate = PredicateBuilder.BaseAnd<RelivingOrderList>();
+                    if (!string.IsNullOrEmpty(model.SearchInEmployeeId))
+                        predicate = predicate.And(d => d.EmployeersID.Contains(model.SearchInEmployeeId) || d.EmployeersID.Contains(model.SearchInEmployeeId));
+                    if (!string.IsNullOrEmpty(model.SearchInName))
+                        predicate = predicate.And(d => d.CandidateName.Contains(model.SearchInName) || d.CandidateName.Contains(model.SearchInName));
+                    if (!string.IsNullOrEmpty(model.SearchInProjectNumber))
+                        predicate = predicate.And(d => d.ProjectNumber.Contains(model.SearchInProjectNumber) || d.ProjectNumber.Contains(model.SearchInProjectNumber));
+                    if (!string.IsNullOrEmpty(model.SearchInStatus))
+                        predicate = predicate.And(d => d.Status.Contains(model.SearchInStatus) || d.Status.Contains(model.SearchInStatus));
+                    if (!string.IsNullOrEmpty(model.relievingType))
+                        predicate = predicate.And(d => d.RelievingType.Contains(model.relievingType) || d.RelievingType.Contains(model.relievingType));
+                    if (EmployeeDateofBirth.@from!=null&& EmployeeDateofBirth.to!=null)
+                        predicate = predicate.And(d => d.DateofBirth >= EmployeeDateofBirth.@from && d.DateofBirth <= EmployeeDateofBirth.to);
+                    var querylist= prequery.Where(predicate).OrderByDescending(m => m.OrderId).Skip(skiprec).Take(pageSize).ToList();
+                    list.TotalRecords=prequery.Where(predicate).Count();
                     if (querylist.Count > 0)
                     {
                         int sno = 0;
@@ -27902,7 +28034,7 @@ namespace IOAS.GenericServices
                             sno = (page - 1) * pageSize + 1;
                         for (int i = 0; i < querylist.Count; i++)
                         {
-                            int OrderID = querylist[i].OrderId;
+                            int OrderID = querylist[i].OrderId??0;
                             string SendMailType = string.Empty;
                             string Status = querylist[i].Status;
                             if (Status == "Open" && querylist[i].Category == "CON" && context.tblRCTConsutantAppEmailLog.Where(x => x.OrderId == OrderID && x.TypeofMail == 12).ToList().Count == 0)
@@ -27911,15 +28043,15 @@ namespace IOAS.GenericServices
                                 SendMailType = "Send Relieve Order";
                             else if (Status == "Open" && querylist[i].Category == "OSG" && context.tblRCTOSGEmailLog.Where(x => x.OrderId == OrderID && x.TypeofMail == 12).ToList().Count == 0)
                                 SendMailType = "Send Relieve Order";
-                            else if (Status == "Completed" && querylist[i].RelievingType != "Termination" && ((querylist[i].Category == "CON" && context.tblRCTConsutantAppEmailLog.Where(x => x.OrderId == OrderID && x.TypeofMail == 12).ToList().Count == 0) || (querylist[i].Category == "STE" && context.tblRCTSTEEmailLog.Where(x => x.OrderId == OrderID && x.TypeofMail == 12).ToList().Count == 0) || (querylist[i].Category == "OSG" && context.tblRCTOSGEmailLog.Where(x => x.OrderId == OrderID && x.TypeofMail == 12).ToList().Count == 0)))
+                            else if (Status == "Completed" && querylist[i].RelievingType != "Termination" && ((querylist[i].Category == "OSG" && context.tblRCTOSGEmailLog.Where(x => x.OrderId == OrderID && x.TypeofMail == 12).ToList().Count == 0) || (querylist[i].Category == "STE" && context.tblRCTSTEEmailLog.Where(x => x.OrderId == OrderID && x.TypeofMail == 12).ToList().Count == 0) || (querylist[i].Category == "CON" && context.tblRCTConsutantAppEmailLog.Where(x => x.OrderId == OrderID && x.TypeofMail == 12).ToList().Count == 0)))
                                 SendMailType = "Send Relieve Order / Service Certificate";
-                            else if (Status == "Completed" && querylist[i].RelievingType != "Termination" && ((querylist[i].Category == "CON" && context.tblRCTConsutantAppEmailLog.Where(x => x.OrderId == OrderID && x.TypeofMail == 12).ToList().Count == 1) || (querylist[i].Category == "STE" && context.tblRCTSTEEmailLog.Where(x => x.OrderId == OrderID && x.TypeofMail == 12).ToList().Count == 1) || (querylist[i].Category == "OSG" && context.tblRCTOSGEmailLog.Where(x => x.OrderId == OrderID && x.TypeofMail == 12).ToList().Count == 1)) && context.tblRCTOfferDetails.Any(x => x.OrderId == OrderID && x.isSend != true))
+                            else if (Status == "Completed" && querylist[i].RelievingType != "Termination" && ((querylist[i].Category == "OSG" && context.tblRCTOSGEmailLog.Where(x => x.OrderId == OrderID && x.TypeofMail == 12).ToList().Count == 1) || (querylist[i].Category == "STE" && context.tblRCTSTEEmailLog.Where(x => x.OrderId == OrderID && x.TypeofMail == 12).ToList().Count == 1) || (querylist[i].Category == "CON" && context.tblRCTConsutantAppEmailLog.Where(x => x.OrderId == OrderID && x.TypeofMail == 12).ToList().Count == 1)) && context.tblRCTOfferDetails.Any(x => x.OrderId == OrderID && x.isSend != true))
                                 SendMailType = "Send Service Certificate";
 
                             EmployeeList.Add(new OrderListModel()
                             {
                                 SNo = sno + i,
-                                OrderID = querylist[i].OrderId,
+                                OrderID = querylist[i].OrderId??0,
                                 ID = querylist[i].ApplicationId ?? 0,
                                 TypeCodeID = querylist[i].AppointmentType ?? 0,
                                 CategoryName = querylist[i].Category,
@@ -27930,32 +28062,32 @@ namespace IOAS.GenericServices
                                 Status = querylist[i].Status,
                                 Designation = querylist[i].PostRecommended,
                                 RelievingType = querylist[i].RelievingType,
-                                isSubmittedNOC = querylist[i].NOCDocSubmitted ?? false,
-                                isGenarateRelieveOrder = querylist[i].isGenarateRelieveOrder ?? false,
-                                isGenarateFinalSettlement = querylist[i].isGenarateFinalSettlement ?? false,
-                                isGenarateServiceCertificate = querylist[i].isGenarateServiceCertificate ?? false,
+                                isSubmittedNOC = querylist[i].NOCDocSubmitted,
+                                isGenarateRelieveOrder = querylist[i].isGenarateRelieveOrder,
+                                isGenarateFinalSettlement = querylist[i].isGenarateFinalSettlement,
+                                isGenarateServiceCertificate = querylist[i].isGenarateServiceCertificate,
                                 ProjectNumber = querylist[i].ProjectNumber,
                                 SendMailType = SendMailType,
                                 TypeofAppointmentName = querylist[i].TypeofAppointment,
                                 EmployeeEmail = querylist[i].Email,
                                 EmployeeDateofBirth = string.Format("{0:s}", querylist[i].DateofBirth),
-                                Is_InitByPI = querylist[i].InitByPI_f ?? false
+                                Is_InitByPI = querylist[i].InitByPI_f
                             });
                         }
                     }
 
-                    list.TotalRecords = (from vw in context.vw_RCTRelievedEmployees.AsNoTracking()
-                                         where (vw.Category == model.SearchInCategory || model.SearchInCategory == null)
-                                          && (vw.EmployeersID.Contains(model.SearchInEmployeeId) || string.IsNullOrEmpty(model.SearchInEmployeeId))
-                                          //&& (vw.CandidateName.Contains(model.SearchInName) || string.IsNullOrEmpty(model.SearchInName))
-                                          && (vw.CandidateName.Contains(model.SearchInName) || vw.Email.Contains(model.SearchInName) || vw.PostRecommended.Contains(model.SearchInName) || string.IsNullOrEmpty(model.SearchInName))
-                                          && (vw.ProjectNumber.Contains(model.SearchInProjectNumber) || string.IsNullOrEmpty(model.SearchInProjectNumber))
-                                          && (vw.Status.Contains(model.SearchInStatus) || string.IsNullOrEmpty(model.SearchInStatus))
-                                          && (vw.RelievingType.Contains(model.relievingType) || string.IsNullOrEmpty(model.relievingType))
-                                          && ((vw.DateofBirth >= EmployeeDateofBirth.@from && vw.DateofBirth <= EmployeeDateofBirth.to) || (EmployeeDateofBirth.@from == null || EmployeeDateofBirth.to == null))
-                                         orderby vw.OrderId descending
-                                         select new
-                                         { vw.CandidateName }).Count();
+                    //list.TotalRecords = (from vw in context.vw_RCTRelievedEmployees.AsNoTracking()
+                    //                     where (vw.Category == model.SearchInCategory || model.SearchInCategory == null)
+                    //                      && (vw.EmployeersID.Contains(model.SearchInEmployeeId) || string.IsNullOrEmpty(model.SearchInEmployeeId))
+                    //                      //&& (vw.CandidateName.Contains(model.SearchInName) || string.IsNullOrEmpty(model.SearchInName))
+                    //                      && (vw.CandidateName.Contains(model.SearchInName) || vw.Email.Contains(model.SearchInName) || vw.PostRecommended.Contains(model.SearchInName) || string.IsNullOrEmpty(model.SearchInName))
+                    //                      && (vw.ProjectNumber.Contains(model.SearchInProjectNumber) || string.IsNullOrEmpty(model.SearchInProjectNumber))
+                    //                      && (vw.Status.Contains(model.SearchInStatus) || string.IsNullOrEmpty(model.SearchInStatus))
+                    //                      && (vw.RelievingType.Contains(model.relievingType) || string.IsNullOrEmpty(model.relievingType))
+                    //                      && ((vw.DateofBirth >= EmployeeDateofBirth.@from && vw.DateofBirth <= EmployeeDateofBirth.to) || (EmployeeDateofBirth.@from == null || EmployeeDateofBirth.to == null))
+                    //                     orderby vw.OrderId descending
+                    //                     select new
+                    //                     { vw.CandidateName }).Count();
                     list.List = EmployeeList;
                 }
                 return list;

@@ -1835,14 +1835,14 @@ namespace IOAS.Controllers
                     dt1 = dataset1.Tables[0].Copy();
                     dt1.TableName = "NEW JOINEE";
 
-                    command.CommandText = "select ROW_NUMBER() OVER(ORDER BY [EMPLOYEE ID]) AS [S. No.],[EMPLOYEE ID],[NAME],[DESIGNATION],[APPOINTMENT START DATE],[END DATE],[SALARY],[HRA],[PROJECT NO.],[DEPARTMENT],[APPOINTMENT TYPE],[ARREARS TO BE PROCESSED W.E.F],[LOG_TIME],[CREATED_BY] from [dbo].[vw_RCTSTEExtensionEnhancementReport] where OrderType = 3 and LOG_TIME between '" + strFrom + "' and '" + strTo + "'";
+                    command.CommandText = "select ROW_NUMBER() OVER(ORDER BY [EMPLOYEE ID]) AS [S. No.],[EMPLOYEE ID],[NAME],[DESIGNATION],[APPOINTMENT START DATE],[END DATE],[SALARY],[HRA],[PROJECT NO.],[DEPARTMENT],[APPOINTMENT TYPE],[ARREARS TO BE PROCESSED W.E.F],[LOG_TIME],[CREATED_BY],[Requested by] from [dbo].[vw_RCTSTEExtensionEnhancementReport] where OrderType = 3 and LOG_TIME between '" + strFrom + "' and '" + strTo + "'";
                     var adapter2 = new SqlDataAdapter(command);
                     adapter2 = new SqlDataAdapter(command);
                     adapter2.Fill(dataset2);
                     dt2 = dataset2.Tables[0].Copy();
                     dt2.TableName = "EXTENSION";
 
-                    command.CommandText = "select ROW_NUMBER() OVER(ORDER BY [EMPLOYEE ID]) AS [S. No.],[EMPLOYEE ID],[NAME],[DESIGNATION],[APPOINTMENT START DATE],[END DATE],[SALARY],[HRA],[PROJECT NO.],[DEPARTMENT],[APPOINTMENT TYPE],[ARREARS TO BE PROCESSED W.E.F],[LOG_TIME],[CREATED_BY],[ENHANCEMENT TYPE] from [dbo].[vw_RCTSTEExtensionEnhancementReport] where OrderType = 2 and LOG_TIME between '" + strFrom + "' and '" + strTo + "'";
+                    command.CommandText = "select ROW_NUMBER() OVER(ORDER BY [EMPLOYEE ID]) AS [S. No.],[EMPLOYEE ID],[NAME],[DESIGNATION],[APPOINTMENT START DATE],[END DATE],[SALARY],[HRA],[PROJECT NO.],[DEPARTMENT],[APPOINTMENT TYPE],[ARREARS TO BE PROCESSED W.E.F],[LOG_TIME],[CREATED_BY],[ENHANCEMENT TYPE],[Requested by] from [dbo].[vw_RCTSTEExtensionEnhancementReport] where OrderType = 2 and LOG_TIME between '" + strFrom + "' and '" + strTo + "'";
                     var adapter3 = new SqlDataAdapter(command);
                     adapter3 = new SqlDataAdapter(command);
                     adapter3.Fill(dataset3);
@@ -1856,7 +1856,8 @@ namespace IOAS.Controllers
                     dt4 = dataset4.Tables[0].Copy();
                     dt4.TableName = "LOSS OF PAY";
 
-                    command.CommandText = "select ROW_NUMBER() OVER(ORDER BY [EMPLOYEENO]) AS [S. No.],EMPLOYEENO,EmployeeName [EMPLOYEE NAME],ProjectNumber [PROJECT NO],DESIGNATION ,OtherType [CATEGORY],Head [CATEGORY TYPE],Amount [AMOUNT (Rs.)],CreatedBy,[Created_TS] from [dbo].[vw_RCTOTHPayDeductionReport] where EmployeeNo LIKE '%IC%' and Status = 'Completed' and Created_TS between '" + strFrom + "' and '" + strTo + "'";                    var adapter5 = new SqlDataAdapter(command);
+                    command.CommandText = "select ROW_NUMBER() OVER(ORDER BY [EMPLOYEENO]) AS [S. No.],EMPLOYEENO,EmployeeName [EMPLOYEE NAME],ProjectNumber [PROJECT NO],DESIGNATION ,OtherType [CATEGORY],Head [CATEGORY TYPE],Amount [AMOUNT (Rs.)],CreatedBy,[Created_TS] from [dbo].[vw_RCTOTHPayDeductionReport] where EmployeeNo LIKE '%IC%' and Status = 'Completed' and Created_TS between '" + strFrom + "' and '" + strTo + "'";
+                    var adapter5 = new SqlDataAdapter(command);
                     adapter5 = new SqlDataAdapter(command);
                     adapter5.Fill(dataset5);
                     dt5 = dataset5.Tables[0].Copy();

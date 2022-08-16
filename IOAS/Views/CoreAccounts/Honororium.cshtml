@@ -105,7 +105,7 @@
                                                         </div>
                                                     </div>
                                                     <div class="m-b-sm scrl-table scrl-table-po-bl">
-                                                        <table class="table table-bordered" style="width: 1280px;">
+                                                        <table class="table table-bordered" style="width:1750px;max-width:3800px;">
                                                             <thead>
                                                                 <tr>
                                                                     <th colspan="10"></th>
@@ -115,17 +115,18 @@
                                                             </thead>
                                                             <tbody id="tbodyHo">
                                                                 <tr>
-                                                                    <td style="width: 350px;">Payee Type</td>
-                                                                    <td style="width: 650px;">Name</td>
-                                                                    <td style="width: 200px;">Amount</td>
-                                                                    <td style="width: 400px;">TDS</td>
-                                                                    <td style="width: 200px;">Net Amount</td>
-                                                                    <td style="width: 300px;">Bank Transfer</td>
-                                                                    <td style="width: 300px;" id="tdbank">Bank Name</td>
-                                                                    <td style="width: 250px;" id="tdbranch">Branch</td>
-                                                                    <td style="width: 300px;" id="tdacc">Account Number</td>
-                                                                    <td style="width: 300px;" id="tdacc">PAN</td>
-                                                                    <td style="width: 300px;" id="tdifsc">IFSC</td>
+                                                                    <td style="width: 3800px;">Payee Type</td>
+                                                                    <td style="width: 3800px;">Name</td>
+                                                                    <td style="width: 3800px;">Amount</td>
+                                                                    <td style="width: 3800px;">TDS</td>
+                                                                    <td style="width: 3800px;">Net Amount</td>
+                                                                    <td style="width: 3800px;">Bank Transfer</td>
+                                                                    <td style="width: 3800px;" id="tdbank">Bank Name</td>
+                                                                    <td style="width: 3800px;" id="tdbranch">Branch</td>
+                                                                    <td style="width: 3800px;" id="tdacc">Account Number</td>
+                                                                    <td style="width: 3800px;" id="tdacc">PAN</td>
+                                                                    <td style="width: 3800px;" id="tdifsc">IFSC</td>
+                                                                    <td style="width: 3800px;" id="tdtdsesc">TDS Head</td>
                                                                 </tr>
                                                                 @if (Model.PODetail != null)
                                                                 {
@@ -146,9 +147,10 @@
                                                                         var noauto = "PODetail[" + count + "].NonAutoComplete";
                                                                         var usid = "PODetail[" + count + "].UserId";
                                                                         var pan = "PODetail[" + count + "].PAN";
+                                                                        var hontds= "PODetail[" + count + "].HonororiumTdsSection";
                                                                         <tr id="trdetails" class="p-b-sm">
                                                                             <td>
-                                                                                @Html.DropDownList(@payeetype, new SelectList(ViewBag.CategoryList, "name", "name", item.PayeeType), "Select any", new { @class = "form-control", @id = "payid" })
+                                                                                @Html.DropDownList(@payeetype, new SelectList(ViewBag.CategoryList, "name", "name", item.PayeeType), "Select any", new { @class = "form-control", @id = "payid", @required = "required" })
                                                                                 @Html.ValidationMessage(@payeetype)
                                                                                 @Html.Hidden("PODetail.Index", @count)
 
@@ -197,6 +199,10 @@
                                                                                 @Html.TextBox(@ifsc, item.IFSC, new { @class = "form-control", @readonly = true })
                                                                                 @Html.ValidationMessage(@ifsc)
                                                                             </td>
+                                                                            <td id="honTDssec">
+                                                                                @Html.DropDownList(@hontds, new SelectList(ViewBag.HonTdsSection, "id", "name", item.HonororiumTdsSection), "Select Tds Section", new { @class = "form-control", @id = "honTdsSection" })
+                                                                                @Html.ValidationMessage(@hontds)
+                                                                            </td>
                                                                             <td>
                                                                                 @if (count == 0)
                                                                                 {
@@ -217,7 +223,7 @@
                                                                 {
                                                                     <tr>
                                                                         <td>
-                                                                            @Html.DropDownList("PODetail[0].PayeeType", new SelectList(ViewBag.CategoryList, "name", "name"), "Select any", new { @class = "form-control", @id = "payid" })
+                                                                            @Html.DropDownList("PODetail[0].PayeeType", new SelectList(ViewBag.CategoryList, "name", "name"), "Select any", new { @class = "form-control", @id = "payid",@required="required" })
                                                                             @Html.Hidden("PODetail.Index", "0")
                                                                             @Html.ValidationMessage("PODetail[0].PayeeType")
                                                                         </td>
@@ -263,6 +269,10 @@
                                                                         <td id="ifsc">
                                                                             @Html.TextBox("PODetail[0].IFSC", "", new { @class = "form-control", @readonly = true })
                                                                             @Html.ValidationMessage("PODetail[0].IFSC")
+                                                                        </td>
+                                                                        <td>
+                                                                            @Html.DropDownList("PODetail[0].HonororiumTdsSection", new SelectList(ViewBag.HonTdsSection, "id", "name"), new { @class = "form-control", @id = "honTdsSection" })
+                                                                           
                                                                         </td>
                                                                         <td>
                                                                             <a href="javascript:void(0)" class="btn-circle dis-none removeHOItem"><i class="ion-trash-a"></i></a>
@@ -637,6 +647,17 @@ categoryChange($(this));
                         $("#alert").text("This TDS percent not available");
                         $('#Validation').modal('show');
                         return;
+                    }
+                    if (value > 0 && (value == 10 || value == 20))
+                    {
+                        if(value==10)
+                        {
+                            $('select[name="PODetail[' + index + '].HonororiumTdsSection"]').val(41);
+                        }
+                        else if(value==20)
+                        {
+                            $('select[name="PODetail[' + index + '].HonororiumTdsSection"]').val(356);
+                        }
                     }
                     if (value > 0 && value != 20)
                         $(this).closest('tr').find('input[name$=".PAN"]').prop("readonly", false).addClass('required');

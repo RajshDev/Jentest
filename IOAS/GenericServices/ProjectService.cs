@@ -5783,21 +5783,21 @@ namespace IOAS.GenericServices
                                             {
                                                 prjModel.ForeignGevDep = query.ForgnGovtAgencyDepartment;
                                                 prjModel.ForeignGevDepAmount = Convert.ToDecimal(query.ForgnGovtAgencyDepartmentAmount);
-                                                prjModel.ForeignGevDepCountry = Common.GetCountryName(query.ForgnGovtAgencyDepartmentCountry ?? 0);
+                                                prjModel.ForeignGevDepCountry = Common.GetProjectCountryName(query.ForgnGovtAgencyDepartmentCountry ?? 0);
 
                                             }
                                             else if (funding[i].ForgnProjectFundingGovtBody == 2)
                                             {
                                                 prjModel.ForeignGevUniv = query.ForgnGovtUniversity;
                                                 prjModel.ForeignGevUnivAmount = Convert.ToDecimal(query.ForgnGovtUniversityAmount);
-                                                prjModel.ForeignGevUnivCountry = Common.GetCountryName(query.ForgnGovtUnivCountry ?? 0);
+                                                prjModel.ForeignGevUnivCountry = Common.GetProjectCountryName(query.ForgnGovtUnivCountry ?? 0);
 
                                             }
                                             else if (funding[i].ForgnProjectFundingGovtBody == 3)
                                             {
                                                 prjModel.ForeignGevAgency = query.ForgnGovtOthers;
                                                 prjModel.ForeignGevAgencyAmount = Convert.ToDecimal(query.ForgnGovtOthersAmount);
-                                                prjModel.ForeignGevAgencyCountry = Common.GetCountryName(query.ForgnGovtOthersCountry ?? 0);
+                                                prjModel.ForeignGevAgencyCountry = Common.GetProjectCountryName(query.ForgnGovtOthersCountry ?? 0);
 
                                             }
 
@@ -5824,21 +5824,21 @@ namespace IOAS.GenericServices
                                             {
                                                 prjModel.ForeignNonGevDep = query.ForgnNonGovtAgencyDepartment;
                                                 prjModel.ForeignNonGevDepAmount = Convert.ToDecimal(query.ForgnNonGovtAgencyDepartment);
-                                                prjModel.ForeignNonGevDepCountry = Common.GetCountryName(query.ForgnNonGovtAgencyDepartmentCountry ?? 0);
+                                                prjModel.ForeignNonGevDepCountry = Common.GetProjectCountryName(query.ForgnNonGovtAgencyDepartmentCountry ?? 0);
 
                                             }
                                             else if (funding[i].ForgnProjectFundingNonGovtBody == 2)
                                             {
                                                 prjModel.ForeignNonGevUniv = query.ForgnNonGovtAgencyUniversity;
                                                 prjModel.ForeignNonGevUnivAmount = Convert.ToDecimal(query.ForgnNonGovtAgencyUnivAmount);
-                                                prjModel.ForeignNonGevUnivCountry = Common.GetCountryName(query.ForgnNonGovtAgencyUnivCountry ?? 0);
+                                                prjModel.ForeignNonGevUnivCountry = Common.GetProjectCountryName(query.ForgnNonGovtAgencyUnivCountry ?? 0);
 
                                             }
                                             else if (funding[i].ForgnProjectFundingNonGovtBody == 3)
                                             {
                                                 prjModel.ForeignNonGevAgency = query.ForgnNonGovtOthers;
                                                 prjModel.ForeignNonGevAgencyAmount = Convert.ToDecimal(query.ForgnNonGovtOthersAmount);
-                                                prjModel.ForeignNonGevAgencyCountry = Common.GetCountryName(query.ForgnNonGovtOthersCountry ?? 0);
+                                                prjModel.ForeignNonGevAgencyCountry = Common.GetProjectCountryName(query.ForgnNonGovtOthersCountry ?? 0);
 
                                             }
 
@@ -5935,7 +5935,7 @@ namespace IOAS.GenericServices
                         prjModel.RegistrationStatus = Common.GetCodeControlnameCommon(query.Taxserviceregstatus ?? 0, "TaxServiceRegStatus");
                         prjModel.Stateoffundingagency = query.IndianProjectAgencyState;
                         prjModel.LocationofFundingAgency = query.IndianProjectAgencyLocation;
-                        prjModel.Country = Common.GetCountryName(query.ProjectAgencyCountry ?? 0);
+                        prjModel.Country = Common.GetProjectCountryName(query.ProjectAgencyCountry ?? 0);
                         prjModel.State = query.ForeignProjectAgencyState;
                         prjModel.Location = query.ForeignProjectAgencyLocation;
                         prjModel.JointdevelopmentQuestion = query.JointdevelopmentQuestion;

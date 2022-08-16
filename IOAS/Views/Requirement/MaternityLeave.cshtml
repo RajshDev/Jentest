@@ -110,7 +110,7 @@
                                         <div class="col-md-4">
                                             <div class="form-group custom-form-group">
                                                 <label>Approval letter</label><br>
-                                                @if (Model.OrderID > 0)
+                                                @if (Model.OrderID > 0&&Model.Status!= "PI Initiated")
                                                 {
                                                     <input type="file" name="PILetter" class="pull-left">
                                                     <h4>@Html.ActionLink(Model.PILetterFileName, "ShowDocument", new { Controller = "Account", filepath = "Requirement", file = Model.PILetterPath }, new { @name = "DocDownload", @target = "_blank" })</h4>
@@ -460,13 +460,28 @@
             });
             return;
         }
-
-        if (OrderID > 0 && Status != "Initiated") {
-            if ($('#isRejoin').is(":checked")) {
-                if ($('#RejoinDate').val() == "") {
+        if(Status != "PI Initiated"){
+            if (OrderID > 0 && (Status != "Initiated")) {
+                if ($('#isRejoin').is(":checked")) {
+                    if ($('#RejoinDate').val() == "") {
+                        $.confirm({
+                            title: 'Warning!',
+                            content: 'Please ender rejoin date',
+                            type: 'red',
+                            buttons: {
+                                Ok: function () {
+                                    //close
+                                },
+                            },
+                        });
+                        return;
+                    }
+                }
+                else
+                {
                     $.confirm({
                         title: 'Warning!',
-                        content: 'Please ender rejoin date',
+                        content: 'Please checked rejoin and ender rejoin date',
                         type: 'red',
                         buttons: {
                             Ok: function () {
@@ -477,22 +492,7 @@
                     return;
                 }
             }
-            else
-            {
-                $.confirm({
-                    title: 'Warning!',
-                    content: 'Please checked rejoin and ender rejoin date',
-                    type: 'red',
-                    buttons: {
-                        Ok: function () {
-                            //close
-                        },
-                    },
-                });
-                return;
-            }
         }
-
         var RequestReference = $('#RequestReference').val();
         if (RequestReference == '3') {
             if ($('#ReferenceNo').val() == "") {
