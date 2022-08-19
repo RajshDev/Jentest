@@ -2102,6 +2102,7 @@ namespace IOAS.Models
         public string SearchPIname { get; set; }
         public string SearchTypeofAppointment { get; set; }
         public string DepartmentName { get; set; }
+        public Nullable<decimal> SearchBasicAmount { get; set; }
     }
 
     public class ApplicationSearchListModel
