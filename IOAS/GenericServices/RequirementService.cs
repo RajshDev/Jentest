@@ -28974,5 +28974,69 @@ namespace IOAS.GenericServices
         }
         #endregion
 
+        #region Test
+        public bool STEWFInitSccess(int STEID, int loggedInUser)
+        {
+            try
+            {
+
+                using (var context = new IOASDBEntities())
+                {
+                    var query = (from S in context.tblRCTSTE
+                                 from D in context.tblRCTDesignation
+                                 where S.DesignationId == D.DesignationId && S.STEID == STEID
+                                 //&& S.Status == "Sent for approval"
+                                 select new { S, D }).FirstOrDefault();
+                    if (query != null)
+                    {
+
+                        bool nofund_f = Common.IsAvailablefundProject(query.S.ProjectId ?? 0, query.S.CommitmentAmount ?? 0, query.S.TypeofAppointment);
+                        if (query.S.CSIRStaffPayMode == 2)
+                        {
+                            //query.S.Status = "Awaiting Committee Approval";
+                        }
+                        else if (query.S.TypeofAppointment == 4 && nofund_f)
+                        {
+                            //query.S.isGovAgencyFund = true;
+                            //query.S.Status = "Awaiting Committee Approval";
+                        }
+                        else
+                        {
+                            //query.S.Status = "Awaiting Commitment Booking";
+
+                            tblRCTCommitmentRequest add = new tblRCTCommitmentRequest();
+                            add.ReferenceNumber = query.S.ApplicationNumber;
+                            add.AppointmentType = "Short Term Engagement";
+                            add.TypeCode = "STE";
+                            add.CandidateName = query.S.Name;
+                            add.CandidateDesignation = query.D.Designation;
+                            add.ProjectId = query.S.ProjectId;
+                            add.ProjectNumber = Common.getprojectnumber(query.S.ProjectId ?? 0);
+                            add.TotalSalary = query.S.Salary;
+                            add.RequestedCommitmentAmount = query.S.CommitmentAmount;
+                            add.Status = "Awaiting Commitment Booking";
+                            add.RequestType = "New Appointment";
+                            add.Crtd_TS = DateTime.Now;
+                            add.Crtd_UserId = loggedInUser;
+                            context.tblRCTCommitmentRequest.Add(add);
+                        }
+
+                        query.S.UptdUser = loggedInUser;
+                        query.S.UptdTs = DateTime.Now;
+                        context.SaveChanges();
+                        //RequirementService.PostSTEStatusLog(STEID, "Sent for approval", query.S.Status, loggedInUser);
+                        return true;
+                    }
+                    return false;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+        #endregion
+
     }
 }
