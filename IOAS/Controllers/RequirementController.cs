@@ -10213,7 +10213,7 @@ namespace IOAS.Controllers
             return View();
         }
         [HttpPost]
-        public JsonResult GetSTEEmployeeList(SearchEmployeeModel model, int pageIndex, int pageSize, DateFilterModel DateOfBirth, DateFilterModel DateOfJoining)
+        public JsonResult GetSTEEmployeeList(SearchEmployeeModel model, int pageIndex, int pageSize, DateFilterModel strDateofBirth, DateFilterModel strDateofJoining)
         {
             try
             {
@@ -10221,7 +10221,7 @@ namespace IOAS.Controllers
                 var user = Common.getUserIdAndRole(username);
                 int userid = user.Item1;
                 int roleid = user.Item2;
-                object output = recruitmentService.GetSTEEmployeeList(model, pageIndex, pageSize, DateOfBirth, DateOfJoining);
+                object output = recruitmentService.GetSTEEmployeeList(model, pageIndex, pageSize, strDateofBirth, strDateofJoining);
                 return Json(output, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)

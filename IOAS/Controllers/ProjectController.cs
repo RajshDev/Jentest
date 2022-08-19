@@ -752,6 +752,24 @@ namespace IOAS.Controllers
             }
         }
 
+        public ActionResult ShowDocumentLocalPath(string file, string filepath)
+        {
+            try
+            {
+                int roleId = Common.GetRoleId(User.Identity.Name);
+                //if (roleId != 1 && roleId != 3)
+                //    return new EmptyResult();
+                string fileType = Common.GetMimeType(Path.GetExtension(file));
+                byte[] fileData = file.GetFileData(Server.MapPath(filepath));
+
+                Response.AddHeader("Content-Disposition", "inline; filename=\"" + file + "\"");
+                return File(fileData, fileType);
+            }
+            catch (FileNotFoundException)
+            {
+                throw new HttpException(404, "File not found.");
+            }
+        }
 
 
         [HttpPost]

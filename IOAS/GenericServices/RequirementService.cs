@@ -5497,6 +5497,7 @@ namespace IOAS.GenericServices
                                            && (p.ProjectNumber.Contains(model.SearchInProjectNumber) || model.SearchInProjectNumber == null)
                                            && (vw.EmployeersID.Contains(model.SearchInEmployeeId) || model.SearchInEmployeeId == null)
                                            && (b.Status.Contains(model.SearchInStatus) || model.SearchInStatus == null)
+                                           &&(vw.BasicPay==model.SearchBasicAmount||model.SearchBasicAmount==null)
                                            select new
                                            {
                                                vw.CandidateName,
@@ -5558,6 +5559,7 @@ namespace IOAS.GenericServices
                                          && (p.ProjectNumber.Contains(model.SearchInProjectNumber) || model.SearchInProjectNumber == null)
                                          && (vw.EmployeersID.Contains(model.SearchInEmployeeId) || model.SearchInEmployeeId == null)
                                          && (b.Status.Contains(model.SearchInStatus) || model.SearchInStatus == null)
+                                         && (vw.BasicPay == model.SearchBasicAmount || model.SearchBasicAmount == null)
                                          select b).Count();
                     list.List = EmployeeList;
                 }
@@ -7240,6 +7242,13 @@ namespace IOAS.GenericServices
                                     model.Fellowship = QrySTE.A.Fellowship ?? false;
                                     model.PayType = QrySTE.A.ConsolidatedPay == true ? "Consolidated Pay" : QrySTE.A.Fellowship == true ? "Fellowship pay" : "-";
                                 }
+                                if(QryOrder.OrderType==2&&QryOrder.InitByPI_f==true)
+                                {
+                                    model.ConsolidatedPay = QrySTE.A.ConsolidatedPay ?? false;
+                                    model.Fellowship = QrySTE.A.Fellowship ?? false;
+                                    model.PayType = QrySTE.A.ConsolidatedPay == true ? "Consolidated Pay" : QrySTE.A.Fellowship == true ? "Fellowship pay" : "-";
+                                    model.isConsolidatePay = QrySTE.A.ConsolidatedPay == true ? "ConsolidatedPay" : QrySTE.A.Fellowship == true ? "FellowshipPay" : "";
+                                }
                                 model.IITMPensionerCSIRStaff = Common.GetCodeControlName(QrySTE.A.IITMPensionerOrCSIRStaff ?? 0, "IITMPensioner/CSIRStaff");
                                 model.IsMsPhd = QrySTE.A.MsPhd ?? false;
                                 model.PhdDetail = QrySTE.A.PhdDetail;
@@ -7297,6 +7306,14 @@ namespace IOAS.GenericServices
                                     model.ConsolidatedPay = QryOSG.A.ConsolidatedPay ?? false;
                                     model.Fellowship = QryOSG.A.Fellowship ?? false;
                                     model.PayType = QryOSG.A.ConsolidatedPay == true ? "Consolidated Pay" : QryOSG.A.Fellowship == true ? "Fellowship pay" : "-";
+                                    
+                                }
+                                if (QryOrder.OrderType == 2 && QryOrder.InitByPI_f == true)
+                                {
+                                    model.ConsolidatedPay = QryOSG.A.ConsolidatedPay ?? false;
+                                    model.Fellowship = QryOSG.A.Fellowship ?? false;
+                                    model.PayType = QryOSG.A.ConsolidatedPay == true ? "Consolidated Pay" : QryOSG.A.Fellowship == true ? "Fellowship pay" : "-";
+                                    model.isConsolidatePay = QryOSG.A.ConsolidatedPay == true ? "ConsolidatedPay" : QryOSG.A.Fellowship == true ? "FellowshipPay" : "";
                                 }
                                 model.IITMPensionerCSIRStaff = Common.GetCodeControlName(QryOSG.A.IITMPensionerOrCSIRStaff ?? 0, "IITMPensioner/CSIRStaff");
                                 model.IsMsPhd = QryOSG.A.MsPhd ?? false;
@@ -28582,7 +28599,7 @@ namespace IOAS.GenericServices
                                  && (prj.ProjectNumber.Contains(model.ProjectNumber) || model.ProjectNumber == null)
                                  && (ord.CandidateName.Contains(model.EmployeeName) || model.EmployeeName == null)
                                  && ((ordin.FromDate >= StrFrmDate.@from && ordin.FromDate <= StrFrmDate.to) || (StrFrmDate.@from == null && StrFrmDate.to == null))
-                                 && ((ordin.ToDate >= StrtoDate.@from && ordin.FromDate <= StrtoDate.to) || (StrtoDate.@from == null && StrtoDate.to == null))
+                                 && ((ordin.ToDate >= StrtoDate.@from && ordin.ToDate <= StrtoDate.to) || (StrtoDate.@from == null && StrtoDate.to == null))
                                  && (ord.Status.Contains(model.Status) || model.Status == null)
                                   && (vw.DepartmentName.Contains(model.DepartmentName) || model.DepartmentName == null)
                                   && (ord.TypeofAppointment.Contains(model.SearchTypeofAppointmentName) || model.SearchTypeofAppointmentName == null)

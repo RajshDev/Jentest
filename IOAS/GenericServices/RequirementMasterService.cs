@@ -460,11 +460,10 @@ namespace IOAS.GenericServices
                 using (var context = new IOASDBEntities())
                 {
                     List<DesignationModel> list = new List<DesignationModel>();
-                    var query = (from ds in context.tblRCTDesignation
-                                 join cc in context.tblCodeControl on ds.TypeOfAppointment equals cc.CodeValAbbr
+                    var query = (from ds in context.vw_RCTDesignation
                                  orderby ds.DesignationId descending
-                                 where (cc.CodeName == "Appointmenttype" && ds.RecordStatus != "InActive")
-                                       && (cc.CodeValDetail.Contains(model.TypeofAccountName) || model.TypeofAccountName == null)
+                                 where (ds.RecordStatus != "InActive")
+                                       && (ds.CodeValDetail.Contains(model.TypeofAccountName) || model.TypeofAccountName == null)
                                        && (ds.DesignationCode.Contains(model.DesignationCode) || model.DesignationCode == null)
                                        && (ds.Designation.Contains(model.Designation) || model.Designation == null)
                                        && (ds.PayStructureMinMum == model.PayStructureMinMum || model.PayStructureMinMum == null)
@@ -474,7 +473,7 @@ namespace IOAS.GenericServices
                                        && (ds.Status == model.Status || model.Status == null)
                                  select new
                                  {
-                                     cc.CodeValDetail,
+                                     ds.CodeValDetail,
                                      ds.DesignationCode,
                                      ds.Designation,
                                      ds.PayStructureMinMum,
@@ -487,11 +486,10 @@ namespace IOAS.GenericServices
                                      ds.SalaryLevel
                                  }
                                       ).Skip(skiprec).Take(pageSize).ToList();
-                    searchdata.TotalRecords = (from ds in context.tblRCTDesignation
-                                               join cc in context.tblCodeControl on ds.TypeOfAppointment equals cc.CodeValAbbr
+                    searchdata.TotalRecords = (from ds in context.vw_RCTDesignation
                                                orderby ds.DesignationId descending
-                                               where (cc.CodeName == "Appointmenttype" && ds.RecordStatus != "InActive")
-                                                && (cc.CodeValDetail.Contains(model.TypeofAccountName) || model.TypeofAccountName == null)
+                                               where (ds.RecordStatus != "InActive")
+                                                && (ds.CodeValDetail.Contains(model.TypeofAccountName) || model.TypeofAccountName == null)
                                                      && (ds.DesignationCode.Contains(model.DesignationCode) || model.DesignationCode == null)
                                                      && (ds.Designation.Contains(model.Designation) || model.Designation == null)
                                                      && (ds.PayStructureMinMum == model.PayStructureMinMum || model.PayStructureMinMum == null)
@@ -501,7 +499,7 @@ namespace IOAS.GenericServices
                                                      && (ds.Status == model.Status || model.Status == null)
                                                select new
                                                {
-                                                   cc.CodeValDetail,
+                                                   ds.CodeValDetail,
                                                    ds.DesignationCode,
                                                    ds.Designation,
                                                    ds.PayStructureMinMum,
