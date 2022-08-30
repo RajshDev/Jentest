@@ -20,7 +20,6 @@ namespace IOAS.DataModel
         public IOASDBEntities()
             : base("name=IOASDBEntities")
         {
-            this.Database.CommandTimeout = 180;            this.Database.ExecuteSqlCommand("SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;");
         }
     
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
@@ -483,7 +482,7 @@ namespace IOAS.DataModel
         public virtual DbSet<tblBillReverseLog> tblBillReverseLog { get; set; }
         public virtual DbSet<tblImprestBankStatemenDetail> tblImprestBankStatemenDetail { get; set; }
         public virtual DbSet<tblImprestBankStatement> tblImprestBankStatement { get; set; }
-        public virtual DbSet<tbImprestBankStatementExpenseDetail> tbImprestBankStatementExpenseDetail { get; set; }
+        
         public virtual DbSet<tblImprestBankStatementRec> tblImprestBankStatementRec { get; set; }
         public virtual DbSet<tblProjectSummaryChart> tblProjectSummaryChart { get; set; }
         public virtual DbSet<tblLogin> tblLogin { get; set; }
@@ -501,7 +500,7 @@ namespace IOAS.DataModel
         public virtual DbSet<tblGeneralVoucherDocumentDetail> tblGeneralVoucherDocumentDetail { get; set; }
         public virtual DbSet<VWOfficeOrder> VWOfficeOrder { get; set; }
         public virtual DbSet<vwSupplementarySalary> vwSupplementarySalary { get; set; }
-        public virtual DbSet<JulyMissedCountCommitment> JulyMissedCountCommitment { get; set; }
+
         public virtual DbSet<tblProjectWiseAllocationandExpSPprocess> tblProjectWiseAllocationandExpSPprocess { get; set; }
         public virtual DbSet<tblAccountHeadandgroup> tblAccountHeadandgroup { get; set; }
         public virtual DbSet<vw_BalanceSheet> vw_BalanceSheet { get; set; }
@@ -522,7 +521,7 @@ namespace IOAS.DataModel
         public virtual DbSet<tblUTRDetail> tblUTRDetail { get; set; }
         public virtual DbSet<tblUTRMaster> tblUTRMaster { get; set; }
         public virtual DbSet<tblEmail> tblEmail { get; set; }
-        public virtual DbSet<tempOus> tempOus { get; set; }
+
         public virtual DbSet<tblCreditNoteGSTReversal> tblCreditNoteGSTReversal { get; set; }
         public virtual DbSet<tblRCTAnnouncementDetails> tblRCTAnnouncementDetails { get; set; }
         public virtual DbSet<tblRCTAnnouncementEmailLog> tblRCTAnnouncementEmailLog { get; set; }
@@ -596,18 +595,13 @@ namespace IOAS.DataModel
         public virtual DbSet<tblSalaryAgencyMasterDoc> tblSalaryAgencyMasterDoc { get; set; }
         public virtual DbSet<tblRCTPayrollProcessDetail> tblRCTPayrollProcessDetail { get; set; }
         public virtual DbSet<tblSalaryPayment> tblSalaryPayment { get; set; }
-        public virtual DbSet<adhocMissedComDetail> adhocMissedComDetail { get; set; }
-        public virtual DbSet<BackContCommit> BackContCommit { get; set; }
-        public virtual DbSet<BackEndPosting> BackEndPosting { get; set; }
-        public virtual DbSet<BackendReceipt> BackendReceipt { get; set; }
-        public virtual DbSet<BackendReceiptTemplate> BackendReceiptTemplate { get; set; }
-        public virtual DbSet<backendRecRMF> backendRecRMF { get; set; }
-        public virtual DbSet<Commit145> Commit145 { get; set; }
-        public virtual DbSet<DisSalaryBackEndPosting> DisSalaryBackEndPosting { get; set; }
+
+
+        
         public virtual DbSet<EmailServerConfig> EmailServerConfig { get; set; }
-        public virtual DbSet<InterestEarned20_21> InterestEarned20_21 { get; set; }
-        public virtual DbSet<InvRef> InvRef { get; set; }
-        public virtual DbSet<MissedSalCommitment> MissedSalCommitment { get; set; }
+        
+        
+        
         public virtual DbSet<MSpeer_conflictdetectionconfigrequest> MSpeer_conflictdetectionconfigrequest { get; set; }
         public virtual DbSet<MSpeer_lsns> MSpeer_lsns { get; set; }
         public virtual DbSet<sysdiagrams> sysdiagrams { get; set; }
@@ -694,9 +688,9 @@ namespace IOAS.DataModel
         public virtual DbSet<tblStaffCommitmentDate> tblStaffCommitmentDate { get; set; }
         public virtual DbSet<tblTDSDetails> tblTDSDetails { get; set; }
         public virtual DbSet<tblUTRwithTapal> tblUTRwithTapal { get; set; }
-        public virtual DbSet<tempSTMInvoice> tempSTMInvoice { get; set; }
-        public virtual DbSet<temptdsbasicvalue> temptdsbasicvalue { get; set; }
-        public virtual DbSet<dupInv> dupInv { get; set; }
+        
+        
+        
         public virtual DbSet<MSpeer_conflictdetectionconfigresponse> MSpeer_conflictdetectionconfigresponse { get; set; }
         public virtual DbSet<MSpeer_originatorid_history> MSpeer_originatorid_history { get; set; }
         public virtual DbSet<MSpeer_request> MSpeer_request { get; set; }
@@ -704,7 +698,7 @@ namespace IOAS.DataModel
         public virtual DbSet<MSpeer_topologyrequest> MSpeer_topologyrequest { get; set; }
         public virtual DbSet<MSpeer_topologyresponse> MSpeer_topologyresponse { get; set; }
         public virtual DbSet<MSpub_identity_range> MSpub_identity_range { get; set; }
-        public virtual DbSet<SWFMissingEntry> SWFMissingEntry { get; set; }
+        
         public virtual DbSet<sysarticlecolumns> sysarticlecolumns { get; set; }
         public virtual DbSet<sysarticles> sysarticles { get; set; }
         public virtual DbSet<sysarticleupdates> sysarticleupdates { get; set; }
@@ -721,28 +715,16 @@ namespace IOAS.DataModel
         public virtual DbSet<tblOthersTapalReport> tblOthersTapalReport { get; set; }
         public virtual DbSet<tblPurchaseTapalReport> tblPurchaseTapalReport { get; set; }
         public virtual DbSet<tblRCTCONOldOrderHistory> tblRCTCONOldOrderHistory { get; set; }
-        public virtual DbSet<tblRCTOutsourcingEducationDetail_15May2021> tblRCTOutsourcingEducationDetail_15May2021 { get; set; }
-        public virtual DbSet<tblRCTSTE_31Mar2021_> tblRCTSTE_31Mar2021_ { get; set; }
-        public virtual DbSet<tblRCTSTE_Awaiting_VerificationEntry> tblRCTSTE_Awaiting_VerificationEntry { get; set; }
-        public virtual DbSet<tblRCTSTEAwaitingVerification_02Apr2021_> tblRCTSTEAwaitingVerification_02Apr2021_ { get; set; }
-        public virtual DbSet<tblRCTSTEAwaitingVerification_NA_05Apr2021_> tblRCTSTEAwaitingVerification_NA_05Apr2021_ { get; set; }
-        public virtual DbSet<tblRCTSTEEducationDetail_09Apr2021> tblRCTSTEEducationDetail_09Apr2021 { get; set; }
-        public virtual DbSet<tblRCTSTEOngoingExperienceDetail_31Mar2021_> tblRCTSTEOngoingExperienceDetail_31Mar2021_ { get; set; }
-        public virtual DbSet<tblRCTSTEOrderHistory_31Mar2021_> tblRCTSTEOrderHistory_31Mar2021_ { get; set; }
-        public virtual DbSet<tblRCTSTERelievedExperienceDetail_31Mar2021_> tblRCTSTERelievedExperienceDetail_31Mar2021_ { get; set; }
+        
+      
         public virtual DbSet<tblRecruitmentTapalReport> tblRecruitmentTapalReport { get; set; }
-        public virtual DbSet<temp> temp { get; set; }
-        public virtual DbSet<tempDis> tempDis { get; set; }
-        public virtual DbSet<tempDisDet> tempDisDet { get; set; }
-        public virtual DbSet<tempDisExp> tempDisExp { get; set; }
-        public virtual DbSet<tempGV> tempGV { get; set; }
+        
         public virtual DbSet<syncobj_0x3031304232413635> syncobj_0x3031304232413635 { get; set; }
         public virtual DbSet<sysextendedarticlesview> sysextendedarticlesview { get; set; }
         public virtual DbSet<Tapaltempview> Tapaltempview { get; set; }
         public virtual DbSet<tempAllocationYearWise> tempAllocationYearWise { get; set; }
         public virtual DbSet<vw_AccountsMonthlyReceiptReport> vw_AccountsMonthlyReceiptReport { get; set; }
         public virtual DbSet<vw_AccountsTapalReport> vw_AccountsTapalReport { get; set; }
-        public virtual DbSet<vw_AccountTapalReport> vw_AccountTapalReport { get; set; }
         public virtual DbSet<vw_AdhocEmployees> vw_AdhocEmployees { get; set; }
         public virtual DbSet<vw_AdhocStaffSalaryExpenditure> vw_AdhocStaffSalaryExpenditure { get; set; }
         public virtual DbSet<vw_AdvanceOutstandingReport> vw_AdvanceOutstandingReport { get; set; }
@@ -956,6 +938,7 @@ namespace IOAS.DataModel
         public virtual DbSet<vwTapalDetails> vwTapalDetails { get; set; }
         public virtual DbSet<vwTapalInwardDetails> vwTapalInwardDetails { get; set; }
         public virtual DbSet<vwTnMmaxOrder> vwTnMmaxOrder { get; set; }
+        public virtual DbSet<vw_RCTDesignation> vw_RCTDesignation { get; set; }
     
         public virtual int AnnualAccounts(Nullable<System.DateTime> date, Nullable<System.DateTime> date2)
         {
