@@ -17,10 +17,10 @@ namespace IOAS.DataModel
         public string TapalNo { get; set; }
         public string SenderDetail { get; set; }
         public string ProjectNumber { get; set; }
-        public string CreatedTime { get; set; }
-        public string InwardDateandTime { get; set; }
-        public Nullable<System.DateTime> CreatedTS { get; set; }
-        public Nullable<System.DateTime> InwardDateTime { get; set; }
+        public string CreatedTS { get; set; }
+        public string InwardDateTime { get; set; }
+        public Nullable<System.DateTime> CreatedTime { get; set; }
+        public Nullable<System.DateTime> InwardDateandTime { get; set; }
         public string Notes { get; set; }
         public string DepartmentName { get; set; }
         public string RoleName { get; set; }
