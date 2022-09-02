@@ -505,6 +505,27 @@ namespace IOAS.GenericServices
                 return -1;
             }
         }
+
+        public static bool CheckDuplicateApproval(int Action, int Department, int Role, int ToUser, string remarks, int TapalId, int logged_in_userId, bool PopUpEdit)
+        {
+            bool checkexstingentry= false;
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    var query = context.tblTapalWorkflow.Where(x => x.TapalId == TapalId && x.MarkTo == Department && x.UserId == ToUser && x.TapalAction == Action&&x.Is_Active==true).OrderByDescending(x => x.TapalWorkflowId).FirstOrDefault();
+                    if (query == null)
+                        checkexstingentry = true;
+
+                }
+                return checkexstingentry;
+            }
+            catch(Exception ex)
+            {
+                return checkexstingentry;
+            }
+        }
+
         public static PagedData<ListTapalModel> GetOutwardDetails(int UserId, ListTapalModel model, DateFilterModel OutwardDate, int pageIndex, int pageSize)
         {
             try

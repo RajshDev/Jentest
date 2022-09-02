@@ -36,10 +36,10 @@ namespace IOAS.Controllers
                 string employeeId = EmpId;
                 ViewBag.DocmentTypeList = Common.GetDocTypeList(63);
                 ViewBag.Finyr = Common.GetAllFinancial();
-
-                model.ItList = payment.GetITEmpDeclarations(employeeId);
+                model.FinancialYear = FinYear;
+                model.ItList = payment.GetITEmpDeclarations(employeeId, FinYear);
                 model.ItSOP = payment.GetITEmpSOP();
-                model.ItOtherIncome = payment.GetITEmpOtherIncome(employeeId);
+                model.ItOtherIncome = payment.GetITEmpOtherIncome(employeeId, FinYear);
                 model.EmpInfo = StaffPaymentService.GetEmployeeDetails(employeeId);
                 model.SalaryDet = payment.GetEmployeesSalaryDetails(employeeId, FinYear);
                 model.SupplemSalaryDet = payment.GetEmployeesSupplymentarySalaryDetails(employeeId, FinYear);
@@ -66,10 +66,10 @@ namespace IOAS.Controllers
                 string employeeId = EmpId;
                 ViewBag.DocmentTypeList = Common.GetDocTypeList(63);
                 ViewBag.Finyr = Common.GetAllFinancial();
-
-                model.ItList = payment.GetITEmpDeclarations(employeeId);
+                model.FinancialYear = FinYear;
+                model.ItList = payment.GetITEmpDeclarations(employeeId, FinYear);
                 model.ItSOP = payment.GetITEmpSOP();
-                model.ItOtherIncome = payment.GetITEmpOtherIncome(employeeId);
+                model.ItOtherIncome = payment.GetITEmpOtherIncome(employeeId, FinYear);
                 model.EmpInfo = StaffPaymentService.GetEmployeeDetails(employeeId);
                 model.SalaryDet = payment.GetEmployeesSalaryDetails(employeeId, FinYear);
                 model.SupplemSalaryDet = payment.GetEmployeesSupplymentarySalaryDetails(employeeId, FinYear);
@@ -110,11 +110,11 @@ namespace IOAS.Controllers
                 // string employeeId = Common.GetAdhocStaffEmployeeId(model.EmpInfo.ID);
                 string employeeId = model.EmpInfo.EmployeeID;
                 model.EmpInfo.EmployeeID = employeeId;
-                msg = payment.ITEmpDeclarationIU(model);
+                msg = payment.ITEmpDeclarationIU(model, Finyear);
 
-                model.ItList = payment.GetITEmpDeclarations(employeeId);
+                model.ItList = payment.GetITEmpDeclarations(employeeId, Finyear);
                 model.ItSOP = payment.GetITEmpSOP();
-                model.ItOtherIncome = payment.GetITEmpOtherIncome(employeeId);
+                model.ItOtherIncome = payment.GetITEmpOtherIncome(employeeId, Finyear);
                 model.EmpInfo = StaffPaymentService.GetEmployeeDetails(employeeId);
                 model.SalaryDet = payment.GetEmployeesSalaryDetails(employeeId, Finyear);
                 model.SupplemSalaryDet = payment.GetEmployeesSupplymentarySalaryDetails(employeeId, Finyear);
@@ -135,9 +135,9 @@ namespace IOAS.Controllers
                 var user = User.Identity.Name;
                 var userId = AdminService.getUserByName(user);
                 EmpITDeductionModel model = new EmpITDeductionModel();
-                model.ItList = payment.GetITEmpDeclarations("");
+                model.ItList = payment.GetITEmpDeclarations("",0);
                 model.ItSOP = payment.GetITEmpSOP();
-                model.ItOtherIncome = payment.GetITEmpOtherIncome("");
+                model.ItOtherIncome = payment.GetITEmpOtherIncome("",0);
                 model.EmpInfo = adhoc.GetEmployeeByEmpId(0);
                 //model.CurrentPage = page;
                 //model.pageSize = pageSize;
@@ -162,7 +162,7 @@ namespace IOAS.Controllers
                 var user = User.Identity.Name;
                 var userId = AdminService.getUserByName(user);
 
-                var model = payment.GetITEmpDeclarations("");
+                var model = payment.GetITEmpDeclarations("",0);
                 //model.CurrentPage = page;
                 //model.pageSize = pageSize;
                 //model.visiblePages = 5;

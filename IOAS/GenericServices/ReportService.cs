@@ -10927,12 +10927,129 @@ namespace IOAS.GenericServices
             }
         }
 
+        #region PayinSlip
+        public CreateInvoiceModel GetPayinslip(int Payinslipid)
+        {
+            try
+            {
+                CreateInvoiceModel model = new CreateInvoiceModel();
+
+                using (var context = new IOASExternalEntities())
+                {
+                    var query = context.tblPayinSlip.SingleOrDefault(m => m.PayinslipId == Payinslipid);
+                    var invid = query.InvoiceId;
+                    var prjctid = query.ProjectId;
+                    var userid = query.PIId;
+                    var invquery = context.tblProjectInvoice.SingleOrDefault(m => m.InvoiceId == invid);
+                    var invtaxquery = context.tblInvoiceTaxDetails.SingleOrDefault(m => m.InvoiceId == invid);
+                    CreateInvoiceModel summary = coreAccountService.GetProjectDetailsForPS(prjctid ?? 0);
+
+                    if (summary != null)
+                    {
+                        var piquery = context.VwUserAD.SingleOrDefault(m => m.UserId == userid);
+
+                        if (summary.PIId != userid)
+                        {
+                            return null;
+                        }
+                        var stateid = invquery.AgencyRegState ?? 0;
+
+                        var state = (from st in context.tblStateMaster
+                                     where st.StateId == stateid
+                                     select st).FirstOrDefault();
+                        var cc = context.tblCodeControl.SingleOrDefault(m => m.CodeName == "InvoiceType" && m.CodeValAbbr == summary.InvoiceType);
 
 
+                        var currency = context.tblCurrency.SingleOrDefault(m => m.CurrencyID == summary.SelCurr);
+                        model.InvoiceDate = DateTime.Now;
+                        model.Invoicedatestrng = String.Format("{0:dd-MMM-yyyy}", invquery.InvoiceDate);
+                        model.ProjectNumber = invquery.ProjectNumber;
+                        model.InvoiceNumber = invquery.InvoiceNumber;
+                        model.Projecttitle = summary.Projecttitle;
+                        model.ProjectID = prjctid;
+                        model.ProjectType = summary.ProjectType;
+                        model.PIDepartmentName = summary.PIDepartmentName;
+                        model.PIId = userid;
+                        model.NameofPI = piquery.Name;
+                        model.SanctionOrderNumber = summary.SanctionOrderNumber;
+                        model.Sanctionvalue = summary.Sanctionvalue;
+                        model.SponsoringAgency = invquery.AgencyId;
+                        model.SponsoringAgencyName = invquery.AgencyRegName;
+                        // model.Agencyregaddress = query.CommunicationAddress;
+                        model.Agencydistrict = invquery.AgencyDistrict;
+                        model.AgencyPincode = invquery.AgencyPincode;
+                        if (state != null)
+                        {
+                            model.Agncystatecode = Convert.ToInt32(state.StateCode);
+                            model.Agencystate = state.StateName;
+                        }
+                        else
+                        {
+                            model.Agncystatecode = Convert.ToInt32(summary.Agencystatecode);
+                        }
+                        model.Agencystatecode = Convert.ToInt32(invquery.AgencyRegStateCode);
+                        model.AgencystateId = invquery.AgencyRegState;
+                        model.GSTNumber = invquery.AgencyRegGSTIN;
+                        model.PAN = invquery.AgencyRegPAN;
+                        model.TAN = invquery.AgencyRegTAN;
+                        model.Agencycontactperson = invquery.AgencyContactPersonName;
+                        model.AgencycontactpersonEmail = invquery.AgencyContactPersonEmail;
+                        model.Agencycontactpersonmobile = invquery.AgencyContactPersonNumber;
+                        model.CommunicationAddress = invquery.CommunicationAddress;
+                        model.TaxStatus = summary.TaxStatus;
+                        model.TaxableValue = invquery.TaxableValue;
+                        model.TotalInvoiceValue = invquery.TotalInvoiceValue;
+                        model.BankName = summary.BankName;
+                        model.BankAccountNumber = summary.BankAccountNumber;
+                        model.InvoiceType = invquery.InvoiceType;
+                        if (cc != null)
+                        {
+                            model.TypeofInvoice = cc.CodeValDetail;
+                        }
+
+                        model.CurrentFinancialYear = summary.CurrentFinancialYear;
+                        model.CurrentFinyearId = summary.CurrentFinyearId;
+                        model.AvailableBalance = summary.AvailableBalance;
+                        model.SelCurr = summary.SelCurr;
+                        if (currency != null)
+                        {
+                            model.CurrencyCode = currency.ISOCode;
+                        }
+
+                        model.AllocatedForeignCurrencyValue = summary.ForgnCurrenyRate;
+
+                        model.AmountReceived = query.AmountReceived;
+                        model.OutstandingAmount = query.OutstandingAmount;
+                        model.PaySlipReferenceNumber = query.PayinslipReferenceNumber;
+                        model.PayinslipDate = String.Format("{0:dd-MMM-yyyy}", query.CrtdTS);
+                        model.ReceiptReference = query.ReferenceNumber;
+                        model.InstrumentsRemarks = query.Remarks;
+                        model.ModeofPayment = query.ModeofPayment;
+                        model.InstrumentsDate = String.Format("{0:dd-MMMM-yyyy}", query.InstrumentsDate);
+                        // model.ReceiptReference = query.Remarks;
+                        model.TDSReceivableGST = query.GSTTdsReceived;
+                        model.TDSReceived = query.ITTdsReceived;
+                        model.CGST = invtaxquery.CGSTAmount;
+                        model.CGSTRate = invtaxquery.CGSTRate;
+                        model.SGST = invtaxquery.SGSTAmount;
+                        model.SGSTRate = invtaxquery.SGSTRate;
+                        model.IGST = invtaxquery.IGSTAmount;
+                        model.IGSTRate = invtaxquery.IGSTRate;
+                    }
+
+                }
+
+                return model;
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(this, ex);
+                return new CreateInvoiceModel();
+            }
+        }
 
 
-
-
+        #endregion
         #region GstOffset Bill Report        public TravelBillReportModel GetGstOffsetBillReport(int Id = 0)        {            TravelBillReportModel model = new TravelBillReportModel();            try            {                using (var context = new IOASDBEntities())                {                    var Qry = context.tblGSTOffset.Where(m => m.GSTOffsetid == Id).FirstOrDefault();                    string FromDate = "01-April-2019";                    string ToDate = String.Format("{0:dd-MMMM-yyyy}", Qry.CRTD_TS);                    var ExpQry = context.tblGSTOffsetExpenseDetail.Where(m => m.GSTOffsetId == Id).ToList();                    int[] headid = { 38, 61 };                    var BankHeadId = ExpQry.Where(m => m.AccountGroupId == 38).Select(m => m.AccountHeadId).FirstOrDefault();                    if (BankHeadId != null)                        model.BankAccount = context.tblAccountHead.Where(m => m.AccountHeadId == BankHeadId).Select(m => m.AccountHead).FirstOrDefault();                    model.BillId = Id;                    model.BillMonth = String.Format("{0:MMM yyyy}", Qry.CRTD_TS);                    model.BillNumber = Qry.GSTOffsetNumber;                    model.BillType = "Tax Voucher";                    model.BillDate = String.Format("{0:dd-MMMM-yyyy}", Qry.CRTD_TS);                    model.Reason = Qry.Remarks;                    model.GSTInput = ExpQry.Where(m => m.AccountGroupId == 13 && m.TransactionType == "Credit").Select(m => m.Amount).Sum() ?? 0;                    model.GSTOutput = ExpQry.Where(m => m.AccountGroupId == 14).Select(m => m.Amount).Sum() ?? 0;                    int[] TDSReceivable = { 27, 296, 297 };                    model.TDSReceivable = ExpQry.Where(m => TDSReceivable.Contains(m.AccountHeadId ?? 0)).Select(m => m.Amount).Sum() ?? 0;                    model.RoundOffCredit = ExpQry.Where(m => m.AccountHeadId == 319).Select(m => m.Amount).Sum() ?? 0;                    model.RoundOffDebit = ExpQry.Where(m => m.AccountHeadId == 320).Select(m => m.Amount).Sum() ?? 0;
                     //
                     //decimal Amt = ExpQry.Where(m => m.AccountGroupId == 38).Select(m => m.Amount).Sum() ?? 0;

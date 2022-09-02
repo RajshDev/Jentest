@@ -42,6 +42,7 @@
                         <div class="ds-tt">
                             <span>Fin Year:</span>
                             @Html.DropDownListFor(m => m.FinancialYear, new SelectList(ViewBag.Finyr, "value", "label"), "---Fin Year---", new { @class = "form-control required", @id = "FinancialYear" })
+                            <div>@Html.ValidationMessageFor(m => m.FinancialYear)</div>
                         </div>
                     </div>
                     <div class="col-md-3 ds-spl-bg">
@@ -665,6 +666,14 @@
         var msg = $('#errorMsg').val();
         if (msg) {
             alertBox('Validation', msg);
+        }
+        var finid = $("#FinancialYear").val()||"";
+        if (finid == "")
+        {
+            $('#alert').html("Please Select Financial Year");
+            $('#Validation').modal('toggle');
+            return false;
+            result.isValid=false;
         }
         if (result.isValid === true) {
             //btnSave

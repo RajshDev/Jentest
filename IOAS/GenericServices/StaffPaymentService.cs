@@ -55,7 +55,7 @@ namespace IOAS.GenericServices
                 return null;
             }
         }
-        public List<EmpITDeclarationModel> GetITEmpDeclarations(string EMpId)
+        public List<EmpITDeclarationModel> GetITEmpDeclarations(string EMpId,int Finyearid)
         {
             try
             {
@@ -64,11 +64,11 @@ namespace IOAS.GenericServices
                 using (var context = new IOASDBEntities())
                 {
                     var query = (from AI in context.tblITDeclaration
-                                 join E in context.tblEmpITDeclaration on new { DeclarationID = AI.DeclarationID, Id = EMpId }
-                                 equals new { DeclarationID = E.DeclarationID ?? 0, Id = E.EmpId }
+                                 join E in context.tblEmpITDeclaration on new { DeclarationID = AI.DeclarationID, Id = EMpId,FinYearId=Finyearid }
+                                 equals new { DeclarationID = E.DeclarationID ?? 0, Id = E.EmpId, FinYearId = Finyearid }
                                  into EmpDeclaration
                                  from Emp in EmpDeclaration.DefaultIfEmpty()
-                                     //where (Emp.EmpId == EMpId ||(Emp == null))
+                                    //where (Emp.EmpId == EMpId ||(Emp == null))
                                  orderby AI.DeclarationID
                                  select new
                                  {
@@ -166,7 +166,7 @@ namespace IOAS.GenericServices
             }
         }
 
-        public List<EmpITOtherIncomeModel> GetITEmpOtherIncome(string EmpId)
+        public List<EmpITOtherIncomeModel> GetITEmpOtherIncome(string EmpId,int Finyearid)
         {
             try
             {
@@ -176,7 +176,7 @@ namespace IOAS.GenericServices
                     var query = (from OI in context.tblEmpOtherIncome
                                      //join E in context.tblEmpITDeclaration on AI.DeclarationID equals E.DeclarationID into EmpDeclaration
                                      //from Emp in EmpDeclaration.DefaultIfEmpty()
-                                 where OI.EmpId == EmpId
+                                 where OI.EmpId == EmpId&&OI.FinYearId==Finyearid
                                  orderby OI.EmpNo
                                  select new
                                  {
@@ -219,7 +219,59 @@ namespace IOAS.GenericServices
             }
         }
 
-        public string ITEmpDeclarationIU(EmpITDeductionModel EmpITmodel)
+        public List<EmpITOtherIncomeModel> GetITEmpOtherIncomecurrentFinYear(string EmpId)
+        {
+            try
+            {
+                var model = new List<EmpITOtherIncomeModel>();
+                using (var context = new IOASDBEntities())
+                {
+                    var query = (from OI in context.tblEmpOtherIncome
+                                 join fn in context.tblFinYear on OI.FinYearId equals fn.FinYearId
+                                 where OI.EmpId == EmpId && fn.CurrentYearFlag == true
+                                 orderby OI.EmpNo
+                                 select new
+                                 {
+                                     OI.ID,
+                                     OI.EmpNo,
+                                     OI.Amount,
+                                     OI.EligibleAmount,
+                                     OI.SubmittedOn,
+                                     OI.CreatedAt,
+                                     OI.UpdatedAt,
+                                     OI.CreatedBy,
+                                     OI.UpdatedBy,
+                                     OI.Particulars
+                                 });
+                    var records = query.ToList();
+                    if (records.Count > 0)
+                    {
+                        for (int i = 0; i < records.Count; i++)
+                        {
+                            model.Add(new EmpITOtherIncomeModel
+                            {
+                                ID = records[i].ID,
+                                EmpNo = Convert.ToString(records[i].EmpNo),
+                                Amount = Convert.ToDecimal(records[i].Amount),
+                                EligibleAmount = Convert.ToDecimal(records[i].EligibleAmount),
+                                SubmittedOn = Convert.ToDateTime(records[i].SubmittedOn),
+                                Particulars = records[i].Particulars
+
+                            });
+                        }
+
+                    }
+                }
+                return model;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return null;
+            }
+        }
+
+        public string ITEmpDeclarationIU(EmpITDeductionModel EmpITmodel, int Finyearid)
         {
             try
             {
@@ -256,19 +308,39 @@ namespace IOAS.GenericServices
                         if (SectionID > 0)
                         {
                             var record = context.tblEmpITDeclaration
-                            .FirstOrDefault(it => it.SectionID == SectionID && it.EmpId == EmpId);
-                            record.EmpId = EmpId;
-                            record.DeclarationID = model.DeclarationID;
-                            record.SectionName = model.SectionName;
-                            record.SectionCode = model.SectionCode;
-                            record.Particulars = model.Particulars;
-                            record.MaxLimit = model.MaxLimit;
-                            record.Amount = model.Amount;
-                            record.Age = model.Age;
-                            record.UpdatedAt = System.DateTime.Now;
-                            record.UpdatedBy = model.UpdatedBy;
-                            context.SaveChanges();
-
+                            .FirstOrDefault(it => it.SectionID == SectionID && it.EmpId == EmpId && it.FinYearId == Finyearid);
+                            if (record != null)
+                            {
+                                record.EmpId = EmpId;
+                                record.DeclarationID = model.DeclarationID;
+                                record.SectionName = model.SectionName;
+                                record.SectionCode = model.SectionCode;
+                                record.Particulars = model.Particulars;
+                                record.MaxLimit = model.MaxLimit;
+                                record.Amount = model.Amount;
+                                record.Age = model.Age;
+                                record.UpdatedAt = System.DateTime.Now;
+                                record.UpdatedBy = model.UpdatedBy;
+                                context.SaveChanges();
+                            }
+                            else
+                            {
+                                taxExemp.EmpNo = model.EmpNo;
+                                taxExemp.DeclarationID = model.DeclarationID;
+                                taxExemp.SectionName = model.SectionName;
+                                taxExemp.SectionCode = model.SectionCode;
+                                taxExemp.Particulars = model.Particulars;
+                                taxExemp.MaxLimit = model.MaxLimit;
+                                taxExemp.Age = model.Age;
+                                taxExemp.Amount = model.Amount;
+                                taxExemp.EmpId = EmpId;
+                                taxExemp.CreatedAt = System.DateTime.Now;
+                                taxExemp.CreatedBy = model.CreatedBy;
+                                taxExemp.FinYearId = Finyearid;
+                                context.tblEmpITDeclaration.Add(taxExemp);
+                                context.SaveChanges();
+                                Secid = taxExemp.SectionID;
+                            }
                         }
                         else
                         {
@@ -283,6 +355,7 @@ namespace IOAS.GenericServices
                             taxExemp.EmpId = EmpId;
                             taxExemp.CreatedAt = System.DateTime.Now;
                             taxExemp.CreatedBy = model.CreatedBy;
+                            taxExemp.FinYearId = Finyearid;
                             context.tblEmpITDeclaration.Add(taxExemp);
                             context.SaveChanges();
                             Secid = taxExemp.SectionID;
@@ -306,6 +379,7 @@ namespace IOAS.GenericServices
                                     Doc.DocumentName = docName;
                                     Doc.DeclarationID = item.DocumentType;
                                     Doc.EmpId = EmpId;
+                                    Doc.FinYearId = Finyearid;
                                     context.tblEmpITDeclarationDoc.Add(Doc);
                                     context.SaveChanges();
                                 }
@@ -327,7 +401,7 @@ namespace IOAS.GenericServices
                         }
                     }
                     var rec = context.tblEmpITDeclaration
-                    .FirstOrDefault(it => it.EmpId == EmpId);
+                    .FirstOrDefault(it => it.EmpId == EmpId && it.FinYearId == Finyearid);
                     if (rec == null)
                     {
                         if (EmpITmodel.ItOtherIncome != null)
@@ -339,6 +413,7 @@ namespace IOAS.GenericServices
                                 incom.Particulars = incomItem.Particulars;
                                 incom.Amount = incomItem.Amount;
                                 incom.Remarks = incomItem.Remarks;
+                                incom.FinYearId = Finyearid;
                                 context.tblEmpOtherIncome.Add(incom);
                                 context.SaveChanges();
                             }
@@ -346,7 +421,7 @@ namespace IOAS.GenericServices
                     }
                     else
                     {
-                        context.tblEmpOtherIncome.RemoveRange(context.tblEmpOtherIncome.Where(m => m.EmpId == EmpId));
+                        context.tblEmpOtherIncome.RemoveRange(context.tblEmpOtherIncome.Where(m => m.EmpId == EmpId && m.FinYearId == Finyearid));
                         context.SaveChanges();
                         if (EmpITmodel.ItOtherIncome != null)
                         {
@@ -357,6 +432,7 @@ namespace IOAS.GenericServices
                                 incom.Particulars = incomItem.Particulars;
                                 incom.Amount = incomItem.Amount;
                                 incom.Remarks = incomItem.Remarks;
+                                incom.FinYearId = Finyearid;
                                 context.tblEmpOtherIncome.Add(incom);
                                 context.SaveChanges();
                             }
@@ -412,6 +488,8 @@ namespace IOAS.GenericServices
             }
         }
         public decimal GetITExemption(string EmpId)        {            try            {                decimal Total = 0;                using (var context = new IOASDBEntities())                {                    var EightyCTotal = (from E in context.tblEmpITDeclaration                                        join IT in context.tblITDeclaration on E.DeclarationID equals IT.DeclarationID                                        where E.EmpId == EmpId && (IT.SectionCode == "80C" || IT.SectionCode == "80CCC")                                        select new                                        {                                            E.EmpNo,                                            E.Amount,                                            E.MaxLimit                                        }).Sum(i => i.Amount);                    var NonEightyCTotal = (from E in context.tblEmpITDeclaration                                           join IT in context.tblITDeclaration on E.DeclarationID equals IT.DeclarationID                                           where E.EmpId == EmpId && (IT.SectionCode != "80C" && IT.SectionCode != "80CCC")                                           select new                                           {                                               E.EmpNo,                                               E.Amount,                                               E.MaxLimit                                           }).Sum(i => i.Amount);                    if (EightyCTotal > 150000)                    {                        Total = 150000 + Convert.ToDecimal(NonEightyCTotal);                    }                    else                    {                        Total = Convert.ToDecimal(EightyCTotal) + Convert.ToDecimal(NonEightyCTotal);                    }                }                Total += Convert.ToDecimal(WebConfigurationManager.AppSettings["Adhoc_Common_Exemption"]);                return Total;            }            catch (Exception ex)            {                Console.WriteLine(ex.ToString());                return 0;            }        }
+
+        public decimal GetITExemptionCurrentFinyear(string EmpId)        {            try            {                decimal Total = 0;                using (var context = new IOASDBEntities())                {                    var EightyCTotal = (from E in context.tblEmpITDeclaration                                        join IT in context.tblITDeclaration on E.DeclarationID equals IT.DeclarationID                                        join Fn in context.tblFinYear on E.FinYearId equals Fn.FinYearId                                        where E.EmpId == EmpId&&Fn.CurrentYearFlag==true && (IT.SectionCode == "80C" || IT.SectionCode == "80CCC")                                        select new                                        {                                            E.EmpNo,                                            E.Amount,                                            E.MaxLimit                                        }).Sum(i => i.Amount);                    var NonEightyCTotal = (from E in context.tblEmpITDeclaration                                           join IT in context.tblITDeclaration on E.DeclarationID equals IT.DeclarationID                                           join Fn in context.tblFinYear on E.FinYearId equals Fn.FinYearId                                           where E.EmpId == EmpId && Fn.CurrentYearFlag == true && (IT.SectionCode != "80C" && IT.SectionCode != "80CCC")                                           select new                                           {                                               E.EmpNo,                                               E.Amount,                                               E.MaxLimit                                           }).Sum(i => i.Amount);                    if (EightyCTotal > 150000)                    {                        Total = 150000 + Convert.ToDecimal(NonEightyCTotal);                    }                    else                    {                        Total = Convert.ToDecimal(EightyCTotal) + Convert.ToDecimal(NonEightyCTotal);                    }                }                Total += Convert.ToDecimal(WebConfigurationManager.AppSettings["Adhoc_Common_Exemption"]);                return Total;            }            catch (Exception ex)            {                Console.WriteLine(ex.ToString());                return 0;            }        }
 
         public List<EmpITSOPModel> GetITEmpSOP()
         {
@@ -2617,10 +2695,11 @@ namespace IOAS.GenericServices
                 return model;
             }
         }
-        public List<AgencyStaffDetailsModel> GetEmployeesSalaryDetails(string empId, int Finyear)
+        public List<AgencyStaffDetailsModel> GetEmployeesSalaryDetails(string empId, int Finyear, string monthYear = "")
         {
             List<AgencyStaffDetailsModel> model = new List<AgencyStaffDetailsModel>();
             AdhocSalaryProcess adhoc = new AdhocSalaryProcess();
+            AdhocSalaryProcess asp = new AdhocSalaryProcess();
             try
             {
                 using (var context = new IOASDBEntities())
@@ -2628,163 +2707,306 @@ namespace IOAS.GenericServices
 
                     DateTime fromdate = context.tblFinYear.Where(m => m.FinYearId == Finyear).Select(m => m.StartDate).FirstOrDefault() ?? DateTime.Now;
                     int CurrentYear = fromdate.Year;
-                    int PreviousYear = fromdate.Year - 1;
-                    int NextYear = fromdate.Year + 1;
-                    string PreYear = PreviousYear.ToString();
-                    string NexYear = NextYear.ToString();
-                    string CurYear = CurrentYear.ToString();
-                    DateTime startDate; DateTime endDate; DateTime start; DateTime end; DateTime LastSalaryDate = DateTime.Now;
-                    if (fromdate.Month > 2)
-                    {
-                        startDate = new DateTime(fromdate.Year, 3, 1);
-                        endDate = startDate.AddYears(1).AddMonths(-1);
-                    }
-                    else
-                    {
-                        startDate = new DateTime((fromdate.Year) - 1, 3, 1);
-                        endDate = startDate.AddYears(1).AddMonths(-1);
-                    }
-                    int SecondNoOfMonth = ((endDate.Month + endDate.Year * 12) - (DateTime.Now.Month + DateTime.Now.Year * 12)) + 1;
 
-                    //string StrPayBillNo = PayBillNo.ToString();
+                    FinOp fp = new FinOp(CurrentYear);
+                    DateTime finEndDate = fp.SalFinEnd();
+                    DateTime salFinStartDate = fp.SalFinStart();
+                    var finMonthYearList = fp.GetAllSalaryMonths();
+                    string finStartMonth = fp.SalStartMonth();
+                    DateTime salaryEndDate;
+
+                    string month = "";
                     var SalaryMaxMonth = context.tblSalaryPayment.Where(m => m.TypeOfPayBill == 1 && m.PayBill == empId).OrderByDescending(m => m.PaymentHeadId).FirstOrDefault();
                     var UserDate = context.vw_RCTAdhocEmployeeMaster.Where(M => M.EmployeeId == empId).OrderByDescending(m => m.RelieveDate ?? DateTime.MaxValue).ThenByDescending(x => x.ExtensionDate).FirstOrDefault();
                     DateTime? UserRelieveDate = UserDate.RelieveDate == null ? UserDate.ExtensionDate : UserDate.RelieveDate;
                     if (SalaryMaxMonth != null)
                     {
-
-
-                        LastSalaryDate = Common.GetMonthFirstDate(SalaryMaxMonth.PaymentMonthYear);
-
-                        if (!(UserRelieveDate.Value.Month >= endDate.Month && UserRelieveDate.Value.Year >= endDate.Year))
+                        month = SalaryMaxMonth.PaymentMonthYear;
+                        var Qry = (from bank in context.tblSalaryPayment
+                                   join sal in context.tblSalaryPaymentHead on bank.PaymentHeadId equals sal.PaymentHeadId
+                                   join user in context.tblUser on bank.CreatedBy equals user.UserId into g
+                                   from user in g.DefaultIfEmpty()
+                                   where bank.PayBill == empId &&
+                                   (string.IsNullOrEmpty(monthYear) || bank.PaymentMonthYear != monthYear)
+                                   && finMonthYearList.Contains(bank.PaymentMonthYear) && sal.TypeOfPayBill == 1
+                                   select new
+                                   {
+                                       bank.Basic,
+                                       bank.MonthlyTax,
+                                       bank.ProfTax,
+                                       bank.OtherAllowance,
+                                       bank.PaymentId,
+                                       bank.MA,
+                                       bank.HRA,
+                                       bank.Remarks,
+                                       bank.MedicalRecovery,
+                                       bank.PaymentMonthYear,
+                                       bank.Deduction,
+                                       bank.DirectAllowance,
+                                       bank.GrossTotal,
+                                       bank.NetSalary,
+                                       user
+                                   }).ToList();
+                        if (Qry != null)
                         {
-                            endDate = UserRelieveDate.Value;
-                        }
-                        int NoOfMonth = ((LastSalaryDate.Month + LastSalaryDate.Year * 12) - (startDate.Month + startDate.Year * 12)) + 1;
-                        LastSalaryDate = LastSalaryDate.AddMonths(1);
-                        SecondNoOfMonth = ((endDate.Month + endDate.Year * 12) - (LastSalaryDate.Month + LastSalaryDate.Year * 12)) + 1;
-                        for (int i = 0; i < NoOfMonth; i++)
-                        {
-                            start = startDate.AddMonths(i);
-                            var monthandYear = fo.GetCurrentMonthYear(start);
-                            var salaryStartDate = Common.GetMonthFirstDate(monthandYear);
-                            var salaryEndDate = Common.GetMonthLastDate(monthandYear);
-                            var Qry = (from bank in context.tblSalaryPayment
-                                       join sal in context.tblSalaryPaymentHead on bank.PaymentHeadId equals sal.PaymentHeadId
-                                       join user in context.tblUser on bank.CreatedBy equals user.UserId into g
-                                       from user in g.DefaultIfEmpty()
-                                       where bank.PayBill == empId && bank.PaymentMonthYear == monthandYear && sal.TypeOfPayBill == 1
-                                       select new
-                                       {
-                                           bank.Basic,
-                                           bank.MonthlyTax,
-                                           bank.ProfTax,
-                                           bank.OtherAllowance,
-                                           bank.PaymentId,
-                                           bank.MA,
-                                           bank.HRA,
-                                           bank.Remarks,
-                                           bank.MedicalRecovery,
-                                           user
-                                       }).ToList();
-                            if (Qry != null)
+                            for (int k = 0; k < Qry.Count; k++)
                             {
-                                for (int k = 0; k < Qry.Count; k++)
+                                int PaymentId = Qry[k].PaymentId;
+                                var AdhocBrk = (from ad in context.tblAdhocSalaryBreakUpDetail
+                                                where ad.PaymentId == PaymentId
+                                                select new { ad }).ToList();
+                                decimal HRA = Qry[k].HRA ?? 0; decimal? Basic = Qry[k].Basic ?? 0; decimal MA = Qry[k].MA ?? 0;
+                                decimal QryMedicalRecovery = Qry[k].MedicalRecovery ?? 0;
+                                decimal? MiscPay = AdhocBrk.Where(m => m.ad.CategoryId == 1).Sum(m => m.ad.Amount) ?? 0;
+                                decimal? MiscRecovery = AdhocBrk.Where(m => m.ad.HeadId != 123 && m.ad.HeadId != 110).Sum(m => m.ad.Amount) ?? 0;
+                                decimal? MedicalRecovery = AdhocBrk.Where(m => m.ad.HeadId == 123).Sum(m => m.ad.Amount) ?? 0;
+                                decimal? LLP = AdhocBrk.Where(m => m.ad.HeadId == 110).Sum(m => m.ad.Amount) ?? 0;
+                                model.Add(new AgencyStaffDetailsModel()
                                 {
-                                    int PaymentId = Qry[k].PaymentId;
-                                    var AdhocBrk = (from ad in context.tblAdhocSalaryBreakUpDetail
-                                                    where ad.PaymentId == PaymentId
-                                                    select new { ad }).ToList();
-                                    decimal HRA = Qry[k].HRA ?? 0; decimal? Basic = Qry[k].Basic ?? 0; decimal MA = Qry[k].MA ?? 0;
-                                    decimal QryMedicalRecovery = Qry[k].MedicalRecovery ?? 0;
-                                    decimal? MiscPay = AdhocBrk.Where(m => m.ad.CategoryId == 1).Sum(m => m.ad.Amount) ?? 0;
-                                    decimal? MiscRecovery = AdhocBrk.Where(m => m.ad.HeadId == 4).Sum(m => m.ad.Amount) ?? 0;
-                                    decimal? MedicalRecovery = AdhocBrk.Where(m => m.ad.HeadId == 123).Sum(m => m.ad.Amount) ?? 0;
-                                    decimal? LLP = AdhocBrk.Where(m => m.ad.HeadId == 110).Sum(m => m.ad.Amount) ?? 0;
+                                    RelieveDate = UserDate.RelieveDate,
+                                    ExtensionDate = UserDate.ExtensionDate,
+                                    MonthandYear = Qry[k].PaymentMonthYear,
+                                    MiscPay = MiscPay,
+                                    BasicSalary = Basic,
+                                    MA = MA,
+                                    MA2 = QryMedicalRecovery,
+                                    HRA = HRA,
+                                    GrossSalary = Qry[k].GrossTotal ?? 0,
+                                    IncomeTax = Qry[k].MonthlyTax ?? 0,
+                                    MiscRecovery = MiscRecovery,
+                                    MedicalRecovery = MedicalRecovery,
+                                    LLP = LLP,
+                                    PF = Qry[k].ProfTax ?? 0,
+                                    TotalDeduction = Qry[k].Deduction ?? 0,
+                                    GrossTotal = Qry[k].NetSalary ?? 0,
+                                    OtherPay = Qry[k].OtherAllowance ?? 0,
+                                    Remarks = Qry[k].Remarks,
+                                    VerifiedBy = Qry[k].user == null ? "" : Qry[k].user.FirstName
+                                });
+                            }
+                        }
+                    }
+
+                    //Current month
+                    if (!string.IsNullOrEmpty(monthYear))
+                    {
+                        month = monthYear;
+                        var queryOtherLine = context.tblRCTPayrollProcessDetail.Where(m => m.EmployeeId == empId && m.SalaryMonth == monthYear && m.SalaryType == 1 && m.ProcessStatus == "Active").ToList();
+
+                        decimal MiscPay = 0,
+                         MiscRecovery = 0,
+                         MedicalRecovery = 0,
+                         OtherRecovery = 0,
+                         LLP = 0;
+                        queryOtherLine.ForEach(m =>
+                        {
+                            MiscPay = m.Spl_Allowance.GetValueOrDefault(0) + m.Transport_Allowance.GetValueOrDefault(0)
+                            + m.PF_Revision.GetValueOrDefault(0) + m.ESIC_Revision.GetValueOrDefault(0) + m.Round_off.GetValueOrDefault(0)
+                            + m.Arrears.GetValueOrDefault(0) + m.OthersPay.GetValueOrDefault(0) + m.HRA_Arrears.GetValueOrDefault(0);
+                            OtherRecovery = m.Contribution_to_PF.GetValueOrDefault(0) + m.HRA_Recovery.GetValueOrDefault(0)
+                            + m.OthersDeduction.GetValueOrDefault(0) + m.Professional_tax.GetValueOrDefault(0);
+                            MiscRecovery = m.Recovery.GetValueOrDefault(0);
+                            MedicalRecovery = m.Medical_Recovery.GetValueOrDefault(0);
+                            LLP = m.Loss_Of_Pay.GetValueOrDefault(0);
+                        });
+
+                        decimal currMonthBasic = queryOtherLine.Sum(m => m.CurrentBasic) ?? 0;
+                        decimal currBasicHra = queryOtherLine.Sum(m => m.CurrentHRA) ?? 0;
+                        decimal currBasicMA = queryOtherLine.Sum(m => m.CurrentMedical) ?? 0;
+                        var otherAllow = asp.GetEmpOtherAllowance(empId);
+                        var otherAllowAmt = otherAllow != null ? otherAllow.Sum(m => m.Amount) : 0;
+                        model.Add(new AgencyStaffDetailsModel()
+                        {
+                            MonthandYear = monthYear,
+                            MiscPay = MiscPay,
+                            BasicSalary = currMonthBasic,
+                            MA = 0,
+                            MA2 = currBasicMA,
+                            HRA = currBasicHra,
+                            GrossSalary = currMonthBasic + currBasicHra + MiscPay + otherAllowAmt,
+                            IncomeTax = 0,
+                            MiscRecovery = MiscRecovery,
+                            MedicalRecovery = MedicalRecovery,
+                            LLP = LLP,
+                            PF = 0,
+                            TotalDeduction = MiscRecovery + LLP + currBasicMA + MedicalRecovery + OtherRecovery,
+                            GrossTotal = ((currMonthBasic + otherAllowAmt + currBasicHra + MiscPay) - (MiscRecovery + LLP + currBasicMA + MedicalRecovery + OtherRecovery)),
+                            OtherPay = otherAllowAmt
+                        });
+
+                    }
+                    /////// Future Month Salary Data  ////////
+                    DateTime nextMonthStartDate = Common.GetNextMonthFirstDate(month, 1);
+                    if (finEndDate > nextMonthStartDate)
+                    {
+                        List<string> futurMonth = new List<string>();
+                        var query = context.vw_RCTAdhocEmployeeMaster.Where(m => m.EmployeeId == empId &&
+                     m.AppointmentDate <= finEndDate && ((m.ExtensionDate >= nextMonthStartDate && m.RelieveDate == null && m.ActualAppointmentEndDate == null)
+                                        || (m.RelieveDate >= nextMonthStartDate && m.RelieveDate != null) || (m.ActualAppointmentEndDate >= nextMonthStartDate && m.ActualAppointmentEndDate != null && m.RelieveDate == null))).ToList();
+                        foreach (var item in query)
+                        {
+                            DateTime tDate;
+                            decimal Basic = item.Basic.GetValueOrDefault(0);
+                            decimal HRA = item.HRA.GetValueOrDefault(0);
+                            decimal MA = item.Medical.GetValueOrDefault(0);
+                            if (item.RelieveDate != null)
+                            {
+                                tDate = Convert.ToDateTime(item.RelieveDate);
+                            }
+                            else if (item.ActualAppointmentEndDate != null)
+                            {
+                                tDate = Convert.ToDateTime(item.ActualAppointmentEndDate);
+                            }
+                            else
+                            {
+                                tDate = Convert.ToDateTime(item.ExtensionDate);
+                            }
+                            if (finEndDate < tDate)
+                            {
+                                salaryEndDate = finEndDate;
+                            }
+                            else
+                            {
+                                salaryEndDate = tDate;
+                            }
+                            var _asp = new AdhocSalaryProcess();
+                            var listOfMonthDays = _asp.GetMonthNumberOfDays(nextMonthStartDate, salaryEndDate);
+                            listOfMonthDays.Reverse();
+                            foreach (var m in listOfMonthDays)
+                            {
+                                if (!futurMonth.Contains(m.MonthYear))
+                                    futurMonth.Add(m.MonthYear);
+                                int salMonthDays = m.TotalDays;
+                                int noOfDays = m.TotalPresentDays;
+
+                                if (salMonthDays == noOfDays)
+                                {
                                     model.Add(new AgencyStaffDetailsModel()
                                     {
                                         RelieveDate = UserDate.RelieveDate,
                                         ExtensionDate = UserDate.ExtensionDate,
-                                        MonthandYear = monthandYear,
-                                        MiscPay = MiscPay,
+                                        MonthandYear = m.MonthYear,
+                                        MiscPay = 0,
                                         BasicSalary = Basic,
-                                        MA = MA,
-                                        MA2 = QryMedicalRecovery,
+                                        MA = 0,
+                                        MA2 = MA,
                                         HRA = HRA,
-                                        GrossSalary = (Basic) + (MA) + (HRA) + (MiscPay),
-                                        IncomeTax = Qry[k].MonthlyTax ?? 0,
-                                        MiscRecovery = MiscRecovery,
-                                        MedicalRecovery = MedicalRecovery,
-                                        LLP = LLP,
-                                        PF = Qry[k].ProfTax ?? 0,
-                                        TotalDeduction = MiscRecovery + LLP + QryMedicalRecovery + (Qry[k].MonthlyTax ?? 0) + (Qry[k].ProfTax ?? 0),
-                                        GrossTotal = ((Basic + MA + HRA + MiscPay) - (MiscRecovery + QryMedicalRecovery + LLP + (Qry[k].MonthlyTax ?? 0) + (Qry[k].ProfTax ?? 0))),
-                                        OtherPay = Qry[k].OtherAllowance ?? 0,
-                                        Remarks = Qry[k].Remarks,
-                                        VerifiedBy = Qry[k].user == null ? "" : Qry[k].user.FirstName
+                                        GrossSalary = Basic + HRA,
+                                        IncomeTax = 0,
+                                        MiscRecovery = 0,
+                                        LLP = 0,
+                                        PF = 0,
+                                        TotalDeduction = MA,
+                                        GrossTotal = Basic + HRA - MA,
+                                        OtherPay = 0
+                                    });
+                                }
+                                else
+                                {
+                                    decimal elgAmount = Basic + HRA;
+                                    decimal partialSal = (elgAmount / salMonthDays) * noOfDays;
+                                    model.Add(new AgencyStaffDetailsModel()
+                                    {
+                                        RelieveDate = UserDate.RelieveDate,
+                                        ExtensionDate = UserDate.ExtensionDate,
+                                        MonthandYear = m.MonthYear,
+                                        MiscPay = 0,
+                                        BasicSalary = partialSal,
+                                        MA = 0,
+                                        MA2 = 0,
+                                        HRA = HRA,
+                                        GrossSalary = partialSal,
+                                        IncomeTax = 0,
+                                        MiscRecovery = 0,
+                                        LLP = 0,
+                                        PF = 0,
+                                        TotalDeduction = 0,
+                                        GrossTotal = partialSal,
+                                        OtherPay = 0
                                     });
                                 }
                             }
                         }
-                    }
-                    /////// Future Month Salary Data  ////////
-                  
-                    for (int j = 0; j < SecondNoOfMonth; j++)
-                    {
-                        start = LastSalaryDate.AddMonths(j);
-                        var monthandYear = fo.GetCurrentMonthYear(start);
-                        var salaryStartDate = Common.GetMonthFirstDate(monthandYear);
-                        var salaryEndDate = Common.GetMonthLastDate(monthandYear);
-                        if (!(salaryEndDate <= UserRelieveDate))
-                            salaryEndDate = UserRelieveDate.Value;
-                        var listOfMonthDays = adhoc.GetNumberOfDays(salaryStartDate, salaryEndDate);
-                        decimal? currentMonthSalay = 0; decimal HRA = UserDate.HRA ?? 0; decimal? Basic = UserDate.Basic; decimal MA = UserDate.Medical ?? 0;
-                        foreach (var m in listOfMonthDays.Keys)
+                        // extenion tenure not stared
+                        var currDate = DateTime.Now;
+                        var query1 = (from o in context.tblOrder
+                                      join ste in context.tblRCTSTE on o.AppointmentId equals ste.STEID
+                                      where o.OrderType == 3 && o.Status == "Completed" &&
+                                       o.FromDate > currDate && o.AppointmentType == 2 && ste.EmployeersID == empId &&
+                                                      o.FromDate <= finEndDate && o.ToDate >= nextMonthStartDate
+                                      select o).ToList();
+                        foreach (var item in query1)
                         {
-                            int month, year; string paymonthYear = ""; int noOfDays = 0;
-                            month = m.Item2;
-                            year = m.Item1;
-                            int salMonthDays = DateTime.DaysInMonth(year, month);
-                            paymonthYear = DateTimeFormatInfo.CurrentInfo.GetMonthName(month).Substring(0, 3) + " - " + year.ToString();
-                            if (monthandYear == paymonthYear)
+                            DateTime tDate = Convert.ToDateTime(item.ToDate);
+                            decimal Basic = item.Basic.GetValueOrDefault(0);
+                            decimal HRA = item.HRA.GetValueOrDefault(0);
+                            decimal MA = item.MedicalAmount.GetValueOrDefault(0);
+                            if (finEndDate < tDate)
                             {
-                                noOfDays = listOfMonthDays[m];
-                                if (salMonthDays == listOfMonthDays[m])
+                                salaryEndDate = finEndDate;
+                            }
+                            else
+                            {
+                                salaryEndDate = tDate;
+                            }
+                            var _asp = new AdhocSalaryProcess();
+                            var listOfMonthDays = _asp.GetMonthNumberOfDays(nextMonthStartDate, salaryEndDate);
+                            listOfMonthDays.Reverse();
+                            foreach (var m in listOfMonthDays)
+                            {
+                                if (!futurMonth.Contains(m.MonthYear))
+                                    futurMonth.Add(m.MonthYear);
+                                int salMonthDays = m.TotalDays;
+                                int noOfDays = m.TotalPresentDays;
+
+                                if (salMonthDays == noOfDays)
                                 {
-                                    currentMonthSalay = Basic;
+                                    model.Add(new AgencyStaffDetailsModel()
+                                    {
+                                        RelieveDate = UserDate.RelieveDate,
+                                        ExtensionDate = UserDate.ExtensionDate,
+                                        MonthandYear = m.MonthYear,
+                                        MiscPay = 0,
+                                        BasicSalary = Basic,
+                                        MA = 0,
+                                        MA2 = MA,
+                                        HRA = HRA,
+                                        GrossSalary = (Basic) + (0) + (HRA) + (0),
+                                        IncomeTax = 0,
+                                        MiscRecovery = 0,
+                                        LLP = 0,
+                                        PF = 0,
+                                        TotalDeduction = MA + 0 + 0 + (0) + (0),
+                                        GrossTotal = ((Basic + 0 + HRA + 0) - (MA + 0 + 0 + (0) + (0))),
+                                        OtherPay = 0
+                                    });
                                 }
                                 else
                                 {
-                                    decimal bas = ((Basic / salMonthDays) * listOfMonthDays[m]) ?? 0;
-                                    Basic = Math.Round(bas, MidpointRounding.AwayFromZero);
-                                    if (HRA > 0)
+                                    decimal elgAmount = Basic + HRA;
+                                    decimal partialSal = (elgAmount / salMonthDays) * noOfDays;
+                                    model.Add(new AgencyStaffDetailsModel()
                                     {
-                                        decimal hra = (HRA / salMonthDays) * listOfMonthDays[m];
-                                        HRA = Math.Round(hra, MidpointRounding.AwayFromZero);
-                                    }
-                                    currentMonthSalay = Basic + HRA + MA;
+                                        RelieveDate = UserDate.RelieveDate,
+                                        ExtensionDate = UserDate.ExtensionDate,
+                                        MonthandYear = m.MonthYear,
+                                        MiscPay = 0,
+                                        BasicSalary = partialSal,
+                                        MA = 0,
+                                        MA2 = 0,
+                                        HRA = HRA,
+                                        GrossSalary = partialSal,
+                                        IncomeTax = 0,
+                                        MiscRecovery = 0,
+                                        LLP = 0,
+                                        PF = 0,
+                                        TotalDeduction = 0,
+                                        GrossTotal = partialSal,
+                                        OtherPay = 0
+                                    });
                                 }
                             }
                         }
-                        model.Add(new AgencyStaffDetailsModel()
-                        {
-                            RelieveDate = UserDate.RelieveDate,
-                            ExtensionDate = UserDate.ExtensionDate,
-                            MonthandYear = monthandYear,
-                            MiscPay = 0,
-                            BasicSalary = Basic,
-                            MA = 0,
-                            MA2 = MA,
-                            HRA = HRA,
-                            GrossSalary = (Basic) + (0) + (HRA) + (0),
-                            IncomeTax = 0,
-                            MiscRecovery = 0,
-                            LLP = 0,
-                            PF = 0,
-                            TotalDeduction = MA + 0 + 0 + (0) + (0),
-                            GrossTotal = ((Basic + 0 + HRA + 0) - (MA + 0 + 0 + (0) + (0))),
-                            OtherPay = 0
-                        });
                     }
                     return model;
                 }
@@ -3390,6 +3612,26 @@ namespace IOAS.GenericServices
             List<string> monthYear = new List<string>();
 
             DateTime dtStart = SalFinStartDate(); // _FinSalStart; is changed by riyaz
+            int nxtStartYear = dtStart.Year + 1;
+            int currEndYear = dtStart.Year;
+
+            for (int i = 3; i <= 12; i++)
+            {
+                var key = DateTimeFormatInfo.CurrentInfo.GetMonthName(i).Substring(0, 3) + " - " + currEndYear.ToString();
+                monthYear.Add(key);
+            }
+            for (int i = 1; i <= 2; i++)
+            {
+                var key = DateTimeFormatInfo.CurrentInfo.GetMonthName(i).Substring(0, 3) + " - " + nxtStartYear.ToString();
+                monthYear.Add(key);
+            }
+            return monthYear;
+        }
+        public List<string> GetAllSalaryMonths()
+        {
+            List<string> monthYear = new List<string>();
+
+            DateTime dtStart =  _FinSalStart;
             int nxtStartYear = dtStart.Year + 1;
             int currEndYear = dtStart.Year;
 
@@ -4106,13 +4348,14 @@ namespace IOAS.GenericServices
                     DateTime salFinStartDate = fp.SalFinStart();
                     int age = Common.CalculateAge(model.DateOfBirth, salFinStartDate.AddDays(-1));
                     model.taxSlab = GetTaxSlab(model.Gender, age);
-                    var finMonthYearList = fp.GetAllSalMonths();
+                    var finMonthYearList = fp.GetAllSalaryMonths();
                     string finStartMonth = fp.SalStartMonth();
                     decimal amount = 0;
                     decimal taxableAmount = 0;
                     decimal monthSalary = Basic + HRA;
                     decimal currentMonthSalay = model.Basic + model.HRA;
                     model.ProjectedNoMonths = 1;
+                    DateTime currDate = DateTime.Now;
                     if (finEndDate > nextMonthStartDate)
                     {
                         List<string> futurMonth = new List<string>();
@@ -4167,6 +4410,52 @@ namespace IOAS.GenericServices
                                 }
                             }
                         }
+
+                        // extenion tenure not stared
+                        var query1 = (from o in context.tblOrder
+                                      join ste in context.tblRCTSTE on o.AppointmentId equals ste.STEID
+                                      where o.OrderType == 3 && o.Status == "Completed" &&
+                                       o.FromDate > currDate && o.AppointmentType == 2 && ste.EmployeersID == model.EmployeeId &&
+                                                      o.FromDate <= finEndDate && o.ToDate >= nextMonthStartDate
+                                      select o).ToList();
+                        foreach (var item in query1)
+                        {
+                            DateTime tDate = Convert.ToDateTime(item.ToDate);
+                            decimal induBasic = item.Basic.GetValueOrDefault(0);
+                            decimal induHRA = item.HRA.GetValueOrDefault(0);
+
+                            if (finEndDate < tDate)
+                            {
+                                salaryEndDate = finEndDate;
+                            }
+                            else
+                            {
+                                salaryEndDate = tDate;
+                            }
+                            var listOfMonthDays = GetMonthNumberOfDays(nextMonthStartDate, salaryEndDate);
+                            //int projectedMonth = listOfMonthDays.Count + 1;
+                            //if (model.ProjectedNoMonths < projectedMonth)
+                            // model.ProjectedNoMonths = projectedMonth;
+                            foreach (var m in listOfMonthDays)
+                            {
+                                if (!futurMonth.Contains(m.MonthYear))
+                                    futurMonth.Add(m.MonthYear);
+                                int salMonthDays = m.TotalDays;
+                                int noOfDays = m.TotalPresentDays;
+
+                                if (salMonthDays == noOfDays)
+                                {
+                                    taxableAmount += induBasic + induHRA;
+                                }
+                                else
+                                {
+                                    decimal elgAmount = induBasic + induHRA;
+                                    decimal partialSal = (elgAmount / salMonthDays) * noOfDays;
+                                    taxableAmount = taxableAmount + partialSal;
+                                }
+                            }
+                        }
+
                         int projectedMonth = futurMonth.Count + 1;
                         if (model.ProjectedNoMonths < projectedMonth)
                             model.ProjectedNoMonths = projectedMonth;
@@ -4234,7 +4523,7 @@ namespace IOAS.GenericServices
                             {
                                 bool isAffect = Common.GetCommonHeadFlag(123);
                                 if (isAffect)
-                                    currMonthOtherDA = currMonthOtherDA - itemDA.Professional_tax.GetValueOrDefault(0);
+                                    currMonthOtherDA = currMonthOtherDA - itemDA.Medical_Recovery.GetValueOrDefault(0);
                             }
                         }
                     decimal currMonthOtherBasicHraIT_e = (queryOtherLine.Where(m => m.TaxExempted == false).Sum(m => m.CurrentBasic) ?? 0) + (queryOtherLine.Where(m => m.TaxExempted == false).Sum(m => m.CurrentHRA) ?? 0);
@@ -4338,7 +4627,7 @@ namespace IOAS.GenericServices
                     model.PreviousPT = data.Item1;
                     model.PreviousIT = data.Item2;
                     model.PreviousGross = data.Item3;
-                    model.AnnualExemption = payment.GetITExemption(paybill);
+                    model.AnnualExemption = payment.GetITExemptionCurrentFinyear(paybill);
                     model.AnnualExemption = model.AnnualExemption + model.PreviousPT;
                     if (model.TaxExempted == true)
                         model.AnnualTaxableSalary = prevTaxableBasic + currMonthOtherBasicHraIT_e + prevTaxableHRA + preTaxableOA + preTaxableDA;
@@ -4346,6 +4635,10 @@ namespace IOAS.GenericServices
                         model.AnnualTaxableSalary = taxableAmount + currMonthOtherBasicHraIT_e + taxablOA + prevTaxableBasic + prevTaxableHRA + preTaxableOA + preTaxableDA + currMonthOtherDA - ttlAffectableProjExp;
                     model.AnnualSalary = taxableAmount + currMonthOtherBasicHraIT_e + ttlOtherAllow + ttlDirectAllow + prevBasic + prevHRA + preOA + preDA + currMonthOtherDA - ttlAffectableProjExp;
                     taxable = model.AnnualTaxableSalary - model.AnnualExemption;
+                    StaffPaymentService sps = new StaffPaymentService();
+                    var otherIncome = sps.GetITEmpOtherIncomecurrentFinYear(paybill);
+                    decimal otherInc = otherIncome != null ? otherIncome.Sum(m => m.Amount) : 0;
+                    taxable = taxable + otherInc;
                     model.ProjectedSalary = amount;// + taxablOA;
                     model.TaxableIncome = taxable < 0 ? 0 : taxable;
                     model.OtherAllowanceAmount = ttlOtherAllow;
@@ -4555,7 +4848,7 @@ namespace IOAS.GenericServices
             try
             {
                 FinOp fo = new FinOp(paymentMonth, typeOfPayBill);
-                List<string> finPeriod = fo.GetAllSalMonths();
+                List<string> finPeriod = fo.GetAllSalaryMonths();
                 string finStartMonth = fo.SalStartMonth();
                 using (var context = new IOASDBEntities())
                 {
@@ -6465,7 +6758,7 @@ namespace IOAS.GenericServices
                         var EmployeeID = queryVerified[i].EmployeeID;
                         var empname = string.Empty;
                         var DEP = string.Empty;
-                        var DOfB=DateTime.Now;
+                        var DOfB = DateTime.Now;
                         var DesCode = string.Empty;
                         var BankName = string.Empty;
                         var IFSCCode = string.Empty;
@@ -6473,11 +6766,11 @@ namespace IOAS.GenericServices
                         if (queryVerified[i].RCTPayrollProcessDetailId == null)
                         {
                             var EmployeeMasterQry = context.vw_RCTAdhocEmployeeMaster.Where(m => m.EmployeeId == EmployeeID).OrderByDescending(m => m.EffectiveFrom).FirstOrDefault();
-                            if(EmployeeMasterQry!=null)
+                            if (EmployeeMasterQry != null)
                             {
                                 empname = EmployeeMasterQry.NAME;
                                 DEP = EmployeeMasterQry.DEPARTMENT;
-                                DOfB = EmployeeMasterQry.DOB?? DateTime.Now;
+                                DOfB = EmployeeMasterQry.DOB ?? DateTime.Now;
                                 DesCode = EmployeeMasterQry.DesignationCode;
                                 BankName = EmployeeMasterQry.BankName;
                                 IFSCCode = EmployeeMasterQry.IFSCCode;
@@ -6486,9 +6779,9 @@ namespace IOAS.GenericServices
                         }
                         else
                         {
-                            int rctpaydetailid = queryVerified[i].RCTPayrollProcessDetailId??0;
+                            int rctpaydetailid = queryVerified[i].RCTPayrollProcessDetailId ?? 0;
                             var rctpayrolldetails = context.tblRCTPayrollProcessDetail.Where(x => x.RCTPayrollProcessDetailId == rctpaydetailid).FirstOrDefault();
-                            if(rctpayrolldetails!=null)
+                            if (rctpayrolldetails != null)
                             {
                                 empname = rctpayrolldetails.CandidateName;
                                 DEP = rctpayrolldetails.DepartmentName;
