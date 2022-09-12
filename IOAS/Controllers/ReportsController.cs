@@ -2278,7 +2278,9 @@ namespace IOAS.Controllers
                         command.Connection = connection;
                         command.CommandType = CommandType.Text;
                         command.CommandTimeout = 1800;
-                        command.CommandText = "select * from tblOverallAnnualAccounts";
+                        //command.CommandText = "select * from tblOverallAnnualAccounts";
+                        //Vinoth IC36775 12/09/2022 #7166 
+                        command.CommandText = "select   * from vw_OverallAnnualAccountsWithSchemecodes";
                         var adapter = new System.Data.SqlClient.SqlDataAdapter(command);
                         var dataset = new DataSet();
                         adapter.Fill(dataset);
