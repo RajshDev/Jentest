@@ -1556,9 +1556,13 @@
     var OldHRA = @Html.Raw(Json.Encode(Model.OldPrjDetailModel.HRA)) || 0;
     var OldProjectID = @Json.Encode(Model.OldPrjDetailModel.ProjectID) || 0;
 
-    if(typcategory == "OSG")
-        OldSalary = @Json.Encode(Model.OldTotalCTC) || 0;
-
+    if (typcategory == "OSG") {
+        //OldSalary = @Json.Encode(Model.OldTotalCTC) || 0;
+        /*7198 PI site salary increment error in additional commitment
+        */
+        OldSalary = @Html.Raw(Json.Encode(Model.OldPrjDetailModel.EmployeeCTC)) || 0;
+        
+    }
     $(document).ready(function () {
         $('[data-toggle="tooltip"]').tooltip();
 
@@ -2315,8 +2319,8 @@
 
 
                 //If Check enhancement within tenure or out
-                var AppointmentStartdt=new Date('@string.Join("/",Model.OldPrjDetailModel.AppointmentStartDate.Split('-'))');
-                var AppointmentClosedt=new Date('@string.Join("/",Model.OldPrjDetailModel.AppointmentClosureDate.Split('-'))');
+                var AppointmentStartdt=new Date('@string.Join("/",Model.OldPrjDetailModel.AppointmentStartDate.Split('-'))'); 
+                var AppointmentClosedt=new Date('@string.Join("/",Model.OldPrjDetailModel.AppointmentClosureDate.Split('-'))'); 
                 if ((startdate >= AppointmentStartdt && enddate <= AppointmentClosedt)) {
                     SalaryDiff = Salary - OldSalary;
 
@@ -2327,7 +2331,7 @@
                         if(HRAValue < HRA || HRAValue > HRA)
                             $("#HRA").val(HRAValue.toFixed(2));
                     }
-                    else {
+                    else { 
                         HRAValue = 0;
                         $("#HRA").val(0);
                     }
@@ -2422,7 +2426,7 @@
                     {
                         Tot += lwfamt;
                     }
-                }
+                } 
                 if(isarrearpay == true)
                     return Tot;
                 if(ttlVal < 0) {
