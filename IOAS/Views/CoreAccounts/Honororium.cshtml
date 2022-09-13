@@ -163,7 +163,8 @@
                                                                             </td>
 
                                                                             <td>
-                                                                                @Html.TextBox(@amount, item.Amount, new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)", @autocomplete = "off" })
+                                                                                @*Bug #7143 changes done by IC36775 19/08/2022*@
+                                                                                @Html.TextBox(@amount, item.Amount, new { @type = "number", @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)", @autocomplete = "off" })
                                                                                 @Html.ValidationMessage(@amount)
                                                                             </td>
                                                                             <td>
@@ -236,7 +237,8 @@
                                                                         </td>
 
                                                                         <td>
-                                                                            @Html.TextBox("PODetail[0].Amount", "", new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)", @autocomplete = "off" })
+                                                                            @*Bug #7143 changes done by IC36775 19/08/2022*@
+                                                                            @Html.TextBox("PODetail[0].Amount", "", new { @type = "number", @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)", @autocomplete = "off" })
                                                                             @Html.ValidationMessage("PODetail[0].Amount")
                                                                         </td>
                                                                         <td>
@@ -271,7 +273,7 @@
                                                                             @Html.ValidationMessage("PODetail[0].IFSC")
                                                                         </td>
                                                                         <td>
-                                                                            @Html.DropDownList("PODetail[0].HonororiumTdsSection", new SelectList(ViewBag.HonTdsSection, "id", "name"), new { @class = "form-control", @id = "honTdsSection" })
+                                                                            @Html.DropDownList("PODetail[0].HonororiumTdsSection", new SelectList(ViewBag.HonTdsSection, "id", "name"), "Select Tds Section", new { @class = "form-control", @id = "honTdsSection" })
                                                                            
                                                                         </td>
                                                                         <td>
@@ -358,7 +360,8 @@
                                                                                 @Html.Hidden("PCFDetail.Index", @count)
                                                                             </td>
                                                                             <td>
-                                                                                @Html.TextBox(@pcfamount, val.PCFAmount, new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)", @autocomplete = "off" })
+                                                                                @*Bug #7143 changes done by IC36775 19/08/2022*@
+                                                                                @Html.TextBox(@pcfamount, val.PCFAmount, new { @type = "number", @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)", @autocomplete = "off" })
                                                                                 @Html.ValidationMessage(@pcfamount)
                                                                             </td>
 
@@ -399,7 +402,8 @@
                                                                             @Html.Hidden("PCFDetail.Index", "0")
                                                                         </td>
                                                                         <td>
-                                                                            @Html.TextBox("PCFDetail[0].PCFAmount", "", new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)", @autocomplete = "off" })
+                                                                            @*Bug #7143 changes done by IC36775 19/08/2022*@
+                                                                            @Html.TextBox("PCFDetail[0].PCFAmount", "", new { @type = "number", @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)", @autocomplete = "off" })
                                                                             @Html.ValidationMessage("PCFDetail[0].PCFAmount")
                                                                         </td>
                                                                         <td>
@@ -641,13 +645,26 @@ categoryChange($(this));
                     var index = $(this).attr('name').match(/\d+/);
                     var paymentmode = $('select[name="PODetail[' + index + '].PaymentMode"]').val() == "" ? 0 : $('select[name="PODetail[' + index + '].PaymentMode"]').val();
 
-                    if (value != 10 && value != 20 && !(value == 0 && paymentmode == 3))
-                    {
+                    //Bug #7202 -Changes done by IC36775 19/08/2022
+                    //if (value != 10 && value != 20 && !(value == 0 && paymentmode == 3))
+                    //{
+                    //    $(this).val('');
+                    //    $("#alert").text("This TDS percent not available");
+                    //    $('#Validation').modal('show');
+                    //    return;
+                    //}
+                    if (value != 10 && value != 20 && value != 0) {
                         $(this).val('');
                         $("#alert").text("This TDS percent not available");
                         $('#Validation').modal('show');
+                        $('select[name="PODetail[' + index + '].HonororiumTdsSection"]').val("").end();
                         return;
                     }
+                    if (value == 0) {
+                        $('select[name="PODetail[' + index + '].HonororiumTdsSection"]').val("").end();
+                    }
+                    //Bug #7202 End of changes
+
                     if (value > 0 && (value == 10 || value == 20))
                     {
                         if(value==10)
@@ -1454,12 +1471,25 @@ categoryChange($(this));
                             var value = $(this).val();
                             var index = $(this).attr('name').match(/\d+/);
                             var paymentmode = $('select[name="PODetail[' + index + '].PaymentMode"]').val() == "" ? 0 : $('select[name="PODetail[' + index + '].PaymentMode"]').val();
-                            if (value != 10 && value != 20 && !(value == 0 && paymentmode == 3))
-                            {
+
+                            //Bug #7202 -Changes done by IC36775 19/08/2022
+                            //if (value != 10 && value != 20 && !(value == 0 && paymentmode == 3))
+                            //{
+                            //    hadError = true;
+                            //    $("#alert").text("Selected TDS percent not available");
+                            //    $('#Validation').modal('show');
+                            //}
+
+                            if (value != 10 && value != 20 && value != 0) {
                                 hadError = true;
                                 $("#alert").text("Selected TDS percent not available");
                                 $('#Validation').modal('show');
+                                $('select[name="PODetail[' + index + '].HonororiumTdsSection"]').val("").end();
                             }
+                            if (value == 0) {
+                                $('select[name="PODetail[' + index + '].HonororiumTdsSection"]').val("").end();
+                            }
+                            //Bug #7202 End of changes
                         });
                         //var validationPANMsg = ValidatePAN()
                         //if (validationPANMsg != 'valid') {
@@ -1562,4 +1592,17 @@ categoryChange($(this));
 <script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
 <script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
 <script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>
+<style>
+    /* Chrome, Safari, Edge, Opera */
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    /* Firefox */
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+</style>
 
