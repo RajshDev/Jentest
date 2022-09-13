@@ -14,6 +14,7 @@ namespace IOAS.Controllers
     [Authorized]
     public class FacilityController : Controller
     {
+        private static readonly Object lockTapalFlowObj = new Object();
         #region Tapal
         public ActionResult Tapal()
         {
@@ -188,17 +189,28 @@ namespace IOAS.Controllers
         {
             try
             {
-                FacilityService _TS = new FacilityService();
-                int logged_in_userId = Common.GetUserid(User.Identity.Name);
-                int logged_in_RoleId = Common.GetRoleId(User.Identity.Name);
-                int Update = _TS.SaveInwardEntry(Action,Department, Role, ToUser, Remarks, TapalId, logged_in_userId, PopUpEdit);
-                if (Update == 1)
+                lock (lockTapalFlowObj)
                 {
-                    return Json(Update, JsonRequestBehavior.AllowGet);
-                }
-                else
-                {
-                    return Json(Update, JsonRequestBehavior.AllowGet);
+                    FacilityService _TS = new FacilityService();
+                    int logged_in_userId = Common.GetUserid(User.Identity.Name);
+                    int logged_in_RoleId = Common.GetRoleId(User.Identity.Name);
+                    bool statusduplicateflow = FacilityService.CheckDuplicateApproval(Action, Department, Role, ToUser, Remarks, TapalId, logged_in_userId, PopUpEdit);
+                    if (statusduplicateflow)
+                    {
+                        int Update = _TS.SaveInwardEntry(Action, Department, Role, ToUser, Remarks, TapalId, logged_in_userId, PopUpEdit);
+                        if (Update == 1)
+                        {
+                            return Json(Update, JsonRequestBehavior.AllowGet);
+                        }
+                        else
+                        {
+                            return Json(Update, JsonRequestBehavior.AllowGet);
+                        }
+                    }
+                    else
+                    {
+                        return Json(-1, JsonRequestBehavior.AllowGet);
+                    }
                 }
             }
             catch (Exception ex)

@@ -16,6 +16,7 @@ using Rotativa.Core.Options;
 using System.Configuration;
 using DataAccessLayer;
 using SelectPdf;
+using IOASExternal.DataModel;
 
 namespace IOAS.Controllers
 {
@@ -3735,6 +3736,98 @@ namespace IOAS.Controllers
             catch (Exception ex)
             {
                 return PartialView(model);
+            }
+        }
+        #endregion
+        #region PayinSlip
+        public ActionResult Payinslipdownload(int PayinslipId)
+        {
+            try
+            {
+                //string loginuser = User.Identity.Name;
+                using (var context = new IOASExternalEntities())
+                {
+                    var query = context.tblPayinSlip.FirstOrDefault(m => m.PayinslipId == PayinslipId);
+                    string url = "";
+
+                    url = Request.Url.GetLeftPart(UriPartial.Authority) + Request.ApplicationPath + "/ReportMaster/PayinslipOutput?id=" + PayinslipId;
+
+                    string pdf_page_size = "A4";
+                    SelectPdf.PdfPageSize pageSize =
+                        (SelectPdf.PdfPageSize)Enum.Parse(typeof(SelectPdf.PdfPageSize), pdf_page_size, true);
+
+                    string pdf_orientation = "Portrait";
+                    SelectPdf.PdfPageOrientation pdfOrientation =
+                        (SelectPdf.PdfPageOrientation)Enum.Parse(typeof(SelectPdf.PdfPageOrientation),
+                        pdf_orientation, true);
+
+                    int webPageWidth = 924;
+
+                    int webPageHeight = 0;
+
+                    // instantiate a html to pdf converter object
+                    SelectPdf.HtmlToPdf converter = new SelectPdf.HtmlToPdf();
+
+                    // set converter options
+                    converter.Options.PdfPageSize = pageSize;
+                    converter.Options.PdfPageOrientation = pdfOrientation;
+                    converter.Options.WebPageWidth = webPageWidth;
+                    converter.Options.WebPageHeight = webPageHeight;
+
+                    // create a new pdf document converting an url
+                    SelectPdf.PdfDocument doc = converter.ConvertUrl(url);
+
+                    // save pdf document
+                    byte[] pdf = doc.Save();
+
+                    // close pdf document
+                    doc.Close();
+                    Response.AddHeader("Content-Disposition", "inline; filename=Payinslip.pdf");
+                    return File(pdf, "application/pdf");
+                    // return resulted pdf document
+                    //FileResult fileResult = new FileContentResult(pdf, "application/pdf");
+                    //if (query.PaymentBank == 20 && query.TypeofPayment == 1 && query.PurposeofRemittance == 1)
+                    //{
+                    //    fileResult.FileDownloadName = "Advance Import Request Letter_CB " + foreignRemitId + ".pdf";
+                    //}
+                    //if (query.PaymentBank == 20 && query.TypeofPayment == 2 && query.PurposeofRemittance == 1)
+                    //{
+                    //    fileResult.FileDownloadName = "Direct Import Request Letter_CB " + foreignRemitId + ".pdf";
+                    //}
+                    //if (query.PaymentBank == 21 && query.TypeofPayment == 1 && query.PurposeofRemittance == 1)
+                    //{
+                    //    fileResult.FileDownloadName = "Advance Import Request Letter_HDFC " + foreignRemitId + ".pdf";
+                    //}
+                    //if (query.PaymentBank == 21 && query.TypeofPayment == 2 && query.PurposeofRemittance == 1)
+                    //{
+                    //    fileResult.FileDownloadName = "Direct Import Request Letter_HDFC " + foreignRemitId + ".pdf";
+                    //}
+                    //if (query.PurposeofRemittance == 2 || query.PurposeofRemittance == 3 || query.PurposeofRemittance == 4 || query.PurposeofRemittance == 5)
+                    //{
+                    //    fileResult.FileDownloadName = "Other Services Request Letter_HDFC " + foreignRemitId + ".pdf";
+                    //}
+                    //return fileResult;
+                }
+            }
+            catch (Exception ex)
+            {
+
+                return new EmptyResult();
+            }
+        }
+        public ActionResult PayinslipOutput(int id)
+        {
+            try
+            {
+                ReportService rs = new ReportService();
+                CreateInvoiceModel model = new CreateInvoiceModel();
+                ProjectService projectService = new ProjectService();
+                model = rs.GetPayinslip(id);
+                return PartialView(model);
+            }
+            catch (Exception ex)
+            {
+                return PartialView("ErrOutput");
             }
         }
         #endregion

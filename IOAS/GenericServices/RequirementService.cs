@@ -4247,11 +4247,11 @@ namespace IOAS.GenericServices
 
                                     context.tblRCTCommitmentRequest.Where(x => x.OrderId == mastQuery.OrderId && x.Status == "Awaiting Commitment Booking")
                                         .ToList().ForEach(m =>
-                                    {
-                                        m.Status = "Cancel";
-                                        m.Updt_TS = DateTime.Now;
-                                        m.Updt_UserId = logging_user;
-                                    });
+                                        {
+                                            m.Status = "Cancel";
+                                            m.Updt_TS = DateTime.Now;
+                                            m.Updt_UserId = logging_user;
+                                        });
 
                                     var comQuery = (from c in context.tblRCTCommitmentRequest
                                                     where c.EmpNumber == mastQuery.EmployeersID && c.OrderId == mastQuery.OrderId
@@ -4310,6 +4310,21 @@ namespace IOAS.GenericServices
                                             preEffectQuery.ActualAppointmentEndDate = null;
                                     }
                                     context.SaveChanges();
+                                    #region Remove Processtransaction
+                                    int refid = mastQuery.OrderId ?? 0;
+                                    var processtrans = context.tblProcessTransaction.Where(x => x.RefId == refid && x.RefFieldName == "OrderId" && x.Closed_F != true).FirstOrDefault();
+                                    if (processtrans != null)
+                                    {
+                                        int processid = processtrans.ProcessTransactionId;
+                                        var procesdetail = context.tblProcessTransactionDetail.Where(x => x.ProcessTransactionId == processid && x.Clarified == true).ToList();
+                                        if (procesdetail.Count > 0)
+                                        {
+                                            context.tblProcessTransactionDetail.RemoveRange(procesdetail);
+                                            context.tblProcessTransaction.Remove(processtrans);
+                                            context.SaveChanges();
+                                        }
+                                    }
+                                    #endregion
                                 }
                                 else
                                 {
@@ -4382,6 +4397,21 @@ namespace IOAS.GenericServices
                                             conQuery.UptdTs = DateTime.Now;
                                             conQuery.UptdUser = logging_user;
                                             context.SaveChanges();
+                                            #region Remove Processtransaction
+                                            string appno = conQuery.ApplicationNumber;
+                                            var processtrans = context.tblProcessTransaction.Where(x => x.RefNumber == appno && x.Closed_F != true).FirstOrDefault();
+                                            if (processtrans != null)
+                                            {
+                                                int processid = processtrans.ProcessTransactionId;
+                                                var procesdetail = context.tblProcessTransactionDetail.Where(x => x.ProcessTransactionId == processid && x.Clarified == true).ToList();
+                                                if (procesdetail.Count > 0)
+                                                {
+                                                    context.tblProcessTransactionDetail.RemoveRange(procesdetail);
+                                                    context.tblProcessTransaction.Remove(processtrans);
+                                                    context.SaveChanges();
+                                                }
+                                            }
+                                            #endregion
                                         }
                                     }
                                     else if (mastQuery.AppointmentType == 2)
@@ -4393,6 +4423,21 @@ namespace IOAS.GenericServices
                                             steQuery.UptdTs = DateTime.Now;
                                             steQuery.UptdUser = logging_user;
                                             context.SaveChanges();
+                                            #region Remove Processtransaction
+                                            string appno = steQuery.ApplicationNumber;
+                                            var processtrans = context.tblProcessTransaction.Where(x => x.RefNumber == appno && x.Closed_F != true).FirstOrDefault();
+                                            if (processtrans != null)
+                                            {
+                                                int processid = processtrans.ProcessTransactionId;
+                                                var procesdetail = context.tblProcessTransactionDetail.Where(x => x.ProcessTransactionId == processid && x.Clarified == true).ToList();
+                                                if (procesdetail.Count > 0)
+                                                {
+                                                    context.tblProcessTransactionDetail.RemoveRange(procesdetail);
+                                                    context.tblProcessTransaction.Remove(processtrans);
+                                                    context.SaveChanges();
+                                                }
+                                            }
+                                            #endregion
                                         }
                                     }
                                     else if (mastQuery.AppointmentType == 3)
@@ -4404,6 +4449,21 @@ namespace IOAS.GenericServices
                                             osgQuery.UptdTs = DateTime.Now;
                                             osgQuery.UptdUser = logging_user;
                                             context.SaveChanges();
+                                            #region Remove Processtransaction
+                                            string appno = osgQuery.ApplicationNumber;
+                                            var processtrans = context.tblProcessTransaction.Where(x => x.RefNumber == appno && x.Closed_F != true).FirstOrDefault();
+                                            if (processtrans != null)
+                                            {
+                                                int processid = processtrans.ProcessTransactionId;
+                                                var procesdetail = context.tblProcessTransactionDetail.Where(x => x.ProcessTransactionId == processid && x.Clarified == true).ToList();
+                                                if (procesdetail.Count > 0)
+                                                {
+                                                    context.tblProcessTransactionDetail.RemoveRange(procesdetail);
+                                                    context.tblProcessTransaction.Remove(processtrans);
+                                                    context.SaveChanges();
+                                                }
+                                            }
+                                            #endregion
                                         }
                                     }
                                 }
@@ -27791,7 +27851,7 @@ namespace IOAS.GenericServices
                     }
                     if (DateOfJoining.@from != null && DateOfJoining.to != null)
                     {
-                        DateOfJoining.@from = DateOfJoining.@from.Value.Date.AddDays(1).AddTicks(-2);
+                        DateOfJoining.to = DateOfJoining.to.Value.Date.AddDays(1).AddTicks(-2);
                         predicate = predicate.And(d => d.DateofJoining >= DateOfJoining.@from && d.DateofJoining <= DateOfJoining.to);
                     }
                     if (!string.IsNullOrEmpty(model.SearchInProjectNumber))
@@ -27913,7 +27973,7 @@ namespace IOAS.GenericServices
                     }
                     if (DateOfJoining.@from != null && DateOfJoining.to != null)
                     {
-                        DateOfJoining.@from = DateOfJoining.@from.Value.Date.AddDays(1).AddTicks(-2);
+                        DateOfJoining.to = DateOfJoining.to.Value.Date.AddDays(1).AddTicks(-2);
                         predicate = predicate.And(d => d.DateofJoining >= DateOfJoining.@from && d.DateofJoining <= DateOfJoining.to);
                     }
                     if (!string.IsNullOrEmpty(model.SearchInProjectNumber))
@@ -28715,6 +28775,7 @@ namespace IOAS.GenericServices
                                            && (p.ProjectNumber.Contains(model.SearchInProjectNumber) || model.SearchInProjectNumber == null)
                                            && (vw.EmployeersID.Contains(model.SearchInEmployeeId) || model.SearchInEmployeeId == null)
                                            && (b.Status.Contains(model.SearchInStatus) || model.SearchInStatus == null)
+                                           && (vw.BasicPay==model.SearchBasicAmount || model.SearchBasicAmount == null)
                                            select new
                                            {
                                                vw.CandidateName,

@@ -4119,6 +4119,11 @@ namespace IOAS.GenericServices
                             transaction.Rollback();
                             return Tuple.Create(-1, validateCommit);
                         }
+                        if(model.commitmentValue!=model.AllocationValue)
+                        {
+                            transaction.Rollback();
+                            return Tuple.Create(-1, "Commitment amount and allocated Commitment amount difference");
+                        }
                         if (model.commitmentId > 0)
                         {
                             int cmtId = model.commitmentId ?? 0;
