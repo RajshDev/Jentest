@@ -27,5 +27,6 @@ namespace IOAS.DataModel
         public Nullable<int> UpdatedBy { get; set; }
         public string Particulars { get; set; }
         public string Remarks { get; set; }
+        public Nullable<int> FinYearId { get; set; }
     }
 }

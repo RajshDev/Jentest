@@ -29,5 +29,8 @@ namespace IOAS.DataModel
         public string CREATED_BY { get; set; }
         public Nullable<int> OrderType { get; set; }
         public string ENHANCEMENT_TYPE { get; set; }
+        public string Requested_by { get; set; }
+        public string Request_Reference { get; set; }
+        public string Request_Reference_Number { get; set; }
     }
 }

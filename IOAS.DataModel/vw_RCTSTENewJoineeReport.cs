@@ -26,5 +26,11 @@ namespace IOAS.DataModel
         public Nullable<int> ARREARS_TO_BE_PROCESSED_W_E_F { get; set; }
         public string LOGCREATED_BY { get; set; }
         public Nullable<System.DateTime> LOG_TIME { get; set; }
+        public string NIDNumber { get; set; }
+        public string Initiated_by { get; set; }
+        public Nullable<System.DateTime> Request_received_date { get; set; }
+        public string COMPLETED_BY { get; set; }
+        public Nullable<System.DateTime> COMMITMENT_BOOKING_DATE { get; set; }
+        public Nullable<System.DateTime> COMMMITEE_APPROVED_DATE { get; set; }
     }
 }

@@ -42,5 +42,8 @@ namespace IOAS.DataModel
         public string AgencyName { get; set; }
         public string AgencyCode { get; set; }
         public string ProjectClassification { get; set; }
+        public Nullable<decimal> UnspentBalance { get; set; }
+        public Nullable<decimal> InterestRefund { get; set; }
+        public Nullable<decimal> InterestEarned { get; set; }
     }
 }

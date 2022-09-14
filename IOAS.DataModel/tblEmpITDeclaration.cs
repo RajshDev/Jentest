@@ -31,5 +31,6 @@ namespace IOAS.DataModel
         public Nullable<int> CreatedBy { get; set; }
         public Nullable<int> UpdatedBy { get; set; }
         public string EmpId { get; set; }
+        public Nullable<int> FinYearId { get; set; }
     }
 }

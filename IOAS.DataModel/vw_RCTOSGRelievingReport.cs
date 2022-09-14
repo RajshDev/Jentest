@@ -26,5 +26,10 @@ namespace IOAS.DataModel
         public string CREATED_BY { get; set; }
         public Nullable<System.DateTime> LOGCREATED_TIME { get; set; }
         public string LOG_CREATED_BY { get; set; }
+        public string MS_PHD_COURSE { get; set; }
+        public string Requested_by { get; set; }
+        public string Request_Reference { get; set; }
+        public string Request_Reference_Number { get; set; }
+        public string MODE_OF_RELIEVING { get; set; }
     }
 }

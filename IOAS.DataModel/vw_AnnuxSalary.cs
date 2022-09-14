@@ -14,7 +14,9 @@ namespace IOAS.DataModel
     
     public partial class vw_AnnuxSalary
     {
-        public Nullable<int> PayBill { get; set; }
+        public string PayBill { get; set; }
+        public string Name { get; set; }
+        public string PANNo { get; set; }
         public Nullable<decimal> Basic { get; set; }
         public Nullable<decimal> HRA { get; set; }
         public Nullable<decimal> TotalSalary { get; set; }
@@ -66,5 +68,6 @@ namespace IOAS.DataModel
         public Nullable<decimal> DeclarationId45 { get; set; }
         public decimal ITdecTotal { get; set; }
         public Nullable<System.DateTime> PaidDate { get; set; }
+        public decimal Recoveryamount { get; set; }
     }
 }

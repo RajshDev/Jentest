@@ -42,5 +42,7 @@ namespace IOAS.DataModel
         public string ModeofRelieving { get; set; }
         public string SalaryLevel { get; set; }
         public Nullable<System.DateTime> DateofBirth { get; set; }
+        public string Employeework { get; set; }
+        public string MsPhdType { get; set; }
     }
 }

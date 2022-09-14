@@ -35,5 +35,8 @@ namespace IOAS.DataModel
         public string BANK_NAME { get; set; }
         public string ACCOUNT_NO_ { get; set; }
         public string IFSC_CODE { get; set; }
+        public string NIDNumber { get; set; }
+        public string Initiated_by { get; set; }
+        public Nullable<System.DateTime> Request_received_date { get; set; }
     }
 }
