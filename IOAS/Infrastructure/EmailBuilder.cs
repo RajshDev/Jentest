@@ -101,7 +101,7 @@ namespace IOAS.Infrastructure
                 string mailpassword = WebConfigurationManager.AppSettings["fromMailPassword"];
                 string smtpAddress = WebConfigurationManager.AppSettings["smtpAddress"];
                 int portNumber = Convert.ToInt32(WebConfigurationManager.AppSettings["portNumber"]);
-                using (MailMessage mm = new MailMessage(mail, "icsrit14@icsrpis.iitm.ac.in"))
+                using (MailMessage mm = new MailMessage(mail, model.toMail))
                 {
                     // string url = HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority) + HttpContext.Current.Request.ApplicationPath + "/Account/Login";
                     mm.Subject = model.subject;
