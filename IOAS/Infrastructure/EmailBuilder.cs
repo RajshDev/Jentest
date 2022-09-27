@@ -43,14 +43,14 @@ namespace IOAS.Infrastructure
             }
         }
 
-        public bool ForeignRemitEmail(EmailModel model, string eBody, string[] pdf)        {            try            {                bool enableSSL = true;                string mail = WebConfigurationManager.AppSettings["fromMail"];                string mailpassword = WebConfigurationManager.AppSettings["fromMailPassword"];                string smtpAddress = WebConfigurationManager.AppSettings["smtpAddress"];                int portNumber = Convert.ToInt32(WebConfigurationManager.AppSettings["portNumber"]);                using (MailMessage mm = new MailMessage(mail, model.toMail))                {
+        public bool ForeignRemitEmail(EmailModel model, string eBody, string[] pdf)        {            try            {                bool enableSSL = true;                string mail = WebConfigurationManager.AppSettings["fromMail"];                string mailpassword = WebConfigurationManager.AppSettings["fromMailPassword"];                string smtpAddress = WebConfigurationManager.AppSettings["smtpAddress"];                int portNumber = Convert.ToInt32(WebConfigurationManager.AppSettings["portNumber"]);                var tomail = EmailID(model.toMail);                using (MailMessage mm = new MailMessage(mail, tomail))                {
 
                     mm.Subject = "Foreign Remittance Payment Confirmation Mail";                    mm.Body = eBody;                    mm.IsBodyHtml = true;                    foreach (var cc in model.cc ?? new List<string>())                        mm.CC.Add(cc);                    foreach (var bc in model.bcc ?? new List<string>())                        mm.Bcc.Add(bc);
                     // mm.Attachments.Add(new Attachment(new MemoryStream(pdf), "Payslip.pdf"));
                     for (int i = 0; i < pdf.Count(); i++)                    {
                         //string url = HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority) + HttpContext.Current.Request.ApplicationPath + pdf[i];
                         //mm.Attachments.Add(new Attachment(pdf[i]));
-                        if (pdf[i] != null)                        {                            var strem = pdf[i].DownloadFile("OtherDocuments");                            mm.Attachments.Add(new Attachment(new MemoryStream(strem), pdf[i]));                        }                    }                    using (SmtpClient smtp = new SmtpClient(smtpAddress, portNumber))                    {                        smtp.Credentials = new NetworkCredential(mail, mailpassword);                        smtp.EnableSsl = enableSSL;                        smtp.Send(mm);                    }                }                return true;            }            catch (Exception ex)            {                return false;            }        }
+                        if (pdf[i] != null)                        {                            var strem = pdf[i].DownloadFile("OtherDocuments");                            mm.Attachments.Add(new Attachment(new MemoryStream(strem), pdf[i]));                        }                    }                    using (SmtpClient smtp = new SmtpClient(smtpAddress, portNumber))                    {                        smtp.Credentials = new NetworkCredential(mail, mailpassword);                        smtp.EnableSsl = enableSSL;                        smtp.Send(mm);                    }                }                return true;            }            catch (Exception ex)            {                return false;            }        }
 
         //public bool SendEmail(EmailModel model, string eBody)
         //{
@@ -101,7 +101,8 @@ namespace IOAS.Infrastructure
                 string mailpassword = WebConfigurationManager.AppSettings["fromMailPassword"];
                 string smtpAddress = WebConfigurationManager.AppSettings["smtpAddress"];
                 int portNumber = Convert.ToInt32(WebConfigurationManager.AppSettings["portNumber"]);
-                using (MailMessage mm = new MailMessage(mail, model.toMail))
+                var tomail = EmailID(model.toMail);
+                using (MailMessage mm = new MailMessage(mail, tomail))
                 {
                     // string url = HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority) + HttpContext.Current.Request.ApplicationPath + "/Account/Login";
                     mm.Subject = model.subject;
@@ -149,7 +150,8 @@ namespace IOAS.Infrastructure
                 string mailpassword = WebConfigurationManager.AppSettings["fromMailPassword"];
                 string smtpAddress = WebConfigurationManager.AppSettings["smtpAddress"];
                 int portNumber = Convert.ToInt32(WebConfigurationManager.AppSettings["portNumber"]);
-                using (MailMessage mm = new MailMessage(mail, model.toMail))
+                var tomail = EmailID(model.toMail);
+                using (MailMessage mm = new MailMessage(mail, tomail))
                 {
 
                     mm.Subject = "Confirmation of Receipt of Fund";
@@ -191,7 +193,8 @@ namespace IOAS.Infrastructure
                 string mailpassword = WebConfigurationManager.AppSettings["fromMailPassword"];
                 string smtpAddress = WebConfigurationManager.AppSettings["smtpAddress"];
                 int portNumber = Convert.ToInt32(WebConfigurationManager.AppSettings["portNumber"]);
-                using (MailMessage mm = new MailMessage(mail, model.toMail))
+                var tomail = EmailID(model.toMail);
+                using (MailMessage mm = new MailMessage(mail, tomail))
                 {
 
                     mm.Subject = "Submission of Bill of Entry against import remittances Mail";
@@ -227,7 +230,9 @@ namespace IOAS.Infrastructure
             }
         }
 
-        public bool RCTSendEmail(EmailModel model, string eBody)        {            try            {                bool enableSSL = true;                string mail = WebConfigurationManager.AppSettings["RCTfromMail"];                string mailpassword = WebConfigurationManager.AppSettings["RCTfromMailPassword"];                string smtpAddress = WebConfigurationManager.AppSettings["smtpAddress"];                int portNumber = Convert.ToInt32(WebConfigurationManager.AppSettings["portNumber"]);                var tomail = model.toMail;
+        public bool RCTSendEmail(EmailModel model, string eBody)        {            try            {                bool enableSSL = true;                string mail = WebConfigurationManager.AppSettings["RCTfromMail"];                string mailpassword = WebConfigurationManager.AppSettings["RCTfromMailPassword"];                string smtpAddress = WebConfigurationManager.AppSettings["smtpAddress"];                int portNumber = Convert.ToInt32(WebConfigurationManager.AppSettings["portNumber"]);
+
+                var tomail = EmailID(model.toMail);
                 using (MailMessage mm = new MailMessage(mail, tomail))                {
                     // string url = HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority) + HttpContext.Current.Request.ApplicationPath + "/Account/Login";
                     mm.Subject = model.subject;                    mm.Body = eBody;                    mm.IsBodyHtml = true;
@@ -237,5 +242,18 @@ namespace IOAS.Infrastructure
                             mm.Bcc.Add(bc);                    if (model.attachmentByte != null)                    {                        if (model.attachmentByte.Count > 0)                        {                            foreach (var item in model.attachmentByte)                                mm.Attachments.Add(new Attachment(new MemoryStream(item.dataByte), item.displayName));                        }                    }                    foreach (var attach in model.attachment ?? new List<string>())                        mm.Attachments.Add(new Attachment(attach));                    foreach (var item in model.attachmentlist ?? new List<EmailAttachmentModel>())                    {                        System.Net.Mail.Attachment attachment = new System.Net.Mail.Attachment(item.actualName);                        attachment.Name = item.displayName;                        mm.Attachments.Add(attachment);                    }                    using (SmtpClient smtp = new SmtpClient(smtpAddress, portNumber))                    {                        smtp.Credentials = new NetworkCredential(mail, mailpassword);                        smtp.EnableSsl = enableSSL;                        smtp.Send(mm);                    }                }                return true;            }            catch (Exception ex)            {
                 ErrorHandler WriteLog = new ErrorHandler();
                 WriteLog.SendErrorToText(ex);
-                return false;            }        }    }
+                return false;            }        }
+
+
+        /* this method is for Email Id set up          to be done in both live and local system / test environment */
+        private string EmailID(string mailId)
+        {
+            bool EmailIdEnabled = Convert.ToBoolean(WebConfigurationManager.AppSettings["EmailIdCodeSetupLiveEnabled"]);
+            string DevEmailId = WebConfigurationManager.AppSettings["EmailIdtest"];
+            var tomail = "";
+            if (EmailIdEnabled)
+               return tomail = mailId;
+            else
+               return tomail = DevEmailId;
+        }    }
 }
