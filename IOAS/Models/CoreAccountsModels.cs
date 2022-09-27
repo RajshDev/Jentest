@@ -384,6 +384,9 @@ namespace IOAS.Models
         public decimal TDSBasicAmt { get; set; }
         public bool PFInit { get; set; }
         public bool RCM_f { get; set; }
+
+        //Vinoth Changes for adding Account details
+        public string VendorBankDetails { get; set; }
     }
 
 
