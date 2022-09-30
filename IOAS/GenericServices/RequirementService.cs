@@ -20679,7 +20679,11 @@ namespace IOAS.GenericServices
                             model.SalaryLevelDescription = data.Item2;
                         }
                         if (QryOSG.A.EmployeeCategory == "Old Employee")
+                        { 
                             model.IITMExperience = IITExperienceInWording(QryOSG.A.OldNumber);
+                            /*Changes done by Madhu for Bug id - 7689 old Employee number not shown*/
+                            model.OldNumber = QryOSG.A.OldNumber;
+                        }
                     }
                 }
                 return model;
