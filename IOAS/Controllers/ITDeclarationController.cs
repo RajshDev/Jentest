@@ -41,7 +41,17 @@ namespace IOAS.Controllers
                 model.ItSOP = payment.GetITEmpSOP();
                 model.ItOtherIncome = payment.GetITEmpOtherIncome(employeeId, FinYear);
                 model.EmpInfo = StaffPaymentService.GetEmployeeDetails(employeeId);
-                model.SalaryDet = payment.GetEmployeesSalaryDetails(employeeId, FinYear);
+
+
+
+                //Added by Nandhini for salary projection on 11-10-2022
+                var salarydetailstemp = payment.GetEmployeesSalaryDetails(employeeId, FinYear);
+                model.SalaryDet = payment.projectionsalarydetails(salarydetailstemp);
+                //commented by Nandhini  on 11-10-2022 for for salary projection
+                //  model.SalaryDet = payment.GetEmployeesSalaryDetails(employeeId, FinYear);
+
+
+
                 model.SupplemSalaryDet = payment.GetEmployeesSupplymentarySalaryDetails(employeeId, FinYear);
 
                 return View("List", model);
@@ -71,7 +81,15 @@ namespace IOAS.Controllers
                 model.ItSOP = payment.GetITEmpSOP();
                 model.ItOtherIncome = payment.GetITEmpOtherIncome(employeeId, FinYear);
                 model.EmpInfo = StaffPaymentService.GetEmployeeDetails(employeeId);
-                model.SalaryDet = payment.GetEmployeesSalaryDetails(employeeId, FinYear);
+
+                //Added by Nandhini for salary projection on 11-10-2022
+                var salarydetailstemp = payment.GetEmployeesSalaryDetails(employeeId, FinYear);
+                model.SalaryDet = payment.projectionsalarydetails(salarydetailstemp);
+                //commented by Nandhini  on 11-10-2022 for for salary projection
+                // model.SalaryDet = payment.GetEmployeesSalaryDetails(employeeId, FinYear);
+
+
+
                 model.SupplemSalaryDet = payment.GetEmployeesSupplymentarySalaryDetails(employeeId, FinYear);
 
                 return View(model);
@@ -116,7 +134,15 @@ namespace IOAS.Controllers
                 model.ItSOP = payment.GetITEmpSOP();
                 model.ItOtherIncome = payment.GetITEmpOtherIncome(employeeId, Finyear);
                 model.EmpInfo = StaffPaymentService.GetEmployeeDetails(employeeId);
-                model.SalaryDet = payment.GetEmployeesSalaryDetails(employeeId, Finyear);
+
+
+                //Added by Nandhini for salary projection on 11-10-2022
+                var salarydetailstemp = payment.GetEmployeesSalaryDetails(employeeId, Finyear);
+                model.SalaryDet = payment.projectionsalarydetails(salarydetailstemp);
+                //commented by Nandhini  on 11-10-2022 for for salary projection
+                //model.SalaryDet = payment.GetEmployeesSalaryDetails(employeeId, Finyear);
+
+
                 model.SupplemSalaryDet = payment.GetEmployeesSupplymentarySalaryDetails(employeeId, Finyear);
                 ModelState.Clear();
                 return View(model);

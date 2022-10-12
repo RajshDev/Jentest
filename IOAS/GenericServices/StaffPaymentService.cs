@@ -55,7 +55,7 @@ namespace IOAS.GenericServices
                 return null;
             }
         }
-        public List<EmpITDeclarationModel> GetITEmpDeclarations(string EMpId,int Finyearid)
+        public List<EmpITDeclarationModel> GetITEmpDeclarations(string EMpId, int Finyearid)
         {
             try
             {
@@ -64,11 +64,11 @@ namespace IOAS.GenericServices
                 using (var context = new IOASDBEntities())
                 {
                     var query = (from AI in context.tblITDeclaration
-                                 join E in context.tblEmpITDeclaration on new { DeclarationID = AI.DeclarationID, Id = EMpId,FinYearId=Finyearid }
+                                 join E in context.tblEmpITDeclaration on new { DeclarationID = AI.DeclarationID, Id = EMpId, FinYearId = Finyearid }
                                  equals new { DeclarationID = E.DeclarationID ?? 0, Id = E.EmpId, FinYearId = Finyearid }
                                  into EmpDeclaration
                                  from Emp in EmpDeclaration.DefaultIfEmpty()
-                                    //where (Emp.EmpId == EMpId ||(Emp == null))
+                                     //where (Emp.EmpId == EMpId ||(Emp == null))
                                  orderby AI.DeclarationID
                                  select new
                                  {
@@ -166,7 +166,7 @@ namespace IOAS.GenericServices
             }
         }
 
-        public List<EmpITOtherIncomeModel> GetITEmpOtherIncome(string EmpId,int Finyearid)
+        public List<EmpITOtherIncomeModel> GetITEmpOtherIncome(string EmpId, int Finyearid)
         {
             try
             {
@@ -176,7 +176,7 @@ namespace IOAS.GenericServices
                     var query = (from OI in context.tblEmpOtherIncome
                                      //join E in context.tblEmpITDeclaration on AI.DeclarationID equals E.DeclarationID into EmpDeclaration
                                      //from Emp in EmpDeclaration.DefaultIfEmpty()
-                                 where OI.EmpId == EmpId&&OI.FinYearId==Finyearid
+                                 where OI.EmpId == EmpId && OI.FinYearId == Finyearid
                                  orderby OI.EmpNo
                                  select new
                                  {
@@ -489,7 +489,7 @@ namespace IOAS.GenericServices
         }
         public decimal GetITExemption(string EmpId)        {            try            {                decimal Total = 0;                using (var context = new IOASDBEntities())                {                    var EightyCTotal = (from E in context.tblEmpITDeclaration                                        join IT in context.tblITDeclaration on E.DeclarationID equals IT.DeclarationID                                        where E.EmpId == EmpId && (IT.SectionCode == "80C" || IT.SectionCode == "80CCC")                                        select new                                        {                                            E.EmpNo,                                            E.Amount,                                            E.MaxLimit                                        }).Sum(i => i.Amount);                    var NonEightyCTotal = (from E in context.tblEmpITDeclaration                                           join IT in context.tblITDeclaration on E.DeclarationID equals IT.DeclarationID                                           where E.EmpId == EmpId && (IT.SectionCode != "80C" && IT.SectionCode != "80CCC")                                           select new                                           {                                               E.EmpNo,                                               E.Amount,                                               E.MaxLimit                                           }).Sum(i => i.Amount);                    if (EightyCTotal > 150000)                    {                        Total = 150000 + Convert.ToDecimal(NonEightyCTotal);                    }                    else                    {                        Total = Convert.ToDecimal(EightyCTotal) + Convert.ToDecimal(NonEightyCTotal);                    }                }                Total += Convert.ToDecimal(WebConfigurationManager.AppSettings["Adhoc_Common_Exemption"]);                return Total;            }            catch (Exception ex)            {                Console.WriteLine(ex.ToString());                return 0;            }        }
 
-        public decimal GetITExemptionCurrentFinyear(string EmpId)        {            try            {                decimal Total = 0;                using (var context = new IOASDBEntities())                {                    var EightyCTotal = (from E in context.tblEmpITDeclaration                                        join IT in context.tblITDeclaration on E.DeclarationID equals IT.DeclarationID                                        join Fn in context.tblFinYear on E.FinYearId equals Fn.FinYearId                                        where E.EmpId == EmpId&&Fn.CurrentYearFlag==true && (IT.SectionCode == "80C" || IT.SectionCode == "80CCC")                                        select new                                        {                                            E.EmpNo,                                            E.Amount,                                            E.MaxLimit                                        }).Sum(i => i.Amount);                    var NonEightyCTotal = (from E in context.tblEmpITDeclaration                                           join IT in context.tblITDeclaration on E.DeclarationID equals IT.DeclarationID                                           join Fn in context.tblFinYear on E.FinYearId equals Fn.FinYearId                                           where E.EmpId == EmpId && Fn.CurrentYearFlag == true && (IT.SectionCode != "80C" && IT.SectionCode != "80CCC")                                           select new                                           {                                               E.EmpNo,                                               E.Amount,                                               E.MaxLimit                                           }).Sum(i => i.Amount);                    if (EightyCTotal > 150000)                    {                        Total = 150000 + Convert.ToDecimal(NonEightyCTotal);                    }                    else                    {                        Total = Convert.ToDecimal(EightyCTotal) + Convert.ToDecimal(NonEightyCTotal);                    }                }                Total += Convert.ToDecimal(WebConfigurationManager.AppSettings["Adhoc_Common_Exemption"]);                return Total;            }            catch (Exception ex)            {                Console.WriteLine(ex.ToString());                return 0;            }        }
+        public decimal GetITExemptionCurrentFinyear(string EmpId)        {            try            {                decimal Total = 0;                using (var context = new IOASDBEntities())                {                    var EightyCTotal = (from E in context.tblEmpITDeclaration                                        join IT in context.tblITDeclaration on E.DeclarationID equals IT.DeclarationID                                        join Fn in context.tblFinYear on E.FinYearId equals Fn.FinYearId                                        where E.EmpId == EmpId && Fn.CurrentYearFlag == true && (IT.SectionCode == "80C" || IT.SectionCode == "80CCC")                                        select new                                        {                                            E.EmpNo,                                            E.Amount,                                            E.MaxLimit                                        }).Sum(i => i.Amount);                    var NonEightyCTotal = (from E in context.tblEmpITDeclaration                                           join IT in context.tblITDeclaration on E.DeclarationID equals IT.DeclarationID                                           join Fn in context.tblFinYear on E.FinYearId equals Fn.FinYearId                                           where E.EmpId == EmpId && Fn.CurrentYearFlag == true && (IT.SectionCode != "80C" && IT.SectionCode != "80CCC")                                           select new                                           {                                               E.EmpNo,                                               E.Amount,                                               E.MaxLimit                                           }).Sum(i => i.Amount);                    if (EightyCTotal > 150000)                    {                        Total = 150000 + Convert.ToDecimal(NonEightyCTotal);                    }                    else                    {                        Total = Convert.ToDecimal(EightyCTotal) + Convert.ToDecimal(NonEightyCTotal);                    }                }                Total += Convert.ToDecimal(WebConfigurationManager.AppSettings["Adhoc_Common_Exemption"]);                return Total;            }            catch (Exception ex)            {                Console.WriteLine(ex.ToString());                return 0;            }        }
 
         public List<EmpITSOPModel> GetITEmpSOP()
         {
@@ -2695,6 +2695,62 @@ namespace IOAS.GenericServices
                 return model;
             }
         }
+
+
+        public List<AgencyStaffDetailsModel> projectionsalarydetails(List<AgencyStaffDetailsModel> salarydetailstemp)
+        {
+
+
+            List<AgencyStaffDetailsModel> model = new List<AgencyStaffDetailsModel>();
+            var groupedsalarydetailsList = salarydetailstemp.GroupBy(u => u.MonthandYear).Select(grp => new AgencyStaffDetailsModel()
+            {
+                AddNew_f = grp.First().AddNew_f,
+                AgencySalaryID = grp.First().AgencySalaryID,
+                BasicSalary = grp.Sum(s => s.BasicSalary),
+                Bonus = grp.First().Bonus,
+                CommitmentNo = grp.First().CommitmentNo,
+                Designation = grp.First().Designation,
+                ESI = grp.First().ESI,
+                EmployeeId = grp.First().EmployeeId,
+                EmployerContribution = grp.First().EmployerContribution,
+                EmployerESI = grp.First().EmployerESI,
+                EmployerPF = grp.First().EmployerPF,
+                ExtensionDate = grp.First().ExtensionDate,
+                GrossSalary = grp.Sum(s => s.GrossSalary),
+                GrossTotal = grp.Sum(s => s.GrossTotal),
+                HRA = grp.First().HRA,
+                IncomeTax = grp.First().IncomeTax,
+                Insurance = grp.First().Insurance,
+                IsVerified = grp.First().IsVerified,
+                LLP = grp.First().LLP,
+                MA = grp.First().MA,
+                MA2 = grp.First().MA2,
+                MiscPay = grp.First().MiscPay,
+                MiscRecovery = grp.First().MiscRecovery,
+                MedicalRecovery = grp.First().MedicalRecovery,
+                MonthandYear = grp.First().MonthandYear,
+                Name = grp.First().Name,
+                NetSalary = grp.First().NetSalary,
+                OtherExpTotal = grp.First().OtherExpTotal,
+                OtherPay = grp.First().OtherPay,
+                PF = grp.First().PF,
+                PayrollDetailId = grp.First().PayrollDetailId,
+                ProjectNo = grp.First().ProjectNo,
+                RelieveDate = grp.First().RelieveDate,
+                Remarks = grp.First().Remarks,
+                SlNo = grp.First().SlNo,
+                SpecialAllowance = grp.First().SpecialAllowance,
+                TotalDeduction = grp.First().TotalDeduction,
+                VerifiedBy = grp.First().VerifiedBy,
+                VerifiedSalaryId = grp.First().VerifiedSalaryId,
+            }).ToList();
+
+            model.AddRange(groupedsalarydetailsList);
+
+            return model;
+        }
+
+
         public List<AgencyStaffDetailsModel> GetEmployeesSalaryDetails(string empId, int Finyear, string monthYear = "")
         {
             List<AgencyStaffDetailsModel> model = new List<AgencyStaffDetailsModel>();
@@ -2950,7 +3006,10 @@ namespace IOAS.GenericServices
                                 salaryEndDate = tDate;
                             }
                             var _asp = new AdhocSalaryProcess();
-                            var listOfMonthDays = _asp.GetMonthNumberOfDays(nextMonthStartDate, salaryEndDate);
+
+
+                            var listOfMonthDays = _asp.GetMonthNumberOfDays(nextMonthStartDate, salaryEndDate);                           
+
                             listOfMonthDays.Reverse();
                             foreach (var m in listOfMonthDays)
                             {
@@ -3631,7 +3690,7 @@ namespace IOAS.GenericServices
         {
             List<string> monthYear = new List<string>();
 
-            DateTime dtStart =  _FinSalStart;
+            DateTime dtStart = _FinSalStart;
             int nxtStartYear = dtStart.Year + 1;
             int currEndYear = dtStart.Year;
 
@@ -4432,7 +4491,21 @@ namespace IOAS.GenericServices
                             {
                                 salaryEndDate = tDate;
                             }
-                            var listOfMonthDays = GetMonthNumberOfDays(nextMonthStartDate, salaryEndDate);
+
+                            DateTime nexttenuredate = Convert.ToDateTime(item.FromDate);
+
+                            if (Convert.ToDateTime(item.FromDate).Month == salaryStartDate.Month)
+                            {
+                                nexttenuredate = nextMonthStartDate;
+                            }
+
+                            var listOfMonthDays = GetMonthNumberOfDays(nexttenuredate, salaryEndDate);
+
+
+                            //var listOfMonthDays = GetMonthNumberOfDays(nextMonthStartDate, salaryEndDate);
+
+
+
                             //int projectedMonth = listOfMonthDays.Count + 1;
                             //if (model.ProjectedNoMonths < projectedMonth)
                             // model.ProjectedNoMonths = projectedMonth;
@@ -6675,7 +6748,7 @@ namespace IOAS.GenericServices
 
                     for (int i = 0; i < list.Count; i++)
                     {
-
+                       
                         var salary = GetMainSalaryEmployeeDetails(list[i].EmployeeID, list[i].RCTPayrollProcessDetailId, PaymentMonthYear, typeOfPay, list[i].IsNotInMain);
 
                         if (salary != null && salary.SalaryDetail != null)
@@ -6720,7 +6793,7 @@ namespace IOAS.GenericServices
                             //row["PAN"] = list[i].bank.PAN;
                             dtUnVerify.Rows.Add(row);
                         }
-
+                       
                     }
 
                     var queryVerified = (from SP in context.tblSalaryPayment
