@@ -28371,5 +28371,29 @@ namespace IOAS.Infrastructure
         //    }
         //}
         #endregion
+        public static string GetVendorBankDetails(int vendorid)
+        {
+            string VendorBankDetails = "";
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    var query = (from v in context.tblVendorMaster
+                                 where v.VendorId == vendorid
+                                 select v.BankName + "-" + v.AccountNumber).FirstOrDefault();
+                    if (query != null)
+                    {
+                        VendorBankDetails = query;
+                    }
+                }
+                return VendorBankDetails;
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+      (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                return VendorBankDetails;
+            }
+        }
     }
 }
