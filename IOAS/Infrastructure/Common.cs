@@ -15412,7 +15412,8 @@ namespace IOAS.Infrastructure
                 else if (bankId == 148)
                 {
                     cc.Add(WebConfigurationManager.AppSettings["PFMSMail"]);
-                    cc.Add(WebConfigurationManager.AppSettings["SecondaryPFMSMail"]);
+                    //Commented by Nandhini for #7810
+                    //  cc.Add(WebConfigurationManager.AppSettings["SecondaryPFMSMail"]);
                 }
                 else if (bankId == 149)
                     cc.Add(WebConfigurationManager.AppSettings["ConsMail"]);
@@ -15458,36 +15459,9 @@ namespace IOAS.Infrastructure
             }
         }
 
-        public static Tuple<string, string> GetSenderDetail(int subLedgerId, int userId, string enrollNo)
-        {
-            try
-            {
-                using (var context = new IOASDBEntities())
-                {
-                    string Email = "icsrpayments@ioas.iitm.ac.in";
-                    var query = (from sl in context.vw_Subleadgers
-                                 .AsNoTracking()
-                                 where (sl.SubLeadgerType == subLedgerId && sl.ID == userId && subLedgerId != 4)
-                                 ||
-                                 (subLedgerId == 4 && sl.EmployeeId == enrollNo)
-                                 select sl).FirstOrDefault();
-                    if (query != null)
-                    {
-                        if (query.Email != "" && query.Email != null)
-                            Email = query.Email;
-                        return Tuple.Create(query.Name, Email);
-                    }
-                    else
-                        return Tuple.Create(string.Empty, string.Empty);
-                }
-            }
-            catch (Exception ex)
-            {
-                Infrastructure.IOASException.Instance.HandleMe(
-    (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
-                return Tuple.Create(string.Empty, string.Empty);
-            }
-        }
+        public static Tuple<string, string> GetSenderDetail(int subLedgerId, int userId, string enrollNo)        {            try            {                using (var context = new IOASDBEntities())                {
+                    string Email = "icsrpayments@ioas.iitm.ac.in";                    var query = (from sl in context.vw_Subleadgers                                 .AsNoTracking()                                 where (sl.SubLeadgerType == subLedgerId && sl.ID == userId && subLedgerId != 4)                                 ||                                 (subLedgerId == 4 && sl.EmployeeId == enrollNo)
+                                 select sl).FirstOrDefault();                    if (query != null)                    {                        if (query.Email != "" && query.Email != null)                            Email = query.Email;                        return Tuple.Create(query.Name, Email);                    }                    else                        return Tuple.Create(string.Empty, string.Empty);                }            }            catch (Exception ex)            {                Infrastructure.IOASException.Instance.HandleMe(    (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);                return Tuple.Create(string.Empty, string.Empty);            }        }
 
         public static List<MasterlistviewModel> GetProjectNumberList(int? PIId, int Classificationid)
         {
@@ -15783,43 +15757,11 @@ namespace IOAS.Infrastructure
         //        }
         //    }
 
-        public static string ValidateCommitment(int projectId, int headId, decimal amount)
-        {
-            try
-            {
-                string validationMsg = "Valid";
-                var allocData = getAllocationValue(projectId, headId);
-                ProjectService _cs = new ProjectService();
+        public static string ValidateCommitment(int projectId, int headId, decimal amount)        {            try            {                string validationMsg = "Valid";
+                var allocData = getAllocationValue(projectId, headId);                ProjectService _cs = new ProjectService();
                 //var projectData = _cs.getProjectSummary(projectId);
 
-                var ProjectSummary = _cs.getProjectSummaryDetails(projectId);
-
-                if (amount <= 0)
-                    return "Something went wrong. Please contact our support.";
-                if (amount > ProjectSummary.PrjSummary.NetBalance)
-                    return "Total commitment value cannot be above net balance";
-
-                if (ProjectSummary.PrjSummary.NetBalance >= amount)
-                {
-                    if (allocData.IsAllocation)
-                    {
-                        if ((ProjectSummary.HeadWise.Sum(m => m.Amount)) > 0)
-                        {
-                            if ((ProjectSummary.HeadWise.Where(m => m.AllocationId == headId).Sum(m => m.Available)) >= amount)
-                                return validationMsg;
-                            else
-                                return "Total commitment value cannot be above total allocation value ";
-                        }
-                        else
-                            return validationMsg;
-
-                    }
-                    else
-                        return validationMsg;
-
-                }
-                else
-                    return "Total commitment value cannot be above net balance";
+                var ProjectSummary = _cs.getProjectSummaryDetails(projectId);                if (amount <= 0)                    return "Something went wrong. Please contact our support.";                if (amount > ProjectSummary.PrjSummary.NetBalance)                    return "Total commitment value cannot be above net balance";                if (ProjectSummary.PrjSummary.NetBalance >= amount)                {                    if (allocData.IsAllocation)                    {                        if ((ProjectSummary.HeadWise.Sum(m => m.Amount)) > 0)                        {                            if ((ProjectSummary.HeadWise.Where(m => m.AllocationId == headId).Sum(m => m.Available)) >= amount)                                return validationMsg;                            else                                return "Total commitment value cannot be above total allocation value ";                        }                        else                            return validationMsg;                    }                    else                        return validationMsg;                }                else                    return "Total commitment value cannot be above net balance";
 
                 //if (allocData.IsAllocation && !projectData.AllocationNR_f)
                 //{
@@ -15850,14 +15792,7 @@ namespace IOAS.Infrastructure
                 //        return "Balance commitment allowed for this year " + allocData.TotalCommitForCurrentYear + "(INR)";
                 //}
                 // return validationMsg;
-            }
-            catch (Exception ex)
-            {
-                Infrastructure.IOASException.Instance.HandleMe(
-    (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
-                return "Something went wrong. Please contact our support.";
-            }
-        }
+            }            catch (Exception ex)            {                Infrastructure.IOASException.Instance.HandleMe(    (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);                return "Something went wrong. Please contact our support.";            }        }
 
         public static string GetOHReversalId()
         {
@@ -17587,133 +17522,16 @@ namespace IOAS.Infrastructure
             }
 
         }
-        public static List<AutoCompleteModel> GetAutoCompleteTandMWithDetails(string term)
-        {
-            try
-            {
-
-                List<AutoCompleteModel> PI = new List<AutoCompleteModel>();
-
-                using (var context = new IOASDBEntities())
-                {
-                    var query = (from C in context.vwCombineStaffDetails
-                                 where string.IsNullOrEmpty(term) || C.EmployeeId.Contains(term) || C.Name.Contains(term) || C.PaybillNo.Contains(term)
+        public static List<AutoCompleteModel> GetAutoCompleteTandMWithDetails(string term)        {            try            {                List<AutoCompleteModel> PI = new List<AutoCompleteModel>();                using (var context = new IOASDBEntities())                {                    var query = (from C in context.vwCombineStaffDetails                                 where string.IsNullOrEmpty(term) || C.EmployeeId.Contains(term) || C.Name.Contains(term) || C.PaybillNo.Contains(term)
                                  //join ins in context.tblInstituteMaster on C.InstituteId equals ins.InstituteId
                                  //where (C.RoleId == 7)
-                                 where C.Category == "Project Staff"
-                                 orderby C.Name
-                                 select new { C.ID, C.Name, C.EmployeeId, C.PaybillNo }).ToList();
-
-
-                    if (query.Count > 0)
-                    {
-                        for (int i = 0; i < query.Count; i++)
-                        {
-                            PI.Add(new AutoCompleteModel()
-                            {
-                                value = query[i].ID.ToString(),
-                                label = query[i].EmployeeId + "-" + query[i].Name + "-" + query[i].EmployeeId,
-                            });
-                        }
-                    }
-
-
-                }
-
-                return PI;
-            }
-            catch (Exception ex)
-            {
-                Infrastructure.IOASException.Instance.HandleMe(
-    (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
-                return new List<AutoCompleteModel>();
-            }
-
-        }
-        public static List<AutoCompleteModel> GetAutoCompleteAdhocStaffWithDetails(string term)
-        {
-            try
-            {
-
-                List<AutoCompleteModel> PI = new List<AutoCompleteModel>();
-
-                using (var context = new IOASDBEntities())
-                {
-                    var query = (from C in context.vwCombineStaffDetails
-                                 where string.IsNullOrEmpty(term) || C.EmployeeId.Contains(term) || C.Name.Contains(term) || C.PaybillNo.Contains(term)
+                                 where C.Category == "Project Staff"                                 orderby C.Name                                 select new { C.ID, C.Name, C.EmployeeId, C.PaybillNo }).ToList();                    if (query.Count > 0)                    {                        for (int i = 0; i < query.Count; i++)                        {                            PI.Add(new AutoCompleteModel()                            {                                value = query[i].ID.ToString(),                                label = query[i].EmployeeId + "-" + query[i].Name + "-" + query[i].EmployeeId,                            });                        }                    }                }                return PI;            }            catch (Exception ex)            {                Infrastructure.IOASException.Instance.HandleMe(    (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);                return new List<AutoCompleteModel>();            }        }        public static List<AutoCompleteModel> GetAutoCompleteAdhocStaffWithDetails(string term)        {            try            {                List<AutoCompleteModel> PI = new List<AutoCompleteModel>();                using (var context = new IOASDBEntities())                {                    var query = (from C in context.vwCombineStaffDetails                                 where string.IsNullOrEmpty(term) || C.EmployeeId.Contains(term) || C.Name.Contains(term) || C.PaybillNo.Contains(term)
                                  //join ins in context.tblInstituteMaster on C.InstituteId equals ins.InstituteId
                                  //where (C.RoleId == 7)
-                                 where C.Category == "AdhocStaff"
-                                 orderby C.Name
-                                 select new { C.ID, C.Name, C.EmployeeId, C.PaybillNo }).ToList();
-
-
-                    if (query.Count > 0)
-                    {
-                        for (int i = 0; i < query.Count; i++)
-                        {
-                            PI.Add(new AutoCompleteModel()
-                            {
-                                value = query[i].ID.ToString(),
-                                label = query[i].ID + "-" + query[i].Name + "-" + query[i].EmployeeId,
-                            });
-                        }
-                    }
-
-
-                }
-
-                return PI;
-            }
-            catch (Exception ex)
-            {
-                Infrastructure.IOASException.Instance.HandleMe(
-    (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
-                return new List<AutoCompleteModel>();
-            }
-
-        }
-        public static List<AutoCompleteModel> GetAutoCompleteInstituteStaffWithDetails(string term)
-        {
-            try
-            {
-
-                List<AutoCompleteModel> PI = new List<AutoCompleteModel>();
-
-                using (var context = new IOASDBEntities())
-                {
-                    var query = (from C in context.vwCombineStaffDetails
-                                 where string.IsNullOrEmpty(term) || C.EmployeeId.Contains(term) || C.Name.Contains(term) || C.PaybillNo.Contains(term)
+                                 where C.Category == "AdhocStaff"                                 orderby C.Name                                 select new { C.ID, C.Name, C.EmployeeId, C.PaybillNo }).ToList();                    if (query.Count > 0)                    {                        for (int i = 0; i < query.Count; i++)                        {                            PI.Add(new AutoCompleteModel()                            {                                value = query[i].ID.ToString(),                                label = query[i].ID + "-" + query[i].Name + "-" + query[i].EmployeeId,                            });                        }                    }                }                return PI;            }            catch (Exception ex)            {                Infrastructure.IOASException.Instance.HandleMe(    (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);                return new List<AutoCompleteModel>();            }        }        public static List<AutoCompleteModel> GetAutoCompleteInstituteStaffWithDetails(string term)        {            try            {                List<AutoCompleteModel> PI = new List<AutoCompleteModel>();                using (var context = new IOASDBEntities())                {                    var query = (from C in context.vwCombineStaffDetails                                 where string.IsNullOrEmpty(term) || C.EmployeeId.Contains(term) || C.Name.Contains(term) || C.PaybillNo.Contains(term)
                                  //join ins in context.tblInstituteMaster on C.InstituteId equals ins.InstituteId
                                  //where (C.RoleId == 7)
-                                 where C.Category == "Staff"
-                                 orderby C.Name
-                                 select new { C.ID, C.Name, C.EmployeeId, C.PaybillNo }).ToList();
-                    if (query.Count > 0)
-                    {
-                        for (int i = 0; i < query.Count; i++)
-                        {
-                            PI.Add(new AutoCompleteModel()
-                            {
-                                value = query[i].ID.ToString(),
-                                label = query[i].ID + "-" + query[i].Name + "-" + query[i].EmployeeId,
-                            });
-                        }
-                    }
-
-
-                }
-
-                return PI;
-            }
-            catch (Exception ex)
-            {
-                Infrastructure.IOASException.Instance.HandleMe(
-    (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
-                return new List<AutoCompleteModel>();
-            }
-
-        }
+                                 where C.Category == "Staff"                                 orderby C.Name                                 select new { C.ID, C.Name, C.EmployeeId, C.PaybillNo }).ToList();                    if (query.Count > 0)                    {                        for (int i = 0; i < query.Count; i++)                        {                            PI.Add(new AutoCompleteModel()                            {                                value = query[i].ID.ToString(),                                label = query[i].ID + "-" + query[i].Name + "-" + query[i].EmployeeId,                            });                        }                    }                }                return PI;            }            catch (Exception ex)            {                Infrastructure.IOASException.Instance.HandleMe(    (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);                return new List<AutoCompleteModel>();            }        }
 
         public static string GetSchemeCodeForBill(int ProjectId)
         {
@@ -20146,61 +19964,7 @@ namespace IOAS.Infrastructure
             }
         }
 
-        public static List<AutoCompleteModel> GetAllPostedReferenceNumber(string term, bool type = false)
-        {
-            string[] TypeCode = { "STV", "GVR", "CLV", "DTV", "PTM", "IMR" };
-            try
-            {
-                List<AutoCompleteModel> pro = new List<AutoCompleteModel>();
-                using (var context = new IOASDBEntities())
-                {
-
-                    if (type == true)
-                    {
-                        pro = (from C in context.tblBOA
-                               where C.Status == "Posted"
-                               && C.RefNumber.Contains(term)
-                               && TypeCode.Contains(C.TransactionTypeCode)
-                               && !context.tblHeadCredit.Any(m => m.BillReferenceNumber == C.RefNumber && m.Status != "InActive")
-                               orderby C.RefNumber descending
-                               group C by C.RefNumber into g
-                               select new AutoCompleteModel()
-                               {
-                                   value = g.Key,
-                                   label = g.Key
-                               }).ToList();
-                    }
-                    else
-                    {
-                        pro = (from C in context.tblBOA
-                               where C.Status == "Posted"
-                               && C.RefNumber.Contains(term)
-                               orderby C.RefNumber descending
-                               group C by C.RefNumber into g
-                               select new AutoCompleteModel()
-                               {
-                                   value = g.Key,
-                                   label = g.Key
-                               }).Concat(from C in context.tblBOAExpenditureDetail
-                                         where C.TransactionTypeCode == "PFT"
-                                         && C.ReferenceNumber.Contains(term)
-                                         orderby C.BOAId descending
-                                         group C by C.ReferenceNumber into g
-                                         select new AutoCompleteModel
-                                         {
-                                             value = g.Key,
-                                             label = g.Key
-                                         }).ToList();
-                    }
-
-                }
-                return pro;
-            }
-            catch (Exception ex)
-            {
-                return new List<AutoCompleteModel>();
-            }
-        }
+        public static List<AutoCompleteModel> GetAllPostedReferenceNumber(string term, bool type = false)        {            string[] TypeCode = { "STV", "GVR", "CLV", "DTV", "PTM", "IMR" };            try            {                List<AutoCompleteModel> pro = new List<AutoCompleteModel>();                using (var context = new IOASDBEntities())                {                    if (type == true)                    {                        pro = (from C in context.tblBOA                               where C.Status == "Posted"                               && C.RefNumber.Contains(term)                               && TypeCode.Contains(C.TransactionTypeCode)                               && !context.tblHeadCredit.Any(m => m.BillReferenceNumber == C.RefNumber && m.Status != "InActive")                               orderby C.RefNumber descending                               group C by C.RefNumber into g                               select new AutoCompleteModel()                               {                                   value = g.Key,                                   label = g.Key                               }).ToList();                    }                    else                    {                        pro = (from C in context.tblBOA                               where C.Status == "Posted"                               && C.RefNumber.Contains(term)                               orderby C.RefNumber descending                               group C by C.RefNumber into g                               select new AutoCompleteModel()                               {                                   value = g.Key,                                   label = g.Key                               }).Concat(from C in context.tblBOAExpenditureDetail                                         where C.TransactionTypeCode == "PFT"                                         && C.ReferenceNumber.Contains(term)                                         orderby C.BOAId descending                                         group C by C.ReferenceNumber into g                                         select new AutoCompleteModel                                         {                                             value = g.Key,                                             label = g.Key                                         }).ToList();                    }                }                return pro;            }            catch (Exception ex)            {                return new List<AutoCompleteModel>();            }        }
 
         public static string GetPINameOnly(int userid)
         {
@@ -22580,45 +22344,8 @@ namespace IOAS.Infrastructure
             }
         }
 
-        public static bool UpdateExpDate(BOAModel model)
-        {
-            bool status = false;
-            try
-            {
-                using (var context = new IOASDBEntities())
-                {
-                    if (model.TransactionTypeCode == "OHAR")
-                    {
-                        var RecQry = context.tblOHReversal.Where(m => m.OHReversalNumber == model.RefNumber && m.Type == 2).FirstOrDefault();
-                        if (RecQry != null)
-                        {
-                            RecQry.CRTD_TS = model.PostedDate;
-                            context.SaveChanges();
-                            status = true;
-                            return status;
-                        }
-                    }
-                    var queryRef = context.vw_AllBillReferenceNumber.FirstOrDefault(m => m.RefNo == model.RefNumber);
-                    if (queryRef != null)
-                    {
-                        context.tblCommitmentLog.Where(x => x.TransactionTypeCode == queryRef.TransactionTypeCode && x.RefId == queryRef.RefId)
-                                .ToList()
-                                .ForEach(m =>
-                                {
-                                    m.BOAId = model.BOAId;
-                                    m.CRTD_TS = model.PostedDate;
-                                    m.Posted_f = true;
-                                });
-                        context.SaveChanges();
-                        status = true;
-                    }
-                    if (model.TransactionTypeCode == "RCV" || model.TransactionTypeCode == "RBU")
-                    {
-                        var RecQry = context.tblReceipt.Where(m => m.ReceiptNumber == model.RefNumber).FirstOrDefault();
-                        RecQry.CrtdTS = model.PostedDate;
-                        context.SaveChanges();
-                        status = true;
-                    }
+        public static bool UpdateExpDate(BOAModel model)        {            bool status = false;            try            {                using (var context = new IOASDBEntities())                {                    if (model.TransactionTypeCode == "OHAR")                    {                        var RecQry = context.tblOHReversal.Where(m => m.OHReversalNumber == model.RefNumber && m.Type == 2).FirstOrDefault();                        if (RecQry != null)                        {                            RecQry.CRTD_TS = model.PostedDate;                            context.SaveChanges();                            status = true;                            return status;                        }
+                    }                    var queryRef = context.vw_AllBillReferenceNumber.FirstOrDefault(m => m.RefNo == model.RefNumber);                    if (queryRef != null)                    {                        context.tblCommitmentLog.Where(x => x.TransactionTypeCode == queryRef.TransactionTypeCode && x.RefId == queryRef.RefId)                                .ToList()                                .ForEach(m =>                                {                                    m.BOAId = model.BOAId;                                    m.CRTD_TS = model.PostedDate;                                    m.Posted_f = true;                                });                        context.SaveChanges();                        status = true;                    }                    if (model.TransactionTypeCode == "RCV" || model.TransactionTypeCode == "RBU")                    {                        var RecQry = context.tblReceipt.Where(m => m.ReceiptNumber == model.RefNumber).FirstOrDefault();                        RecQry.CrtdTS = model.PostedDate;                        context.SaveChanges();                        status = true;                    }
 
                     if (model.TransactionTypeCode == "STV" || model.TransactionTypeCode == "PTV" || model.TransactionTypeCode == "CLV")
                     {
@@ -22632,13 +22359,7 @@ namespace IOAS.Infrastructure
 
                 }
                 return status;
-            }
-            catch (Exception ex)
-            {
-                return status;
-            }
-        }
-
+            }            catch (Exception ex)            {                return status;            }        }
         public static List<MasterlistviewModel> GetReceiptNoByInvoice(int invId)
         {
             try
@@ -22942,61 +22663,7 @@ namespace IOAS.Infrastructure
         //        return model;
         //    }
         //}
-        public static OtherReceiptModel GetReversalReceiptLedger(int receiptId)
-        {
-            OtherReceiptModel model = new OtherReceiptModel();
-            List<BillExpenseDetailModel> listcr = new List<BillExpenseDetailModel>();
-            try
-            {
-                using (var context = new IOASDBEntities())
-                {
-                    var query = context.tblReceipt.FirstOrDefault(m => m.ReceiptId == receiptId);
-                    if (query != null)
-                    {
-                        model.Bank = query.BankAccountHeadDr;
-                        model.BankAmount = query.BankAmountDr;
-                        listcr = (from d in context.tblReceiptRecivables
-                                  join e in context.tblAccountHead on d.ReceivablesHeadId equals e.AccountHeadId
-                                  where d.ReceiptId == receiptId && d.Tax_f != true
-                                  select new
-                                  {
-                                      e.AccountGroupId,
-
-                                      d.ReceivabesAmount,
-                                      d.ReceivablesHeadId,
-                                      d.TransactionType,
-                                      d.Tax_f,
-                                  })
-                                                .AsEnumerable()
-                                                .Select((x) => new BillExpenseDetailModel()
-                                                {
-                                                    AccountHeadId = x.ReceivablesHeadId,
-                                                    Amount = x.ReceivabesAmount,
-                                                    TransactionType = x.TransactionType == "Credit" ? "Debit" : "Credit",
-                                                    AccountGroupList = Common.GetAccountGroup(x.AccountGroupId ?? 0),
-                                                    AccountGroupId = x.AccountGroupId,
-                                                    AccountHeadList = Common.GetAccountHeadList(x.AccountGroupId ?? 0)
-                                                }).ToList();
-                        listcr.Add(new BillExpenseDetailModel()
-                        {
-                            AccountHeadId = 10,
-                            Amount = query.ReceivedAmount,
-                            TransactionType = "Debit",
-                            AccountGroupList = Common.GetAccountGroupByAccountHead(10),
-                            AccountGroupId = Common.GetAccountGroupIdbyAcId(10),
-                            AccountHeadList = Common.GetAccountHeadListByAccountHead(10)
-                        });
-                    }
-                }
-                model.ExpenseDetail = listcr;
-                return model;
-            }
-            catch (Exception ex)
-            {
-                model.ExpenseDetail = listcr;
-                return model;
-            }
-        }
+        public static OtherReceiptModel GetReversalReceiptLedger(int receiptId)        {            OtherReceiptModel model = new OtherReceiptModel();            List<BillExpenseDetailModel> listcr = new List<BillExpenseDetailModel>();            try            {                using (var context = new IOASDBEntities())                {                    var query = context.tblReceipt.FirstOrDefault(m => m.ReceiptId == receiptId);                    if (query != null)                    {                        model.Bank = query.BankAccountHeadDr;                        model.BankAmount = query.BankAmountDr;                        listcr = (from d in context.tblReceiptRecivables                                  join e in context.tblAccountHead on d.ReceivablesHeadId equals e.AccountHeadId                                  where d.ReceiptId == receiptId && d.Tax_f != true                                  select new                                  {                                      e.AccountGroupId,                                      d.ReceivabesAmount,                                      d.ReceivablesHeadId,                                      d.TransactionType,                                      d.Tax_f,                                  })                                                .AsEnumerable()                                                .Select((x) => new BillExpenseDetailModel()                                                {                                                    AccountHeadId = x.ReceivablesHeadId,                                                    Amount = x.ReceivabesAmount,                                                    TransactionType = x.TransactionType == "Credit" ? "Debit" : "Credit",                                                    AccountGroupList = Common.GetAccountGroup(x.AccountGroupId ?? 0),                                                    AccountGroupId = x.AccountGroupId,                                                    AccountHeadList = Common.GetAccountHeadList(x.AccountGroupId ?? 0)                                                }).ToList();                        listcr.Add(new BillExpenseDetailModel()                        {                            AccountHeadId = 10,                            Amount = query.ReceivedAmount,                            TransactionType = "Debit",                            AccountGroupList = Common.GetAccountGroupByAccountHead(10),                            AccountGroupId = Common.GetAccountGroupIdbyAcId(10),                            AccountHeadList = Common.GetAccountHeadListByAccountHead(10)                        });                    }                }                model.ExpenseDetail = listcr;                return model;            }            catch (Exception ex)            {                model.ExpenseDetail = listcr;                return model;            }        }
         public static List<AttachmentDetailModel> GetProjectDocument(int pId)
         {
             List<AttachmentDetailModel> list = new List<AttachmentDetailModel>();
@@ -23166,118 +22833,22 @@ namespace IOAS.Infrastructure
                 return new List<AutoCompleteModel>();
             }
         }
-        public static bool ValidateProjectSummary(int ProjectId, int HeadId, decimal Amount, bool OverHeadPosting_f = false, decimal NewOHamt = 0, bool Rec_f = false, decimal ReceiptAmt = 0)
-        {
-            try
-            {
-                using (var context = new IOASDBEntities())
-                {
-                    ProjectService _PS = new ProjectService();
-
-                    var ProjectSummary = _PS.getProjectSummaryDetails(ProjectId);
+        public static bool ValidateProjectSummary(int ProjectId, int HeadId, decimal Amount, bool OverHeadPosting_f = false, decimal NewOHamt = 0, bool Rec_f = false, decimal ReceiptAmt = 0)        {            try            {                using (var context = new IOASDBEntities())                {                    ProjectService _PS = new ProjectService();                    var ProjectSummary = _PS.getProjectSummaryDetails(ProjectId);
 
                     //For Receipt OverHead like 'RCV'
-                    if (Rec_f == true)
-                    {
-                        if (Amount > 0)
-                        {
-                            if (ProjectSummary.PrjSummary.ApprovedNegativeBalance > 0)
-                            {
-                                if (ReceiptAmt >= ProjectSummary.PrjSummary.ApprovedNegativeBalance)
-                                {
-                                    if ((ProjectSummary.PrjSummary.NetBalance + ReceiptAmt) - ProjectSummary.PrjSummary.ApprovedNegativeBalance >= Amount)
-                                        return true;
-                                    else
-                                        return false;
-                                }
-                                else
-                                {
-                                    if (ProjectSummary.PrjSummary.NetBalance >= Amount)
-                                        return true;
-                                    else
-                                        return false;
-                                }
-                            }
-                            else
-                            {
+                    if (Rec_f == true)                    {                        if (Amount > 0)                        {                            if (ProjectSummary.PrjSummary.ApprovedNegativeBalance > 0)                            {                                if (ReceiptAmt >= ProjectSummary.PrjSummary.ApprovedNegativeBalance)                                {                                    if ((ProjectSummary.PrjSummary.NetBalance + ReceiptAmt) - ProjectSummary.PrjSummary.ApprovedNegativeBalance >= Amount)                                        return true;                                    else                                        return false;                                }                                else                                {                                    if (ProjectSummary.PrjSummary.NetBalance >= Amount)                                        return true;                                    else                                        return false;                                }                            }                            else                            {
 
-                                if ((ProjectSummary.PrjSummary.NetBalance + ReceiptAmt) >= Amount)
-                                    return true;
-                                else
-                                    return false;
-                            }
+                                if ((ProjectSummary.PrjSummary.NetBalance + ReceiptAmt) >= Amount)                                    return true;                                else                                    return false;                            }
                             //if (!(((ProjectSummary.PrjSummary.NetBalance + ReceiptAmt) - ProjectSummary.PrjSummary.ApprovedNegativeBalance) >= Amount))
                             //    return false;
-                        }
-
-
-
-                        if ((ProjectSummary.HeadWise.Sum(m => m.Amount)) > 0)
-                        {
-                            if ((ProjectSummary.HeadWise.Where(m => m.AllocationId == HeadId).Sum(m => m.Available)) >= Amount)
-                                return true;
-                            else
-                                return false;
-                        }
-                        else
-                            return true;
-
-                    }
+                        }                        if ((ProjectSummary.HeadWise.Sum(m => m.Amount)) > 0)                        {                            if ((ProjectSummary.HeadWise.Where(m => m.AllocationId == HeadId).Sum(m => m.Available)) >= Amount)                                return true;                            else                                return false;                        }                        else                            return true;                    }
 
                     //For ...Other than OverHeads
-                    if (OverHeadPosting_f == false)
-                    {
-                        if (ProjectSummary.PrjSummary.NetBalance >= Amount)
-                        {
-                            if ((ProjectSummary.HeadWise.Sum(m => m.Amount)) > 0)
-                            {
-                                if ((ProjectSummary.HeadWise.Where(m => m.AllocationId == HeadId).Sum(m => m.Available)) >= Amount)
-                                    return true;
-                                else
-                                    return false;
-                            }
-                            else
-                                return true;
-                        }
-                        else
-                            return false;
-                    }
+                    if (OverHeadPosting_f == false)                    {                        if (ProjectSummary.PrjSummary.NetBalance >= Amount)                        {                            if ((ProjectSummary.HeadWise.Sum(m => m.Amount)) > 0)                            {                                if ((ProjectSummary.HeadWise.Where(m => m.AllocationId == HeadId).Sum(m => m.Available)) >= Amount)                                    return true;                                else                                    return false;                            }                            else                                return true;                        }                        else                            return false;                    }
 
 
                     //For Receipts OverHead Posting like 'OHP'
-                    if (OverHeadPosting_f == true)
-                    {
-                        if (NewOHamt == 0)
-                            return true;
-
-                        if ((ProjectSummary.PrjSummary.NetBalance + Amount) >= NewOHamt)
-                        {
-                            if ((ProjectSummary.HeadWise.Sum(m => m.Amount)) > 0)
-                            {
-                                if ((ProjectSummary.HeadWise.Where(m => m.AllocationId == HeadId).Sum(m => m.Available) + Amount) >= NewOHamt)
-                                    return true;
-                                else
-                                    return false;
-                            }
-                            else
-                                return true;
-                        }
-                        else
-                            return false;
-
-                    }
-
-
-                    return false;
-                }
-            }
-            catch (Exception ex)
-            {
-                Infrastructure.IOASException.Instance.HandleMe(
-(object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
-                return false;
-            }
-        }
+                    if (OverHeadPosting_f == true)                    {                        if (NewOHamt == 0)                            return true;                        if ((ProjectSummary.PrjSummary.NetBalance + Amount) >= NewOHamt)                        {                            if ((ProjectSummary.HeadWise.Sum(m => m.Amount)) > 0)                            {                                if ((ProjectSummary.HeadWise.Where(m => m.AllocationId == HeadId).Sum(m => m.Available) + Amount) >= NewOHamt)                                    return true;                                else                                    return false;                            }                            else                                return true;                        }                        else                            return false;                    }                    return false;                }            }            catch (Exception ex)            {                Infrastructure.IOASException.Instance.HandleMe((object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);                return false;            }        }
 
         public static bool ValidateCloseCommitment(int CommitmentId, decimal Amt)
         {
@@ -28800,30 +28371,5 @@ namespace IOAS.Infrastructure
         //    }
         //}
         #endregion
-
-        public static string GetVendorBankDetails(int vendorid)
-        {
-            string VendorBankDetails = "";
-            try
-            {
-                using (var context = new IOASDBEntities())
-                {
-                    var query = (from v in context.tblVendorMaster
-                                 where v.VendorId == vendorid
-                                 select v.BankName + "-" + v.AccountNumber).FirstOrDefault();
-                    if (query != null)
-                    {
-                        VendorBankDetails = query;
-                    }
-                }
-                return VendorBankDetails;
-            }
-            catch (Exception ex)
-            {
-                Infrastructure.IOASException.Instance.HandleMe(
-      (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
-                return VendorBankDetails;
-            }
-        }
     }
 }
