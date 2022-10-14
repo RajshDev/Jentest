@@ -1968,6 +1968,7 @@ namespace DataAccessLayer
                     command.CommandText = "select BillNumber,ProjectNumber,ProjectType,CommitmentNumber,HeadName,Amount, Date from vw_NIRFopexlist where Date >='" + Frm + "' and Date <= '" + Todate + "'";
                     var adapter = new System.Data.SqlClient.SqlDataAdapter(command);
                     var dataset = new DataSet();
+                    adapter.SelectCommand.CommandTimeout = 1800;
                     adapter.Fill(dataset);
                     dtColumns = dataset.Tables[0];
                 }

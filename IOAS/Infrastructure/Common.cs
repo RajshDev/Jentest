@@ -4900,21 +4900,34 @@ namespace IOAS.Infrastructure
                             }
                             else
                             {
+
                                 (from p in context.tblProject
                                  join enh in context.tblProjectEnhancement on p.ProjectId equals enh.ProjectId
-                                 where (p.MainProjectId == projectId && p.Status == "Active" && enh.Status == "Active")
+                                 where (p.ProjectId == projectId && p.Status == "Active" && enh.Status == "Active")
                                  select enh)
                                        .ToList()
                                        .ForEach(m =>
                                        {
                                            amt += (m.EnhancedSanctionValue ?? 0);
                                        });
-                                context.tblProjectEnhancement.Where(p => p.ProjectId == projectId && p.Status == "Active")
-                                  .ToList()
-                                  .ForEach(m =>
-                                  {
-                                      amt += (m.EnhancedSanctionValue ?? 0);
-                                  });
+
+                                //Commented by Nandhini for bug #7304 
+                                //(from p in context.tblProject
+                                // join enh in context.tblProjectEnhancement on p.ProjectId equals enh.ProjectId
+                                // where (p.MainProjectId == projectId && p.Status == "Active" && enh.Status == "Active")
+                                // select enh)
+                                //       .ToList()
+                                //       .ForEach(m =>
+                                //       {
+                                //           amt += (m.EnhancedSanctionValue ?? 0);
+                                //       });
+                                //context.tblProjectEnhancement.Where(p => p.ProjectId == projectId && p.Status == "Active")
+                                //  .ToList()
+                                //  .ForEach(m =>
+                                //  {
+                                //      amt += (m.EnhancedSanctionValue ?? 0);
+                                //  });
+
                                 if (isUpdate == true)
                                 {
                                     amt += Query.BaseValue ?? 0;
