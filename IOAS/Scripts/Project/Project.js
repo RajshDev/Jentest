@@ -624,7 +624,8 @@
 
                     }
                     else {
-                        statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }]
+                        statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }, { id: "Update RO", name: "Update RO" }]
+                        
                     }
                     var $customSelect = $("<select>")
                         .attr("class", "form-control").prop("selectedIndex", "")
@@ -664,8 +665,14 @@
                         }
                         else if (selVal == "View") {
                             var url = 'ViewProject?ProjectId=' + item.ProjectId;
+                            //var url = '../ProjectFunding/CreateRO' + item.ProjectId;
                             window.location.href = url;
-                        } else if (selVal == "Submit for approval") {
+                        }
+                        else if (selVal == "Update RO") {
+                            var url = '../ProjectFundingCategory/CreateRO?ProjectId=' + item.ProjectId;
+                            window.location.href = url;
+                        }
+                        else if (selVal == "Submit for approval") {
                             var choice = confirm("Are you sure, Do you want to submit this project for approval process?");
                             if (choice === true) {
                                 $.ajax({
