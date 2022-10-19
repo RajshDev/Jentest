@@ -60,6 +60,7 @@ namespace IOAS.Controllers
                 var sponprojectcategory = Common.getsponprojectcategory();
                 var constaxtype = Common.getconstaxtype();
                 var taxregstatus = Common.gettaxregstatus();
+                var projectfundingcategory = Common.getprojectfunding();
                 ViewBag.FacultyCodeList = Common.GetCodeControlList("ProjectFacultyCode", string.Empty, true);
                 ViewBag.CentreList = Common.GetCommonHeadList(2, 2);
                 ViewBag.LabList = Common.GetCommonHeadList(2, 4);
@@ -105,6 +106,8 @@ namespace IOAS.Controllers
                 ViewBag.SponPrjFunType = Common.GetSponsoredTypeCategory();
                 ViewBag.prjClassification = Common.GetProjectClassification();
                 ViewBag.rptClassification = Common.GetReportClassification();
+                ViewBag.ProjectCategory = projectfundingcategory;
+                ViewBag.BankID = Common.GetTSABankList();
                 //model.Inputdate = DateTime.Now;
 
                 //ViewBag.Msg = System.Web.HttpContext.Current.Request.ApplicationPath;
@@ -117,7 +120,7 @@ namespace IOAS.Controllers
 
                 return View();
             }
-
+            
         }
 
         [HttpPost]
@@ -207,6 +210,7 @@ namespace IOAS.Controllers
                 ViewBag.SponPrjFunType = Common.GetSponsoredTypeCategory();
                 ViewBag.prjClassification = Common.GetProjectClassification();
                 ViewBag.rptClassification = Common.GetReportClassification();
+                ViewBag.BankID = Common.GetTSABankList();
                 // model.PIEmail = model.PIEmail;
 
                 var ForgnProjectFundingGovtBody = model.ForgnProjectFundingGovtBody_Qust_1;
@@ -1212,7 +1216,21 @@ namespace IOAS.Controllers
                 throw new Exception(ex.Message);
             }
         }
-       
+
+        public JsonResult GetAutoCompleteBankdetails(string term)
+        {
+            try
+            {
+                var data = Common.GetAutoCompleteBankDetails(term);
+                return Json(data, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+
         #region ProposalStatusModify
         public ActionResult ProposalStatusChanger()
         {

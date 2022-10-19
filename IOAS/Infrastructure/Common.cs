@@ -63,6 +63,60 @@ namespace IOAS.Infrastructure
             }
 
         }
+
+
+        //karthi
+        public static List<AutoCompleteModel> GetAutoCompleteBankDetails(string term )
+        {
+            try
+            {
+
+                List<AutoCompleteModel> PI = new List<AutoCompleteModel>();
+
+                using (var context = new IOASDBEntities())
+                {
+                    var query = (from C in context.tblAccountHead
+                                 where string.IsNullOrEmpty(term) || C.AccountHead.Contains(term) || C.AccountHeadCode.Contains(term)
+                                 //join ins in context.tblInstituteMaster on C.InstituteId equals ins.InstituteId
+                                 //where (C.RoleId == 7)
+                                 where C.Status == "Active"
+                             && C.Bank_f == true
+                             && C.AccountGroupId == 38
+                                 orderby C.AccountHead
+                                 select new {C.AccountHeadId , C.AccountHead, C.AccountHeadCode }).ToList();
+
+
+                    if (query.Count > 0)
+                    {
+                        for (int i = 0; i < query.Count; i++)
+                        {
+                            PI.Add(new AutoCompleteModel()
+                            {
+                                value = query[i].AccountHeadId.ToString(),
+                               label =  query[i].AccountHead + "-" + query[i].AccountHeadCode + "-" + query[i].AccountHeadId,
+
+                            });
+                        }
+                    }
+
+
+                }
+
+                return PI;
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+    (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                return new List<AutoCompleteModel>();
+            }
+
+        }
+
+
+
+
+
         public static string GetRolename(int RoleId)
         {
 
@@ -3918,6 +3972,78 @@ namespace IOAS.Infrastructure
             }
 
         }
+
+        //change by karthi
+
+        public static List<CodeControllistviewModel> getprojectfunding()
+        {
+            try
+            {
+
+                List<CodeControllistviewModel> projectcategory = new List<CodeControllistviewModel>();
+
+                using (var context = new IOASDBEntities())
+                {
+                    var query = (from C in context.tblCodeControl
+                                 where C.CodeName == "ProjectFundingCategory"
+                                 orderby C.CodeValDetail
+                                 select C).ToList();
+
+                    if (query.Count > 0)
+                    {
+                        for (int i = 0; i < query.Count; i++)
+                        {
+                            projectcategory.Add(new CodeControllistviewModel()
+                            {
+                                CodeName = query[i].CodeName,
+                                codevalAbbr = query[i].CodeValAbbr,
+                                CodeValDetail = query[i].CodeValDetail
+                            });
+                        }
+                    }
+
+                }
+
+                return projectcategory;
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+ (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                return null;
+            }
+
+        }
+
+        public static List<Bankdetails> GetTSABankList()
+        {
+            try
+            {
+                List<Bankdetails> roleList = new List<Bankdetails>();
+                using (var context = new IOASDBEntities())
+                {
+                    roleList = (from h in context.tblAccountHead
+                                where h.Status == "Active"
+                                && h.Bank_f == true
+                                && h.AccountGroupId == 38
+                                select new Bankdetails()
+                                {
+                                    BankID = h.AccountHeadId,
+                                    bankname = h.AccountHead
+                                }).ToList();
+
+                }
+                return roleList;
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+   (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                return new List<Bankdetails>();
+            }
+        }
+
+
         public static int GetRoleIdByUserId(int UserId)
         {
 

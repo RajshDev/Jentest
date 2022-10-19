@@ -367,6 +367,19 @@ namespace IOAS.GenericServices
                                 if (model.ModeofRefund == "DD")
                                     create.DDInFavourOf = model.DDInFavourOf;
                             }
+
+                            //karthi changes
+
+                            if (model.ProjectFundingCategoryId == 2)
+                            {
+                                create.ProjectFundingCategoryId = 2;
+                                create.BankID = model.bankdetails.BankID;
+                            }
+                            else
+                            {
+                                create.ProjectFundingCategoryId = 1;
+                                create.BankID = null;
+                            }
                             context.tblProject.Add(create);
                             context.SaveChanges();
                             int projectid = create.ProjectId;
@@ -3128,6 +3141,16 @@ namespace IOAS.GenericServices
                         editProject.IsSubProject = query.IsSubProject ?? false;
                         editProject.ProjectClassification = query.ProjectClassification;
                         editProject.ReportClassifiCation = query.ReportClassification;
+                        editProject.ProjectFundingCategoryId = query.ProjectFundingCategoryId;
+                        if (query.ProjectFundingCategoryId == 2)
+                        {
+                            editProject.ProjectFundingCategoryId = 2;
+                            editProject.bankdetails.BankID = query.BankID;
+                        }
+                        else
+                            editProject.ProjectFundingCategoryId = 1;
+
+
                         editProject.JointDevelopment_Qust_1 = query.JointdevelopmentQuestion;
 
                         editProject.InterestRefund = query.InterestRefund;
