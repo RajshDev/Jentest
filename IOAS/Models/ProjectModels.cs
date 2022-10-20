@@ -633,7 +633,7 @@ namespace IOAS.Models
         public Nullable<int> ReportClassifiCation { get; set; }
 
      
-        public int ProjectFundingCategoryId { get; set; }
+        public int ProjectFundingCategory { get; set; }
         
 
         public  Bankdetails bankdetails { get; set; }        
@@ -731,6 +731,7 @@ namespace IOAS.Models
         public string PrpsalApprovedDate { get; set; }
         public string Status { get; set; }
         public string SanctionOrderNumber { get; set; }
+        public int ProjectFundingCategory { get; set; }
     }
     public class ProjectPredicate
     {

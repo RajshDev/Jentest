@@ -3,10 +3,10 @@
 
     var getProjectDetailsURL = 'GetProjectList',
         getProposalDetailsURL = 'GetProposalList',
-     EditProject = 'EditProject',
-     DeleteProject = 'DeleteProject',
-     //Searchproject='SearchProjectList',
-     getsrchProposalDetailsURL = 'GetSearchProposalList';
+        EditProject = 'EditProject',
+        DeleteProject = 'DeleteProject',
+        //Searchproject='SearchProjectList',
+        getsrchProposalDetailsURL = 'GetSearchProposalList';
 
     // Get Proposal List for modal Popup
     //var dbProposal;
@@ -548,7 +548,7 @@
                 var ToSODate = $('#ToSODate').val() || null;
                 var FromDate = $('#FromDate').val() || null;
                 var ToDate = $('#ToDate').val() || null;
-
+               
                 var SearchData = [];
                 SearchData = {
                     ProjectType: Projecttype,
@@ -598,7 +598,7 @@
                     }
                 });
                 return deferred.promise();
-            }
+            }         
 
         },
 
@@ -618,15 +618,30 @@
             {
                 type: "control", editButton: false, deleteButton: false, width: "100px", title: "Action",
                 itemTemplate: function (value, item) {
+
+
                     var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
                     if (item.Status == "Open") {
                         statusList = [{ id: "", name: "Select Action" }, { id: "Edit", name: "Edit" }, { id: "Submit for approval", name: "Submit for approval" }, { id: "View", name: "View" }]
 
                     }
-                    else {
-                        statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }, { id: "Update RO", name: "Update RO" }]
-                        
+                    else if (item.ProjectFundingCategory == 1 && item.Status == "Active") {
+                        alert.ProjectFundingCategory = 1;
+
+                        statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }]
                     }
+                    else if (item.ProjectFundingCategory == 2 && item.Status == "Active") {
+                        alert.ProjectFundingCategory = 1;
+
+                        statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }, { id: "Update RO", name: "Update RO" }]
+                    }
+                    else if (item.Status == "Submit for approval") {
+                        statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }]
+                    }
+                  
+
+                    
+
                     var $customSelect = $("<select>")
                         .attr("class", "form-control").prop("selectedIndex", "")
                     $.each(statusList, function (index, itemData) {
@@ -636,7 +651,7 @@
                             text: itemData.name
                         }));
                     });
-
+                
                     $customSelect.change(function (e) {
 
                         var selVal = $(this).val();
@@ -855,7 +870,7 @@ function fillData(result) {
     //    $('#Proposalidfield').css("display", "block");
     //    $('#Projectidfield').css("display", "none");
     //}
-    $('#projectcategory').val(result.Projectcatgry_Qust_1);
+    $('#projectcategory').val(result.Projectcatgry_Qust_1);    
     $('#propslnum').val(result.ProposalNumber);
     $('#HiddenProposalNumber').val(result.ProposalNumber);
     $('#projectnum').val(result.ProjectNumber);
