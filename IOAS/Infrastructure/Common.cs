@@ -93,7 +93,7 @@ namespace IOAS.Infrastructure
                             PI.Add(new AutoCompleteModel()
                             {
                                 value = query[i].AccountHeadId.ToString(),
-                               label =  query[i].AccountHead + "-" + query[i].AccountHeadCode + "-" + query[i].AccountHeadId,
+                                label =  query[i].AccountHead + "-" + query[i].AccountHeadCode + "-" + query[i].AccountHeadId,
 
                             });
                         }
@@ -9330,7 +9330,7 @@ namespace IOAS.Infrastructure
             {
                 ProjectDetailModel Detail = new ProjectDetailModel();
                 using (var context = new IOASDBEntities())
-                {
+                {   
                     var Query = (from pro in context.tblProject
                                  where pro.ProjectId == ProjectId
                                  select new
@@ -28519,6 +28519,19 @@ namespace IOAS.Infrastructure
                 Infrastructure.IOASException.Instance.HandleMe(
       (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
                 return VendorBankDetails;
+            }
+        }
+
+        public static string GetAgencyByProjectId(int projId)
+        {
+            using (var context = new IOASDBEntities())
+            {
+                var AgencyName = (from p in context.tblProject
+                                  join a in context.tblAgencyMaster on p.SponsoringAgency equals a.AgencyId 
+                                    where p.ProjectId == projId
+                                    select a.AgencyName).FirstOrDefault();
+                
+                return AgencyName;
             }
         }
     }
