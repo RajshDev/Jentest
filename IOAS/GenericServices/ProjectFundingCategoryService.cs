@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using IOAS.Infrastructure;
 using System.Linq;
 using System.Web;
 using IOAS.Models;
@@ -10,51 +11,7 @@ namespace IOAS.GenericServices
     public class ProjectFundingCategoryService
     {
         #region RO Number
-        public List<RODetailsListModel> GetRoDetails(int ProjId)
-        {
-            using (var context = new IOASDBEntities())
-            {
-                using (var transaction = context.Database.BeginTransaction())
-                {
-                    List<RODetailsListModel> RODetails = new List<RODetailsListModel>();
-                    try
-                    {
-                        RODetails = (from RO in context.tblProjectROSummary
-                                             from ROLog in context.tblProjectROLog
-                                             where RO.RO_Id == ROLog.RO_Id && RO.ProjectId == ProjId
-                                             && RO.Is_Active != false
-                                             select new
-                                             {
-                                                 ROLog.RO_Id,
-                                                 ROLog.RO_ExistingValue,
-                                                 ROLog.RO_AddEditValue,
-                                                 ROLog.RO_NewValue,
-                                                 ROLog.RO_LogStatus,
-                                                 RO.RO_Number,
-                                                 RO.Is_TempRO
-                                             }).AsEnumerable()
-                                    .Select((x) => new RODetailsListModel()
-                                    {
-                                        RONumber = x.RO_Number,
-                                        EditedValue = x.RO_AddEditValue,
-                                        ExistingValue = x.RO_ExistingValue,
-                                        NewValue = x.RO_NewValue,
-                                        //TempRONumber = x.RO_Number
-                                    }).ToList(); 
-
-                    }
-                    catch (Exception ex)
-                    {
-                        Infrastructure.IOASException.Instance.HandleMe(this, ex);
-                        transaction.Rollback();
-                        return RODetails;
-                    }
-                    return RODetails;
-                }
-            }
-                        
-        }
-
+        
         public int CreateRO(CreateROModel model, int logged_in_user)
         {
             using (var context = new IOASDBEntities())
@@ -62,22 +19,19 @@ namespace IOAS.GenericServices
                 using (var transaction = context.Database.BeginTransaction())
                 {
                     tblProjectROSummary rOSummary = new tblProjectROSummary();
+                    tblProjectROLog rOLog = new tblProjectROLog();
 
-                    var RO_Id = (from RO in context.tblProjectROSummary
-                                 where (RO.ProjectId == model.ProjId || RO.RO_Id > 0)
-                                 orderby RO.RO_Id descending
-                                 select RO.RO_Id).FirstOrDefault();
-
-                    if (RO_Id >= 0)
+                    try
                     {
-                        try
+                        if (model.RODetails != null)
                         {
                             foreach (var item in model.RODetails)
                             {
+                                //int roid = 0;
                                 rOSummary.RO_Number = item.RONumber;
                                 rOSummary.ProjectId = model.ProjId;
                                 rOSummary.RO_ProjectValue = item.ExistingValue ?? 0;
-                                rOSummary.RO_Status = "open";
+                                rOSummary.RO_Status = "Open";
                                 rOSummary.RO_InvoiceValue = 0;
                                 rOSummary.RO_ReceiptValue = 0;
                                 rOSummary.RO_CommitmentValue = 0;
@@ -90,41 +44,133 @@ namespace IOAS.GenericServices
                                 rOSummary.Crtd_UserId = logged_in_user;
                                 context.tblProjectROSummary.Add(rOSummary);
                                 context.SaveChanges();
+
+                                item.RO_Id = rOSummary.RO_Id;
                             }
-                           
-                            tblProjectROLog rOLog = new tblProjectROLog();
-                            foreach (var itemRoLog in model.RODetails)
+                            //transaction.Commit();
+
+                            foreach (var itemRo in model.RODetails)
                             {
-
-                                if (RO_Id > 0)
-                                {
-                                    rOLog.RO_Id = RO_Id;
-                                    rOLog.RO_ExistingValue = itemRoLog.ExistingValue ?? 0;
-                                    rOLog.RO_AddEditValue = itemRoLog.EditedValue ?? 0;
-                                    rOLog.RO_NewValue = itemRoLog.NewValue ?? 0;
-                                    rOLog.RO_LogStatus = "open";
-                                    rOLog.Is_Deleted = false;
-                                    rOLog.Crtd_TS = DateTime.Now;
-                                    rOLog.Crtd_UserId = logged_in_user;
-                                    context.tblProjectROLog.Add(rOLog);
-                                    context.SaveChanges();
-                                }
+                                rOLog.RO_Id = itemRo.RO_Id;
+                                rOLog.RO_ExistingValue = itemRo.ExistingValue ?? 0;
+                                rOLog.RO_AddEditValue = itemRo.EditedValue ?? 0;
+                                rOLog.RO_NewValue = itemRo.NewValue ?? 0;
+                                rOLog.RO_LogStatus = "Open";
+                                rOLog.Is_Deleted = false;
+                                rOLog.Crtd_TS = DateTime.Now;
+                                rOLog.Crtd_UserId = logged_in_user;
+                                context.tblProjectROLog.Add(rOLog);
+                                context.SaveChanges();
                             }
-                            transaction.Commit();
                         }
-                        catch (Exception ex)
+                        else if(model.TempRODetails != null)
                         {
+                            var projectNo= Common.getprojectnumber(model.ProjId);
+                            rOSummary.RO_Number = projectNo + "TEMPRO" + 2223;//model.TempRODetails.TempRONumber;
+                            rOSummary.ProjectId = model.ProjId;
+                            rOSummary.RO_ProjectValue = model.TempRODetails.ExistingValue ?? 0;
+                            rOSummary.RO_Status = "Open";
+                            rOSummary.RO_InvoiceValue = 0;
+                            rOSummary.RO_ReceiptValue = 0;
+                            rOSummary.RO_CommitmentValue = 0;
+                            rOSummary.RO_ExpenditureValue = 0;
+                            rOSummary.RO_BalanceValue = model.TempRODetails.NewValue ?? 0;
+                            rOSummary.Is_Active = true;
+                            rOSummary.Is_Deleted = false;
+                            rOSummary.Is_TempRO = true;
+                            rOSummary.Crtd_TS = DateTime.Now;
+                            rOSummary.Crtd_UserId = logged_in_user;
+                            context.tblProjectROSummary.Add(rOSummary);
+                            context.SaveChanges();
 
-                            Infrastructure.IOASException.Instance.HandleMe(this, ex);
-                            transaction.Rollback();
-                            return -1;
+                            model.TempRODetails.RO_Id = rOSummary.RO_Id;
+
+                            rOLog.RO_Id = model.TempRODetails.RO_Id;
+                            rOLog.RO_ExistingValue = model.TempRODetails.ExistingValue ?? 0;
+                            rOLog.RO_AddEditValue = model.TempRODetails.EditedValue ?? 0;
+                            rOLog.RO_NewValue = model.TempRODetails.NewValue ?? 0;
+                            rOLog.RO_LogStatus = "Open";
+                            rOLog.Is_Deleted = false;
+                            rOLog.Crtd_TS = DateTime.Now;
+                            rOLog.Crtd_UserId = logged_in_user;
+                            context.tblProjectROLog.Add(rOLog);
+                            context.SaveChanges();
+                        }
+                        transaction.Commit();
+
+                    }
+                    catch (Exception ex)
+                    {
+
+                        Infrastructure.IOASException.Instance.HandleMe(this, ex);
+                        transaction.Rollback();
+                        return -1;
+                    }
+                }
+                return 1;
+            }
+        }
+        public static RODetailSearch GetROList(RODetailSearch model, DateFilterModel PrsntDueDate, int page, int pageSize)
+        {
+            RODetailSearch searchRO = new RODetailSearch();
+            List<CreateROModel> ROModels = new List<CreateROModel>();
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    int skiprec = 0;
+                    if (page == 1)
+                    {
+                        skiprec = 0;
+                    }
+                    else
+                    {
+                        skiprec = (page - 1) * pageSize;
+                    }
+                    var query = (from RO in context.tblProjectROSummary
+                                 join P in context.tblProject on RO.ProjectId equals P.ProjectId
+                                 join RoLog in context.tblProjectROLog on RO.RO_Id equals RoLog.RO_Id
+                                 where (RO.RO_Status != "InActive" && RO.Is_Active == true)
+                                 && (P.ProjectNumber.Contains(model.ProjectNumber) || model.ProjectNumber == null)
+                                 && (RO.RO_Number.Contains(model.RONumber) || model.RONumber == null)
+                                 && ((RO.Crtd_TS >= PrsntDueDate.@from && RO.Crtd_TS <= PrsntDueDate.to) || (PrsntDueDate.@from == null && PrsntDueDate.to == null))
+                                 && (RO.RO_ProjectValue == model.ROProjValue || model.ROProjValue == null)
+                                 && (RO.RO_BalanceValue == model.ROBalanceValue || model.ROBalanceValue == null)
+                                 && (RO.RO_Status.Contains(model.Status) || model.Status == null)
+                                 orderby RO.Crtd_TS descending
+                                 select new { RO,RoLog.RO_Id, P.ProjectNumber,P.ProjectId}
+                                 ).Skip(skiprec).Take(pageSize).ToList();
+                    if (query.Count > 0)
+                    {
+                        for (int i = 0; i < query.Count; i++)
+                        {
+                            ROModels.Add(new CreateROModel()
+                            {
+                                Sno = i + 1,
+                                ProjId = query[i].ProjectId,
+                                ProjectNumber = query[i].ProjectNumber,
+                                ROId = query[i].RO_Id,
+                                RONumber = query[i].RO.RO_Number,
+                                ROProjValue = query[i].RO.RO_ProjectValue,
+                                ROBalanceValue = query[i].RO.RO_BalanceValue,
+                                RODate = query[i].RO.Crtd_TS,
+                                PrsntDueDate = query[i].RO.Crtd_TS == null ? String.Format("{0:s}", query[i].RO.Crtd_TS) : String.Format("{0:s}", query[i].RO.Crtd_TS),
+                                Status = query[i].RO.RO_Status
+                            });
                         }
                     }
-                    return 1;
+                    searchRO.list = ROModels;
+                    searchRO.TotalRecords = query.Count();
                 }
+                return searchRO;
             }
+            catch (Exception ex)
+            {
+                return searchRO;
+            }
+            
         }
     }
 }
-        #endregion
-  
+#endregion
+
