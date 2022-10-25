@@ -66,7 +66,7 @@ namespace IOAS.Infrastructure
 
 
         //karthi
-        public static List<AutoCompleteModel> GetAutoCompleteBankDetails(string term )
+        public static List<AutoCompleteModel> GetAutoCompleteBankDetails(string term)
         {
             try
             {
@@ -83,7 +83,7 @@ namespace IOAS.Infrastructure
                              && C.Bank_f == true
                              && C.AccountGroupId == 38
                                  orderby C.AccountHead
-                                 select new {C.AccountHeadId , C.AccountHead, C.AccountHeadCode }).ToList();
+                                 select new { C.AccountHeadId, C.AccountHead, C.AccountHeadCode }).ToList();
 
 
                     if (query.Count > 0)
@@ -93,7 +93,7 @@ namespace IOAS.Infrastructure
                             PI.Add(new AutoCompleteModel()
                             {
                                 value = query[i].AccountHeadId.ToString(),
-                                label =  query[i].AccountHead + "-" + query[i].AccountHeadCode + "-" + query[i].AccountHeadId,
+                                label = query[i].AccountHead + "-" + query[i].AccountHeadCode + "-" + query[i].AccountHeadId,
 
                             });
                         }
@@ -9330,7 +9330,7 @@ namespace IOAS.Infrastructure
             {
                 ProjectDetailModel Detail = new ProjectDetailModel();
                 using (var context = new IOASDBEntities())
-                {   
+                {
                     var Query = (from pro in context.tblProject
                                  where pro.ProjectId == ProjectId
                                  select new
@@ -22585,7 +22585,7 @@ namespace IOAS.Infrastructure
                     if (!isValid)
                     {
                         var checkohPostingzero = (from rc in context.tblReceipt
-                                                  where rc.ReceiptId == recId&&rc.Status== "Completed" && (rc.ReceiptOverheadValue == 0 || rc.ReceiptOverheadValue == null)
+                                                  where rc.ReceiptId == recId && rc.Status == "Completed" && (rc.ReceiptOverheadValue == 0 || rc.ReceiptOverheadValue == null)
                                                   select rc).FirstOrDefault();
                         if (checkohPostingzero != null)
                             isValid = true;
@@ -23398,11 +23398,11 @@ namespace IOAS.Infrastructure
                         {
                             //if (i > 0)
                             //{
-                                list.Add(new MasterlistviewModel()
-                                {
-                                    id = query[i].CodeValAbbr,
-                                    name = query[i].CodeValDetail
-                                });
+                            list.Add(new MasterlistviewModel()
+                            {
+                                id = query[i].CodeValAbbr,
+                                name = query[i].CodeValDetail
+                            });
                             //}
                         }
                     }
@@ -23845,7 +23845,7 @@ namespace IOAS.Infrastructure
                 {
                     list = (from U in context.tblRCTOutsourcing
                             where (string.IsNullOrEmpty(term) || U.EmployeersID.Contains(term))
-                            &&(U.Status== "Relieved"||U.Status== "Cancel") &&U.IsActiveNow==true
+                            && (U.Status == "Relieved" || U.Status == "Cancel") && U.IsActiveNow == true
                             //&& (U.Category == apptype || apptype == null) && U.ApplicationType == "New"
                             select new
                             {
@@ -23906,7 +23906,7 @@ namespace IOAS.Infrastructure
                 {
                     list = (from U in context.tblRCTSTE
                             where (string.IsNullOrEmpty(term) || U.ApplicationNumber.Contains(term))
-                            &&(U.Status== "Cancel")
+                            && (U.Status == "Cancel")
                             //&& (U.Category == apptype || apptype == null) && U.ApplicationType == "New"
                             select new
                             {
@@ -25395,8 +25395,8 @@ namespace IOAS.Infrastructure
                                                                      strFromDate = string.Format("{0:dd-MMMM-yyyy}", x.FromYear),
                                                                      strToDate = string.Format("{0:dd-MMMM-yyyy}", x.ToYear)
                                                                  }).ToList();
-                                    if(EmpNo!=null)
-                                    EmpModel.IITMExperience = RequirementService.IITExperienceInWording(EmpNo);
+                                    if (EmpNo != null)
+                                        EmpModel.IITMExperience = RequirementService.IITExperienceInWording(EmpNo);
                                 }
                             }
                             else if (qeryempno.Category == "OSG")
@@ -26149,9 +26149,9 @@ namespace IOAS.Infrastructure
             return days;
         }
 
-        public static decimal GetAvgDaysInAYear(DateTime From, DateTime To, bool iscalswape=false)
+        public static decimal GetAvgDaysInAYear(DateTime From, DateTime To, bool iscalswape = false)
         {
-            if(iscalswape==true)
+            if (iscalswape == true)
             {
                 From = To;
                 To = From;
@@ -28063,7 +28063,7 @@ namespace IOAS.Infrastructure
                 }
                 return MinSalary;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return MinSalary;
             }
@@ -28373,7 +28373,7 @@ namespace IOAS.Infrastructure
                 using (var context = new IOASDBEntities())
                 {
                     var QryRecruitCommitReq = (from A in context.tblRCTCommitmentRequest
-                                               where A.RecruitmentRequestId == id&&A.Status== "Awaiting Commitment Booking"
+                                               where A.RecruitmentRequestId == id && A.Status == "Awaiting Commitment Booking"
                                                && (A.IsBookedFullRequestAmount == false || A.IsBookedFullRequestAmount == null)
                                                select new { A }).FirstOrDefault();
                     if (QryRecruitCommitReq != null)
@@ -28381,7 +28381,7 @@ namespace IOAS.Infrastructure
                 }
                 return isvalidRequest;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Infrastructure.IOASException.Instance.HandleMe(
    (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
@@ -28426,7 +28426,7 @@ namespace IOAS.Infrastructure
                 using (var context = new IOASDBEntities())
                 {
                     issendFailedEmail = context.tblFailedEmail.Any(x => x.boaDraftId == boadraftId && x.IssendMail == false && x.FailedTypeofMail == 3);
-                    
+
                 }
                 return issendFailedEmail;
             }
@@ -28444,7 +28444,7 @@ namespace IOAS.Infrastructure
                 using (var context = new IOASDBEntities())
                 {
                     issendFailedEmail = context.tblFailedEmail.Any(x => x.boaDraftId == boadraftId && x.IssendMail == false && x.FailedTypeofMail == 2);
-                   
+
                 }
                 return issendFailedEmail;
             }
@@ -28466,11 +28466,11 @@ namespace IOAS.Infrastructure
                                  where pi.InvoiceId == id && pi.Status == "Approval Pending"
                                  select pi).FirstOrDefault();
                     if (query != null)
-                       IscheckedInvoice = true;
+                        IscheckedInvoice = true;
                 }
                 return IscheckedInvoice;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Infrastructure.IOASException.Instance.HandleMe(
     (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
@@ -28522,17 +28522,170 @@ namespace IOAS.Infrastructure
             }
         }
 
+        #region TSA
         public static string GetAgencyByProjectId(int projId)
         {
             using (var context = new IOASDBEntities())
             {
                 var AgencyName = (from p in context.tblProject
-                                  join a in context.tblAgencyMaster on p.SponsoringAgency equals a.AgencyId 
-                                    where p.ProjectId == projId
-                                    select a.AgencyName).FirstOrDefault();
-                
+                                  join a in context.tblAgencyMaster on p.SponsoringAgency equals a.AgencyId
+                                  where p.ProjectId == projId
+                                  select a.AgencyName).FirstOrDefault();
+
                 return AgencyName;
             }
         }
+        public static decimal? GetTotEditedValue(int projId)
+        {
+            using (var context = new IOASDBEntities())
+            {
+                var TotEditedvalue = (from p in context.tblProjectROSummary
+                                      join a in context.tblProjectROLog on p.RO_Id equals a.RO_Id
+                                      where p.ProjectId == projId
+                                      select a.RO_AddEditValue).Sum();
+                return TotEditedvalue;
+            }
+        }
+
+        public static decimal? GetTotNewValue(int projId)
+        {
+            using (var context = new IOASDBEntities())
+            {
+                var TotEditedvalue = (from p in context.tblProjectROSummary
+                                      join a in context.tblProjectROLog on p.RO_Id equals a.RO_Id
+                                      where p.ProjectId == projId
+                                      select a.RO_NewValue).Sum();
+                return TotEditedvalue;
+            }
+        }
+
+        /*To get Temp RO details while updating RO*/
+        public static RODetailsListModel getTempRODetails(int projectId, int ROId)
+        {
+            RODetailsListModel tempROModel = new RODetailsListModel();
+
+            using (var context = new IOASDBEntities())
+            {
+                using (var transaction = context.Database.BeginTransaction())
+                {
+
+                    try
+                    {
+                        if (ROId == 0 && projectId > 0)
+                        {
+
+                            var query = (from RO in context.tblProjectROSummary
+                                         join ROLog in context.tblProjectROLog on RO.RO_Id equals ROLog.RO_Id
+                                         where RO.ProjectId == projectId
+                                         && RO.Is_Active != false && RO.Is_TempRO == true
+                                         select new { RO.RO_Id, RO.RO_Number, ROLog.RO_ExistingValue, ROLog.RO_AddEditValue, ROLog.RO_NewValue }).FirstOrDefault();
+                            tempROModel.TempRONumber = query.RO_Number;
+                            tempROModel.ExistingValue = query.RO_ExistingValue;
+                            tempROModel.NewValue = query.RO_NewValue;
+                            tempROModel.RO_Id = query.RO_Id;
+                        }
+                        else
+                        {
+                            var query = (from RO in context.tblProjectROSummary
+                                         join ROLog in context.tblProjectROLog on RO.RO_Id equals ROLog.RO_Id
+                                         where RO.ProjectId == projectId && RO.RO_Id == ROId
+                                         && RO.Is_Active != false && RO.Is_TempRO == true
+                                         select new { RO.RO_Id, RO.RO_Number, ROLog.RO_ExistingValue, ROLog.RO_AddEditValue, ROLog.RO_NewValue }).FirstOrDefault();
+                            tempROModel.TempRONumber = query.RO_Number;
+                            tempROModel.ExistingValue = query.RO_ExistingValue;
+                            tempROModel.NewValue = query.RO_NewValue;
+                            tempROModel.RO_Id = query.RO_Id;
+
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        return tempROModel;
+                    }
+                }
+            }
+
+            return tempROModel;
+        }
+
+        /*To get RO details while updating RO*/
+        public static List<RODetailsListModel> getRoDetails(int ProjId, int ROId)
+        {
+            using (var context = new IOASDBEntities())
+            {
+                using (var transaction = context.Database.BeginTransaction())
+                {
+                    List<RODetailsListModel> RODetails = new List<RODetailsListModel>();
+                    try
+                    {
+                        if (ROId == 0 && ProjId > 0)
+                        {
+                            RODetails = (from RO in context.tblProjectROSummary
+                                         join ROLog in context.tblProjectROLog on RO.RO_Id equals ROLog.RO_Id
+                                         where RO.ProjectId == ProjId
+                                         && RO.Is_Active != false && RO.Is_TempRO != true
+                                         select new
+                                         {
+                                             RO.RO_Id,
+                                             ROLog.RO_ExistingValue,
+                                             ROLog.RO_AddEditValue,
+                                             ROLog.RO_NewValue,
+                                             ROLog.RO_LogStatus,
+                                             RO.RO_Number,
+                                             RO.Is_TempRO
+                                         }).AsEnumerable()
+                                        .Select((x) => new RODetailsListModel()
+                                        {
+                                            RO_Id = x.RO_Id,
+                                            RONumber = x.RO_Number,
+                                            EditedValue = x.RO_AddEditValue,
+                                            ExistingValue = x.RO_ExistingValue,
+                                            NewValue = x.RO_NewValue,
+                                        }).ToList();
+                        }
+                        else
+                        {
+                            /*Fill data on View page against each RO in RO list */
+                            RODetails = (from RO in context.tblProjectROSummary
+                                         join ROLog in context.tblProjectROLog on RO.RO_Id equals ROLog.RO_Id
+                                         where RO.RO_Id == ROId
+                                         && RO.ProjectId == ProjId
+                                         && RO.Is_Active != false && RO.Is_TempRO != true
+                                         select new
+                                         {
+                                             RO.RO_Id,
+                                             ROLog.RO_ExistingValue,
+                                             ROLog.RO_AddEditValue,
+                                             ROLog.RO_NewValue,
+                                             ROLog.RO_LogStatus,
+                                             RO.RO_Number,
+                                             RO.Is_TempRO
+                                         }).AsEnumerable()
+                                        .Select((x) => new RODetailsListModel()
+                                        {
+                                            RO_Id = x.RO_Id,
+                                            RONumber = x.RO_Number,
+                                            EditedValue = x.RO_AddEditValue,
+                                            ExistingValue = x.RO_ExistingValue,
+                                            NewValue = x.RO_NewValue,
+                                            //TempRONumber = x.RO_Number
+                                        }).ToList();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        
+                        transaction.Rollback();
+                        return RODetails;
+                    }
+                    return RODetails;
+                }
+            }
+
+        }
+
+        #endregion
+
     }
 }
