@@ -11,28 +11,26 @@
     <div style="width:100%; margin:0 auto;">
 
         <table border="0" style="width:100%; background:#fff; margin:0; padding:0;font-family: 'Poppins' , sans-serif; font-size 14px;color:#302c2b; line-height:2;" cellpadding="0" cellspacing="0">
-            <tr>
-                @{
-                    /**/
+            @*<tr>
+                    @{
+                        var icsrUrl = Model.baseUrl + "/Content/IOASContent/img/icsr_logo.png";
+                        var iitUrl = Model.baseUrl + "/Content/IOASContent/img/iitm_logo.png";
+                        var cboxUrl = Model.baseUrl + "/Content/IOASContent/img/check-mark-icon.png";
+                    }
+                    <td style="padding:30px;background: #fafafa;border-bottom: 1px solid rgba(0,0,0,0.05);">
+                        <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                            <tr>
+                                <td style="width:70px;"><img src="@icsrUrl" style="width:75%;"></td>
+                                <td style="text-align:center;">
+                                    <h4 style="font-size: 18px;margin: 0;">Centre for Industrial Consultancy and Sponsored Research</h4>
+                                    <h5 style="font-size:16px; font-weight:normal; margin:0;">Indian Institute of Technology Madras</h5>
+                                </td>
+                                <td style="width:70px;"><img src="@iitUrl" style="width:90%;"></td>
+                            </tr>
+                        </table>
 
-                    var icsrUrl = Model.baseUrl + "/Content/IOASContent/img/icsr_logo.png";
-                    var iitUrl = Model.baseUrl + "/Content/IOASContent/img/iitm_logo.png";
-                    var cboxUrl = Model.baseUrl + "/Content/IOASContent/img/check-mark-icon.png";
-                }
-                <td style="padding:30px;background: #fafafa;border-bottom: 1px solid rgba(0,0,0,0.05);">
-                    <table width="100%" border="0" cellspacing="0" cellpadding="0">
-                        <tr>
-                            <td style="width:70px;"><img src="@icsrUrl" style="width:75%;"></td>
-                            <td style="text-align:center;">
-                                <h4 style="font-size: 18px;margin: 0;">Centre for Industrial Consultancy and Sponsored Research</h4>
-                                <h5 style="font-size:16px; font-weight:normal; margin:0;">Indian Institute of Technology Madras</h5>
-                            </td>
-                            <td style="width:70px;"><img src="@iitUrl" style="width:90%;"></td>
-                        </tr>
-                    </table>
-
-                </td>
-            </tr>
+                    </td>
+                </tr>*@
 
 
             <tr>
@@ -54,7 +52,7 @@
                         <tr>
                             <td colspan="10">
                                 <p style="font-size:15px;color:#000;margin-bottom: 0px;">
-                                    The following projects are in negative and this for your kind information.
+                                    The Balance of the following projects this for your kind information.
                                 </p>
                             </td>
                         </tr>
@@ -68,11 +66,15 @@
                             <td><p>Amount available for Spending</p></td>
                         </tr>
                         @{
+                            Decimal Balance = 0;
+                            System.Globalization.CultureInfo Indian = new System.Globalization.CultureInfo("hi-IN");
                             if (Model.prevlist.Count() > 0)
                             {
                                 var count = 0;
                                 foreach (var item in Model.prevlist)
                                 {
+                                    Balance = item.NegBalance + item.Net;
+
                                     <tr>
                                         <td>@item.ProjectNo</td>
                                         <td>@item.status</td>
@@ -91,7 +93,8 @@
                         <tr>
                             <td colspan="10">
                                 <p style="font-size:15px;color:#000;margin-bottom: 0px;">
-                                    The total negative balance allowed for Dr.@Model.piname is Rs.@Model.totalamount
+
+                                    The total balance allowed for Dr.@Model.piname is Rs.@(String.Format(Indian, "{0:N}", Balance))
                                 </p>
                                 <br />
                                 <h4>Note: This is an auto-generated email.  Please do not reply.</h4>
