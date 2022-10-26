@@ -2997,6 +2997,8 @@ namespace IOAS.GenericServices
                             decimal Basic = item.Basic.GetValueOrDefault(0);
                             decimal HRA = item.HRA.GetValueOrDefault(0);
                             decimal MA = item.MedicalAmount.GetValueOrDefault(0);
+                            DateTime nexttenuredate = item.ActualAppointmentStartDate ?? nextMonthStartDate;
+
                             if (finEndDate < tDate)
                             {
                                 salaryEndDate = finEndDate;
@@ -3007,8 +3009,8 @@ namespace IOAS.GenericServices
                             }
                             var _asp = new AdhocSalaryProcess();
 
-
-                            var listOfMonthDays = _asp.GetMonthNumberOfDays(nextMonthStartDate, salaryEndDate);                           
+                            var listOfMonthDays = _asp.GetMonthNumberOfDays(nexttenuredate, salaryEndDate);
+                            //var listOfMonthDays = _asp.GetMonthNumberOfDays(nextMonthStartDate, salaryEndDate);                           
 
                             listOfMonthDays.Reverse();
                             foreach (var m in listOfMonthDays)

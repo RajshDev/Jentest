@@ -3462,6 +3462,7 @@ namespace DataAccessLayer
                     sqlComm.CommandTimeout = 2000;
                     SqlDataAdapter da = new SqlDataAdapter();
                     da.SelectCommand = sqlComm;
+                    da.SelectCommand.CommandTimeout = 1800;
                     da.Fill(ds);
                     return ds;
                 }
