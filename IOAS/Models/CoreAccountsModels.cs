@@ -5575,6 +5575,9 @@ namespace IOAS.Models
         public decimal Exp { get; set; }
         public decimal Commit { get; set; }
         public decimal Net { get; set; }
+        //18/10/2022 NegativeBalance #7395
+        public decimal PrevNegBal { get; set; }
+        public decimal CurrNegBal { get; set; }
     }
     public class CloseNegativeBalanceModel
     {
