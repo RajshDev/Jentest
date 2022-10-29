@@ -14,31 +14,22 @@ namespace IOAS.DataModel
     
     public partial class tblProjectROSummary
     {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public tblProjectROSummary()
-        {
-            this.tblProjectROLog = new HashSet<tblProjectROLog>();
-        }
-    
         public int RO_Id { get; set; }
         public int ProjectId { get; set; }
         public string RO_Number { get; set; }
-        public Nullable<decimal> RO_ProjectValue { get; set; }
-        public Nullable<decimal> RO_InvoiceValue { get; set; }
-        public Nullable<decimal> RO_ReceiptValue { get; set; }
-        public Nullable<decimal> RO_CommitmentValue { get; set; }
-        public Nullable<decimal> RO_ExpenditureValue { get; set; }
-        public Nullable<decimal> RO_BalanceValue { get; set; }
+        public decimal RO_ProjectValue { get; set; }
+        public decimal RO_InvoiceValue { get; set; }
+        public decimal RO_ReceiptValue { get; set; }
+        public decimal RO_CommitmentValue { get; set; }
+        public decimal RO_ExpenditureValue { get; set; }
+        public decimal RO_BalanceValue { get; set; }
         public string RO_Status { get; set; }
-        public Nullable<bool> Is_Active { get; set; }
-        public Nullable<bool> Is_Deleted { get; set; }
-        public Nullable<bool> Is_TempRO { get; set; }
+        public bool Is_Active { get; set; }
+        public bool Is_Deleted { get; set; }
+        public bool Is_TempRO { get; set; }
         public System.DateTime Crtd_TS { get; set; }
         public int Crtd_UserId { get; set; }
         public Nullable<System.DateTime> Uptd_TS { get; set; }
         public Nullable<int> Uptd_UserId { get; set; }
-    
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<tblProjectROLog> tblProjectROLog { get; set; }
     }
 }

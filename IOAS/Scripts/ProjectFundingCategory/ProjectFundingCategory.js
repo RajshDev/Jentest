@@ -71,7 +71,8 @@
                     ROBalanceValue: filter.ROBalanceValue,
                     Status: filter.Status,
                     ROId: filter.ROId,
-                    ProjId: filter.ProjId
+                    ProjId: filter.ProjId,
+                    PIName: filter.PIName
                 },
                     filter.model = searchData;
                 var deferred = $.Deferred();
@@ -102,8 +103,10 @@
             { type: "number", name: "ROId", title: "RO Id", visible: false },
             { type: "number", name: "ProjId", title: "Project ID", visible: false },
             { type: "text", name: "ProjectNumber", title: "Project Number", align: "left", editing: false, width: "60px" },
-            { type: "text", name: "RONumber", title: "RO Number", editing: false, width: "70px" },
-            { type: "date", name: "PrsntDueDate", title: "RO Date", width: 100, align: "center" },
+            //{ type: "text", name: "RONumber", title: "RO Number", editing: false, width: "70px" },
+            //{ type: "date", name: "PrsntDueDate", title: "RO Date", width: 100, align: "center" },
+            { type: "text", name: "PIName", title: "PI Name", align: "left", editing: false, width: "60px" },
+            { type: "text", name: "BankName", title: "Bank Name", align: "left", editing: false, width: "60px" },
             { type: "text", name: "ROProjValue", title: "RO Project value", editing: false, width: "55px" },
             { type: "text", name: "ROBalanceValue", title: "RO Balance Value", editing: false, width: "55px" },
             { type: "text", name: "Status", title: "Status", editing: false, width: "55px" },

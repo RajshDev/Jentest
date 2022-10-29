@@ -15,7 +15,7 @@ namespace IOAS.DataModel
     public partial class tblProjectROLog
     {
         public int RO_LogId { get; set; }
-        public Nullable<int> RO_Id { get; set; }
+        public int RO_Id { get; set; }
         public Nullable<decimal> RO_ExistingValue { get; set; }
         public Nullable<decimal> RO_AddEditValue { get; set; }
         public Nullable<decimal> RO_NewValue { get; set; }
@@ -25,7 +25,7 @@ namespace IOAS.DataModel
         public int Crtd_UserId { get; set; }
         public Nullable<System.DateTime> Uptd_TS { get; set; }
         public Nullable<int> Uptd_UserId { get; set; }
-    
-        public virtual tblProjectROSummary tblProjectROSummary { get; set; }
+        public Nullable<decimal> RO_TotEditedValue { get; set; }
+        public Nullable<decimal> RO_TotNewValue { get; set; }
     }
 }
