@@ -25,7 +25,6 @@ namespace IOAS.DataModel
         public int Crtd_UserId { get; set; }
         public Nullable<System.DateTime> Uptd_TS { get; set; }
         public Nullable<int> Uptd_UserId { get; set; }
-        public Nullable<decimal> RO_TotEditedValue { get; set; }
-        public Nullable<decimal> RO_TotNewValue { get; set; }
+        public Nullable<int> RO_ProjectApprovalId { get; set; }
     }
 }

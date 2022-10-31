@@ -11,13 +11,14 @@ namespace IOAS.Controllers
 {
     public class ProjectFundingCategoryController : Controller
     {
+        private static readonly Object lockObj = new Object();
         // GET: ProjectFunding
         public ActionResult Index()
         {
             return View();
         }
 
-        public ActionResult CreateRO(int ProjectId = 0, int ROId = 0)
+        public ActionResult CreateRO(int ProjectId = 0, int aprvdId = 0)
         {
             var roModel = new CreateROModel();
             var projModel = Common.GetProjectsDetails(ProjectId);
@@ -31,14 +32,13 @@ namespace IOAS.Controllers
             roModel.TotalEditedValue = Common.GetTotEditedValue(ProjectId);
             roModel.TotalNewValue = Common.GetTotNewValue(ProjectId);
             roModel.ProjectNumber = Common.getprojectnumber(ProjectId);
-            var pfcs = new ProjectFundingCategoryService();
-            roModel.TempRODetails = Common.getTempRODetails(ProjectId, ROId);
-            roModel.RODetails = Common.getRoDetails(ProjectId,ROId);
+            roModel.TempRODetails = Common.getTempRODetails(ProjectId, aprvdId);
+            roModel.RODetails = Common.getRoDetails(ProjectId,aprvdId);
             
             return View(roModel);
         }
 
-        
+
         [HttpPost]
         public ActionResult CreateRO(CreateROModel rOModel)
         {
@@ -53,7 +53,6 @@ namespace IOAS.Controllers
                     TempData["errMsg"] = RODetailValidation;
                     return View(rOModel);
                 }
-               
             }
             var RoCreation = pfcs.CreateRO(rOModel, userId);
 
@@ -81,23 +80,11 @@ namespace IOAS.Controllers
                 {
                     return msg = "RO Number already exist!";
                 }
-                if (model.TotalNewValue >= model.SanctionValue)
-                {
-                    return msg = "TotalRo value not exceed Sanctioned value";
-                }
-                if (model.TotalEditedValue >= model.SanctionValue)
-                {
-                    return msg = "Ro TotalEdited value not exceed Sanctioned value";
-                }
+
                 var ROValue = model.RODetails.Any(x => x.EditedValue >= model.SanctionValue);
                 if (ROValue)
                 {
-                    return msg = "Ro Edited Value should not exceed Sanctioned value";
-                }
-                var RoValue1 = model.RODetails.Any(x => x.NewValue >= model.SanctionValue);
-                if (RoValue1)
-                {
-                    return msg = " RO new Value should not exceed Sanctioned value";
+                    return msg = "RO Value should not exceed Sanctioned value";
                 }
             }
             //var NewROValue = model.RODetails.Select(b => b.RO_Id,)
@@ -111,9 +98,9 @@ namespace IOAS.Controllers
 
         }
         [HttpPost]
-        public JsonResult GetROList(RODetailSearch model, DateFilterModel PrsntDueDate, int pageIndex, int pageSize)
+        public JsonResult GetROList(RODetailSearch model, int pageIndex, int pageSize)
         {
-            object output = ProjectFundingCategoryService.GetROList(model, PrsntDueDate, pageIndex, pageSize);
+            object output = ProjectFundingCategoryService.GetROList(model, pageIndex, pageSize);
             return Json(output, JsonRequestBehavior.AllowGet);
         }
 
@@ -125,7 +112,7 @@ namespace IOAS.Controllers
 
         }
 
-        public ActionResult ViewRODetails(int ProjectId,int ROId)
+        public ActionResult ViewRODetails(int ProjectId=0,int aprvdId = 0,bool Pfinit = false)
         {
             CreateROModel roModel = new CreateROModel();
             var projModel = Common.GetProjectsDetails(ProjectId);
@@ -139,10 +126,34 @@ namespace IOAS.Controllers
             //roModel.TotalEditedValue = Common.GetTotEditedValue(ProjectId);
             roModel.TotalNewValue = Common.GetTotNewValue(ProjectId);
             roModel.ProjectNumber = Common.getprojectnumber(ProjectId);
-            
-            roModel.RODetails = Common.getRoDetails(ProjectId, ROId);
+            roModel.RODetails = Common.getRoDetails(ProjectId, aprvdId);
+
+            /*Process flow*/
+            ViewBag.processGuideLineId = 349;
+            roModel.PFInit = Pfinit;
+            roModel.ROAprvId = aprvdId;
             return View(roModel);
 
+        }
+        /*From respective js*/
+        [HttpPost]
+        public ActionResult ProjectROWFInit(int AprvdId, int projId)
+        {
+            try
+            {
+                lock (lockObj)
+                {
+                    int userId = Common.GetUserid(User.Identity.Name);
+                    ProjectFundingCategoryService pfcs = new ProjectFundingCategoryService();
+                    bool status = pfcs.ProjectROWFInit(AprvdId, projId,userId);
+                    return Json(status, JsonRequestBehavior.AllowGet);
+
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(false, JsonRequestBehavior.AllowGet);
+            }
         }
     }
 }

@@ -68,11 +68,13 @@
                     RONumber: filter.RONumber,
                     /*RODate: filter.RODate,*/
                     ROProjValue: filter.ROProjValue,
-                    ROBalanceValue: filter.ROBalanceValue,
+                    /*ROBalanceValue: filter.ROBalanceValue,*/
                     Status: filter.Status,
-                    ROId: filter.ROId,
+                    /*ROId: filter.ROId,*/
                     ProjId: filter.ProjId,
-                    PIName: filter.PIName
+                    PIdName: filter.PIdName,
+                    BankName: filter.BankName,
+                    ROAprvId: filter.ROAprvId
                 },
                     filter.model = searchData;
                 var deferred = $.Deferred();
@@ -100,23 +102,26 @@
         },
         fields: [
             { name: "Sno", title: "S.No", editing: false, align: "left", width: "30px" },
-            { type: "number", name: "ROId", title: "RO Id", visible: false },
+            //{ type: "number", name: "ROId", title: "RO Id", visible: false },
             { type: "number", name: "ProjId", title: "Project ID", visible: false },
-            { type: "text", name: "ProjectNumber", title: "Project Number", align: "left", editing: false, width: "60px" },
-            //{ type: "text", name: "RONumber", title: "RO Number", editing: false, width: "70px" },
+            { type: "text", name: "RONumber", title: "RO Number", visible: false },
             //{ type: "date", name: "PrsntDueDate", title: "RO Date", width: 100, align: "center" },
-            { type: "text", name: "PIName", title: "PI Name", align: "left", editing: false, width: "60px" },
-            { type: "text", name: "BankName", title: "Bank Name", align: "left", editing: false, width: "60px" },
-            { type: "text", name: "ROProjValue", title: "RO Project value", editing: false, width: "55px" },
-            { type: "text", name: "ROBalanceValue", title: "RO Balance Value", editing: false, width: "55px" },
+            { type: "text", name: "ProjectNumber", title: "Project Number", align: "left", editing: false, width: "60px" },
+            { type: "text", name: "PIdName", title: "PI Name", align: "left", editing: false, width: "60px" },
+            { type: "text", name: "BankName", title: "Bank Name", align: "left", editing: false, width: "65px" },
+            { type: "text", name: "ROProjValue", title: "RO Project value", editing: false, width: "50px" },
+            { type: "text", name: "ROAprvId", title: "RO Project Approval Id", visible: false},
             { type: "text", name: "Status", title: "Status", editing: false, width: "55px" },
 
             {
                 type: "control", editButton: false, deleteButton: false, width: "100px",
+                _createFilterSwitchButton: function () {
+                    return this._createOnOffSwitchButton("filtering", this.searchModeButtonClass, false);
+                },
                 itemTemplate: function (value, item) {
                     var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
                     if (item.Status == "Open") {
-                        statusList = [{ id: "", name: "Select Action" }, { id: "Edit", name: "Edit" }, { id: "View", name: "View" }, { id: "delete", name: "Delete" }, { id: "Submit for approval", name: "Submit for approval" }]
+                        statusList = [{ id: "", name: "Select Action" }, { id: "Edit", name: "Edit" }, { id: "View", name: "View" },  { id: "Submit for approval", name: "Submit for approval" }]
 
                     }
                     else {
@@ -136,59 +141,61 @@
 
                         var selVal = $(this).val();
                         if (selVal == "View") {
-                            var url = 'ViewRODetails?ProjectId= ' + item.ProjId + '&ROId=' + item.ROId;
+                            var url = 'ViewRODetails?ProjectId= ' + item.ProjId + '&aprvdId=' + item.ROAprvId; 
                             window.location.href = url;
 
                         } if (selVal == "Edit") {
                             /*editEnhance(item.ProjectEnhancementID);*/
-                                var url = 'CreateRO?ProjectId= ' + item.ProjId + '&ROId=' + item.ROId;
+                            var url = 'CreateRO?ProjectId= ' + item.ProjId + '&aprvdId=' + item.ROAprvId;
                                 window.location.href = url;
 
                         }
-                        else if (selVal == "delete") {
-                            var choice = confirm("Are you sure! Do you want to delete this enhancement?.");
-                            if (choice === true) {
-                                $.ajax({
-                                    type: "POST",
-                                    url: "",
-                                    data: "",//{ EnhanceId: item.ProjectEnhancementID },
-                                    success: function (result) {
-                                        if (result == true) {
-                                            $("#gridProjectList").jsGrid("loadData");
-                                            $('#alertSuccess').html("Enhancement has been deleted successfully.");
-                                            $('#Success').modal('toggle');
-                                            Getenhancelist();
+                        //else if (selVal == "delete") {
+                        //    var choice = confirm("Are you sure! Do you want to delete this enhancement?.");
+                        //    if (choice === true) {
+                        //        $.ajax({
+                        //            type: "POST",
+                        //            url: "",
+                        //            data: "",//{ EnhanceId: item.ProjectEnhancementID },
+                        //            success: function (result) {
+                        //                if (result == true) {
+                        //                    $("#gridProjectList").jsGrid("loadData");
+                        //                    $('#alertSuccess').html("Enhancement has been deleted successfully.");
+                        //                    $('#Success').modal('toggle');
+                        //                    Getenhancelist();
+                        //                }
+                        //            },
+                        //            error: function (err) {
+                        //                console.log("error1 : " + err);
+                        //            }
+                        //        });
+                        //    }
+                    //}
+                        else if(selVal == "Submit for approval") {
+                                var choice = confirm("Are you sure, Do you want to submit this project enhancement for approval process?");
+                                if (choice === true) {
+                                    $.ajax({
+                                        type: "POST",
+                                        url: 'ProjectROWFInit',
+                                        data: {
+                                            AprvdId: item.ROAprvId,
+                                            ProjId: item.ProjId
+                                        },
+                                        success: function (result) {
+                                            if (result == true) {
+                                                $('#alertSuccess').html("Project RO has been submitted for approval process successfully.");
+                                                $('#Success').modal('toggle');
+                                                GetROlist();
+                                            } else if (result == false) {
+                                                $('#FailedAlert').html("Something went wrong please contact administrator");
+                                                $('#Failed').modal('toggle');
+                                            }
+                                        },
+                                        error: function (err) {
+                                            console.log("error1 : " + err);
                                         }
-                                    },
-                                    error: function (err) {
-                                        console.log("error1 : " + err);
-                                    }
-                                });
-                            }
-                        } else if (selVal == "Submit for approval") {
-                            //    var choice = confirm("Are you sure, Do you want to submit this project enhancement for approval process?");
-                            //    if (choice === true) {
-                            //        $.ajax({
-                            //            type: "POST",
-                            //            url: 'ProjectEnhancementWFInit',
-                            //            data: {
-                            //                projectEnhancementID: item.ProjectEnhancementID
-                            //            },
-                            //            success: function (result) {
-                            //                if (result == true) {
-                            //                    $('#alertSuccess').html("Project Enhancement has been submitted for approval process successfully.");
-                            //                    $('#Success').modal('toggle');
-                            //                    Getenhancelist();
-                            //                } else if (result == false) {
-                            //                    $('#FailedAlert').html("Something went wrong please contact administrator");
-                            //                    $('#Failed').modal('toggle');
-                            //                }
-                            //            },
-                            //            error: function (err) {
-                            //                console.log("error1 : " + err);
-                            //            }
-                            //        });
-                            //    }
+                                    });
+                                }
                         }
 
                         $(this).val("");
@@ -204,4 +211,23 @@
             //},
         ],
     });
-});
+
+    function GetROlist() {
+        var input = [];
+        input = {
+            ProjectNumber: null,
+            RONumber: null,
+            ROProjValue: null,
+            ROBalanceValue: null,
+            Status: null,
+            ROId: null,
+            ProjId: null,
+            PIdName: null,
+            BankName: null
+
+        },
+
+            $("#gridProjectFundingCategoryList").jsGrid("search", input, pageIndex = 1, pageSize = 5);
+
+    }
+    });

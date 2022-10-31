@@ -21,7 +21,13 @@ namespace IOAS.Models
         public string Status { get; set; }
         public DateTime RODate { get; set; }
         public Nullable<int> ROId { get; set; }
-        public string PrsntDueDate { get; set; }
+        //public string PrsntDueDate { get; set; }
+        public string PIdName { get; set; }
+        public string BankName { get; set; }
+        public string PIEmpId { get; set; }
+        public string PIName { get; set; }
+        public bool PFInit { get; set; }
+        public Nullable<int> ROAprvId { get; set; }
 
         /*RO  Region*/
         public CoPiDetailsModel NameofPI { get; set; }
@@ -47,19 +53,28 @@ namespace IOAS.Models
         public Nullable<decimal> EditedValue { get; set; }
         public Nullable<decimal> NewValue { get; set; }
         public int RO_Id { get; set; }
+
     }
 
     public class RODetailSearch
     {
         public string ProjectNumber { get; set; }
         public string RONumber { get; set; }
-        public Nullable<decimal> ROProjValue { get; set; }
-        public Nullable<decimal> ROBalanceValue { get; set; }
+        public Nullable<decimal> ROExistingValue { get; set; }
+        public Nullable<decimal> ROEditedValue { get; set; }
         public string Status { get; set; }
         public DateTime RODate { get; set; }
         public List<CreateROModel> list { get; set; }
         public int TotalRecords { get; set; }
 
+        /*RO List Region for PI & Bank detail*/
+        public string PIdName { get; set; }
+        public string BankName { get; set; }
+        public string PIEmpId { get; set; }
+        public string PIName { get; set; }
+
     }
+
+
 
 }
