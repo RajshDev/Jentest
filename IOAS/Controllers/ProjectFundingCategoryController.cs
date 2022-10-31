@@ -53,6 +53,7 @@ namespace IOAS.Controllers
                     TempData["errMsg"] = RODetailValidation;
                     return View(rOModel);
                 }
+               
             }
             var RoCreation = pfcs.CreateRO(rOModel, userId);
 
@@ -80,11 +81,23 @@ namespace IOAS.Controllers
                 {
                     return msg = "RO Number already exist!";
                 }
-
+                if (model.TotalNewValue >= model.SanctionValue)
+                {
+                    return msg = "TotalRo value not exceed Sanctioned value";
+                }
+                if (model.TotalEditedValue >= model.SanctionValue)
+                {
+                    return msg = "Ro TotalEdited value not exceed Sanctioned value";
+                }
                 var ROValue = model.RODetails.Any(x => x.EditedValue >= model.SanctionValue);
                 if (ROValue)
                 {
-                    return msg = "RO Value should not exceed Sanctioned value";
+                    return msg = "Ro Edited Value should not exceed Sanctioned value";
+                }
+                var RoValue1 = model.RODetails.Any(x => x.NewValue >= model.SanctionValue);
+                if (RoValue1)
+                {
+                    return msg = " RO new Value should not exceed Sanctioned value";
                 }
             }
             //var NewROValue = model.RODetails.Select(b => b.RO_Id,)
