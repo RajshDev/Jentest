@@ -618,11 +618,15 @@
             {
                 type: "control", editButton: false, deleteButton: false, width: "100px", title: "Action",
                 itemTemplate: function (value, item) {
-
+                    console.log(item.Status);
 
                     var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
                     if (item.Status == "Open") {
                         statusList = [{ id: "", name: "Select Action" }, { id: "Edit", name: "Edit" }, { id: "Submit for approval", name: "Submit for approval" }, { id: "View", name: "View" }]
+
+                    }
+                    if (item.Status == "InActive") {
+                        statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }]
 
                     }
                     else if (item.ProjectFundingCategory == 1 && item.Status == "Active") {
