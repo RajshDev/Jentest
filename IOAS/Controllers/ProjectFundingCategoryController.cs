@@ -34,7 +34,18 @@ namespace IOAS.Controllers
             roModel.ProjectNumber = Common.getprojectnumber(ProjectId);
             roModel.TempRODetails = Common.getTempRODetails(ProjectId, aprvdId);
             roModel.RODetails = Common.getRoDetails(ProjectId,aprvdId);
-            
+            roModel.ROAprvId = aprvdId;
+
+            /*Validation when Ro is Open/Submit for approval for a project - not allow to update RO*/
+            if (ModelState.IsValid)
+            {
+                var IsROActive = roModel.RODetails.Any(x => x.Status != "Active");
+                if (IsROActive)
+                {
+                    TempData["errMsg"] = "The Release Order against the Project is Open or Submitted for Approval.";
+                    return RedirectToAction("Dashboard", "Home"); 
+                }
+            }
             return View(roModel);
         }
 

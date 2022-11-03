@@ -28,6 +28,9 @@ namespace IOAS.Models
         public string PIName { get; set; }
         public bool PFInit { get; set; }
         public Nullable<int> ROAprvId { get; set; }
+        /*Radiobutton */
+        public string isRO { get; set; }
+        public string isTemp { get; set; }
 
         /*RO  Region*/
         public CoPiDetailsModel NameofPI { get; set; }
@@ -53,6 +56,7 @@ namespace IOAS.Models
         public Nullable<decimal> EditedValue { get; set; }
         public Nullable<decimal> NewValue { get; set; }
         public int RO_Id { get; set; }
+        public string Status { get; set; }
 
     }
 

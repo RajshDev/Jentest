@@ -150,27 +150,6 @@
                                 window.location.href = url;
 
                         }
-                        //else if (selVal == "delete") {
-                        //    var choice = confirm("Are you sure! Do you want to delete this enhancement?.");
-                        //    if (choice === true) {
-                        //        $.ajax({
-                        //            type: "POST",
-                        //            url: "",
-                        //            data: "",//{ EnhanceId: item.ProjectEnhancementID },
-                        //            success: function (result) {
-                        //                if (result == true) {
-                        //                    $("#gridProjectList").jsGrid("loadData");
-                        //                    $('#alertSuccess').html("Enhancement has been deleted successfully.");
-                        //                    $('#Success').modal('toggle');
-                        //                    Getenhancelist();
-                        //                }
-                        //            },
-                        //            error: function (err) {
-                        //                console.log("error1 : " + err);
-                        //            }
-                        //        });
-                        //    }
-                    //}
                         else if(selVal == "Submit for approval") {
                                 var choice = confirm("Are you sure, Do you want to submit this project enhancement for approval process?");
                                 if (choice === true) {
@@ -230,4 +209,5 @@
             $("#gridProjectFundingCategoryList").jsGrid("search", input, pageIndex = 1, pageSize = 5);
 
     }
+    $("#gridProjectFundingCategoryList").jsGrid("option", "filtering", false);
     });

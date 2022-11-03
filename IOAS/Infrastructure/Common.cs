@@ -28588,26 +28588,34 @@ namespace IOAS.Infrastructure
 
                             var query = (from RO in context.tblProjectROSummary
                                          join ROLog in context.tblProjectROLog on RO.RO_Id equals ROLog.RO_Id
-                                         where RO.ProjectId == projectId
-                                         && RO.Is_Active != false && RO.Is_TempRO == true
-                                         select new { RO.RO_Id, RO.RO_Number, ROLog.RO_ExistingValue, ROLog.RO_AddEditValue, ROLog.RO_NewValue }).FirstOrDefault();
-                            tempROModel.TempRONumber = query.RO_Number;
-                            tempROModel.ExistingValue = query.RO_ExistingValue;
-                            tempROModel.NewValue = query.RO_NewValue;
-                            tempROModel.RO_Id = query.RO_Id;
+                                         where RO.ProjectId == projectId 
+                                         && (RO.Is_Active != false && RO.Is_TempRO == true)
+                                         select new { RO.RO_Id, RO.RO_Number, ROLog.RO_ExistingValue, ROLog.RO_AddEditValue, ROLog.RO_NewValue,RO.RO_Status}).FirstOrDefault();
+                            if(query != null) { 
+                                tempROModel.TempRONumber = query.RO_Number;
+                                tempROModel.ExistingValue = query.RO_ExistingValue;
+                                tempROModel.EditedValue = query.RO_AddEditValue;
+                                tempROModel.NewValue = query.RO_NewValue;
+                                tempROModel.RO_Id = query.RO_Id;
+                                tempROModel.Status = query.RO_Status;
+                            }
                         }
                         else
                         {
                             var query = (from RO in context.tblProjectROSummary
                                          join ROLog in context.tblProjectROLog on RO.RO_Id equals ROLog.RO_Id
                                          where RO.ProjectId == projectId && RO.RO_ProjectApprovalId == aprvdId
-                                         && RO.Is_Active != false && RO.Is_TempRO == true
-                                         select new { RO.RO_Id, RO.RO_Number, ROLog.RO_ExistingValue, ROLog.RO_AddEditValue, ROLog.RO_NewValue }).FirstOrDefault();
-                            tempROModel.TempRONumber = query.RO_Number;
-                            tempROModel.ExistingValue = query.RO_ExistingValue;
-                            tempROModel.NewValue = query.RO_NewValue;
-                            tempROModel.RO_Id = query.RO_Id;
-
+                                         && (RO.Is_Active != false && RO.Is_TempRO == true)
+                                         select new { RO.RO_Id, RO.RO_Number, ROLog.RO_ExistingValue, ROLog.RO_AddEditValue, ROLog.RO_NewValue,RO.RO_Status }).FirstOrDefault();
+                            if(query != null)
+                            { 
+                                tempROModel.TempRONumber = query.RO_Number;
+                                tempROModel.ExistingValue = query.RO_ExistingValue;
+                                tempROModel.EditedValue = query.RO_AddEditValue;
+                                tempROModel.NewValue = query.RO_NewValue;
+                                tempROModel.RO_Id = query.RO_Id;
+                                tempROModel.Status = query.RO_Status;
+                            }
                         }
                     }
                     catch (Exception ex)
@@ -28632,10 +28640,10 @@ namespace IOAS.Infrastructure
                     try
                     {
                         if (aprvdId == 0 && ProjId > 0)
-                        { /*if Temp  RO exist*/
+                        { 
                             RODetails = (from RO in context.tblProjectROSummary
                                          join ROLog in context.tblProjectROLog on RO.RO_Id equals ROLog.RO_Id
-                                         where RO.ProjectId == ProjId //&& RO.RO_ProjectApprovalId == aprvdId
+                                         where RO.ProjectId == ProjId 
                                          && RO.Is_Active != false && RO.Is_TempRO != true
                                          select new
                                          {
@@ -28644,6 +28652,7 @@ namespace IOAS.Infrastructure
                                              ROLog.RO_AddEditValue,
                                              ROLog.RO_NewValue,
                                              ROLog.RO_LogStatus,
+                                             RO.RO_Status,
                                              RO.RO_Number,
                                              RO.Is_TempRO
                                          }).AsEnumerable()
@@ -28654,6 +28663,7 @@ namespace IOAS.Infrastructure
                                             EditedValue = x.RO_AddEditValue,
                                             ExistingValue = x.RO_ExistingValue,
                                             NewValue = x.RO_NewValue,
+                                            Status = x.RO_Status
                                         }).ToList();
                         }
                         else
@@ -28671,6 +28681,7 @@ namespace IOAS.Infrastructure
                                              ROLog.RO_AddEditValue,
                                              ROLog.RO_NewValue,
                                              ROLog.RO_LogStatus,
+                                             RO.RO_Status,
                                              RO.RO_Number,
                                              RO.Is_TempRO
                                          }).AsEnumerable()
@@ -28681,7 +28692,7 @@ namespace IOAS.Infrastructure
                                             EditedValue = x.RO_AddEditValue,
                                             ExistingValue = x.RO_ExistingValue,
                                             NewValue = x.RO_NewValue,
-                                            //TempRONumber = x.RO_Number
+                                            Status = x.RO_Status
                                         }).ToList();
                         }
                     }

@@ -626,13 +626,11 @@
 
                     }
                     else if (item.ProjectFundingCategory == 1 && item.Status == "Active") {
-                        alert.ProjectFundingCategory = 1;
-
+                       
                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }]
                     }
                     else if (item.ProjectFundingCategory == 2 && item.Status == "Active") {
-                        alert.ProjectFundingCategory = 1;
-
+                        
                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }, { id: "Update RO", name: "Update RO" }]
                     }
                     else if (item.Status == "Submit for approval") {
