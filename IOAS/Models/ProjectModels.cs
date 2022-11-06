@@ -631,9 +631,25 @@ namespace IOAS.Models
         [Required]
         [Display(Name = "Report Classification")]
         public Nullable<int> ReportClassifiCation { get; set; }
+
+        public int ProjectFundingCategory { get; set; }
+
+
+        public  Bankdetails bankdetails { get; set; }
+
         public string CurrentFinYear { get; set; }
     }
 
+    public class Bankdetails
+    {
+        // public Nullable<Int32> BankID { get; set; }
+        //   public Nullable<int> BankID { get; set; }
+
+        public Nullable<int> id { get; set; }
+        public string bankname { get; set; }
+        public Nullable<int> BankID { get; set; }
+        //  public string code { get; set; }
+    }
     public class ProjectEnhanceandExtenDetailsModel
     {
         public int Sno { get; set; }
@@ -711,6 +727,7 @@ namespace IOAS.Models
         public string PrpsalApprovedDate { get; set; }
         public string Status { get; set; }
         public string SanctionOrderNumber { get; set; }
+        public int ProjectFundingCategory { get; set; }
     }
     public class ProjectPredicate
     {

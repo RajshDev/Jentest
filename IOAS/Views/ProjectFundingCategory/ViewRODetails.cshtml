@@ -1,0 +1,143 @@
+﻿@model IOAS.Models.CreateROModel
+
+@{
+    /**/
+
+    ViewBag.Title = "ViewRODetails";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+
+}
+<div id="popup"></div>
+<input type="hidden" id="currentRefId" value="@Model.ROAprvId" />
+<input type="hidden" id="processGuideLineId" value="@ViewBag.processGuideLineId" />
+@Html.Partial("_ProcessStatus")
+
+
+@using (Html.BeginForm("CreateRO", "ProjectFundingCategory", FormMethod.Post, new { @class = "", role = "form", @id = "formRO", enctype = "multipart/form-data" }))
+{
+
+    <div class="row hd-tt-bg">
+
+        <div class="col-md-12">
+
+            <h2>ViewRODetails</h2>
+        </div>
+    </div>
+
+    <div class="vw-dts-bg">
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-bordered mb-null">
+                    <thead>
+                        <tr><th colspan="5">Project Details</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <label>Project Title</label>
+                                <h4>@Html.DisplayFor(m => m.ProjTitle)</h4>
+                                @Html.HiddenFor(m => m.ProjId)
+                            </td>
+                            <td colspan="4">
+                                <label>Project Number</label>
+                                <h4>@Html.DisplayFor(m => m.ProjectNumber)</h4>
+                            </td>
+                            <td colspan="4">
+                                <label>Agency Name</label>
+                                <h4>@Html.DisplayFor(m => m.AgencyName)</h4>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <label>Actual Start Date</label>
+                                <h4>@Html.DisplayFor(m => m.ActualStartDate)</h4>
+                            </td>
+                            @*<td class="reg-no">*@
+                            <td>
+                                <label>Actual Closing Date</label>
+                                <h4>@Html.DisplayFor(m => m.ActualCloseDate)</h4>
+                            </td>
+                            <td colspan="4">
+                                <label>SanctionValue</label>
+                                <h4>@Html.DisplayFor(m => m.SanctionValue)</h4>
+                                @Html.HiddenFor(m => m.SanctionValue)
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="vw-dts-bg">
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-bordered mb-null">
+                    <thead>
+                        <tr><th colspan="5">RO Details</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="width: 450px;">RO Number</td>
+                            <td style="width: 200px;">Existing Value</td>
+                            <td style="width: 200px;">New Value</td>
+
+                        </tr>
+                        @foreach (var item in Model.RODetails)
+                        {
+                            <tr>
+                                <td><h4>@item.RONumber</h4></td>
+                                <td><h4>@item.ExistingValue</h4></td>
+                                <td><h4>@item.NewValue</h4></td>
+                            </tr>
+                        }
+                        <tr>
+                            <td></td>
+                            <td><b><label> Total: </label></b></td>
+                            <td class="hgt-bg"><h4>@Html.DisplayFor(M => M.TotalNewValue)</h4></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <table class="table table-bordered mb-null">
+                    <thead>
+                        <tr><th colspan="5">Temp RO Details</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="width: 450px;">Temp RO Number</td>
+                            <td style="width: 200px;">Existing Value</td>
+                            <td style="width: 200px;">New Value</td>
+
+                        </tr>
+                        <tr>
+                            @if (Model.TempRODetails != null)
+                            {
+                            <td><h4>@Model.TempRODetails.RONumber</h4></td>
+                            <td><h4>@Model.TempRODetails.ExistingValue</h4></td>
+                            <td><h4>@Model.TempRODetails.NewValue</h4></td>
+                            }
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    @*<div class="text-center">
+        <input type="reset" onclick="window.location.href='@Url.Action("ROList", "ProjectFundingCategory")';" value="close" class="btn btn-default" />
+    </div>*@
+    <div class="row">
+        @if (Model.PFInit != true)
+        {
+            <div class="col-md-12 text-center pd-tb-30">
+                <input type="button" onclick="window.location.href='@Url.Action("ROList", "ProjectFundingCategory")';" class="btn btn-default" value="Close" id="btnclose" />
+            </div>
+        }
+        else
+        {
+            <div class="col-md-12 text-center pd-tb-30">
+                <input type="button" onclick="window.location.href='@Url.Action("Dashboard", "Home")';" class="btn btn-default" value="Close" id="btnclose" />
+            </div>
+        }
+    </div>
+}
+

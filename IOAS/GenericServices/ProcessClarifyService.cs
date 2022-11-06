@@ -1744,6 +1744,56 @@ namespace IOAS.GenericServices
                 return false;
             }
         }
+        public bool ProjectROWFInitClarify(int ROApprovalId,int loggedInUser)
+        {
+            try
+            {
+                // lock (lockObj)
+                //{
+                using (var context = new IOASDBEntities())
+                {
+                    var query = context.tblProjectROSummary.FirstOrDefault(m => m.RO_ProjectApprovalId == ROApprovalId && m.RO_Status == "Submit for approval");
+                    var queryApproval = context.tblProjectROApprovalRequest.Where(m => m.RO_ProjectApprovalId == ROApprovalId).FirstOrDefault();
+                    if (query != null)
+                    {
 
+                        context.tblProjectROSummary.Where(m => m.RO_ProjectApprovalId == ROApprovalId && m.RO_Status == "Submit for approval")
+                                .ToList()
+                                .ForEach(m =>
+                                {
+                                    m.RO_Status = "Open";
+                                    m.Uptd_UserId = loggedInUser;
+                                    m.Uptd_TS = DateTime.Now;
+                                });
+                        
+
+                        context.tblProjectROLog.Where(p => p.RO_ProjectApprovalId == ROApprovalId && p.RO_LogStatus == "Submit for approval")
+                                  .ToList()
+                                  .ForEach(m =>
+                                  {
+                                     
+                                      m.RO_LogStatus = "Open";
+                                      m.Uptd_UserId = loggedInUser;
+                                      m.Uptd_TS = DateTime.Now;
+                                  });
+
+                        if (queryApproval != null)
+                        {
+                            queryApproval.Uptd_TS = DateTime.Now;
+                            queryApproval.Uptd_UserId = loggedInUser;
+                        }
+
+                        context.SaveChanges();
+                        return true;
+                    }
+                    return false;
+                }
+                // }
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
     }
 }

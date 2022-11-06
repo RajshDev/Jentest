@@ -367,6 +367,19 @@ namespace IOAS.GenericServices
                                 if (model.ModeofRefund == "DD")
                                     create.DDInFavourOf = model.DDInFavourOf;
                             }
+
+                            //karthi changes
+
+                            if (model.ProjectFundingCategory == 2)
+                            {
+                                create.ProjectFundingCategory = 2;
+                                create.BankID = model.bankdetails.BankID;
+                            }
+                            else
+                            {
+                                create.ProjectFundingCategory = 1;
+                                create.BankID = null;
+                            }
                             context.tblProject.Add(create);
                             context.SaveChanges();
                             int projectid = create.ProjectId;
@@ -3128,6 +3141,16 @@ namespace IOAS.GenericServices
                         editProject.IsSubProject = query.IsSubProject ?? false;
                         editProject.ProjectClassification = query.ProjectClassification;
                         editProject.ReportClassifiCation = query.ReportClassification;
+                        editProject.ProjectFundingCategory = query.ProjectFundingCategory;
+                        if (query.ProjectFundingCategory == 2)
+                        {
+                            editProject.ProjectFundingCategory = 2;
+                            editProject.bankdetails.BankID = query.BankID;
+                        }
+                        else
+                            editProject.ProjectFundingCategory = 1;
+
+
                         editProject.JointDevelopment_Qust_1 = query.JointdevelopmentQuestion;
 
                         editProject.InterestRefund = query.InterestRefund;
@@ -6235,7 +6258,8 @@ namespace IOAS.GenericServices
                                 EmpCode = query[i].u.EmployeeId,
                                 PrpsalApprovedDate = String.Format("{0:s}", query[i].prj.ProposalApprovedDate),
                                 Status = query[i].prj.Status,
-                                SanctionOrderNumber = query[i].prj.SanctionOrderNumber
+                                SanctionOrderNumber = query[i].prj.SanctionOrderNumber,
+                                ProjectFundingCategory=query[i].prj.ProjectFundingCategory
 
                             });
                         }

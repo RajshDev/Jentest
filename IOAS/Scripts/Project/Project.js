@@ -3,10 +3,10 @@
 
     var getProjectDetailsURL = 'GetProjectList',
         getProposalDetailsURL = 'GetProposalList',
-     EditProject = 'EditProject',
-     DeleteProject = 'DeleteProject',
-     //Searchproject='SearchProjectList',
-     getsrchProposalDetailsURL = 'GetSearchProposalList';
+        EditProject = 'EditProject',
+        DeleteProject = 'DeleteProject',
+        //Searchproject='SearchProjectList',
+        getsrchProposalDetailsURL = 'GetSearchProposalList';
 
     // Get Proposal List for modal Popup
     //var dbProposal;
@@ -548,7 +548,7 @@
                 var ToSODate = $('#ToSODate').val() || null;
                 var FromDate = $('#FromDate').val() || null;
                 var ToDate = $('#ToDate').val() || null;
-
+               
                 var SearchData = [];
                 SearchData = {
                     ProjectType: Projecttype,
@@ -598,7 +598,7 @@
                     }
                 });
                 return deferred.promise();
-            }
+            }         
 
         },
 
@@ -618,14 +618,32 @@
             {
                 type: "control", editButton: false, deleteButton: false, width: "100px", title: "Action",
                 itemTemplate: function (value, item) {
+                    console.log(item.Status);
+
                     var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
                     if (item.Status == "Open") {
                         statusList = [{ id: "", name: "Select Action" }, { id: "Edit", name: "Edit" }, { id: "Submit for approval", name: "Submit for approval" }, { id: "View", name: "View" }]
 
                     }
-                    else {
+                    if (item.Status == "InActive") {
+                        statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }]
+
+                    }
+                    else if (item.ProjectFundingCategory == 1 && item.Status == "Active") {
+                       
                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }]
                     }
+                    else if (item.ProjectFundingCategory == 2 && item.Status == "Active") {
+                        
+                        statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }, { id: "Update RO", name: "Update RO" }]
+                    }
+                    else if (item.Status == "Submit for approval") {
+                        statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }]
+                    }
+                  
+
+                    
+
                     var $customSelect = $("<select>")
                         .attr("class", "form-control").prop("selectedIndex", "")
                     $.each(statusList, function (index, itemData) {
@@ -635,7 +653,7 @@
                             text: itemData.name
                         }));
                     });
-
+                
                     $customSelect.change(function (e) {
 
                         var selVal = $(this).val();
@@ -664,8 +682,14 @@
                         }
                         else if (selVal == "View") {
                             var url = 'ViewProject?ProjectId=' + item.ProjectId;
+                            //var url = '../ProjectFunding/CreateRO' + item.ProjectId;
                             window.location.href = url;
-                        } else if (selVal == "Submit for approval") {
+                        }
+                        else if (selVal == "Update RO") {
+                            var url = '../ProjectFundingCategory/CreateRO?ProjectId=' + item.ProjectId;
+                            window.location.href = url;
+                        }
+                        else if (selVal == "Submit for approval") {
                             var choice = confirm("Are you sure, Do you want to submit this project for approval process?");
                             if (choice === true) {
                                 $.ajax({
@@ -848,7 +872,7 @@ function fillData(result) {
     //    $('#Proposalidfield').css("display", "block");
     //    $('#Projectidfield').css("display", "none");
     //}
-    $('#projectcategory').val(result.Projectcatgry_Qust_1);
+    $('#projectcategory').val(result.Projectcatgry_Qust_1);    
     $('#propslnum').val(result.ProposalNumber);
     $('#HiddenProposalNumber').val(result.ProposalNumber);
     $('#projectnum').val(result.ProjectNumber);

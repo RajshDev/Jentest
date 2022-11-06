@@ -343,6 +343,60 @@ namespace IOAS.GenericServices
                 return false;
             }
         }
+        public bool ProjectROWFInitSuccess(int ROApprovalId, int loggedInUser)
+        {
+            try
+            {
+                lock (ProjectEnhancementProjectlockObj)
+                {
+                    using (var context = new IOASDBEntities())
+                    {
+                        var query = context.tblProjectROSummary.FirstOrDefault(m => m.RO_ProjectApprovalId == ROApprovalId && m.RO_Status == "Submit for approval");
+                        var queryApprovalId = context.tblProjectROApprovalRequest.Where(m => m.RO_ProjectApprovalId == ROApprovalId).FirstOrDefault();
+                        if (query != null)
+                        {
+                            context.tblProjectROSummary.Where(m => m.RO_ProjectApprovalId == ROApprovalId && m.RO_Status == "Submit for approval")
+                                .ToList()
+                                .ForEach(m =>
+                                {
+                                    m.RO_Status = "Active";
+                                    m.Uptd_UserId = loggedInUser;
+                                    m.Uptd_TS = DateTime.Now;
+                                });
+                            context.tblProjectROLog.Where(p => p.RO_ProjectApprovalId == ROApprovalId && p.RO_LogStatus == "Submit for approval")
+                                  .ToList()
+                                  .ForEach(m =>
+                                  {
+                                      
+                                      m.RO_LogStatus = "Active";
+                                      m.Uptd_UserId = loggedInUser;
+                                      m.Uptd_TS = DateTime.Now;
+                                  });
+
+                            if (queryApprovalId != null)
+                            {
+                                queryApprovalId.Uptd_TS = DateTime.Now;
+                                queryApprovalId.Uptd_UserId = loggedInUser;
+                            }
+                            
+                                
+                            context.SaveChanges();
+                            if (query.RO_Status == "Active")
+                                Common.UpdateROSummaryLog(query.ProjectId, ROApprovalId);
+                            
+                            return true;
+                        }
+                        return false;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+      (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                return false;
+            }
+        }
         public bool ProposalWFInitSuccess(int proposalId, int loggedInUser)
         {
             try
