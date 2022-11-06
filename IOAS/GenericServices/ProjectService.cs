@@ -6161,95 +6161,7 @@ namespace IOAS.GenericServices
         }
 
 
-        public ProjectEnhanceandExtenDetailsModel GetEnhancementandExtensionDetails(int projectid)
-        {
-            try
-            {
-                ProjectEnhanceandExtenDetailsModel pjct = new ProjectEnhanceandExtenDetailsModel();
-                using (var context = new IOASDBEntities())
-                {
-                    var project = (from en in context.tblProject
-                                   where (en.ProjectId == projectid)
-                                   select en).FirstOrDefault();
-                    var enhancedetails = (from en in context.tblProjectEnhancement
-                                          where (en.ProjectId == projectid && (en.IsEnhancementonly == true || en.IsEnhancementWithExtension == true) && en.Status == "Active")
-                                          select en).ToList();
-                    var extensiondetails = (from en in context.tblProjectEnhancement
-                                            where (en.ProjectId == projectid && (en.IsExtensiononly == true || en.IsEnhancementWithExtension == true) && en.Status == "Active")
-                                            select en).ToList();
-                    var DocumentPath = "~/Content/SupportDocuments";
-                    int[] enhancementid = new int[enhancedetails.Count()];
-                    string[] enhancementordernumber = new string[enhancedetails.Count()];
-                    decimal?[] enhancedamount = new decimal?[enhancedetails.Count()];
-                    decimal?[] previousamount = new decimal?[enhancedetails.Count()];
-                    DateTime?[] enhancementDate = new DateTime?[enhancedetails.Count()];
-                    string[] enhancedate = new string[enhancedetails.Count()];
-                    string[] enhancedocpath = new string[enhancedetails.Count()];
-                    string[] enhancedocname = new string[enhancedetails.Count()];
-                    int[] extensionid = new int[extensiondetails.Count()];
-                    string[] extensionordernumber = new string[extensiondetails.Count()];
-                    string[] extenDate = new string[extensiondetails.Count()];
-                    string[] extendedDate = new string[extensiondetails.Count()];
-                    string[] prevextenDate = new string[extensiondetails.Count()];
-                    string[] extendocpath = new string[extensiondetails.Count()];
-                    string[] extendocname = new string[extensiondetails.Count()];
-
-                    for (int i = 0; i < enhancedetails.Count(); i++)
-                    {
-                        enhancementid[i] = enhancedetails[i].ProjectEnhancementId;
-                        enhancementordernumber[i] = enhancedetails[i].DocumentReferenceNumber;
-                        enhancementDate[i] = enhancedetails[i].CrtsTS;
-                        enhancedate[i] = String.Format("{0:ddd dd-MMM-yyyy}", enhancedetails[i].CrtsTS);
-                        enhancedocname[i] = enhancedetails[i].AttachmentPath;
-                        enhancedamount[i] = enhancedetails[i].EnhancedSanctionValue;
-                        previousamount[i] = enhancedetails[i].OldSanctionValue;
-                        enhancedocpath[i] = DocumentPath;
-                    }
-                    for (int i = 0; i < extensiondetails.Count(); i++)
-                    {
-                        extensionid[i] = extensiondetails[i].ProjectEnhancementId;
-                        extensionordernumber[i] = extensiondetails[i].DocumentReferenceNumber;
-                        extenDate[i] = String.Format("{0:ddd dd-MMM-yyyy}", extensiondetails[i].ExtendedDueDate);
-                        prevextenDate[i] = String.Format("{0:ddd dd-MMM-yyyy}", extensiondetails[i].PresentDueDate);
-                        extendedDate[i] = String.Format("{0:ddd dd-MMM-yyyy}", extensiondetails[i].CrtsTS);
-                        extendocname[i] = extensiondetails[i].AttachmentPath;
-                        extendocpath[i] = DocumentPath;
-                    }
-
-                    if (enhancedetails.Count() > 0)
-                    {
-
-                        pjct.ProjectEnhancementID = enhancementid;
-                        pjct.EnhanceRefNumber = enhancementordernumber;
-                        pjct.EnhancedDate = enhancedate;
-                        pjct.EnhancedSanctionValue = enhancedamount;
-                        pjct.OldSanctionValue = previousamount;
-                        pjct.EnhancedocPath = enhancedocpath;
-                        pjct.Enhancedocname = enhancedocname;
-
-                    }
-                    if (extensiondetails.Count() > 0)
-                    {
-
-                        pjct.ProjectExtensionID = extensionid;
-                        pjct.ExtenRefNumber = extensionordernumber;
-                        pjct.ExtndDueDate = extenDate;
-                        pjct.PrsntDueDate = prevextenDate;
-                        pjct.ExtendedDate = extendedDate;
-                        pjct.ExtendocPath = extendocpath;
-                        pjct.Extendocname = extendocname;
-                    }
-                    pjct.ProjectNumber = project.ProjectNumber;
-                    pjct.Projecttitle = project.ProjectTitle;
-
-                }
-                return pjct;
-            }
-            catch (Exception ex)
-            {
-                return new ProjectEnhanceandExtenDetailsModel();
-            }
-        }
+        public ProjectEnhanceandExtenDetailsModel GetEnhancementandExtensionDetails(int projectid)        {            try            {                ProjectEnhanceandExtenDetailsModel pjct = new ProjectEnhanceandExtenDetailsModel();                using (var context = new IOASDBEntities())                {                    var project = (from en in context.tblProject                                   where (en.ProjectId == projectid)                                   select en).FirstOrDefault();                    var enhancedetails = (from en in context.tblProjectEnhancement                                          where (en.ProjectId == projectid && (en.IsEnhancementonly == true || en.IsEnhancementWithExtension == true) && en.Status == "Active")                                          select en).ToList();                    var extensiondetails = (from en in context.tblProjectEnhancement                                            where (en.ProjectId == projectid && (en.IsExtensiononly == true || en.IsEnhancementWithExtension == true) && en.Status == "Active")                                            select en).ToList();                    var DocumentPath = "~/Content/SupportDocuments";                    int[] enhancementid = new int[enhancedetails.Count()];                    string[] enhancementordernumber = new string[enhancedetails.Count()];                    decimal?[] enhancedamount = new decimal?[enhancedetails.Count()];                    decimal?[] previousamount = new decimal?[enhancedetails.Count()];                    DateTime?[] enhancementDate = new DateTime?[enhancedetails.Count()];                    string[] enhancedate = new string[enhancedetails.Count()];                    string[] enhancedocpath = new string[enhancedetails.Count()];                    string[] enhancedocname = new string[enhancedetails.Count()];                    int[] extensionid = new int[extensiondetails.Count()];                    string[] extensionordernumber = new string[extensiondetails.Count()];                    string[] extenDate = new string[extensiondetails.Count()];                    string[] extendedDate = new string[extensiondetails.Count()];                    string[] prevextenDate = new string[extensiondetails.Count()];                    string[] extendocpath = new string[extensiondetails.Count()];                    string[] extendocname = new string[extensiondetails.Count()];                    for (int i = 0; i < enhancedetails.Count(); i++)                    {                        enhancementid[i] = enhancedetails[i].ProjectEnhancementId;                        enhancementordernumber[i] = enhancedetails[i].DocumentReferenceNumber;                        enhancementDate[i] = enhancedetails[i].CrtsTS;                        enhancedate[i] = String.Format("{0:ddd dd-MMM-yyyy}", enhancedetails[i].CrtsTS);                        enhancedocname[i] = enhancedetails[i].AttachmentPath;                        enhancedamount[i] = enhancedetails[i].EnhancedSanctionValue;                        previousamount[i] = enhancedetails[i].OldSanctionValue;                        enhancedocpath[i] = DocumentPath;                    }                    for (int i = 0; i < extensiondetails.Count(); i++)                    {                        extensionid[i] = extensiondetails[i].ProjectEnhancementId;                        extensionordernumber[i] = extensiondetails[i].DocumentReferenceNumber;                        extenDate[i] = String.Format("{0:ddd dd-MMM-yyyy}", extensiondetails[i].ExtendedDueDate);                        prevextenDate[i] = String.Format("{0:ddd dd-MMM-yyyy}", extensiondetails[i].PresentDueDate);                        extendedDate[i] = String.Format("{0:ddd dd-MMM-yyyy}", extensiondetails[i].CrtsTS);                        extendocname[i] = extensiondetails[i].AttachmentPath;                        extendocpath[i] = DocumentPath;                    }                    if (enhancedetails.Count() > 0)                    {                        pjct.ProjectEnhancementID = enhancementid;                        pjct.EnhanceRefNumber = enhancementordernumber;                        pjct.EnhancedDate = enhancedate;                        pjct.EnhancedSanctionValue = enhancedamount;                        pjct.OldSanctionValue = previousamount;                        pjct.EnhancedocPath = enhancedocpath;                        pjct.Enhancedocname = enhancedocname;                    }                    if (extensiondetails.Count() > 0)                    {                        pjct.ProjectExtensionID = extensionid;                        pjct.ExtenRefNumber = extensionordernumber;                        pjct.ExtndDueDate = extenDate;                        pjct.PrsntDueDate = prevextenDate;                        pjct.ExtendedDate = extendedDate;                        pjct.ExtendocPath = extendocpath;                        pjct.Extendocname = extendocname;                    }                    pjct.ProjectNumber = project.ProjectNumber;                    pjct.Projecttitle = project.ProjectTitle;                }                return pjct;            }            catch (Exception ex)            {                return new ProjectEnhanceandExtenDetailsModel();            }        }
 
         public static PagedData<ProjectSearchResultModel> SearchProjectList(ProjectSearchFieldModel model, int page, int pageSize, DateFilterModel PrpsalApprovedDate)
         {

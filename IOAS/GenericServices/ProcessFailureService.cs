@@ -295,6 +295,8 @@ namespace IOAS.GenericServices
             }
         }
 
+        
+
         public bool ProposalWFInitFailure(int proposalId, int loggedInUser)
         {
             try

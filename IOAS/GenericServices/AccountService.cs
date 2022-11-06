@@ -1002,7 +1002,7 @@ namespace IOAS.GenericServices
                                         context.SaveChanges();
                                     }
                                 }
-                                transaction.Commit();
+                                 transaction.Commit();
                             }
                             catch (Exception ex)
                             {

@@ -632,26 +632,22 @@ namespace IOAS.Models
         [Display(Name = "Report Classification")]
         public Nullable<int> ReportClassifiCation { get; set; }
 
-     
         public int ProjectFundingCategory { get; set; }
-        
 
-        public  Bankdetails bankdetails { get; set; }        
+
+        public  Bankdetails bankdetails { get; set; }
 
         public string CurrentFinYear { get; set; }
-
-       // public List <Bankdetails> bankdetail { get; set; }
-        //public List<MasterlistviewModel> listBank;
     }
 
     public class Bankdetails
     {
-       // public Nullable<Int32> BankID { get; set; }
-     //   public Nullable<int> BankID { get; set; }
+        // public Nullable<Int32> BankID { get; set; }
+        //   public Nullable<int> BankID { get; set; }
 
-          public Nullable<int> id { get; set; }
-          public string bankname { get; set; }
-          public Nullable<int> BankID { get; set; }
+        public Nullable<int> id { get; set; }
+        public string bankname { get; set; }
+        public Nullable<int> BankID { get; set; }
         //  public string code { get; set; }
     }
     public class ProjectEnhanceandExtenDetailsModel
