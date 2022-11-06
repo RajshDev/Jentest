@@ -151,7 +151,7 @@
 
                         }
                         else if(selVal == "Submit for approval") {
-                                var choice = confirm("Are you sure, Do you want to submit this project enhancement for approval process?");
+                                var choice = confirm("Are you sure, Do you want to submit this project RO for approval process?");
                                 if (choice === true) {
                                     $.ajax({
                                         type: "POST",
