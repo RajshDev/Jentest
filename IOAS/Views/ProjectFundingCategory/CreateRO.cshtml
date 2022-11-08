@@ -78,191 +78,192 @@
             @Html.RadioButtonFor(m => m.isTemp, "Temp", new { @id = "is_Temp" }) <span></span> &nbsp; Temp RO
         </h3>
     </div>
-        <div id="RO">
-            <div class="row">
-                <div class="page-wrapper">
-                    <div class="scrl-table scrl-table-po-bl white-bg">
-                        <div class="col-md-6">
-                            <b>Add New RO</b>
-                        </div>
-                        <div class="col-md-6 text-right" style="margin-bottom:10px;">
-                            <button type="button" id="btnAddRODetails" class="btn-primary btn">Add RO</button>
-                        </div>
-                        <div class="row">
-                            <div class="page-wrapper">
-                                <div class="scrl-table scrl-table-po-bl">
-                                    <table class="table table-bordered mb-null" style="width:inherit">
-                                        <thead></thead>
-                                        <tbody id="tbodyRO">
-                                            <tr>
-                                                <td>RO Number</td>
-                                                <td>Existing Value</td>
-                                                <td>Edited Value</td>
-                                                <td>New Value</td>
-                                                <th></th>
-                                            </tr>
-                                            @if ((Model != null) && (Model.RODetails != null && Model.RODetails.Count > 0))
+    <div id="RO">
+        <div class="row">
+            <div class="page-wrapper">
+                <div class="scrl-table scrl-table-po-bl white-bg">
+                    <div class="col-md-6">
+                        <b>Add New RO</b>
+                    </div>
+                    <div class="col-md-6 text-right" style="margin-bottom:10px;">
+                        <button type="button" id="btnAddRODetails" class="btn-primary btn">Add RO</button>
+                    </div>
+                    <div class="row">
+                        <div class="page-wrapper">
+                            <div class="scrl-table scrl-table-po-bl">
+                                <table class="table table-bordered mb-null" style="width:inherit">
+                                    <thead></thead>
+                                    <tbody id="tbodyRO">
+                                        <tr>
+                                            <td>RO Number</td>
+                                            <td>Existing Value</td>
+                                            <td>Edited Value</td>
+                                            <td>New Value</td>
+                                            <th></th>
+                                        </tr>
+                                        @if ((Model != null) && (Model.RODetails != null && Model.RODetails.Count > 0))
+                                        {
+                                            foreach (var item in Model.RODetails)
                                             {
-                                                foreach (var item in Model.RODetails)
-                                                {
-                                                    var count = 0;
-                                                    var RO_Id = "RODetails[" + count + "].RO_Id";
-                                                    var RONumber = "RODetails[" + count + "].RONumber";
-                                                    var existingValue = "RODetails[" + count + "].ExistingValue";
-                                                    var editedValue = "RODetails[" + count + "].EditedValue";
-                                                    var newValue = "RODetails[" + count + "].NewValue";
-                                                    count++;
-                                                    <tr class="p-b-sm">
-                                                        <td>
-                                                            @Html.TextBox(@RONumber, item.RONumber, new { @class = "form-control", @autocomplete = "off" })
-                                                            @Html.ValidationMessage(@RONumber)
-                                                            @Html.Hidden("RODetails.Index", @count)
-                                                            @Html.Hidden(@RO_Id, item.RO_Id)
-
-                                                        </td>
-                                                        <td>
-                                                            @Html.TextBox(@existingValue, item.ExistingValue, new { @class = "form-control exist", @id = "oldROvalue", @readonly = true, @onkeyup = "calculateROSum() ;" })
-                                                            @Html.ValidationMessage(@existingValue)
-                                                        </td>
-                                                        <td>
-                                                            @Html.TextBox(@editedValue, item.EditedValue, new { @class = "form-control edited", @id = "ROeditedvalue", @onkeypress = "return isNumberKey(event);", @onkeyup = "calculateROSum();", @autocomplete = "off" })
-                                                            @Html.ValidationMessage(@editedValue)
-                                                        </td>
-                                                        <td>
-                                                            @*@Html.TextBox(@newValue, item.NewValue, new { @class = "form-control required", @onkeypress = "return ValidateDecimalOnly(event)", @onchange = "calculateamount()" })*@
-                                                            @Html.TextBox(@newValue, item.NewValue, new { @class = "form-control ", @id = "ROnewvalue", @onkeypress = "return isNumberKey(event);", @readonly = "true", @onkeyup = "calculateROSum();" })
-
-                                                            @Html.ValidationMessage(@newValue)
-                                                        </td>
-                                                        <td>
-                                                            <a href="javascript:void(0)" class="btn-circle dis-none removeDetail"><i class="ion-trash-a"></i></a>
-                                                        </td>
-                                                    </tr>
-                                                }
-
-                                            }
-                                            else
-                                            {
-                                                <tr>
+                                                var count = 0;
+                                                var RO_Id = "RODetails[" + count + "].RO_Id";
+                                                var RONumber = "RODetails[" + count + "].RONumber";
+                                                var existingValue = "RODetails[" + count + "].ExistingValue";
+                                                var editedValue = "RODetails[" + count + "].EditedValue";
+                                                var newValue = "RODetails[" + count + "].NewValue";
+                                                count++;
+                                                <tr class="p-b-sm">
                                                     <td>
-                                                        @Html.TextBox("RODetails[0].RONumber", "", new { @class = "form-control", @autocomplete = "off" })
-                                                        @Html.ValidationMessage("RODetails[0].RONumber")
-                                                        @Html.Hidden("RODetails.Index", 0)
+                                                        @Html.TextBox(@RONumber, item.RONumber, new { @class = "form-control", @autocomplete = "off" })
+                                                        @Html.ValidationMessage(@RONumber)
+                                                        @Html.Hidden("RODetails.Index", @count)
+                                                        @Html.Hidden(@RO_Id, item.RO_Id)
 
                                                     </td>
                                                     <td>
-                                                        @Html.TextBox("RODetails[0].ExistingValue", "", new { @class = "form-control exist", @id = "oldROvalue", @onchange = "totalSum();", @readonly = true, @onkeyup = "calculateROSum() ;" })
-                                                        @Html.ValidationMessage("RODetails[0].ExistingValue")
+                                                        @Html.TextBox(@existingValue, item.ExistingValue, new { @class = "form-control exist", @id = "oldROvalue", @readonly = true, @onkeyup = "calculateROSum() ;" })
+                                                        @Html.ValidationMessage(@existingValue)
                                                     </td>
                                                     <td>
-                                                        @Html.TextBox("RODetails[0].EditedValue", "", new { @class = "form-control edited ", @id = "ROeditedvalue", @onkeypress = "return isNumberKey(event);", @onkeyup = "calculateROSum();", @onchange = "totalSum();", @autocomplete = "off" })
-                                                        @Html.ValidationMessage("RODetails[0].EditedValue")
+                                                        @Html.TextBox(@editedValue, item.EditedValue, new { @class = "form-control edited CheckRO", @id = "ROeditedvalue", @onkeypress = "return isNumberKey(event);", @onkeyup = "calculateROSum();", @autocomplete = "off" })
+                                                        @Html.ValidationMessage(@editedValue)
                                                     </td>
                                                     <td>
-                                                        @Html.TextBox("RODetails[0].NewValue", "", new { @class = "form-control ", @id = "ROnewvalue", @onkeypress = "return isNumberKey(event);", @readonly = "true", @onkeyup = "calculateROSum();" })
-                                                        @Html.ValidationMessage("RODetails[0].NewValue", new { @id = "RoErrorMessage" })
+                                                        @*@Html.TextBox(@newValue, item.NewValue, new { @class = "form-control required", @onkeypress = "return ValidateDecimalOnly(event)", @onchange = "calculateamount()" })*@
+                                                        @Html.TextBox(@newValue, item.NewValue, new { @class = "form-control ", @id = "ROnewvalue", @onkeypress = "return isNumberKey(event);", @readonly = "true", @onkeyup = "calculateROSum();" })
 
+                                                        @Html.ValidationMessage(@newValue)
                                                     </td>
                                                     <td>
-                                                        <a href="javascript:void(0)" class="btn-circle dis-none removeDetail" id="removeRODetail"><i class="ion-trash-a"></i></a>
+                                                        <a href="javascript:void(0)" class="btn-circle dis-none removeDetail"><i class="ion-trash-a"></i></a>
                                                     </td>
                                                 </tr>
                                             }
-                                        </tbody>
-                                    </table>
-                                </div>
+
+                                        }
+                                        else
+                                        {
+                                            <tr>
+                                                <td>
+                                                    @Html.TextBox("RODetails[0].RONumber", "", new { @class = "form-control", @autocomplete = "off" })
+                                                    @Html.ValidationMessage("RODetails[0].RONumber")
+                                                    @Html.Hidden("RODetails.Index", 0)
+
+                                                </td>
+                                                <td>
+                                                    @Html.TextBox("RODetails[0].ExistingValue", "", new { @class = "form-control exist", @id = "oldROvalue", @onchange = "totalSum();", @readonly = true, @onkeyup = "calculateROSum() ;" })
+                                                    @Html.ValidationMessage("RODetails[0].ExistingValue")
+                                                </td>
+                                                <td>
+                                                    @Html.TextBox("RODetails[0].EditedValue", "", new { @class = "form-control edited CheckTempRO", @id = "ROeditedvalue", @onkeypress = "return isNumberKey(event);", @onkeyup = "calculateROSum();", @onchange = "totalSum();", @autocomplete = "off" })
+                                                    @Html.ValidationMessage("RODetails[0].EditedValue")
+                                                </td>
+                                                <td>
+                                                    @Html.TextBox("RODetails[0].NewValue", "", new { @class = "form-control ", @id = "ROnewvalue", @onkeypress = "return isNumberKey(event);", @readonly = "true", @onkeyup = "calculateROSum();" })
+                                                    @Html.ValidationMessage("RODetails[0].NewValue", new { @id = "RoErrorMessage" })
+
+                                                </td>
+                                                <td>
+                                                    <a href="javascript:void(0)" class="btn-circle dis-none removeDetail" id="removeRODetail"><i class="ion-trash-a"></i></a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div id="TempRO">
-            <div class="row">
-                <div class="page-wrapper">
-                    <div class="scrl-table scrl-table-po-bl white-bg">
-                        <table class="table table-bordered mb-null " style="width:inherit">
-                            <thead></thead>
-                            <tbody id="tbodyTempRO">
-                                <tr>
-                                    <th colspan="4"><b>Add New TempRO </b></th>
-                                </tr>
-                                <tr>
-                                    <td> Temp RO Number</td>
-                                    <td> Existing Value</td>
-                                    <td> Edited Value</td>
-                                    <td> New Value</td>
-
-                                </tr>
-                                <tr>
-                                    <td>
-                                        @Html.TextBoxFor(m => m.TempRODetails.TempRONumber, new { @class = "form-control", @readonly = true })
-                                        @Html.ValidationMessageFor(m => m.TempRODetails.TempRONumber)
-                                        @Html.HiddenFor(m => m.TempRODetails.RO_Id)
-                                    </td>
-                                    <td>
-                                        @Html.TextBoxFor(m => m.TempRODetails.ExistingValue, new { @class = "form-control", @readonly = true, @onkeypress = "return isNumberKey(event);", @onkeyup = "calculateTempROSum();", @onchange = "totalSum();" })
-                                        @Html.ValidationMessageFor(m => m.TempRODetails.ExistingValue)
-                                    </td>
-                                    <td>
-                                        @Html.TextBoxFor(m => m.TempRODetails.EditedValue, new { @class = "form-control", @onkeypress = "return isNumberKey(event);", @onkeyup = "calculateTempROSum();", @onchange = "totalSum();", @autocomplete = "off" })
-                                        @Html.ValidationMessageFor(m => m.TempRODetails.EditedValue)
-                                    </td>
-                                    <td>
-                                        @Html.TextBoxFor(m => m.TempRODetails.NewValue, new { @class = "form-control ", @readonly = true })
-                                        @Html.ValidationMessageFor(m => m.TempRODetails.NewValue)
-                                    </td>
-
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
+    </div>
+    <div id="TempRO">
         <div class="row">
             <div class="page-wrapper">
-                <div class="scrl-table scrl-table-po-bl">
-                    <table class="table table-bordered mb-null white-bg " style="width:inherit;">
-                        <thead ></thead>
-                        <tbody style="float:right;">
-                            <tr><td colspan="4"><b> <label class="required"> Total RO Details: </label></b></td>
+                <div class="scrl-table scrl-table-po-bl white-bg">
+                    <table class="table table-bordered mb-null " style="width:inherit">
+                        <thead></thead>
+                        <tbody id="tbodyTempRO">
+                            <tr>
+                                <th colspan="4"><b>Add New TempRO </b></th>
                             </tr>
                             <tr>
-                                <td>Total Edited Value</td>
-                                <td>
-                                    @Html.TextBoxFor(m => m.TotalEditedValue, new { @class = "form-control", @id = "TotalEditedValue", @readonly = true,  @onchange = "return isNumberKey(event);" })
-                                    @Html.ValidationMessageFor(m => m.TotalEditedValue)
-                                </td>
-                                <td> Total New Value</td>
+                                <td> Temp RO Number</td>
+                                <td> Existing Value</td>
+                                <td> Edited Value</td>
+                                <td> New Value</td>
 
+                            </tr>
+                            <tr>
                                 <td>
-                                    @Html.TextBoxFor(m => m.TotalNewValue, new { @class = "form-control", @id = "TotalNewValue", @readonly = true, @onchange = "return isNumberKey(event);" })
-                                    @Html.ValidationMessageFor(m => m.TotalNewValue)
+                                    @Html.TextBoxFor(m => m.TempRODetails.TempRONumber, new { @class = "form-control", @readonly = true })
+                                    @Html.ValidationMessageFor(m => m.TempRODetails.TempRONumber)
+                                    @Html.HiddenFor(m => m.TempRODetails.RO_Id)
                                 </td>
+                                <td>
+                                    @Html.TextBoxFor(m => m.TempRODetails.ExistingValue, new { @class = "form-control", @readonly = true, @onkeypress = "return isNumberKey(event);", @onkeyup = "calculateTempROSum();", @onchange = "totalSum();" })
+                                    @Html.ValidationMessageFor(m => m.TempRODetails.ExistingValue)
+                                </td>
+                                <td>
+                                    @Html.TextBoxFor(m => m.TempRODetails.EditedValue, new { @class = "form-control", @onkeypress = "return isNumberKey(event);", @onkeyup = "calculateTempROSum();", @onchange = "totalSum();", @autocomplete = "off" })
+                                    @Html.ValidationMessageFor(m => m.TempRODetails.EditedValue)
+                                </td>
+                                <td>
+                                    @Html.TextBoxFor(m => m.TempRODetails.NewValue, new { @class = "form-control ", @readonly = true })
+                                    @Html.ValidationMessageFor(m => m.TempRODetails.NewValue)
+                                </td>
+
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
+    </div>
+    <div class="row">
+        <div class="page-wrapper">
+            <div class="scrl-table scrl-table-po-bl">
+                <table class="table table-bordered mb-null white-bg " style="width:inherit;">
+                    <thead></thead>
+                    <tbody style="float:right;">
+                        <tr>
+                            <td colspan="4"><b> <label class="required"> Total RO Details: </label></b></td>
+                        </tr>
+                        <tr>
+                            <td>Total Edited Value</td>
+                            <td>
+                                @Html.TextBoxFor(m => m.TotalEditedValue, new { @class = "form-control", @id = "TotalEditedValue", @readonly = true, @onchange = "return isNumberKey(event);" })
+                                @Html.ValidationMessageFor(m => m.TotalEditedValue)
+                            </td>
+                            <td> Total New Value</td>
 
-
-        <div class="modal-footer">
-            <div class="text-center">
-                <input type="submit" class="btn btn-primary " value="submit" id="btnCreateRO" />
-                <input type="reset" onclick="window.location.href='@Url.Action("ProjectOpening", "Project")';" value="close" class="btn btn-default" />
+                            <td>
+                                @Html.TextBoxFor(m => m.TotalNewValue, new { @class = "form-control", @id = "TotalNewValue", @readonly = true, @onchange = "return isNumberKey(event);" })
+                                @Html.ValidationMessageFor(m => m.TotalNewValue)
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
-        }
-        <div id="popup"></div>
-        <link href="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/css/bootstrap-select.min.css")" rel="stylesheet" />
-        <script src="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/js/bootstrap-select.min.js")"></script>
-        <script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
-        <script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
-        <script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>
+    </div>
 
-        <script>
+
+    <div class="modal-footer">
+        <div class="text-center">
+            <input type="submit" class="btn btn-primary " value="submit" id="btnCreateRO" />
+            <input type="reset" onclick="window.location.href='@Url.Action("ProjectOpening", "Project")';" value="close" class="btn btn-default" />
+        </div>
+    </div>
+}
+<div id="popup"></div>
+<link href="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/css/bootstrap-select.min.css")" rel="stylesheet" />
+<script src="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/js/bootstrap-select.min.js")"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>
+
+<script>
 
         var errMsg = '@TempData["errMsg"]';
             var succMsg = '@TempData["succMsg"]';
@@ -357,20 +358,38 @@
 
     //});
 
-    $('#is_RO').bind("click", function () {
-        $('#RO').show();
-        $('#TempRO').hide();
-        $('#is_Temp').attr('checked', false);
-        $('#TempRO').addClass('dis-none');
-        $('#RO').removeClass('dis-none');
-    });
+     $('#is_RO').bind("click", function () {
+                //var checkTempRO = $('.CheckTempRO').val();
+                //console.log(checkTempRO);
+                //if (checkTempRO == null || checkTempRO == '') {
+                    $('#RO').show();
+                    $('#TempRO').hide();
+                    $('#is_Temp').attr('checked', false);
+                    $('#TempRO').addClass('dis-none');
+                    $('#RO').removeClass('dis-none'); 
+                    
+                //} else {
+                //    alert('Remove temp RO value');
+                //    return false;
+                //}                              
+     });
 
     $('#is_Temp').bind("click", function () {
-        $('#TempRO').show();
-        $('#RO').hide();
-        $('#is_RO').attr('checked', false);
-        $('#RO').removeClass('dis-none');
-        $('#TempRO').removeClass('dis-none');
+        //var checkRO = $('.CheckRO').val();
+        //console.log(checkRO);
+        //if (checkRO == null || checkRO == '') {
+            $('#TempRO').show();
+            $('#RO').hide();
+        $('#is_RO').attr('checked', false);    
+            $('#RO').removeClass('dis-none');
+            $('#TempRO').removeClass('dis-none');            
+        //} else {
+        //    alert('Remove RO value');
+        //    return false;
+        //}
+        
+      
+       
     });
 
     /*Allows +ve / -ve Number*/
@@ -408,7 +427,7 @@
             }
         });
 
-        $('#tbodyRO tr'). 
+        $('#tbodyRO tr').
         totalSum();
     }
 
@@ -417,7 +436,7 @@
             function totalSum() {
                 var result = 0;
                 var totResult = 0;
-                
+
                 $('#tbodyRO tr').each(function (idx, val) {
                     var txtROEditedValue = parseFloat($(this).closest('tr').find('input[name$=".EditedValue"]').val());
                     var totalRONewValue = parseFloat($(this).closest('tr').find('input[name$=".NewValue"]').val());
@@ -470,7 +489,7 @@
                     ExistingVal = parseFloat($(this).closest('tr').find('input[name$=".ExistingValue"]').val());
                     EditedVal = parseFloat($(this).closest('tr').find('input[name$=".EditedValue"]').val());
                     NewVal = parseFloat($(this).closest('tr').find('input[name$=".NewValue"]').val());
-                    
+
                     if (!isNaN(ExistingVal))
                         resExistingVal = ExistingVal;
                     if (!isNaN(EditedVal))
@@ -481,8 +500,8 @@
                     }
                 });
 
-               
+
                     totalSum();
             }
 
-        </script>
+</script>

@@ -370,7 +370,7 @@ namespace IOAS.GenericServices
 
                             //karthi changes
 
-                            if (model.ProjectFundingCategory == 2)
+                            if (model.ProjectFundingCategoryId == 2)
                             {
                                 create.ProjectFundingCategory = 2;
                                 create.BankID = model.bankdetails.BankID;
@@ -3141,16 +3141,17 @@ namespace IOAS.GenericServices
                         editProject.IsSubProject = query.IsSubProject ?? false;
                         editProject.ProjectClassification = query.ProjectClassification;
                         editProject.ReportClassifiCation = query.ReportClassification;
-                        editProject.ProjectFundingCategory = query.ProjectFundingCategory;
+                        //editProject.ProjectFundingCategoryId = query.ProjectFundingCategory;
                         if (query.ProjectFundingCategory == 2)
                         {
-                            editProject.ProjectFundingCategory = 2;
+                            editProject.ProjectFundingCategoryId = 2;
                             editProject.bankdetails.BankID = query.BankID;
                         }
                         else
-                            editProject.ProjectFundingCategory = 1;
-
-
+                       // { 
+                            editProject.ProjectFundingCategoryId = 1;
+                          //  editProject.bankdetails.BankID = null;
+                       // }
                         editProject.JointDevelopment_Qust_1 = query.JointdevelopmentQuestion;
 
                         editProject.InterestRefund = query.InterestRefund;

@@ -632,7 +632,7 @@ namespace IOAS.Models
         [Display(Name = "Report Classification")]
         public Nullable<int> ReportClassifiCation { get; set; }
 
-        public int ProjectFundingCategory { get; set; }
+        public int ProjectFundingCategoryId { get; set; }
 
 
         public  Bankdetails bankdetails { get; set; }
