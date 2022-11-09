@@ -17737,6 +17737,13 @@ namespace IOAS.Controllers
             }
 
         }
+
+        [HttpGet]
+        public JsonResult LoadConsultancyOHPostCal(int projectid)
+        {
+            string projectfundingcategoryid = coreAccountService.getconsultancyfundingcategory(projectid);
+            return Json(projectfundingcategoryid,JsonRequestBehavior.AllowGet);
+        }
         public ActionResult OHReversalList()
         {
             return View();
@@ -20770,8 +20777,8 @@ namespace IOAS.Controllers
             return Json(temppass, JsonRequestBehavior.AllowGet);
         }
 
-        
-        #endregion
 
+        #endregion
+       
     }
 }

@@ -443,7 +443,7 @@
 
 <script>
     var Error_f = false;
-
+    var consultancyfundingid;
     $('input[name$=".InvDate"]').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
     $('#SourceEmailDate, #srchFromDate, #srchToDate,#InvoiceDate,#PODate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
     $('#srchToDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true }).datepicker("setDate", "0");
@@ -679,7 +679,8 @@
 
         return msg;
     }
-    $(document).on('change', '#Amount', function () {
+    $(document).on('change', '#Amount', function () {              
+
         var credit = parseFloat($('#Amount').val());
         $("#CreditorAmount").val(credit);
         if ($('#Projtype').val() == "2") {
@@ -744,15 +745,45 @@
         $('#NeedUpdateTransDetail').val('true');
     });
     function CalculateConsOH() {
+        
+        var projectid = $("#ProjectId").val();
+       
+        $.ajax({
+            type: "GET",
+            data: { 'projectid': projectid },
+            url: '@Url.Action("LoadConsultancyOHPostCal", "CoreAccounts")',
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (result) {
+                //  console.log(result);     
+                consultancyfundingid = result;
+             //    console.log(consultancyfundingid);
+            },
+        })  
+        console.log(consultancyfundingid)
         $("#ReceiptList tr:not(:first)").empty();
         $("#ShareList tr:not(:first)").empty();
-        var projectid = $("#ProjectId").val();
+        
         var Amt = 0;
         Amt = parseFloat($('#Amount').val()) || 0
         var Corpus = 0;
-        Corpus = (Amt / 2)
         var ICSR = 0;
-        ICSR = (Amt / 2)
+        if (consultancyfundingid == 5) {         
+            Corpus = (Amt * (5/15));
+            ICSR = (Amt * (10/15) );
+        }
+        else if (consultancyfundingid == 10) {
+            Corpus = (Amt * (5/20) );
+            ICSR = (Amt * (15/20));
+        }
+        else if (consultancyfundingid == 7) {
+            Corpus = (Amt * (2.5/7) );
+            ICSR = (Amt * (4.5/7) );
+        }
+        else if (consultancyfundingid == 12 || consultancyfundingid == 8 || consultancyfundingid == 30) {
+            Corpus = (Amt * (2.5/5) );
+            ICSR = (Amt * (2.5/5) );
+        }               
         var TotalAmt = 0;
         var RMF = 0;
         var PCF = 0;
@@ -769,6 +800,7 @@
         $("#PCF,#StaffWelfare,#DDF,#RMF").text(0);
         $("#lbStaffWelfare,#lbDDF,#lbRMF,#lbPCF").val(0);
         TotalAmt = parseFloat(ICSR + Corpus)
+
         if (Amt != TotalAmt) {
             var DiffAmt = 0;
             DiffAmt = (parseFloat(Amt) - parseFloat(TotalAmt)) || 0;
@@ -777,6 +809,8 @@
             $("#lbICSROH").val(ICSR);
             $("#ICSROH").text(ICSR);
         }
+
+
         $('.loading-bg').removeClass('dis-none');
         $.ajax({
             type: "POST",
@@ -803,23 +837,24 @@
         })
     }
     function CalculateOH() {
+        
         $("#ReceiptList tr:not(:first)").empty();
         $("#ShareList tr:not(:first)").empty();
         var projectid = $("#ProjectId").val();
         var Amt = 0;
         Amt = parseFloat($('#Amount').val()) || 0
         var Corpus = 0;
-        Corpus = (Amt / 15) * 4
+        Corpus = (Amt / 15) * 4.05
         var RMF = 0;
-        RMF = (Amt / 15) * 4
+        RMF = (Amt / 15) * 0
         var PCF = 0;
-        PCF = (Amt / 15) * 3
+        PCF = (Amt / 15) * 5.25
         var StaffWelfare = 0;
-        StaffWelfare = (Amt / 15) * 1
+        StaffWelfare = (Amt / 15) * 0.45
         var DDF = 0;
-        DDF = (Amt / 15) * 1.5
+        DDF = (Amt / 15) * 1.95
         var ICSR = 0;
-        ICSR = (Amt / 15) * 1.5
+        ICSR = (Amt / 15) * 3.30
         var TotalAmt = 0;
         $("#Corpus").text('');
         $("#Corpus").text(Corpus.toFixed());
