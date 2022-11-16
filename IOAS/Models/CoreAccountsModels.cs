@@ -6524,6 +6524,7 @@ namespace IOAS.Models
         public string BankAccount { get; set; }
         public string RefNumber { get; set; }
         public string Remarks { get; set; }
+        [DisplayFormat(DataFormatString = "{0:N}")]
         public decimal TotalBillValue { get; set; }
         public string BillNumber { get; set; }
         public string BillType { get; set; }
@@ -6538,8 +6539,10 @@ namespace IOAS.Models
         public string CheqDate { get; set; }
         public string Rupees { get; set; }
         public string InvoiceDate { get; set; }
+        [DisplayFormat(DataFormatString = "{0:N}")]
         public decimal PayableAmount { get; set; }
         public decimal TaxAmount { get; set; }
+        [DisplayFormat(DataFormatString = "{0:N}")]
         public decimal TotalAmount { get; set; }
         public string BillHeading { get; set; }
         public string PrintedDate { get; set; }
@@ -6559,8 +6562,11 @@ namespace IOAS.Models
     {
         public bool Advance_f { get; set; }
         public string AdvanceNo { get; set; }
+        [DisplayFormat(DataFormatString = "{0:N}")]
         public decimal AdvanceAmt { get; set; }
+        [DisplayFormat(DataFormatString = "{0:N}")]
         public decimal AdvanceGSTTDS { get; set; }
+        [DisplayFormat(DataFormatString = "{0:N}")]
         public decimal AdvanceITTDS { get; set; }
         public string AdvanceITTDSName { get; set; }
         public string AdvancePercentage { get; set; }
@@ -6571,6 +6577,7 @@ namespace IOAS.Models
         public string AccNo { get; set; }
         public string Bank { get; set; }
         public string IFSC { get; set; }
+        [DisplayFormat(DataFormatString = "{0:N}")]
         public decimal Amount { get; set; }
         public string PAN { get; set; }
         public string GSTIN { get; set; }
@@ -6581,26 +6588,31 @@ namespace IOAS.Models
         public string Number { get; set; }
         public string ProjNo { get; set; }
         public string Head { get; set; }
+        [DisplayFormat(DataFormatString = "{0:N}")]
         public decimal Value { get; set; }
         public string  StartDate { get; set; }
         public string Date { get; set; }
         public string SchemeCode { get; set; }
         public string ProjectType { get; set; }
+        [DisplayFormat(DataFormatString = "{0:N}")]
         public decimal NetBalance { get; set; }
     }
     public class TDSITListModel
     {
         public string Head { get; set; }
+        [DisplayFormat(DataFormatString = "{0:N}")]
         public decimal Value { get; set; }
     }
     public class TDSGSTModel
     {
         public string Head { get; set; }
+        [DisplayFormat(DataFormatString = "{0:N}")]
         public decimal Value { get; set; }
     }
     public class GSTModel
     {
         public string Head { get; set; }
+        [DisplayFormat(DataFormatString = "{0:N}")]
         public decimal Value { get; set; }
     }
     #endregion
