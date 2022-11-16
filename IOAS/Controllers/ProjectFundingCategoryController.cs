@@ -29,8 +29,8 @@ namespace IOAS.Controllers
             roModel.ActualStartDate = String.Format("{0:dd}", (DateTime)projModel.SancationDate) + "-" + String.Format("{0:MMMM}", (DateTime)projModel.SancationDate) + "-" + String.Format("{0:yyyy}", (DateTime)projModel.SancationDate);
             roModel.ActualCloseDate = String.Format("{0:dd}", (DateTime)projModel.CloseDate) + "-" + String.Format("{0:MMMM}", (DateTime)projModel.CloseDate) + "-" + String.Format("{0:yyyy}", (DateTime)projModel.CloseDate);
             roModel.ProjId = ProjectId;
-            roModel.TotalEditedValue = Common.GetTotEditedValue(ProjectId);
-            roModel.TotalNewValue = Common.GetTotNewValue(ProjectId);
+            roModel.TotalEditedValue = Common.GetTotEditedValue(ProjectId,aprvdId);
+            roModel.TotalNewValue = Common.GetTotNewValue(ProjectId,aprvdId);
             roModel.ProjectNumber = Common.getprojectnumber(ProjectId);
             roModel.TempRODetails = Common.getTempRODetails(ProjectId, aprvdId);
             roModel.RODetails = Common.getRoDetails(ProjectId,aprvdId);
@@ -40,26 +40,28 @@ namespace IOAS.Controllers
             /*Validation when Ro is Open/Submit for approval for a project - not allow to update RO*/
             var Url = Request.Url.ToString();
 
-            if (!(Url.Contains("aprvdId")))
-            {
-                if (ModelState.IsValid)
+            if(roModel != null) {
+                if (!(Url.Contains("aprvdId")))
                 {
-                    var IsROActive = roModel.RODetails.Any(x => x.Status != "Active");
-                   
-                    if (IsROActive)
+                    if (ModelState.IsValid)
                     {
-                        TempData["errMsg"] = "The Release Order against the Project is Open or Submitted for Approval.";
-                        return RedirectToAction("Dashboard", "Home");
-                    }
+                        var IsROActive = roModel.RODetails.Any(x => x.Status != "Active");
 
-
-                    if (roModel.TempRODetails.Status != null)
-                    { 
-                    var IsTempROActive = roModel.TempRODetails.Status.Contains("Active");
-                        if (!IsTempROActive)
+                        if (IsROActive)
                         {
                             TempData["errMsg"] = "The Release Order against the Project is Open or Submitted for Approval.";
                             return RedirectToAction("Dashboard", "Home");
+                        }
+
+
+                        if (roModel.TempRODetails.Status != null)
+                        {
+                            var IsTempROActive = roModel.TempRODetails.Status.Contains("Active");
+                            if (!IsTempROActive)
+                            {
+                                TempData["errMsg"] = "The Release Order against the Project is Open or Submitted for Approval.";
+                                return RedirectToAction("Dashboard", "Home");
+                            }
                         }
                     }
                 }
@@ -119,7 +121,28 @@ namespace IOAS.Controllers
                     }
                 }
             }
-            //var NewROValue = model.RODetails.Select(b => b.RO_Id,)
+            else
+            {
+                var ROValue = model.TempRODetails.EditedValue >= model.SanctionValue;
+                if (ROValue)
+                {
+                    return msg = "RO Value should not exceed Sanctioned value";
+                }
+
+                var emptyEditedVal = model.TempRODetails.EditedValue;
+                if (emptyEditedVal <= 0)
+                    return msg = "Edited Value should not be empty!";
+
+            }
+
+            var isHigherTotEditedVal = model.TotalEditedValue >= model.SanctionValue;
+            if (isHigherTotEditedVal)
+                return msg = "Total RO Edited Value should not exceed Sanctioned value";
+
+            var isHigherTotNewVal = model.TotalNewValue >= model.SanctionValue;
+            if (isHigherTotEditedVal)
+                return msg = "Total RO Value should not exceed Sanctioned value";
+
             return msg;
         }
 
@@ -156,10 +179,11 @@ namespace IOAS.Controllers
             roModel.ActualCloseDate = String.Format("{0:dd}", (DateTime)projModel.CloseDate) + "-" + String.Format("{0:MMMM}", (DateTime)projModel.CloseDate) + "-" + String.Format("{0:yyyy}", (DateTime)projModel.CloseDate);
             roModel.ProjId = ProjectId;
             //roModel.TotalEditedValue = Common.GetTotEditedValue(ProjectId);
-            roModel.TotalNewValue = Common.GetTotNewValue(ProjectId);
+            roModel.TotalNewValue = Common.GetROTotNewValue(ProjectId,aprvdId);
             roModel.ProjectNumber = Common.getprojectnumber(ProjectId);
-            roModel.RODetails = Common.getRoDetails(ProjectId, aprvdId);
+            roModel.RODetails = Common.getRoViewDetails(ProjectId, aprvdId);
             roModel.TempRODetails = Common.getTempRODetails(ProjectId, aprvdId);
+            roModel.TotalTempRONewValue = Common.GetTempROTotNewValue(ProjectId, aprvdId);
 
             /*Process flow*/
             ViewBag.processGuideLineId = 349;

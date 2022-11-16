@@ -45,6 +45,7 @@ namespace IOAS.Models
         public RODetailsListModel TempRODetails { get; set; }
         public Nullable<decimal> TotalEditedValue { get; set; }
         public Nullable<decimal> TotalNewValue { get; set; }
+        public Nullable<decimal> TotalTempRONewValue { get; set; }
 
     }
     public class RODetailsListModel

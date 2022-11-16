@@ -121,16 +121,16 @@
 
                                                     </td>
                                                     <td>
-                                                        @Html.TextBox(@existingValue, item.ExistingValue, new { @class = "form-control exist", @id = "oldROvalue", @readonly = true, @onkeyup = "calculateROSum() ;" })
+                                                        @Html.TextBox(@existingValue, item.ExistingValue, new { @class = "form-control exist", @readonly = true, @onkeyup = "calculateROSum() ;" })
                                                         @Html.ValidationMessage(@existingValue)
                                                     </td>
                                                     <td>
-                                                        @Html.TextBox(@editedValue, item.EditedValue, new { @class = "form-control edited CheckRO", @id = "ROeditedvalue", @onkeypress = "return isNumberKey(event);", @onkeyup = "calculateROSum();", @autocomplete = "off" })
+                                                        @Html.TextBox(@editedValue, item.EditedValue, new { @class = "form-control edited", @onkeypress = "return isNumberKey(event);", @onkeyup = "calculateROSum();", @autocomplete = "off" })
                                                         @Html.ValidationMessage(@editedValue)
                                                     </td>
                                                     <td>
                                                         @*@Html.TextBox(@newValue, item.NewValue, new { @class = "form-control required", @onkeypress = "return ValidateDecimalOnly(event)", @onchange = "calculateamount()" })*@
-                                                        @Html.TextBox(@newValue, item.NewValue, new { @class = "form-control ", @id = "ROnewvalue", @onkeypress = "return isNumberKey(event);", @readonly = "true", @onkeyup = "calculateROSum();" })
+                                                        @Html.TextBox(@newValue, item.NewValue, new { @class = "form-control ",  @onkeypress = "return isNumberKey(event);", @readonly = "true", @onkeyup = "calculateROSum();" })
 
                                                         @Html.ValidationMessage(@newValue)
                                                     </td>
@@ -143,9 +143,9 @@
                                         }
                                         else
                                         {
-                                            <tr>
+                                            <tr id="inputROId">
                                                 <td>
-                                                    @Html.TextBox("RODetails[0].RONumber", "", new { @class = "form-control", @autocomplete = "off" })
+                                                    @Html.TextBox("RODetails[0].RONumber", "", new { @class = "form-control", @id = "RONumber", @autocomplete = "off" })
                                                     @Html.ValidationMessage("RODetails[0].RONumber")
                                                     @Html.Hidden("RODetails.Index", 0)
 
@@ -155,7 +155,7 @@
                                                     @Html.ValidationMessage("RODetails[0].ExistingValue")
                                                 </td>
                                                 <td>
-                                                    @Html.TextBox("RODetails[0].EditedValue", "", new { @class = "form-control edited CheckTempRO", @id = "ROeditedvalue", @onkeypress = "return isNumberKey(event);", @onkeyup = "calculateROSum();", @onchange = "totalSum();", @autocomplete = "off" })
+                                                    @Html.TextBox("RODetails[0].EditedValue", "", new { @class = "form-control edited", @id = "ROeditedvalue", @onkeypress = "return isNumberKey(event);", @onkeyup = "calculateROSum();", @onchange = "totalSum();", @autocomplete = "off" })
                                                     @Html.ValidationMessage("RODetails[0].EditedValue")
                                                 </td>
                                                 <td>
@@ -196,7 +196,7 @@
                             </tr>
                             <tr>
                                 <td>
-                                    @Html.TextBoxFor(m => m.TempRODetails.TempRONumber, new { @class = "form-control", @readonly = true })
+                                    @Html.TextBoxFor(m => m.TempRODetails.TempRONumber, new { @class = "form-control", @id = "TempRONumber", @readonly = true })
                                     @Html.ValidationMessageFor(m => m.TempRODetails.TempRONumber)
                                     @Html.HiddenFor(m => m.TempRODetails.RO_Id)
                                 </td>
@@ -268,35 +268,54 @@
         var errMsg = '@TempData["errMsg"]';
             var succMsg = '@TempData["succMsg"]';
 
-        $(document).ready(function () {
-                if (succMsg != '') {
-                $('#alertSuccess').html(succMsg);
-                $('#Success').modal('toggle');
-                }
-                else if (errMsg != '') {
-                $('#FailedAlert').html(errMsg);
-                $('#Failed').modal('toggle');
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+
+        $('#RO').show();
+        $('#TempRO').hide();
+
+        /*Edit Region*/
+        if (window.location.href.indexOf("aprvdId") > -1) {
+            var txtTempVal = $('#TempRONumber').val();
+            if (txtTempVal != '') {
+                $("#is_RO").removeAttr('checked');
+                $('#is_RO').attr("disabled", true);
+                $("#is_Temp").attr("checked", true);
+                $('#TempRO').show();
+                $('#RO').hide();
+
+            }
+            else
+            {
+                $("#is_Temp").prop('disabled', true);
+                $("#is_Temp").removeAttr('checked');
+                $("#is_RO").attr('checked', true);
+                $('#TempRO').hide();
+                $('#RO').show();
             }
 
-            $('#RO').show();
-            $('#TempRO').hide();
             /*to remove btn Add RO in edit*/
-            if (window.location.href.indexOf("aprvdId") > -1) {
-                $('#btnAddRODetails').hide();
-                $('#tbodyRO tr').each(function (idx, val) {
-                    $(this).closest('tr').find('#removeRODetail"]').hide();
-                });
-            }
-
+            $('#btnAddRODetails').hide();
+            $('#tbodyRO tr').each(function (idx, val) {
+                //$(this).closest('tr').find('#removeRODetail').hide();
+                $(this).closest('tr').closest('a').hide();
+            });
             var RODetails = @Html.Raw(Json.Encode(Model.RODetails));
-            $.each(RODetails, function (i, result) {
+        $.each(RODetails, function (i, result) {
                 if (i == 0) {
-
                     var trEle = $('#tbodyRO tr:nth-child(2)');
-                $('#tbodyRO tr').not(':first,:nth-child(2)').remove();
+                    //$('#tbodyRO tr').not(':first,:nth-child(2)').remove();
                     $(trEle).find("input[name='RODetails.Index']").val(i);
-                    $(trEle).find("input[name='RODetails.Index']").val(i);
-
+                    //$(trEle).find("input[name='RODetails.Index']").val(i);
+                    alert(i + '1');
+                    
                     trEle.find('input[name$=".RONumber"]').val(result.RONumber);
                     trEle.find('input[name$=".ExistingValue"]').val(result.ExistingValue);
                     trEle.find('input[name$=".EditedValue"]').val(result.EditedValue);
@@ -305,91 +324,107 @@
                 }
                 else {
                     var trEleNew = $('#tbodyRO tr:nth-child(2)').clone();
+                    $('#tbodyRO tr').not(':first,:nth-child(2)').remove();
                     $(trEleNew).find('a.dis-none').removeClass('dis-none');
                     $(trEleNew).find("input[name='RODetails.Index']").val(i);
                     $(trEleNew).find("input").each(function () {
-                    $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                        $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                        $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
                     });
-
+                    
                     trEleNew.find('input[name$=".RONumber"]').val(result.RONumber);
                     trEleNew.find('input[name$=".ExistingValue"]').val(result.ExistingValue);
                     trEleNew.find('input[name$=".EditedValue"]').val(result.EditedValue);
                     trEleNew.find('input[name$=".NewValue"]').val(result.NewValue);
                     trEleNew.find('input[name$=".RO_Id"]').val(result.RO_Id);
 
+       //                 $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+       //             });
+       //             alert(i + '2');
+                    //trEleNew.find('input[name$="' + i + '].RONumber"]').val(result[i].RONumber);//TO BE CHECKED
+                    //trEleNew.find('input[name$="' + i + '].ExistingValue"]').val(result[i].ExistingValue);
+                    //trEleNew.find('input[name$="' + i + '].EditedValue"]').val(result[i].EditedValue);
+                    //trEleNew.find('input[name$="' + i + '].NewValue"]').val(result[i].NewValue);
+                    //trEleNew.find('input[name$="' + i + '].RO_Id"]').val(result[i].RO_Id);
+
+       //             $(trEleNew).find("span[data-valmsg-for]").each(function () {
+       //                 $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+       //             });
+       //// alert($(this).find('input[name$="' + index + '.RONumber"]').val());
                 $('#tbodyRO').append(trEleNew);
             }
 
         });
+    
+        }   
+        else
+        {
+            $('#TotalEditedValue').val('');
+            $('#TotalNewValue').val('');
+        }
+        
+        
     });
-
 /*Add the new row for RO details*/
     $('#btnAddRODetails').click(function () {
 
         var cln = $('#tbodyRO tr:nth-child(2)').clone().find("input").val("").end();
         $(cln).find('a.dis-none').removeClass('dis-none');
+        
         var index = $('#tbodyRO tr:last').find("input[name='RODetails.Index']").val();
         index = parseInt(index) + 1;
-
+        
         $(cln).find("input[name='RODetails.Index']").val(index);
         $(cln).find("input").each(function () {
             $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+            $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
         });
+
+        $(cln).find("span[data-valmsg-for]").each(function () {
+            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+        });
+
         $('#tbodyRO').append(cln);
     });
     $(document).on('click', 'a.removeDetail', function () {
         $(this).closest('tr').remove();
             });
 
-    //$('[id^="is"]').change(function () {
-    //    var ID = $(this).attr("id");
-    //    alert(ID);
-    //    if (ID === "is_RO") {
-    //        $('#RO').css("display", "block");
-    //        $('#TempRO').css("display", "none");
-    //        $('#TempRO').removeAttr("checked");
-    //        $('#RO').attr("checked", true);
-    //    }
-    //    if (ID === "is_Temp") {
-    //        $('#TempRO').css("display", "block");
-    //        $('#RO').css("display", "none");
-    //        $('#RO').removeAttr("checked");
-    //    }
-
-    //});
-
-     $('#is_RO').bind("click", function () {
-                //var checkTempRO = $('.CheckTempRO').val();
-                //console.log(checkTempRO);
-                //if (checkTempRO == null || checkTempRO == '') {
-                    $('#RO').show();
-                    $('#TempRO').hide();
-                    $('#is_Temp').attr('checked', false);
-                    $('#TempRO').addClass('dis-none');
-                    $('#RO').removeClass('dis-none'); 
-                    
-                //} else {
-                //    alert('Remove temp RO value');
-                //    return false;
-                //}                              
-     });
+   $('#is_RO').bind("click", function () {
+        $('#RO').show();
+        $('#TempRO').hide();
+        $('#is_Temp').attr('checked', false);
+        $('#TempRO').addClass('dis-none');
+        $('#RO').removeClass('dis-none');
+       var TempRONum = $('#TempRONumber').val();
+       
+       /*If it is not edit screen*/
+       if (!(window.location.href.indexOf("aprvdId") > -1) && (TempRONum == '')) {
+           $('#tbodyRO tr').find("input").val("").end();
+           $('#TotalEditedValue').val('');
+           $('#TotalNewValue').val('');
+       }
+    });
 
     $('#is_Temp').bind("click", function () {
-        //var checkRO = $('.CheckRO').val();
-        //console.log(checkRO);
-        //if (checkRO == null || checkRO == '') {
             $('#TempRO').show();
             $('#RO').hide();
-        $('#is_RO').attr('checked', false);    
+            $('#is_RO').attr('checked', false);    
             $('#RO').removeClass('dis-none');
-            $('#TempRO').removeClass('dis-none');            
-        //} else {
-        //    alert('Remove RO value');
-        //    return false;
-        //}
+        $('#TempRO').removeClass('dis-none'); 
+
+        var RONumber = $('#tbodyRO tr').closest('tr').find('#RODetails_0__RONumber').val();
         
-      
-       
+        
+        /*If it is not edit screen - i.e update RO screen*/
+        if (!(window.location.href.indexOf("aprvdId") > -1) && (RONum == '')) { 
+            $('#TempRONumber').val('');
+            $('#TempRODetails_EditedValue').val('');
+            $('#TempRODetails_ExistingValue').val('');
+            $('#TempRODetails_NewValue').val('');
+            $('#TotalEditedValue').val('');
+            $('#TotalNewValue').val('');
+        }
     });
 
     /*Allows +ve / -ve Number*/
@@ -426,8 +461,6 @@
                 $(this).find('input[name$=".NewValue"]').val(NewVal);
             }
         });
-
-        $('#tbodyRO tr').
         totalSum();
     }
 
@@ -436,7 +469,7 @@
             function totalSum() {
                 var result = 0;
                 var totResult = 0;
-
+                
                 $('#tbodyRO tr').each(function (idx, val) {
                     var txtROEditedValue = parseFloat($(this).closest('tr').find('input[name$=".EditedValue"]').val());
                     var totalRONewValue = parseFloat($(this).closest('tr').find('input[name$=".NewValue"]').val());
@@ -459,11 +492,11 @@
                     var totEditVal = parseFloat($("#TotalEditedValue").val());
                     var totNewValue = parseFloat($("#TotalNewValue").val());
 
-                    if (!isNaN(EditedVal) && EditedVal >= 0)
+                   /* if (!isNaN(EditedVal) && EditedVal >= 0)
                         totEditVal -= EditedVal
                     if (!isNaN(NewVal) && NewVal >= 0)
                         totNewValue -= NewVal;
-
+                        */
                     if (!isNaN(EditedVal) && EditedVal < 0)
                         totEditVal += EditedVal
                     if (!isNaN(NewVal) && NewVal < 0)
@@ -486,9 +519,9 @@
                 var resExistingVal = 0;
                 var resEditedVal = 0;
                 $('#tbodyTempRO tr').each(function (idx, val) {
-                    ExistingVal = parseFloat($(this).closest('tr').find('input[name$=".ExistingValue"]').val());
-                    EditedVal = parseFloat($(this).closest('tr').find('input[name$=".EditedValue"]').val());
-                    NewVal = parseFloat($(this).closest('tr').find('input[name$=".NewValue"]').val());
+                    ExistingVal = parseFloat($(this).closest('tr').find('#TempRODetails_ExistingValue').val());
+                    EditedVal = parseFloat($(this).closest('tr').find('#TempRODetails_EditedValue').val());
+                    NewVal = parseFloat($(this).closest('tr').find('#TempRODetails_NewValue').val());
 
                     if (!isNaN(ExistingVal))
                         resExistingVal = ExistingVal;
@@ -499,8 +532,6 @@
                         $(this).find('input[name$=".NewValue"]').val(NewVal);
                     }
                 });
-
-
                     totalSum();
             }
 

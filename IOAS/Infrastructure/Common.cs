@@ -28990,26 +28990,78 @@ namespace IOAS.Infrastructure
                 return AgencyName;
             }
         }
-        public static decimal? GetTotEditedValue(int projId)
+        public static decimal? GetTotEditedValue(int projId,int aprvdId)
         {
             using (var context = new IOASDBEntities())
             {
                 var TotEditedvalue = (from p in context.tblProjectROSummary
-                                      join a in context.tblProjectROLog on p.RO_Id equals a.RO_Id
-                                      where p.ProjectId == projId
+                                      join a in context.tblProjectROLog on p.RO_Id equals a.RO_Id 
+                                      where (p.ProjectId == projId && a.RO_ProjectApprovalId == aprvdId)
                                       select a.RO_AddEditValue).Sum();
                 return TotEditedvalue;
             }
         }
 
-        public static decimal? GetTotNewValue(int projId)
+        public static decimal? GetTotNewValue(int projId, int aprvdId)
         {
             using (var context = new IOASDBEntities())
             {
                 var TotNewvalue = (from p in context.tblProjectROSummary
-                                      join a in context.tblProjectROLog on p.RO_Id equals a.RO_Id
-                                      where p.ProjectId == projId
-                                      select a.RO_NewValue).Sum();
+                                   join a in context.tblProjectROLog on p.RO_Id equals a.RO_Id
+                                   where (p.ProjectId == projId && a.RO_ProjectApprovalId == aprvdId)
+                                   select a.RO_NewValue).Sum();
+                return TotNewvalue;
+            }
+            
+        }
+        /*View*/
+        public static decimal? GetROTotNewValue(int projId ,int aprvdId)
+        {
+            using (var context = new IOASDBEntities())
+            {
+                decimal? TotNewvalue = 0;
+                var query = context.tblProjectROSummary.Where(m => m.ProjectId == projId && m.RO_ProjectApprovalId == aprvdId).FirstOrDefault();
+                if (query != null)
+                {
+                    if (query.RO_Status == "Open")
+                    {
+                        TotNewvalue = (from p in context.tblProjectROSummary
+                                       join a in context.tblProjectROLog on p.RO_Id equals a.RO_Id
+                                       where (p.ProjectId == projId && a.RO_ProjectApprovalId == aprvdId && p.Is_TempRO != true && a.RO_LogStatus == "Open")
+                                       select a.RO_NewValue).Sum();
+                    }
+                    else
+                        TotNewvalue = (from p in context.tblProjectROSummary
+                                       join a in context.tblProjectROLog on p.RO_Id equals a.RO_Id
+                                       where (p.ProjectId == projId && a.RO_ProjectApprovalId == aprvdId && p.Is_TempRO != true && a.RO_LogStatus == "Active")
+                                       select a.RO_NewValue).Sum();
+                }
+                return TotNewvalue;
+            }
+        }
+        /*View*/
+        public static decimal? GetTempROTotNewValue(int projId, int aprvdId)
+        {
+            using (var context = new IOASDBEntities())
+            {
+                decimal? TotNewvalue = 0;
+                var query = context.tblProjectROSummary.Where(m => m.ProjectId == projId && m.RO_ProjectApprovalId == aprvdId);
+                if (query != null)
+                {
+                    if (query.FirstOrDefault().RO_Status == "Open")
+                    {
+                        TotNewvalue = (from p in context.tblProjectROSummary
+                                       join a in context.tblProjectROLog on p.RO_Id equals a.RO_Id
+                                       where (p.ProjectId == projId && a.RO_ProjectApprovalId == aprvdId && p.Is_TempRO == true && a.RO_LogStatus == "Open")
+                                       select a.RO_NewValue).Sum();
+                    }
+                    else
+                        TotNewvalue = (from p in context.tblProjectROSummary
+                                       join a in context.tblProjectROLog on p.RO_Id equals a.RO_Id
+                                       where (p.ProjectId == projId && a.RO_ProjectApprovalId == aprvdId && p.Is_TempRO == true && a.RO_LogStatus == "Active")
+                                       select a.RO_NewValue).Sum();
+                    
+                }
                 return TotNewvalue;
             }
         }
@@ -29105,8 +29157,8 @@ namespace IOAS.Infrastructure
                             if (roAprvId > 0) {
                                 RODetails = (from RO in context.tblProjectROSummary
                                              join ROLog in context.tblProjectROLog on RO.RO_Id equals ROLog.RO_Id
-                                             where ROLog.RO_ProjectApprovalId == roAprvId
-                                             && RO.Is_Active != false && RO.Is_TempRO != true
+                                             where ROLog.RO_ProjectApprovalId == roAprvId //ROLog.RO_LogStatus == "Active"
+                                             && RO.Is_Active != false //&& RO.Is_TempRO != true
                                              select new
                                              {
                                                  RO.RO_Id,
@@ -29124,7 +29176,7 @@ namespace IOAS.Infrastructure
                                                 RO_Id = x.RO_Id,
                                                 RONumber = x.RO_Number,
                                                 EditedValue = 0,
-                                                ExistingValue = x.RO_ExistingValue,
+                                                ExistingValue = x.RO_AddEditValue,
                                                 NewValue = x.RO_NewValue,
                                                 Status = x.RO_Status
                                             }).ToList();
@@ -29159,22 +29211,21 @@ namespace IOAS.Infrastructure
                         }
                         else
                         {
-                            /*Fill data on View page against each transaction in RO list  and edit*/
+                            /*Fill data for edit*/
                             RODetails = (from RO in context.tblProjectROSummary
                                          join ROLog in context.tblProjectROLog on RO.RO_Id equals ROLog.RO_Id
-                                         where RO.RO_ProjectApprovalId == aprvdId
-                                         && RO.ProjectId == ProjId
-                                         && RO.Is_Active != false && RO.Is_TempRO != true
+                                         where RO.RO_ProjectApprovalId == aprvdId && ROLog.RO_LogStatus == "Open"
+                                         //&& RO.ProjectId == ProjId 
+                                         && (RO.Is_Active != false && RO.Is_TempRO != true)
                                          select new
                                          {
-                                             RO.RO_Id,
+                                             ROLog.RO_Id,
                                              ROLog.RO_ExistingValue,
                                              ROLog.RO_AddEditValue,
                                              ROLog.RO_NewValue,
                                              ROLog.RO_LogStatus,
-                                             RO.RO_Status,
-                                             RO.RO_Number,
-                                             RO.Is_TempRO
+                                             RO.RO_Number
+                                             //RO.Is_TempRO
                                          }).AsEnumerable()
                                         .Select((x) => new RODetailsListModel()
                                         {
@@ -29183,7 +29234,7 @@ namespace IOAS.Infrastructure
                                             EditedValue = x.RO_AddEditValue,
                                             ExistingValue = x.RO_ExistingValue,
                                             NewValue = x.RO_NewValue,
-                                            Status = x.RO_Status
+                                            Status = x.RO_LogStatus
                                         }).ToList();
                         }
                     }
@@ -29199,11 +29250,107 @@ namespace IOAS.Infrastructure
 
         }
 
-        /* Update both table with updated. 
-         * tblProjectROSummary : ProjectValue = RO_AddEditValue
-         * tblProjectROLog :(once Active) RO_ExistingValue  : edited value  and RO_AddEditValue - RO_ExistingValue + edited value */
+        /*View*/
+        public static List<RODetailsListModel> getRoViewDetails(int ProjId, int aprvdId)
+        {
+            using (var context = new IOASDBEntities())
+            {
+                using (var transaction = context.Database.BeginTransaction())
+                {
+                    List<RODetailsListModel> RODetails = new List<RODetailsListModel>();
+                    try
+                    {
+                        var query = context.tblProjectROSummary.Where(m => m.ProjectId == ProjId && m.RO_ProjectApprovalId == aprvdId );
 
-        public static decimal UpdateROSummaryLog(int projId, int ROApprovalId)
+                        if (query != null && query.FirstOrDefault().RO_Status == "Open")
+                        {
+                            RODetails = (from RO in context.tblProjectROSummary
+                                          join ROLog in context.tblProjectROLog on RO.RO_Id equals ROLog.RO_Id
+                                          where ROLog.RO_ProjectApprovalId == aprvdId && ROLog.RO_LogStatus == "Open"
+                                          //&& RO.ProjectId == ProjId  Roids.Contains(ROLog.RO_Id)
+                                          && (RO.Is_Active != false && RO.Is_TempRO != true)
+                                          select new
+                                          {
+                                              ROLog.RO_Id,
+                                              ROLog.RO_ExistingValue,
+                                              ROLog.RO_AddEditValue,
+                                              ROLog.RO_NewValue,
+                                              ROLog.RO_LogStatus,
+                                              RO.RO_Number
+                                              //RO.Is_TempRO
+                                          }).AsEnumerable()
+                                            .Select((x) => new RODetailsListModel()
+                                            {
+                                                RO_Id = x.RO_Id,
+                                                RONumber = x.RO_Number,
+                                                EditedValue = x.RO_AddEditValue,
+                                                ExistingValue = x.RO_ExistingValue,
+                                                NewValue = x.RO_NewValue,
+                                                Status = x.RO_LogStatus
+                                            }).ToList();
+                        }
+                        else
+                        {
+                            /*Future reference
+                             * var Roids = context.tblProjectROApprovalRequest.Where(x => x.RO_ProjectApprovalId == aprvdId).FirstOrDefault().
+                               RO_Id_List.Split(',').Select(int.Parse).
+                               ToList();
+                            var RODetailquerys = (from RO in context.tblProjectROSummary
+                                                  join ROLog in context.tblProjectROLog on RO.RO_Id equals ROLog.RO_Id 
+                                                  where ROLog.RO_ProjectApprovalId == aprvdId && ROLog.RO_LogStatus == "Active"
+                                                  //&& RO.ProjectId == ProjId  Roids.Contains(ROLog.RO_Id)
+                                                  && (RO.Is_Active != false && RO.Is_TempRO != true)
+                                                  select new
+                                                  {
+                                                      ROLog.RO_Id,
+                                                      ROLog.RO_ExistingValue,
+                                                      ROLog.RO_AddEditValue,
+                                                      ROLog.RO_NewValue,
+                                                      ROLog.RO_LogStatus,
+                                                      RO.RO_Number
+                                                      //RO.Is_TempRO
+                                                  });*/
+                         RODetails = (from RO in context.tblProjectROSummary
+                                      join ROLog in context.tblProjectROLog on RO.RO_Id equals ROLog.RO_Id
+                                      where ROLog.RO_ProjectApprovalId == aprvdId && ROLog.RO_LogStatus == "Active"
+                                      //&& RO.ProjectId == ProjId  Roids.Contains(ROLog.RO_Id)
+                                      && (RO.Is_Active != false && RO.Is_TempRO != true)
+                                      select new
+                                      {
+                                          ROLog.RO_Id,
+                                          ROLog.RO_ExistingValue,
+                                          ROLog.RO_AddEditValue,
+                                          ROLog.RO_NewValue,
+                                          ROLog.RO_LogStatus,
+                                          RO.RO_Number
+                                          //RO.Is_TempRO
+                                      }).AsEnumerable()
+                                               .Select((x) => new RODetailsListModel()
+                                               {
+                                                   RO_Id = x.RO_Id,
+                                                   RONumber = x.RO_Number,
+                                                   EditedValue = x.RO_AddEditValue,
+                                                   ExistingValue = x.RO_ExistingValue,
+                                                   NewValue = x.RO_NewValue,
+                                                   Status = x.RO_LogStatus
+                                               }).ToList();
+                                                                
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+                    return RODetails;
+                }
+            }
+        }
+
+        /* Update both table with updated. 
+            * tblProjectROSummary : ProjectValue = RO_AddEditValue
+            * tblProjectROLog :(once Active) RO_ExistingValue  : edited value  and RO_AddEditValue - RO_ExistingValue + edited value */
+
+    public static decimal UpdateROSummaryLog(int projId, int ROApprovalId)
         {
             decimal amt = 0;
             using (var context = new IOASDBEntities())

@@ -136,7 +136,7 @@
                         $customSelect.append($('<option/>', {
 
                             value: itemData.id,
-                            text: itemData.name
+                            text: itemData.name 
                         }));
                     });
 
