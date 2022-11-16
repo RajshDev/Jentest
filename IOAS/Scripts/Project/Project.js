@@ -967,6 +967,20 @@ function fillData(result) {
 
     $('#ProjectClassification').val(result.ProjectClassification);
     $('#ReportClassifiCation').val(result.ReportClassifiCation);
+
+    $('#txtprocategory').val(result.ProjectFundingCategoryId);
+   
+    if (result.ProjectFundingCategoryId == 2)
+    {
+        $('#BankDetails').removeClass("dis-none");
+        $('#BankDetails').show();
+        $('#BankName').val(result.bankname);
+        $('#BankID').val(result.BankID);
+    } else {
+        $('#BankDetails').addClass("dis-none");
+        $('#BankDetails').hide();
+    }
+
     $('#SponsoredProjectTypeCode').val(result.SponsoredProjectTypeCode);
     $('#pjctsubtyp').val(result.ProjectSubType);
     $('input[name="ProjectSubType"]').val(result.ProjectSubType);

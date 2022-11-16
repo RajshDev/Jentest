@@ -634,8 +634,12 @@ namespace IOAS.Models
 
         public int ProjectFundingCategoryId { get; set; }
 
+        
+        [RequiredIf("ProjectFundingCategory", 2, ErrorMessage = "Please Select Project Category")]
+        public string bankname { get; set; }
+        public Nullable<int> BankID { get; set; }
 
-        public  Bankdetails bankdetails { get; set; }
+       // public  Bankdetails bankdetails { get; set; }
 
         public string CurrentFinYear { get; set; }
     }
@@ -645,7 +649,7 @@ namespace IOAS.Models
         // public Nullable<Int32> BankID { get; set; }
         //   public Nullable<int> BankID { get; set; }
 
-        public Nullable<int> id { get; set; }
+       // public Nullable<int> id { get; set; }
         public string bankname { get; set; }
         public Nullable<int> BankID { get; set; }
         //  public string code { get; set; }

@@ -373,7 +373,7 @@ namespace IOAS.GenericServices
                             if (model.ProjectFundingCategoryId == 2)
                             {
                                 create.ProjectFundingCategory = 2;
-                                create.BankID = model.bankdetails.BankID;
+                                create.BankID = model.BankID;
                             }
                             else
                             {
@@ -3141,17 +3141,26 @@ namespace IOAS.GenericServices
                         editProject.IsSubProject = query.IsSubProject ?? false;
                         editProject.ProjectClassification = query.ProjectClassification;
                         editProject.ReportClassifiCation = query.ReportClassification;
-                        //editProject.ProjectFundingCategoryId = query.ProjectFundingCategory;
+                        editProject.ProjectFundingCategoryId = query.ProjectFundingCategory;
                         if (query.ProjectFundingCategory == 2)
                         {
-                            editProject.ProjectFundingCategoryId = 2;
-                            editProject.bankdetails.BankID = query.BankID;
+                         editProject.ProjectFundingCategoryId = 2;
+                           editProject.BankID = query.BankID;
+                            var bankdetails = (from h in context.tblAccountHead
+                                        where h.Status == "Active" 
+                                        && h.Bank_f == true
+                                        && h.AccountGroupId == 38 && h.AccountHeadId == query.BankID
+                                            select new Bankdetails()
+                                        {                                           
+                                            bankname = h.AccountHead
+                                        }).FirstOrDefault();
+                            editProject.bankname = bankdetails.bankname.ToString();
                         }
-                        else
-                       // { 
-                            editProject.ProjectFundingCategoryId = 1;
-                          //  editProject.bankdetails.BankID = null;
-                       // }
+                        //else
+                        //{ 
+                        //    editProject.bankdetails.BankID = null;
+                        //    editProject.bankdetails.bankname = null;
+                        // }
                         editProject.JointDevelopment_Qust_1 = query.JointdevelopmentQuestion;
 
                         editProject.InterestRefund = query.InterestRefund;
