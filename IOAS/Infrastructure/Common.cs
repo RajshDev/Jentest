@@ -29152,61 +29152,66 @@ namespace IOAS.Infrastructure
                                             join RO in context.tblProjectROSummary on id.RO_ProjectApprovalId equals RO.RO_ProjectApprovalId
                                             where RO.ProjectId == ProjId
                                             orderby id.Crtd_TS descending
-                                            select id.RO_ProjectApprovalId).FirstOrDefault();
+                                            select id.RO_ProjectApprovalId).ToList();
                             /*To Show */
-                            if (roAprvId > 0) {
+                            if (roAprvId != null)
+                            {
+                                //foreach (var item in roAprvId)
+                                //{
                                 RODetails = (from RO in context.tblProjectROSummary
                                              join ROLog in context.tblProjectROLog on RO.RO_Id equals ROLog.RO_Id
-                                             where ROLog.RO_ProjectApprovalId == roAprvId //ROLog.RO_LogStatus == "Active"
-                                             && RO.Is_Active != false //&& RO.Is_TempRO != true
-                                             select new
-                                             {
-                                                 RO.RO_Id,
-                                                 RO.RO_ProjectValue,
-                                                 ROLog.RO_ExistingValue,
-                                                 ROLog.RO_AddEditValue,
-                                                 ROLog.RO_NewValue,
-                                                 ROLog.RO_LogStatus,
-                                                 RO.RO_Status,
-                                                 RO.RO_Number,
-                                                 RO.Is_TempRO
-                                             }).AsEnumerable()
-                                            .Select((x) => new RODetailsListModel()
-                                            {
-                                                RO_Id = x.RO_Id,
-                                                RONumber = x.RO_Number,
-                                                EditedValue = 0,
-                                                ExistingValue = x.RO_AddEditValue,
-                                                NewValue = x.RO_NewValue,
-                                                Status = x.RO_Status
-                                            }).ToList();
+                                             where roAprvId.Contains(ROLog.RO_ProjectApprovalId ?? 0) && ROLog.RO_LogStatus == "Active"
+                                                 && RO.Is_Active != false && RO.Is_TempRO != true
+                                                 select new
+                                                 {
+                                                     RO.RO_Id,
+                                                     RO.RO_ProjectValue,
+                                                     ROLog.RO_ExistingValue,
+                                                     ROLog.RO_AddEditValue,
+                                                     ROLog.RO_NewValue,
+                                                     ROLog.RO_LogStatus,
+                                                     RO.RO_Status,
+                                                     RO.RO_Number,
+                                                     RO.Is_TempRO
+                                                 }).AsEnumerable()
+                                                .Select((x) => new RODetailsListModel()
+                                                {
+                                                    RO_Id = x.RO_Id,
+                                                    RONumber = x.RO_Number,
+                                                    EditedValue = 0,
+                                                    ExistingValue = x.RO_AddEditValue,
+                                                    NewValue = x.RO_NewValue,
+                                                    Status = x.RO_Status
+                                                }).ToList();
+                                //}
                             }
-                            else {
-                               /* RODetails = (from ROLog in context.tblProjectROLog
-                                             join RO in context.tblProjectROSummary on ROLog.RO_ProjectApprovalId equals RO.RO_ProjectApprovalId
-                                             where ROLog.RO_ProjectApprovalId == roAprvId
-                                             && RO.Is_Active != false && RO.Is_TempRO != true
-                                             select new
+                            else
+                            {
+                                /* RODetails = (from ROLog in context.tblProjectROLog
+                                              join RO in context.tblProjectROSummary on ROLog.RO_ProjectApprovalId equals RO.RO_ProjectApprovalId
+                                              where ROLog.RO_ProjectApprovalId == roAprvId
+                                              && RO.Is_Active != false && RO.Is_TempRO != true
+                                              select new
+                                              {
+                                                  RO.RO_Id,
+                                                  RO.RO_ProjectValue,
+                                                  ROLog.RO_ExistingValue,
+                                                  ROLog.RO_AddEditValue,
+                                                  ROLog.RO_NewValue,
+                                                  ROLog.RO_LogStatus,
+                                                  RO.RO_Status,
+                                                  RO.RO_Number,
+                                                  RO.Is_TempRO
+                                              }).AsEnumerable()
+                                             .Select((x) => new RODetailsListModel()
                                              {
-                                                 RO.RO_Id,
-                                                 RO.RO_ProjectValue,
-                                                 ROLog.RO_ExistingValue,
-                                                 ROLog.RO_AddEditValue,
-                                                 ROLog.RO_NewValue,
-                                                 ROLog.RO_LogStatus,
-                                                 RO.RO_Status,
-                                                 RO.RO_Number,
-                                                 RO.Is_TempRO
-                                             }).AsEnumerable()
-                                            .Select((x) => new RODetailsListModel()
-                                            {
-                                                RO_Id = x.RO_Id,
-                                                RONumber = x.RO_Number,
-                                                EditedValue = 0,
-                                                ExistingValue = x.RO_ExistingValue,
-                                                NewValue = x.RO_NewValue,
-                                                Status = x.RO_Status
-                                            }).ToList();*/
+                                                 RO_Id = x.RO_Id,
+                                                 RONumber = x.RO_Number,
+                                                 EditedValue = 0,
+                                                 ExistingValue = x.RO_ExistingValue,
+                                                 NewValue = x.RO_NewValue,
+                                                 Status = x.RO_Status
+                                             }).ToList();*/
                             }
                         }
                         else
