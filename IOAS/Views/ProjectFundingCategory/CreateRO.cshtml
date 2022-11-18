@@ -133,7 +133,6 @@
                                                     <td>
                                                         @*@Html.TextBox(@newValue, item.NewValue, new { @class = "form-control required", @onkeypress = "return ValidateDecimalOnly(event)", @onchange = "calculateamount()" })*@
                                                         @Html.TextBox(@newValue, item.NewValue, new { @class = "form-control ",  @onkeypress = "return isNumberKey(event);", @readonly = "true"  })
-
                                                         @Html.ValidationMessage(@newValue)
                                                     </td>
                                                     <td>
@@ -307,12 +306,23 @@
             /*to remove btn Add RO in edit*/
             $('#btnAddRODetails').hide();
             $('#tbodyRO tr').each(function (idx, val) {
-                $(this).closest('tr').find('#removeRODetail').hide();
+                //$(this).closest('tr').find('#removeRODetail').hide();
                 $(this).closest('tr').closest('a').hide();
             });
-           var RODetails = @Html.Raw(Json.Encode(Model.RODetails));
+        }
+        else
+        {
+            $('#TotalEditedValue').val('');
+            $('#TotalNewValue').val('');
+            $('#TempRODetails_EditedValue').val('');
+        }
+        totalSum();
+        calculateROSum();
+
+        var RODetails = @Html.Raw(Json.Encode(Model.RODetails));
             $.each(RODetails, function (i, result) {
                 if (i == 0) {
+
                     var trEle = $('#tbodyRO tr:nth-child(2)');
                     $('#tbodyRO tr').not(':first,:nth-child(2)').remove();
                     $(trEle).find("input[name='RODetails.Index']").val(i);
@@ -325,8 +335,8 @@
                     trEle.find('input[name$=".RO_Id"]').val(result.RO_Id);
                 }
                 else {
+
                     var trEleNew = $('#tbodyRO tr:nth-child(2)').clone();
-                    //    .clone();
                     //$('#tbodyRO tr').not(':first,:nth-child(2)').remove();
                     $(trEleNew).find('a.dis-none').removeClass('dis-none');
                     $(trEleNew).find("input[name='RODetails.Index']").val(i);
@@ -340,34 +350,9 @@
                     trEleNew.find('input[name$=".EditedValue"]').val(result.EditedValue);
                     trEleNew.find('input[name$=".NewValue"]').val(result.NewValue);
                     trEleNew.find('input[name$=".RO_Id"]').val(result.RO_Id);
-
-       //                 $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
-       //             });
-       //             alert(i + '2');
-                    //trEleNew.find('input[name$="' + i + '].RONumber"]').val(result[i].RONumber);//TO BE CHECKED
-                    //trEleNew.find('input[name$="' + i + '].ExistingValue"]').val(result[i].ExistingValue);
-                    //trEleNew.find('input[name$="' + i + '].EditedValue"]').val(result[i].EditedValue);
-                    //trEleNew.find('input[name$="' + i + '].NewValue"]').val(result[i].NewValue);
-                    //trEleNew.find('input[name$="' + i + '].RO_Id"]').val(result[i].RO_Id);
-
-       //             $(trEleNew).find("span[data-valmsg-for]").each(function () {
-       //                 $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
-       //             });
-       //// alert($(this).find('input[name$="' + index + '.RONumber"]').val());
                 $('#tbodyRO').append(trEleNew);
             }
         });
-
-        }
-        else
-        {
-            $('#TotalEditedValue').val('');
-            $('#TotalNewValue').val('');
-            $('#TempRODetails_EditedValue').val('');
-        }
-        totalSum();
-        calculateROSum();
-
     });
 /*Add the new row for RO details*/
     $('#btnAddRODetails').click(function () {
@@ -382,6 +367,9 @@
         $(cln).find("input").each(function () {
             $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
             $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+            $(this).find('input[name$="' + index + '].EditedValue"]').val("");
+            $(this).find('input[name$="' + index + '].ExistingValue"]').val("") ;
+            $(this).find('input[name$="' + index + '].NewValue"]').val("") ;
         });
 
         $(cln).find("span[data-valmsg-for]").each(function () {
@@ -466,7 +454,11 @@
                 resExistingVal = ExistingVal;
             if (!isNaN(EditedVal))
                 resEditedVal = EditedVal;
+
+
             if (!isNaN(resExistingVal) || !isNaN(resEditedVal)) {
+                console.error(resExistingVal);
+                console.error(resEditedVal);
                 NewVal = resExistingVal + resEditedVal;
                 $(this).find('input[name$=".NewValue"]').val(NewVal);
             }
@@ -494,41 +486,45 @@
                         $("#TotalNewValue").val(totResult.toFixed(0));
                     }
 
+                    var EditedVal = parseFloat($('#TempRODetails_EditedValue').val());
+                    var ExistingVal = parseFloat($('#TempRODetails_ExistingValue').val());
 
-                var EditedVal = parseFloat($('#TempRODetails_EditedValue').val());
-                var ExistingVal = parseFloat($('#TempRODetails_ExistingValue').val());
-                var NewVal = parseFloat($('#TempRODetails_NewValue').val());
-                var totEditVal = parseFloat($("#TotalEditedValue").val());
-                var totNewValue = parseFloat($("#TotalNewValue").val());
-                var tempROoffsetVal = 0;
-                var isOffset = false;
-                /* if (!isNaN(EditedVal) && EditedVal >= 0)
-                     totEditVal -= EditedVal
-                 if (!isNaN(NewVal) && NewVal >= 0)
-                     totNewValue -= NewVal;
-                     */
-                    if (!isNaN(totEditVal) && !isNaN(EditedVal)) {
-                        if (!isNaN(totEditVal) <= !isNaN(ExistingVal)) {
-                            $('#TempRODetails_EditedValue').val(-totEditVal);
-                            $('#TempRODetails_NewValue').val(ExistingVal - totEditVal);
-                            totNewValue += (-totEditVal);
+                    if (!isNaN(ExistingVal) || $('#is_Temp').val() == 'Temp') {
+                        //var NewVal = parseFloat($('#TempRODetails_NewValue').val());
+                        var totEditVal = parseFloat($("#TotalEditedValue").val());
+                        var totNewValue = parseFloat($("#TotalNewValue").val());
+                        //TempRo offset
+                        if (!isNaN(ExistingVal)) {
+                            if (!isNaN(totEditVal) <= !isNaN(ExistingVal)) {
+
+                                $('#TempRODetails_EditedValue').val(-totEditVal);
+                                $('#TempRODetails_NewValue').val(ExistingVal - totEditVal);
+                                totNewValue += (-totEditVal);
+                            }
+                            else if (!isNaN(totEditVal) >= !isNaN(ExistingVal)) {
+                                $('#TempRODetails_EditedValue').val(-ExistingVal)
+                                $('#TempRODetails_NewValue').val(0);
+                                totNewValue += (-EditedVal)
+                            }
+                            else
+                            {
+                                @*console.error($('#TempRODetails_EditedValue').val());
+                                var TempRODetails = @Html.Raw(Json.Encode(Model.TempRODetails));
+                                $.each(TempRODetails, function (i, result) {if (i == 0) {
+                                    $('#TempRODetails_EditedValue').val(result.EditedValue);
+                                }});*@
+                            }
+
+                        //if (!isNaN(totEditVal)) {
+                        //    $("#TotalEditedValue").val(totEditVal.toFixed(0));
+                        //}
+                        if (!isNaN(totNewValue)) {
+                            $("#TotalNewValue").val(totNewValue.toFixed(0));
                         }
-                        else
-                        {
-                            $('#TempRODetails_EditedValue').val(-ExistingVal)
-                            $('#TempRODetails_NewValue').val(0);
-                            totNewValue += (-EditedVal)
+
+                            //calculateTempROSum();
                         }
                     }
-                //if (!isNaN(totEditVal)) {
-                //    $("#TotalEditedValue").val(totEditVal.toFixed(0));
-                //}
-                if (!isNaN(totNewValue)) {
-                    $("#TotalNewValue").val(totNewValue.toFixed(0));
-                }
-
-                    calculateTempROSum();
-                    //alert($('#TempRODetails_EditedValue').val());
                 });
 
     }
@@ -541,9 +537,9 @@
                 var resExistingVal = 0;
                 var resEditedVal = 0;
                 $('#tbodyTempRO tr').each(function (idx, val) {
-                    ExistingVal = parseFloat($(this).closest('tr').find('#TempRODetails_ExistingValue').val());
-                    EditedVal = parseFloat($(this).closest('tr').find('#TempRODetails_EditedValue').val());
-                    NewVal = parseFloat($(this).closest('tr').find('#TempRODetails_NewValue').val());
+                    ExistingVal = parseFloat($('#TempRODetails_ExistingValue').val());
+                    EditedVal = parseFloat($('#TempRODetails_EditedValue').val());
+                    NewVal = parseFloat($('#TempRODetails_NewValue').val());
 
                     if (!isNaN(ExistingVal))
                         resExistingVal = ExistingVal;
@@ -554,7 +550,7 @@
                         $(this).find('input[name$=".NewValue"]').val(NewVal);
                     }
                 });
-                    //totalSum();
+              //totalSum();
             }
 
 </script>
