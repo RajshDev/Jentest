@@ -101,11 +101,13 @@
                                             <td>New Value</td>
                                             <th></th>
                                         </tr>
+
                                         @if ((Model != null) && (Model.RODetails != null && Model.RODetails.Count > 0))
                                         {
+                                            var count = 0;
                                             foreach (var item in Model.RODetails)
                                             {
-                                                var count = 0;
+
                                                 var RO_Id = "RODetails[" + count + "].RO_Id";
                                                 var RONumber = "RODetails[" + count + "].RONumber";
                                                 var existingValue = "RODetails[" + count + "].ExistingValue";
@@ -121,16 +123,16 @@
 
                                                     </td>
                                                     <td>
-                                                        @Html.TextBox(@existingValue, item.ExistingValue, new { @class = "form-control exist", @readonly = true, @onkeyup = "calculateROSum() ;" })
+                                                        @Html.TextBox(@existingValue, item.ExistingValue, new { @class = "form-control exist", @readonly = true })
                                                         @Html.ValidationMessage(@existingValue)
                                                     </td>
                                                     <td>
-                                                        @Html.TextBox(@editedValue, item.EditedValue, new { @class = "form-control edited", @onkeypress = "return isNumberKey(event);", @onkeyup = "calculateROSum();", @autocomplete = "off" })
+                                                        @Html.TextBox(@editedValue, item.EditedValue, new { @class = "form-control edited", @onkeypress = "return isNumberKey(event);", @onkeyup = "calculateROSum();",@onchange ="totalSum();",  @autocomplete = "off" })
                                                         @Html.ValidationMessage(@editedValue)
                                                     </td>
                                                     <td>
                                                         @*@Html.TextBox(@newValue, item.NewValue, new { @class = "form-control required", @onkeypress = "return ValidateDecimalOnly(event)", @onchange = "calculateamount()" })*@
-                                                        @Html.TextBox(@newValue, item.NewValue, new { @class = "form-control ",  @onkeypress = "return isNumberKey(event);", @readonly = "true", @onkeyup = "calculateROSum();" })
+                                                        @Html.TextBox(@newValue, item.NewValue, new { @class = "form-control ",  @onkeypress = "return isNumberKey(event);", @readonly = "true"  })
 
                                                         @Html.ValidationMessage(@newValue)
                                                     </td>
@@ -280,10 +282,11 @@
 
         $('#RO').show();
         $('#TempRO').hide();
-
+        //$('#TempRONumber').val('TEMPRO_');
+        //TEMPRO_SP22230739CYDSTX002505
         /*Edit Region*/
         if (window.location.href.indexOf("aprvdId") > -1) {
-            var txtTempVal = $('#TempRONumber').val();
+            var txtTempVal = $('#TempRODetails_EditedValue').val();
             if (txtTempVal != '') {
                 $("#is_RO").removeAttr('checked');
                 $('#is_RO').attr("disabled", true);
@@ -304,18 +307,17 @@
             /*to remove btn Add RO in edit*/
             $('#btnAddRODetails').hide();
             $('#tbodyRO tr').each(function (idx, val) {
-                //$(this).closest('tr').find('#removeRODetail').hide();
+                $(this).closest('tr').find('#removeRODetail').hide();
                 $(this).closest('tr').closest('a').hide();
             });
-            var RODetails = @Html.Raw(Json.Encode(Model.RODetails));
-        $.each(RODetails, function (i, result) {
+           var RODetails = @Html.Raw(Json.Encode(Model.RODetails));
+            $.each(RODetails, function (i, result) {
                 if (i == 0) {
                     var trEle = $('#tbodyRO tr:nth-child(2)');
-                    //$('#tbodyRO tr').not(':first,:nth-child(2)').remove();
+                    $('#tbodyRO tr').not(':first,:nth-child(2)').remove();
                     $(trEle).find("input[name='RODetails.Index']").val(i);
                     //$(trEle).find("input[name='RODetails.Index']").val(i);
-                    alert(i + '1');
-                    
+
                     trEle.find('input[name$=".RONumber"]').val(result.RONumber);
                     trEle.find('input[name$=".ExistingValue"]').val(result.ExistingValue);
                     trEle.find('input[name$=".EditedValue"]').val(result.EditedValue);
@@ -324,14 +326,15 @@
                 }
                 else {
                     var trEleNew = $('#tbodyRO tr:nth-child(2)').clone();
-                    $('#tbodyRO tr').not(':first,:nth-child(2)').remove();
+                    //    .clone();
+                    //$('#tbodyRO tr').not(':first,:nth-child(2)').remove();
                     $(trEleNew).find('a.dis-none').removeClass('dis-none');
                     $(trEleNew).find("input[name='RODetails.Index']").val(i);
                     $(trEleNew).find("input").each(function () {
                         $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
                         $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
                     });
-                    
+
                     trEleNew.find('input[name$=".RONumber"]').val(result.RONumber);
                     trEleNew.find('input[name$=".ExistingValue"]').val(result.ExistingValue);
                     trEleNew.find('input[name$=".EditedValue"]').val(result.EditedValue);
@@ -353,27 +356,28 @@
        //// alert($(this).find('input[name$="' + index + '.RONumber"]').val());
                 $('#tbodyRO').append(trEleNew);
             }
-
         });
-    
-        }   
+
+        }
         else
         {
             $('#TotalEditedValue').val('');
             $('#TotalNewValue').val('');
+            $('#TempRODetails_EditedValue').val('');
         }
-        
-        
+        totalSum();
+        calculateROSum();
+
     });
 /*Add the new row for RO details*/
     $('#btnAddRODetails').click(function () {
 
         var cln = $('#tbodyRO tr:nth-child(2)').clone().find("input").val("").end();
         $(cln).find('a.dis-none').removeClass('dis-none');
-        
+
         var index = $('#tbodyRO tr:last').find("input[name='RODetails.Index']").val();
         index = parseInt(index) + 1;
-        
+
         $(cln).find("input[name='RODetails.Index']").val(index);
         $(cln).find("input").each(function () {
             $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
@@ -390,40 +394,46 @@
         $(this).closest('tr').remove();
             });
 
-   $('#is_RO').bind("click", function () {
+    $('#is_RO').bind("click", function () {
         $('#RO').show();
         $('#TempRO').hide();
         $('#is_Temp').attr('checked', false);
         $('#TempRO').addClass('dis-none');
         $('#RO').removeClass('dis-none');
-       var TempRONum = $('#TempRONumber').val();
-       
-       /*If it is not edit screen*/
-       if (!(window.location.href.indexOf("aprvdId") > -1) && (TempRONum == '')) {
-           $('#tbodyRO tr').find("input").val("").end();
-           $('#TotalEditedValue').val('');
-           $('#TotalNewValue').val('');
-       }
+        calculateROSum();
+        //totalSum();
+        var ROExistingValue = $('#TempRODetails_ExistingValue').val();
+
+        /*If it is not edit screen*/
+        if (!(window.location.href.indexOf("aprvdId") > -1)) {
+            if (ROExistingValue == 0) {
+                //$('#TempRONumber').val('');
+                $('#TempRODetails_EditedValue').val('');
+                $('#TempRODetails_ExistingValue').val('');
+                $('#TempRODetails_NewValue').val('');
+                $('#TotalEditedValue').val('');
+                $('#TotalNewValue').val('');
+            }
+        }
     });
 
     $('#is_Temp').bind("click", function () {
             $('#TempRO').show();
             $('#RO').hide();
-            $('#is_RO').attr('checked', false);    
+            $('#is_RO').attr('checked', false);
             $('#RO').removeClass('dis-none');
-        $('#TempRO').removeClass('dis-none'); 
+            $('#TempRO').removeClass('dis-none');
+        calculateTempROSum();
+        //totalSum();
 
-        var RONumber = $('#tbodyRO tr').closest('tr').find('#RODetails_0__RONumber').val();
-        
-        
+        var RoExistingVal = $('#RODetails_0__ExistingValue').val();
         /*If it is not edit screen - i.e update RO screen*/
-        if (!(window.location.href.indexOf("aprvdId") > -1) && (RONum == '')) { 
-            $('#TempRONumber').val('');
-            $('#TempRODetails_EditedValue').val('');
-            $('#TempRODetails_ExistingValue').val('');
-            $('#TempRODetails_NewValue').val('');
-            $('#TotalEditedValue').val('');
-            $('#TotalNewValue').val('');
+        if (!(window.location.href.indexOf("aprvdId") > -1)) {
+            if (RoExistingVal == 0) {
+                $('#tbodyRO tr').find("input").val("").end();
+                $('#TotalEditedValue').val('');
+                $('#TotalNewValue').val('');
+            }
         }
     });
 
@@ -434,7 +444,7 @@
         //    && (charCode < 48 || charCode > 57))
         //    return false;
 
-        if (charcode != 109 && charcode > 31 && (charcode < 48 || charcode > 57) && charcode != 46) {
+        if (charCode != 109 && charCode > 31 && (charCode < 48 || charCode > 57) && charCode != 46) {
             return false;
         }
         return true;
@@ -469,7 +479,7 @@
             function totalSum() {
                 var result = 0;
                 var totResult = 0;
-                
+
                 $('#tbodyRO tr').each(function (idx, val) {
                     var txtROEditedValue = parseFloat($(this).closest('tr').find('input[name$=".EditedValue"]').val());
                     var totalRONewValue = parseFloat($(this).closest('tr').find('input[name$=".NewValue"]').val());
@@ -483,33 +493,45 @@
                     if (!isNaN(totResult)) {
                         $("#TotalNewValue").val(totResult.toFixed(0));
                     }
+
+
+                var EditedVal = parseFloat($('#TempRODetails_EditedValue').val());
+                var ExistingVal = parseFloat($('#TempRODetails_ExistingValue').val());
+                var NewVal = parseFloat($('#TempRODetails_NewValue').val());
+                var totEditVal = parseFloat($("#TotalEditedValue").val());
+                var totNewValue = parseFloat($("#TotalNewValue").val());
+                var tempROoffsetVal = 0;
+                var isOffset = false;
+                /* if (!isNaN(EditedVal) && EditedVal >= 0)
+                     totEditVal -= EditedVal
+                 if (!isNaN(NewVal) && NewVal >= 0)
+                     totNewValue -= NewVal;
+                     */
+                    if (!isNaN(totEditVal) && !isNaN(EditedVal)) {
+                        if (!isNaN(totEditVal) <= !isNaN(ExistingVal)) {
+                            $('#TempRODetails_EditedValue').val(-totEditVal);
+                            $('#TempRODetails_NewValue').val(ExistingVal - totEditVal);
+                            totNewValue += (-totEditVal);
+                        }
+                        else
+                        {
+                            $('#TempRODetails_EditedValue').val(-ExistingVal)
+                            $('#TempRODetails_NewValue').val(0);
+                            totNewValue += (-EditedVal)
+                        }
+                    }
+                //if (!isNaN(totEditVal)) {
+                //    $("#TotalEditedValue").val(totEditVal.toFixed(0));
+                //}
+                if (!isNaN(totNewValue)) {
+                    $("#TotalNewValue").val(totNewValue.toFixed(0));
+                }
+
+                    calculateTempROSum();
+                    //alert($('#TempRODetails_EditedValue').val());
                 });
 
-                $('#tbodyTempRO tr').each(function (idx, val) {
-
-                    var EditedVal = parseFloat($(this).closest('tr').find('input[name$=".EditedValue"]').val());
-                    var NewVal = parseFloat($(this).closest('tr').find('input[name$=".NewValue"]').val());
-                    var totEditVal = parseFloat($("#TotalEditedValue").val());
-                    var totNewValue = parseFloat($("#TotalNewValue").val());
-
-                   /* if (!isNaN(EditedVal) && EditedVal >= 0)
-                        totEditVal -= EditedVal
-                    if (!isNaN(NewVal) && NewVal >= 0)
-                        totNewValue -= NewVal;
-                        */
-                    if (!isNaN(EditedVal) && EditedVal < 0)
-                        totEditVal += EditedVal
-                    if (!isNaN(NewVal) && NewVal < 0)
-                        totNewValue += NewVal;
-
-                    if (!isNaN(totEditVal)) {
-                        $("#TotalEditedValue").val(totEditVal.toFixed(0));
-                    }
-                    if (!isNaN(totNewValue)) {
-                        $("#TotalNewValue").val(totNewValue.toFixed(0));
-                    }
-                });
-            }
+    }
             /*Function to calculate Temp RO values*/
 
             function calculateTempROSum() {
@@ -532,7 +554,7 @@
                         $(this).find('input[name$=".NewValue"]').val(NewVal);
                     }
                 });
-                    totalSum();
+                    //totalSum();
             }
 
 </script>

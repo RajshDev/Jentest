@@ -120,105 +120,169 @@ namespace IOAS.GenericServices
                             tblProjectROLog rOLog = new tblProjectROLog();
                             tblProjectROApprovalRequest roAprvRq = new tblProjectROApprovalRequest();
 
-
-                            if (model.isTemp == "Temp")
+                            /*tempRO offset entry to log table*/
+                            if (model.TempRODetails == null)
                             {
-                                if (model.TempRODetails != null)
+                                decimal? offsetVal = 0;
+                                var reqTempRo = (from c in context.tblProjectROSummary
+                                                 where c.ProjectId == model.ProjId && c.RO_Status == "Active" && c.Is_TempRO == true
+                                                 select c).FirstOrDefault();
+                                var EditVal = context.tblProjectROLog.Where(m => m.RO_Id == reqTempRo.RO_Id).FirstOrDefault().RO_AddEditValue;
+                                if (reqTempRo != null)
                                 {
-                                    /*temp RO region*/
-                                    model.TempRODetails.TempRONumber = "TEMPRO_" + Common.getprojectnumber(model.ProjId);
-                                    roSum.ProjectId = model.ProjId;
-                                    roSum.RO_Number = model.TempRODetails.TempRONumber;
-                                    roSum.RO_Status = "Open";
-                                    roSum.Crtd_TS = DateTime.Now;
-                                    roSum.Crtd_UserId = logged_in_user;
-                                    roSum.Is_TempRO = true;
-                                    roSum.Is_Active = true;
-
-                                    context.tblProjectROSummary.Add(roSum);
-                                    context.SaveChanges();
-                                    model.TempRODetails.RO_Id = roSum.RO_Id;
-                                }
-                            }
-                            /*Create Region*/
-                            /*New Request for same RO of a project*/
-                            if (model.isRO == "RO")
-                            {
-                                int isRoId = 0;
-                                var reqRo = (from c in context.tblProjectROSummary
-                                             where c.ProjectId == model.ProjId && c.RO_Status == "Active" && c.Is_TempRO != true
-                                             select c).ToList();
-                                
-                                if (reqRo.Count > 0)
-                                {
-                                    foreach (var item in model.RODetails)
+                                    if (reqTempRo.RO_Id > 0)
                                     {
-                                        isRoId = item.RO_Id;
-                                        if (isRoId == 0)
+                                        if (model.TotalEditedValue <= EditVal)
                                         {
-                                            roSum.ProjectId = model.ProjId;
-                                            roSum.RO_Number = item.RONumber;
-                                            roSum.RO_Status = "Open";
-                                            roSum.Crtd_TS = DateTime.Now;
-                                            roSum.Crtd_UserId = logged_in_user;
-                                            roSum.Is_Active = true;
-                                            roSum.Is_TempRO = false;
+                                            offsetVal = EditVal - model.TotalEditedValue;
 
-                                            context.tblProjectROSummary.Add(roSum);
+                                            rOLog.RO_Id = reqTempRo.RO_Id;
+                                            rOLog.RO_ExistingValue = EditVal ?? 0;
+                                            rOLog.RO_AddEditValue = (-model.TotalEditedValue) ?? 0;
+                                            rOLog.RO_NewValue = offsetVal ?? 0;
+                                            rOLog.RO_LogStatus = "Open";
+                                            rOLog.Is_Deleted = false;
+                                            rOLog.Crtd_TS = DateTime.Now;
+                                            rOLog.Crtd_UserId = logged_in_user;
+                                            totEditedVal += (-model.TotalEditedValue);
+                                            totNewval += EditVal;
+                                            context.tblProjectROLog.Add(rOLog);
                                             context.SaveChanges();
-                                            item.RO_Id = roSum.RO_Id;
+                                            roIds += reqTempRo.RO_Id.ToString() + ",";
+                                        }
+                                        else
+                                        {
+                                            offsetVal = 0;
+                                            rOLog.RO_Id = reqTempRo.RO_Id;
+                                            rOLog.RO_ExistingValue = EditVal ?? 0;
+                                            rOLog.RO_AddEditValue = -EditVal ?? 0;
+                                            rOLog.RO_NewValue = offsetVal ?? 0;
+                                            rOLog.RO_LogStatus = "Open";
+                                            rOLog.Is_Deleted = false;
+                                            rOLog.Crtd_TS = DateTime.Now;
+                                            rOLog.Crtd_UserId = logged_in_user;
+                                            totEditedVal += (-EditVal);
+                                            totNewval += EditVal;
+                                            context.tblProjectROLog.Add(rOLog);
+                                            context.SaveChanges();
+                                            roIds += reqTempRo.RO_Id.ToString() + ",";
                                         }
                                     }
-                                    reqRo.ForEach(m =>
+                                    else
                                     {
-                                        m.Uptd_TS = DateTime.Now;
-                                        m.Uptd_UserId = logged_in_user;
-                                        m.RO_Status = "Open";
-                                    });
+                                        rOLog.RO_Id = model.TempRODetails.RO_Id;
+                                        rOLog.RO_ExistingValue = model.TempRODetails.ExistingValue ?? 0;
+                                        rOLog.RO_AddEditValue = model.TempRODetails.EditedValue ?? 0;
+                                        rOLog.RO_NewValue = model.TempRODetails.NewValue ?? 0;
+                                        rOLog.RO_LogStatus = "Open";
+                                        rOLog.Is_Deleted = false;
+                                        rOLog.Crtd_TS = DateTime.Now;
+                                        rOLog.Crtd_UserId = logged_in_user;
+                                        totEditedVal += model.TempRODetails.EditedValue;
+                                        totNewval += model.TempRODetails.ExistingValue;
+                                        context.tblProjectROLog.Add(rOLog);
+                                        context.SaveChanges();
+                                        roIds += model.TempRODetails.RO_Id.ToString() + ",";
+                                    }
                                 }
-                                else
+                            }
+                            if (model.isTemp == "Temp")
                                 {
-                                    if (model.RODetails.Count > 0)
+                                    if (model.TempRODetails != null)
+                                    {
+                                        /*temp RO region*/
+                                        roSum.ProjectId = model.ProjId;
+                                        roSum.RO_Number = model.TempRODetails.TempRONumber;
+                                        roSum.RO_Status = "Open";
+                                        roSum.Crtd_TS = DateTime.Now;
+                                        roSum.Crtd_UserId = logged_in_user;
+                                        roSum.Is_TempRO = true;
+                                        roSum.Is_Active = true;
+
+                                        context.tblProjectROSummary.Add(roSum);
+                                        context.SaveChanges();
+                                        model.TempRODetails.RO_Id = roSum.RO_Id;
+                                    }
+                                }
+                                /*Create Region*/
+                                /*New Request for same RO of a project*/
+                                if (model.isRO == "RO")
+                                {
+                                    int isRoId = 0;
+                                    var reqRo = (from c in context.tblProjectROSummary
+                                                 where c.ProjectId == model.ProjId && c.RO_Status == "Active" && c.Is_TempRO != true
+                                                 select c).ToList();
+
+                                    if (reqRo.Count > 0)
                                     {
                                         foreach (var item in model.RODetails)
                                         {
-                                            roSum.ProjectId = model.ProjId;
-                                            roSum.RO_Number = item.RONumber;
-                                            roSum.RO_Status = "Open";
-                                            roSum.Crtd_TS = DateTime.Now;
-                                            roSum.Crtd_UserId = logged_in_user;
-                                            roSum.Is_Active = true;
-                                            roSum.Is_TempRO = false;
+                                            isRoId = item.RO_Id;
+                                            if (isRoId == 0)
+                                            {
+                                                roSum.ProjectId = model.ProjId;
+                                                roSum.RO_Number = item.RONumber;
+                                                roSum.RO_Status = "Open";
+                                                roSum.Crtd_TS = DateTime.Now;
+                                                roSum.Crtd_UserId = logged_in_user;
+                                                roSum.Is_Active = true;
+                                                roSum.Is_TempRO = false;
 
-                                            context.tblProjectROSummary.Add(roSum);
-                                            context.SaveChanges(); 
-                                            item.RO_Id = roSum.RO_Id;
+                                                context.tblProjectROSummary.Add(roSum);
+                                                context.SaveChanges();
+                                                item.RO_Id = roSum.RO_Id;
+                                            }
+                                        }
+                                        reqRo.ForEach(m =>
+                                        {
+                                            m.Uptd_TS = DateTime.Now;
+                                            m.Uptd_UserId = logged_in_user;
+                                            m.RO_Status = "Open";
+                                        });
+                                    }
+                                    else
+                                    {
+                                        if (model.RODetails.Count > 0)
+                                        {
+                                            foreach (var item in model.RODetails)
+                                            {
+                                                roSum.ProjectId = model.ProjId;
+                                                roSum.RO_Number = item.RONumber;
+                                                roSum.RO_Status = "Open";
+                                                roSum.Crtd_TS = DateTime.Now;
+                                                roSum.Crtd_UserId = logged_in_user;
+                                                roSum.Is_Active = true;
+                                                roSum.Is_TempRO = false;
+
+                                                context.tblProjectROSummary.Add(roSum);
+                                                context.SaveChanges();
+                                                item.RO_Id = roSum.RO_Id;
+                                            }
                                         }
                                     }
                                 }
-                            }
 
-                            if (model.isTemp == "Temp")
-                            {
-
-                                if (model.TempRODetails != null)
+                                if (model.isTemp == "Temp")
                                 {
 
-                                    rOLog.RO_Id = model.TempRODetails.RO_Id;
-                                    rOLog.RO_ExistingValue = model.TempRODetails.ExistingValue ?? 0;
-                                    rOLog.RO_AddEditValue = model.TempRODetails.EditedValue ?? 0;
-                                    rOLog.RO_NewValue = model.TempRODetails.NewValue ?? 0;
-                                    rOLog.RO_LogStatus = "Open";
-                                    rOLog.Is_Deleted = false;
-                                    rOLog.Crtd_TS = DateTime.Now;
-                                    rOLog.Crtd_UserId = logged_in_user;
-                                    totEditedVal += model.TempRODetails.EditedValue;
-                                    totNewval += model.TempRODetails.ExistingValue;
-                                    context.tblProjectROLog.Add(rOLog);
-                                    context.SaveChanges();
-                                    roIds += model.TempRODetails.RO_Id.ToString() + ",";
+                                    if (model.TempRODetails != null)
+                                    {
+
+                                        rOLog.RO_Id = model.TempRODetails.RO_Id;
+                                        rOLog.RO_ExistingValue = model.TempRODetails.ExistingValue ?? 0;
+                                        rOLog.RO_AddEditValue = model.TempRODetails.EditedValue ?? 0;
+                                        rOLog.RO_NewValue = model.TempRODetails.NewValue ?? 0;
+                                        rOLog.RO_LogStatus = "Open";
+                                        rOLog.Is_Deleted = false;
+                                        rOLog.Crtd_TS = DateTime.Now;
+                                        rOLog.Crtd_UserId = logged_in_user;
+                                        totEditedVal += model.TempRODetails.EditedValue;
+                                        totNewval += model.TempRODetails.ExistingValue;
+                                        context.tblProjectROLog.Add(rOLog);
+                                        context.SaveChanges();
+                                        roIds += model.TempRODetails.RO_Id.ToString() + ",";
+                                    }
                                 }
-                            }
 
                             if (model.isRO == "RO")
                             {

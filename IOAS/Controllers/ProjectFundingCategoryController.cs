@@ -35,7 +35,8 @@ namespace IOAS.Controllers
             roModel.TempRODetails = Common.getTempRODetails(ProjectId, aprvdId);
             roModel.RODetails = Common.getRoDetails(ProjectId,aprvdId);
             roModel.ROAprvId = aprvdId;
-            
+            roModel.TempRODetails.TempRONumber = "TEMPRO_" + Common.getprojectnumber(ProjectId);
+
 
             /*Validation when Ro is Open/Submit for approval for a project - not allow to update RO*/
             var Url = Request.Url.ToString();
@@ -82,7 +83,7 @@ namespace IOAS.Controllers
                 if (RODetailValidation != "valid")
                 {
                     TempData["errMsg"] = RODetailValidation;
-                    return View(rOModel);
+                    return RedirectToAction("CreateRO", "ProjectFundingCategory", new { ProjectId = rOModel.ProjId});
                 }
             }
             var RoCreation = pfcs.CreateRO(rOModel, userId);
@@ -184,6 +185,7 @@ namespace IOAS.Controllers
             roModel.RODetails = Common.getRoViewDetails(ProjectId, aprvdId);
             roModel.TempRODetails = Common.getTempRODetails(ProjectId, aprvdId);
             roModel.TotalTempRONewValue = Common.GetTempROTotNewValue(ProjectId, aprvdId);
+            
 
             /*Process flow*/
             ViewBag.processGuideLineId = 349;

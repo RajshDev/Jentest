@@ -28996,7 +28996,7 @@ namespace IOAS.Infrastructure
             {
                 var TotEditedvalue = (from p in context.tblProjectROSummary
                                       join a in context.tblProjectROLog on p.RO_Id equals a.RO_Id 
-                                      where (p.ProjectId == projId && a.RO_ProjectApprovalId == aprvdId)
+                                      where (p.ProjectId == projId || a.RO_ProjectApprovalId == aprvdId )
                                       select a.RO_AddEditValue).Sum();
                 return TotEditedvalue;
             }
@@ -29008,7 +29008,7 @@ namespace IOAS.Infrastructure
             {
                 var TotNewvalue = (from p in context.tblProjectROSummary
                                    join a in context.tblProjectROLog on p.RO_Id equals a.RO_Id
-                                   where (p.ProjectId == projId && a.RO_ProjectApprovalId == aprvdId)
+                                   where (p.ProjectId == projId || a.RO_ProjectApprovalId == aprvdId)
                                    select a.RO_NewValue).Sum();
                 return TotNewvalue;
             }
@@ -29033,7 +29033,7 @@ namespace IOAS.Infrastructure
                     else
                         TotNewvalue = (from p in context.tblProjectROSummary
                                        join a in context.tblProjectROLog on p.RO_Id equals a.RO_Id
-                                       where (p.ProjectId == projId && a.RO_ProjectApprovalId == aprvdId && p.Is_TempRO != true && a.RO_LogStatus == "Active")
+                                       where (p.ProjectId == projId && a.RO_ProjectApprovalId == aprvdId && p.Is_TempRO != true && (a.RO_LogStatus == "Active" || a.RO_LogStatus == "Submit for approval"))
                                        select a.RO_NewValue).Sum();
                 }
                 return TotNewvalue;
@@ -29058,7 +29058,7 @@ namespace IOAS.Infrastructure
                     else
                         TotNewvalue = (from p in context.tblProjectROSummary
                                        join a in context.tblProjectROLog on p.RO_Id equals a.RO_Id
-                                       where (p.ProjectId == projId && a.RO_ProjectApprovalId == aprvdId && p.Is_TempRO == true && a.RO_LogStatus == "Active")
+                                       where (p.ProjectId == projId && a.RO_ProjectApprovalId == aprvdId && p.Is_TempRO == true &&( a.RO_LogStatus == "Active" || a.RO_LogStatus == "Submit for approval"))
                                        select a.RO_NewValue).Sum();
                     
                 }
@@ -29160,7 +29160,7 @@ namespace IOAS.Infrastructure
                                 //{
                                 RODetails = (from RO in context.tblProjectROSummary
                                              join ROLog in context.tblProjectROLog on RO.RO_Id equals ROLog.RO_Id
-                                             where roAprvId.Contains(ROLog.RO_ProjectApprovalId ?? 0) && ROLog.RO_LogStatus == "Active"
+                                             where roAprvId.Contains(ROLog.RO_ProjectApprovalId ?? 0) //&& ROLog.RO_LogStatus == "Active"
                                                  && RO.Is_Active != false && RO.Is_TempRO != true
                                                  select new
                                                  {
@@ -29317,7 +29317,7 @@ namespace IOAS.Infrastructure
                                                   });*/
                          RODetails = (from RO in context.tblProjectROSummary
                                       join ROLog in context.tblProjectROLog on RO.RO_Id equals ROLog.RO_Id
-                                      where ROLog.RO_ProjectApprovalId == aprvdId && ROLog.RO_LogStatus == "Active"
+                                      where ROLog.RO_ProjectApprovalId == aprvdId //&& ROLog.RO_LogStatus == "Active"
                                       //&& RO.ProjectId == ProjId  Roids.Contains(ROLog.RO_Id)
                                       && (RO.Is_Active != false && RO.Is_TempRO != true)
                                       select new
