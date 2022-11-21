@@ -29239,8 +29239,8 @@ namespace IOAS.Infrastructure
                                             RO_Id = x.RO_Id,
                                             RONumber = x.RO_Number,
                                             EditedValue = x.RO_AddEditValue,
-                                            //ExistingValue = x.RO_ExistingValue,
-                                            ExistingValue = x.RO_ExistingValue + x.RO_AddEditValue,
+                                            ExistingValue = x.RO_ExistingValue,
+                                            //ExistingValue = x.RO_ExistingValue + x.RO_AddEditValue,
                                             NewValue = x.RO_NewValue,
                                             Status = x.RO_LogStatus
                                         }).ToList();

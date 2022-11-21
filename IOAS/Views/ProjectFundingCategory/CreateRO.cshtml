@@ -132,7 +132,8 @@
                                                     </td>
                                                     <td>
                                                         @*@Html.TextBox(@newValue, item.NewValue, new { @class = "form-control required", @onkeypress = "return ValidateDecimalOnly(event)", @onchange = "calculateamount()" })*@
-                                                        @Html.TextBox(@newValue, item.NewValue, new { @class = "form-control ",  @onkeypress = "return isNumberKey(event);", @readonly = "true"  })
+                                                        @*@Html.TextBox(@newValue, item.NewValue, new { @class = "form-control ",  @onkeypress = "return isNumberKey(event);", @readonly = "true"  })*@
+                                                        @Html.TextBox(@newValue, item.NewValue, new { @class = "form-control ", @readonly = "true"})
                                                         @Html.ValidationMessage(@newValue)
                                                     </td>
                                                     <td>
@@ -309,6 +310,7 @@
                 //$(this).closest('tr').find('#removeRODetail').hide();
                 $(this).closest('tr').closest('a').hide();
             });
+
         }
         else
         {
@@ -357,7 +359,9 @@
 /*Add the new row for RO details*/
     $('#btnAddRODetails').click(function () {
 
-        var cln = $('#tbodyRO tr:nth-child(2)').clone().find("input").val("").end();
+        //var cln = $('#tbodyRO tr:nth-child(2)').clone().find("input").val("").end();
+        var cln = $('#tbodyRO tr:last').clone().find("input").val("").end();
+
         $(cln).find('a.dis-none').removeClass('dis-none');
 
         var index = $('#tbodyRO tr:last').find("input[name='RODetails.Index']").val();
@@ -457,8 +461,6 @@
 
 
             if (!isNaN(resExistingVal) || !isNaN(resEditedVal)) {
-                console.error(resExistingVal);
-                console.error(resEditedVal);
                 NewVal = resExistingVal + resEditedVal;
                 $(this).find('input[name$=".NewValue"]').val(NewVal);
             }
@@ -479,6 +481,7 @@
                         result += txtROEditedValue;
                     if (!isNaN(totalRONewValue))
                         totResult += totalRONewValue;
+                    console.error(totResult);
                     if (!isNaN(result)) {
                         $("#TotalEditedValue").val(result.toFixed(0));
                     }
@@ -488,13 +491,14 @@
 
                     var EditedVal = parseFloat($('#TempRODetails_EditedValue').val());
                     var ExistingVal = parseFloat($('#TempRODetails_ExistingValue').val());
-
-                    if (!isNaN(ExistingVal) || $('#is_Temp').val() == 'Temp') {
+                   
+                    if (!isNaN(ExistingVal) && ExistingVal > 0) {
+                        console.error('in');
                         //var NewVal = parseFloat($('#TempRODetails_NewValue').val());
                         var totEditVal = parseFloat($("#TotalEditedValue").val());
                         var totNewValue = parseFloat($("#TotalNewValue").val());
                         //TempRo offset
-                        if (!isNaN(ExistingVal)) {
+                        
                             if (!isNaN(totEditVal) <= !isNaN(ExistingVal)) {
 
                                 $('#TempRODetails_EditedValue').val(-totEditVal);
@@ -521,9 +525,7 @@
                         if (!isNaN(totNewValue)) {
                             $("#TotalNewValue").val(totNewValue.toFixed(0));
                         }
-
-                            //calculateTempROSum();
-                        }
+                         //calculateTempROSum();
                     }
                 });
 
