@@ -77,17 +77,24 @@ namespace IOAS.Controllers
             int userId = Common.GetUserid(User.Identity.Name);
             ProjectFundingCategoryService pfcs = new ProjectFundingCategoryService();
 
-            if (ModelState.IsValid)
-            {
+           /* if (ModelState.IsValid)
+            {*/
                 var RODetailValidation = validateRODetails(rOModel);
                 if (RODetailValidation != "valid")
                 {
                     TempData["errMsg"] = RODetailValidation;
                     return RedirectToAction("CreateRO", "ProjectFundingCategory", new { ProjectId = rOModel.ProjId});
                 }
-            }
+            /*}
+            else
+            {
+                string messages = string.Join("<br />", ModelState.Values
+                              .SelectMany(x => x.Errors)
+                              .Select(x => x.ErrorMessage));
+                TempData["errMsg"] = messages;
+                return RedirectToAction("CreateRO", "ProjectFundingCategory", new { ProjectId = rOModel.ProjId });
+            }*/
             var RoCreation = pfcs.CreateRO(rOModel, userId);
-
             return RedirectToAction("ROList", "ProjectFundingCategory");
         }
 

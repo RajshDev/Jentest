@@ -120,7 +120,6 @@
                                                         @Html.ValidationMessage(@RONumber)
                                                         @Html.Hidden("RODetails.Index", @count)
                                                         @Html.Hidden(@RO_Id, item.RO_Id)
-
                                                     </td>
                                                     <td>
                                                         @Html.TextBox(@existingValue, item.ExistingValue, new { @class = "form-control exist", @readonly = true })
@@ -153,7 +152,7 @@
 
                                                 </td>
                                                 <td>
-                                                    @Html.TextBox("RODetails[0].ExistingValue", "", new { @class = "form-control exist", @id = "oldROvalue", @onchange = "totalSum();", @readonly = true, @onkeyup = "calculateROSum() ;" })
+                                                    @Html.TextBox("RODetails[0].ExistingValue", "", new { @class = "form-control exist", @id = "oldROvalue", @readonly = true})
                                                     @Html.ValidationMessage("RODetails[0].ExistingValue")
                                                 </td>
                                                 <td>
@@ -161,7 +160,7 @@
                                                     @Html.ValidationMessage("RODetails[0].EditedValue")
                                                 </td>
                                                 <td>
-                                                    @Html.TextBox("RODetails[0].NewValue", "", new { @class = "form-control ", @id = "ROnewvalue", @onkeypress = "return isNumberKey(event);", @readonly = "true", @onkeyup = "calculateROSum();" })
+                                                    @Html.TextBox("RODetails[0].NewValue", "", new { @class = "form-control ", @id = "ROnewvalue", @onkeypress = "return isNumberKey(event);", @readonly = "true"})
                                                     @Html.ValidationMessage("RODetails[0].NewValue", new { @id = "RoErrorMessage" })
 
                                                 </td>
@@ -376,11 +375,12 @@
             $(this).find('input[name$="' + index + '].NewValue"]').val("") ;
         });
 
-        $(cln).find("span[data-valmsg-for]").each(function () {
-            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
-        });
+        //$(cln).find("span[data-valmsg-for]").each(function () {
+        //    $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+        //});
 
         $('#tbodyRO').append(cln);
+        
     });
     $(document).on('click', 'a.removeDetail', function () {
         $(this).closest('tr').remove();
@@ -422,7 +422,7 @@
         /*If it is not edit screen - i.e update RO screen*/
         if (!(window.location.href.indexOf("aprvdId") > -1)) {
             if (RoExistingVal == 0) {
-                $('#tbodyRO tr').find("input").val("").end();
+                $('#tbodyRO tr').find("input").val('').end();
                 $('#TotalEditedValue').val('');
                 $('#TotalNewValue').val('');
             }
@@ -456,11 +456,13 @@
 
             if (!isNaN(ExistingVal))
                 resExistingVal = ExistingVal;
+            else
+                resExistingVal = 0;
+
             if (!isNaN(EditedVal))
                 resEditedVal = EditedVal;
 
-
-            if (!isNaN(resExistingVal) || !isNaN(resEditedVal)) {
+            if (!isNaN(resExistingVal) && !isNaN(resEditedVal)) {
                 NewVal = resExistingVal + resEditedVal;
                 $(this).find('input[name$=".NewValue"]').val(NewVal);
             }
@@ -481,7 +483,7 @@
                         result += txtROEditedValue;
                     if (!isNaN(totalRONewValue))
                         totResult += totalRONewValue;
-                    console.error(totResult);
+                    
                     if (!isNaN(result)) {
                         $("#TotalEditedValue").val(result.toFixed(0));
                     }
@@ -493,7 +495,7 @@
                     var ExistingVal = parseFloat($('#TempRODetails_ExistingValue').val());
                    
                     if (!isNaN(ExistingVal) && ExistingVal > 0) {
-                        console.error('in');
+                        
                         //var NewVal = parseFloat($('#TempRODetails_NewValue').val());
                         var totEditVal = parseFloat($("#TotalEditedValue").val());
                         var totNewValue = parseFloat($("#TotalNewValue").val());
