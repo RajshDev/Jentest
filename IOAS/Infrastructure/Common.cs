@@ -29111,7 +29111,7 @@ namespace IOAS.Infrastructure
                             var query = (from RO in context.tblProjectROSummary
                                          join ROLog in context.tblProjectROLog on RO.RO_Id equals ROLog.RO_Id
                                          where //RO.ProjectId == projectId && 
-                                         ROLog.RO_ProjectApprovalId == aprvdId && ROLog.RO_LogStatus == "Open"
+                                         ROLog.RO_ProjectApprovalId == aprvdId //&& ROLog.RO_LogStatus == "Open"
                                          && (RO.Is_Active != false && RO.Is_TempRO == true)
                                          select new { RO.RO_Id, RO.RO_Number, ROLog.RO_ExistingValue, ROLog.RO_AddEditValue, ROLog.RO_NewValue,RO.RO_Status }).FirstOrDefault();
                             if(query != null)
