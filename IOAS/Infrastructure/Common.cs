@@ -29048,6 +29048,7 @@ namespace IOAS.Infrastructure
                 var query = context.tblProjectROSummary.Where(m => m.ProjectId == projId && m.RO_ProjectApprovalId == aprvdId);
                 if (query != null)
                 {
+                    if (!String.IsNullOrEmpty(query.FirstOrDefault().RO_Status)) { 
                     if (query.FirstOrDefault().RO_Status == "Open")
                     {
                         TotNewvalue = (from p in context.tblProjectROSummary
@@ -29060,7 +29061,7 @@ namespace IOAS.Infrastructure
                                        join a in context.tblProjectROLog on p.RO_Id equals a.RO_Id
                                        where (p.ProjectId == projId && a.RO_ProjectApprovalId == aprvdId && p.Is_TempRO == true &&( a.RO_LogStatus == "Active" || a.RO_LogStatus == "Submit for approval"))
                                        select a.RO_NewValue).Sum();
-                    
+                    }
                 }
                 return TotNewvalue;
             }
@@ -29376,7 +29377,7 @@ namespace IOAS.Infrastructure
                             {
                                 foreach (var roSum in (query.ToList().Where(t => t.RO_Id == log.RO_Id)))
                                 {
-                                    roSum.RO_ProjectValue = log.RO_AddEditValue ?? 0;
+                                    roSum.RO_ProjectValue = log.RO_NewValue ?? 0;
                                     
                                 }
                             }

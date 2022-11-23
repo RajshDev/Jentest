@@ -202,7 +202,7 @@
                                     @Html.HiddenFor(m => m.TempRODetails.RO_Id)
                                 </td>
                                 <td>
-                                    @Html.TextBoxFor(m => m.TempRODetails.ExistingValue, new { @class = "form-control", @readonly = true, @onkeypress = "return isNumberKey(event);", @onkeyup = "calculateTempROSum();", @onchange = "totalSum();" })
+                                    @Html.TextBoxFor(m => m.TempRODetails.ExistingValue, new { @class = "form-control", @readonly = true, @onkeypress = "return isNumberKey(event);" })
                                     @Html.ValidationMessageFor(m => m.TempRODetails.ExistingValue)
                                 </td>
                                 <td>
@@ -213,7 +213,6 @@
                                     @Html.TextBoxFor(m => m.TempRODetails.NewValue, new { @class = "form-control ", @readonly = true })
                                     @Html.ValidationMessageFor(m => m.TempRODetails.NewValue)
                                 </td>
-
                             </tr>
                         </tbody>
                     </table>
@@ -321,6 +320,9 @@
         calculateROSum();
 
         var RODetails = @Html.Raw(Json.Encode(Model.RODetails));
+        
+        
+        
             $.each(RODetails, function (i, result) {
                 if (i == 0) {
 
@@ -355,6 +357,8 @@
             }
         });
     });
+
+
 /*Add the new row for RO details*/
     $('#btnAddRODetails').click(function () {
 
@@ -392,14 +396,13 @@
         $('#is_Temp').attr('checked', false);
         $('#TempRO').addClass('dis-none');
         $('#RO').removeClass('dis-none');
-        calculateROSum();
+        //calculateROSum();
         //totalSum();
         var ROExistingValue = $('#TempRODetails_ExistingValue').val();
 
         /*If it is not edit screen*/
         if (!(window.location.href.indexOf("aprvdId") > -1)) {
             if (ROExistingValue == 0) {
-                //$('#TempRONumber').val('');
                 $('#TempRODetails_EditedValue').val('');
                 $('#TempRODetails_ExistingValue').val('');
                 $('#TempRODetails_NewValue').val('');
@@ -415,7 +418,7 @@
             $('#is_RO').attr('checked', false);
             $('#RO').removeClass('dis-none');
             $('#TempRO').removeClass('dis-none');
-        calculateTempROSum();
+        //calculateTempROSum();
         //totalSum();
 
         var RoExistingVal = $('#RODetails_0__ExistingValue').val();
@@ -499,7 +502,7 @@
                     var totNewValue = parseFloat($("#TotalNewValue").val());
                     var totEditVal = parseFloat($("#TotalEditedValue").val());
                     //TempRO edit
-                    if (window.location.href.indexOf("aprvdId") > -1) {
+                    if (window.location.href.indexOf("aprvdId") > -1) { 
                         if (!isNaN(totEditVal)) {
                             $("#TotalEditedValue").val(EditedVal.toFixed(0));
                         }
@@ -510,30 +513,33 @@
                    
                     if (!isNaN(ExistingVal) && ExistingVal > 0) {
                        
+                        if (!isNaN(totEditVal) <= !isNaN(ExistingVal)) {
+                            $('#TempRODetails_EditedValue').val(-totEditVal);
+                            $('#TempRODetails_NewValue').val(ExistingVal - totEditVal);
+                            //totNewValue += (-totEditVal);
+                            totNewValue = totResult;
 
-                            if (!isNaN(totEditVal) <= !isNaN(ExistingVal)) {
+                        }
+                        else if (!isNaN(totEditVal) >= !isNaN(ExistingVal)) {
+                            $('#TempRODetails_EditedValue').val(-ExistingVal)
+                            $('#TempRODetails_NewValue').val(0);
+                            //totNewValue += (-EditedVal)
+                            totNewValue = totResult;
+                        } else
+                        {
+                            var TempRODetails = @Html.Raw(Json.Encode(Model.TempRODetails));
+                            $.each(TempRODetails, function (i, result) {
+                                console.error(result.EditedVal);
+                                $('#TempRODetails_EditedValue').val(result.EditedVal);
+                                $('#TempRONumber').val(result.RONumber);
+                                $('#TempRODetails_RO_Id').val(result.RO_Id);
+                                $('#TempRODetails_NewValue').val(result.NewValue);
+                                $('#TempRODetails_ExistingValue').val(result.ExistingValue);
+                            });
+                        }
+           
 
-                                $('#TempRODetails_EditedValue').val(-totEditVal);
-                                $('#TempRODetails_NewValue').val(ExistingVal - totEditVal);
-                                totNewValue += (-totEditVal);
-                            }
-                            else if (!isNaN(totEditVal) >= !isNaN(ExistingVal)) {
-                                $('#TempRODetails_EditedValue').val(-ExistingVal)
-                                $('#TempRODetails_NewValue').val(0);
-                                totNewValue += (-EditedVal)
-                            }
-                            else
-                            {
-                                @*console.error($('#TempRODetails_EditedValue').val());
-                                var TempRODetails = @Html.Raw(Json.Encode(Model.TempRODetails));
-                                $.each(TempRODetails, function (i, result) {if (i == 0) {
-                                    $('#TempRODetails_EditedValue').val(result.EditedValue);
-                                }});*@
-                            }
-
-                        //if (!isNaN(totEditVal)) {
-                        //    $("#TotalEditedValue").val(totEditVal.toFixed(0));
-                        //}
+                        console.error(totNewValue);
                         if (!isNaN(totNewValue)) {
                             $("#TotalNewValue").val(totNewValue.toFixed(0));
                         }
@@ -564,7 +570,7 @@
                         $(this).find('input[name$=".NewValue"]').val(NewVal);
                     }
                 });
-              totalSum();
+              //totalSum();
             }
 
 </script>
