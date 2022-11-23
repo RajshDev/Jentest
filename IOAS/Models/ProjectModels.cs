@@ -631,11 +631,14 @@ namespace IOAS.Models
         [Required]
         [Display(Name = "Report Classification")]
         public Nullable<int> ReportClassifiCation { get; set; }
-
+        [Required]
+        [Display(Name = "Project Funding Category")]
         public int ProjectFundingCategoryId { get; set; }
 
-        
+
         //[RequiredIf("ProjectFundingCategory", 2, ErrorMessage = "Please Select Project Category")]
+        [Required]
+        [Display(Name = "Bank Name")]
         public string bankname { get; set; }
         public Nullable<int> BankID { get; set; }
 
@@ -649,7 +652,9 @@ namespace IOAS.Models
         // public Nullable<Int32> BankID { get; set; }
         //   public Nullable<int> BankID { get; set; }
 
-       // public Nullable<int> id { get; set; }
+        // public Nullable<int> id { get; set; }
+        [Required]
+        [Display(Name = "Bank Name")]
         public string bankname { get; set; }
         public Nullable<int> BankID { get; set; }
         //  public string code { get; set; }
