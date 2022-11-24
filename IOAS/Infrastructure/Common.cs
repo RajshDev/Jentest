@@ -29006,10 +29006,11 @@ namespace IOAS.Infrastructure
         {
             using (var context = new IOASDBEntities())
             {
-                var TotNewvalue = (from p in context.tblProjectROSummary
+                /*var TotNewvalue = (from p in context.tblProjectROSummary
                                    join a in context.tblProjectROLog on p.RO_Id equals a.RO_Id
                                    where (p.ProjectId == projId || a.RO_ProjectApprovalId == aprvdId)
-                                   select a.RO_NewValue).Sum();
+                                   select a.RO_NewValue).Sum();*/
+                var TotNewvalue = context.tblProjectROApprovalRequest.Where(x => x.RO_ProjectApprovalId == aprvdId).Select(x=>x.RO_TotNewValue).FirstOrDefault();
                 return TotNewvalue;
             }
             

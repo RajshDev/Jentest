@@ -206,7 +206,7 @@
                                     @Html.ValidationMessageFor(m => m.TempRODetails.ExistingValue)
                                 </td>
                                 <td>
-                                    @Html.TextBoxFor(m => m.TempRODetails.EditedValue, new { @class = "form-control", @onkeypress = "return isNumberKey(event);", @onkeyup = "calculateTempROSum();", @onchange = "totalSum();", @autocomplete = "off" })
+                                    @Html.TextBoxFor(m => m.TempRODetails.EditedValue, new { @class = "form-control", @onkeypress = "return isNumberKey(event);", @onkeyup = "calculateTempROSum();", @onchange = "totalTempSum();", @autocomplete = "off" })
                                     @Html.ValidationMessageFor(m => m.TempRODetails.EditedValue)
                                 </td>
                                 <td>
@@ -284,22 +284,30 @@
         //TEMPRO_SP22230739CYDSTX002505
         /*Edit Region*/
         if (window.location.href.indexOf("aprvdId") > -1) {
-            var txtTempVal = $('#TempRODetails_EditedValue').val();
-            if (txtTempVal != '') {
-                $("#is_RO").removeAttr('checked');
-                $('#is_RO').attr("disabled", true);
-                $("#is_Temp").attr("checked", true);
-                $('#TempRO').show();
-                $('#RO').hide();
-
-            }
-            else
+            var txtTempVal = parseFloat($('#TempRODetails_EditedValue').val());
+            var isROEditedVal = false;
+            $('#tbodyRO tr').each(function (idx, val) {
+                var txtROEditedValue = parseFloat($(this).closest('tr').find('input[name$=".EditedValue"]').val());
+                if (!isNaN(txtROEditedValue))
+                    isROEditedVal = true;
+            });
+            console.error(txtTempVal);
+            if (isROEditedVal) /*&& !isNaN(txtTempVal)))*/
             {
                 $("#is_Temp").prop('disabled', true);
                 $("#is_Temp").removeAttr('checked');
                 $("#is_RO").attr('checked', true);
                 $('#TempRO').hide();
                 $('#RO').show();
+            }
+            else
+            {
+                $("#is_RO").removeAttr('checked');
+                $('#is_RO').attr("disabled", true);
+                $("#is_Temp").attr("checked", true);
+                $('#TempRO').show();
+                $('#RO').hide();
+
             }
 
             /*to remove btn Add RO in edit*/
@@ -320,9 +328,6 @@
         calculateROSum();
 
         var RODetails = @Html.Raw(Json.Encode(Model.RODetails));
-        
-        
-        
             $.each(RODetails, function (i, result) {
                 if (i == 0) {
 
@@ -501,8 +506,9 @@
                     var NewVal = parseFloat($('#TempRODetails_NewValue').val());
                     var totNewValue = parseFloat($("#TotalNewValue").val());
                     var totEditVal = parseFloat($("#TotalEditedValue").val());
+                    console.error($('#is_Temp').val());
                     //TempRO edit
-                    if (window.location.href.indexOf("aprvdId") > -1) { 
+                    if (window.location.href.indexOf("aprvdId") > -1 && ($('#is_Temp').is(':checked'))) { 
                         if (!isNaN(totEditVal)) {
                             $("#TotalEditedValue").val(EditedVal.toFixed(0));
                         }
@@ -510,8 +516,8 @@
                             $("#TotalNewValue").val(NewVal.toFixed(0));
                         }
                     }
-                   
-                    if (!isNaN(ExistingVal) && ExistingVal > 0) {
+
+                    if (!isNaN(ExistingVal) && ExistingVal > 0 && !isNaN(txtROEditedValue) > 0) {
                        
                         if (!isNaN(totEditVal) <= !isNaN(ExistingVal)) {
                             $('#TempRODetails_EditedValue').val(-totEditVal);
@@ -525,21 +531,11 @@
                             $('#TempRODetails_NewValue').val(0);
                             //totNewValue += (-EditedVal)
                             totNewValue = totResult;
-                        } else
+                        }
+                        else
                         {
-                            var TempRODetails = @Html.Raw(Json.Encode(Model.TempRODetails));
-                            $.each(TempRODetails, function (i, result) {
-                                console.error(result.EditedVal);
-                                $('#TempRODetails_EditedValue').val(result.EditedVal);
-                                $('#TempRONumber').val(result.RONumber);
-                                $('#TempRODetails_RO_Id').val(result.RO_Id);
-                                $('#TempRODetails_NewValue').val(result.NewValue);
-                                $('#TempRODetails_ExistingValue').val(result.ExistingValue);
-                            });
                         }
            
-
-                        console.error(totNewValue);
                         if (!isNaN(totNewValue)) {
                             $("#TotalNewValue").val(totNewValue.toFixed(0));
                         }
@@ -570,7 +566,13 @@
                         $(this).find('input[name$=".NewValue"]').val(NewVal);
                     }
                 });
-              //totalSum();
-            }
+              totalTempSum();
+    }
+
+    function totalTempSum() {
+        var EditedVal = parseFloat($('#TempRODetails_EditedValue').val());
+        if (!isNaN(EditedVal))
+            $("#TotalEditedValue").val(EditedVal.toFixed(0));
+    }
 
 </script>
