@@ -160,7 +160,7 @@
                                                     @Html.ValidationMessage("RODetails[0].EditedValue")
                                                 </td>
                                                 <td>
-                                                    @Html.TextBox("RODetails[0].NewValue", "", new { @class = "form-control ", @id = "ROnewvalue", @onkeypress = "return isNumberKey(event);", @readonly = "true"})
+                                                    @Html.TextBox("RODetails[0].NewValue", "", new { @class = "form-control ", @id = "ROnewvalue", @readonly = "true"})
                                                     @Html.ValidationMessage("RODetails[0].NewValue", new { @id = "RoErrorMessage" })
 
                                                 </td>
@@ -202,7 +202,7 @@
                                     @Html.HiddenFor(m => m.TempRODetails.RO_Id)
                                 </td>
                                 <td>
-                                    @Html.TextBoxFor(m => m.TempRODetails.ExistingValue, new { @class = "form-control", @readonly = true, @onkeypress = "return isNumberKey(event);" })
+                                    @Html.TextBoxFor(m => m.TempRODetails.ExistingValue, new { @class = "form-control", @readonly = true, })
                                     @Html.ValidationMessageFor(m => m.TempRODetails.ExistingValue)
                                 </td>
                                 <td>
@@ -445,9 +445,9 @@
         //    return false;
 
         if (charCode != 109 && charCode > 31 && (charCode < 48 || charCode > 57) && charCode != 46) {
-            return false;
+            return true;
         }
-        return true;
+        
 
     }
     /*Sum of Existing and edited value = new value*/
@@ -517,7 +517,7 @@
                         }
                     }
 
-                    if (!isNaN(ExistingVal) && ExistingVal > 0 && !isNaN(txtROEditedValue) > 0) {
+                    /*if (!isNaN(ExistingVal) && ExistingVal > 0 && !isNaN(txtROEditedValue) > 0) {
                        
                         if (!isNaN(totEditVal) <= !isNaN(ExistingVal)) {
                             $('#TempRODetails_EditedValue').val(-totEditVal);
@@ -540,6 +540,35 @@
                             $("#TotalNewValue").val(totNewValue.toFixed(0));
                         }
                          //calculateTempROSum();
+                    }*/
+
+                    if ((!isNaN(ExistingVal) && ExistingVal > 0)) {
+
+                        if (!isNaN(totEditVal) <= !isNaN(ExistingVal)) {
+                            if (totEditVal < 0) {
+                                console.error(totEditVal);
+                                $('#TempRODetails_EditedValue').val(0);
+                            }
+                            else
+                                $('#TempRODetails_EditedValue').val(-totEditVal);
+                            $('#TempRODetails_NewValue').val(ExistingVal - totEditVal);
+                            //totNewValue += (-totEditVal);
+                            totNewValue = totResult;
+
+                        }
+                        else if (!isNaN(totEditVal) >= !isNaN(ExistingVal)) {
+                            $('#TempRODetails_EditedValue').val(-ExistingVal)
+                            $('#TempRODetails_NewValue').val(0);
+                            //totNewValue += (-EditedVal)
+                            totNewValue = totResult;
+                        }
+                        else {
+                        }
+
+                        if (!isNaN(totNewValue)) {
+                            $("#TotalNewValue").val(totNewValue.toFixed(0));
+                        }
+                        //calculateTempROSum();
                     }
                 });
 
