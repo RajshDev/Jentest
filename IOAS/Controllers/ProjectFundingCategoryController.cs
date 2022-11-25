@@ -138,7 +138,7 @@ namespace IOAS.Controllers
                 }
 
                 var emptyEditedVal = model.TempRODetails.EditedValue;
-                if (emptyEditedVal == 0)
+                if (emptyEditedVal == null || emptyEditedVal == 0)
                     return msg = "Edited Value should not be empty!";
 
             }
