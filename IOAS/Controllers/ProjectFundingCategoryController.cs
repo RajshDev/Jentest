@@ -77,25 +77,34 @@ namespace IOAS.Controllers
             int userId = Common.GetUserid(User.Identity.Name);
             ProjectFundingCategoryService pfcs = new ProjectFundingCategoryService();
 
-           /* if (ModelState.IsValid)
-            {*/
+            /* if (ModelState.IsValid)
+             {*/
+            try {
                 var RODetailValidation = validateRODetails(rOModel);
                 if (RODetailValidation != "valid")
                 {
                     TempData["errMsg"] = RODetailValidation;
-                    return RedirectToAction("CreateRO", "ProjectFundingCategory", new { ProjectId = rOModel.ProjId});
+                    return RedirectToAction("CreateRO", "ProjectFundingCategory", new { ProjectId = rOModel.ProjId });
                 }
-            /*}
-            else
+                /*}
+                else
+                {
+                    string messages = string.Join("<br />", ModelState.Values
+                                  .SelectMany(x => x.Errors)
+                                  .Select(x => x.ErrorMessage));
+                    TempData["errMsg"] = messages;
+                    return RedirectToAction("CreateRO", "ProjectFundingCategory", new { ProjectId = rOModel.ProjId });
+                }*/
+                var RoCreation = pfcs.CreateRO(rOModel, userId);
+                return RedirectToAction("ROList", "ProjectFundingCategory");
+            }
+            catch (Exception ex)
             {
-                string messages = string.Join("<br />", ModelState.Values
-                              .SelectMany(x => x.Errors)
-                              .Select(x => x.ErrorMessage));
-                TempData["errMsg"] = messages;
-                return RedirectToAction("CreateRO", "ProjectFundingCategory", new { ProjectId = rOModel.ProjId });
-            }*/
-            var RoCreation = pfcs.CreateRO(rOModel, userId);
-            return RedirectToAction("ROList", "ProjectFundingCategory");
+                Infrastructure.IOASException.Instance.HandleMe(
+                (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                TempData["errMsg"] = "Something went wrong please contact administrator.";
+                return RedirectToAction("ROList", "ProjectFundingCategory");
+            }
         }
 
         public string validateRODetails(CreateROModel model)
