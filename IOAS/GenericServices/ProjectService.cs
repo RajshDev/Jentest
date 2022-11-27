@@ -3156,11 +3156,12 @@ namespace IOAS.GenericServices
                                         }).FirstOrDefault();
                             editProject.bankname = bankdetails.bankname.ToString();
                         }
-                        //else
-                        //{ 
-                        //    editProject.bankdetails.BankID = null;
-                        //    editProject.bankdetails.bankname = null;
-                        // }
+                        else
+                        {
+                            editProject.ProjectFundingCategoryId = 1;
+                            editProject.BankID = null;
+                            editProject.bankname = null;
+                        }
                         editProject.JointDevelopment_Qust_1 = query.JointdevelopmentQuestion;
 
                         editProject.InterestRefund = query.InterestRefund;

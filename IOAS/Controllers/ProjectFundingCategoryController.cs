@@ -127,6 +127,8 @@ namespace IOAS.Controllers
                     {
                         return msg = "RO Value should not exceed Sanctioned value";
                     }
+                    
+
                 }
             }
             else
@@ -137,8 +139,11 @@ namespace IOAS.Controllers
                     return msg = "RO Value should not exceed Sanctioned value";
                 }
 
-                var emptyEditedVal = model.TempRODetails.EditedValue;
-                if (emptyEditedVal == null || emptyEditedVal == 0)
+                var EditedVal = model.TempRODetails.EditedValue;
+                if (EditedVal == null || EditedVal == 0)
+                    return msg = "Edited Value should not be empty!";
+
+               if(EditedVal<=0)
                     return msg = "Edited Value should not be empty!";
 
             }

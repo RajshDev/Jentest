@@ -49,8 +49,8 @@ namespace IOAS.GenericServices
                                     context.SaveChanges();
 
                                     tblProjectROLog rOLog = new tblProjectROLog();
-                                    //if (model.isRO == "RO")
-                                    //{
+                                    if (model.isRO == "RO")
+                                    {
                                         if (model.RODetails != null)
                                         {
                                             foreach (var item in model.RODetails)
@@ -64,20 +64,19 @@ namespace IOAS.GenericServices
                                                 rOLog.Crtd_TS = DateTime.Now;
                                                 rOLog.Crtd_UserId = logged_in_user;
 
-
+                                                roIds += string.Join(",", item.RO_Id) + ",";
                                                 //totEditedVal += item.EditedValue;
                                                 //totNewval += item.ExistingValue;
-                                                roIds = string.Join(",", item.RO_Id);
-
                                                 rOLog.RO_ProjectApprovalId = model.ROAprvId;
                                                 context.tblProjectROLog.Add(rOLog);
                                                 context.SaveChanges();
                                             }
+
                                         }
-                                    //}
-                                    //var reqTempRO = 
-                                    //if (model.isTemp == "Temp")
-                                    //{
+                                    }
+                                   
+                                        
+                                    
                                         if (model.TempRODetails != null)
                                         {
                                             rOLog.RO_Id = model.TempRODetails.RO_Id;
@@ -89,16 +88,16 @@ namespace IOAS.GenericServices
                                             rOLog.Crtd_TS = DateTime.Now;
                                             rOLog.Crtd_UserId = logged_in_user;
 
-                                            //totEditedVal += model.TempRODetails.EditedValue;
-                                            //totNewval += model.TempRODetails.ExistingValue;
+                                        //totEditedVal += model.TempRODetails.EditedValue;
+                                        //totNewval += model.TempRODetails.ExistingValue;
+                                        if (model.isTemp == "Temp")
                                             roIds = string.Join(",", model.TempRODetails.RO_Id);
-
+                                        else
+                                            roIds += string.Join(",", model.TempRODetails.RO_Id) + ",";
                                             rOLog.RO_ProjectApprovalId = model.ROAprvId;
                                             context.tblProjectROLog.Add(rOLog);
                                             context.SaveChanges();
                                        }
-                                    //}
-
 
                                     context.tblProjectROApprovalRequest.Where(m => m.RO_ProjectApprovalId == model.ROAprvId)
                                             .ToList()
@@ -219,7 +218,8 @@ namespace IOAS.GenericServices
                                                 context.SaveChanges();
                                                 item.RO_Id = roSum.RO_Id;
                                             }
-                                        }
+                                        
+                                    }
                                         reqRo.ForEach(m =>
                                         {
                                             m.Uptd_TS = DateTime.Now;
@@ -244,7 +244,9 @@ namespace IOAS.GenericServices
                                                 context.tblProjectROSummary.Add(roSum);
                                                 context.SaveChanges();
                                                 item.RO_Id = roSum.RO_Id;
+                                            
                                             }
+
                                         }
                                     }
                                 }

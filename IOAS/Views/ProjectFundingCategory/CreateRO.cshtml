@@ -126,13 +126,13 @@
                                                         @Html.ValidationMessage(@existingValue)
                                                     </td>
                                                     <td>
-                                                        @Html.TextBox(@editedValue, item.EditedValue, new { @class = "form-control edited", @onkeypress = "return isNumberKey(event);", @onkeyup = "calculateROSum();",@onchange ="totalSum();",  @autocomplete = "off" })
+                                                        @Html.TextBox(@editedValue, item.EditedValue, new { @class = "form-control edited", @onkeypress = "return isNumberKey(event);", @onkeyup = "calculateROSum();", @onchange = "totalSum();", @autocomplete = "off" })
                                                         @Html.ValidationMessage(@editedValue)
                                                     </td>
                                                     <td>
                                                         @*@Html.TextBox(@newValue, item.NewValue, new { @class = "form-control required", @onkeypress = "return ValidateDecimalOnly(event)", @onchange = "calculateamount()" })*@
                                                         @*@Html.TextBox(@newValue, item.NewValue, new { @class = "form-control ",  @onkeypress = "return isNumberKey(event);", @readonly = "true"  })*@
-                                                        @Html.TextBox(@newValue, item.NewValue, new { @class = "form-control ", @readonly = "true"})
+                                                        @Html.TextBox(@newValue, item.NewValue, new { @class = "form-control ", @readonly = "true" })
                                                         @Html.ValidationMessage(@newValue)
                                                     </td>
                                                     <td>
@@ -152,7 +152,7 @@
 
                                                 </td>
                                                 <td>
-                                                    @Html.TextBox("RODetails[0].ExistingValue", "", new { @class = "form-control exist", @id = "oldROvalue", @readonly = true})
+                                                    @Html.TextBox("RODetails[0].ExistingValue", "", new { @class = "form-control exist", @id = "oldROvalue", @readonly = true })
                                                     @Html.ValidationMessage("RODetails[0].ExistingValue")
                                                 </td>
                                                 <td>
@@ -160,7 +160,7 @@
                                                     @Html.ValidationMessage("RODetails[0].EditedValue")
                                                 </td>
                                                 <td>
-                                                    @Html.TextBox("RODetails[0].NewValue", "", new { @class = "form-control ", @id = "ROnewvalue", @readonly = "true"})
+                                                    @Html.TextBox("RODetails[0].NewValue", "", new { @class = "form-control ", @id = "ROnewvalue", @readonly = "true" })
                                                     @Html.ValidationMessage("RODetails[0].NewValue", new { @id = "RoErrorMessage" })
 
                                                 </td>
@@ -252,7 +252,14 @@
     <div class="modal-footer">
         <div class="text-center">
             <input type="submit" class="btn btn-primary " value="submit" id="btnCreateRO" />
-            <input type="reset" onclick="window.location.href='@Url.Action("ProjectOpening", "Project")';" value="close" class="btn btn-default" />
+            @if (Model.ROAprvId > 0)
+            {
+                <input type="reset" onclick="window.location.href='@Url.Action("ProjectOpening", "Project")';" value="close" class="btn btn-default" />
+            }
+            else
+            {
+                 <input type="reset" onclick="window.location.href='@Url.Action("ROList", "ProjectFundingCategory")';" value="close" class="btn btn-default" />
+            }
         </div>
     </div>
 }
@@ -542,22 +549,22 @@
                          //calculateTempROSum();
                     }*/
 
-                    if ((!isNaN(ExistingVal) && ExistingVal > 0)) {
+                    if ( ExistingVal > 0) {
 
-                        if (!isNaN(totEditVal) <= !isNaN(ExistingVal)) {
+                        if (totEditVal <= ExistingVal) {
                             if (totEditVal < 0) {
                                 console.error(totEditVal);
                                 $('#TempRODetails_EditedValue').val(0);
                             }
-                            else
-                                $('#TempRODetails_EditedValue').val(-totEditVal);
-                            $('#TempRODetails_NewValue').val(ExistingVal - totEditVal);
-                            //totNewValue += (-totEditVal);
-                            totNewValue = totResult;
-
+                            else {
+                                $('#TempRODetails_EditedValue').val(-(totEditVal.toFixed(0)));
+                                $('#TempRODetails_NewValue').val((ExistingVal - totEditVal).toFixed(0));
+                                //totNewValue += (-totEditVal);
+                                totNewValue = totResult;
+                            }
                         }
-                        else if (!isNaN(totEditVal) >= !isNaN(ExistingVal)) {
-                            $('#TempRODetails_EditedValue').val(-ExistingVal)
+                        else if (totEditVal >= ExistingVal) {
+                            $('#TempRODetails_EditedValue').val((-ExistingVal.toFixed(0)));
                             $('#TempRODetails_NewValue').val(0);
                             //totNewValue += (-EditedVal)
                             totNewValue = totResult;
@@ -592,7 +599,7 @@
                         resEditedVal = EditedVal;
                     if (!isNaN(resExistingVal) || !isNaN(resEditedVal)) {
                         NewVal = resExistingVal + resEditedVal;
-                        $(this).find('input[name$=".NewValue"]').val(NewVal);
+                        $(this).find('input[name$=".NewValue"]').val(NewVal.toFixed(0));
                     }
                 });
               totalTempSum();
