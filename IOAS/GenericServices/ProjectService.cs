@@ -1032,7 +1032,16 @@ namespace IOAS.GenericServices
                             var projectid = query.ProjectId;
                             //query.ProposalNumber = model.ProposalNumber;
                             //query.ProjectNumber = model.ProjectNumber;
-
+                            if (model.ProjectFundingCategoryId == 2)
+                            {
+                                query.ProjectFundingCategory = 2;
+                                query.BankID = model.BankID;
+                            }
+                            else
+                            {
+                                query.ProjectFundingCategory = 1;
+                                query.BankID = null;
+                            }
                             query.FacultyCode = model.FacultyCode;
                             if (model.FacultyCode == 2)
                                 query.FacultyDetailId = model.SelCentre;
@@ -1220,7 +1229,7 @@ namespace IOAS.GenericServices
                                     }
 
                                 }
-
+                               
                                 if (query.IndianFundedBy == 2)
                                 {
                                     if (model.IndProjectFundingNonGovtBody_Qust_1.Length > 0)
