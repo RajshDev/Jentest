@@ -361,7 +361,7 @@ namespace IOAS.GenericServices
                                  join roReq in context.tblProjectROApprovalRequest on c.FirstOrDefault().RO_ProjectApprovalId equals roReq.RO_ProjectApprovalId
                                  join P in context.tblProject on RO.ProjectId equals P.ProjectId
                                  join AH in context.tblAccountHead on P.BankID equals AH.AccountHeadId
-                                 join fa in context.vwFacultyStaffDetails_TSA on P.PIName equals fa.UserId
+                                 join fa in context.vwFacultyStaffDetails on P.PIName equals fa.UserId
                                  where (RO.RO_Status != "InActive" && RO.Is_Active == true)
                                  && (P.ProjectNumber.Contains(model.ProjectNumber) || model.ProjectNumber == null)
                                  && (AH.AccountHead.Contains(model.BankName) || model.BankName == null)
