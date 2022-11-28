@@ -43,7 +43,8 @@ namespace IOAS.Infrastructure
                     string Exception = Message + InnerException;
 
                     Infrastructure.IOASException.Instance.HandleMe(
-    (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName + " Exception -------------- " + Exception + " ----------------------  ", exx.InnerException);
+    (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName + " Exception -------------- " 
+    + Exception +"-----" + filename + "------"+ dirName +"---"+ file + " ----------------------  ", exx.InnerException);
                     return false;
                 
             }
