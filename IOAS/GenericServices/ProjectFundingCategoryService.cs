@@ -74,30 +74,29 @@ namespace IOAS.GenericServices
 
                                         }
                                     }
-                                   
-                                        
-                                    
                                         if (model.TempRODetails != null)
                                         {
-                                            rOLog.RO_Id = model.TempRODetails.RO_Id;
-                                            rOLog.RO_ExistingValue = model.TempRODetails.ExistingValue ?? 0;
-                                            rOLog.RO_AddEditValue = model.TempRODetails.EditedValue ?? 0;
-                                            rOLog.RO_NewValue = model.TempRODetails.NewValue ?? 0;
-                                            rOLog.RO_LogStatus = "Open";
-                                            rOLog.Is_Deleted = false;
-                                            rOLog.Crtd_TS = DateTime.Now;
-                                            rOLog.Crtd_UserId = logged_in_user;
+                                        if(model.TempRODetails.RO_Id > 0) { 
+                                                rOLog.RO_Id = model.TempRODetails.RO_Id;
+                                                rOLog.RO_ExistingValue = model.TempRODetails.ExistingValue ?? 0;
+                                                rOLog.RO_AddEditValue = model.TempRODetails.EditedValue ?? 0;
+                                                rOLog.RO_NewValue = model.TempRODetails.NewValue ?? 0;
+                                                rOLog.RO_LogStatus = "Open";
+                                                rOLog.Is_Deleted = false;
+                                                rOLog.Crtd_TS = DateTime.Now;
+                                                rOLog.Crtd_UserId = logged_in_user;
 
-                                        //totEditedVal += model.TempRODetails.EditedValue;
-                                        //totNewval += model.TempRODetails.ExistingValue;
-                                        if (model.isTemp == "Temp")
-                                            roIds = string.Join(",", model.TempRODetails.RO_Id);
-                                        else
-                                            roIds += string.Join(",", model.TempRODetails.RO_Id) + ",";
-                                            rOLog.RO_ProjectApprovalId = model.ROAprvId;
-                                            context.tblProjectROLog.Add(rOLog);
-                                            context.SaveChanges();
-                                       }
+                                            //totEditedVal += model.TempRODetails.EditedValue;
+                                            //totNewval += model.TempRODetails.ExistingValue;
+                                            if (model.isTemp == "Temp")
+                                                roIds = string.Join(",", model.TempRODetails.RO_Id);
+                                            else
+                                                roIds += string.Join(",", model.TempRODetails.RO_Id) + ",";
+                                                rOLog.RO_ProjectApprovalId = model.ROAprvId;
+                                                context.tblProjectROLog.Add(rOLog);
+                                                context.SaveChanges();
+                                        }
+                                    }
 
                                     context.tblProjectROApprovalRequest.Where(m => m.RO_ProjectApprovalId == model.ROAprvId)
                                             .ToList()

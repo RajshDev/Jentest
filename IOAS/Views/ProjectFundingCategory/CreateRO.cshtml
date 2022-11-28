@@ -122,7 +122,7 @@
                                                         @Html.Hidden(@RO_Id, item.RO_Id)
                                                     </td>
                                                     <td>
-                                                        @Html.TextBox(@existingValue, item.ExistingValue, new { @class = "form-control exist", @readonly = true })
+                                                        @Html.TextBox(@existingValue, item.ExistingValue, new { @class = "form-control exist", @readonly = true , @id = "oldROvalue" })
                                                         @Html.ValidationMessage(@existingValue)
                                                     </td>
                                                     <td>
@@ -415,6 +415,7 @@
         /*If it is not edit screen*/
         if (!(window.location.href.indexOf("aprvdId") > -1)) {
             if (ROExistingValue == 0) {
+                console.log('in');
                 $('#TempRODetails_EditedValue').val('');
                 $('#TempRODetails_ExistingValue').val('');
                 $('#TempRODetails_NewValue').val('');
@@ -433,7 +434,7 @@
         //calculateTempROSum();
         //totalSum();
 
-        var RoExistingVal = $('#RODetails_0__ExistingValue').val();
+        var RoExistingVal = $('#oldROvalue').val();
         /*If it is not edit screen - i.e update RO screen*/
         if (!(window.location.href.indexOf("aprvdId") > -1)) {
             if (RoExistingVal == 0) {
@@ -561,6 +562,7 @@
                                 $('#TempRODetails_NewValue').val((ExistingVal - totEditVal).toFixed(0));
                                 //totNewValue += (-totEditVal);
                                 totNewValue = totResult;
+                                console.error('toot'+totNewValue);
                             }
                         }
                         else if (totEditVal >= ExistingVal) {
@@ -572,7 +574,7 @@
                         else {
                         }
 
-                        if (!isNaN(totNewValue)) {
+                        if ((totNewValue)) {
                             $("#TotalNewValue").val(totNewValue.toFixed(0));
                         }
                         //calculateTempROSum();
@@ -609,6 +611,9 @@
         var EditedVal = parseFloat($('#TempRODetails_EditedValue').val());
         if (!isNaN(EditedVal))
             $("#TotalEditedValue").val(EditedVal.toFixed(0));
+        var NewVal = parseFloat($('#TempRODetails_NewValue').val());
+        if (!isNaN(NewVal))
+            $("#TotalEditedValue").val(NewVal.toFixed(0));
     }
 
 </script>

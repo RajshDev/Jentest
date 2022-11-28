@@ -636,8 +636,7 @@ namespace IOAS.Models
         public int ProjectFundingCategoryId { get; set; }
 
 
-        //[RequiredIf("ProjectFundingCategory", 2, ErrorMessage = "Please Select Project Category")]
-        [Required]
+        [RequiredIf("ProjectFundingCategoryId", 2, ErrorMessage = "Please Select Bank Name")]
         [Display(Name = "Bank Name")]
         public string bankname { get; set; }
         public Nullable<int> BankID { get; set; }
@@ -653,7 +652,7 @@ namespace IOAS.Models
         //   public Nullable<int> BankID { get; set; }
 
         // public Nullable<int> id { get; set; }
-        [Required]
+        [RequiredIf("ProjectFundingCategoryId", 2, ErrorMessage = "Please Select Bank Name")]
         [Display(Name = "Bank Name")]
         public string bankname { get; set; }
         public Nullable<int> BankID { get; set; }
