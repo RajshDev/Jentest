@@ -17740,9 +17740,9 @@ namespace IOAS.Infrastructure
                                  where string.IsNullOrEmpty(term) || C.EmployeeId.Contains(term) || C.Name.Contains(term) || C.PaybillNo.Contains(term)
                                  //join ins in context.tblInstituteMaster on C.InstituteId equals ins.InstituteId
                                  //where (C.RoleId == 7)
-                                 join D in context.tblRCTOutsourcing on C.EmployeeId equals D.EmployeersID
-                                 where (D.Status == "Verification Completed")
+
                                  //#7349 Changes done to restrict duplicate IDs by IC36775 18/10/2022
+                                 //#7349  Reverting the changes  by IC36775 28/11/2022
                                  where C.Category == "Project Staff"
                                  orderby C.Name
                                  select new { C.ID, C.Name, C.EmployeeId, C.PaybillNo }).ToList();
@@ -17755,9 +17755,10 @@ namespace IOAS.Infrastructure
                             PI.Add(new AutoCompleteModel()
                             {
                                 value = query[i].ID.ToString(),
-                                //label = query[i].EmployeeId + "-" + query[i].Name + "-" + query[i].EmployeeId,
+                                label = query[i].EmployeeId + "-" + query[i].Name + "-" + query[i].EmployeeId,
                                 //#7349 Changes done to restrict duplicate IDs by IC36775 18/10/2022
-                                label = query[i].Name + "-" + query[i].EmployeeId,
+                                //#7349  Reverting the changes  by IC36775 28/11/2022
+
                             });
                         }
                     }
@@ -17790,8 +17791,7 @@ namespace IOAS.Infrastructure
                                  //where (C.RoleId == 7)
 
                                  //#7349 Changes done to restrict duplicate IDs by IC36775 18/10/2022
-                                 join D in context.tblRCTSTE on C.EmployeeId equals D.EmployeersID
-                                 where (D.Status == "Verification Completed")
+                                 //#7349  Reverting the changes  by IC36775 28/11/2022
 
                                  where C.Category == "AdhocStaff"
                                  orderby C.Name
@@ -17805,9 +17805,10 @@ namespace IOAS.Infrastructure
                             PI.Add(new AutoCompleteModel()
                             {
                                 value = query[i].ID.ToString(),
-                                //label = query[i].ID + "-" + query[i].Name + "-" + query[i].EmployeeId,
+                                label = query[i].ID + "-" + query[i].Name + "-" + query[i].EmployeeId,
                                 //#7349 Changes done to restrict duplicate IDs by IC36775 18/10/2022
-                                label = query[i].Name + "-" + query[i].EmployeeId,
+                                //#7349  Reverting the changes  by IC36775 28/11/2022
+
                             });
                         }
                     }
