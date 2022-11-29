@@ -5026,16 +5026,23 @@ namespace IOAS.Infrastructure
                             }
                             else
                             {
-
+                                // Added additional condition -- "Open" status  for bug #8120 & #8094
                                 (from p in context.tblProject
                                  join enh in context.tblProjectEnhancement on p.ProjectId equals enh.ProjectId
-                                 where (p.ProjectId == projectId && p.Status == "Active" && enh.Status == "Active")
+                                 where (p.ProjectId == projectId && (p.Status == "Active" || p.Status == "Open" )&& enh.Status == "Active")
                                  select enh)
                                        .ToList()
                                        .ForEach(m =>
                                        {
                                            amt += (m.EnhancedSanctionValue ?? 0);
                                        });
+                                // Commented by Praveen for bug #8120 & #8094
+                                //context.tblProjectEnhancement.Where(p => p.ProjectId == projectId && p.Status == "Active")
+                                //  .ToList()
+                                //  .ForEach(m =>
+                                //  {
+                                //      amt += (m.EnhancedSanctionValue ?? 0);
+                                //  });
 
                                 //Commented by Nandhini for bug #7304 
                                 //(from p in context.tblProject
