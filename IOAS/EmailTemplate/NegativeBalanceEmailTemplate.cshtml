@@ -11,42 +11,38 @@
     <div style="width:100%; margin:0 auto;">
 
         <table border="0" style="width:100%; background:#fff; margin:0; padding:0;font-family: 'Poppins' , sans-serif; font-size 14px;color:#302c2b; line-height:2;" cellpadding="0" cellspacing="0">
-            @*<tr>
-                    @{
-                        var icsrUrl = Model.baseUrl + "/Content/IOASContent/img/icsr_logo.png";
-                        var iitUrl = Model.baseUrl + "/Content/IOASContent/img/iitm_logo.png";
-                        var cboxUrl = Model.baseUrl + "/Content/IOASContent/img/check-mark-icon.png";
-                    }
-                    <td style="padding:30px;background: #fafafa;border-bottom: 1px solid rgba(0,0,0,0.05);">
-                        <table width="100%" border="0" cellspacing="0" cellpadding="0">
-                            <tr>
-                                <td style="width:70px;"><img src="@icsrUrl" style="width:75%;"></td>
-                                <td style="text-align:center;">
-                                    <h4 style="font-size: 18px;margin: 0;">Centre for Industrial Consultancy and Sponsored Research</h4>
-                                    <h5 style="font-size:16px; font-weight:normal; margin:0;">Indian Institute of Technology Madras</h5>
-                                </td>
-                                <td style="width:70px;"><img src="@iitUrl" style="width:90%;"></td>
-                            </tr>
-                        </table>
+            <tr>
+                @{
+                    var icsrUrl = Model.baseUrl + "/Content/IOASContent/img/icsr_logo.png";
+                    var iitUrl = Model.baseUrl + "/Content/IOASContent/img/iitm_logo.png";
+                    var cboxUrl = Model.baseUrl + "/Content/IOASContent/img/check-mark-icon.png";
+                }
+                <td style="padding:30px;background: #fafafa;border-bottom: 1px solid rgba(0,0,0,0.05);">
+                    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                        <tr>
+                            <td style="width:70px;"><img src="@icsrUrl" style="width:75%;"></td>
+                            <td style="text-align:center;">
+                                <h4 style="font-size: 18px;margin: 0;">Centre for Industrial Consultancy and Sponsored Research</h4>
+                                <h5 style="font-size:16px; font-weight:normal; margin:0;">Indian Institute of Technology Madras</h5>
+                            </td>
+                            <td style="width:70px;"><img src="@iitUrl" style="width:90%;"></td>
+                        </tr>
+                    </table>
 
-                    </td>
-                </tr>*@
-            @{
-                Decimal Balance = 0;
-                System.Globalization.CultureInfo Indian = new System.Globalization.CultureInfo("hi-IN");
-            }
+                </td>
+            </tr>
+
 
             <tr>
                 <td style="padding:0px 30px; margin-bottom:30px;">
-                    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                    <table width="75%" border="0" cellspacing="0" cellpadding="0">
                         <tr>
-                            <td colspan="10">
+                            <td colspan="3">
                                 <p style="font-size:15px;color:#000;margin-bottom: 0px;">Dear @Model.piname,</p>
                             </td>
                         </tr>
                         <tr>
-                            <td colspan="10">
-                                <br />
+                            <td colspan="3">
                                 <p style="font-size:15px;color:#000;margin-bottom: 0px;">
                                     An amount of Rs.@Model.amount /- has been approved by the competent authority as negative
                                     balance under the project - @Model.projectno
@@ -54,37 +50,19 @@
                             </td>
                         </tr>
                         <tr>
-                            <td colspan="10">
+                            <td colspan="3">
                                 <p style="font-size:15px;color:#000;margin-bottom: 0px;">
-                                    The project current status for your kind information.The total balance allowed for Dr.@Model.piname is Rs.@(String.Format(Indian, "{0:N}", Balance))
+                                    The following projects are in negative and this for your kind information.
                                 </p>
                             </td>
                         </tr>
                         <tr>
-                            <td colspan="10">
-                                <p>&nbsp;</p>
-                            </td>
+                            <td></td>
                         </tr>
                         <tr>
-                            <td colspan="10">
-                                <p style="font-size:15px;color:#000;margin-bottom: 0px;">
-                                    Projects still have pending Negative Balance are listed below:
-                                </p>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td colspan="10">
-                                <p>&nbsp;</p>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="text-align: center;border:1px solid #000"><p>Project No</p></td>
-                            <td style="text-align: center;border:1px solid #000"><p>Status</p></td>
-                            <td style="text-align: center;border:1px solid #000"><p>Previous approved Negative balance</p></td>
-                            <td style="text-align: center;border:1px solid #000"><p>Current Negative balance</p></td>
-                            <td style="text-align: center;border:1px solid #000"><p>Total Negative Balance</p></td>
-                            <td style="text-align: center;border:1px solid #000"><p>project Balance</p></td>
-                            <td style="text-align: center;border:1px solid #000"><p>Amount available for Spending</p></td>
+                            <td><p>Project No</p></td>
+                            <td><p>Status</p></td>
+                            <td><p>Net Balance</p></td>
                         </tr>
                         @{
                             if (Model.prevlist.Count() > 0)
@@ -92,17 +70,11 @@
                                 var count = 0;
                                 foreach (var item in Model.prevlist)
                                 {
-                                    Balance = item.NegBalance + item.Net;
-
-                            <tr>
-                                <td style="text-align: center;border:1px solid #000">@item.ProjectNo</td>
-                                <td style="text-align: center;border:1px solid #000">@item.status</td>
-                                <td style="text-align: center;border:1px solid #000">@item.PrevNegBal</td>
-                                <td style="text-align: center;border:1px solid #000">@item.CurrNegBal</td>
-                                <td style="text-align: center;border:1px solid #000">@item.NegBalance</td>
-                                <td style="text-align: center;border:1px solid #000">@item.Net</td>
-                                <td style="text-align: center;border:1px solid #000">@(item.NegBalance + item.Net) </td>
-                            </tr>
+                                    <tr>
+                                        <td>@item.ProjectNo</td>
+                                        <td>@item.status</td>
+                                        <td>@item.Net</td>
+                                    </tr>
 
                                     count++;
                                 }
@@ -110,11 +82,10 @@
                         }
 
                         <tr>
-                            <td colspan="10">
-                                <br />
-                                @*<p style="font-size:15px;color:#000;margin-bottom: 0px;">
-                                        The total balance allowed for Dr.@Model.piname is Rs.@(String.Format(Indian, "{0:N}", Balance))
-                                    </p>*@
+                            <td colspan="3">
+                                <p style="font-size:15px;color:#000;margin-bottom: 0px;">
+                                    The total negative balance allowed for Dr.@Model.piname is Rs.@Model.totalamount
+                                </p>
                                 <br />
                                 <h4>Note: This is an auto-generated email.  Please do not reply.</h4>
                             </td>
@@ -128,7 +99,7 @@
 
             <tr>
                 <td style="padding:30px; background:#efefef;">
-                    <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin:0 auto; text-align:center;">
+                    <table width="90%" border="0" cellspacing="0" cellpadding="0" style="margin:0 auto; text-align:center;">
                         <tr>
                             <td>
                                 <h4 style="font-size:14px;margin-bottom: 0px; font-weight:normal;">For any queries contact <a href="mailto:icsraccounts3@iitm.ac.in" target="_blank"> icsraccounts3@iitm.ac.in</a></h4>
