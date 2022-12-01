@@ -5553,7 +5553,12 @@ namespace IOAS.GenericServices
                     var infundingbody = (from inf in context.tblProjectFundingBody
                                          where inf.ProjectId == ProjectId
                                          select inf.IndProjectFundingGovtBody).ToList();
-
+                    var projectFundingCategoryDetail = (from C in context.tblCodeControl
+                                                        where C.CodeName == "ProjectFundingCategory" && C.CodeValAbbr == query.ProjectFundingCategory
+                                                        select C).FirstOrDefault();
+                    var BankDetail = (from C in context.tblAccountHead
+                                      where C.AccountGroupId == 38 && C.AccountHeadId == query.BankID
+                                      select C).FirstOrDefault();
 
                     if (query != null)
                     {
@@ -5578,6 +5583,12 @@ namespace IOAS.GenericServices
                         if (query.FacultyCode != null)
                         {
                             prjModel.Facultycode = Common.GetCodeControlnameCommon(query.FacultyCode ?? 0, "ProjectFacultyCode");
+                        }
+                        if (query.ProjectFundingCategory > 0)
+                        {
+                            prjModel.ProjectFundingCategory = projectFundingCategoryDetail.CodeValDetail;
+                            if(query.ProjectFundingCategory == 2)
+                            prjModel.BankName = BankDetail.AccountHead;
                         }
                         if (query.FacultyDetailId != null)
                         {

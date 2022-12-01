@@ -1045,6 +1045,8 @@ namespace IOAS.Models
         public string IsthereAnyArtificialIntelligence { get; set; }
         public string AIDescription { get; set; }
         public string Domainrelevant { get; set; }
+        public string ProjectFundingCategory { get; set; }
+        public string BankName { get; set; }
     }
 
     public class CoPiDetailsModel
