@@ -107,7 +107,7 @@ namespace IOAS.Controllers
                 ViewBag.prjClassification = Common.GetProjectClassification();
                 ViewBag.rptClassification = Common.GetReportClassification();
                 //model.Inputdate = DateTime.Now;
-                ViewBag.ProjectCategory = Common.getprojectfunding();
+                ViewBag.ProjectFundingCategory = Common.getprojectfunding();
                 ViewBag.BankID = Common.GetTSABankList();
                 //ViewBag.Msg = System.Web.HttpContext.Current.Request.ApplicationPath;
                 // model.ProposalID = 0;
@@ -210,7 +210,7 @@ namespace IOAS.Controllers
                 ViewBag.SponPrjFunType = Common.GetSponsoredTypeCategory();
                 ViewBag.prjClassification = Common.GetProjectClassification();
                 ViewBag.rptClassification = Common.GetReportClassification();
-                ViewBag.ProjectCategory = Common.getprojectfunding();
+                ViewBag.ProjectFundingCategory = Common.getprojectfunding();
                 ViewBag.BankID = Common.GetTSABankList();
                 // model.PIEmail = model.PIEmail;
 
