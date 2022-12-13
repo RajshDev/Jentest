@@ -8992,6 +8992,9 @@ namespace IOAS.GenericServices
                             model.SourceReference = Common.GetTapalNo(Convert.ToInt32(Commit.ReferenceNo));
                         if (Commit.EmailDate != null)
                             model.SourceEmail = String.Format("{0:dd-MMMM-yyyy}", Commit.EmailDate);
+
+                        //IC36775 13/12/2022 for the ticket #8167
+                        model.CommitType = Commit.CommitmentType ?? 0;
                     }
                     return model;
                 }
