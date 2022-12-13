@@ -6656,6 +6656,11 @@ namespace IOAS.Models
         public string Status { get; set; }
         public string SourceReference { get; set; }
         public string SourceEmail { get; set; }
+
+        //IC36775 Commitmentype to be added 13/Dec/22 
+        //for the ticket#8167
+
+        public int CommitType { get; set; }
     }
     #endregion
     #region Project Status
