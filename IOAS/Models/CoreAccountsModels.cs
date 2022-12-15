@@ -3236,10 +3236,13 @@ namespace IOAS.Models
     }
     public class HonororiumPCFModel
     {
+        [DisplayFormat(DataFormatString = "{0:n2}")]
         public Nullable<decimal> PCFAmount { get; set; }
         public string PCFName { get; set; }
         public Nullable<int> PCFUserId { get; set; }
+        [DisplayFormat(DataFormatString = "{0:n2}")]
         public Nullable<decimal> PayableToPCF { get; set; }
+        [DisplayFormat(DataFormatString = "{0:n2}")]
         public Nullable<decimal> PayableToOH { get; set; }
         public string OHDropdown { get; set; }
 

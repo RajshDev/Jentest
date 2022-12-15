@@ -428,12 +428,14 @@ namespace IOAS.Models
     public class TDSGSTForTravelModel
     {
         public string Head { get; set; }
+        [DisplayFormat(DataFormatString = "{0:n2}")]
         public decimal Value { get; set; }
         public string Type { get; set; }
     }
     public class GSTForTravelModel
     {
         public string Head { get; set; }
+        [DisplayFormat(DataFormatString = "{0:n2}")]
         public decimal Value { get; set; }
     }
     public class TravelerVistListModel
