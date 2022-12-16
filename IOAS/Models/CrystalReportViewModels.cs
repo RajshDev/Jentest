@@ -297,6 +297,7 @@ namespace IOAS.Models
     {
         public string Reason { get; set; }
         public string Remarks { get; set; }
+        [DisplayFormat(DataFormatString = "{0:n2}")]
         public decimal AllocatedValue { get; set; }
         public decimal RecoupmentValue { get; set; }
         public decimal PaymentValue { get; set; }
@@ -361,13 +362,17 @@ namespace IOAS.Models
         public decimal HonSalary { get; set; }
         public decimal MdySalary { get; set; }
         public decimal FssSalary { get; set; }
+        [DisplayFormat(DataFormatString = "{0:n2}")]
         public decimal EucoValue { get; set; }
         public string EucoCode { get; set; }
         public decimal Others { get; set; }
         public string TDSSection { get; set; }
         public string BSRCode { get; set; }
+        [DisplayFormat(DataFormatString = "{0:n2}")]
         public decimal GSTInput { get; set; }
+        [DisplayFormat(DataFormatString = "{0:n2}")]
         public decimal GSTOutput { get; set; }
+        [DisplayFormat(DataFormatString = "{0:n2}")]
         public decimal TDSReceivable { get; set; }
         public decimal RoundOffCredit { get; set; }
         public decimal RoundOffDebit { get; set; }
@@ -480,6 +485,7 @@ namespace IOAS.Models
     {
         public string AccountHead { get; set; }
         public string TransactionType { get; set; }
+        [DisplayFormat(DataFormatString = "{0:n2}")]
         public decimal Amount { get; set; }
         public string Category { get; set; }
         public string PayeeName { get; set; }
