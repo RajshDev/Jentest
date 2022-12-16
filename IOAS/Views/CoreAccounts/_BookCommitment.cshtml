@@ -1,5 +1,6 @@
 ﻿@{
     string parentAction = ViewBag.ParentAction;
+    
 }
 @model IOAS.Models.CommitmentModel
 <style>
@@ -15,7 +16,7 @@
     <div id="TABCModal" class="modal fade" role="dialog">
         <div class="modal-dialog modal-lg">
             @using (Html.BeginForm("_BookCommitment", "CoreAccounts", FormMethod.Post, new { role = "form", @id = "formComitment" }))
-            {
+             {
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" id="btnInvardClose" class="close" data-dismiss="modal">&times;</button>
@@ -295,9 +296,13 @@
                                                             </div>
                                                             <div class="form-group custom-form-group">
                                                                 <label class="required">Remarks</label>
-                                                                @Html.TextAreaFor(m => m.Remarks, new { @text = "multiline", @class = "form-control", @required = "required" })
+                                                                @Html.TextAreaFor(M => M.Remarks, new { @class = "form-control", @rows = "2", @id = "cmtRemarks", @required = "required", @text = "multiline" })
+                                                                <div class="txt-error txt-red">
+                                                                    @Html.ValidationMessageFor(M => M.Remarks)
+                                                                </div>
                                                             </div>
-                                                            </div>
+
+                                                        </div>
                                                         <div class="col-md-12">
                                                             <div class="form-group custom-form-group">
                                                                 <label>Attachment(.pdf, .doc, .docx)</label>
@@ -305,16 +310,16 @@
                                                                 <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.file)</div>
                                                             </div>
                                                             @if ((Model != null) && !String.IsNullOrEmpty(Model.DocName) || !String.IsNullOrEmpty(Model.AttachPath))
-                                                            {
+                                                             {
                                                                 <div class="form-group custom-form-group" id="doclink">
                                                                     @Html.ActionLink(Model.DocName, "ShowDocument",
-                                                            new { Controller = "Account", file = Model.AttachPath, filepath = "~/Content/CommitmentDocument/" },
-                                                            new { @target = "_blank" })
+                                                                    new { Controller = "Account", file = Model.AttachPath, filepath = "~/Content/CommitmentDocument/" },
+                                                                    new { @target = "_blank" })
                                                                 </div>
-                                                            }
+                                                             }
 
                                                         </div>
-                                                        </div>
+                                                    </div>
                                                     @*<div class="row">
                                                         <div class="col-md-12">
                                                            
@@ -599,16 +604,16 @@
                                                 <tbody id="tbodyProjDoc">
 
                                                     @if (Model != null && Model.doc != null)
-                                                    {
+                                                     {
                                                         foreach (var item in Model.doc)
                                                         {
                                                             <tr>
-                                                                <td>@Html.DisplayFor(m => item.Remarks)</td>
-                                                                <td>@Html.DisplayFor(m => item.DocumentTypeName)</td>
+                                                                <td>@Html.DisplayFor(M => item.Remarks)</td>
+                                                                <td>@Html.DisplayFor(M => item.DocumentTypeName)</td>
                                                                 <td><a href="@Url.Action("ShowDocument","Project",new { file = item.DocumentName, filepath = item.DocumentPath })" target="_blank">@item.DocumentActualName</a></td>
                                                             </tr>
                                                         }
-                                                    }
+                                                     }
 
                                                 </tbody>
                                             </table>
@@ -627,7 +632,7 @@
                     </div>
 
                 </div>
-            }
+             }
         </div>
     </div>
 </div>
