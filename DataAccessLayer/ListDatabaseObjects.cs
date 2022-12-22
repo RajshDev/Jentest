@@ -80,7 +80,7 @@ namespace DataAccessLayer
         }
         private SqlConnection getConnection()
         {
-            return new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ToString());
+            return new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionStringReport"].ToString());
         }
 
         public DataTable getAllProperties(string tableName, string objType = "")
