@@ -2652,6 +2652,14 @@ namespace IOAS.Models
     #region report
     public class ComitteeApprovalDetailReportModel
     {
+        public string EmployeeID { get; set; }
+        public DateTime ApplicationReceivedDate { get; set; }
+        public string SalaryLevel { get; set; }
+        public string ApprovalInitiatedDate { get; set; }
+        public string ApprovedDate { get; set; }
+        public string CommitmentBookedDate { get; set; }
+        public DateTime CommitteeApprovedDate { get; set; }
+        public string OfferReleasedDate { get; set; }
         public string CandidateName { get; set; }
         public string PostRecommended { get; set; }
         public string ProjectNumber { get; set; }

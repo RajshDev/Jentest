@@ -63,10 +63,26 @@ namespace IOAS.Controllers
                                      m.PIName,
                                      m.CheckList,
                                      m.CommiteeApproveName,
-                                     m.ApplicationType
+                                     m.ApplicationType,
+                                     m.SalaryLevel,
+                                     m.EmployeeNo,
+                                     m.ApplicationReceivedDate,
+                                     m.ApprovalInitiatedDate,
+                                     m.ApprovedDate,
+                                     m.CommitmentBookedDate,
+                                     m.CommiteeApprovedDate,
+                                     m.Offerreleaseddate
                                  }).AsEnumerable()
                     .Select((x) => new ComitteeApprovalDetailReportModel()
                     {
+                        EmployeeID = x.EmployeeNo,
+                        ApplicationReceivedDate = x.ApplicationReceivedDate ?? DateTime.Now,
+                        SalaryLevel = x.SalaryLevel,
+                        ApprovalInitiatedDate = x.ApprovalInitiatedDate,
+                        ApprovedDate = x.ApprovedDate,
+                        CommitmentBookedDate = x.CommitmentBookedDate,
+                        CommitteeApprovedDate = x.CommiteeApprovedDate ?? DateTime.Now,
+                        OfferReleasedDate = x.Offerreleaseddate,
                         CandidateName = x.CandidateName,
                         Category = x.Category,
                         ApplicationId = x.ApplicationId ?? 0,
