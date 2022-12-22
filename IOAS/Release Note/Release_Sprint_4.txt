@@ -1,0 +1,131 @@
+Release Note
+Sprint_1
+Bug details:
+Bugs rectified ,
+8215 ,7477,7795 - already tested
+
+enhancement done,
+7243,7745,7271
+
+
+Test link:  https://devtula.icsr.in/
+
+Files affected –
+
+RCTReportMasterController.cs
+RequirementModel.cs
+STEJunior.cshtml
+ListDataObject.cs
+
+
+
+DB level changes –
+ 
+•	View changes:
+vw_RCTApplicationAgeing 
+vw_RCTApprovedApplicationsReport 
+
+•	Stored procedure changes:
+GenerateOSGPayroll
+
+•	Table changes:
+Nil
+
+
+[17:41] Praveen A
+Create View vw_RCTApplicationAgeing As
+ 
+select a.STEID as ApplicationID,isnull(a.EmployeersID,'Pending Verification')as EmployeeID,
+(select COALESCE(CONVERT(VARCHAR(255),min(Crt_TS),120),'NA')  from tblRCTSTEStatusLog as b where a.STEID = b.STEID and b.PresentStatus = 'Open') as SentforApproval,
+(select COALESCE(CONVERT(VARCHAR(255),min(Crt_TS),120),'NA')  from tblRCTSTEStatusLog as b where a.STEID = b.STEID and b.PresentStatus = 'Sent for approval') as ApprovedOn,
+(select COALESCE(CONVERT(VARCHAR(255),min(Crt_TS),120),'NA') from tblRCTSTEStatusLog as b where a.STEID = b.STEID and b.PresentStatus = 'Awaiting Commitment Booking') as CommitmentBookedOn,
+(select COALESCE(CONVERT(VARCHAR(255),min(CRTD_TS),120),'NA') from tblRCTOfferDetails as b where a.STEID = b.ApplicationId and b.Category = 'STE' and OfferCategory = 'OfferLetter' and b.isSend = 1
+) as OfferReleaseDate,
+'STE' as AppointmentType,NULL as OrderID
+from tblRCTSTE as a
+where (a.Status = 'Awaiting Verification' or a.Status = 'Verification Completed' or a.Status = 'Completed' or a.Status = 'Open')
+union all
+select a.OSGID as ApplicationID,isnull(a.EmployeersID,'Pending Verification')as EmployeeID,
+(select COALESCE(CONVERT(VARCHAR(255),min(Crt_TS),120),'NA')  from tblRCTOSGStatusLog as b where a.OSGID = b.OSGID and b.PresentStatus = 'Open') as SentforApproval,
+(select COALESCE(CONVERT(VARCHAR(255),min(Crt_TS),120),'NA')  from tblRCTOSGStatusLog as b where a.OSGID = b.OSGID and b.PresentStatus = 'Sent for approval') as ApprovedOn,
+(select COALESCE(CONVERT(VARCHAR(255),min(Crt_TS),120),'NA') from tblRCTOSGStatusLog as b where a.OSGID = b.OSGID and b.PresentStatus = 'Awaiting Commitment Booking') as CommitmentBookedOn,
+(select COALESCE(CONVERT(VARCHAR(255),min(CRTD_TS),120),'NA') from tblRCTOfferDetails as b where a.OSGID = b.ApplicationId and b.Category = 'OSG' and OfferCategory = 'OfferLetter' and b.isSend = 1
+) as OfferReleaseDate,
+'OSG' as AppointmentType,NULL as OrderID
+from tblRCTOutsourcing as a
+where (a.Status = 'Awaiting Verification' or a.Status = 'Verification Completed' or a.Status = 'Completed' or a.Status = 'Open')
+union all
+select a.AppointmentId as ApplicationID,
+CASE
+when a.AppointmentType = 2 then c.EmployeersID
+when a.AppointmentType = 3 then d.EmployeersID
+ELSE
+'Awaiting Verification'
+END
+as EmployeeID,
+(select COALESCE(CONVERT(VARCHAR(255),min(Crt_TS),120),'NA')  from tblRCTOrderLog as b where a.OrderId = b.OrderID and b.PresentStatus = 'Open') as SentforApproval,
+(select COALESCE(CONVERT(VARCHAR(255),min(Crt_TS),120),'NA')  from tblRCTOrderLog as b where a.OrderId = b.OrderID and b.PresentStatus = 'Sent for approval') as ApprovedOn,
+(select COALESCE(CONVERT(VARCHAR(255),min(Crt_TS),120),'NA') from tblRCTOrderLog as b where a.OrderId = b.OrderId and b.PresentStatus = 'Awaiting Commitment Booking') as CommitmentBookedOn,
+(select COALESCE(CONVERT(VARCHAR(255),min(CRTD_TS),120),'NA') from tblRCTOfferDetails as b where a.OrderId = b.OrderId and b.isSend = 1 and (OfferCategory = 'OfferLetter' OR OfferCategory = 'Order')
+) as OfferReleaseDate,
+CASE
+when a.AppointmentType = 2 then 'STE'
+when a.AppointmentType = 3 then 'OSG'
+END as AppointmentType,a.OrderId as OrderID
+from tblOrder as a
+left join tblRCTSTE as c on (a.AppointmentId = c.STEID) and a.AppointmentType = 2
+left join tblRCTOutsourcing as d on (a.AppointmentId = d.OSGID) and a.AppointmentType = 3
+where (a.Status = 'Awaiting Verification' or a.Status = 'Verification Completed' or a.Status = 'Completed' or a.Status = 'Open')
+ 
+Go
+
+
+Create View vw_RCTApplicationAgeing As
+ 
+select a.STEID as ApplicationID,isnull(a.EmployeersID,'Pending Verification')as EmployeeID,
+(select COALESCE(CONVERT(VARCHAR(255),min(Crt_TS),120),'NA')  from tblRCTSTEStatusLog as b where a.STEID = b.STEID and b.PresentStatus = 'Open') as SentforApproval,
+(select COALESCE(CONVERT(VARCHAR(255),min(Crt_TS),120),'NA')  from tblRCTSTEStatusLog as b where a.STEID = b.STEID and b.PresentStatus = 'Sent for approval') as ApprovedOn,
+(select COALESCE(CONVERT(VARCHAR(255),min(Crt_TS),120),'NA') from tblRCTSTEStatusLog as b where a.STEID = b.STEID and b.PresentStatus = 'Awaiting Commitment Booking') as CommitmentBookedOn,
+(select COALESCE(CONVERT(VARCHAR(255),min(CRTD_TS),120),'NA') from tblRCTOfferDetails as b where a.STEID = b.ApplicationId and b.Category = 'STE' and OfferCategory = 'OfferLetter' and b.isSend = 1
+) as OfferReleaseDate,
+'STE' as AppointmentType,NULL as OrderID
+from tblRCTSTE as a
+where (a.Status = 'Awaiting Verification' or a.Status = 'Verification Completed' or a.Status = 'Completed' or a.Status = 'Open')
+union all
+select a.OSGID as ApplicationID,isnull(a.EmployeersID,'Pending Verification')as EmployeeID,
+(select COALESCE(CONVERT(VARCHAR(255),min(Crt_TS),120),'NA')  from tblRCTOSGStatusLog as b where a.OSGID = b.OSGID and b.PresentStatus = 'Open') as SentforApproval,
+(select COALESCE(CONVERT(VARCHAR(255),min(Crt_TS),120),'NA')  from tblRCTOSGStatusLog as b where a.OSGID = b.OSGID and b.PresentStatus = 'Sent for approval') as ApprovedOn,
+(select COALESCE(CONVERT(VARCHAR(255),min(Crt_TS),120),'NA') from tblRCTOSGStatusLog as b where a.OSGID = b.OSGID and b.PresentStatus = 'Awaiting Commitment Booking') as CommitmentBookedOn,
+(select COALESCE(CONVERT(VARCHAR(255),min(CRTD_TS),120),'NA') from tblRCTOfferDetails as b where a.OSGID = b.ApplicationId and b.Category = 'OSG' and OfferCategory = 'OfferLetter' and b.isSend = 1
+) as OfferReleaseDate,
+'OSG' as AppointmentType,NULL as OrderID
+from tblRCTOutsourcing as a
+where (a.Status = 'Awaiting Verification' or a.Status = 'Verification Completed' or a.Status = 'Completed' or a.Status = 'Open')
+union all
+select a.AppointmentId as ApplicationID,
+CASE
+when a.AppointmentType = 2 then c.EmployeersID
+when a.AppointmentType = 3 then d.EmployeersID
+ELSE
+'Awaiting Verification'
+END
+as EmployeeID,
+(select COALESCE(CONVERT(VARCHAR(255),min(Crt_TS),120),'NA')  from tblRCTOrderLog as b where a.OrderId = b.OrderID and b.PresentStatus = 'Open') as SentforApproval,
+(select COALESCE(CONVERT(VARCHAR(255),min(Crt_TS),120),'NA')  from tblRCTOrderLog as b where a.OrderId = b.OrderID and b.PresentStatus = 'Sent for approval') as ApprovedOn,
+(select COALESCE(CONVERT(VARCHAR(255),min(Crt_TS),120),'NA') from tblRCTOrderLog as b where a.OrderId = b.OrderId and b.PresentStatus = 'Awaiting Commitment Booking') as CommitmentBookedOn,
+(select COALESCE(CONVERT(VARCHAR(255),min(CRTD_TS),120),'NA') from tblRCTOfferDetails as b where a.OrderId = b.OrderId and b.isSend = 1 and (OfferCategory = 'OfferLetter' OR OfferCategory = 'Order')
+) as OfferReleaseDate,
+CASE
+when a.AppointmentType = 2 then 'STE'
+when a.AppointmentType = 3 then 'OSG'
+END as AppointmentType,a.OrderId as OrderID
+from tblOrder as a
+left join tblRCTSTE as c on (a.AppointmentId = c.STEID) and a.AppointmentType = 2
+left join tblRCTOutsourcing as d on (a.AppointmentId = d.OSGID) and a.AppointmentType = 3
+where (a.Status = 'Awaiting Verification' or a.Status = 'Verification Completed' or a.Status = 'Completed' or a.Status = 'Open')
+ 
+Go
+
+
+
+
