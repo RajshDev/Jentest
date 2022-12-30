@@ -32,12 +32,5 @@ namespace IOAS.DataModel
         public string Requested_by { get; set; }
         public string Request_Reference { get; set; }
         public string Request_Reference_Number { get; set; }
-        public Nullable<System.DateTime> REQUEST_RECEIVED_DATE { get; set; }
-        public string CREATED_BY1 { get; set; }
-        public Nullable<System.DateTime> COMPLETED__DATE { get; set; }
-        public string COMPLETED_BY { get; set; }
-        public Nullable<System.DateTime> COMMITMENT_BOOKING_DATE { get; set; }
-        public Nullable<System.DateTime> COMMMITEE_APPROVED_DATE { get; set; }
-        public string MS_PHD_COURSE { get; set; }
     }
 }

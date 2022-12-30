@@ -297,11 +297,15 @@ namespace IOAS.Models
     {
         public string Reason { get; set; }
         public string Remarks { get; set; }
+        [DisplayFormat(DataFormatString = "{0:n2}")]
         public decimal AllocatedValue { get; set; }
         public decimal RecoupmentValue { get; set; }
         public decimal PaymentValue { get; set; }
+        [DisplayFormat(DataFormatString = "{0:n2}")]
         public decimal BalanceinAdvance { get; set; }
+        [DisplayFormat(DataFormatString = "{0:n2}")]
         public decimal TempAdvanceValue { get; set; }
+        [DisplayFormat(DataFormatString = "{0:n2}")]
         public decimal TempSettleValue { get; set; }
         public string StudentName { get; set; }
         public string InstName { get; set; }
@@ -328,6 +332,7 @@ namespace IOAS.Models
         public string BillMonth { get; set; }
         public string BankAccount { get; set; }
         public string RefNumber { get; set; }
+        [DisplayFormat(DataFormatString = "{0:n2}")]
         public decimal TotalBillValue { get; set; }
         public string BillNumber { get; set; }
         public string BillType { get; set; }
@@ -342,8 +347,10 @@ namespace IOAS.Models
         public string CheqDate { get; set; }
         public string Rupees { get; set; }
         public string InvoiceDate { get; set; }
+        [DisplayFormat(DataFormatString = "{0:n2}")]
         public decimal PayableAmount { get; set; }
         public decimal TaxAmount { get; set; }
+        [DisplayFormat(DataFormatString = "{0:n2}")]
         public decimal TotalAmount { get; set; }
         public string BillHeading { get; set; }
         public string PrintedDate { get; set; }
@@ -355,13 +362,17 @@ namespace IOAS.Models
         public decimal HonSalary { get; set; }
         public decimal MdySalary { get; set; }
         public decimal FssSalary { get; set; }
+        [DisplayFormat(DataFormatString = "{0:n2}")]
         public decimal EucoValue { get; set; }
         public string EucoCode { get; set; }
         public decimal Others { get; set; }
         public string TDSSection { get; set; }
         public string BSRCode { get; set; }
+        [DisplayFormat(DataFormatString = "{0:n2}")]
         public decimal GSTInput { get; set; }
+        [DisplayFormat(DataFormatString = "{0:n2}")]
         public decimal GSTOutput { get; set; }
+        [DisplayFormat(DataFormatString = "{0:n2}")]
         public decimal TDSReceivable { get; set; }
         public decimal RoundOffCredit { get; set; }
         public decimal RoundOffDebit { get; set; }
@@ -385,6 +396,7 @@ namespace IOAS.Models
         public string AccNo { get; set; }
         public string Bank { get; set; }
         public string IFSC { get; set; }
+        [DisplayFormat(DataFormatString = "{0:n2}")]
         public decimal Amount { get; set; }
         public string RollNo { get; set; }
         public string Branch { get; set; }
@@ -406,24 +418,29 @@ namespace IOAS.Models
         public string StartDate { get; set; }
         public string SchemeCode { get; set; }
         public string ProjectType { get; set; }
+        [DisplayFormat(DataFormatString = "{0:n2}")]
         public decimal NetBalance { get; set; }
         public string Head { get; set; }
+        [DisplayFormat(DataFormatString = "{0:n2}")]
         public decimal Value { get; set; }
     }
     public class TDSITListForTravelModel
     {
         public string Head { get; set; }
+        [DisplayFormat(DataFormatString = "{0:n2}")]
         public decimal Value { get; set; }
     }
     public class TDSGSTForTravelModel
     {
         public string Head { get; set; }
+        [DisplayFormat(DataFormatString = "{0:n2}")]
         public decimal Value { get; set; }
         public string Type { get; set; }
     }
     public class GSTForTravelModel
     {
         public string Head { get; set; }
+        [DisplayFormat(DataFormatString = "{0:n2}")]
         public decimal Value { get; set; }
     }
     public class TravelerVistListModel
@@ -438,14 +455,19 @@ namespace IOAS.Models
         public string RollNo { get; set; }
         public string IntenStartDate { get; set; }
         public string IntenEndDate { get; set; }
+        [DisplayFormat(DataFormatString = "{0:n2}")]
         public decimal AmountPerDay { get; set; }
+        [DisplayFormat(DataFormatString = "{0:n2}")]
         public decimal TotalAmount { get; set; }
     }
     public class TDSPerModel
     {
         public string PayeeName { get; set; }
+        [DisplayFormat(DataFormatString = "{0:n2}")]
         public decimal BasicAmt { get; set; }
+        [DisplayFormat(DataFormatString = "{0:n2}")]
         public decimal TDSAmt { get; set; }
+        [DisplayFormat(DataFormatString = "{0:n2}")]
         public decimal NetAmt { get; set; }
         public string TDSPer { get; set; }
       
@@ -454,6 +476,7 @@ namespace IOAS.Models
     {
         public string InvoiceNo { get; set; }
         public string InvoiceDate { get; set; }
+        [DisplayFormat(DataFormatString = "{0:n2}")]
         public decimal Amount { get; set; }
         public decimal GSTAmt { get; set; }
 
@@ -462,6 +485,7 @@ namespace IOAS.Models
     {
         public string AccountHead { get; set; }
         public string TransactionType { get; set; }
+        [DisplayFormat(DataFormatString = "{0:n2}")]
         public decimal Amount { get; set; }
         public string Category { get; set; }
         public string PayeeName { get; set; }

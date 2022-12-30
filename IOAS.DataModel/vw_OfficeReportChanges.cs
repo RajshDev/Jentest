@@ -50,6 +50,5 @@ namespace IOAS.DataModel
         public Nullable<System.DateTime> CreatedDate { get; set; }
         public string ProjectCoPiID { get; set; }
         public string ProjectCoPiName { get; set; }
-        public string SchemeCode { get; set; }
     }
 }

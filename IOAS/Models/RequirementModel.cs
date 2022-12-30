@@ -1445,7 +1445,6 @@ namespace IOAS.Models
         public Nullable<DateTime> AppointmentEndDate { get; set; }
         [Display(Name = "Salary")]
         public Nullable<decimal> Salary { get; set; }
-        public string RequestedBy { get; set; }
         public Nullable<decimal> MedicalAmmount { get; set; }
         public bool isMedical { get; set; }
         public string IsGSTapplicable { get; set; }
@@ -1793,8 +1792,6 @@ namespace IOAS.Models
         public string PIRemarks { get; set; }
         public string PINoDuesRemarks { get; set; }
         public string PIrequestedRelievingDate { get; set; }
-
-        public string RequestedfromPI { get; set; }
     }
 
     public class StopaymentlosspayModel
@@ -1823,7 +1820,6 @@ namespace IOAS.Models
         public string ApplicationNo { get; set; }
         public bool IsMsPhd { get; set; }
         public string Status { get; set; }
-        public string RequestedfromPI { get; set; }
         public string IITMPensionerCSIRStaff { get; set; }
         public Recruitoldmastdetails Appointmentdetails { get; set; }
         public decimal WithdrawalAmount { get; set; }
@@ -2659,11 +2655,6 @@ namespace IOAS.Models
         public string EmployeeID { get; set; }
         public DateTime ApplicationReceivedDate { get; set; }
         public string SalaryLevel { get; set; }
-        public string ApprovalInitiatedDate { get; set; }
-        public string ApprovedDate { get; set; }
-        public string CommitmentBookedDate { get; set; }
-        public DateTime CommitteeApprovedDate { get; set; }
-        public string OfferReleasedDate { get; set; }
         public string CandidateName { get; set; }
         public string PostRecommended { get; set; }
         public string ProjectNumber { get; set; }
@@ -2672,6 +2663,11 @@ namespace IOAS.Models
         public DateTime AppointmentStartdate { get; set; }
         public DateTime AppointmentEnddate { get; set; }
         public DateTime CRTD_TS { get; set; }
+        public string ApprovalInitiatedDate { get; set; }
+        public string ApprovedDate { get; set; }
+        public string CommitmentBookedDate { get; set; }
+        public DateTime CommitteeApprovedDate { get; set; }
+        public string OfferReleasedDate { get; set; }
         public decimal BasicPay { get; set; }
         public string ApplicationType { get; set; }
         public string TypeofAppointment { get; set; }

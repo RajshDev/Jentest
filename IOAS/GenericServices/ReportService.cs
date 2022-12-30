@@ -8986,12 +8986,16 @@ namespace IOAS.GenericServices
                         model.loginUser = Common.GetUserNameBasedonId(Commit.CRTD_UserID ?? 0);
                         model.HeadAmount = CommDet.Amount ?? 0;
                         model.HeadName = Common.GetAllocationHead(CommDet.AllocationHeadId ?? 0);
-                        model.Remarks = (Commit.Description ?? "") + "-" + (Commit.ItemDescription ?? "") + "-" + (Commit.AttachmentName ?? "");
+                        //8215 commitment Remark issue
+                        model.Remarks = (Commit.Description ?? "") + "-" + (Commit.ItemDescription ?? "") /*+ "-" + (Commit.AttachmentName ?? "")*/;
                         model.Status = Commit.Status;
                         if (Commit.ReferenceNo != null)
                             model.SourceReference = Common.GetTapalNo(Convert.ToInt32(Commit.ReferenceNo));
                         if (Commit.EmailDate != null)
                             model.SourceEmail = String.Format("{0:dd-MMMM-yyyy}", Commit.EmailDate);
+
+                        //IC36775 13/12/2022 for the ticket #8167
+                        model.CommitType = Commit.CommitmentType ?? 0;
                     }
                     return model;
                 }
