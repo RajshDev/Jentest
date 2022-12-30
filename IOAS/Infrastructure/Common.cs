@@ -5027,7 +5027,7 @@ namespace IOAS.Infrastructure
                             }
                             else
                             {
-// Added additional condition -- "Open" status  for bug #8120 & #8094
+                                // Added additional condition -- "Open" status  for bug #8120 & #8094
                                 (from p in context.tblProject
                                  join enh in context.tblProjectEnhancement on p.ProjectId equals enh.ProjectId
                                  where (p.ProjectId == projectId && (p.Status == "Active" || p.Status == "Open" )&& enh.Status == "Active")
