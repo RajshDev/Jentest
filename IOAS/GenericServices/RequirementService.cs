@@ -2773,6 +2773,125 @@ namespace IOAS.GenericServices
             }
         }
 
+        public Tuple<bool, string> STEVWFInit(int id, int logged_in_user)
+        {
+            try
+            {
+                using (var IOAScontext = new IOASDBEntities())//&& m.Status == "Awaiting Verification" || m.Status == "Awaiting Verification-Draft"
+                {
+                    var query = IOAScontext.tblRCTSTE.FirstOrDefault(m => m.STEID == id );
+                    if (query != null)
+                    {
+
+                        string Type = "STEVER Flow";
+                        if (query.NotetoCMAdmin == true)
+                            Type = "STEVERAdminFlow";
+                        else if (query.NotetoDean == true)
+                            Type = "STEVERFlowDean";
+                        var fw = CoreAccount.ProcessTrigger(188, Type, 0, id, logged_in_user, "STEID-VER", query.ApplicationNumber);                       
+                        if (String.IsNullOrEmpty(fw.errorMsg))
+                        {
+                            query.Status = "Sent for approval-Verify";
+                            query.UptdUser = logged_in_user;
+                            query.UptdTs = DateTime.Now;
+                            IOAScontext.SaveChanges();
+                            PostSTEStatusLog(id, "Awaiting Verification", "Sent for approval-Verify", logged_in_user);
+                            return Tuple.Create(true, "");
+                        }
+                        else
+                            return Tuple.Create(false, fw.errorMsg);
+                    }
+                    return Tuple.Create(false, "Something went wrong please contact administrator");
+                }
+            }
+            catch (Exception ex)
+            {
+                return Tuple.Create(false, "Something went wrong please contact administrator");
+            }
+        }
+
+        public Tuple<bool, string> STEOVWFInit(int id, int logged_in_user)
+        {
+            try
+            {
+                using (var IOAScontext = new IOASDBEntities())
+                {
+                    var query = (from o in IOAScontext.tblOrder
+                                 from od in IOAScontext.tblOrderDetail       //&& o.Status == "Awaiting Verification" || o.Status == "Awaiting Verification-Draft"                       
+                                 where  o.OrderId == id
+                                 && o.OrderId == od.OrderId 
+                                 select new { od, o }).FirstOrDefault();                    
+                    if (query != null)
+                    {
+
+                        string Type = "STEORDVER Flow";
+                        if (query.od.NotetoCMAdmin == true)
+                            Type = "STEORDVERAdminFlow";
+                        else if (query.od.NotetoDean == true)
+                            Type = "STEORDVERFlowDean";
+                        var fw = CoreAccount.ProcessTrigger(188, Type, 0, id, logged_in_user, "STEID-ORVER", query.o.OrderNo);
+                        if (String.IsNullOrEmpty(fw.errorMsg))
+                        {
+                            query.o.Status = "Sent for approval-Verify";
+                            query.o.UpdtUser = logged_in_user;
+                            query.o.UpdtTS = DateTime.Now;
+                            IOAScontext.SaveChanges();
+                            PostOrderStatusLog(id, "Awaiting Verification", "Sent for approval-Verify", logged_in_user);
+                            return Tuple.Create(true, "");
+                        }
+                        else
+                            return Tuple.Create(false, fw.errorMsg);
+                    }
+                    return Tuple.Create(false, "Something went wrong please contact administrator");
+                }
+            }
+            catch (Exception ex)
+            {
+                return Tuple.Create(false, "Something went wrong please contact administrator");
+            }
+        }
+
+        public Tuple<bool, string> OSGOVWFInit(int id, int logged_in_user)
+        {
+            try
+            {
+                using (var IOAScontext = new IOASDBEntities())
+                {
+                    var query = (from o in IOAScontext.tblOrder
+                                 from od in IOAScontext.tblOrderDetail       //&& o.Status == "Awaiting Verification" || o.Status == "Awaiting Verification-Draft"                       
+                                 where o.OrderId == id
+                                 && o.OrderId == od.OrderId
+                                 select new { od, o }).FirstOrDefault();                   
+                    if (query != null)
+                    {
+
+                        string Type = "OSGORDVER Flow";
+                        if (query.od.NotetoCMAdmin == true)
+                            Type = "OSGORDVERAdminFlow";
+                        else if (query.od.NotetoDean == true)
+                            Type = "OSGORDVERFlowDean";
+                        var fw = CoreAccount.ProcessTrigger(206, Type, 0, id, logged_in_user, "OSGID-ORVER", query.o.OrderNo);
+                        if (String.IsNullOrEmpty(fw.errorMsg))
+                        {
+                            query.o.Status = "Sent for approval-Verify";
+                            query.o.UpdtUser = logged_in_user;
+                            query.o.UpdtTS = DateTime.Now;
+                            IOAScontext.SaveChanges();
+                            PostOrderStatusLog(id, "Awaiting Verification", "Sent for approval-Verify", logged_in_user);
+                            return Tuple.Create(true, "");
+                        }
+                        else
+                            return Tuple.Create(false, fw.errorMsg);
+                    }
+                    return Tuple.Create(false, "Something went wrong please contact administrator");
+                }
+            }
+            catch (Exception ex)
+            {
+                return Tuple.Create(false, "Something went wrong please contact administrator");
+            }
+        }
+
         public STEViewModel GetOverAllApplicationViewDetails(int appid, string apptype, int orderid)
         {
             RecruitCommitRequestModel commitreqmodel = new RecruitCommitRequestModel();
@@ -3213,7 +3332,7 @@ namespace IOAS.GenericServices
                                  select new { A, C.CodeValDetail, P.ProjectNumber, D.Designation }).FirstOrDefault();
                     if (query != null)
                     {
-                        model.Status = query.A.Status;
+                        model.Status = query.A.Status;                      
                         model.STEId = query.A.STEID;
                         model.ApplicationNo = query.A.ApplicationNumber;
                         model.TypeofappointmentId = query.A.TypeofAppointment;
@@ -3259,6 +3378,13 @@ namespace IOAS.GenericServices
                         model.Appointmentstartdate = string.Format("{0:dd-MMMM-yyyy}", query.A.AppointmentStartdate);
                         model.AppointmentEndDate = string.Format("{0:dd-MMMM-yyyy}", query.A.AppointmentEnddate);
                         model.PayType = query.A.ConsolidatedPay == true ? "Consolidated Pay" : "Fellowship Pay";
+                        model.ActualDate = query.A.ActualDate;
+                        model.VerificationRemarks = query.A.VerificationRemarks;
+                        if (query.A.NotetoCMAdmin == true)
+                            model.FlowApprover = "CMAdmin";
+                        if (query.A.NotetoDean == true)
+                            model.FlowApprover = "NDean";
+                        //model.FlowApprover = query.A.NotetoCMAdmin == true ? "CMAdmin" : query.A.NotetoDean == true ? "NDean" : "";                       
                         var QryEducation = (from c in context.tblRCTSTEEducationDetail
                                             join q in context.tblRCTQualificationList on c.QualifiCationID equals q.QualificationId into lftj
                                             from lj in lftj.DefaultIfEmpty()
@@ -3345,6 +3471,7 @@ namespace IOAS.GenericServices
                                                 orderby c.RecruitmentRequestId descending
                                                 select c.CommitmentNumber).FirstOrDefault();
                         model.CommitmentNo = string.IsNullOrEmpty(CommitmentNumber) ? "-" : CommitmentNumber;
+                        model.EmployeeWorkplace = query.A.EmployeeWorkplace;
                         if (query.A.ResumeFile != null)
                             model.ResumeFileName = query.A.ResumeFile.Substring((query.A.ResumeFile.LastIndexOf('_') + 1));
                         model.ResumeFilePath = query.A.ResumeFile;
@@ -3368,10 +3495,11 @@ namespace IOAS.GenericServices
             }
         }
 
-        public Tuple<int, string> VerifySTE(STEVerificationModel model, int logged_in_userId)
+        public Tuple<int,int, string> VerifySTE(STEVerificationModel model, int logged_in_userId, string button)
         {
-            int res = 0, STEID = model.STEId ?? 0;
-            string EmployeeID = string.Empty;
+            int res = 0, STEID = model.STEId ?? 0, OrderID = model.OrderId ?? 0;
+            string EmployeeID = string.Empty, errMsg = string.Empty;
+            
 
             try
             {
@@ -3381,412 +3509,505 @@ namespace IOAS.GenericServices
                     {
                         try
                         {
-                            var query = (from s in context.tblRCTSTE
-                                         from d in context.tblRCTDesignation
-                                         where s.DesignationId == d.DesignationId && s.Status == "Awaiting Verification"
-                                         && s.STEID == model.STEId
-                                         select new { s, d }).FirstOrDefault();
-                            if (query != null)
+                            if (button == "Save as drafts")
                             {
-                                query.s.Status = "Verification Completed";
-                                if (model.PersonImage != null)
+                                var query = (from s in context.tblRCTSTE
+                                             from d in context.tblRCTDesignation
+                                             where s.DesignationId == d.DesignationId //&& s.Status == "Awaiting Verification" || s.Status == "Awaiting Verification-Draft"
+                                             && s.STEID == model.STEId && s.ApplicationNumber == model.ApplicationNo
+                                             select new { s, d }).FirstOrDefault();
+                                if (query != null)
                                 {
-                                    string actName = System.IO.Path.GetFileName(model.PersonImage.FileName);
-                                    var guid = Guid.NewGuid().ToString();
-                                    var docName = guid + "_" + actName;
-                                    model.PersonImage.UploadFile("RCTEmployeeImages", docName);
-                                    query.s.CandidateImage = docName;
-                                }
-                                if (model.Resume != null)
-                                {
-                                    string actName = System.IO.Path.GetFileName(model.Resume.FileName);
-                                    var guid = Guid.NewGuid().ToString();
-                                    var docName = guid + "_" + actName;
-                                    model.Resume.UploadFile("Requirement", docName);
-                                    query.s.ResumeFile = docName;
-                                }
-                                if (model.CantidateSignature != null)
-                                {
-                                    string actName = System.IO.Path.GetFileName(model.CantidateSignature.FileName);
-                                    var guid = Guid.NewGuid().ToString();
-                                    var docName = guid + "_" + actName;
-                                    model.CantidateSignature.UploadFile("Requirement", docName);
-                                    query.s.CandidateSignature = docName;
-                                }
-                                query.s.PANNo = model.PAN;
-                                query.s.AadhaarNumber = Convert.ToString(model.aadharnumber);
-                                query.s.AlternativeContactNumber = model.AlternativeContactNumber;
-                                query.s.ContactNumber = model.ContactNumber;
-                                query.s.EmergencyContact = model.EmergencyContactNo;
-                                query.s.isSameAsPresentAddress = model.isSameasPermanentAddress;
-                                query.s.PresentAddress = model.PresentAddress;
-                                query.s.PermanentAddress = model.PermanentAddress;
-                                query.s.GovernmentProofVerifyDoc = model.GovProof;
-                                query.s.GovernmentProofVerify = model.isVerifiedGovProof;
-                                //query.s.EmployeeType = model.EmployeeTypeCatecory;
-                                //query.s.StaffCategory = model.StaffCategory;
-                                //query.s.IITMPensionerOrCSIRStaff = model.IITMPensionerCSIRStaff;
-                                query.s.MsPhdType = model.MsPhdType;
-                                query.s.MsPhd = model.MsPhdType > 0 ? true : false;
-                                query.s.PhdDetail = model.PhdDetail;
-                                query.s.ActualDate = model.ActualDate;
-                                query.s.VerificationRemarks = model.VerificationRemarks;
-                                if (model.JoiningReport != null)
-                                {
-                                    string actName = System.IO.Path.GetFileName(model.JoiningReport.FileName);
-                                    var guid = Guid.NewGuid().ToString();
-                                    var docName = guid + "_" + actName;
-                                    model.JoiningReport.UploadFile("Requirement", docName);
-                                    query.s.JoiningReport = docName;
-                                }
-                                query.s.BankAccountNumber = model.BankAccountNo;
-                                query.s.BankName = model.BankName;
-                                query.s.BankId = model.BankId;
-                                query.s.IFSCCode = model.IFSCCode;
-                                query.s.GateScore = model.GateScore;
-                                query.s.Bloodgroup = model.BloodGroup;
-                                query.s.BloodgroupRH = model.BloodGroupRH;
-                                if (model.TypeofappointmentId == 4)
-                                    query.s.RollNumber = model.RollNumber;
-                                query.s.UptdTs = DateTime.Now;
-                                query.s.UptdUser = logged_in_userId;
-                                foreach (var item in model.EducationDetail)
-                                {
-                                    if (item.EducationId == null)
+                                    query.s.Status = "Awaiting Verification-Draft";
+
+                                    if (model.PersonImage != null)
                                     {
-                                        tblRCTSTEEducationDetail _EducationDetail = new tblRCTSTEEducationDetail();
-                                        _EducationDetail.STEID = STEID;
-                                        _EducationDetail.QualifiCationID = item.QualificationId;
-                                        _EducationDetail.DisciplineID = item.DisciplineId;
-                                        _EducationDetail.UniversityorInstitution = item.Institution;
-                                        _EducationDetail.YearOfPassing = item.YearofPassing;
-                                        _EducationDetail.MarkType = item.MarkType;
-                                        _EducationDetail.Marks = item.Marks;
-                                        _EducationDetail.DivisionClassObtained = item.DivisionClassObtained;
-                                        if (item.Certificate != null)
-                                        {
-                                            string actName = System.IO.Path.GetFileName(item.Certificate.FileName);
-                                            var guid = Guid.NewGuid().ToString();
-                                            var docName = guid + "_" + actName;
-                                            item.Certificate.UploadFile("Requirement", docName);
-                                            _EducationDetail.DocumentFilePath = docName;
-                                            _EducationDetail.FileName = actName;
-                                        }
-                                        _EducationDetail.Remarks = item.Remarks;
-                                        _EducationDetail.CrtdTs = DateTime.Now;
-                                        _EducationDetail.CrtdUser = logged_in_userId;
-                                        _EducationDetail.isCurrentVersion = true;
-                                        context.tblRCTSTEEducationDetail.Add(_EducationDetail);
-                                        context.SaveChanges();
+                                        string actName = System.IO.Path.GetFileName(model.PersonImage.FileName);
+                                        var guid = Guid.NewGuid().ToString();
+                                        var docName = guid + "_" + actName;
+                                        model.PersonImage.UploadFile("RCTEmployeeImages", docName);
+                                        query.s.CandidateImage = docName;
                                     }
-                                    else
+                                    if (model.Resume != null)
                                     {
-                                        int STEEducationDetailID = item.EducationId ?? 0;
-                                        var QryEducation = (from SM in context.tblRCTSTEEducationDetail where SM.STEID == STEID && SM.STEEducationDetailID == STEEducationDetailID && SM.isCurrentVersion == true select SM).FirstOrDefault();
-                                        if (QryEducation != null)
+                                        string actName = System.IO.Path.GetFileName(model.Resume.FileName);
+                                        var guid = Guid.NewGuid().ToString();
+                                        var docName = guid + "_" + actName;
+                                        model.Resume.UploadFile("Requirement", docName);
+                                        query.s.ResumeFile = docName;
+                                    }
+                                    if (model.CantidateSignature != null)
+                                    {
+                                        string actName = System.IO.Path.GetFileName(model.CantidateSignature.FileName);
+                                        var guid = Guid.NewGuid().ToString();
+                                        var docName = guid + "_" + actName;
+                                        model.CantidateSignature.UploadFile("Requirement", docName);
+                                        query.s.CandidateSignature = docName;
+                                    }
+                                    query.s.PANNo = model.PAN;
+                                    query.s.AadhaarNumber = Convert.ToString(model.aadharnumber);
+                                    query.s.AlternativeContactNumber = model.AlternativeContactNumber;
+                                    query.s.ContactNumber = model.ContactNumber;
+                                    query.s.EmergencyContact = model.EmergencyContactNo;
+                                    query.s.isSameAsPresentAddress = model.isSameasPermanentAddress;
+                                    query.s.PresentAddress = model.PresentAddress;
+                                    query.s.PermanentAddress = model.PermanentAddress;
+                                    query.s.GovernmentProofVerifyDoc = model.GovProof;
+                                    query.s.GovernmentProofVerify = model.isVerifiedGovProof;
+                                    //query.s.EmployeeType = model.EmployeeTypeCatecory;
+                                    //query.s.StaffCategory = model.StaffCategory;
+                                    //query.s.IITMPensionerOrCSIRStaff = model.IITMPensionerCSIRStaff;
+                                    query.s.MsPhdType = model.MsPhdType;
+                                    query.s.MsPhd = model.MsPhdType > 0 ? true : false;
+                                    query.s.PhdDetail = model.PhdDetail;
+                                    query.s.ActualDate = model.ActualDate;
+                                    query.s.VerificationRemarks = model.VerificationRemarks;
+                                    if (model.JoiningReport != null)
+                                    {
+                                        string actName = System.IO.Path.GetFileName(model.JoiningReport.FileName);
+                                        var guid = Guid.NewGuid().ToString();
+                                        var docName = guid + "_" + actName;
+                                        model.JoiningReport.UploadFile("Requirement", docName);
+                                        query.s.JoiningReport = docName;
+                                    }
+                                    query.s.BankAccountNumber = model.BankAccountNo;
+                                    query.s.BankName = model.BankName;
+                                    query.s.BankId = model.BankId;
+                                    query.s.IFSCCode = model.IFSCCode;
+                                    query.s.GateScore = model.GateScore;
+                                    query.s.Bloodgroup = model.BloodGroup;
+                                    query.s.BloodgroupRH = model.BloodGroupRH;
+                                    if (model.TypeofappointmentId == 4)
+                                        query.s.RollNumber = model.RollNumber;                                    
+                                    query.s.NotetoDean = model.FlowApprover == "NDean" ? true : false;                                    
+                                    query.s.NotetoCMAdmin = model.FlowApprover == "CMAdmin" ? true : false;
+                                    query.s.UptdTs = DateTime.Now;
+                                    query.s.UptdUser = logged_in_userId;
+                                    foreach (var item in model.EducationDetail)
+                                    {
+                                        if (item.EducationId == null)
                                         {
+                                            tblRCTSTEEducationDetail _EducationDetail = new tblRCTSTEEducationDetail();
+                                            _EducationDetail.STEID = STEID;
+                                            _EducationDetail.QualifiCationID = item.QualificationId;
+                                            _EducationDetail.DisciplineID = item.DisciplineId;
+                                            _EducationDetail.UniversityorInstitution = item.Institution;
+                                            _EducationDetail.YearOfPassing = item.YearofPassing;
+                                            _EducationDetail.MarkType = item.MarkType;
+                                            _EducationDetail.Marks = item.Marks;
+                                            _EducationDetail.DivisionClassObtained = item.DivisionClassObtained;
                                             if (item.Certificate != null)
                                             {
                                                 string actName = System.IO.Path.GetFileName(item.Certificate.FileName);
                                                 var guid = Guid.NewGuid().ToString();
                                                 var docName = guid + "_" + actName;
                                                 item.Certificate.UploadFile("Requirement", docName);
-                                                QryEducation.DocumentFilePath = docName;
-                                                QryEducation.FileName = actName;
-                                                QryEducation.UptdUser = logged_in_userId;
-                                                QryEducation.UptdTs = DateTime.Now;
-                                                context.SaveChanges();
+                                                _EducationDetail.DocumentFilePath = docName;
+                                                _EducationDetail.FileName = actName;
+                                            }
+                                            _EducationDetail.Remarks = item.Remarks;
+                                            _EducationDetail.CrtdTs = DateTime.Now;
+                                            _EducationDetail.CrtdUser = logged_in_userId;
+                                            _EducationDetail.isCurrentVersion = true;
+                                            context.tblRCTSTEEducationDetail.Add(_EducationDetail);
+                                            context.SaveChanges();
+                                        }
+                                        else
+                                        {
+                                            int STEEducationDetailID = item.EducationId ?? 0;
+                                            var QryEducation = (from SM in context.tblRCTSTEEducationDetail where SM.STEID == STEID && SM.STEEducationDetailID == STEEducationDetailID && SM.isCurrentVersion == true select SM).FirstOrDefault();
+                                            if (QryEducation != null)
+                                            {
+                                                if (item.Certificate != null)
+                                                {
+                                                    string actName = System.IO.Path.GetFileName(item.Certificate.FileName);
+                                                    var guid = Guid.NewGuid().ToString();
+                                                    var docName = guid + "_" + actName;
+                                                    item.Certificate.UploadFile("Requirement", docName);
+                                                    QryEducation.DocumentFilePath = docName;
+                                                    QryEducation.FileName = actName;
+                                                    QryEducation.UptdUser = logged_in_userId;
+                                                    QryEducation.UptdTs = DateTime.Now;
+                                                    context.SaveChanges();
+                                                }
                                             }
                                         }
                                     }
-                                }
 
-                                foreach (var item in model.ExperienceDetail)
-                                {
-                                    if (item.ExperienceId == null)
+                                    foreach (var item in model.ExperienceDetail)
                                     {
-                                        tblRCTSTEExperienceDetail _ExperienceDetail = new tblRCTSTEExperienceDetail();
-                                        if (item.ExperienceTypeId != null)
+                                        if (item.ExperienceId == null)
                                         {
-                                            _ExperienceDetail.STEID = STEID;
-                                            _ExperienceDetail.TypeID = item.ExperienceTypeId;
-                                            _ExperienceDetail.Organisation = item.Organisation;
-                                            _ExperienceDetail.DesignationId = item.DesignationListId;
-                                            _ExperienceDetail.Designation = item.DesignationautoComplete;
-                                            _ExperienceDetail.FromYear = item.FromDate;
-                                            _ExperienceDetail.ToYear = item.ToDate;
-                                            _ExperienceDetail.SalaryDrawn = item.SalaryDrawn;
-                                            if (item.ExperienceFile != null)
+                                            tblRCTSTEExperienceDetail _ExperienceDetail = new tblRCTSTEExperienceDetail();
+                                            if (item.ExperienceTypeId != null)
                                             {
-                                                string actName = System.IO.Path.GetFileName(item.ExperienceFile.FileName);
+                                                _ExperienceDetail.STEID = STEID;
+                                                _ExperienceDetail.TypeID = item.ExperienceTypeId;
+                                                _ExperienceDetail.Organisation = item.Organisation;
+                                                _ExperienceDetail.DesignationId = item.DesignationListId;
+                                                _ExperienceDetail.Designation = item.DesignationautoComplete;
+                                                _ExperienceDetail.FromYear = item.FromDate;
+                                                _ExperienceDetail.ToYear = item.ToDate;
+                                                _ExperienceDetail.SalaryDrawn = item.SalaryDrawn;
+                                                if (item.ExperienceFile != null)
+                                                {
+                                                    string actName = System.IO.Path.GetFileName(item.ExperienceFile.FileName);
+                                                    var guid = Guid.NewGuid().ToString();
+                                                    var docName = guid + "_" + actName;
+                                                    item.ExperienceFile.UploadFile("Requirement", docName);
+                                                    _ExperienceDetail.DocumentFilePath = docName;
+                                                    _ExperienceDetail.FileName = actName;
+                                                }
+                                                _ExperienceDetail.Remarks = item.Remarks;
+                                                _ExperienceDetail.CrtdUser = logged_in_userId;
+                                                _ExperienceDetail.CrtdTs = DateTime.Now;
+                                                _ExperienceDetail.isCurrentVersion = true;
+                                                context.tblRCTSTEExperienceDetail.Add(_ExperienceDetail);
+                                                context.SaveChanges();
+                                            }
+                                        }
+                                        else
+                                        {
+                                            int ExperienceId = item.ExperienceId ?? 0;
+                                            var QryExp = (from SM in context.tblRCTSTEExperienceDetail where SM.STEID == STEID && SM.STEExperienceDetailID == ExperienceId && SM.isCurrentVersion == true select SM).FirstOrDefault();
+                                            if (QryExp != null)
+                                            {
+                                                if (item.ExperienceFile != null)
+                                                {
+                                                    string actName = System.IO.Path.GetFileName(item.ExperienceFile.FileName);
+                                                    var guid = Guid.NewGuid().ToString();
+                                                    var docName = guid + "_" + actName;
+                                                    item.ExperienceFile.UploadFile("Requirement", docName);
+                                                    QryExp.DocumentFilePath = docName;
+                                                    QryExp.FileName = actName;
+                                                    QryExp.UptdUser = logged_in_userId;
+                                                    QryExp.UptdTs = DateTime.Now;
+                                                    context.SaveChanges();
+                                                }
+                                            }
+                                        }
+                                    }
+
+
+                                    foreach (var item in model.OtherDocList)
+                                    {
+                                        if (item.Document != null)
+                                        {
+                                            tblRCTSupportingDocument _SupportDoc = new tblRCTSupportingDocument();
+                                            _SupportDoc.AppointmentId = STEID;
+                                            _SupportDoc.AppointmentType = 2;
+                                            _SupportDoc.DocumentName = item.DocumentName;
+                                            _SupportDoc.CRTD_By = logged_in_userId;
+                                            _SupportDoc.CRTD_TS = DateTime.Now;
+                                            _SupportDoc.Status = "Active";
+                                            if (item.Document != null)
+                                            {
+                                                string actName = System.IO.Path.GetFileName(item.Document.FileName);
                                                 var guid = Guid.NewGuid().ToString();
                                                 var docName = guid + "_" + actName;
-                                                item.ExperienceFile.UploadFile("Requirement", docName);
-                                                _ExperienceDetail.DocumentFilePath = docName;
-                                                _ExperienceDetail.FileName = actName;
+                                                item.Document.UploadFile("Requirement", docName);
+                                                _SupportDoc.DocumentFileName = actName;
+                                                _SupportDoc.DocumentPath = docName;
                                             }
-                                            _ExperienceDetail.Remarks = item.Remarks;
-                                            _ExperienceDetail.CrtdUser = logged_in_userId;
-                                            _ExperienceDetail.CrtdTs = DateTime.Now;
-                                            _ExperienceDetail.isCurrentVersion = true;
-                                            context.tblRCTSTEExperienceDetail.Add(_ExperienceDetail);
+                                            context.tblRCTSupportingDocument.Add(_SupportDoc);
                                             context.SaveChanges();
                                         }
                                     }
-                                    else
+                                    
+                                    
+                                    EmployeeID = query.s.OldNumber;
+                                    
+                                    query.s.EmployeeWorkplace = model.EmployeeWorkplace;
+                                    context.SaveChanges();
+                                    transaction.Commit();
+                                    res = 1;
+                                    
+                                    PostSTEStatusLog(STEID, "Awaiting Verification", "Awaiting Verification-Draft", logged_in_userId);
+
+                                }
+                            }
+                            else
+                            {
+                                var query = (from s in context.tblRCTSTE
+                                             from d in context.tblRCTDesignation
+                                             where s.DesignationId == d.DesignationId //&& s.Status == "Awaiting Verification" || s.Status == "Awaiting Verification-Draft"
+                                             && s.STEID == model.STEId
+                                             select new { s, d }).FirstOrDefault();
+                                if (query != null)
+                                {
+                                    
+                                    if (model.PersonImage != null)
                                     {
-                                        int ExperienceId = item.ExperienceId ?? 0;
-                                        var QryExp = (from SM in context.tblRCTSTEExperienceDetail where SM.STEID == STEID && SM.STEExperienceDetailID == ExperienceId && SM.isCurrentVersion == true select SM).FirstOrDefault();
-                                        if (QryExp != null)
+                                        string actName = System.IO.Path.GetFileName(model.PersonImage.FileName);
+                                        var guid = Guid.NewGuid().ToString();
+                                        var docName = guid + "_" + actName;
+                                        model.PersonImage.UploadFile("RCTEmployeeImages", docName);
+                                        query.s.CandidateImage = docName;
+                                    }
+                                    if (model.Resume != null)
+                                    {
+                                        string actName = System.IO.Path.GetFileName(model.Resume.FileName);
+                                        var guid = Guid.NewGuid().ToString();
+                                        var docName = guid + "_" + actName;
+                                        model.Resume.UploadFile("Requirement", docName);
+                                        query.s.ResumeFile = docName;
+                                    }
+                                    if (model.CantidateSignature != null)
+                                    {
+                                        string actName = System.IO.Path.GetFileName(model.CantidateSignature.FileName);
+                                        var guid = Guid.NewGuid().ToString();
+                                        var docName = guid + "_" + actName;
+                                        model.CantidateSignature.UploadFile("Requirement", docName);
+                                        query.s.CandidateSignature = docName;
+                                    }
+                                    query.s.PANNo = model.PAN;
+                                    query.s.AadhaarNumber = Convert.ToString(model.aadharnumber);
+                                    query.s.AlternativeContactNumber = model.AlternativeContactNumber;
+                                    query.s.ContactNumber = model.ContactNumber;
+                                    query.s.EmergencyContact = model.EmergencyContactNo;
+                                    query.s.isSameAsPresentAddress = model.isSameasPermanentAddress;
+                                    query.s.PresentAddress = model.PresentAddress;
+                                    query.s.PermanentAddress = model.PermanentAddress;
+                                    query.s.GovernmentProofVerifyDoc = model.GovProof;
+                                    query.s.GovernmentProofVerify = model.isVerifiedGovProof;
+                                    //query.s.EmployeeType = model.EmployeeTypeCatecory;
+                                    //query.s.StaffCategory = model.StaffCategory;
+                                    //query.s.IITMPensionerOrCSIRStaff = model.IITMPensionerCSIRStaff;
+                                    query.s.MsPhdType = model.MsPhdType;
+                                    query.s.MsPhd = model.MsPhdType > 0 ? true : false;
+                                    query.s.PhdDetail = model.PhdDetail;
+                                    query.s.ActualDate = model.ActualDate;
+                                    query.s.VerificationRemarks = model.VerificationRemarks;
+                                    if (model.JoiningReport != null)
+                                    {
+                                        string actName = System.IO.Path.GetFileName(model.JoiningReport.FileName);
+                                        var guid = Guid.NewGuid().ToString();
+                                        var docName = guid + "_" + actName;
+                                        model.JoiningReport.UploadFile("Requirement", docName);
+                                        query.s.JoiningReport = docName;
+                                    }
+                                    query.s.BankAccountNumber = model.BankAccountNo;
+                                    query.s.BankName = model.BankName;
+                                    query.s.BankId = model.BankId;
+                                    query.s.IFSCCode = model.IFSCCode;
+                                    query.s.GateScore = model.GateScore;
+                                    query.s.Bloodgroup = model.BloodGroup;
+                                    query.s.BloodgroupRH = model.BloodGroupRH;
+                                    if (model.TypeofappointmentId == 4)
+                                        query.s.RollNumber = model.RollNumber;                                    
+                                    query.s.NotetoDean = model.FlowApprover == "NDean" ? true : false;
+                                    //query.s.Nodeviation = model.FlowofMail == "Nd" ? true : false;
+                                    query.s.NotetoCMAdmin = model.FlowApprover == "CMAdmin" ? true : false;
+                                    query.s.UptdTs = DateTime.Now;
+                                    query.s.UptdUser = logged_in_userId;
+                                    query.s.EmployeeWorkplace = model.EmployeeWorkplace;
+                                    context.SaveChanges();
+                                    transaction.Commit();
+                                    res = 1;
+                                    foreach (var item in model.EducationDetail)
+                                    {
+                                        if (item.EducationId == null)
                                         {
-                                            if (item.ExperienceFile != null)
+                                            tblRCTSTEEducationDetail _EducationDetail = new tblRCTSTEEducationDetail();
+                                            _EducationDetail.STEID = STEID;
+                                            _EducationDetail.QualifiCationID = item.QualificationId;
+                                            _EducationDetail.DisciplineID = item.DisciplineId;
+                                            _EducationDetail.UniversityorInstitution = item.Institution;
+                                            _EducationDetail.YearOfPassing = item.YearofPassing;
+                                            _EducationDetail.MarkType = item.MarkType;
+                                            _EducationDetail.Marks = item.Marks;
+                                            _EducationDetail.DivisionClassObtained = item.DivisionClassObtained;
+                                            if (item.Certificate != null)
                                             {
-                                                string actName = System.IO.Path.GetFileName(item.ExperienceFile.FileName);
+                                                string actName = System.IO.Path.GetFileName(item.Certificate.FileName);
                                                 var guid = Guid.NewGuid().ToString();
                                                 var docName = guid + "_" + actName;
-                                                item.ExperienceFile.UploadFile("Requirement", docName);
-                                                QryExp.DocumentFilePath = docName;
-                                                QryExp.FileName = actName;
-                                                QryExp.UptdUser = logged_in_userId;
-                                                QryExp.UptdTs = DateTime.Now;
+                                                item.Certificate.UploadFile("Requirement", docName);
+                                                _EducationDetail.DocumentFilePath = docName;
+                                                _EducationDetail.FileName = actName;
+                                            }
+                                            _EducationDetail.Remarks = item.Remarks;
+                                            _EducationDetail.CrtdTs = DateTime.Now;
+                                            _EducationDetail.CrtdUser = logged_in_userId;
+                                            _EducationDetail.isCurrentVersion = true;
+                                            context.tblRCTSTEEducationDetail.Add(_EducationDetail);
+                                            context.SaveChanges();
+                                        }
+                                        else
+                                        {
+                                            int STEEducationDetailID = item.EducationId ?? 0;
+                                            var QryEducation = (from SM in context.tblRCTSTEEducationDetail where SM.STEID == STEID && SM.STEEducationDetailID == STEEducationDetailID && SM.isCurrentVersion == true select SM).FirstOrDefault();
+                                            if (QryEducation != null)
+                                            {
+                                                if (item.Certificate != null)
+                                                {
+                                                    string actName = System.IO.Path.GetFileName(item.Certificate.FileName);
+                                                    var guid = Guid.NewGuid().ToString();
+                                                    var docName = guid + "_" + actName;
+                                                    item.Certificate.UploadFile("Requirement", docName);
+                                                    QryEducation.DocumentFilePath = docName;
+                                                    QryEducation.FileName = actName;
+                                                    QryEducation.UptdUser = logged_in_userId;
+                                                    QryEducation.UptdTs = DateTime.Now;
+                                                    context.SaveChanges();
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    foreach (var item in model.ExperienceDetail)
+                                    {
+                                        if (item.ExperienceId == null)
+                                        {
+                                            tblRCTSTEExperienceDetail _ExperienceDetail = new tblRCTSTEExperienceDetail();
+                                            if (item.ExperienceTypeId != null)
+                                            {
+                                                _ExperienceDetail.STEID = STEID;
+                                                _ExperienceDetail.TypeID = item.ExperienceTypeId;
+                                                _ExperienceDetail.Organisation = item.Organisation;
+                                                _ExperienceDetail.DesignationId = item.DesignationListId;
+                                                _ExperienceDetail.Designation = item.DesignationautoComplete;
+                                                _ExperienceDetail.FromYear = item.FromDate;
+                                                _ExperienceDetail.ToYear = item.ToDate;
+                                                _ExperienceDetail.SalaryDrawn = item.SalaryDrawn;
+                                                if (item.ExperienceFile != null)
+                                                {
+                                                    string actName = System.IO.Path.GetFileName(item.ExperienceFile.FileName);
+                                                    var guid = Guid.NewGuid().ToString();
+                                                    var docName = guid + "_" + actName;
+                                                    item.ExperienceFile.UploadFile("Requirement", docName);
+                                                    _ExperienceDetail.DocumentFilePath = docName;
+                                                    _ExperienceDetail.FileName = actName;
+                                                }
+                                                _ExperienceDetail.Remarks = item.Remarks;
+                                                _ExperienceDetail.CrtdUser = logged_in_userId;
+                                                _ExperienceDetail.CrtdTs = DateTime.Now;
+                                                _ExperienceDetail.isCurrentVersion = true;
+                                                context.tblRCTSTEExperienceDetail.Add(_ExperienceDetail);
                                                 context.SaveChanges();
                                             }
                                         }
-                                    }
-                                }
-
-
-                                foreach (var item in model.OtherDocList)
-                                {
-                                    if (item.Document != null)
-                                    {
-                                        tblRCTSupportingDocument _SupportDoc = new tblRCTSupportingDocument();
-                                        _SupportDoc.AppointmentId = STEID;
-                                        _SupportDoc.AppointmentType = 2;
-                                        _SupportDoc.DocumentName = item.DocumentName;
-                                        _SupportDoc.CRTD_By = logged_in_userId;
-                                        _SupportDoc.CRTD_TS = DateTime.Now;
-                                        _SupportDoc.Status = "Active";
-                                        if (item.Document != null)
+                                        else
                                         {
-                                            string actName = System.IO.Path.GetFileName(item.Document.FileName);
-                                            var guid = Guid.NewGuid().ToString();
-                                            var docName = guid + "_" + actName;
-                                            item.Document.UploadFile("Requirement", docName);
-                                            _SupportDoc.DocumentFileName = actName;
-                                            _SupportDoc.DocumentPath = docName;
-                                        }
-                                        context.tblRCTSupportingDocument.Add(_SupportDoc);
-                                        context.SaveChanges();
-                                    }
-                                }
-
-                                int VerificationSeqNo = 0;
-                                int VerificationSequenceNo = (from SM in context.tblRCTSTE select SM.VerificationSeqNo).Max() ?? 0;
-                                VerificationSeqNo = VerificationSequenceNo == 0 ? 10001 : VerificationSequenceNo + 1;
-                                EmployeeID = query.s.OldNumber;
-                                if (query.s.EmployeeCategory == "Old Employee" && EmployeeID.Contains("IC"))
-                                {
-                                    var preQuery = (from s in context.tblRCTSTE
-                                                    where s.EmployeersID == EmployeeID && s.IsActiveNow == true
-                                                    orderby s.STEID descending
-                                                    select s).FirstOrDefault();
-                                    if (preQuery != null)
-                                    {
-                                        preQuery.IsActiveNow = false;
-                                        context.SaveChanges();
-                                        query.s.Paybill = !string.IsNullOrEmpty(preQuery.Paybill) ? preQuery.Paybill : null;
-                                    }
-                                }
-                                else
-                                    EmployeeID = "IC" + VerificationSeqNo;
-
-                                if (EmployeeID.Contains("IC"))
-                                    query.s.EmployeersID = EmployeeID;
-                                else
-                                    query.s.EmployeersID = "IC" + VerificationSeqNo;
-
-                                query.s.VerificationSeqNo = VerificationSeqNo;
-                                query.s.isEmployee = true;
-                                query.s.IsActiveNow = true;
-                                //Update Commitment table
-                                var QryCommitment = (from C in context.tblRCTCommitmentRequest
-                                                     where C.ReferenceNumber == query.s.ApplicationNumber && C.Status == "Commitment Booked"
-                                                     select C).FirstOrDefault();
-                                if (QryCommitment != null)
-                                    QryCommitment.EmpNumber = EmployeeID;
-                                query.s.CommitmentNo = CommitmentNo(query.s.ApplicationNumber);
-                                query.s.EmployeeWorkplace = model.EmployeeWorkplace;
-                                context.SaveChanges();
-                                transaction.Commit();
-                                res = 1;
-                                decimal WidthdrawAmmount = 0;
-                                //if employee late join late join amount should be 
-                                if (query.s.AppointmentStartdate < model.ActualDate && query.s.CSIRStaffPayMode != 2)
-                                {
-                                    DateTime FromDate = query.s.AppointmentStartdate ?? DateTime.Now;
-                                    DateTime ToDate = model.ActualDate ?? DateTime.Now;
-                                    WidthdrawAmmount = Common.calculateWithdrawalAmount(STEID, "STE", FromDate, ToDate, true, 0, true);
-                                    if (WidthdrawAmmount > 0)
-                                    {
-                                        tblRCTCommitmentRequest wd = new tblRCTCommitmentRequest();
-                                        wd.ReferenceNumber = query.s.ApplicationNumber;
-                                        wd.AppointmentType = "Verfication";
-                                        wd.TypeCode = "STE";
-                                        wd.CandidateName = query.s.Name;
-                                        wd.CandidateDesignation = query.d.Designation;
-                                        wd.ProjectId = query.s.ProjectId;
-                                        wd.ProjectNumber = Common.getprojectnumber(query.s.ProjectId ?? 0);
-                                        wd.TotalSalary = query.s.Salary;
-                                        wd.RequestedCommitmentAmount = WidthdrawAmmount;
-                                        wd.Status = "Awaiting Commitment Booking";
-                                        wd.RequestType = "Withdraw Commitment";
-                                        wd.EmpNumber = query.s.EmployeersID;
-                                        wd.EmpId = logged_in_userId;
-                                        wd.Crtd_TS = DateTime.Now;
-                                        wd.Crtd_UserId = logged_in_userId;
-                                        context.tblRCTCommitmentRequest.Add(wd);
-                                        context.SaveChanges();
-                                    }
-                                }
-
-                                var Updateqry = (from a in context.tblRCTSTE where a.STEID == STEID select a).FirstOrDefault();
-                                if (Updateqry != null)
-                                {
-                                    var Actualstartdate = Updateqry.AppointmentStartdate;
-                                    Updateqry.ActualAppointmentStartDate = Actualstartdate;
-                                    Updateqry.ActualAppointmentEndDate = Updateqry.AppointmentEnddate;
-                                    decimal CommitmentAmount = 0;
-                                    CommitmentAmount = Updateqry.CommitmentAmount ?? 0;
-                                    Updateqry.AppointmentStartdate = model.ActualDate;
-                                    if (WidthdrawAmmount > 0)
-                                        Updateqry.CommitmentAmount = CommitmentAmount - WidthdrawAmmount;
-                                    context.SaveChanges();
-                                }
-
-                                Common.EmployeeHistoryLog(STEID, "STE");
-
-                                tblRCTOrderEffectHistory his = new tblRCTOrderEffectHistory();
-                                his.ApplicationId = STEID;
-                                his.AppointmentType = "STE";
-                                his.Basic = query.s.Salary;
-                                his.DesignationId = query.s.DesignationId;
-                                his.EffectiveFrom = model.ActualDate;
-                                his.EffectiveTo = query.s.AppointmentEnddate;
-                                his.EmployeeId = EmployeeID;
-                                his.HRA = query.s.HRA;
-                                his.Medical = query.s.MedicalAmmount;
-                                his.OrderDate = DateTime.Now;
-                                his.OrderTypeId = 0;
-                                his.OrderId = 0;
-                                his.OrderType = "New";
-                                his.ProjectId = query.s.ProjectId;
-                                his.AppointmentStartDate = model.ActualDate;
-                                his.AppointmentEndDate = query.s.AppointmentEnddate;
-                                his.isMedicalInclusive = query.s.Medical == 2 ? true : false;
-                                his.IITMPensioner_f = query.s.IITMPensionerOrCSIRStaff == 1 ? true : false;
-                                context.tblRCTOrderEffectHistory.Add(his);
-                                context.SaveChanges();
-                                PostSTEStatusLog(STEID, "Awaiting Verification", "Verification Completed", logged_in_userId);
-                                PostOfferDetails(STEID, "STE", "OfficeOrder", logged_in_userId);
-
-                                #region Employee portal
-                                if (query.s.EmployeeCategory == "New Employee")
-                                {
-                                    using (var EmployeeContext = new ICSRExternalEntities())
-                                    {
-                                        using (var Employeetransaction = EmployeeContext.Database.BeginTransaction())
-                                        {
-                                            try
+                                            int ExperienceId = item.ExperienceId ?? 0;
+                                            var QryExp = (from SM in context.tblRCTSTEExperienceDetail where SM.STEID == STEID && SM.STEExperienceDetailID == ExperienceId && SM.isCurrentVersion == true select SM).FirstOrDefault();
+                                            if (QryExp != null)
                                             {
-                                                var checkEmployeeExist = EmployeeContext.tblProjectStaffUser.Where(x => x.UserName == EmployeeID).FirstOrDefault();
-                                                if (checkEmployeeExist == null)
+                                                if (item.ExperienceFile != null)
                                                 {
-                                                    var departdetail = Common.GetEmployeeDepartment(query.s.ProjectId ?? 0);
-                                                    tblProjectStaffUser addEmployeelogin = new tblProjectStaffUser();
-                                                    addEmployeelogin.UserName = EmployeeID;
-                                                    addEmployeelogin.Email = query.s.Email;
-                                                    addEmployeelogin.Name = query.s.Name;
-                                                    addEmployeelogin.Password = Guid.NewGuid().ToString("N").Substring(0, 12);
-                                                    addEmployeelogin.Status = "Active";
-                                                    addEmployeelogin.RoleId = 2;
-                                                    addEmployeelogin.Crts_Ts = DateTime.Now;
-                                                    addEmployeelogin.Designation = query.d.Designation;
-                                                    addEmployeelogin.DeptCode = departdetail.Item1;
-                                                    addEmployeelogin.DeptName = departdetail.Item2;
-                                                    EmployeeContext.tblProjectStaffUser.Add(addEmployeelogin);
-                                                    EmployeeContext.SaveChanges();
-                                                    int projectstaffid = addEmployeelogin.ProjectStaffId;
-                                                    var statusemail = RCTEmailContentService.SendMailProjectStaffNewuser(projectstaffid, EmployeeContext, query.s.Email);
-                                                    if (statusemail == 2 || statusemail == -1)
-                                                    {
-                                                        //Employeetransaction.Rollback();
-                                                        //transaction.Rollback();
-                                                        return Tuple.Create(0, "Employee portal Credentials not send this email Please Contact Administrator");
-                                                    }
-                                                }
-                                                Employeetransaction.Commit();
-                                            }
-                                            catch (Exception ex)
-                                            {
-                                                WriteLog.SendErrorToText(ex);
-                                                Employeetransaction.Rollback();
-                                                transaction.Rollback();
-                                                return Tuple.Create(0, "");
-                                            }
-                                        }
-                                    }
-                                }
-                                else if (query.s.EmployeeCategory == "Old Employee")
-                                {
-                                    using (var EmployeeContext = new ICSRExternalEntities())
-                                    {
-                                        using (var Employeetransaction = EmployeeContext.Database.BeginTransaction())
-                                        {
-                                            try
-                                            {
-                                                var checkEmployeeExist = EmployeeContext.tblProjectStaffUser.Where(x => x.UserName == EmployeeID).FirstOrDefault();
-                                                if (checkEmployeeExist != null)
-                                                {
-                                                    var departdetail = Common.GetEmployeeDepartment(query.s.ProjectId ?? 0);
-                                                    checkEmployeeExist.Email = query.s.Email;
-                                                    checkEmployeeExist.Name = query.s.Name;
-                                                    checkEmployeeExist.DeptCode = departdetail.Item1;
-                                                    checkEmployeeExist.DeptName = departdetail.Item2;
-                                                    checkEmployeeExist.Status = "Active";
-                                                    checkEmployeeExist.Uptd_Ts = DateTime.Now;
-                                                    checkEmployeeExist.Uptd_Id = logged_in_userId;
+                                                    string actName = System.IO.Path.GetFileName(item.ExperienceFile.FileName);
+                                                    var guid = Guid.NewGuid().ToString();
+                                                    var docName = guid + "_" + actName;
+                                                    item.ExperienceFile.UploadFile("Requirement", docName);
+                                                    QryExp.DocumentFilePath = docName;
+                                                    QryExp.FileName = actName;
+                                                    QryExp.UptdUser = logged_in_userId;
+                                                    QryExp.UptdTs = DateTime.Now;
                                                     context.SaveChanges();
                                                 }
-                                                Employeetransaction.Commit();
-                                            }
-                                            catch (Exception ex)
-                                            {
-                                                WriteLog.SendErrorToText(ex);
-                                                Employeetransaction.Rollback();
-                                                transaction.Rollback();
-                                                return Tuple.Create(0, "");
                                             }
                                         }
                                     }
+
+
+                                    foreach (var item in model.OtherDocList)
+                                    {
+                                        if (item.Document != null)
+                                        {
+                                            tblRCTSupportingDocument _SupportDoc = new tblRCTSupportingDocument();
+                                            _SupportDoc.AppointmentId = STEID;
+                                            _SupportDoc.AppointmentType = 2;
+                                            _SupportDoc.DocumentName = item.DocumentName;
+                                            _SupportDoc.CRTD_By = logged_in_userId;
+                                            _SupportDoc.CRTD_TS = DateTime.Now;
+                                            _SupportDoc.Status = "Active";
+                                            if (item.Document != null)
+                                            {
+                                                string actName = System.IO.Path.GetFileName(item.Document.FileName);
+                                                var guid = Guid.NewGuid().ToString();
+                                                var docName = guid + "_" + actName;
+                                                item.Document.UploadFile("Requirement", docName);
+                                                _SupportDoc.DocumentFileName = actName;
+                                                _SupportDoc.DocumentPath = docName;
+                                            }
+                                            context.tblRCTSupportingDocument.Add(_SupportDoc);
+                                            context.SaveChanges();
+                                        }
+                                    }                                   
+                                    
+                                    decimal WidthdrawAmmount = 0;
+                                    //if employee late join late join amount should be 
+                                    if (query.s.AppointmentStartdate < model.ActualDate && query.s.CSIRStaffPayMode != 2)
+                                    {
+                                        DateTime FromDate = query.s.AppointmentStartdate ?? DateTime.Now;
+                                        DateTime ToDate = model.ActualDate ?? DateTime.Now;
+                                        WidthdrawAmmount = Common.calculateWithdrawalAmount(STEID, "STE", FromDate, ToDate, true, 0, true);
+                                        if (WidthdrawAmmount > 0)
+                                        {
+                                            tblRCTCommitmentRequest wd = new tblRCTCommitmentRequest();
+                                            wd.ReferenceNumber = query.s.ApplicationNumber;
+                                            wd.AppointmentType = "Verfication";
+                                            wd.TypeCode = "STE";
+                                            wd.CandidateName = query.s.Name;
+                                            wd.CandidateDesignation = query.d.Designation;
+                                            wd.ProjectId = query.s.ProjectId;
+                                            wd.ProjectNumber = Common.getprojectnumber(query.s.ProjectId ?? 0);
+                                            wd.TotalSalary = query.s.Salary;
+                                            wd.RequestedCommitmentAmount = WidthdrawAmmount;
+                                            wd.Status = "Awaiting Commitment Booking";
+                                            wd.RequestType = "Withdraw Commitment";
+                                            wd.EmpNumber = query.s.EmployeersID;
+                                            wd.EmpId = logged_in_userId;
+                                            wd.Crtd_TS = DateTime.Now;
+                                            wd.Crtd_UserId = logged_in_userId;
+                                            context.tblRCTCommitmentRequest.Add(wd);
+                                            context.SaveChanges();
+                                        }
+                                    }
+
+                                    var Updateqry = (from a in context.tblRCTSTE where a.STEID == STEID select a).FirstOrDefault();
+                                    if (Updateqry != null)
+                                    {
+                                        var Actualstartdate = Updateqry.AppointmentStartdate;
+                                        Updateqry.ActualAppointmentStartDate = Actualstartdate;
+                                        Updateqry.ActualAppointmentEndDate = Updateqry.AppointmentEnddate;
+                                        decimal CommitmentAmount = 0;
+                                        CommitmentAmount = Updateqry.CommitmentAmount ?? 0;
+                                        Updateqry.AppointmentStartdate = model.ActualDate;
+                                        if (WidthdrawAmmount > 0)
+                                            Updateqry.CommitmentAmount = CommitmentAmount - WidthdrawAmmount;
+                                        context.SaveChanges();
+                                    }
+
+                                                                       
+                                    PostOfferDetails(STEID, "STE", "OfficeOrder", logged_in_userId);
+                                   
+                                    var Data = STEVWFInit(STEID, logged_in_userId);
+                                    if (Data.Item1 == false)
+                                    {
+                                        return Tuple.Create(-1, STEID, Data.Item2);
+                                        
+                                    }
+
                                 }
-                                #endregion 
                             }
+
+                            
                         }
                         catch (Exception ex)
                         {
                             WriteLog.SendErrorToText(ex);
                             transaction.Rollback();
-                            return Tuple.Create(0, "");
+                            return Tuple.Create(-1, 0, ex.Message.ToString());
                         }
                     }
                 }
-                return Tuple.Create(res, EmployeeID);
+                return Tuple.Create(res, STEID, errMsg);
             }
             catch (Exception ex)
             {
                 WriteLog.SendErrorToText(ex);
-                return Tuple.Create(0, "");
+                return Tuple.Create(-1, 0, ex.Message.ToString());
             }
         }
 
@@ -3811,10 +4032,10 @@ namespace IOAS.GenericServices
                         skiprec = (page - 1) * pageSize;
                     }
                     var prequery = (from b in context.vw_RCTVerificationList.AsNoTracking()
-                                    from p in context.tblProject
+                                    from p in context.tblProject                                   
                                     from vw in context.vwFacultyStaffDetails
                                     orderby b.ApplicationId descending
-                                    where b.ProjectId == p.ProjectId && p.PIName == vw.UserId && b.Category == "STE"
+                                    where b.ProjectId == p.ProjectId && p.PIName == vw.UserId && b.Category == "STE" 
                                     && cancelInitiator.Contains(b.CancelInitiator ?? 0)
                                     select new STEVerificationModel()
                                     {
@@ -3848,6 +4069,8 @@ namespace IOAS.GenericServices
                         DateOfJoining.to = DateOfJoining.to.Value.Date.AddDays(1).AddTicks(-2);
                         predicate = predicate.And(d => d.JoiningDate >= DateOfJoining.@from && d.JoiningDate <= DateOfJoining.to);
                     }
+                    if (!string.IsNullOrEmpty(model.SearchINStatus))
+                        predicate = predicate.And(d => d.Status.Contains(model.SearchINStatus));
                     if (!string.IsNullOrEmpty(model.Applicationtype))
                         predicate = predicate.And(d => d.ApplicationType.Contains(model.Applicationtype));
                     var query = prequery.Where(predicate).OrderByDescending(m => m.STEId).Skip(skiprec).Take(pageSize).ToList();
@@ -3913,7 +4136,7 @@ namespace IOAS.GenericServices
         public static bool IsCancelAppointment(DateTime? AppointmentStartDate, string Status, int? AppId = null, string AppType = null, int? OrderId = null)
         {
             DateTime Curr = DateTime.Now.Date;
-            string[] expappointment = new string[] { "Draft", "Note to PI", "Open", "Awaiting Verification" };
+            string[] expappointment = new string[] { "Draft", "Note to PI", "Open", "Awaiting Verification", "Awaiting Verification-Draft" };
             string[] expstatus = new string[] { "Verification Completed", "Completed" };
             string[] notexpstatus = new string[] { "Rejected", "Canceled", "Cancel" };
             int apptypeId = AppType == "STE" ? 2 : AppType == "OSG" ? 3 : AppType == "CON" ? 1 : 0;
@@ -5767,8 +5990,11 @@ namespace IOAS.GenericServices
                                     select new { O, Od, vw }).FirstOrDefault();
                     if (odrQuery != null)
                     {
+                        model.Status = odrQuery.O.Status;
                         string TypeCode = odrQuery.O.AppointmentType == 1 ? "CON" : odrQuery.O.AppointmentType == 2 ? "STE" : odrQuery.O.AppointmentType == 3 ? "OSG" : "";
                         model.OrderId = OrderId;
+                        model.ApplicationType = TypeCode;
+                        model.STEId = odrQuery.O.AppointmentId;
                         model.ApplicationNo = odrQuery.vw.EmployeersID;
                         model.Name = odrQuery.vw.ProfessionalType + " " + odrQuery.vw.CandidateName;
                         model.Designation = odrQuery.vw.PostRecommended;
@@ -5819,6 +6045,16 @@ namespace IOAS.GenericServices
                         model.ProjectNumber = Common.getprojectnumber(odrQuery.vw.ProjectId ?? 0);
                         model.OfferDate = string.Format("{0:dd-MMMM-yyyy}", odrQuery.Od.OfferDate);
                         model.Attachments = Common.GetCommiteeOfferletterDetails(odrQuery.O.AppointmentId ?? 0, TypeCode, odrQuery.O.OrderId);
+                        model.JoiningReportPath = odrQuery.Od.JoiningReport;
+                        if (odrQuery.Od.JoiningReport != null)
+                        {
+                            model.JoiningReportFileName = odrQuery.Od.JoiningReport.Substring(odrQuery.Od.JoiningReport.IndexOf("_") + 1);
+                        }
+                        model.VerificationRemarks = odrQuery.Od.VerificationRemarks;
+                        if (odrQuery.Od.NotetoCMAdmin == true)
+                            model.FlowApprover = "CMAdmin";
+                        if (odrQuery.Od.NotetoDean == true)
+                            model.FlowApprover = "NDean";
                         string CommitmentNumber = (from c in context.tblRCTCommitmentRequest
                                                    where c.OrderId == OrderId && (c.RequestType == "Add Commitment" || c.RequestType == "New Commitment" || c.RequestType == "Withdraw Commitment")
                                                    select c.CommitmentNumber).FirstOrDefault();
@@ -5853,143 +6089,248 @@ namespace IOAS.GenericServices
             }
         }
 
-        public static int UpdateVerificationOrder(STEVerificationModel model, int userId)
+        public Tuple <int, int, string> UpdateVerificationOrder(STEVerificationModel model, int userId, string button)
         {
+            int res = 0;
+            string errMsg = string.Empty;
+            int STEID = model.STEId ?? 0; //orderid = model.OrderId ?? 0;
             try
             {
                 using (var context = new IOASDBEntities())
                 {
-
-                    var query = (from o in context.tblOrder
-                                 from od in context.tblOrderDetail
-                                 from vw in context.vw_RCTOverAllApplicationEntry
-                                 where o.Status == "Awaiting Verification" && o.OrderId == model.OrderId
-                                 && o.OrderId == od.OrderId && o.OrderId == vw.OrderId
-                                 select new { od, o, vw }).FirstOrDefault();
-                    if (query != null)
+                    try
                     {
-                        query.od.VerificationRemarks = model.VerificationRemarks;
-                        if (model.JoiningReport != null)
+                        if (button == "Save as drafts")
                         {
-                            string actName = System.IO.Path.GetFileName(model.JoiningReport.FileName);
-                            var guid = Guid.NewGuid().ToString();
-                            var docName = guid + "_" + actName;
-                            model.JoiningReport.UploadFile("Requirement", docName);
-                            query.od.JoiningReport = docName;
-                        }
-                        query.o.UpdtTS = DateTime.Now;
-                        query.o.UpdtUser = userId;
-                        query.o.Status = "Completed";
-                        //decimal WidthdrawAmmount = 0;
-                        ////if employee late join withdraw late days amount
-                        //if (query.o.FromDate < model.ActualDate && query.vw.CSIRStaffPayMode != 2)
-                        //{
-                        //    DateTime FromDate = query.o.FromDate ?? DateTime.Now;
-                        //    DateTime ToDate = model.ActualDate ?? DateTime.Now;
-                        //    if (query.o.OrderType == 2)
-                        //    {
-                        //        if (query.o.NewProjectId != query.o.OldProjectId || query.od.WithdrawCommitment == false)
-                        //            WidthdrawAmmount = Common.calculateWithdrawalAmount(0, "", FromDate, ToDate, true, model.OrderId ?? 0, true);
-                        //    }
-                        //    else
-                        //        WidthdrawAmmount = Common.calculateWithdrawalAmount(0, "", FromDate, ToDate, true, model.OrderId ?? 0, true);
-
-                        //    if (WidthdrawAmmount > 0)
-                        //    {
-                        //        tblRCTCommitmentRequest withdraw = new tblRCTCommitmentRequest();
-                        //        withdraw.ReferenceNumber = query.vw.ApplicationNo;
-                        //        withdraw.AppointmentType = "Verfication";
-                        //        withdraw.TypeCode = getAppointmentType(query.o.AppointmentType ?? 0);
-                        //        withdraw.CandidateName = query.vw.CandidateName;
-                        //        withdraw.CandidateDesignation = query.vw.PostRecommended;
-                        //        withdraw.ProjectId = query.vw.ProjectId;
-                        //        withdraw.ProjectNumber = Common.getprojectnumber(query.vw.ProjectId ?? 0);
-                        //        withdraw.TotalSalary = query.vw.BasicPay;
-                        //        withdraw.RequestedCommitmentAmount = WidthdrawAmmount;
-                        //        withdraw.Status = "Awaiting Commitment Booking";
-                        //        withdraw.RequestType = "Withdraw Commitment";
-                        //        withdraw.EmpNumber = query.vw.EmployeersID;
-                        //        withdraw.EmpId = userId;
-                        //        withdraw.OrderId = model.OrderId;
-                        //        withdraw.Crtd_TS = DateTime.Now;
-                        //        withdraw.Crtd_UserId = userId;
-                        //        context.tblRCTCommitmentRequest.Add(withdraw);
-                        //        context.SaveChanges();
-                        //    }
-                        //}
-                        //var appid = query.o.AppointmentId ?? 0;
-                        var orderid = query.o.OrderId;
-                        //var Actualstartdate = query.o.FromDate;
-                        query.o.ActualAppointmentStartDate = query.o.FromDate;
-                        query.o.ActualAppointmentEndDate = query.o.ToDate;
-                        //decimal CommitmentAmount = query.o.CommitmentAmmount ?? 0;
-                        //if (WidthdrawAmmount > 0)
-                        //    query.o.CommitmentAmmount = CommitmentAmount - WidthdrawAmmount;
-
-                        if (query.o.AppointmentType == 1)
-                        {
-                            var mastQuery = (from s in context.tblRCTConsultantAppointment
-                                             where s.ConsultantAppointmentId == query.o.AppointmentId
-                                             select s).FirstOrDefault();
-                            if (mastQuery != null)
+                            var query = (from o in context.tblOrder
+                                         from od in context.tblOrderDetail
+                                         from vw in context.vw_RCTOverAllApplicationEntry /*o.Status == "Awaiting Verification" || o.Status == "Awaiting Verification-Draft" &&*/
+                                         where  o.OrderId == model.OrderId
+                                         && o.OrderId == od.OrderId && o.OrderId == vw.OrderId
+                                         select new { od, o, vw }).FirstOrDefault();
+                            if (query != null)
                             {
-                                mastQuery.EmployeeWorkplace = model.EmployeeWorkplace;
-                                mastQuery.UptdTs = DateTime.Now;
-                                mastQuery.UptdUser = userId;
+                                query.od.VerificationRemarks = model.VerificationRemarks;
+                                if (model.JoiningReport != null)
+                                {
+                                    string actName = System.IO.Path.GetFileName(model.JoiningReport.FileName);
+                                    var guid = Guid.NewGuid().ToString();
+                                    var docName = guid + "_" + actName;
+                                    model.JoiningReport.UploadFile("Requirement", docName);
+                                    query.od.JoiningReport = docName;
+                                }
+                                query.o.UpdtTS = DateTime.Now;
+                                query.o.UpdtUser = userId;
+                                //query.o.Status = "Completed";
+                                query.o.Status = "Awaiting Verification-Draft";
+
+                                var orderid = query.o.OrderId;
+                                query.od.NotetoDean = model.FlowApprover == "NDean" ? true : false;
+                                query.od.NotetoCMAdmin = model.FlowApprover == "CMAdmin" ? true : false;
+                                //var Actualstartdate = query.o.FromDate;
+                                query.o.ActualAppointmentStartDate = query.o.FromDate;
+                                query.o.ActualAppointmentEndDate = query.o.ToDate;
+
+                                if (query.o.AppointmentType == 1)
+                                {
+                                    var mastQuery = (from s in context.tblRCTConsultantAppointment
+                                                     where s.ConsultantAppointmentId == query.o.AppointmentId
+                                                     select s).FirstOrDefault();
+                                    if (mastQuery != null)
+                                    {
+                                        mastQuery.EmployeeWorkplace = model.EmployeeWorkplace;
+                                        mastQuery.UptdTs = DateTime.Now;
+                                        mastQuery.UptdUser = userId;
+                                        context.SaveChanges();
+                                    }
+                                }
+                                else if (query.o.AppointmentType == 2)
+                                {
+                                    var mastQuery = (from s in context.tblRCTSTE
+                                                     where s.STEID == query.o.AppointmentId
+                                                     select s).FirstOrDefault();
+                                    if (mastQuery != null)
+                                    {
+                                        mastQuery.EmployeeWorkplace = model.EmployeeWorkplace;
+                                        mastQuery.UptdTs = DateTime.Now;
+                                        mastQuery.UptdUser = userId;
+                                        context.SaveChanges();
+                                    }
+                                }
+                                else if (query.o.AppointmentType == 3)
+                                {
+                                    var mastQuery = (from s in context.tblRCTOutsourcing
+                                                     where s.OSGID == query.o.AppointmentId
+                                                     select s).FirstOrDefault();
+                                    if (mastQuery != null)
+                                    {
+                                        mastQuery.EmployeeWorkplace = model.EmployeeWorkplace;
+                                        mastQuery.UptdTs = DateTime.Now;
+                                        mastQuery.UptdUser = userId;
+                                        context.SaveChanges();
+                                    }
+                                }
                                 context.SaveChanges();
+                                //transaction.Commit();
+                                
+                                PostOrderStatusLog(orderid, "Awaiting Verification", "Awaiting Verification-Draft", userId);                              
+                                res= 1;
+                                return Tuple.Create(res, orderid, errMsg);
                             }
                         }
-                        else if (query.o.AppointmentType == 2)
+                        else
                         {
-                            var mastQuery = (from s in context.tblRCTSTE
-                                             where s.STEID == query.o.AppointmentId
-                                             select s).FirstOrDefault();
-                            if (mastQuery != null)
+                            var query = (from o in context.tblOrder
+                                         from od in context.tblOrderDetail
+                                         from vw in context.vw_RCTOverAllApplicationEntry//o.Status == "Awaiting Verification" || o.Status == "Awaiting Verification-Draft" &&
+                                         where o.OrderId == model.OrderId
+                                         && o.OrderId == od.OrderId && o.OrderId == vw.OrderId
+                                         select new { od, o, vw }).FirstOrDefault();
+                            if (query != null)
                             {
-                                mastQuery.EmployeeWorkplace = model.EmployeeWorkplace;
-                                mastQuery.UptdTs = DateTime.Now;
-                                mastQuery.UptdUser = userId;
-                                context.SaveChanges();
+                                string TypeCode = query.o.AppointmentType == 1 ? "CON" : query.o.AppointmentType == 2 ? "STE" : query.o.AppointmentType == 3 ? "OSG" : "";
+                                query.od.VerificationRemarks = model.VerificationRemarks;
+                                if (model.JoiningReport != null)
+                                {
+                                    string actName = System.IO.Path.GetFileName(model.JoiningReport.FileName);
+                                    var guid = Guid.NewGuid().ToString();
+                                    var docName = guid + "_" + actName;
+                                    model.JoiningReport.UploadFile("Requirement", docName);
+                                    query.od.JoiningReport = docName;
+                                }
+                                query.o.UpdtTS = DateTime.Now;
+                                query.o.UpdtUser = userId;
+                                //query.o.Status = "Completed";
+                                //query.o.Status = "Sent for approval-Verify";
+                                
+                                //decimal WidthdrawAmmount = 0;
+                                ////if employee late join withdraw late days amount
+                                //if (query.o.FromDate < model.ActualDate && query.vw.CSIRStaffPayMode != 2)
+                                //{
+                                //    DateTime FromDate = query.o.FromDate ?? DateTime.Now;
+                                //    DateTime ToDate = model.ActualDate ?? DateTime.Now;
+                                //    if (query.o.OrderType == 2)
+                                //    {
+                                //        if (query.o.NewProjectId != query.o.OldProjectId || query.od.WithdrawCommitment == false)
+                                //            WidthdrawAmmount = Common.calculateWithdrawalAmount(0, "", FromDate, ToDate, true, model.OrderId ?? 0, true);
+                                //    }
+                                //    else
+                                //        WidthdrawAmmount = Common.calculateWithdrawalAmount(0, "", FromDate, ToDate, true, model.OrderId ?? 0, true);
+
+                                //    if (WidthdrawAmmount > 0)
+                                //    {
+                                //        tblRCTCommitmentRequest withdraw = new tblRCTCommitmentRequest();
+                                //        withdraw.ReferenceNumber = query.vw.ApplicationNo;
+                                //        withdraw.AppointmentType = "Verfication";
+                                //        withdraw.TypeCode = getAppointmentType(query.o.AppointmentType ?? 0);
+                                //        withdraw.CandidateName = query.vw.CandidateName;
+                                //        withdraw.CandidateDesignation = query.vw.PostRecommended;
+                                //        withdraw.ProjectId = query.vw.ProjectId;
+                                //        withdraw.ProjectNumber = Common.getprojectnumber(query.vw.ProjectId ?? 0);
+                                //        withdraw.TotalSalary = query.vw.BasicPay;
+                                //        withdraw.RequestedCommitmentAmount = WidthdrawAmmount;
+                                //        withdraw.Status = "Awaiting Commitment Booking";
+                                //        withdraw.RequestType = "Withdraw Commitment";
+                                //        withdraw.EmpNumber = query.vw.EmployeersID;
+                                //        withdraw.EmpId = userId;
+                                //        withdraw.OrderId = model.OrderId;
+                                //        withdraw.Crtd_TS = DateTime.Now;
+                                //        withdraw.Crtd_UserId = userId;
+                                //        context.tblRCTCommitmentRequest.Add(withdraw);
+                                //        context.SaveChanges();
+                                //    }
+                                //}
+                                //var appid = query.o.AppointmentId ?? 0;
+                                var orderid = query.o.OrderId;
+                                query.od.NotetoDean = model.FlowApprover == "NDean" ? true : false;
+                                query.od.NotetoCMAdmin = model.FlowApprover == "CMAdmin" ? true : false;
+                                //var Actualstartdate = query.o.FromDate;
+                                query.o.ActualAppointmentStartDate = query.o.FromDate;
+                                query.o.ActualAppointmentEndDate = query.o.ToDate;
+                                //decimal CommitmentAmount = query.o.CommitmentAmmount ?? 0;
+                                //if (WidthdrawAmmount > 0)
+                                //    query.o.CommitmentAmmount = CommitmentAmount - WidthdrawAmmount;
+                                //BA-ORD
+                                if (query.o.AppointmentType == 1)
+                                {
+                                    var mastQuery = (from s in context.tblRCTConsultantAppointment
+                                                     where s.ConsultantAppointmentId == query.o.AppointmentId
+                                                     select s).FirstOrDefault();
+                                    if (mastQuery != null)
+                                    {
+                                        mastQuery.EmployeeWorkplace = model.EmployeeWorkplace;
+                                        mastQuery.UptdTs = DateTime.Now;
+                                        mastQuery.UptdUser = userId;
+                                        context.SaveChanges();
+                                    }
+                                }
+                                else if (query.o.AppointmentType == 2)
+                                {
+                                    var mastQuery = (from s in context.tblRCTSTE
+                                                     where s.STEID == query.o.AppointmentId
+                                                     select s).FirstOrDefault();
+                                    if (mastQuery != null)
+                                    {
+                                        mastQuery.EmployeeWorkplace = model.EmployeeWorkplace;
+                                        mastQuery.UptdTs = DateTime.Now;
+                                        mastQuery.UptdUser = userId;
+                                        context.SaveChanges();
+                                    }
+                                }
+                                else if (query.o.AppointmentType == 3)
+                                {
+                                    var mastQuery = (from s in context.tblRCTOutsourcing
+                                                     where s.OSGID == query.o.AppointmentId
+                                                     select s).FirstOrDefault();
+                                    if (mastQuery != null)
+                                    {
+                                        mastQuery.EmployeeWorkplace = model.EmployeeWorkplace;
+                                        mastQuery.UptdTs = DateTime.Now;
+                                        mastQuery.UptdUser = userId;
+                                        context.SaveChanges();
+                                    }
+                                }
+                                context.SaveChanges();                               
+                                PostOfferDetails(query.vw.ApplicationId ?? 0, query.vw.Category, "OfficeOrder", userId, orderid);
+                                if (TypeCode == "STE")
+                                {
+                                    var Data = STEOVWFInit(orderid, userId);
+                                    if (Data.Item1 == false)
+                                    {
+                                        return Tuple.Create(-1, orderid, Data.Item2);
+                                    }
+                                    res = 1;
+                                }
+                                else if (model.ApplicationType == "OSG")
+                                {
+                                    var Data = OSGOVWFInit(orderid, userId);
+                                    if (Data.Item1 == false)
+                                    {
+                                        return Tuple.Create(-1, orderid, Data.Item2);
+                                    }
+                                    res = 1;
+                                }
+                                
+                                
+                                //return Tuple.Create(1, "");
+
                             }
                         }
-                        else if (query.o.AppointmentType == 3)
-                        {
-                            var mastQuery = (from s in context.tblRCTOutsourcing
-                                             where s.OSGID == query.o.AppointmentId
-                                             select s).FirstOrDefault();
-                            if (mastQuery != null)
-                            {
-                                mastQuery.EmployeeWorkplace = model.EmployeeWorkplace;
-                                mastQuery.UptdTs = DateTime.Now;
-                                mastQuery.UptdUser = userId;
-                                context.SaveChanges();
-                            }
-                        }
-                        context.SaveChanges();
-
-                        var othQuery = context.tblRCTOTHPaymentDeduction.FirstOrDefault(m => m.OrderId == orderid && m.Status == "Open");
-                        if (othQuery != null)
-                        {
-                            othQuery.Status = "Completed";
-                            othQuery.UpdtTs = DateTime.Now;
-                            othQuery.UpdtUser = userId;
-                            context.SaveChanges();
-                        }
-
-                        var isLogged = Common.EmployeeHistoryLog(query.vw.ApplicationId ?? 0, query.vw.Category, query.vw.OrderId);
-                        var curr = DateTime.Now.Date;
-                        if (query.o.FromDate <= curr)
-                            ExecuteSPSalaryChangeComponent();
-                        PostOrderStatusLog(orderid, "Awaiting Verification", "Completed", userId);
-                        PostOfferDetails(query.vw.ApplicationId ?? 0, query.vw.Category, "OfficeOrder", userId, orderid);
-                        return 1;
                     }
+
+                    catch (Exception ex)
+                    {
+                        WriteLog.SendErrorToText(ex);
+                        //transaction.Rollback();
+                        return Tuple.Create(-1, 0, ex.Message.ToString());
+                    }
+
                 }
-                return -1;
+                return Tuple.Create(res, STEID, errMsg);
             }
             catch (Exception ex)
             {
-                return -1;
+                return Tuple.Create(-1, 0, ex.Message.ToString());
             }
         }
 
@@ -8202,7 +8543,6 @@ namespace IOAS.GenericServices
                         {
                             int res = 0, OrderID = 0, TypeofAppointmentId = 0;
                             bool MsPhd = false;
-                            bool result = false;
                             int apptype = getAppointmentType(model.TypeCode);
                             string prestatus = "", newstatus = "";
                             var odQuery = (from o in context.tblOrder
@@ -8427,9 +8767,6 @@ namespace IOAS.GenericServices
                                 odQuery.o.Chairperson = model.ChairpersonNameId;
                                 context.SaveChanges();
                                 OrderID = odQuery.o.OrderId;
-
-                                if (prestatus == "PI Initiated")
-                                    result = IsRespondTermEndMail(model.ApplicationID, model.TypeCode, logged_in_userId, OrderID, context);
 
                                 if (model.PILetter != null)
                                 {
@@ -8702,7 +9039,7 @@ namespace IOAS.GenericServices
                                 context.tblOrder.Add(Order);
                                 context.SaveChanges();
                                 OrderID = Order.OrderId;
-                                 result = IsRespondTermEndMail(model.ApplicationID, model.TypeCode, logged_in_userId, OrderID, context);
+                                bool result = IsRespondTermEndMail(model.ApplicationID, model.TypeCode, logged_in_userId, OrderID, context);
                                 if (apptype == 3)
                                 {
                                     var salQuery = context.tblRCTSalaryCalcDetails.FirstOrDefault(m => m.SalaryDetailsId == salarycalcId);
@@ -8851,7 +9188,6 @@ namespace IOAS.GenericServices
                             int AppointmentType = getAppointmentType(model.TypeCode);
                             var prestatus = "";
                             var newstatus = "";
-                            bool result = false;
                             var _qryOrderID = context.tblOrderMaster.FirstOrDefault(m => m.CodeDescription == "Enhancement").CodeID;
                             var odQuery = (from o in context.tblOrder
                                            where (o.Status.Contains("Note") || o.Status == "Open" || o.Status.Contains("PI Initiated"))
@@ -8981,8 +9317,6 @@ namespace IOAS.GenericServices
                                 odQuery.Chairperson = model.ChairpersonNameId;
                                 context.SaveChanges();
                                 OrderID = odQuery.OrderId;
-                                if(prestatus == "PI Initiated")
-                                     result = IsRespondTermEndMail(model.ApplicationID, model.TypeCode, logged_in_userId, OrderID, context);
                                 if (model.ArrearOrDeductionTillDate != null)
                                 {
                                     var othQuery = (from dec in context.tblRCTOTHPaymentDeduction
@@ -9299,7 +9633,7 @@ namespace IOAS.GenericServices
                                 context.tblOrder.Add(Order);
                                 context.SaveChanges();
                                 OrderID = Order.OrderId;
-                                 result = IsRespondTermEndMail(model.ApplicationID, model.TypeCode, logged_in_userId, OrderID, context);
+                                bool result = IsRespondTermEndMail(model.ApplicationID, model.TypeCode, logged_in_userId, OrderID, context);
                                 if (AppointmentType == 3)
                                 {
                                     var salQuery = context.tblRCTSalaryCalcDetails.FirstOrDefault(m => m.SalaryDetailsId == salarycalcId);
@@ -10887,7 +11221,6 @@ namespace IOAS.GenericServices
             try
             {
                 int OrderID = 0;
-                bool result = false;
                 var prestatus = string.Empty;
                 var newstatus = string.Empty;
                 using (var context = new IOASDBEntities())
@@ -11065,8 +11398,6 @@ namespace IOAS.GenericServices
                                 newstatus = odQuery.Status;
                                 context.SaveChanges();
                                 transaction.Commit();
-                                if (prestatus == "PI Initiated")
-                                    result = IsRespondTermEndMail(model.ApplicationID, model.TypeCode, logged_in_userId, OrderID, context);
                                 PostOrderStatusLog(OrderID, prestatus, newstatus, logged_in_userId);
                                 if (newstatus == "Relieving initiated")
                                 {
@@ -11200,7 +11531,7 @@ namespace IOAS.GenericServices
                                 context.tblOrder.Add(order);
                                 context.SaveChanges();
                                 OrderID = order.OrderId;
-                                 result = IsRespondTermEndMail(model.ApplicationID, model.TypeCode, logged_in_userId, OrderID, context);
+                                bool result = IsRespondTermEndMail(model.ApplicationID, model.TypeCode, logged_in_userId, OrderID, context);
                                 orderdetail.OrderId = OrderID;
                                 if (model.PILetter != null)
                                 {
@@ -18886,6 +19217,51 @@ namespace IOAS.GenericServices
             }
         }
 
+        public Tuple<bool, string> OSGVERWFInit(int id, int logged_in_user)
+        {
+            try
+            {
+                using (var IOAScontext = new IOASDBEntities())
+                {
+                    if (ValidateOSGStatus(id))
+                    {
+                        var query = IOAScontext.tblRCTOutsourcing.FirstOrDefault(m => m.OSGID == id);
+                        if (query != null)
+                        {
+                            
+                            string Type = "OSGVER Flow";
+                            if (query.NotetoCMAdmin == true)
+                                Type = "OSGVERAdminFlow";
+                            else if (query.NotetoDean == true)
+                                Type = "OSGVERFlowDean";
+                            var status = CoreAccount.ProcessTrigger(206, Type, 0, id, logged_in_user, "OSGVERID", query.ApplicationNumber);
+                            var msg = status.errorMsg;
+                            if (String.IsNullOrEmpty(msg))
+                            {
+                                query.Status = "Sent for approval-Verify";
+                                query.UptdUser = logged_in_user;
+                                query.UptdTs = DateTime.Now;
+                                IOAScontext.SaveChanges();
+                                PostOSGStatusLog(id, "Awaiting Verification", "Sent for approval-Verify", logged_in_user);
+                                return Tuple.Create(true, "");
+                            }
+                            else
+                                return Tuple.Create(false, msg);
+                        }
+                        return Tuple.Create(false, "Something went wrong please contact administrator");
+                    }
+                    else
+                        return Tuple.Create(false, "This Outsourcing is already approved");
+
+
+                }
+            }
+            catch (Exception ex)
+            {
+                return Tuple.Create(false, "Something went wrong please contact administrator");
+            }
+        }
+
         #endregion
 
         public STEViewModel getOSGSalaryStructureDetails(int OSGID, int OdrId)
@@ -19440,6 +19816,11 @@ namespace IOAS.GenericServices
 
                         model.Designation = QryOSG.Designation;
                         model.PayType = QryOSG.A.ConsolidatedPay == true ? "Consolidated Pay" : "Fellowship Pay";
+                        model.VerificationRemarks = QryOSG.A.VerificationRemarks;
+                        if (QryOSG.A.NotetoCMAdmin == true)
+                            model.FlowApprover = "CMAdmin";
+                        if (QryOSG.A.NotetoDean == true)
+                            model.FlowApprover = "NDean";
                         if (QryOSG.A.JoiningReport != null)
                         {
                             model.JoiningReportFileName = QryOSG.A.JoiningReport.Substring(QryOSG.A.JoiningReport.IndexOf("_") + 1);
@@ -19606,128 +19987,108 @@ namespace IOAS.GenericServices
             }
         }
 
-        public Tuple<int, string> VerifyOSG(STEVerificationModel model, int logged_in_userId)
+        public Tuple<int,int, string> VerifyOSG(STEVerificationModel model, int logged_in_userId, string button)
         {
             try
             {
                 int res = 0;
                 int OSGID = model.STEId ?? 0;
-                string EmployeersID = "";
+                string EmployeersID = "", errMsg = string.Empty;
+                
                 using (var context = new IOASDBEntities())
                 {
                     using (var transaction = context.Database.BeginTransaction())
                     {
                         try
                         {
-                            var _qryOSG = (from s in context.tblRCTOutsourcing
-                                           from d in context.tblRCTDesignation
-                                           where s.DesignationId == d.DesignationId
-                                           && s.Status == "Awaiting Verification" && s.OSGID == OSGID
-                                           select new { s, d }).FirstOrDefault();
-                            if (_qryOSG != null)
+                            if (button == "Save as drafts")
                             {
-                                _qryOSG.s.Status = "Verification Completed";
-                                if (model.PersonImage != null)
+                                var _qryOSG = (from s in context.tblRCTOutsourcing
+                                               from d in context.tblRCTDesignation
+                                               where s.DesignationId == d.DesignationId//&& s.Status == "Awaiting Verification" || s.Status == "Awaiting Verification-Draft"
+                                                && s.OSGID == OSGID
+                                               select new { s, d }).FirstOrDefault();
+                                if (_qryOSG != null)
                                 {
-                                    string actName = System.IO.Path.GetFileName(model.PersonImage.FileName);
-                                    var guid = Guid.NewGuid().ToString();
-                                    var docName = guid + "_" + actName;
-                                    //model.PersonImage.UploadFile("Requirement",  docName));
-                                    model.PersonImage.UploadFile("RCTEmployeeImages", docName);
-                                    _qryOSG.s.CandidateImage = docName;
-                                }
-                                if (model.Resume != null)
-                                {
-                                    string actName = System.IO.Path.GetFileName(model.Resume.FileName);
-                                    var guid = Guid.NewGuid().ToString();
-                                    var docName = guid + "_" + actName;
-                                    //model.PersonImagePath.UploadFile("Requirement", docName);
-                                    model.Resume.UploadFile("Requirement", docName);
-                                    _qryOSG.s.ResumeFile = docName;
-                                }
-                                if (model.CantidateSignature != null)
-                                {
-                                    string actName = System.IO.Path.GetFileName(model.CantidateSignature.FileName);
-                                    var guid = Guid.NewGuid().ToString();
-                                    var docName = guid + "_" + actName;
-                                    //model.CantidateSignature.UploadFile("Requirement", docName);
-                                    model.CantidateSignature.UploadFile("Requirement", docName);
-                                    _qryOSG.s.CandidateSignature = docName;
-                                }
-                                _qryOSG.s.PANNo = model.PAN;
-                                _qryOSG.s.AadhaarNumber = Convert.ToString(model.aadharnumber);
-                                _qryOSG.s.ContactNumber = model.ContactNumber;
-                                _qryOSG.s.AlternativeContactNumber = model.AlternativeContactNumber;
-                                _qryOSG.s.EmergencyContact = model.EmergencyContactNo;
-                                _qryOSG.s.isSameAsPresentAddress = model.isSameasPermanentAddress;
-                                _qryOSG.s.PresentAddress = model.PresentAddress;
-                                _qryOSG.s.PermanentAddress = model.PermanentAddress;
-                                _qryOSG.s.GovernmentProofVerifyDoc = model.GovProof;
-                                _qryOSG.s.GovernmentProofVerify = model.isVerifiedGovProof;
-                                //_qrySTE.s.EmployeeType = model.EmployeeTypeCatecory;
-                                //if (model.StaffCategory != null)
-                                //    _qryOSG.s.StaffCategory = model.StaffCategory;
-                                //_qrySTE.s.IITMPensionerOrCSIRStaff = model.IITMPensionerCSIRStaff;
-                                _qryOSG.s.MsPhdType = model.MsPhdType;
-                                _qryOSG.s.MsPhd = model.MsPhdType > 0 ? true : false;
-                                _qryOSG.s.MsPhd = model.MsPhd;
-                                _qryOSG.s.PhdDetail = model.PhdDetail;
-                                _qryOSG.s.ActualDate = model.ActualDate;
-                                _qryOSG.s.VerificationRemarks = model.VerificationRemarks;
-                                if (model.JoiningReport != null)
-                                {
-                                    string actName = System.IO.Path.GetFileName(model.JoiningReport.FileName);
-                                    var guid = Guid.NewGuid().ToString();
-                                    var docName = guid + "_" + actName;
-                                    //model.JoinungReport.UploadFile("Requirement", docName);
-                                    model.JoiningReport.UploadFile("Requirement", docName);
-                                    _qryOSG.s.JoiningReport = docName;
-                                }
-                                _qryOSG.s.BankAccountNumber = model.BankAccountNo;
-                                _qryOSG.s.BankName = model.BankName;
-                                _qryOSG.s.IFSCCode = model.IFSCCode;
-                                _qryOSG.s.isHaveGateScore = model.isHaveGateScore == "Yes" ? true : false;
-                                _qryOSG.s.GateScore = model.GateScore;
-                                _qryOSG.s.Bloodgroup = model.BloodGroup;
-                                _qryOSG.s.BloodgroupRH = model.BloodGroupRH;
-                                if (model.EducationDetail != null)
-                                {
-                                    foreach (var item in model.EducationDetail)
+                                    _qryOSG.s.Status = "Awaiting Verification-Draft";
+                                    if (model.PersonImage != null)
                                     {
-                                        if (item.EducationId == null)
+                                        string actName = System.IO.Path.GetFileName(model.PersonImage.FileName);
+                                        var guid = Guid.NewGuid().ToString();
+                                        var docName = guid + "_" + actName;
+                                        //model.PersonImage.UploadFile("Requirement",  docName));
+                                        model.PersonImage.UploadFile("RCTEmployeeImages", docName);
+                                        _qryOSG.s.CandidateImage = docName;
+                                    }
+                                    if (model.Resume != null)
+                                    {
+                                        string actName = System.IO.Path.GetFileName(model.Resume.FileName);
+                                        var guid = Guid.NewGuid().ToString();
+                                        var docName = guid + "_" + actName;
+                                        //model.PersonImagePath.UploadFile("Requirement", docName);
+                                        model.Resume.UploadFile("Requirement", docName);
+                                        _qryOSG.s.ResumeFile = docName;
+                                    }
+                                    if (model.CantidateSignature != null)
+                                    {
+                                        string actName = System.IO.Path.GetFileName(model.CantidateSignature.FileName);
+                                        var guid = Guid.NewGuid().ToString();
+                                        var docName = guid + "_" + actName;
+                                        //model.CantidateSignature.UploadFile("Requirement", docName);
+                                        model.CantidateSignature.UploadFile("Requirement", docName);
+                                        _qryOSG.s.CandidateSignature = docName;
+                                    }
+                                    _qryOSG.s.PANNo = model.PAN;
+                                    _qryOSG.s.AadhaarNumber = Convert.ToString(model.aadharnumber);
+                                    _qryOSG.s.ContactNumber = model.ContactNumber;
+                                    _qryOSG.s.AlternativeContactNumber = model.AlternativeContactNumber;
+                                    _qryOSG.s.EmergencyContact = model.EmergencyContactNo;
+                                    _qryOSG.s.isSameAsPresentAddress = model.isSameasPermanentAddress;
+                                    _qryOSG.s.PresentAddress = model.PresentAddress;
+                                    _qryOSG.s.PermanentAddress = model.PermanentAddress;
+                                    _qryOSG.s.GovernmentProofVerifyDoc = model.GovProof;
+                                    _qryOSG.s.GovernmentProofVerify = model.isVerifiedGovProof;
+                                    //_qrySTE.s.EmployeeType = model.EmployeeTypeCatecory;
+                                    //if (model.StaffCategory != null)
+                                    //    _qryOSG.s.StaffCategory = model.StaffCategory;
+                                    //_qrySTE.s.IITMPensionerOrCSIRStaff = model.IITMPensionerCSIRStaff;
+                                    _qryOSG.s.MsPhdType = model.MsPhdType;
+                                    _qryOSG.s.MsPhd = model.MsPhdType > 0 ? true : false;
+                                    _qryOSG.s.MsPhd = model.MsPhd;
+                                    _qryOSG.s.PhdDetail = model.PhdDetail;
+                                    _qryOSG.s.ActualDate = model.ActualDate;
+                                    _qryOSG.s.VerificationRemarks = model.VerificationRemarks;
+                                    if (model.JoiningReport != null)
+                                    {
+                                        string actName = System.IO.Path.GetFileName(model.JoiningReport.FileName);
+                                        var guid = Guid.NewGuid().ToString();
+                                        var docName = guid + "_" + actName;
+                                        //model.JoinungReport.UploadFile("Requirement", docName);
+                                        model.JoiningReport.UploadFile("Requirement", docName);
+                                        _qryOSG.s.JoiningReport = docName;
+                                    }
+                                    _qryOSG.s.BankAccountNumber = model.BankAccountNo;
+                                    _qryOSG.s.BankName = model.BankName;
+                                    _qryOSG.s.IFSCCode = model.IFSCCode;
+                                    _qryOSG.s.isHaveGateScore = model.isHaveGateScore == "Yes" ? true : false;
+                                    _qryOSG.s.GateScore = model.GateScore;
+                                    _qryOSG.s.Bloodgroup = model.BloodGroup;
+                                    _qryOSG.s.BloodgroupRH = model.BloodGroupRH;
+                                    if (model.EducationDetail != null)
+                                    {
+                                        foreach (var item in model.EducationDetail)
                                         {
-                                            tblRCTOSGEducationDetail _EducationDetail = new tblRCTOSGEducationDetail();
-                                            _EducationDetail.OSGId = OSGID;
-                                            _EducationDetail.QualificationId = item.QualificationId;
-                                            _EducationDetail.DisciplineId = item.DisciplineId;
-                                            _EducationDetail.UniversityorInstitution = item.Institution;
-                                            _EducationDetail.YearOfPassing = item.YearofPassing;
-                                            _EducationDetail.MarkType = item.MarkType;
-                                            _EducationDetail.Marks = item.Marks;
-                                            _EducationDetail.DivisionClassObtained = item.DivisionClassObtained;
-                                            if (item.Certificate != null)
+                                            if (item.EducationId == null)
                                             {
-                                                string actName = System.IO.Path.GetFileName(item.Certificate.FileName);
-                                                var guid = Guid.NewGuid().ToString();
-                                                var docName = guid + "_" + actName;
-                                                //model.CantidateSignature.UploadFile("Requirement", docName);
-                                                item.Certificate.UploadFile("Requirement", docName);
-                                                _EducationDetail.DocumentFilePath = docName;
-                                                _EducationDetail.FileName = actName;
-                                            }
-                                            _EducationDetail.Remarks = item.Remarks;
-                                            _EducationDetail.CrtdTs = DateTime.Now;
-                                            _EducationDetail.CrtdUser = logged_in_userId;
-                                            _EducationDetail.isCurrentVersion = true;
-                                            context.tblRCTOSGEducationDetail.Add(_EducationDetail);
-                                            context.SaveChanges();
-                                        }
-                                        else
-                                        {
-                                            int OSGEducationDetailID = item.EducationId ?? 0;
-                                            var QryEducation = (from SM in context.tblRCTOSGEducationDetail where SM.OSGId == OSGID && SM.OSGEducationDetailId == OSGEducationDetailID && SM.isCurrentVersion == true select SM).FirstOrDefault();
-                                            if (QryEducation != null)
-                                            {
+                                                tblRCTOSGEducationDetail _EducationDetail = new tblRCTOSGEducationDetail();
+                                                _EducationDetail.OSGId = OSGID;
+                                                _EducationDetail.QualificationId = item.QualificationId;
+                                                _EducationDetail.DisciplineId = item.DisciplineId;
+                                                _EducationDetail.UniversityorInstitution = item.Institution;
+                                                _EducationDetail.YearOfPassing = item.YearofPassing;
+                                                _EducationDetail.MarkType = item.MarkType;
+                                                _EducationDetail.Marks = item.Marks;
+                                                _EducationDetail.DivisionClassObtained = item.DivisionClassObtained;
                                                 if (item.Certificate != null)
                                                 {
                                                     string actName = System.IO.Path.GetFileName(item.Certificate.FileName);
@@ -19735,57 +20096,54 @@ namespace IOAS.GenericServices
                                                     var docName = guid + "_" + actName;
                                                     //model.CantidateSignature.UploadFile("Requirement", docName);
                                                     item.Certificate.UploadFile("Requirement", docName);
-                                                    QryEducation.DocumentFilePath = docName;
-                                                    QryEducation.FileName = actName;
+                                                    _EducationDetail.DocumentFilePath = docName;
+                                                    _EducationDetail.FileName = actName;
+                                                }
+                                                _EducationDetail.Remarks = item.Remarks;
+                                                _EducationDetail.CrtdTs = DateTime.Now;
+                                                _EducationDetail.CrtdUser = logged_in_userId;
+                                                _EducationDetail.isCurrentVersion = true;
+                                                context.tblRCTOSGEducationDetail.Add(_EducationDetail);
+                                                context.SaveChanges();
+                                            }
+                                            else
+                                            {
+                                                int OSGEducationDetailID = item.EducationId ?? 0;
+                                                var QryEducation = (from SM in context.tblRCTOSGEducationDetail where SM.OSGId == OSGID && SM.OSGEducationDetailId == OSGEducationDetailID && SM.isCurrentVersion == true select SM).FirstOrDefault();
+                                                if (QryEducation != null)
+                                                {
+                                                    if (item.Certificate != null)
+                                                    {
+                                                        string actName = System.IO.Path.GetFileName(item.Certificate.FileName);
+                                                        var guid = Guid.NewGuid().ToString();
+                                                        var docName = guid + "_" + actName;
+                                                        //model.CantidateSignature.UploadFile("Requirement", docName);
+                                                        item.Certificate.UploadFile("Requirement", docName);
+                                                        QryEducation.DocumentFilePath = docName;
+                                                        QryEducation.FileName = actName;
+                                                    }
                                                 }
                                             }
                                         }
                                     }
-                                }
 
-                                if (model.ExperienceDetail != null)
-                                {
-                                    foreach (var item in model.ExperienceDetail)
+                                    if (model.ExperienceDetail != null)
                                     {
-                                        if (item.ExperienceId == null)
+                                        foreach (var item in model.ExperienceDetail)
                                         {
-                                            if (item.ExperienceTypeId != null)
-                                            {
-                                                tblRCTOSGExperienceDetail _ExperienceDetail = new tblRCTOSGExperienceDetail();
-                                                _ExperienceDetail.OSGId = OSGID;
-                                                _ExperienceDetail.TypeId = item.ExperienceTypeId;
-                                                _ExperienceDetail.Organisation = item.Organisation;
-                                                _ExperienceDetail.DesignationId = item.DesignationListId;
-                                                _ExperienceDetail.Designation = item.DesignationautoComplete;
-                                                _ExperienceDetail.FromYear = item.FromDate;
-                                                _ExperienceDetail.ToYear = item.ToDate;
-                                                _ExperienceDetail.SalaryDrawn = item.SalaryDrawn;
-                                                if (item.ExperienceFile != null)
-                                                {
-                                                    string actName = System.IO.Path.GetFileName(item.ExperienceFile.FileName);
-                                                    var guid = Guid.NewGuid().ToString();
-                                                    var docName = guid + "_" + actName;
-                                                    //model.CantidateSignature.UploadFile("Requirement", docName);
-                                                    item.ExperienceFile.UploadFile("Requirement", docName);
-                                                    _ExperienceDetail.DocumentFilePath = docName;
-                                                    _ExperienceDetail.FileName = actName;
-                                                }
-                                                _ExperienceDetail.Remarks = item.Remarks;
-                                                _ExperienceDetail.CrtdUser = logged_in_userId;
-                                                _ExperienceDetail.CrtdTs = DateTime.Now;
-                                                _ExperienceDetail.isCurrentVersion = true;
-                                                context.tblRCTOSGExperienceDetail.Add(_ExperienceDetail);
-                                                context.SaveChanges();
-                                            }
-                                        }
-                                        else
-                                        {
-                                            int ExperienceId = item.ExperienceId ?? 0;
-                                            var QryExp = (from SM in context.tblRCTOSGExperienceDetail where SM.OSGId == OSGID && SM.OSGExperienceDetailId == ExperienceId && SM.isCurrentVersion == true select SM).FirstOrDefault();
-                                            if (QryExp != null)
+                                            if (item.ExperienceId == null)
                                             {
                                                 if (item.ExperienceTypeId != null)
                                                 {
+                                                    tblRCTOSGExperienceDetail _ExperienceDetail = new tblRCTOSGExperienceDetail();
+                                                    _ExperienceDetail.OSGId = OSGID;
+                                                    _ExperienceDetail.TypeId = item.ExperienceTypeId;
+                                                    _ExperienceDetail.Organisation = item.Organisation;
+                                                    _ExperienceDetail.DesignationId = item.DesignationListId;
+                                                    _ExperienceDetail.Designation = item.DesignationautoComplete;
+                                                    _ExperienceDetail.FromYear = item.FromDate;
+                                                    _ExperienceDetail.ToYear = item.ToDate;
+                                                    _ExperienceDetail.SalaryDrawn = item.SalaryDrawn;
                                                     if (item.ExperienceFile != null)
                                                     {
                                                         string actName = System.IO.Path.GetFileName(item.ExperienceFile.FileName);
@@ -19793,313 +20151,502 @@ namespace IOAS.GenericServices
                                                         var docName = guid + "_" + actName;
                                                         //model.CantidateSignature.UploadFile("Requirement", docName);
                                                         item.ExperienceFile.UploadFile("Requirement", docName);
-                                                        QryExp.DocumentFilePath = docName;
-                                                        QryExp.FileName = actName;
+                                                        _ExperienceDetail.DocumentFilePath = docName;
+                                                        _ExperienceDetail.FileName = actName;
                                                     }
-                                                    QryExp.UptdUser = logged_in_userId;
-                                                    QryExp.UptdTs = DateTime.Now;
-                                                    QryExp.isCurrentVersion = true;
+                                                    _ExperienceDetail.Remarks = item.Remarks;
+                                                    _ExperienceDetail.CrtdUser = logged_in_userId;
+                                                    _ExperienceDetail.CrtdTs = DateTime.Now;
+                                                    _ExperienceDetail.isCurrentVersion = true;
+                                                    context.tblRCTOSGExperienceDetail.Add(_ExperienceDetail);
                                                     context.SaveChanges();
+                                                }
+                                            }
+                                            else
+                                            {
+                                                int ExperienceId = item.ExperienceId ?? 0;
+                                                var QryExp = (from SM in context.tblRCTOSGExperienceDetail where SM.OSGId == OSGID && SM.OSGExperienceDetailId == ExperienceId && SM.isCurrentVersion == true select SM).FirstOrDefault();
+                                                if (QryExp != null)
+                                                {
+                                                    if (item.ExperienceTypeId != null)
+                                                    {
+                                                        if (item.ExperienceFile != null)
+                                                        {
+                                                            string actName = System.IO.Path.GetFileName(item.ExperienceFile.FileName);
+                                                            var guid = Guid.NewGuid().ToString();
+                                                            var docName = guid + "_" + actName;
+                                                            //model.CantidateSignature.UploadFile("Requirement", docName);
+                                                            item.ExperienceFile.UploadFile("Requirement", docName);
+                                                            QryExp.DocumentFilePath = docName;
+                                                            QryExp.FileName = actName;
+                                                        }
+                                                        QryExp.UptdUser = logged_in_userId;
+                                                        QryExp.UptdTs = DateTime.Now;
+                                                        QryExp.isCurrentVersion = true;
+                                                        context.SaveChanges();
+                                                    }
                                                 }
                                             }
                                         }
                                     }
-                                }
-                                if (model.OtherDetail != null)
-                                {
-                                    if (model.OtherDetail.Count > 0)
+                                    if (model.OtherDetail != null)
                                     {
-                                        for (int i = 0; i < model.OtherDetail.Count; i++)
+                                        if (model.OtherDetail.Count > 0)
                                         {
-                                            if (model.OtherDetail[i].OtherDetailId == null && model.OtherDetail[i].OtherNames != null)
+                                            for (int i = 0; i < model.OtherDetail.Count; i++)
                                             {
-                                                tblRCTOSGOtherDetail OtherDetail = new tblRCTOSGOtherDetail();
-                                                OtherDetail.OSGId = OSGID;
-                                                OtherDetail.OthersName = model.OtherDetail[i].OtherNames;
-                                                OtherDetail.Description = model.OtherDetail[i].Description;
-                                                if (model.OtherDetail[i].OtherDetailFile != null)
+                                                if (model.OtherDetail[i].OtherDetailId == null && model.OtherDetail[i].OtherNames != null)
                                                 {
-                                                    string actName = System.IO.Path.GetFileName(model.OtherDetail[i].OtherDetailFile.FileName);
-                                                    var guid = Guid.NewGuid().ToString();
-                                                    var docName = guid + "_" + actName;
-                                                    model.OtherDetail[i].OtherDetailFile.UploadFile("Requirement", docName);
-                                                    model.OtherDetail[i].OtherDetailFileName = actName;
-                                                    model.OtherDetail[i].OtherDetailFilePath = docName;
-                                                    OtherDetail.AttachmentPath = model.OtherDetail[i].OtherDetailFilePath;
-                                                    OtherDetail.AttachmentName = model.OtherDetail[i].OtherDetailFileName;
-                                                }
-
-                                                OtherDetail.Remarks = model.OtherDetail[i].Remarks;
-                                                OtherDetail.CrtdUser = logged_in_userId;
-                                                OtherDetail.CrtdTS = DateTime.Now;
-                                                OtherDetail.Status = "Active";
-                                                context.tblRCTOSGOtherDetail.Add(OtherDetail);
-                                                context.SaveChanges();
-                                            }
-                                            else
-                                            {
-                                                int OtherDetailID = model.OtherDetail[i].OtherDetailId ?? 0;
-                                                var Qryothr = (from SM in context.tblRCTOSGOtherDetail where SM.OSGId == OSGID && SM.OtherDetailsId == OtherDetailID && SM.Status == "Active" select SM).ToList();
-                                                if (Qryothr.Count > 0)
-                                                {
-                                                    for (int j = 0; j < Qryothr.Count; j++)
+                                                    tblRCTOSGOtherDetail OtherDetail = new tblRCTOSGOtherDetail();
+                                                    OtherDetail.OSGId = OSGID;
+                                                    OtherDetail.OthersName = model.OtherDetail[i].OtherNames;
+                                                    OtherDetail.Description = model.OtherDetail[i].Description;
+                                                    if (model.OtherDetail[i].OtherDetailFile != null)
                                                     {
-                                                        if (model.OtherDetail[j].OtherNames != null)
-                                                        {
-                                                            Qryothr[j].OSGId = OSGID;
-                                                            Qryothr[j].OthersName = model.OtherDetail[i].OtherNames;
-                                                            Qryothr[j].Description = model.OtherDetail[i].Description;
-                                                            if (model.OtherDetail[i].OtherDetailFile != null)
-                                                            {
-                                                                string actName = System.IO.Path.GetFileName(model.OtherDetail[i].OtherDetailFile.FileName);
-                                                                var guid = Guid.NewGuid().ToString();
-                                                                var docName = guid + "_" + actName;
-                                                                model.OtherDetail[i].OtherDetailFile.UploadFile("Requirement", docName);
-                                                                model.OtherDetail[i].OtherDetailFileName = actName;
-                                                                model.OtherDetail[i].OtherDetailFilePath = docName;
-                                                                Qryothr[j].AttachmentPath = model.OtherDetail[i].OtherDetailFilePath;
-                                                                Qryothr[j].AttachmentName = model.OtherDetail[i].OtherDetailFileName;
-                                                            }
+                                                        string actName = System.IO.Path.GetFileName(model.OtherDetail[i].OtherDetailFile.FileName);
+                                                        var guid = Guid.NewGuid().ToString();
+                                                        var docName = guid + "_" + actName;
+                                                        model.OtherDetail[i].OtherDetailFile.UploadFile("Requirement", docName);
+                                                        model.OtherDetail[i].OtherDetailFileName = actName;
+                                                        model.OtherDetail[i].OtherDetailFilePath = docName;
+                                                        OtherDetail.AttachmentPath = model.OtherDetail[i].OtherDetailFilePath;
+                                                        OtherDetail.AttachmentName = model.OtherDetail[i].OtherDetailFileName;
+                                                    }
 
-                                                            Qryothr[j].Remarks = model.OtherDetail[i].Remarks;
-                                                            Qryothr[j].UpdtUser = logged_in_userId;
-                                                            Qryothr[j].UpdtTS = DateTime.Now;
-                                                            Qryothr[j].Status = "Active";
-                                                            context.SaveChanges();
+                                                    OtherDetail.Remarks = model.OtherDetail[i].Remarks;
+                                                    OtherDetail.CrtdUser = logged_in_userId;
+                                                    OtherDetail.CrtdTS = DateTime.Now;
+                                                    OtherDetail.Status = "Active";
+                                                    context.tblRCTOSGOtherDetail.Add(OtherDetail);
+                                                    context.SaveChanges();
+                                                }
+                                                else
+                                                {
+                                                    int OtherDetailID = model.OtherDetail[i].OtherDetailId ?? 0;
+                                                    var Qryothr = (from SM in context.tblRCTOSGOtherDetail where SM.OSGId == OSGID && SM.OtherDetailsId == OtherDetailID && SM.Status == "Active" select SM).ToList();
+                                                    if (Qryothr.Count > 0)
+                                                    {
+                                                        for (int j = 0; j < Qryothr.Count; j++)
+                                                        {
+                                                            if (model.OtherDetail[j].OtherNames != null)
+                                                            {
+                                                                Qryothr[j].OSGId = OSGID;
+                                                                Qryothr[j].OthersName = model.OtherDetail[i].OtherNames;
+                                                                Qryothr[j].Description = model.OtherDetail[i].Description;
+                                                                if (model.OtherDetail[i].OtherDetailFile != null)
+                                                                {
+                                                                    string actName = System.IO.Path.GetFileName(model.OtherDetail[i].OtherDetailFile.FileName);
+                                                                    var guid = Guid.NewGuid().ToString();
+                                                                    var docName = guid + "_" + actName;
+                                                                    model.OtherDetail[i].OtherDetailFile.UploadFile("Requirement", docName);
+                                                                    model.OtherDetail[i].OtherDetailFileName = actName;
+                                                                    model.OtherDetail[i].OtherDetailFilePath = docName;
+                                                                    Qryothr[j].AttachmentPath = model.OtherDetail[i].OtherDetailFilePath;
+                                                                    Qryothr[j].AttachmentName = model.OtherDetail[i].OtherDetailFileName;
+                                                                }
+
+                                                                Qryothr[j].Remarks = model.OtherDetail[i].Remarks;
+                                                                Qryothr[j].UpdtUser = logged_in_userId;
+                                                                Qryothr[j].UpdtTS = DateTime.Now;
+                                                                Qryothr[j].Status = "Active";
+                                                                context.SaveChanges();
+                                                            }
                                                         }
                                                     }
                                                 }
                                             }
                                         }
                                     }
-                                }
-
-
-
-                                int VerificationSeqNo = 0;
-                                var QryVerificationSeqNo = (from SM in context.tblRCTOutsourcing select SM.VerificationSeqNo).Max();
-                                int VerificationSequenceNo = QryVerificationSeqNo ?? 0;
-                                VerificationSeqNo = VerificationSequenceNo == 0 ? 10001 : VerificationSequenceNo + 1;
-
-                                EmployeersID = _qryOSG.s.OldNumber;
-
-                                if (_qryOSG.s.EmployeeCategory == "Old Employee" && EmployeersID.Contains("VS"))
-                                {
-                                    var preQuery = (from s in context.tblRCTOutsourcing
-                                                    where s.EmployeersID == EmployeersID && s.IsActiveNow == true
-                                                    orderby s.OSGID descending
-                                                    select s).FirstOrDefault();
-                                    if (preQuery != null)
-                                    {
-                                        preQuery.IsActiveNow = false;
-                                        context.SaveChanges();
-                                    }
-                                }
-                                else
-                                    EmployeersID = "VS" + VerificationSeqNo;
-
-                                if (EmployeersID.Contains("VS"))
-                                    _qryOSG.s.EmployeersID = EmployeersID;
-                                else
-                                    _qryOSG.s.EmployeersID = "VS" + VerificationSeqNo;
-
-                                _qryOSG.s.IsActiveNow = true;
-                                _qryOSG.s.EmployeersID = EmployeersID;
-                                _qryOSG.s.VerificationSeqNo = VerificationSeqNo;
-                                _qryOSG.s.isEmployee = true;
-                                //Update Commitment table
-                                string ApplicationRefNo = _qryOSG.s.ApplicationNumber;
-                                var QryCommitment = (from C in context.tblRCTCommitmentRequest
-                                                     where C.ReferenceNumber == ApplicationRefNo
-                                                     && C.Status == "Commitment Booked"
-                                                     select C).FirstOrDefault();
-                                QryCommitment.EmpNumber = EmployeersID;
-                                _qryOSG.s.EmployeeWorkplace = model.EmployeeWorkplace;
-                                _qryOSG.s.CommitmentNo = CommitmentNo(ApplicationRefNo);
-                                context.SaveChanges();
-                                transaction.Commit();
-                                res = 1;
-                                decimal WithdrawAmmount = 0;
-                                //Check Joining date if candtidate join deloy for the appointment tenure should Widthdraw commitment ammount
-                                if (_qryOSG.s.AppointmentStartdate < model.ActualDate && _qryOSG.s.CSIRStaffPayMode != 2)
-                                {
-                                    DateTime FromDate = _qryOSG.s.AppointmentStartdate ?? DateTime.Now;
-                                    DateTime ToDate = model.ActualDate ?? DateTime.Now;
-                                    WithdrawAmmount = Common.calculateWithdrawalAmount(OSGID, "OSG", FromDate, ToDate, true, 0, true);
-                                    if (WithdrawAmmount > 0)
-                                    {
-                                        tblRCTCommitmentRequest WidthdrawCommitment = new tblRCTCommitmentRequest();
-                                        WidthdrawCommitment.ReferenceNumber = _qryOSG.s.ApplicationNumber;
-                                        WidthdrawCommitment.AppointmentType = "Verfication";
-                                        WidthdrawCommitment.TypeCode = "OSG";
-                                        WidthdrawCommitment.CandidateName = _qryOSG.s.Name;
-                                        WidthdrawCommitment.CandidateDesignation = _qryOSG.d.Designation;
-                                        WidthdrawCommitment.ProjectId = _qryOSG.s.ProjectId;
-                                        WidthdrawCommitment.ProjectNumber = RequirementService.getProjectSummary(_qryOSG.s.ProjectId ?? 0).ProjectNumber;
-                                        WidthdrawCommitment.TotalSalary = _qryOSG.s.Salary;
-                                        WidthdrawCommitment.RequestedCommitmentAmount = WithdrawAmmount;
-                                        WidthdrawCommitment.Status = "Awaiting Commitment Booking";
-                                        WidthdrawCommitment.RequestType = "Withdraw Commitment";
-                                        WidthdrawCommitment.EmpNumber = _qryOSG.s.EmployeersID;
-                                        WidthdrawCommitment.EmpId = logged_in_userId;
-                                        WidthdrawCommitment.Crtd_TS = DateTime.Now;
-                                        WidthdrawCommitment.Crtd_UserId = logged_in_userId;
-                                        context.tblRCTCommitmentRequest.Add(WidthdrawCommitment);
-                                        context.SaveChanges();
-                                    }
-                                }
-
-                                var Updateqry = (from a in context.tblRCTOutsourcing
-                                                 where a.OSGID == OSGID
-                                                 select a).FirstOrDefault();
-                                if (Updateqry != null)
-                                {
-                                    var Actualstartdate = Updateqry.AppointmentStartdate;
-                                    Updateqry.ActualAppointmentStartDate = Actualstartdate;
-                                    Updateqry.ActualAppointmentEndDate = Updateqry.AppointmentEnddate;
-                                    decimal CommitmentAmount = 0;
-                                    CommitmentAmount = Updateqry.CommitmentAmount ?? 0;
-                                    Updateqry.AppointmentStartdate = model.ActualDate;
-                                    if (WithdrawAmmount > 0)
-                                        Updateqry.CommitmentAmount = CommitmentAmount - WithdrawAmmount;
+                                    
+                                    //_qryOSG.s.isEmployee = true;
+                                    //Update Commitment table                                   
+                                    _qryOSG.s.EmployeeWorkplace = model.EmployeeWorkplace;
+                                   
+                                    _qryOSG.s.NotetoDean = model.FlowApprover == "NDean" ? true : false;                                  
+                                    _qryOSG.s.NotetoCMAdmin = model.FlowApprover == "CMAdmin" ? true : false;
                                     context.SaveChanges();
-                                }
+                                    transaction.Commit();
+                                    res = 1;
+                                    decimal WithdrawAmmount = 0;
+                                    
 
-                                var isLogged = Common.EmployeeHistoryLog(OSGID, "OSG");
-
-                                tblRCTOrderEffectHistory his = new tblRCTOrderEffectHistory();
-                                his.ApplicationId = OSGID;
-                                his.AppointmentType = "OSG";
-                                his.Basic = _qryOSG.s.Salary;
-                                his.DesignationId = _qryOSG.s.DesignationId;
-                                his.EffectiveFrom = model.ActualDate;
-                                his.EffectiveTo = _qryOSG.s.AppointmentEnddate;
-                                his.EmployeeId = EmployeersID;
-                                his.HRA = _qryOSG.s.HRA;
-                                his.Medical = _qryOSG.s.MedicalAmmount;
-                                his.ProjectId = _qryOSG.s.ProjectId;
-                                his.OrderDate = DateTime.Now;
-                                his.OrderTypeId = 0;
-                                his.OrderId = 0;
-                                his.OrderType = "New";
-                                his.AppointmentStartDate = model.ActualDate;
-                                his.AppointmentEndDate = _qryOSG.s.AppointmentEnddate;
-                                his.isMedicalInclusive = _qryOSG.s.Medical == 2 ? true : false;
-                                his.IITMPensioner_f = _qryOSG.s.IITMPensionerOrCSIRStaff == 1 ? true : false;
-                                context.tblRCTOrderEffectHistory.Add(his);
-                                context.SaveChanges();
-                                PostOSGStatusLog(OSGID, "Awaiting Verification", "Verification Completed", logged_in_userId);
-                                PostOfferDetails(OSGID, "OSG", "OfficeOrder", logged_in_userId);
-
-                                #region Employee portal
-                                if (_qryOSG.s.EmployeeCategory == "New Employee")
-                                {
-                                    using (var EmployeeContext = new ICSRExternalEntities())
+                                    var Updateqry = (from a in context.tblRCTOutsourcing
+                                                     where a.OSGID == OSGID
+                                                     select a).FirstOrDefault();
+                                    if (Updateqry != null)
                                     {
-                                        using (var Employeetransaction = EmployeeContext.Database.BeginTransaction())
+                                        var Actualstartdate = Updateqry.AppointmentStartdate;
+                                        Updateqry.ActualAppointmentStartDate = Actualstartdate;
+                                        Updateqry.ActualAppointmentEndDate = Updateqry.AppointmentEnddate;
+                                        decimal CommitmentAmount = 0;
+                                        CommitmentAmount = Updateqry.CommitmentAmount ?? 0;
+                                        Updateqry.AppointmentStartdate = model.ActualDate;
+                                        if (WithdrawAmmount > 0)
+                                            Updateqry.CommitmentAmount = CommitmentAmount - WithdrawAmmount;
+                                        context.SaveChanges();
+                                    }
+                                   
+
+                                    PostOSGStatusLog(OSGID, "Awaiting Verification", "Awaiting Verification-Draft", logged_in_userId);
+                                    //PostOfferDetails(OSGID, "OSG", "OfficeOrder", logged_in_userId);
+
+                                    
+                                }
+                            }
+                            else 
+                            {
+                                var _qryOSG = (from s in context.tblRCTOutsourcing
+                                               from d in context.tblRCTDesignation
+                                               where s.DesignationId == d.DesignationId//&& s.Status == "Awaiting Verification"
+                                                && s.OSGID == OSGID
+                                               select new { s, d }).FirstOrDefault();
+                                if (_qryOSG != null)
+                                {
+                                    //_qryOSG.s.Status = "Sent for approval";
+                                    if (model.PersonImage != null)
+                                    {
+                                        string actName = System.IO.Path.GetFileName(model.PersonImage.FileName);
+                                        var guid = Guid.NewGuid().ToString();
+                                        var docName = guid + "_" + actName;
+                                        //model.PersonImage.UploadFile("Requirement",  docName));
+                                        model.PersonImage.UploadFile("RCTEmployeeImages", docName);
+                                        _qryOSG.s.CandidateImage = docName;
+                                    }
+                                    if (model.Resume != null)
+                                    {
+                                        string actName = System.IO.Path.GetFileName(model.Resume.FileName);
+                                        var guid = Guid.NewGuid().ToString();
+                                        var docName = guid + "_" + actName;
+                                        //model.PersonImagePath.UploadFile("Requirement", docName);
+                                        model.Resume.UploadFile("Requirement", docName);
+                                        _qryOSG.s.ResumeFile = docName;
+                                    }
+                                    if (model.CantidateSignature != null)
+                                    {
+                                        string actName = System.IO.Path.GetFileName(model.CantidateSignature.FileName);
+                                        var guid = Guid.NewGuid().ToString();
+                                        var docName = guid + "_" + actName;
+                                        //model.CantidateSignature.UploadFile("Requirement", docName);
+                                        model.CantidateSignature.UploadFile("Requirement", docName);
+                                        _qryOSG.s.CandidateSignature = docName;
+                                    }
+                                    _qryOSG.s.PANNo = model.PAN;
+                                    _qryOSG.s.AadhaarNumber = Convert.ToString(model.aadharnumber);
+                                    _qryOSG.s.ContactNumber = model.ContactNumber;
+                                    _qryOSG.s.AlternativeContactNumber = model.AlternativeContactNumber;
+                                    _qryOSG.s.EmergencyContact = model.EmergencyContactNo;
+                                    _qryOSG.s.isSameAsPresentAddress = model.isSameasPermanentAddress;
+                                    _qryOSG.s.PresentAddress = model.PresentAddress;
+                                    _qryOSG.s.PermanentAddress = model.PermanentAddress;
+                                    _qryOSG.s.GovernmentProofVerifyDoc = model.GovProof;
+                                    _qryOSG.s.GovernmentProofVerify = model.isVerifiedGovProof;
+                                    //_qrySTE.s.EmployeeType = model.EmployeeTypeCatecory;
+                                    //if (model.StaffCategory != null)
+                                    //    _qryOSG.s.StaffCategory = model.StaffCategory;
+                                    //_qrySTE.s.IITMPensionerOrCSIRStaff = model.IITMPensionerCSIRStaff;
+                                    _qryOSG.s.MsPhdType = model.MsPhdType;
+                                    _qryOSG.s.MsPhd = model.MsPhdType > 0 ? true : false;
+                                    _qryOSG.s.MsPhd = model.MsPhd;
+                                    _qryOSG.s.PhdDetail = model.PhdDetail;
+                                    _qryOSG.s.ActualDate = model.ActualDate;
+                                    _qryOSG.s.VerificationRemarks = model.VerificationRemarks;
+                                    if (model.JoiningReport != null)
+                                    {
+                                        string actName = System.IO.Path.GetFileName(model.JoiningReport.FileName);
+                                        var guid = Guid.NewGuid().ToString();
+                                        var docName = guid + "_" + actName;
+                                        //model.JoinungReport.UploadFile("Requirement", docName);
+                                        model.JoiningReport.UploadFile("Requirement", docName);
+                                        _qryOSG.s.JoiningReport = docName;
+                                    }
+                                    _qryOSG.s.BankAccountNumber = model.BankAccountNo;
+                                    _qryOSG.s.BankName = model.BankName;
+                                    _qryOSG.s.IFSCCode = model.IFSCCode;
+                                    _qryOSG.s.isHaveGateScore = model.isHaveGateScore == "Yes" ? true : false;
+                                    _qryOSG.s.GateScore = model.GateScore;
+                                    _qryOSG.s.Bloodgroup = model.BloodGroup;
+                                    _qryOSG.s.BloodgroupRH = model.BloodGroupRH;
+                                    if (model.EducationDetail != null)
+                                    {
+                                        foreach (var item in model.EducationDetail)
                                         {
-                                            try
+                                            if (item.EducationId == null)
                                             {
-                                                var checkEmployeeExist = EmployeeContext.tblProjectStaffUser.Where(x => x.UserName == EmployeersID).FirstOrDefault();
-                                                if (checkEmployeeExist == null)
+                                                tblRCTOSGEducationDetail _EducationDetail = new tblRCTOSGEducationDetail();
+                                                _EducationDetail.OSGId = OSGID;
+                                                _EducationDetail.QualificationId = item.QualificationId;
+                                                _EducationDetail.DisciplineId = item.DisciplineId;
+                                                _EducationDetail.UniversityorInstitution = item.Institution;
+                                                _EducationDetail.YearOfPassing = item.YearofPassing;
+                                                _EducationDetail.MarkType = item.MarkType;
+                                                _EducationDetail.Marks = item.Marks;
+                                                _EducationDetail.DivisionClassObtained = item.DivisionClassObtained;
+                                                if (item.Certificate != null)
                                                 {
-                                                    var departdetail = Common.GetEmployeeDepartment(_qryOSG.s.ProjectId ?? 0);
-                                                    tblProjectStaffUser addEmployeelogin = new tblProjectStaffUser();
-                                                    addEmployeelogin.UserName = EmployeersID;
-                                                    addEmployeelogin.Email = _qryOSG.s.Email;
-                                                    addEmployeelogin.Name = _qryOSG.s.Name;
-                                                    addEmployeelogin.Password = Guid.NewGuid().ToString("N").Substring(0, 12);
-                                                    addEmployeelogin.Status = "Active";
-                                                    addEmployeelogin.RoleId = 3;
-                                                    addEmployeelogin.Crts_Ts = DateTime.Now;
-                                                    addEmployeelogin.Designation = _qryOSG.d.Designation;
-                                                    addEmployeelogin.DeptCode = departdetail.Item1;
-                                                    addEmployeelogin.DeptName = departdetail.Item2;
-                                                    EmployeeContext.tblProjectStaffUser.Add(addEmployeelogin);
-                                                    EmployeeContext.SaveChanges();
-                                                    int projectstaffid = addEmployeelogin.ProjectStaffId;
-                                                    var statusemail = RCTEmailContentService.SendMailProjectStaffNewuser(projectstaffid, EmployeeContext, _qryOSG.s.Email);
-                                                    if (statusemail == 2 || statusemail == -1)
+                                                    string actName = System.IO.Path.GetFileName(item.Certificate.FileName);
+                                                    var guid = Guid.NewGuid().ToString();
+                                                    var docName = guid + "_" + actName;
+                                                    //model.CantidateSignature.UploadFile("Requirement", docName);
+                                                    item.Certificate.UploadFile("Requirement", docName);
+                                                    _EducationDetail.DocumentFilePath = docName;
+                                                    _EducationDetail.FileName = actName;
+                                                }
+                                                _EducationDetail.Remarks = item.Remarks;
+                                                _EducationDetail.CrtdTs = DateTime.Now;
+                                                _EducationDetail.CrtdUser = logged_in_userId;
+                                                _EducationDetail.isCurrentVersion = true;
+                                                context.tblRCTOSGEducationDetail.Add(_EducationDetail);
+                                                context.SaveChanges();
+                                            }
+                                            else
+                                            {
+                                                int OSGEducationDetailID = item.EducationId ?? 0;
+                                                var QryEducation = (from SM in context.tblRCTOSGEducationDetail where SM.OSGId == OSGID && SM.OSGEducationDetailId == OSGEducationDetailID && SM.isCurrentVersion == true select SM).FirstOrDefault();
+                                                if (QryEducation != null)
+                                                {
+                                                    if (item.Certificate != null)
                                                     {
-                                                        Employeetransaction.Rollback();
-                                                        transaction.Rollback();
-                                                        return Tuple.Create(0, "Employee portal Credentials not send this email Please Contact Administrator");
+                                                        string actName = System.IO.Path.GetFileName(item.Certificate.FileName);
+                                                        var guid = Guid.NewGuid().ToString();
+                                                        var docName = guid + "_" + actName;
+                                                        //model.CantidateSignature.UploadFile("Requirement", docName);
+                                                        item.Certificate.UploadFile("Requirement", docName);
+                                                        QryEducation.DocumentFilePath = docName;
+                                                        QryEducation.FileName = actName;
                                                     }
                                                 }
-                                                Employeetransaction.Commit();
-                                            }
-                                            catch (Exception ex)
-                                            {
-                                                Employeetransaction.Rollback();
-                                                transaction.Rollback();
-                                                WriteLog.SendErrorToText(ex);
-                                                return Tuple.Create(0, "");
                                             }
                                         }
                                     }
-                                }
-                                else if (_qryOSG.s.EmployeeCategory == "Old Employee")
-                                {
-                                    using (var EmployeeContext = new ICSRExternalEntities())
-                                    {
-                                        using (var Employeetransaction = EmployeeContext.Database.BeginTransaction())
-                                        {
-                                            try
-                                            {
-                                                var checkEmployeeExist = EmployeeContext.tblProjectStaffUser.Where(x => x.UserName == EmployeersID).FirstOrDefault();
-                                                if (checkEmployeeExist != null)
-                                                {
 
-                                                    var departdetail = Common.GetEmployeeDepartment(_qryOSG.s.ProjectId ?? 0);
-                                                    checkEmployeeExist.Email = _qryOSG.s.Email;
-                                                    checkEmployeeExist.Name = _qryOSG.s.Name;
-                                                    checkEmployeeExist.DeptCode = departdetail.Item1;
-                                                    checkEmployeeExist.DeptName = departdetail.Item2;
-                                                    checkEmployeeExist.Status = "Active";
-                                                    checkEmployeeExist.Uptd_Ts = DateTime.Now;
-                                                    checkEmployeeExist.Uptd_Id = logged_in_userId;
+                                    if (model.ExperienceDetail != null)
+                                    {
+                                        foreach (var item in model.ExperienceDetail)
+                                        {
+                                            if (item.ExperienceId == null)
+                                            {
+                                                if (item.ExperienceTypeId != null)
+                                                {
+                                                    tblRCTOSGExperienceDetail _ExperienceDetail = new tblRCTOSGExperienceDetail();
+                                                    _ExperienceDetail.OSGId = OSGID;
+                                                    _ExperienceDetail.TypeId = item.ExperienceTypeId;
+                                                    _ExperienceDetail.Organisation = item.Organisation;
+                                                    _ExperienceDetail.DesignationId = item.DesignationListId;
+                                                    _ExperienceDetail.Designation = item.DesignationautoComplete;
+                                                    _ExperienceDetail.FromYear = item.FromDate;
+                                                    _ExperienceDetail.ToYear = item.ToDate;
+                                                    _ExperienceDetail.SalaryDrawn = item.SalaryDrawn;
+                                                    if (item.ExperienceFile != null)
+                                                    {
+                                                        string actName = System.IO.Path.GetFileName(item.ExperienceFile.FileName);
+                                                        var guid = Guid.NewGuid().ToString();
+                                                        var docName = guid + "_" + actName;
+                                                        //model.CantidateSignature.UploadFile("Requirement", docName);
+                                                        item.ExperienceFile.UploadFile("Requirement", docName);
+                                                        _ExperienceDetail.DocumentFilePath = docName;
+                                                        _ExperienceDetail.FileName = actName;
+                                                    }
+                                                    _ExperienceDetail.Remarks = item.Remarks;
+                                                    _ExperienceDetail.CrtdUser = logged_in_userId;
+                                                    _ExperienceDetail.CrtdTs = DateTime.Now;
+                                                    _ExperienceDetail.isCurrentVersion = true;
+                                                    context.tblRCTOSGExperienceDetail.Add(_ExperienceDetail);
                                                     context.SaveChanges();
                                                 }
-                                                Employeetransaction.Commit();
                                             }
-                                            catch (Exception ex)
+                                            else
                                             {
-                                                Employeetransaction.Rollback();
-                                                transaction.Rollback();
-                                                WriteLog.SendErrorToText(ex);
-                                                return Tuple.Create(0, "");
+                                                int ExperienceId = item.ExperienceId ?? 0;
+                                                var QryExp = (from SM in context.tblRCTOSGExperienceDetail where SM.OSGId == OSGID && SM.OSGExperienceDetailId == ExperienceId && SM.isCurrentVersion == true select SM).FirstOrDefault();
+                                                if (QryExp != null)
+                                                {
+                                                    if (item.ExperienceTypeId != null)
+                                                    {
+                                                        if (item.ExperienceFile != null)
+                                                        {
+                                                            string actName = System.IO.Path.GetFileName(item.ExperienceFile.FileName);
+                                                            var guid = Guid.NewGuid().ToString();
+                                                            var docName = guid + "_" + actName;
+                                                            //model.CantidateSignature.UploadFile("Requirement", docName);
+                                                            item.ExperienceFile.UploadFile("Requirement", docName);
+                                                            QryExp.DocumentFilePath = docName;
+                                                            QryExp.FileName = actName;
+                                                        }
+                                                        QryExp.UptdUser = logged_in_userId;
+                                                        QryExp.UptdTs = DateTime.Now;
+                                                        QryExp.isCurrentVersion = true;
+                                                        context.SaveChanges();
+                                                    }
+                                                }
                                             }
                                         }
                                     }
+                                    if (model.OtherDetail != null)
+                                    {
+                                        if (model.OtherDetail.Count > 0)
+                                        {
+                                            for (int i = 0; i < model.OtherDetail.Count; i++)
+                                            {
+                                                if (model.OtherDetail[i].OtherDetailId == null && model.OtherDetail[i].OtherNames != null)
+                                                {
+                                                    tblRCTOSGOtherDetail OtherDetail = new tblRCTOSGOtherDetail();
+                                                    OtherDetail.OSGId = OSGID;
+                                                    OtherDetail.OthersName = model.OtherDetail[i].OtherNames;
+                                                    OtherDetail.Description = model.OtherDetail[i].Description;
+                                                    if (model.OtherDetail[i].OtherDetailFile != null)
+                                                    {
+                                                        string actName = System.IO.Path.GetFileName(model.OtherDetail[i].OtherDetailFile.FileName);
+                                                        var guid = Guid.NewGuid().ToString();
+                                                        var docName = guid + "_" + actName;
+                                                        model.OtherDetail[i].OtherDetailFile.UploadFile("Requirement", docName);
+                                                        model.OtherDetail[i].OtherDetailFileName = actName;
+                                                        model.OtherDetail[i].OtherDetailFilePath = docName;
+                                                        OtherDetail.AttachmentPath = model.OtherDetail[i].OtherDetailFilePath;
+                                                        OtherDetail.AttachmentName = model.OtherDetail[i].OtherDetailFileName;
+                                                    }
+
+                                                    OtherDetail.Remarks = model.OtherDetail[i].Remarks;
+                                                    OtherDetail.CrtdUser = logged_in_userId;
+                                                    OtherDetail.CrtdTS = DateTime.Now;
+                                                    OtherDetail.Status = "Active";
+                                                    context.tblRCTOSGOtherDetail.Add(OtherDetail);
+                                                    context.SaveChanges();
+                                                }
+                                                else
+                                                {
+                                                    int OtherDetailID = model.OtherDetail[i].OtherDetailId ?? 0;
+                                                    var Qryothr = (from SM in context.tblRCTOSGOtherDetail where SM.OSGId == OSGID && SM.OtherDetailsId == OtherDetailID && SM.Status == "Active" select SM).ToList();
+                                                    if (Qryothr.Count > 0)
+                                                    {
+                                                        for (int j = 0; j < Qryothr.Count; j++)
+                                                        {
+                                                            if (model.OtherDetail[j].OtherNames != null)
+                                                            {
+                                                                Qryothr[j].OSGId = OSGID;
+                                                                Qryothr[j].OthersName = model.OtherDetail[i].OtherNames;
+                                                                Qryothr[j].Description = model.OtherDetail[i].Description;
+                                                                if (model.OtherDetail[i].OtherDetailFile != null)
+                                                                {
+                                                                    string actName = System.IO.Path.GetFileName(model.OtherDetail[i].OtherDetailFile.FileName);
+                                                                    var guid = Guid.NewGuid().ToString();
+                                                                    var docName = guid + "_" + actName;
+                                                                    model.OtherDetail[i].OtherDetailFile.UploadFile("Requirement", docName);
+                                                                    model.OtherDetail[i].OtherDetailFileName = actName;
+                                                                    model.OtherDetail[i].OtherDetailFilePath = docName;
+                                                                    Qryothr[j].AttachmentPath = model.OtherDetail[i].OtherDetailFilePath;
+                                                                    Qryothr[j].AttachmentName = model.OtherDetail[i].OtherDetailFileName;
+                                                                }
+
+                                                                Qryothr[j].Remarks = model.OtherDetail[i].Remarks;
+                                                                Qryothr[j].UpdtUser = logged_in_userId;
+                                                                Qryothr[j].UpdtTS = DateTime.Now;
+                                                                Qryothr[j].Status = "Active";
+                                                                context.SaveChanges();
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+
+
+
+                                    _qryOSG.s.EmployeeWorkplace = model.EmployeeWorkplace;
+                                    //_qryOSG.s.CommitmentNo = CommitmentNo(ApplicationRefNo);
+                                    _qryOSG.s.NotetoDean = model.FlowApprover == "NDean" ? true : false;
+                                    _qryOSG.s.NotetoCMAdmin = model.FlowApprover == "CMAdmin" ? true : false;
+                                    context.SaveChanges();
+                                    transaction.Commit();
+                                    res = 1;
+                                    decimal WithdrawAmmount = 0;
+                                    //Check Joining date if candtidate join deloy for the appointment tenure should Widthdraw commitment ammount
+                                    if (_qryOSG.s.AppointmentStartdate < model.ActualDate && _qryOSG.s.CSIRStaffPayMode != 2)
+                                    {
+                                        DateTime FromDate = _qryOSG.s.AppointmentStartdate ?? DateTime.Now;
+                                        DateTime ToDate = model.ActualDate ?? DateTime.Now;
+                                        WithdrawAmmount = Common.calculateWithdrawalAmount(OSGID, "OSG", FromDate, ToDate, true, 0, true);
+                                        if (WithdrawAmmount > 0)
+                                        {
+                                            tblRCTCommitmentRequest WidthdrawCommitment = new tblRCTCommitmentRequest();
+                                            WidthdrawCommitment.ReferenceNumber = _qryOSG.s.ApplicationNumber;
+                                            WidthdrawCommitment.AppointmentType = "Verfication";
+                                            WidthdrawCommitment.TypeCode = "OSG";
+                                            WidthdrawCommitment.CandidateName = _qryOSG.s.Name;
+                                            WidthdrawCommitment.CandidateDesignation = _qryOSG.d.Designation;
+                                            WidthdrawCommitment.ProjectId = _qryOSG.s.ProjectId;
+                                            WidthdrawCommitment.ProjectNumber = RequirementService.getProjectSummary(_qryOSG.s.ProjectId ?? 0).ProjectNumber;
+                                            WidthdrawCommitment.TotalSalary = _qryOSG.s.Salary;
+                                            WidthdrawCommitment.RequestedCommitmentAmount = WithdrawAmmount;
+                                            WidthdrawCommitment.Status = "Awaiting Commitment Booking";
+                                            WidthdrawCommitment.RequestType = "Withdraw Commitment";
+                                            WidthdrawCommitment.EmpNumber = _qryOSG.s.EmployeersID;
+                                            WidthdrawCommitment.EmpId = logged_in_userId;
+                                            WidthdrawCommitment.Crtd_TS = DateTime.Now;
+                                            WidthdrawCommitment.Crtd_UserId = logged_in_userId;
+                                            context.tblRCTCommitmentRequest.Add(WidthdrawCommitment);
+                                            context.SaveChanges();
+                                        }
+                                    }
+
+                                    var Updateqry = (from a in context.tblRCTOutsourcing
+                                                     where a.OSGID == OSGID
+                                                     select a).FirstOrDefault();
+                                    if (Updateqry != null)
+                                    {
+                                        var Actualstartdate = Updateqry.AppointmentStartdate;
+                                        Updateqry.ActualAppointmentStartDate = Actualstartdate;
+                                        Updateqry.ActualAppointmentEndDate = Updateqry.AppointmentEnddate;
+                                        decimal CommitmentAmount = 0;
+                                        CommitmentAmount = Updateqry.CommitmentAmount ?? 0;
+                                        Updateqry.AppointmentStartdate = model.ActualDate;
+                                        if (WithdrawAmmount > 0)
+                                            Updateqry.CommitmentAmount = CommitmentAmount - WithdrawAmmount;
+                                        context.SaveChanges();
+                                    }
+
+                                    
+                                    //PostOSGStatusLog(OSGID, "Awaiting Verification", "Verification Completed", logged_in_userId);
+                                    PostOfferDetails(OSGID, "OSG", "OfficeOrder", logged_in_userId);
+
+                                    
+
+                                    var Data = OSGVERWFInit(OSGID, logged_in_userId);
+                                    if (Data.Item1 == false)
+                                    {
+                                        return Tuple.Create(-1, OSGID, Data.Item2);
+
+                                    }
                                 }
-                                #endregion
                             }
-                            else
-                            {
-                                //Check is verified
-                                int PreVerified = (from P in context.tblRCTOSGStatusLog
-                                                   where P.OSGID == OSGID && P.NewStatus == "Verification Completed"
-                                                   select P).ToList().Count;
-                                if (PreVerified > 0)
-                                    res = 2;
-                                else
-                                    res = -1;
-                            }
+                            //else
+                            //{
+                            //    //Check is verified
+                            //    int PreVerified = (from P in context.tblRCTOSGStatusLog
+                            //                       where P.OSGID == OSGID && P.NewStatus == "Verification Completed"
+                            //                       select P).ToList().Count;
+                            //    if (PreVerified > 0)
+                            //        res = 2;
+                            //    else
+                            //        res = -1;
+                            //}
                         }
                         catch (Exception ex)
                         {
                             transaction.Rollback();
                             WriteLog.SendErrorToText(ex);
-                            return Tuple.Create(0, "");
+                            return Tuple.Create(-1, 0, ex.Message.ToString());
+                            //return Tuple.Create(0, "");
                         }
                     }
                 }
-                return Tuple.Create(res, EmployeersID);
+                //return Tuple.Create(res, EmployeeID1, errMsg);
+                return Tuple.Create(res, OSGID, errMsg);
             }
             catch (Exception ex)
             {
                 WriteLog.SendErrorToText(ex);
-                return Tuple.Create(0, "");
+                return Tuple.Create(-1, 0, ex.Message.ToString());
             }
         }
 
@@ -20164,6 +20711,8 @@ namespace IOAS.GenericServices
                     }
                     if (!string.IsNullOrEmpty(model.Applicationtype))
                         predicate = predicate.And(d => d.ApplicationType.Contains(model.Applicationtype));
+                    if (!string.IsNullOrEmpty(model.SearchINStatus))
+                        predicate = predicate.And(d => d.Status.Contains(model.SearchINStatus));
                     var qryList = prequery.Where(predicate).OrderByDescending(m => m.STEId).Skip(skiprec).Take(pageSize).ToList();
                     list.TotalRecords = prequery.Where(predicate).Count();
                     if (qryList != null)
@@ -27027,7 +27576,7 @@ namespace IOAS.GenericServices
             {
                 using (var context = new IOASDBEntities())
                 {
-                    if (STEID > 0)
+                    if (STEID > 0) 
                     {
                         tblRCTSTEStatusLog log = new tblRCTSTEStatusLog();
                         log.STEID = STEID;
@@ -27051,10 +27600,14 @@ namespace IOAS.GenericServices
                             log.Message = "Short term engagement application sent for committee clarified by " + Common.GetUserFirstName(logged_in_userId);
                         else if (NewStatus == "Sent for approval")
                             log.Message = "Short term engagement application sent for approval by " + Common.GetUserFirstName(logged_in_userId);
+                        else if (NewStatus == "Sent for approval-Verify")
+                            log.Message = "Short term engagement application sent for approval by " + Common.GetUserFirstName(logged_in_userId);
                         else if (NewStatus == "Awaiting Commitment Booking")
                             log.Message = "Short term engagement application sent for approval by " + Common.GetUserFirstName(logged_in_userId);
                         else if (NewStatus == "Awaiting Verification")
                             log.Message = "Short term engagement application sent for verification by " + Common.GetUserFirstName(logged_in_userId);
+                        else if (NewStatus == "Awaiting Verification-Draft")
+                            log.Message = "Short term engagement application sent for verification drafted by " + Common.GetUserFirstName(logged_in_userId);
                         else if (NewStatus == "Verification Completed")
                             log.Message = "Short term engagement application verified by " + Common.GetUserFirstName(logged_in_userId);
                         context.tblRCTSTEStatusLog.Add(log);
@@ -27147,7 +27700,11 @@ namespace IOAS.GenericServices
                             log.Message = "Outsourcing application sent for committee by " + Common.GetUserFirstName(logged_in_userId);
                         else if (NewStatus == "Committee Clarify")
                             log.Message = "Outsourcing application sent for committee clarified by " + Common.GetUserFirstName(logged_in_userId);
+                        else if (NewStatus == "Awaiting Verification-Draft")
+                            log.Message = "Outsourcing application sent for verification drafted by " + Common.GetUserFirstName(logged_in_userId);
                         else if (NewStatus == "Sent for approval")
+                            log.Message = "Outsourcing application sent for approval by " + Common.GetUserFirstName(logged_in_userId);
+                        else if (NewStatus == "Sent for approval-Verify")
                             log.Message = "Outsourcing application sent for approval by " + Common.GetUserFirstName(logged_in_userId);
                         else if (NewStatus == "Awaiting Commitment Booking")
                             log.Message = "Outsourcing application sent for approval by " + Common.GetUserFirstName(logged_in_userId);
@@ -27178,7 +27735,7 @@ namespace IOAS.GenericServices
                     {
                         tblRCTOrderLog log = new tblRCTOrderLog();
                         log.OrderID = OrderId;
-                        log.PresentStatus = PreStatus;
+                        log.PresentStatus = PreStatus; 
                         log.NewStatus = NewStatus;
                         log.Crt_By = logged_in_userId;
                         log.Crt_TS = DateTime.Now;
@@ -27194,9 +27751,13 @@ namespace IOAS.GenericServices
                             log.Message = "Order sent for committee by " + Common.GetUserFirstName(logged_in_userId);
                         else if (NewStatus == "Awaiting Verification")
                             log.Message = "Order sent for verification by " + Common.GetUserFirstName(logged_in_userId);
+                        else if (NewStatus == "Awaiting Verification-Draft")
+                            log.Message = "Short term engagement application sent for verification drafted by " + Common.GetUserFirstName(logged_in_userId);
                         else if (NewStatus == "Committee Clarify")
                             log.Message = "Outsourcing application sent for committee clarified by " + Common.GetUserFirstName(logged_in_userId);
                         else if (NewStatus == "Sent for approval")
+                            log.Message = "Order sent for approval by " + Common.GetUserFirstName(logged_in_userId);
+                        else if (NewStatus == "Sent for approval-Verify")
                             log.Message = "Order sent for approval by " + Common.GetUserFirstName(logged_in_userId);
                         else if (NewStatus == "Awaiting Commitment Booking")
                             log.Message = "Order sent for approval by " + Common.GetUserFirstName(logged_in_userId);

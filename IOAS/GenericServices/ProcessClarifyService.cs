@@ -1396,6 +1396,125 @@ namespace IOAS.GenericServices
                 return false;
             }
         }
+        public bool STEVERWFInitClarify(int STEID, int loggedInUser)
+        {
+            try
+            {
+                lock (lockObj)
+                {
+                    using (var context = new IOASDBEntities())
+                    {
+                        var query = context.tblRCTSTE.FirstOrDefault(m => m.STEID == STEID && m.Status == "Sent for approval-Verify");
+                        if (query != null)
+                        {
+                            query.Status = "Awaiting Verification-Open";
+                            query.UptdUser = loggedInUser;
+                            query.UptdTs = DateTime.Now;
+                            context.SaveChanges();
+                            RequirementService.PostSTEStatusLog(STEID, "Sent for approval-Verify", query.Status, loggedInUser);
+                            return true;
+                        }
+                        return false;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+        public bool STEORDVERWFInitClarify(int OrderID, int loggedInUser)
+        {
+            try
+            {
+                lock (lockObj)
+                {
+                    using (var context = new IOASDBEntities())
+                    {
+                        //var query = context.tblOrder.FirstOrDefault(m => m.STEID == STEID && m.Status == "Sent for approval");
+                        var query = (from o in context.tblOrder
+                                     from od in context.tblOrderDetail
+                                     where o.Status == "Sent for approval-Verify" && o.OrderId == OrderID
+                                     && o.OrderId == od.OrderId
+                                     select new { od, o }).FirstOrDefault();
+                        if (query != null)
+                        {
+                            query.o.Status = "Awaiting Verification-Open";
+                            query.o.UpdtUser = loggedInUser;
+                            query.o.UpdtTS = DateTime.Now;
+                            context.SaveChanges();
+                            RequirementService.PostOrderStatusLog(OrderID, "Sent for approval-Verify", query.o.Status, loggedInUser);
+                            return true;
+                        }
+                        return false;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        public bool OSGORDVERWFInitClarify(int OrderID, int loggedInUser)
+        {
+            try
+            {
+                lock (lockObj)
+                {
+                    using (var context = new IOASDBEntities())
+                    {
+                        //var query = context.tblOrder.FirstOrDefault(m => m.STEID == STEID && m.Status == "Sent for approval");
+                        var query = (from o in context.tblOrder
+                                     from od in context.tblOrderDetail
+                                     where o.Status == "Sent for approval-Verify" && o.OrderId == OrderID
+                                     && o.OrderId == od.OrderId
+                                     select new { od, o }).FirstOrDefault();
+                        if (query != null)
+                        {
+                            query.o.Status = "Awaiting Verification-Open";
+                            query.o.UpdtUser = loggedInUser;
+                            query.o.UpdtTS = DateTime.Now;
+                            context.SaveChanges();
+                            RequirementService.PostOrderStatusLog(OrderID, "Sent for approval-Verify", query.o.Status, loggedInUser);
+                            return true;
+                        }
+                        return false;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+        public bool OSGVERWFInitClarify(int OSGID, int loggedInUser)
+        {
+            try
+            {
+                lock (lockObj)
+                {
+                    using (var context = new IOASDBEntities())
+                    {
+                        var query = context.tblRCTOutsourcing.FirstOrDefault(m => m.OSGID == OSGID && m.Status == "Sent for approval-Verify");
+                        if (query != null)
+                        {
+                            query.Status = "Awaiting Verification-Open";
+                            query.UptdUser = loggedInUser;
+                            query.UptdTs = DateTime.Now;
+                            context.SaveChanges();
+                            RequirementService.PostOSGStatusLog(OSGID, "Sent for approval-Verify", query.Status, loggedInUser);
+                            return true;
+                        }
+                        return false;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
         public bool RecruitCOPWFInitClarify(int OrderId, int loggedInUser)
         {
             try

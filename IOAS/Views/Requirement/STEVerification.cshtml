@@ -25,6 +25,9 @@
             <h4><b>Verification </b></h4>
         </div>
     </div>
+    @Html.HiddenFor(m => m.Button)
+    <input type="hidden" id="currentRefId" value="@ViewBag.currentRefId" />
+    <input type="hidden" id="processGuideLineId" value="@ViewBag.processGuideLineId" />
     <div class="row cts-mn-dts" id="tab-01">
         <div class="page-wrapper mt30">
             <div>
@@ -39,10 +42,11 @@
                                                 <label>Application No: </label>
                                                 @Html.HiddenFor(m => m.ProjectId)
                                                 @Html.HiddenFor(m => m.DateofBirth)
+                                                @Html.HiddenFor(m => m.Status)
                                                 @Html.HiddenFor(m => m.STEId)
                                                 @Html.HiddenFor(m => m.TypeofappointmentId)
                                                 @Html.HiddenFor(m => m.ApplicationNo)
-												@Html.HiddenFor(m => m.OldEmployeeNumber)
+                                                @Html.HiddenFor(m => m.OldEmployeeNumber)
                                                 <h4>@Html.DisplayFor(m => m.ApplicationNo)</h4>
                                             </div>
                                         </div>
@@ -781,7 +785,7 @@
                                                                         else
                                                                         {
                                                                             <input type="file" class="" name="ExperienceDetail[0].ExperienceFile" />@:&nbsp; &nbsp; &nbsp;
-                                                                          }
+                                                                        }
                                                                         @Html.ValidationMessage("ExperienceDetail[0].ExperienceFile")
                                                                     </td>
                                                                     <td>
@@ -918,20 +922,57 @@
             </div>
         </div>
     </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="bl-lg-panel-box pb-null">
+                <div class="cmn-panel-box">
+                    <div class="grey-bg-adj mb-lg">
+                        <div class="row">
+                            <div class="col-md-4" id="devCMAdmin">
+                                <div class="form-group custom-form-group">
+                                    @Html.RadioButtonFor(m => m.FlowApprover, "CMAdmin", new { @id = "IsNotetoCMAdmin" }) <label class="ml-sm ">Note to CM Admin</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4" id="devNoteDean">
+                                <div class="form-group custom-form-group">
+                                    @Html.RadioButtonFor(m => m.FlowApprover, "NDean", new { @id = "IsNotetoDean" }) <label class="ml-sm " id="lblNoteDean">Note to Dean</label>
+                                </div>
+                            </div>
+                            @if (string.IsNullOrEmpty(Model.Status) || Model.Status == "Awaiting Verification-Draft" || Model.Status == "Awaiting Verification")
+                            {
+                                <div class="col-md-4" id="">
+                                    <div class="form-group custom-form-group">
+                                        <a id="clearFlow">Clear</a>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="row">
         <div class="col-md-12 mb-lg text-center">
-            <input type="submit" class="btn btn-primary" value="Submit" id="btnSave" />
+            <input type="submit" class="cancel btn btn-danger" value="Save as drafts" name="Button" id="btnDraft" />
+            <input type="submit" class="btn btn-success" value="Send for approval" name="Button" id="btnSave" />
             <a href='@Url.Action("STEVerficationList", "Requirement")' class="btn btn-default">Close</a>
         </div>
     </div>
-                                                                }
+}
 @*<div class="loading-bg dis-none">
     </div>*@
+<div class="" id="act-now">
+    @Html.Partial("_ProcessStatus")
+</div>
 <script>
     var errMsg = '@TempData["errMsg"]';
     var succMsg = '@TempData["succMsg"]';
     var alertMsg = '@TempData["alertMsg"]';
     var STEID = @Html.Raw(Json.Encode(Model.STEId)) || 0;
+    var FlowApp = @Html.Raw(Json.Encode(Model.FlowApprover)) || '';
+    var Status = @Html.Raw(Json.Encode(Model.Status)) || '';
     if(STEID > 0)
     {
         $('#BloodGroup').val(@Html.Raw(Json.Encode(Model.BloodGroup)));
@@ -1000,7 +1041,6 @@
         applyAutoComplete($('#EmployeeWorkplace'),undefined, '@Url.Action("LoadWokrPlaceList", "Requirement")');
 
         $('#tbodyExperience tr').each(function () {
-            debugger
             var index = $(this).find("input[name='ExperienceDetail.Index']").val();
             var hdEle = $("input[name='ExperienceDetail[" + index + "].DesignationListId']");
             var acEle = $("input[name='ExperienceDetail[" + index + "].DesignationautoComplete']");
@@ -1011,6 +1051,20 @@
             $('.loading-bg').addClass('dis-none');
         }
     });
+    $('#clearFlow').click(function () {
+        $("input[name=FlowApprover]").prop('checked', false);
+    });
+
+    if (FlowApp == "CMAdmin") {
+        $("input[name=FlowApprover][value=CMAdmin]").prop('checked', true);
+        if (Status != "Awaiting Verification-Draft")
+            $("#devNoteDean").hide();
+    }
+    if (FlowApp == "NDean") {
+        $("input[name=FlowApprover][value=NDean]").prop('checked', true);
+        if (Status != "Awaiting Verification-Draft")
+            $("#devCMAdmin").hide();
+    }
 
     $(document).on("change", "input[name$='.FromDate']",function () {
         var name = $(this).attr('name');
@@ -1698,7 +1752,7 @@
         });
         $('#btnAddEducation').addClass('dis-none');
         $('#btnAddExperience').addClass('dis-none');
-    }  
+    }
 
     $(document).on('keyup', 'input[name$=".Marks"]', function () {
         var value = parseInt($(this).val());

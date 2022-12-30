@@ -202,7 +202,8 @@
                     SearchInName: filter.Name || null,
                     DepartmentName: filter.DepartmentName || null,
                     //MeetingDate: filter.MeetingDate || null,
-                    Applicationtype: filter.ApplicationType || null
+                    Applicationtype: filter.ApplicationType || null,
+                    SearchINStatus: filter.Status || null
                 },
                 filter.model = searchData;
                 var deferred = $.Deferred();
@@ -291,18 +292,32 @@
                     }
                 }
             },
+            { type: "text", name: "Status", title: "Status", editing: false },
             { type: "text", name: "PAN", title: "PAN No", editing: false, visible: false },
             {
                 type: "control", editButton: false, deleteButton: false, width: 120, title: "Action",
                 itemTemplate: function (value, item) {
                     var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
                     var statusList;
+                    
                     if (item.OrderId > 0 && item.SendOffer_f) {
-                        statusList = [{ id: "", name: "Action" }, { id: "Verifyorder", name: "Verify" }, { id: "Cancel", name: "Cancel" }, { id: "SendOffer", name: "Send Offerletter" }]
+                        statusList = [{ id: "", name: "Action" }, { id: "Verifyorder", name: "Verify" }, { id: "SendOffer", name: "Send Offerletter" }]
                     }
-                    else if (item.OrderId > 0) {
-                        statusList = [{ id: "", name: "Action" }, { id: "Verifyorder", name: "Verify" }, { id: "Cancel", name: "Cancel" }]
+                    else if (item.Status == "Sent for approval-Verify") {
+                        statusList = [{ id: "", name: "Action" }, { id: "View", name: "View" }]
                     }
+                    else if (item.Status == "Awaiting Verification") {
+                        statusList = [{ id: "", name: "Action" }, { id: "Verify", name: "Verify" }]
+                    }
+                    else if (item.Status == "Awaiting Verification-Draft") {
+                        statusList = [{ id: "", name: "Action" }, { id: "Verify", name: "Verify" }]
+                    }
+                    else if (item.Status == "Awaiting Verification-Open") {
+                        statusList = [{ id: "", name: "Action" }, { id: "Verify", name: "Verify" }, { id: "View", name: "View" }, { id: "Cancel", name: "Cancel" }]
+                    }
+                    //else if (item.OrderId > 0) {
+                    //    statusList = [{ id: "", name: "Action" }, { id: "Verifyorder", name: "Verify" }, { id: "Cancel", name: "Cancel" }]
+                    //}
                     else {
 
                         if (item.SendOffer_f) {
@@ -643,6 +658,17 @@
                                             console.log("error1 : " + err);
                                         }
                                     });
+                                }
+                            }
+                            else if (selVal == "View") {
+                                
+                                if (item.ApplicationType == "New") {                                   
+                                    var url = '@Url.Action("OSGVerificationView", "Requirement")?STEID=' + item.STEId + '&listf=OSGVAL';
+                                    window.location.href = url;
+                                }                               
+                                else {
+                                    var url = '@Url.Action("OrderVerificationView", "Requirement")?OrderId=' + item.OrderId + '&listf=OSGORVAL';                                   
+                                    window.location.href = url;
                                 }
                             }
                             $(this).val("");

@@ -1,4 +1,5 @@
-﻿using IOAS.DataModel;
+﻿using ICSREMP.DataModel;
+using IOAS.DataModel;
 using IOAS.Infrastructure;
 using IOAS.Models;
 using System;
@@ -1799,6 +1800,499 @@ namespace IOAS.GenericServices
                             query.S.UptdTs = DateTime.Now;
                             context.SaveChanges();
                             RequirementService.PostSTEStatusLog(STEID, "Sent for approval", query.S.Status, loggedInUser);
+                            return true;
+                        }
+                        return false;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        public static string CommitmentNo(string AppRefNo, int? OrderId = null)
+        {
+            string CommitmentNumber = string.Empty;
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    if (OrderId > 0)
+                    {
+                        CommitmentNumber = (from c in context.tblRCTCommitmentRequest
+                                            where c.OrderId == OrderId && (c.Status == "Commitment Booked" || c.Status == "Commitment Withdrawn")
+                                            && (c.RequestType == "Add Commitment" || c.RequestType == "New Commitment" || c.RequestType == "Withdraw Commitment")
+                                            orderby c.RecruitmentRequestId descending
+                                            select c.CommitmentNumber).FirstOrDefault();
+                    }
+
+                    CommitmentNumber = (from c in context.tblRCTCommitmentRequest
+                                        where c.ReferenceNumber == AppRefNo
+                                        && c.Status == "Commitment Booked" && c.RequestType == "New Appointment"
+                                        orderby c.RecruitmentRequestId descending
+                                        select c.CommitmentNumber).FirstOrDefault();
+
+                }
+                return CommitmentNumber;
+            }
+            catch (Exception ex)
+            {
+                return CommitmentNumber;
+            }
+        }
+
+        public bool STEVERWFInitSccess(int STEID, int loggedInUser)
+        {
+            string EmployeeID = string.Empty;
+            STEVerificationModel model = new STEVerificationModel();
+            try
+            {
+                lock (lockObj)
+                {
+                    using (var context = new IOASDBEntities())
+                    {
+                        var query = (from S in context.tblRCTSTE
+                                     from D in context.tblRCTDesignation
+                                     where S.DesignationId == D.DesignationId && S.STEID == STEID
+                                     && S.Status == "Sent for approval-Verify"
+                                     select new { S, D }).FirstOrDefault();
+                        if (query != null)
+                        {
+                            query.S.Status = "Verification Completed";
+                            int VerificationSeqNo = 0;
+                            int VerificationSequenceNo = (from SM in context.tblRCTSTE select SM.VerificationSeqNo).Max() ?? 0;
+                            VerificationSeqNo = VerificationSequenceNo == 0 ? 10001 : VerificationSequenceNo + 1;
+                            EmployeeID = query.S.OldNumber;
+                           
+                            if (query.S.EmployeeCategory == "Old Employee" && EmployeeID.Contains("IC"))
+                            {
+                                var preQuery = (from s in context.tblRCTSTE
+                                                where s.EmployeersID == EmployeeID && s.IsActiveNow == true
+                                                orderby s.STEID descending
+                                                select s).FirstOrDefault();
+                                if (preQuery != null)
+                                {
+                                    preQuery.IsActiveNow = false;
+                                    context.SaveChanges();
+                                    query.S.Paybill = !string.IsNullOrEmpty(preQuery.Paybill) ? preQuery.Paybill : null;
+                                }
+                            }
+                            else
+                                EmployeeID = "IC" + VerificationSeqNo;
+
+                            if (EmployeeID.Contains("IC"))
+                                query.S.EmployeersID = EmployeeID;
+                            else
+                                query.S.EmployeersID = "IC" + VerificationSeqNo;
+
+                            query.S.VerificationSeqNo = VerificationSeqNo;
+                            query.S.isEmployee = true;
+                            query.S.IsActiveNow = true;
+                            //Update Commitment table
+                            var QryCommitment = (from C in context.tblRCTCommitmentRequest
+                                                 where C.ReferenceNumber == query.S.ApplicationNumber && C.Status == "Commitment Booked"
+                                                 select C).FirstOrDefault();
+                            if (QryCommitment != null)
+                                QryCommitment.EmpNumber = EmployeeID;
+                            query.S.CommitmentNo = CommitmentNo(query.S.ApplicationNumber);
+                           
+                            context.SaveChanges();
+                            Common.EmployeeHistoryLog(STEID, "STE");
+
+                            //BA
+                            tblRCTOrderEffectHistory his = new tblRCTOrderEffectHistory();
+                            his.ApplicationId = STEID;
+                            his.AppointmentType = "STE";
+                            his.Basic = query.S.Salary;
+                            his.DesignationId = query.S.DesignationId;
+                            his.EffectiveFrom = model.ActualDate;
+                            his.EffectiveTo = query.S.AppointmentEnddate;
+                            his.EmployeeId = EmployeeID;
+                            his.HRA = query.S.HRA;
+                            his.Medical = query.S.MedicalAmmount;
+                            his.OrderDate = DateTime.Now;
+                            his.OrderTypeId = 0;
+                            his.OrderId = 0;
+                            his.OrderType = "New";
+                            his.ProjectId = query.S.ProjectId;
+                            his.AppointmentStartDate = model.ActualDate;
+                            his.AppointmentEndDate = query.S.AppointmentEnddate;
+                            his.isMedicalInclusive = query.S.Medical == 2 ? true : false;
+                            his.IITMPensioner_f = query.S.IITMPensionerOrCSIRStaff == 1 ? true : false;
+                            context.tblRCTOrderEffectHistory.Add(his);
+                            context.SaveChanges();
+                            //#region Employee portal
+                            //if (query.S.EmployeeCategory == "New Employee")
+                            //{
+                            //    using (var EmployeeContext = new ICSRExternalEntities())
+                            //    {
+                            //        using (var Employeetransaction = EmployeeContext.Database.BeginTransaction())
+                            //        {
+                            //            try
+                            //            {
+                            //                var checkEmployeeExist = EmployeeContext.tblProjectStaffUser.Where(x => x.UserName == EmployeeID).FirstOrDefault();
+                            //                if (checkEmployeeExist == null)
+                            //                {
+                            //                    var departdetail = Common.GetEmployeeDepartment(query.S.ProjectId ?? 0);
+                            //                    tblProjectStaffUser addEmployeelogin = new tblProjectStaffUser();
+                            //                    addEmployeelogin.UserName = EmployeeID;
+                            //                    addEmployeelogin.Email = query.S.Email;
+                            //                    addEmployeelogin.Name = query.S.Name;
+                            //                    addEmployeelogin.Password = Guid.NewGuid().ToString("N").Substring(0, 12);
+                            //                    addEmployeelogin.Status = "Active";
+                            //                    addEmployeelogin.RoleId = 2;
+                            //                    addEmployeelogin.Crts_Ts = DateTime.Now;
+                            //                    addEmployeelogin.Designation = query.D.Designation;
+                            //                    addEmployeelogin.DeptCode = departdetail.Item1;
+                            //                    addEmployeelogin.DeptName = departdetail.Item2;
+                            //                    EmployeeContext.tblProjectStaffUser.Add(addEmployeelogin);
+                            //                    EmployeeContext.SaveChanges();
+                            //                    int projectstaffid = addEmployeelogin.ProjectStaffId;
+                            //                    var statusemail = RCTEmailContentService.SendMailProjectStaffNewuser(projectstaffid, EmployeeContext, query.s.Email);
+                            //                    if (statusemail == 2 || statusemail == -1)
+                            //                    {
+                            //                        //Employeetransaction.Rollback();
+                            //                        //transaction.Rollback();
+                            //                        //return Tuple.Create(-1,0, "Employee portal Credentials not send this email Please Contact Administrator");
+                            //                        return false;
+                            //                    }
+                            //                }
+                            //                Employeetransaction.Commit();
+                            //            }
+                            //            catch (Exception ex)
+                            //            {
+                            //                return false;
+                            //            }
+                            //        }
+                            //    }
+                            //}
+                            //else if (query.S.EmployeeCategory == "Old Employee")
+                            //{
+                            //    using (var EmployeeContext = new ICSRExternalEntities())
+                            //    {
+                            //        using (var Employeetransaction = EmployeeContext.Database.BeginTransaction())
+                            //        {
+                            //            try
+                            //            {
+                            //                var checkEmployeeExist = EmployeeContext.tblProjectStaffUser.Where(x => x.UserName == EmployeeID).FirstOrDefault();
+                            //                if (checkEmployeeExist != null)
+                            //                {
+                            //                    var departdetail = Common.GetEmployeeDepartment(query.S.ProjectId ?? 0);
+                            //                    checkEmployeeExist.Email = query.S.Email;
+                            //                    checkEmployeeExist.Name = query.S.Name;
+                            //                    checkEmployeeExist.DeptCode = departdetail.Item1;
+                            //                    checkEmployeeExist.DeptName = departdetail.Item2;
+                            //                    checkEmployeeExist.Status = "Active";
+                            //                    checkEmployeeExist.Uptd_Ts = DateTime.Now;
+                            //                    checkEmployeeExist.Uptd_Id = loggedInUser;
+                            //                    context.SaveChanges();
+                            //                }
+                            //                Employeetransaction.Commit();
+                            //            }
+                            //            catch (Exception ex)
+                            //            {
+                            //                return false;
+                            //            }
+                            //        }
+                            //    }
+                            //}
+                            //#endregion
+                            RequirementService.PostSTEStatusLog(STEID, "Verification Completed", query.S.Status, loggedInUser);
+                            return true;
+                        }
+                        return true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+        public bool OSGVERWFInitSccess(int OSGID, int loggedInUser)
+        {
+            string EmployeersID = string.Empty;
+            STEVerificationModel model = new STEVerificationModel();
+            try
+            {
+                lock (lockObj)
+                {
+                    using (var context = new IOASDBEntities())
+                    {
+                        //var query = (from S in context.tblRCTSTE
+                        //             from D in context.tblRCTDesignation
+                        //             where S.DesignationId == D.DesignationId && S.STEID == STEID
+                        //             && S.Status == "Sent for approval-Verify"
+                        //             select new { S, D }).FirstOrDefault();
+
+                        var _qryOSG = (from s in context.tblRCTOutsourcing
+                                       from d in context.tblRCTDesignation
+                                       where s.DesignationId == d.DesignationId && s.Status == "Sent for approval-Verify"
+                                        && s.OSGID == OSGID
+                                       select new { s, d }).FirstOrDefault();
+                        if (_qryOSG != null)
+                        {
+                            _qryOSG.s.Status = "Verification Completed";
+                            int VerificationSeqNo = 0;
+                            var QryVerificationSeqNo = (from SM in context.tblRCTOutsourcing select SM.VerificationSeqNo).Max();
+                            int VerificationSequenceNo = QryVerificationSeqNo ?? 0;
+                            VerificationSeqNo = VerificationSequenceNo == 0 ? 10001 : VerificationSequenceNo + 1;
+
+                            EmployeersID = _qryOSG.s.OldNumber;                           
+                            if (_qryOSG.s.EmployeeCategory == "Old Employee" && EmployeersID.Contains("VS"))
+                            {
+                                var preQuery = (from s in context.tblRCTOutsourcing
+                                                where s.EmployeersID == EmployeersID && s.IsActiveNow == true
+                                                orderby s.OSGID descending
+                                                select s).FirstOrDefault();
+                                if (preQuery != null)
+                                {
+                                    preQuery.IsActiveNow = false;
+                                    context.SaveChanges();
+                                }
+                            }
+                            else
+                                EmployeersID = "VS" + VerificationSeqNo;
+
+                            if (EmployeersID.Contains("VS"))
+                                _qryOSG.s.EmployeersID = EmployeersID;
+                            else
+                                _qryOSG.s.EmployeersID = "VS" + VerificationSeqNo;
+
+                            _qryOSG.s.IsActiveNow = true;
+                            _qryOSG.s.EmployeersID = EmployeersID;
+                            _qryOSG.s.VerificationSeqNo = VerificationSeqNo;
+                            _qryOSG.s.isEmployee = true;
+                            //Update Commitment table
+                            string ApplicationRefNo = _qryOSG.s.ApplicationNumber;
+                            var QryCommitment = (from C in context.tblRCTCommitmentRequest
+                                                 where C.ReferenceNumber == ApplicationRefNo
+                                                 && C.Status == "Commitment Booked"
+                                                 select C).FirstOrDefault();
+                            QryCommitment.EmpNumber = EmployeersID;
+                            _qryOSG.s.EmployeeWorkplace = model.EmployeeWorkplace;
+                            _qryOSG.s.CommitmentNo = CommitmentNo(ApplicationRefNo);
+
+
+                            context.SaveChanges();
+                            var isLogged = Common.EmployeeHistoryLog(OSGID, "OSG");
+
+                            tblRCTOrderEffectHistory his = new tblRCTOrderEffectHistory();
+                            his.ApplicationId = OSGID;
+                            his.AppointmentType = "OSG";
+                            his.Basic = _qryOSG.s.Salary;
+                            his.DesignationId = _qryOSG.s.DesignationId;
+                            his.EffectiveFrom = model.ActualDate;
+                            his.EffectiveTo = _qryOSG.s.AppointmentEnddate;
+                            his.EmployeeId = EmployeersID;
+                            his.HRA = _qryOSG.s.HRA;
+                            his.Medical = _qryOSG.s.MedicalAmmount;
+                            his.ProjectId = _qryOSG.s.ProjectId;
+                            his.OrderDate = DateTime.Now;
+                            his.OrderTypeId = 0;
+                            his.OrderId = 0;
+                            his.OrderType = "New";
+                            his.AppointmentStartDate = model.ActualDate;
+                            his.AppointmentEndDate = _qryOSG.s.AppointmentEnddate;
+                            his.isMedicalInclusive = _qryOSG.s.Medical == 2 ? true : false;
+                            his.IITMPensioner_f = _qryOSG.s.IITMPensionerOrCSIRStaff == 1 ? true : false;
+                            context.tblRCTOrderEffectHistory.Add(his);
+                            context.SaveChanges();
+                            #region Employee portal
+                            //if (_qryOSG.s.EmployeeCategory == "New Employee")
+                            //{
+                            //    using (var EmployeeContext = new ICSRExternalEntities())
+                            //    {
+                            //        using (var Employeetransaction = EmployeeContext.Database.BeginTransaction())
+                            //        {
+                            //            try
+                            //            {
+                            //                var checkEmployeeExist = EmployeeContext.tblProjectStaffUser.Where(x => x.UserName == EmployeersID).FirstOrDefault();
+                            //                if (checkEmployeeExist == null)
+                            //                {
+                            //                    var departdetail = Common.GetEmployeeDepartment(_qryOSG.s.ProjectId ?? 0);
+                            //                    tblProjectStaffUser addEmployeelogin = new tblProjectStaffUser();
+                            //                    addEmployeelogin.UserName = EmployeersID;
+                            //                    addEmployeelogin.Email = _qryOSG.s.Email;
+                            //                    addEmployeelogin.Name = _qryOSG.s.Name;
+                            //                    addEmployeelogin.Password = Guid.NewGuid().ToString("N").Substring(0, 12);
+                            //                    addEmployeelogin.Status = "Active";
+                            //                    addEmployeelogin.RoleId = 3;
+                            //                    addEmployeelogin.Crts_Ts = DateTime.Now;
+                            //                    addEmployeelogin.Designation = _qryOSG.d.Designation;
+                            //                    addEmployeelogin.DeptCode = departdetail.Item1;
+                            //                    addEmployeelogin.DeptName = departdetail.Item2;
+                            //                    EmployeeContext.tblProjectStaffUser.Add(addEmployeelogin);
+                            //                    EmployeeContext.SaveChanges();
+                            //                    int projectstaffid = addEmployeelogin.ProjectStaffId;
+                            //                    var statusemail = RCTEmailContentService.SendMailProjectStaffNewuser(projectstaffid, EmployeeContext, _qryOSG.s.Email);
+                            //                    if (statusemail == 2 || statusemail == -1)
+                            //                    {
+                            //                        //Employeetransaction.Rollback();
+                            //                        //transaction.Rollback();
+                            //                        //return Tuple.Create(-1, OSGID, "Employee portal Credentials not send this email Please Contact Administrator");
+                            //                        return false;
+                            //                    }
+                            //                }
+                            //                Employeetransaction.Commit();
+                            //            }
+                            //            catch (Exception ex)
+                            //            {
+                            //                Employeetransaction.Rollback();
+                            //                //transaction.Rollback();
+                            //                //WriteLog.SendErrorToText(ex);
+                            //                //return Tuple.Create(-1, OSGID, "");
+                            //                return false;
+                            //            }
+                            //        }
+                            //    }
+                            //}
+                            //else if (_qryOSG.s.EmployeeCategory == "Old Employee")
+                            //{
+                            //    using (var EmployeeContext = new ICSRExternalEntities())
+                            //    {
+                            //        using (var Employeetransaction = EmployeeContext.Database.BeginTransaction())
+                            //        {
+                            //            try
+                            //            {
+                            //                var checkEmployeeExist = EmployeeContext.tblProjectStaffUser.Where(x => x.UserName == EmployeersID).FirstOrDefault();
+                            //                if (checkEmployeeExist != null)
+                            //                {
+
+                            //                    var departdetail = Common.GetEmployeeDepartment(_qryOSG.s.ProjectId ?? 0);
+                            //                    checkEmployeeExist.Email = _qryOSG.s.Email;
+                            //                    checkEmployeeExist.Name = _qryOSG.s.Name;
+                            //                    checkEmployeeExist.DeptCode = departdetail.Item1;
+                            //                    checkEmployeeExist.DeptName = departdetail.Item2;
+                            //                    checkEmployeeExist.Status = "Active";
+                            //                    checkEmployeeExist.Uptd_Ts = DateTime.Now;
+                            //                    checkEmployeeExist.Uptd_Id = loggedInUser;
+                            //                    context.SaveChanges();
+                            //                }
+                            //                Employeetransaction.Commit();
+                            //            }
+                            //            catch (Exception ex)
+                            //            {
+                            //                Employeetransaction.Rollback();
+                            //                return false;
+                            //            }
+                            //        }
+                            //    }
+                            //}
+                            #endregion
+                            RequirementService.PostOSGStatusLog(OSGID, "Verification Completed", _qryOSG.s.Status, loggedInUser);
+                            return true;
+                        }
+                        return true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        public static bool ExecuteSPSalaryChangeComponent()
+        {
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    context.Database.ExecuteSqlCommand("SPRCTExtensionAndEnhancementupdate");
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        public bool STEORDVERWFInitSccess(int OrderId, int loggedInUser)
+        {
+            STEVerificationModel model = new STEVerificationModel();
+            try
+            {
+                lock (lockObj)
+                {
+                    using (var context = new IOASDBEntities())
+                    {
+                        var query = (from o in context.tblOrder
+                                     from od in context.tblOrderDetail
+                                     from vw in context.vw_RCTOverAllApplicationEntry//o.Status == "Awaiting Verification" || o.Status == "Awaiting Verification-Draft" &&
+                                     where o.OrderId == OrderId
+                                     && o.OrderId == od.OrderId && o.OrderId == vw.OrderId
+                                     select new { od, o, vw }).FirstOrDefault();
+                        //var query = context.tblOrder.FirstOrDefault(m => m.OrderId == OrderId && m.Status == "Sent for approval-Verify");
+                        if (query != null)
+                        {
+                            query.o.Status = "Verification Completed";                           
+                            context.SaveChanges();
+
+                            var othQuery = context.tblRCTOTHPaymentDeduction.FirstOrDefault(m => m.OrderId == OrderId && m.Status == "Open");
+                            if (othQuery != null)
+                            {
+                                othQuery.Status = "Completed";
+                                othQuery.UpdtTs = DateTime.Now;
+                                othQuery.UpdtUser = loggedInUser;
+                                context.SaveChanges();
+                            }
+
+                            var isLogged = Common.EmployeeHistoryLog(query.vw.ApplicationId ?? 0, query.vw.Category, query.vw.OrderId);
+                            var curr = DateTime.Now.Date;
+                            if (query.o.FromDate <= curr)
+                                ExecuteSPSalaryChangeComponent();
+                            RequirementService.PostOrderStatusLog(OrderId, "Verification Completed", query.o.Status, loggedInUser);
+                            return true;
+                        }
+                        return false;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        public bool OSGORDVERWFInitSccess(int OrderId, int loggedInUser)
+        {
+            STEVerificationModel model = new STEVerificationModel();
+            try
+            {
+                lock (lockObj)
+                {
+                    using (var context = new IOASDBEntities())
+                    {
+                        var query = (from o in context.tblOrder
+                                     from od in context.tblOrderDetail
+                                     from vw in context.vw_RCTOverAllApplicationEntry//o.Status == "Awaiting Verification" || o.Status == "Awaiting Verification-Draft" &&
+                                     where o.OrderId == OrderId
+                                     && o.OrderId == od.OrderId && o.OrderId == vw.OrderId
+                                     select new { od, o, vw }).FirstOrDefault();
+                        //var query = context.tblOrder.FirstOrDefault(m => m.OrderId == OrderId && m.Status == "Sent for approval-Verify");
+                        if (query != null)
+                        {
+                            query.o.Status = "Verification Completed";
+                            context.SaveChanges();
+
+                            var othQuery = context.tblRCTOTHPaymentDeduction.FirstOrDefault(m => m.OrderId == OrderId && m.Status == "Open");
+                            if (othQuery != null)
+                            {
+                                othQuery.Status = "Completed";
+                                othQuery.UpdtTs = DateTime.Now;
+                                othQuery.UpdtUser = loggedInUser;
+                                context.SaveChanges();
+                            }
+
+                            var isLogged = Common.EmployeeHistoryLog(query.vw.ApplicationId ?? 0, query.vw.Category, query.vw.OrderId);
+                            var curr = DateTime.Now.Date;
+                            if (query.o.FromDate <= curr)
+                                ExecuteSPSalaryChangeComponent();
+                            RequirementService.PostOrderStatusLog(OrderId, "Verification Completed", query.o.Status, loggedInUser);
                             return true;
                         }
                         return false;

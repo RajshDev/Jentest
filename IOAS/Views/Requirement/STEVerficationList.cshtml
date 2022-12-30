@@ -21,6 +21,7 @@
         </div>
     </div>
 </div>
+
 @Html.AntiForgeryToken()
 <div id="popup"></div>
 
@@ -139,7 +140,8 @@
                     SearchInName: filter.Name || null,
                     DepartmentName: filter.DepartmentName || null,
                     //MeetingDate: filter.MeetingDate || null,
-                    Applicationtype: filter.ApplicationType || null
+                    Applicationtype: filter.ApplicationType || null,
+                    SearchINStatus: filter.Status || null
                 },
                 filter.model = searchData;
                 var deferred = $.Deferred();
@@ -199,6 +201,7 @@
                     }
                 }
             },
+            { type: "text", name: "Status", title: "Status", editing: false },
 
             //{ type: "text", name: "PAN", title: "PAN No", editing: false, visible: false },
             {
@@ -207,12 +210,48 @@
                 itemTemplate: function (value, item) {
                     var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
                     var statusList;
-                    if (item.OrderId > 0 && item.SendOffer_f) {
+                    //if (item.Status == "Awaiting Verification-Open") {
+                    //    statusList = [{ id: "", name: "Action" }, { id: "Verifyorder", name: "Verify" }, { id: "View", name: "View" }]
+                    //}
+                    // else if (item.OrderId > 0 && item.SendOffer_f || item.Status == "Sent for approval-Verify") {
+                    //     statusList = [{ id: "", name: "Action" }, { id: "View", name: "View" }]
+                    // }
+
+                    ////else if (item.OrderId > 0 && item.SendOffer_f || !(item.Status == "Sent for approval")) {
+                    ////    statusList = [{ id: "", name: "Action" }, { id: "Verifyorder", name: "Verify" }, { id: "SendOffer", name: "Send Offerletter" }]
+                    ////}
+                    //else if (item.OrderId > 0 && item.SendOffer_f) {
+                    //    statusList = [{ id: "", name: "Action" }, { id: "Verifyorder", name: "Verify" }, { id: "SendOffer", name: "Send Offerletter" }]
+                    //}
+                    //else if (item.OrderId > 0 || item.Status == "Sent for approval-Verify" ) {
+                    //    statusList = [{ id: "", name: "Action" }, { id: "View", name: "View" }]
+                    //}
+                    if (item.OrderId > 0 && item.Status == "Sent for approval-Verify") {
+                        statusList = [{ id: "", name: "Action" }, { id: "View", name: "View" }]
+                    }
+                   else if (item.OrderId > 0 && item.SendOffer_f) {
                         statusList = [{ id: "", name: "Action" }, { id: "Verifyorder", name: "Verify" }, { id: "SendOffer", name: "Send Offerletter" }]
                     }
-                    else if (item.OrderId > 0) {
-                        statusList = [{ id: "", name: "Action" }, { id: "Verifyorder", name: "Verify" }]
+                    else if (item.OrderId > 0 && item.Status == "Sent for approval-Verify") {
+                        statusList = [{ id: "", name: "Action" }, { id: "View", name: "View" }]
                     }
+                    else if (item.Status == "Sent for approval-Verify") {
+                        statusList = [{ id: "", name: "Action" }, { id: "View", name: "View" }]
+                    }
+                    else if (item.Status == "Awaiting Verification-Open") {
+                        statusList = [{ id: "", name: "Action" }, { id: "Verify", name: "Verify" }, { id: "View", name: "View" }, { id: "Cancel", name: "Cancel" }]
+                    }
+
+                    //else if (item.OrderId > 0) {
+                    //    statusList = [{ id: "", name: "Action" }, { id: "Verifyorder", name: "Verify" }]
+                    //}
+                    //else if (item.Status == "Sent for approval-Verify" ) {
+                    //    statusList = [{ id: "", name: "Action" }, { id: "View", name: "View" }]
+                    //}
+
+                    //else {
+                    //    statusList = [{ id: "", name: "Action" }, { id: "View", name: "View" }]
+                    //}
                     else {
                         if (item.SendOffer_f) {
                             if (item.EmailRemaindarCount == 0) {
@@ -251,12 +290,13 @@
                             }));
                         });
                         $customSelect.change(function (e) {
-                            debugger;
+                            
                             var selVal = $(this).val();
                             if (selVal == "Verify") {
                                 var url = '@Url.Action("STEVerification", "Requirement")?STEID=' + item.STEId;
                                 window.location.href = url;
                             }
+                            //+ '&listf=STEO'
                             else if (selVal == "Verifyorder") {
                                 var url = '@Url.Action("OrderVerification", "Requirement")?OrderId=' + item.OrderId;
                                 window.location.href = url;
@@ -351,23 +391,23 @@
                                 $.confirm({
                                     title: 'Do you want to cancel application ?',
                                     content: '' +
-                                    '<form action=""  class="formName">' +
-                                       '<div class="form-group"><br/>' +
-                                           '<table>' +
-                                               '<tr><th>Application No</th><th>&nbsp;&nbsp;:&nbsp;&nbsp;</th><td>' + item.ApplicationNo + '</td></tr><tr>' +
-                                               '<th><br/></th><th></th><td></td></tr>' +
-                                               '<th>Candidate Name</th><th>&nbsp;&nbsp;:&nbsp;&nbsp;</th><td>' + item.Name + '</td></tr>' +
-                                           '</table><br/>' +
-                                           '<label class="required">Remarks</label>' +
-                                             '<textarea id="txtResonCancel" name="reason" class="form-control" row="2" required>' +
-                                             '</textarea><br/>' +
-                                           '<label>Attachment (optional)</label>' + '<br/>' +
-                                           '<input type="file" id="attachement" name="attachement" /> ' +
-                                           '<input type="hidden" name="appid" value=' + item.STEId + ' />' +
-                                           '<input type="hidden" name="apptype" value="STE" />' +
-                                           '<input type="hidden" name="orderid" value=' + item.OrderId + ' />' +
-                                       '</div>' +
-                                    '</form>',
+                                        '<form action=""  class="formName">' +
+                                        '<div class="form-group"><br/>' +
+                                        '<table>' +
+                                        '<tr><th>Application No</th><th>&nbsp;&nbsp;:&nbsp;&nbsp;</th><td>' + item.ApplicationNo + '</td></tr><tr>' +
+                                        '<th><br/></th><th></th><td></td></tr>' +
+                                        '<th>Candidate Name</th><th>&nbsp;&nbsp;:&nbsp;&nbsp;</th><td>' + item.Name + '</td></tr>' +
+                                        '</table><br/>' +
+                                        '<label class="required">Remarks</label>' +
+                                        '<textarea id="txtResonCancel" name="reason" class="form-control" row="2" required>' +
+                                        '</textarea><br/>' +
+                                        '<label>Attachment (optional)</label>' + '<br/>' +
+                                        '<input type="file" id="attachement" name="attachement" /> ' +
+                                        '<input type="hidden" name="appid" value=' + item.STEId + ' />' +
+                                        '<input type="hidden" name="apptype" value="STE" />' +
+                                        '<input type="hidden" name="orderid" value=' + item.OrderId + ' />' +
+                                        '</div>' +
+                                        '</form>',
                                     type: 'blue',
                                     typeAnimated: true,
                                     boxWidth: '450px',
@@ -447,7 +487,7 @@
                                                                         },
                                                                     },
                                                                 });
-                                                            }                                                            
+                                                            }
                                                         },
                                                         error: function (err) {
                                                             $(".loading-bg").addClass('dis-none');
@@ -536,6 +576,19 @@
                                         },
                                     }
                                 });
+                            }
+                            else if (selVal == "View") {
+
+                                if (item.ApplicationType == "New") {
+                                    @*var url = '@Url.Action("RCTOverAllView", "Requirement")?ApplicationId=' + item.STEId + '&AppType=STE&listf=AL';
+                                    window.location.href = url;*@
+                                    var url = '@Url.Action("STEVerificationView", "Requirement")?STEID=' + item.STEId + '&listf=VAL';
+                                    window.location.href = url;
+                                }
+                                else {
+                                    var url = '@Url.Action("OrderVerificationView", "Requirement")?OrderId=' + item.OrderId + '&listf=OVAL';
+                                    window.location.href = url;
+                                }
                             }
                             $(this).val("");
                             return false;

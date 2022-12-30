@@ -40,6 +40,14 @@ namespace IOAS.Controllers
                     return category == "STE" ? "STEDAApplicationStatus" : category == "CON" ? "CONDAApplicationStatus" : category == "OSG" ? "OSGDAApplicationStatus" : "";
                 else if (retrunLink == "AL")
                     return category == "STE" ? "STEList" : category == "CON" ? "ConsultantAppointmentList" : category == "OSG" ? "OutsourcingList" : "";
+                else if (retrunLink == "VAL")
+                    return category == "STE" ? "STEVerficationList" : category == "CON" ? "ConsultantAppointmentList" : category == "OSG" ? "OutsourcingList" : "";
+                else if (retrunLink == "OVAL")
+                    return category == "STE" ? "STEVerficationList" : category == "CON" ? "ConsultantAppointmentList" : category == "OSG" ? "OutsourcingList" : "";
+                else if (retrunLink == "OSGVAL")
+                    return category == "STE" ? "OSGVerificationList" : category == "CON" ? "ConsultantAppointmentList" : category == "OSG" ? "OutsourcingList" : "";
+                else if (retrunLink == "OSGORVAL")
+                    return category == "STE" ? "OSGVerificationList" : category == "CON" ? "ConsultantAppointmentList" : category == "OSG" ? "OutsourcingList" : "";
                 else if (retrunLink == "TC")
                     return "TenureClosureList";
                 else if (retrunLink == "HR")
@@ -1548,6 +1556,23 @@ namespace IOAS.Controllers
                 if (validateSTEVerification(STEID))
                 {
                     model = recruitmentService.GetVerification(STEID);
+                    if (model.Status == "Awaiting Verification-Open")
+                    {
+                        var user = Common.getUserIdAndRole(User.Identity.Name);
+                        model.RoleId = user.Item2;
+                        if (model.FlowApprover == "CMAdmin")
+                            ViewBag.processGuideLineId = Common.GetProcessGuidelineId(188, "STEVERAdminFlow", 0);
+                        else if (model.FlowApprover == "NDean")
+                            ViewBag.processGuideLineId = Common.GetProcessGuidelineId(188, "STEVERFlowDean", 0);
+                        else
+                            ViewBag.processGuideLineId = Common.GetProcessGuidelineId(188, "STEVER Flow", 0);
+                        model.List_f = getEmployeeActionLink("STE", "VAL");
+                        //ViewBag.processGuideLineId = processGuideLineId;
+                        ViewBag.currentRefId = model.STEId;
+
+
+                        
+                    }
                 }
                 else
                 {
@@ -1586,6 +1611,9 @@ namespace IOAS.Controllers
                     TempData["alertMsg"] = "Date of joining should be only within the tenure.";
                     return RedirectToAction("STEVerficationList", "Requirement");
                 }
+                var button = Request["button"];
+                if (button.Contains("Save as drafts"))
+                    button = button == null ? "" : button.Split(',')[1];
                 int userId = Common.GetUserid(User.Identity.Name);
                 ViewBag.List = new List<MasterlistviewModel>();
                 ViewBag.IITMPensionerOrCSIRStaff = Common.GetCodeControlList("IITMPensioner/CSIRStaff");
@@ -1609,7 +1637,8 @@ namespace IOAS.Controllers
                 }
                 #endregion
 
-                if (ModelState.IsValid)
+
+                if (model.STEId > 0)
                 {
                     if (model.aadharnumber != null)
                     {
@@ -1626,12 +1655,38 @@ namespace IOAS.Controllers
                         var chkemployeepanno = Common.CheckPreviousEmployeePanserver(model.PAN, model.ApplicationNo, true, model.OldEmployeeNumber, "STE");
                         if (chkemployeepanno != "")
                         {
-                            TempData["alertMsg"] = "This Pan Number is linked to  " + chkemployeepanno;
+                            TempData["alertMsg"] = chkemployeepanno;
                             model.Status = model.Status == null ? "" : model.Status;
                             return View(model);
                         }
                     }
+                }
+                else
+                {
+                    if (model.aadharnumber != null)
+                    {
+                        var chkemployeeadhar = Common.CheckPreviousEmployeeAdharserver(Convert.ToString(model.aadharnumber), null, true, model.OldEmployeeNumber, "STE");
+                        if (chkemployeeadhar != "")
+                        {
+                            TempData["errMsg"] = chkemployeeadhar;
+                            model.Status = model.Status == null ? "" : model.Status;
+                            return View(model);
+                        }
+                    }
+                    if (!string.IsNullOrEmpty(model.PAN))
+                    {
+                        var chkemployeepanno = Common.CheckPreviousEmployeePanserver(model.PAN, null, true, model.OldEmployeeNumber, "STE");
+                        if (chkemployeepanno != "")
+                        {
+                            TempData["errMsg"] = "This Pan Number is linked to  " + chkemployeepanno;
+                            model.Status = model.Status == null ? "" : model.Status;
+                            return View(model);
+                        }
+                    }
+                }
 
+                if (button != "Save as drafts")
+                {                   
                     bool isHaveExperience = RequirementService.checkIsHaveExperience(model.STEId ?? 0, "STE");
 
                     #region FileValidation
@@ -1784,10 +1839,11 @@ namespace IOAS.Controllers
 
                     #endregion
 
-                    var result = recruitmentService.VerifySTE(model, userId);
+                    var result = recruitmentService.VerifySTE(model, userId,button);
                     if (result.Item1 == 1)
                     {
-                        TempData["succMsg"] = "Application verified / Employee number generated:" + result.Item2;
+                        //TempData["succMsg"] = "Application verified / Employee number generated:" + result.Item2;
+                        TempData["succMsg"] = "Application verified";
                         return RedirectToAction("STEVerficationList", "Requirement");
                     }
                     else if (result.Item1 == 2)
@@ -1805,6 +1861,32 @@ namespace IOAS.Controllers
                         TempData["errMsg"] = "Something went wrong please contact administrator";
                         return RedirectToAction("STEVerficationList", "Requirement");
                     }
+                }
+                else if (button == "Save as drafts")
+                {
+                    var result = recruitmentService.VerifySTE(model, userId,button);
+                    
+                    if (result.Item1 == 1)
+                    {
+                        TempData["succMsg"] = "Draft Saved Successfully";
+                        return RedirectToAction("STEVerficationList", "Requirement");
+                    }
+                    else if (result.Item1 == 2)
+                    {
+                        TempData["succMsg"] = "Draft updated";
+                        return RedirectToAction("STEVerficationList", "Requirement");
+                    }
+                    else if (result.Item1 == -1)
+                    {
+                        //TempData["errMsg"] = result.Item3;
+                        return RedirectToAction("STEVerficationList", "Requirement");
+                    }
+                    else
+                    {
+                        TempData["errMsg"] = "Something went wrong please contact administrator";
+                        return RedirectToAction("STEList", "Requirement");
+                    }
+
                 }
                 else
                 {
@@ -1840,6 +1922,56 @@ namespace IOAS.Controllers
                 #endregion
                 return View(model);
             }
+        }
+
+
+
+        public ActionResult STEVerificationView(int STEID, string listf = null)
+        {
+            try
+            {
+                STEVerificationModel model = new STEVerificationModel();
+                model = recruitmentService.GetVerification(STEID);
+                var user = Common.getUserIdAndRole(User.Identity.Name);
+                model.RoleId = user.Item2;
+                if (model.FlowApprover == "CMAdmin")
+                    ViewBag.processGuideLineId = Common.GetProcessGuidelineId(188, "STEVERAdminFlow", 0);
+                else if (model.FlowApprover == "NDean")
+                    ViewBag.processGuideLineId = Common.GetProcessGuidelineId(188, "STEVERFlowDean", 0);
+                else
+                    ViewBag.processGuideLineId = Common.GetProcessGuidelineId(188, "STEVER Flow", 0);
+                model.List_f = getEmployeeActionLink("STE", listf);
+                return View(model);
+
+                
+
+            }
+            catch (Exception ex)
+            {
+                STEVerificationModel model = new STEVerificationModel();
+                WriteLog.SendErrorToText(ex);
+                return View(model);
+            }
+        }
+        public ActionResult OSGVerificationView(int OSGID, string listf = null)
+        {
+            STEVerificationModel model = new STEVerificationModel();
+            //return View(model);
+            if (OSGID > 0)
+            {
+
+                var user = Common.getUserIdAndRole(User.Identity.Name);
+                model.RoleId = user.Item2;
+                if (model.FlowApprover == "CMAdmin")
+                    ViewBag.processGuideLineId = Common.GetProcessGuidelineId(206, "OSGVERAdminFlow", 0);
+                else if (model.FlowApprover == "NDean")
+                    ViewBag.processGuideLineId = Common.GetProcessGuidelineId(206, "OSGVERFlowDean", 0);
+                else
+                    ViewBag.processGuideLineId = Common.GetProcessGuidelineId(206, "OSGVER Flow", 0);
+                model.List_f = getEmployeeActionLink("STE", listf);
+                return View(model);
+            }
+            return View(model);
         }
 
         public bool validateSTEVerification(int STEID)
@@ -2154,6 +2286,50 @@ namespace IOAS.Controllers
 
         #region OrderVerification
 
+        public ActionResult OrderVerificationView(int OrderId, string listf = null)
+        {           
+
+            try
+            {
+                STEVerificationModel model = new STEVerificationModel();
+                model = recruitmentService.GetOrderVerification(OrderId);
+                var user = Common.getUserIdAndRole(User.Identity.Name);
+                model.RoleId = user.Item2;
+                if (model.ApplicationType == "STE")
+                {
+                    if (model.FlowApprover == "CMAdmin")
+                        ViewBag.processGuideLineId = Common.GetProcessGuidelineId(188, "STEORDVERAdminFlow", 0);
+                    else if (model.FlowApprover == "NDean")
+                        ViewBag.processGuideLineId = Common.GetProcessGuidelineId(188, "STEORDVERFlowDean", 0);
+                    else
+                        ViewBag.processGuideLineId = Common.GetProcessGuidelineId(188, "STEORDVER Flow", 0);
+                    model.List_f = getEmployeeActionLink("STE", listf);
+                    //ViewBag.currentRefId = model.STEId;
+
+                }
+                else if(model.ApplicationType == "OSG")
+                {
+                    if (model.FlowApprover == "CMAdmin")
+                        ViewBag.processGuideLineId = Common.GetProcessGuidelineId(206, "OSGORDVERAdminFlow", 0);
+                    else if (model.FlowApprover == "NDean")
+                        ViewBag.processGuideLineId = Common.GetProcessGuidelineId(206, "OSGORDVERFlowDean", 0);
+                    else
+                        ViewBag.processGuideLineId = Common.GetProcessGuidelineId(206, "OSGORDVER Flow", 0);
+                    model.List_f = getEmployeeActionLink("STE", listf);
+                    //ViewBag.currentRefId = model.OrderId;
+
+                }
+                return View(model);
+
+            }
+            catch (Exception ex)
+            {
+                STEVerificationModel model = new STEVerificationModel();
+                WriteLog.SendErrorToText(ex);
+                return View(model);
+            }
+        }
+
         public ActionResult OrderVerification(int OrderId)
         {
             STEVerificationModel model = new STEVerificationModel();
@@ -2163,7 +2339,9 @@ namespace IOAS.Controllers
                 {
                     if (validateOrderVerification(OrderId))
                     {
+
                         model = recruitmentService.GetOrderVerification(OrderId);
+
                     }
                     else
                     {
@@ -2186,33 +2364,59 @@ namespace IOAS.Controllers
         {
             try
             {
-                if (model.JoiningReport != null)
-                {
-                    string filename = System.IO.Path.GetFileName(model.JoiningReport.FileName);
-                    string extension = Path.GetExtension(filename);
-                    if (extension.ToLower() != ".pdf")
-                    {
-                        TempData["errMsg"] = "Please upload other document any one of these type doc [.pdf]";
-                        return View(model);
-                    }
-                }
+                var button = Request["button"];
+                if (button.Contains("Save as drafts"))
+                    button = button == null ? "" : button.Split(',')[1];
                 int Apptype = Common.GetAppointmentType(model.OrderId ?? 0);
                 string action = Apptype == 1 ? "CONVerificationList" : Apptype == 2 ? "STEVerficationList" : Apptype == 3 ? "OSGVerificationList" : "";
                 int userId = Common.GetUserid(User.Identity.Name);
-                if (!validateOrderVerification(model.OrderId ?? 0))
+                //if (button == "Save as drafts")
+                if (button != "Save as drafts")
                 {
-                    TempData["alertMsg"] = "Date of joining should be only within the tenure.";
-                    return RedirectToAction(action, "Requirement");
-                }
-                int status = RequirementService.UpdateVerificationOrder(model, userId);
-                if (status == 1 && model.OrderId > 0)
-                {
-                    TempData["succMsg"] = "Order verified successfully";
-                    return RedirectToAction(action, "Requirement");
+                    if (model.JoiningReport != null)
+                    {
+                        string filename = System.IO.Path.GetFileName(model.JoiningReport.FileName);
+                        string extension = Path.GetExtension(filename);
+                        if (extension.ToLower() != ".pdf")
+                        {
+                            TempData["errMsg"] = "Please upload other document any one of these type doc [.pdf]";
+                            return View(model);
+                        }
+                    }
+
+                    if (!validateOrderVerification(model.OrderId ?? 0))
+                    {
+                        TempData["alertMsg"] = "Date of joining should be only within the tenure.";
+                        return RedirectToAction(action, "Requirement");
+                    }                  
+                    RequirementService requirement = new RequirementService();
+                    var result = requirement.UpdateVerificationOrder(model, userId, button);
+                    if (result.Item1 == 1 && model.OrderId > 0)
+                    {
+                        TempData["succMsg"] = "Order verified successfully";
+                        return RedirectToAction(action, "Requirement");
+                    }
+                    else
+                    {
+                        TempData["errMsg"] = "Something went wrong please contact administrator";
+                    }
+                    
                 }
                 else
                 {
-                    TempData["errMsg"] = "Something went wrong please contact administrator";
+                    RequirementService requirement = new RequirementService();
+                    var result = requirement.UpdateVerificationOrder(model, userId, button);
+                    if (result.Item1 == 1 && model.OrderId > 0)
+                    {
+                        
+                        TempData["succMsg"] = "Order verified-Draft successfully";
+                        return RedirectToAction(action, "Requirement");
+                    }
+                    else
+                    {
+                        TempData["errMsg"] = "Something went wrong please contact administrator";
+                    }
+
                 }
                 return View(model);
             }
@@ -7114,7 +7318,23 @@ namespace IOAS.Controllers
                 if (OSGID > 0)
                 {
                     if (validateOSGVerification(OSGID))
+                    {
                         model = recruitmentService.GetOSGVerification(OSGID);
+                        if (model.Status == "Awaiting Verification-Open")
+                        {
+                            var user = Common.getUserIdAndRole(User.Identity.Name);
+                            model.RoleId = user.Item2;
+                            if (model.FlowApprover == "CMAdmin")
+                                ViewBag.processGuideLineId = Common.GetProcessGuidelineId(206, "OSGVERAdminFlow", 0);
+                            else if (model.FlowApprover == "NDean")
+                                ViewBag.processGuideLineId = Common.GetProcessGuidelineId(206, "OSGVERFlowDean", 0);
+                            else
+                                ViewBag.processGuideLineId = Common.GetProcessGuidelineId(206, "OSGVER Flow", 0);
+                            model.List_f = getEmployeeActionLink("STE", "OVAL");
+                            ViewBag.currentRefId = model.STEId;
+                        }
+
+                    }
                     else
                     {
                         TempData["alertMsg"] = "Date of joining should be only within the tenure.";
@@ -7147,6 +7367,9 @@ namespace IOAS.Controllers
             {
                 int userId = Common.GetUserid(User.Identity.Name);
                 string Errormessages = "";
+                var button = Request["button"];
+                if (button.Contains("Save as drafts"))
+                    button = button == null ? "" : button.Split(',')[1];
                 ViewBag.List = new List<MasterlistviewModel>();
                 ViewBag.IITMPensionerOrCSIRStaff = Common.GetCodeControlList("IITMPensioner/CSIRStaff");
                 ViewBag.Proof = Common.GetCodeControlList("tblRCTGovProof");
@@ -7186,12 +7409,46 @@ namespace IOAS.Controllers
                     }
                 }
 
-                if (model.STEId > 0)
+                if (model.STEId > 0 && button == "Save as drafts")
                 {
                     if (string.IsNullOrEmpty(Errormessages))
                     {
 
-                        var result = recruitmentService.VerifyOSG(model, userId);
+                        var result = recruitmentService.VerifyOSG(model, userId,button);
+                        if (result.Item1 == 1)
+                        {
+                            TempData["succMsg"] = "Order verified-Draft successfully";
+                            return RedirectToAction("OSGVerificationList", "Requirement");
+                        }
+                        else
+                        {
+                            TempData["errMsg"] = "Something went wrong please contact administrator";
+                            return RedirectToAction("OSGVerificationList", "Requirement");
+                        }
+                    }
+                    else
+                    {
+                        string messages = string.Join("<br />", ModelState.Values
+                                            .SelectMany(x => x.Errors)
+                                            .Select(x => x.ErrorMessage));
+                        #region UpdateDisiplineList
+                        if (model.EducationDetail.Count > 0)
+                        {
+                            for (int i = 0; i < model.EducationDetail.Count; i++)
+                            {
+                                model.EducationDetail[i].DisiplineList = Common.GetCourseList(model.EducationDetail[i].QualificationId ?? 0);
+                            }
+                        }
+                        #endregion
+                        TempData["errMsg"] = messages;
+                    }
+                }
+                else if (model.STEId > 0 )
+                {
+                    if (string.IsNullOrEmpty(Errormessages))
+                    {
+
+                        var result = recruitmentService.VerifyOSG(model, userId, button);
                         if (result.Item1 == 1)
                         {
                             TempData["succMsg"] = "Application verified. Employee no generated:" + result.Item2;
