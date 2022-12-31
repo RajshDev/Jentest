@@ -1,0 +1,641 @@
+﻿@model IOAS.Models.STEVerificationModel
+
+@using IOAS.GenericServices
+@{
+    ViewBag.Title = "STEVerificationView";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+    <link href="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/css/bootstrap-select.min.css")" rel="stylesheet" />
+    bool isView = Convert.ToBoolean(Request.Params["isView"]);
+    //string Remark = RequirementService.GetCancelReson(Model.STEId);
+    bool isHaveExperience = RequirementService.checkIsHaveExperience(Model.STEId ?? 0, "STE");
+}
+<div class="row hd-tt-bg">
+    <div class="col-md-12">
+        <h4><b>STEVerificationView</b></h4>
+        <ul class="nav nav-pills custom-nav-pills custom-spl-nav">
+            <li class="active"><a href="javascript:void(0)"><span>01</span>Application Approval</a></li>
+        </ul>
+    </div>
+</div>
+
+<div class="row cts-mn-dts" id="tab-01">
+    <div class="page-wrapper mt30">
+        <div>
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="bl-lg-panel-box pb-null">
+                            <div class="cmn-panel-box">
+                                <div class="row ">
+                                    <div class="col-md-3">
+                                        <div class="form-group custom-form-group">
+                                            <label>Application No: </label>
+                                            @Html.HiddenFor(m => m.ProjectId)
+                                            @Html.HiddenFor(m => m.DateofBirth)
+                                            @Html.HiddenFor(m => m.Status)
+                                            @Html.HiddenFor(m => m.STEId)
+                                            @Html.HiddenFor(m => m.TypeofappointmentId)
+                                            @Html.HiddenFor(m => m.ApplicationNo)
+                                            @Html.HiddenFor(m => m.OldEmployeeNumber)
+                                            <h4>@Html.DisplayFor(m => m.ApplicationNo)</h4>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group custom-form-group">
+                                            <label>Candidate Name: </label>
+                                            <h4>@Html.DisplayFor(m => m.Name)</h4>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-2">
+                                        <div class="form-group custom-form-group">
+                                            <label>Coordinator Code:</label> <br>
+                                            <h4 id="PICode"></h4>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-2">
+                                        <div class="form-group custom-form-group">
+                                            <label>PI Name:</label> <br>
+                                            <h4 id="PINametxt"></h4>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-2">
+                                        <div class="form-group custom-form-group">
+                                            <label>Candidate Photo:</label> <br>
+                                            @if (Model.STEId > 0 && !string.IsNullOrEmpty(Model.PersonImagePath))
+                                            {
+                                                <img id="displayImg" src="@Url.Action("ShowDocument", "Account", new { file = Model.PersonImagePath, filepath = "RCTEmployeeImages" })" width="30px" height="30px"><br>
+
+                                            }
+                                            else
+                                            {
+                                                <img id="displayImg" src="~/Content/IOASContent/img/Image_placeholder.png" width="30px" height="30px"><br>
+
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group custom-form-group">
+                                            <label>Department: </label> <br>
+                                            <h4 id="DepartmentNametxt"></h4>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group custom-form-group">
+                                            <label>Designation: </label>
+                                            <h4>@Html.DisplayFor(m => m.Designation)</h4>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group custom-form-group">
+                                            <label>Qualification: </label>
+                                            <h4>@Html.DisplayFor(m => m.Qualification)</h4>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group custom-form-group">
+                                            <label>Experience: </label>
+                                            <h4>@Html.DisplayFor(m => m.Expericence)</h4>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group custom-form-group">
+                                            <label>Candidate Signature:</label> <br>
+                                            @if (Model.STEId > 0 && !string.IsNullOrEmpty(Model.CantidateSignatureFilePath))
+                                            {
+                                                <img id="displaySignature" src="@Url.Action("ShowDocument", "Account", new { file = Model.CantidateSignatureFilePath, filepath = "Requirement" })" width="30px" height="30px"><br>
+
+                                            }
+                                            else
+                                            {
+                                                <img id="displaySignature" src="~/Content/IOASContent/img/Image_placeholder.png" width="30px" height="30px"><br>
+
+                                            }
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group custom-form-group">
+                                            <label>Pay Type: </label>
+                                            <h4>@Html.DisplayFor(m => m.PayType)</h4>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group custom-form-group">
+                                            <label>Pay: </label>
+                                            <h4>@Html.DisplayFor(m => m.Salary)</h4>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group custom-form-group">
+                                            <label>HRA:</label> <br>
+                                            <h4>@Html.DisplayFor(m => m.HRA)</h4>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-2">
+                                        <div class="form-group custom-form-group">
+                                            <label>Medical:</label> <br>
+                                            <h4>@Html.DisplayFor(m => m.MedicalAmmount)</h4>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group custom-form-group">
+                                            <label>Appointment Type</label>  <br>
+                                            <h4>@Html.DisplayFor(m => m.Typeofappointment)</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group custom-form-group">
+                                            <label>Appointment start date:</label> <br>
+                                            <h4 id="txtAppointmentStartDate">@Html.DisplayFor(m => m.Appointmentstartdate)</h4>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group custom-form-group">
+                                            <label>Appointment End date:</label> <br>
+                                            <h4 id="txtAppointmentEndDate">@Html.DisplayFor(m => m.AppointmentEndDate)</h4>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group custom-form-group ">
+                                            <label>M.S / Ph.d</label>
+                                            <h4>@Html.DisplayFor(m => m.MsPhdType)</h4>
+                                        </div>
+                                    </div>
+                                    <div class="dis-none" id="divPHDDetail">
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group ">
+                                                <label>Roll Number</label>
+
+                                                <h4>@Html.DisplayFor(m => m.PhdDetail)</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row ">
+                                    <div class="col-md-3">
+                                        <div class="form-group custom-form-group">
+                                            <label>Bank Account No </label>
+
+                                            <h4>@Html.DisplayFor(m => m.BankAccountNo)</h4>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group custom-form-group">
+                                            <label>Bank Name </label>
+
+                                            <h4>@Html.DisplayFor(m => m.BankName)</h4>
+                                        </div>
+                                    </div><div class="col-md-2">
+                                        <div class="form-group custom-form-group">
+                                            <label>IFSC </label>
+
+                                            <h4>@Html.DisplayFor(m => m.IFSCCode)</h4>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="col-md-2">
+                                        <div class="form-group custom-form-group mb-sm ">
+                                            <label>PAN No </label>
+                                            <h4>@Html.DisplayFor(m => m.PAN)</h4>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="col-md-2">
+                                        <div class="form-group custom-form-group mb-sm ">
+                                            <label>Aadhaar Number :</label>
+                                            <h4>@Html.DisplayFor(m => m.aadharnumber)</h4>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group custom-form-group">
+                                            <label>Candidate name verified </label>  <br>
+
+                                            @if (Model.STEId > 0 && Model.GovProof > 0)
+                                            {
+
+                                                <h4>@Html.DisplayFor(m => m.GovProof)</h4>
+                                            }
+                                            else
+                                            {
+
+                                                <div>@Html.DisplayFor(m => m.GovProof)</div>
+                                            }
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <div class="form-group custom-form-group  ">
+                                            <label>Present Address  </label>
+
+                                            <h4>@Html.DisplayFor(m => m.PresentAddress)</h4>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group custom-form-group  ">
+                                            <label>
+                                                Permanent Address
+                                            </label>
+                                            @Html.DisplayFor(m => m.PermanentAddress, new { @class = "form-control" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row ">
+                                    <div class="col-md-2">
+                                        <div class="form-group custom-form-group">
+                                            <label>Contact Number</label>
+
+                                            <h4>@Html.DisplayFor(m => m.ContactNumber)</h4>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group custom-form-group">
+                                            <label>Emergency Contact No</label>
+
+                                            <h4>@Html.DisplayFor(m => m.EmergencyContactNo)</h4>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-2">
+                                        <div class="form-group custom-form-group">
+                                            <label>Staff Category:</label>
+                                            <h4>@Html.DisplayFor(m => m.StaffCategory)</h4>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group custom-form-group ">
+                                            <label> Project Number:</label>
+                                            <h4>@Html.DisplayFor(m => m.ProjectNumber)</h4>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group custom-form-group ">
+                                            <label>Request received from PI</label>
+                                            <h4>@Html.DisplayFor(m => m.RequestedfromPI)</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row ">
+                                    <div class="col-md-3">
+                                        <div class="form-group custom-form-group">
+                                            <label class="">Gate Score</label>
+
+                                            <h4>@Html.DisplayFor(m => m.GateScore)</h4>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group custom-form-group mb-sm ">
+                                            <label>Blood Group</label>
+
+                                            <h4>@Html.DisplayFor(m => m.BloodGroup)</h4>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group custom-form-group mb-sm ">
+                                            <label>RH</label>
+
+                                            <h4>@Html.DisplayFor(m => m.BloodGroupRH)</h4>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <div class="form-group custom-form-group mb-sm ">
+                                            <label>Roll Number</label>
+
+                                            <h4>@Html.DisplayFor(m => m.RollNumber)</h4>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="row ">
+                                    <div class="col-md-3">
+                                        <div class="form-group custom-form-group">
+                                            <label class="">Commitment number</label>
+                                            <h4>@Html.DisplayFor(m => m.CommitmentNo)</h4>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group custom-form-group">
+                                            <label class="">Commitment amount</label>
+                                            <h4>@Html.DisplayFor(m => m.CommitmentAmount)</h4>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group custom-form-group">
+                                            <label class="">Employee Workplace</label>
+
+                                            <div>@Html.DisplayFor(m => m.EmployeeWorkplace)</div>
+                                        </div>
+                                    </div>
+                                    @if (!string.IsNullOrEmpty(Model.ResumeFilePath))
+                                    {
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label>Resume</label>
+                                                @Html.HiddenFor(m => m.ResumeFilePath)
+                                                @Html.HiddenFor(m => m.ResumeFileName)
+                                                <h4>@Html.ActionLink(Model.ResumeFileName, "ShowDocument", new { Controller = "Account", filepath = "Requirement", file = Model.ResumeFilePath }, new { @class = "", @name = "DocDownload", @target = "_blank" })</h4>
+
+                                            </div>
+                                        </div>
+                                    }
+
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="bl-lg-panel-box pb-null">
+                            <div class="cmn-panel-box">
+                                <div class="grey-bg-adj">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <h4>Details of Education:</h4>
+                                            <div class="rc-tb-scrl">
+                                                <table class="table alter-table mb-null">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>QUALIFICATION</th>
+                                                            <th>COURSE</th>
+                                                            <th>DISCIPILINE</th>
+                                                            <th>UNIVERSITY / INSTITUTION </th>
+                                                            <th>YEAR OF PASSING</th>
+                                                            <th>MARK TYPE</th>
+                                                            <th>MARK/CGPA</th>
+                                                            <th>Attachment File</th>
+                                                            @*<th>Upload File</th>*@
+                                                            <th>Remarks</th>
+                                                            @*<th>Verify</th>*@
+                                                            <th></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="tbodyEducation">
+                                                        @if (Model.EducationDetail != null)
+                                                        {
+                                                            var count = 0;
+                                                            foreach (var item in Model.EducationDetail)
+                                                            {
+                                                                <tr>
+                                                                    <td>
+                                                                        <span>@item.Education</span>
+                                                                    </td>
+                                                                    <td>
+                                                                        <span>@item.Discipline</span>
+                                                                    </td>
+
+                                                                    <td>
+                                                                        <span>@item.DivisionClassObtained</span>
+                                                                    </td>
+                                                                    <td>
+                                                                        <span>@item.Institution</span>
+                                                                    </td>
+                                                                    <td>
+                                                                        <span>@item.YearofPassing</span>
+                                                                    </td>
+                                                                    <td>
+                                                                        <span>@item.strMarkType</span>
+                                                                    </td>
+                                                                    <td>
+                                                                        <span>@item.Marks</span>
+                                                                    </td>
+
+                                                                    <td>
+                                                                        @if (Model.STEId > 0 && !string.IsNullOrEmpty(item.CertificatePath))
+                                                                        {
+                                                                            @Html.ActionLink(item.CertificateName, "ShowDocument", new { Controller = "Account", filepath = "Requirement", file = item.CertificatePath }, new { @name = "DocDownload", @target = "_blank" })
+                                                                        }
+                                                                    </td>
+                                                                    <td>
+                                                                        <span>@item.Remarks</span>
+                                                                    </td>
+                                                                    <td>
+                                                                        <a href="javascript:void(0)" class="btn-sm btn btn-danger dis-none removeEducationDetail"><i class="ion-android-close"></i></a>
+                                                                    </td>
+                                                                </tr>
+                                                            }
+                                                        }
+
+                                                    </tbody>
+                                                </table>
+                                            </div>
+
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @if (Model.ExperienceDetail != null)
+                {
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="bl-lg-panel-box pb-null">
+                                <div class="cmn-panel-box">
+                                    <div class="grey-bg-adj">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <h4>Details of Experience:</h4>
+                                                <div class="rc-tb-scrl">
+                                                    <table class="table alter-table mb-null">
+                                                        <thead>
+                                                            <tr>
+                                                                <th style="width:130px;">Type</th>
+                                                                <th>ORGANISATION</th>
+                                                                <th>DESIGNATION </th>
+                                                                <th>FROM</th>
+                                                                <th>TO</th>
+                                                                <th>SALARY DRAWN / MONTH (Rs.)</th>
+                                                                <th>Attachment File</th>
+                                                                @*<th>Upload File</th>*@
+                                                                <th>Remarks</th>
+                                                                @*<th>Verify</th>*@
+                                                                <th></th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="tbodyExperience">
+                                                            @if (Model.ExperienceDetail != null)
+                                                            {
+
+                                                                foreach (var item in Model.ExperienceDetail)
+                                                                {
+                                                                    <tr>
+                                                                        <td>
+                                                                            <span>@item.ExperienceType</span>
+                                                                        </td>
+                                                                        <td>
+                                                                            <span>@item.Organisation</span>
+                                                                        </td>
+                                                                        <td>
+                                                                            <span>@item.DesignationautoComplete</span>
+                                                                        </td>
+                                                                        <td>
+                                                                            <span>@item.strFromDate</span>
+                                                                        </td>
+                                                                        <td>
+                                                                            <span>@item.strToDate</span>
+                                                                        </td>
+                                                                        <td>
+                                                                            <span>@item.SalaryDrawn</span>
+                                                                        </td>
+                                                                        <td>
+                                                                            @if (Model.STEId > 0 && !string.IsNullOrEmpty(item.ExperienceFilePath))
+                                                                            {
+                                                                                @Html.ActionLink(item.ExperienceFileName, "ShowDocument", new { Controller = "Account", filepath = "Requirement", file = item.ExperienceFilePath }, new { @name = "DocDownload", @target = "_blank" })
+                                                                            }
+                                                                        </td>
+                                                                        <td>
+                                                                            <span>@item.Remarks</span>
+                                                                        </td>
+                                                                        <td>
+                                                                            <a href="javascript:void(0)" class="btn-sm btn btn-danger removeExperienceDetail dis-none"><i class="ion-android-close"></i></a>
+                                                                        </td>
+                                                                    </tr>
+                                                                }
+                                                            }
+
+
+                                                        </tbody>
+
+                                                    </table>
+                                                </div>
+
+                                            </div>
+                                        </div>
+
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="bl-lg-panel-box pb-null">
+                            <div class="cmn-panel-box">
+                                <div class="grey-bg-adj mb-lg">
+                                    <h4>Offer Details:</h4>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group  ">
+                                                <label>Offer Letter Date </label>
+                                                <h4>@Html.DisplayFor(m => m.OfferDate)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group  ">
+                                                <label>Offer Letter Attachment </label> <br>
+                                                @Html.ActionLink("OfferLetter", "ShowOrderDocument", new { Controller = "RCTReportMaster", appid = Model.STEId, apptype = "STE", offercategory = "OfferLetter" }, new { @name = "DocDownload", @target = "_blank" })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group  ">
+                                                <label>Actual Date </label>
+                                                @Html.DisplayFor(m => m.ActualDate, new { @class = "form-control" })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label>Remarks</label>  <br>
+                                                @Html.DisplayFor(m => m.VerificationRemarks, new { @class = "form-control" })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <div class="form-group custom-form-group">
+                                                <label>Joining Report  </label> <br>
+                                                @if (Model.STEId > 0 && !string.IsNullOrEmpty(Model.JoiningReportPath))
+                                                {
+
+                                                    @Html.ActionLink(Model.JoiningReportFileName, "ShowDocument", new { Controller = "Account", filepath = "Requirement", file = Model.JoiningReportPath }, new { @name = "DocDownload", @target = "_blank" })
+                                                }
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="text-center" style="margin-bottom: 50px;">
+    @Html.HiddenFor(m => m.List_f)
+    @if (!string.IsNullOrEmpty(Model.List_f))
+    {
+        <button type="button" class="btn btn-default" onclick="window.location.href='@Url.Action(Model.List_f,"Requirement")';">Close</button>
+    }
+    else
+    {
+        <button type="button" class="btn btn-default" onclick="window.location.href='@Url.Action("Dashboard", "Home")';">Close</button>
+    }
+</div>
+<input type="hidden" id="currentRefId" value="@Model.STEId" />
+<input type="hidden" id="processGuideLineId" value="@ViewBag.processGuideLineId" />
+<div class="" id="act-now">
+    @Html.Partial("_ProcessStatus")
+</div>
+<script>
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+
+
+    $(document).ready(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+
+        //if (CommitmentRemark != '') {
+        //    $.confirm({
+        //        title: 'Cancel reason!',
+        //        content:CommitmentRemark,
+        //        type: 'orange',
+        //        buttons: {
+        //            Close: function () {
+        //                //close
+        //            },
+        //        },
+        //    });
+        //}
+
+    });
+
+    $('a[name="DocDownload"]').click(function (p) {
+        p.preventDefault();
+        var ref = $(this).attr('href');
+        var win = window.open('', '_blank');
+        win.location.href = ref;
+    });
+</script>
+<script src="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/js/bootstrap-select.min.js")"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>
+

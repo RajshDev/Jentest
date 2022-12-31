@@ -10,6 +10,7 @@
 </div>
 @using (Html.BeginForm("OrderVerification", "Requirement", FormMethod.Post, new { @class = "", role = "form", @id = "formVerification", enctype = "multipart/form-data" }))
 {
+    @Html.HiddenFor(m => m.Button)
     <div class="row cts-mn-dts" id="tab-01">
         <div class="page-wrapper mt30">
             <div>
@@ -23,6 +24,7 @@
                                             <div class="form-group custom-form-group">
                                                 <label>Employee No: </label>
                                                 @Html.HiddenFor(m => m.ProjectId)
+                                                @Html.HiddenFor(m => m.Status)
                                                 @Html.HiddenFor(m => m.STEId)
                                                 @Html.HiddenFor(m => m.OrderId)
                                                 <h4>@Html.DisplayFor(m => m.ApplicationNo)</h4>
@@ -106,7 +108,7 @@
                                                 <label>HRA:</label> <br>
                                                 <h4>@Html.DisplayFor(m => m.HRA)</h4>
                                             </div>
-                                        </div>
+                                        </div>                                        
                                         <div class="col-md-3">
                                             <div class="form-group custom-form-group">
                                                 <label class="">Employee Workplace</label>
@@ -260,19 +262,56 @@
             </div>
         </div>
     </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="bl-lg-panel-box pb-null">
+                <div class="cmn-panel-box">
+                    <div class="grey-bg-adj mb-lg">
+                        <div class="row">
+                            <div class="col-md-4" id="devCMAdmin">
+                                <div class="form-group custom-form-group">
+                                    @Html.RadioButtonFor(m => m.FlowApprover, "CMAdmin", new { @id = "IsNotetoCMAdmin" }) <label class="ml-sm ">Note to CM Admin</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4" id="devNoteDean">
+                                <div class="form-group custom-form-group">
+                                    @Html.RadioButtonFor(m => m.FlowApprover, "NDean", new { @id = "IsNotetoDean" }) <label class="ml-sm " id="lblNoteDean">Note to Dean</label>
+                                </div>
+                            </div>
+                            @if (string.IsNullOrEmpty(Model.Status) || Model.Status == "Awaiting Verification-Draft" || Model.Status == "Awaiting Verification")
+                            {
+                                <div class="col-md-4" id="">
+                                    <div class="form-group custom-form-group">
+                                        <a id="clearFlow">Clear</a>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="row">
         <div class="col-md-12 mb-lg text-center">
-            <input type="submit" class="btn btn-primary" value="Submit" id="btnSave" />
+            <input type="submit" class="cancel btn btn-danger" value="Save as drafts" name="Button" id="btnDraft" />
+            <input type="submit" class="btn btn-success" value="Send for approval" name="Button" id="btnSave" />
             <a href='@Url.Action("STEVerficationList", "Requirement")' class="btn btn-default">Close</a>
         </div>
     </div>
 }
+<div class="" id="act-now">
+    @Html.Partial("_ProcessStatus")
+</div>
+
 <div class="loading-bg dis-none">
 </div>
 <script>
     var errMsg = '@TempData["errMsg"]';
     var succMsg = '@TempData["succMsg"]';
-
+    var Status = @Html.Raw(Json.Encode(Model.Status)) || '';
+    var FlowApp = @Html.Raw(Json.Encode(Model.FlowApprover)) || '';
     $(document).ready(function () {
         $('[data-toggle="tooltip"]').tooltip();
         if (succMsg != '') {
@@ -294,6 +333,20 @@
             $('.loading-bg').addClass('dis-none');
         }
     });
+    $('#clearFlow').click(function () {
+        $("input[name=FlowApprover]").prop('checked', false);
+    });
+
+    if (FlowApp == "CMAdmin") {
+        $("input[name=FlowApprover][value=CMAdmin]").prop('checked', true);
+        if (Status != "Awaiting Verification-Draft")
+            $("#devNoteDean").hide();
+    }
+    if (FlowApp == "NDean") {
+        $("input[name=FlowApprover][value=NDean]").prop('checked', true);
+        if (Status != "Awaiting Verification-Draft")
+            $("#devCMAdmin").hide();
+    }
     var AppointmentStartDate = $('#txtAppointmentStartDate').text();
     var AppointmentEndDate = $('#txtAppointmentEndDate').text();
 

@@ -3,8 +3,8 @@
 @{
     ViewBag.Title = "Outsourcing";
     Layout = "~/Views/Shared/_LayoutFluid.cshtml";
-    <link href="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/css/bootstrap-select.min.css")" rel="stylesheet" />    
-	bool isHaveExperience = RequirementService.checkIsHaveExperience(Model.STEId ?? 0, "OSG");
+    <link href="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/css/bootstrap-select.min.css")" rel="stylesheet" />
+    bool isHaveExperience = RequirementService.checkIsHaveExperience(Model.STEId ?? 0, "OSG");
 }
 
 <style>
@@ -25,6 +25,9 @@
             <h4><b>Verification </b></h4>
         </div>
     </div>
+    @Html.HiddenFor(m => m.Button)
+    <input type="hidden" id="currentRefId" value="@ViewBag.currentRefId" />
+    <input type="hidden" id="processGuideLineId" value="@ViewBag.processGuideLineId" />
     <div class="row cts-mn-dts" id="tab-01">
         <div class="page-wrapper mt30">
             <div>
@@ -39,11 +42,12 @@
                                                 <label>Application No: </label>
                                                 @Html.HiddenFor(m => m.ProjectId)
                                                 @Html.HiddenFor(m => m.DateofBirth)
+                                                @Html.HiddenFor(m => m.Status)
                                                 @Html.HiddenFor(m => m.STEId)
                                                 @Html.HiddenFor(m => m.TypeofappointmentId)
                                                 @Html.HiddenFor(m => m.ApplicationNo)
                                                 @Html.HiddenFor(M => M.StatutoryId)
-												@Html.HiddenFor(m => m.OldEmployeeNumber)
+                                                @Html.HiddenFor(m => m.OldEmployeeNumber)
                                                 <h4>@Html.DisplayFor(m => m.ApplicationNo)</h4>
                                             </div>
                                         </div>
@@ -447,12 +451,12 @@
                                                     {
                                                         @Html.RadioButton("isHavePHD", "Yes", new { @checked = "checked" })@:&nbsp;<label>Yes</label>
                                                         @Html.RadioButton("isHavePHD", "No")@:&nbsp;<label>No</label>
-                                                }
+                                                    }
                                                     else
                                                     {
                                                         @Html.RadioButton("isHavePHD", "Yes")@:&nbsp;<label>Yes</label>
                                                         @Html.RadioButton("isHavePHD", "No", new { @checked = "checked" })@:&nbsp;<label>No</label>
-                                                }
+                                                    }
 
                                                 </h4>
                                             </div>
@@ -551,7 +555,7 @@
                                                                         @if (item.EducationId == null)
                                                                         {
                                                                             <input type="file" class="required form-control" name="@cerfile" />@:&nbsp; &nbsp; &nbsp;
-                                                                         }
+                                                                        }
                                                                         else if (item.EducationId != null && string.IsNullOrEmpty(item.CertificatePath))
                                                                         {
                                                                             <input type="file" class="required form-control" name="@cerfile" />@:&nbsp; &nbsp; &nbsp;
@@ -890,7 +894,7 @@
                                                                         @if (item.OtherDetailId == null)
                                                                         {
                                                                             <input type="file" class="required form-control" name="@file" />@:&nbsp; &nbsp; &nbsp;
-                                                                         }
+                                                                        }
                                                                         else if (item.OtherDetailId != null && string.IsNullOrEmpty(item.OtherDetailFilePath))
                                                                         {
                                                                             <input type="file" class="required form-control" name="@file" />@:&nbsp; &nbsp; &nbsp;
@@ -1049,8 +1053,39 @@
         </div>
     </div>
     <div class="row">
+        <div class="col-md-12">
+            <div class="bl-lg-panel-box pb-null">
+                <div class="cmn-panel-box">
+                    <div class="grey-bg-adj mb-lg">
+                        <div class="row">
+                            <div class="col-md-4" id="devCMAdmin">
+                                <div class="form-group custom-form-group">
+                                    @Html.RadioButtonFor(m => m.FlowApprover, "CMAdmin", new { @id = "IsNotetoCMAdmin" }) <label class="ml-sm ">Note to CM Admin</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4" id="devNoteDean">
+                                <div class="form-group custom-form-group">
+                                    @Html.RadioButtonFor(m => m.FlowApprover, "NDean", new { @id = "IsNotetoDean" }) <label class="ml-sm " id="lblNoteDean">Note to Dean</label>
+                                </div>
+                            </div>
+                            @if (string.IsNullOrEmpty(Model.Status) || Model.Status == "Awaiting Verification-Draft" || Model.Status == "Awaiting Verification")
+                            {
+                                <div class="col-md-4" id="">
+                                    <div class="form-group custom-form-group">
+                                        <a id="clearFlow">Clear</a>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
         <div class="col-md-12 mb-lg text-center">
-            <input type="submit" class="btn btn-primary" value="Submit" id="btnSave" />
+            <input type="submit" class="cancel btn btn-danger" value="Save as drafts" name="Button" id="btnDraft" />
+            <input type="submit" class="btn btn-success" value="Send for approval" name="Button" id="btnSave" />
             <a href='@Url.Action("OSGVerificationList", "Requirement")' class="btn btn-default">Close</a>
         </div>
     </div>
@@ -1288,14 +1323,19 @@
                 </div>
             </div>
         </div>
-    </div>                                                       }
+    </div>  }
 <div class="loading-bg dis-none">
+</div>
+<div class="" id="act-now">
+    @Html.Partial("_ProcessStatus")
 </div>
 <script>
     var errMsg = '@TempData["errMsg"]';
     var succMsg = '@TempData["succMsg"]';
     var alertMsg = '@TempData["alertMsg"]';
     var STEID = @Html.Raw(Json.Encode(Model.STEId)) || 0;
+    var FlowApp = @Html.Raw(Json.Encode(Model.FlowApprover)) || '';
+    var Status = @Html.Raw(Json.Encode(Model.Status)) || '';
     if(STEID > 0)
     {
         $('#BloodGroup').val(@Html.Raw(Json.Encode(Model.BloodGroup)));
@@ -1379,6 +1419,20 @@
             $('.loading-bg').addClass('dis-none');
         }
     });
+    $('#clearFlow').click(function () {
+        $("input[name=FlowApprover]").prop('checked', false);
+    });
+
+    if (FlowApp == "CMAdmin") {
+        $("input[name=FlowApprover][value=CMAdmin]").prop('checked', true);
+        if (Status != "Awaiting Verification-Draft")
+            $("#devNoteDean").hide();
+    }
+    if (FlowApp == "NDean") {
+        $("input[name=FlowApprover][value=NDean]").prop('checked', true);
+        if (Status != "Awaiting Verification-Draft")
+            $("#devCMAdmin").hide();
+    }
 
     $(document).on("change", "input[name$='.FromDate']",function () {
         var name = $(this).attr('name');
