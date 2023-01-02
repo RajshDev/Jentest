@@ -8543,6 +8543,7 @@ namespace IOAS.GenericServices
                         {
                             int res = 0, OrderID = 0, TypeofAppointmentId = 0;
                             bool MsPhd = false;
+                            bool result = false;
                             int apptype = getAppointmentType(model.TypeCode);
                             string prestatus = "", newstatus = "";
                             var odQuery = (from o in context.tblOrder
@@ -8767,6 +8768,9 @@ namespace IOAS.GenericServices
                                 odQuery.o.Chairperson = model.ChairpersonNameId;
                                 context.SaveChanges();
                                 OrderID = odQuery.o.OrderId;
+                                if (prestatus == "PI Initiated")
+                                    result = IsRespondTermEndMail(model.ApplicationID, model.TypeCode, logged_in_userId, OrderID, context);
+
 
                                 if (model.PILetter != null)
                                 {
@@ -9039,7 +9043,7 @@ namespace IOAS.GenericServices
                                 context.tblOrder.Add(Order);
                                 context.SaveChanges();
                                 OrderID = Order.OrderId;
-                                bool result = IsRespondTermEndMail(model.ApplicationID, model.TypeCode, logged_in_userId, OrderID, context);
+                                 result = IsRespondTermEndMail(model.ApplicationID, model.TypeCode, logged_in_userId, OrderID, context);
                                 if (apptype == 3)
                                 {
                                     var salQuery = context.tblRCTSalaryCalcDetails.FirstOrDefault(m => m.SalaryDetailsId == salarycalcId);
@@ -9188,6 +9192,7 @@ namespace IOAS.GenericServices
                             int AppointmentType = getAppointmentType(model.TypeCode);
                             var prestatus = "";
                             var newstatus = "";
+                            bool result = false;
                             var _qryOrderID = context.tblOrderMaster.FirstOrDefault(m => m.CodeDescription == "Enhancement").CodeID;
                             var odQuery = (from o in context.tblOrder
                                            where (o.Status.Contains("Note") || o.Status == "Open" || o.Status.Contains("PI Initiated"))
@@ -9317,6 +9322,9 @@ namespace IOAS.GenericServices
                                 odQuery.Chairperson = model.ChairpersonNameId;
                                 context.SaveChanges();
                                 OrderID = odQuery.OrderId;
+                                if (prestatus == "PI Initiated")
+                                    result = IsRespondTermEndMail(model.ApplicationID, model.TypeCode, logged_in_userId, OrderID, context);
+
                                 if (model.ArrearOrDeductionTillDate != null)
                                 {
                                     var othQuery = (from dec in context.tblRCTOTHPaymentDeduction
@@ -9633,7 +9641,7 @@ namespace IOAS.GenericServices
                                 context.tblOrder.Add(Order);
                                 context.SaveChanges();
                                 OrderID = Order.OrderId;
-                                bool result = IsRespondTermEndMail(model.ApplicationID, model.TypeCode, logged_in_userId, OrderID, context);
+                                 result = IsRespondTermEndMail(model.ApplicationID, model.TypeCode, logged_in_userId, OrderID, context);
                                 if (AppointmentType == 3)
                                 {
                                     var salQuery = context.tblRCTSalaryCalcDetails.FirstOrDefault(m => m.SalaryDetailsId == salarycalcId);
@@ -11223,6 +11231,7 @@ namespace IOAS.GenericServices
                 int OrderID = 0;
                 var prestatus = string.Empty;
                 var newstatus = string.Empty;
+                bool result = false;
                 using (var context = new IOASDBEntities())
                 {
                     using (var transaction = context.Database.BeginTransaction())
@@ -11398,6 +11407,10 @@ namespace IOAS.GenericServices
                                 newstatus = odQuery.Status;
                                 context.SaveChanges();
                                 transaction.Commit();
+
+                                if (prestatus == "PI Initiated")
+                                    result = IsRespondTermEndMail(model.ApplicationID, model.TypeCode, logged_in_userId, OrderID, context);
+
                                 PostOrderStatusLog(OrderID, prestatus, newstatus, logged_in_userId);
                                 if (newstatus == "Relieving initiated")
                                 {
@@ -11531,7 +11544,7 @@ namespace IOAS.GenericServices
                                 context.tblOrder.Add(order);
                                 context.SaveChanges();
                                 OrderID = order.OrderId;
-                                bool result = IsRespondTermEndMail(model.ApplicationID, model.TypeCode, logged_in_userId, OrderID, context);
+                                 result = IsRespondTermEndMail(model.ApplicationID, model.TypeCode, logged_in_userId, OrderID, context);
                                 orderdetail.OrderId = OrderID;
                                 if (model.PILetter != null)
                                 {
