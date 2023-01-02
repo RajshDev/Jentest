@@ -1853,7 +1853,7 @@ namespace IOAS.Controllers
                     }
                     else if (result.Item1 == -1)
                     {
-                        TempData["succMsg"] = "Record not found";
+                        TempData["errMsg"] = "Record not found";
                         return RedirectToAction("STEVerficationList", "Requirement");
                     }
                     else
@@ -7461,7 +7461,7 @@ namespace IOAS.Controllers
                         }
                         else if (result.Item1 == -1)
                         {
-                            TempData["succMsg"] = "Record not found";
+                            TempData["errMsg"] = "Record not found";
                             return RedirectToAction("OSGVerificationList", "Requirement");
                         }
                         else
