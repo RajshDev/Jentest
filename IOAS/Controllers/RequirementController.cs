@@ -2304,7 +2304,7 @@ namespace IOAS.Controllers
                     else
                         ViewBag.processGuideLineId = Common.GetProcessGuidelineId(188, "STEORDVER Flow", 0);
                     model.List_f = getEmployeeActionLink("STE", listf);
-                    //ViewBag.currentRefId = model.STEId;
+                    ViewBag.currentRefId = model.STEId;
 
                 }
                 else if(model.ApplicationType == "OSG")
@@ -2316,7 +2316,7 @@ namespace IOAS.Controllers
                     else
                         ViewBag.processGuideLineId = Common.GetProcessGuidelineId(206, "OSGORDVER Flow", 0);
                     model.List_f = getEmployeeActionLink("STE", listf);
-                    //ViewBag.currentRefId = model.OrderId;
+                    ViewBag.currentRefId = model.OrderId;
 
                 }
                 return View(model);
