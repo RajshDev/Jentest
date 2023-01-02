@@ -1923,82 +1923,82 @@ namespace IOAS.GenericServices
                             his.IITMPensioner_f = query.S.IITMPensionerOrCSIRStaff == 1 ? true : false;
                             context.tblRCTOrderEffectHistory.Add(his);
                             context.SaveChanges();
-                            //#region Employee portal
-                            //if (query.S.EmployeeCategory == "New Employee")
-                            //{
-                            //    using (var EmployeeContext = new ICSRExternalEntities())
-                            //    {
-                            //        using (var Employeetransaction = EmployeeContext.Database.BeginTransaction())
-                            //        {
-                            //            try
-                            //            {
-                            //                var checkEmployeeExist = EmployeeContext.tblProjectStaffUser.Where(x => x.UserName == EmployeeID).FirstOrDefault();
-                            //                if (checkEmployeeExist == null)
-                            //                {
-                            //                    var departdetail = Common.GetEmployeeDepartment(query.S.ProjectId ?? 0);
-                            //                    tblProjectStaffUser addEmployeelogin = new tblProjectStaffUser();
-                            //                    addEmployeelogin.UserName = EmployeeID;
-                            //                    addEmployeelogin.Email = query.S.Email;
-                            //                    addEmployeelogin.Name = query.S.Name;
-                            //                    addEmployeelogin.Password = Guid.NewGuid().ToString("N").Substring(0, 12);
-                            //                    addEmployeelogin.Status = "Active";
-                            //                    addEmployeelogin.RoleId = 2;
-                            //                    addEmployeelogin.Crts_Ts = DateTime.Now;
-                            //                    addEmployeelogin.Designation = query.D.Designation;
-                            //                    addEmployeelogin.DeptCode = departdetail.Item1;
-                            //                    addEmployeelogin.DeptName = departdetail.Item2;
-                            //                    EmployeeContext.tblProjectStaffUser.Add(addEmployeelogin);
-                            //                    EmployeeContext.SaveChanges();
-                            //                    int projectstaffid = addEmployeelogin.ProjectStaffId;
-                            //                    var statusemail = RCTEmailContentService.SendMailProjectStaffNewuser(projectstaffid, EmployeeContext, query.s.Email);
-                            //                    if (statusemail == 2 || statusemail == -1)
-                            //                    {
-                            //                        //Employeetransaction.Rollback();
-                            //                        //transaction.Rollback();
-                            //                        //return Tuple.Create(-1,0, "Employee portal Credentials not send this email Please Contact Administrator");
-                            //                        return false;
-                            //                    }
-                            //                }
-                            //                Employeetransaction.Commit();
-                            //            }
-                            //            catch (Exception ex)
-                            //            {
-                            //                return false;
-                            //            }
-                            //        }
-                            //    }
-                            //}
-                            //else if (query.S.EmployeeCategory == "Old Employee")
-                            //{
-                            //    using (var EmployeeContext = new ICSRExternalEntities())
-                            //    {
-                            //        using (var Employeetransaction = EmployeeContext.Database.BeginTransaction())
-                            //        {
-                            //            try
-                            //            {
-                            //                var checkEmployeeExist = EmployeeContext.tblProjectStaffUser.Where(x => x.UserName == EmployeeID).FirstOrDefault();
-                            //                if (checkEmployeeExist != null)
-                            //                {
-                            //                    var departdetail = Common.GetEmployeeDepartment(query.S.ProjectId ?? 0);
-                            //                    checkEmployeeExist.Email = query.S.Email;
-                            //                    checkEmployeeExist.Name = query.S.Name;
-                            //                    checkEmployeeExist.DeptCode = departdetail.Item1;
-                            //                    checkEmployeeExist.DeptName = departdetail.Item2;
-                            //                    checkEmployeeExist.Status = "Active";
-                            //                    checkEmployeeExist.Uptd_Ts = DateTime.Now;
-                            //                    checkEmployeeExist.Uptd_Id = loggedInUser;
-                            //                    context.SaveChanges();
-                            //                }
-                            //                Employeetransaction.Commit();
-                            //            }
-                            //            catch (Exception ex)
-                            //            {
-                            //                return false;
-                            //            }
-                            //        }
-                            //    }
-                            //}
-                            //#endregion
+                            #region Employee portal
+                            if (query.S.EmployeeCategory == "New Employee")
+                            {
+                                using (var EmployeeContext = new ICSRExternalEntities())
+                                {
+                                    using (var Employeetransaction = EmployeeContext.Database.BeginTransaction())
+                                    {
+                                        try
+                                        {
+                                            var checkEmployeeExist = EmployeeContext.tblProjectStaffUser.Where(x => x.UserName == EmployeeID).FirstOrDefault();
+                                            if (checkEmployeeExist == null)
+                                            {
+                                                var departdetail = Common.GetEmployeeDepartment(query.S.ProjectId ?? 0);
+                                                tblProjectStaffUser addEmployeelogin = new tblProjectStaffUser();
+                                                addEmployeelogin.UserName = EmployeeID;
+                                                addEmployeelogin.Email = query.S.Email;
+                                                addEmployeelogin.Name = query.S.Name;
+                                                addEmployeelogin.Password = Guid.NewGuid().ToString("N").Substring(0, 12);
+                                                addEmployeelogin.Status = "Active";
+                                                addEmployeelogin.RoleId = 2;
+                                                addEmployeelogin.Crts_Ts = DateTime.Now;
+                                                addEmployeelogin.Designation = query.D.Designation;
+                                                addEmployeelogin.DeptCode = departdetail.Item1;
+                                                addEmployeelogin.DeptName = departdetail.Item2;
+                                                EmployeeContext.tblProjectStaffUser.Add(addEmployeelogin);
+                                                EmployeeContext.SaveChanges();
+                                                int projectstaffid = addEmployeelogin.ProjectStaffId;
+                                                var statusemail = RCTEmailContentService.SendMailProjectStaffNewuser(projectstaffid, EmployeeContext, query.S.Email);
+                                                if (statusemail == 2 || statusemail == -1)
+                                                {
+                                                    //Employeetransaction.Rollback();
+                                                    //transaction.Rollback();
+                                                    //return Tuple.Create(-1,0, "Employee portal Credentials not send this email Please Contact Administrator");
+                                                    return false;
+                                                }
+                                            }
+                                            Employeetransaction.Commit();
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            return false;
+                                        }
+                                    }
+                                }
+                            }
+                            else if (query.S.EmployeeCategory == "Old Employee")
+                            {
+                                using (var EmployeeContext = new ICSRExternalEntities())
+                                {
+                                    using (var Employeetransaction = EmployeeContext.Database.BeginTransaction())
+                                    {
+                                        try
+                                        {
+                                            var checkEmployeeExist = EmployeeContext.tblProjectStaffUser.Where(x => x.UserName == EmployeeID).FirstOrDefault();
+                                            if (checkEmployeeExist != null)
+                                            {
+                                                var departdetail = Common.GetEmployeeDepartment(query.S.ProjectId ?? 0);
+                                                checkEmployeeExist.Email = query.S.Email;
+                                                checkEmployeeExist.Name = query.S.Name;
+                                                checkEmployeeExist.DeptCode = departdetail.Item1;
+                                                checkEmployeeExist.DeptName = departdetail.Item2;
+                                                checkEmployeeExist.Status = "Active";
+                                                checkEmployeeExist.Uptd_Ts = DateTime.Now;
+                                                checkEmployeeExist.Uptd_Id = loggedInUser;
+                                                context.SaveChanges();
+                                            }
+                                            Employeetransaction.Commit();
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            return false;
+                                        }
+                                    }
+                                }
+                            }
+                            #endregion
                             RequirementService.PostSTEStatusLog(STEID, "Verification Completed", query.S.Status, loggedInUser);
                             return true;
                         }
@@ -2101,86 +2101,86 @@ namespace IOAS.GenericServices
                             context.tblRCTOrderEffectHistory.Add(his);
                             context.SaveChanges();
                             #region Employee portal
-                            //if (_qryOSG.s.EmployeeCategory == "New Employee")
-                            //{
-                            //    using (var EmployeeContext = new ICSRExternalEntities())
-                            //    {
-                            //        using (var Employeetransaction = EmployeeContext.Database.BeginTransaction())
-                            //        {
-                            //            try
-                            //            {
-                            //                var checkEmployeeExist = EmployeeContext.tblProjectStaffUser.Where(x => x.UserName == EmployeersID).FirstOrDefault();
-                            //                if (checkEmployeeExist == null)
-                            //                {
-                            //                    var departdetail = Common.GetEmployeeDepartment(_qryOSG.s.ProjectId ?? 0);
-                            //                    tblProjectStaffUser addEmployeelogin = new tblProjectStaffUser();
-                            //                    addEmployeelogin.UserName = EmployeersID;
-                            //                    addEmployeelogin.Email = _qryOSG.s.Email;
-                            //                    addEmployeelogin.Name = _qryOSG.s.Name;
-                            //                    addEmployeelogin.Password = Guid.NewGuid().ToString("N").Substring(0, 12);
-                            //                    addEmployeelogin.Status = "Active";
-                            //                    addEmployeelogin.RoleId = 3;
-                            //                    addEmployeelogin.Crts_Ts = DateTime.Now;
-                            //                    addEmployeelogin.Designation = _qryOSG.d.Designation;
-                            //                    addEmployeelogin.DeptCode = departdetail.Item1;
-                            //                    addEmployeelogin.DeptName = departdetail.Item2;
-                            //                    EmployeeContext.tblProjectStaffUser.Add(addEmployeelogin);
-                            //                    EmployeeContext.SaveChanges();
-                            //                    int projectstaffid = addEmployeelogin.ProjectStaffId;
-                            //                    var statusemail = RCTEmailContentService.SendMailProjectStaffNewuser(projectstaffid, EmployeeContext, _qryOSG.s.Email);
-                            //                    if (statusemail == 2 || statusemail == -1)
-                            //                    {
-                            //                        //Employeetransaction.Rollback();
-                            //                        //transaction.Rollback();
-                            //                        //return Tuple.Create(-1, OSGID, "Employee portal Credentials not send this email Please Contact Administrator");
-                            //                        return false;
-                            //                    }
-                            //                }
-                            //                Employeetransaction.Commit();
-                            //            }
-                            //            catch (Exception ex)
-                            //            {
-                            //                Employeetransaction.Rollback();
-                            //                //transaction.Rollback();
-                            //                //WriteLog.SendErrorToText(ex);
-                            //                //return Tuple.Create(-1, OSGID, "");
-                            //                return false;
-                            //            }
-                            //        }
-                            //    }
-                            //}
-                            //else if (_qryOSG.s.EmployeeCategory == "Old Employee")
-                            //{
-                            //    using (var EmployeeContext = new ICSRExternalEntities())
-                            //    {
-                            //        using (var Employeetransaction = EmployeeContext.Database.BeginTransaction())
-                            //        {
-                            //            try
-                            //            {
-                            //                var checkEmployeeExist = EmployeeContext.tblProjectStaffUser.Where(x => x.UserName == EmployeersID).FirstOrDefault();
-                            //                if (checkEmployeeExist != null)
-                            //                {
+                            if (_qryOSG.s.EmployeeCategory == "New Employee")
+                            {
+                                using (var EmployeeContext = new ICSRExternalEntities())
+                                {
+                                    using (var Employeetransaction = EmployeeContext.Database.BeginTransaction())
+                                    {
+                                        try
+                                        {
+                                            var checkEmployeeExist = EmployeeContext.tblProjectStaffUser.Where(x => x.UserName == EmployeersID).FirstOrDefault();
+                                            if (checkEmployeeExist == null)
+                                            {
+                                                var departdetail = Common.GetEmployeeDepartment(_qryOSG.s.ProjectId ?? 0);
+                                                tblProjectStaffUser addEmployeelogin = new tblProjectStaffUser();
+                                                addEmployeelogin.UserName = EmployeersID;
+                                                addEmployeelogin.Email = _qryOSG.s.Email;
+                                                addEmployeelogin.Name = _qryOSG.s.Name;
+                                                addEmployeelogin.Password = Guid.NewGuid().ToString("N").Substring(0, 12);
+                                                addEmployeelogin.Status = "Active";
+                                                addEmployeelogin.RoleId = 3;
+                                                addEmployeelogin.Crts_Ts = DateTime.Now;
+                                                addEmployeelogin.Designation = _qryOSG.d.Designation;
+                                                addEmployeelogin.DeptCode = departdetail.Item1;
+                                                addEmployeelogin.DeptName = departdetail.Item2;
+                                                EmployeeContext.tblProjectStaffUser.Add(addEmployeelogin);
+                                                EmployeeContext.SaveChanges();
+                                                int projectstaffid = addEmployeelogin.ProjectStaffId;
+                                                var statusemail = RCTEmailContentService.SendMailProjectStaffNewuser(projectstaffid, EmployeeContext, _qryOSG.s.Email);
+                                                if (statusemail == 2 || statusemail == -1)
+                                                {
+                                                    //Employeetransaction.Rollback();
+                                                    //transaction.Rollback();
+                                                    //return Tuple.Create(-1, OSGID, "Employee portal Credentials not send this email Please Contact Administrator");
+                                                    return false;
+                                                }
+                                            }
+                                            Employeetransaction.Commit();
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            Employeetransaction.Rollback();
+                                            //transaction.Rollback();
+                                            //WriteLog.SendErrorToText(ex);
+                                            //return Tuple.Create(-1, OSGID, "");
+                                            return false;
+                                        }
+                                    }
+                                }
+                            }
+                            else if (_qryOSG.s.EmployeeCategory == "Old Employee")
+                            {
+                                using (var EmployeeContext = new ICSRExternalEntities())
+                                {
+                                    using (var Employeetransaction = EmployeeContext.Database.BeginTransaction())
+                                    {
+                                        try
+                                        {
+                                            var checkEmployeeExist = EmployeeContext.tblProjectStaffUser.Where(x => x.UserName == EmployeersID).FirstOrDefault();
+                                            if (checkEmployeeExist != null)
+                                            {
 
-                            //                    var departdetail = Common.GetEmployeeDepartment(_qryOSG.s.ProjectId ?? 0);
-                            //                    checkEmployeeExist.Email = _qryOSG.s.Email;
-                            //                    checkEmployeeExist.Name = _qryOSG.s.Name;
-                            //                    checkEmployeeExist.DeptCode = departdetail.Item1;
-                            //                    checkEmployeeExist.DeptName = departdetail.Item2;
-                            //                    checkEmployeeExist.Status = "Active";
-                            //                    checkEmployeeExist.Uptd_Ts = DateTime.Now;
-                            //                    checkEmployeeExist.Uptd_Id = loggedInUser;
-                            //                    context.SaveChanges();
-                            //                }
-                            //                Employeetransaction.Commit();
-                            //            }
-                            //            catch (Exception ex)
-                            //            {
-                            //                Employeetransaction.Rollback();
-                            //                return false;
-                            //            }
-                            //        }
-                            //    }
-                            //}
+                                                var departdetail = Common.GetEmployeeDepartment(_qryOSG.s.ProjectId ?? 0);
+                                                checkEmployeeExist.Email = _qryOSG.s.Email;
+                                                checkEmployeeExist.Name = _qryOSG.s.Name;
+                                                checkEmployeeExist.DeptCode = departdetail.Item1;
+                                                checkEmployeeExist.DeptName = departdetail.Item2;
+                                                checkEmployeeExist.Status = "Active";
+                                                checkEmployeeExist.Uptd_Ts = DateTime.Now;
+                                                checkEmployeeExist.Uptd_Id = loggedInUser;
+                                                context.SaveChanges();
+                                            }
+                                            Employeetransaction.Commit();
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            Employeetransaction.Rollback();
+                                            return false;
+                                        }
+                                    }
+                                }
+                            }
                             #endregion
                             RequirementService.PostOSGStatusLog(OSGID, "Verification Completed", _qryOSG.s.Status, loggedInUser);
                             return true;
