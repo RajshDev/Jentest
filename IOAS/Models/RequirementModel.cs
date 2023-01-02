@@ -1091,7 +1091,7 @@ namespace IOAS.Models
         public List<STEExperienceModel> ExperienceDetail { get; set; }
         public List<STENotes> Notes { get; set; }
         public List<STENotes> DAComments { get; set; }
-
+        public Nullable<int> RoleId { get; set; }
         public string Status { get; set; }
         public int SNo { get; set; }
         public string DepartmentName { get; set; }
@@ -1123,6 +1123,7 @@ namespace IOAS.Models
         public string PayType { get; set; }
         public string VerificationRemarks { get; set; }
         public List<OtherDocModel> OtherDocList { get; set; }
+        public string List_f { get; set; }
 
         //Order Verification Model
         public Nullable<int> OrderId { get; set; }
@@ -1175,6 +1176,11 @@ namespace IOAS.Models
         public string SalaryLevel { get; set; }
         public string SalaryLevelDescription { get; set; }
         public bool Cancel_f { get; set; }
+        public string Button { get; set; }
+        public string FlowApprover { get; set; }
+        public Nullable<int> StatusID { get; set; }
+
+        public string FlowofMail { get; set; }
     }
 
     public class SearchSTEVerificationModel
@@ -1445,6 +1451,7 @@ namespace IOAS.Models
         public Nullable<DateTime> AppointmentEndDate { get; set; }
         [Display(Name = "Salary")]
         public Nullable<decimal> Salary { get; set; }
+        public string RequestedBy { get; set; }
         public Nullable<decimal> MedicalAmmount { get; set; }
         public bool isMedical { get; set; }
         public string IsGSTapplicable { get; set; }
@@ -1792,6 +1799,8 @@ namespace IOAS.Models
         public string PIRemarks { get; set; }
         public string PINoDuesRemarks { get; set; }
         public string PIrequestedRelievingDate { get; set; }
+
+        public string RequestedfromPI { get; set; }
     }
 
     public class StopaymentlosspayModel
@@ -1820,6 +1829,7 @@ namespace IOAS.Models
         public string ApplicationNo { get; set; }
         public bool IsMsPhd { get; set; }
         public string Status { get; set; }
+        public string RequestedfromPI { get; set; }
         public string IITMPensionerCSIRStaff { get; set; }
         public Recruitoldmastdetails Appointmentdetails { get; set; }
         public decimal WithdrawalAmount { get; set; }
@@ -2655,6 +2665,11 @@ namespace IOAS.Models
         public string EmployeeID { get; set; }
         public DateTime ApplicationReceivedDate { get; set; }
         public string SalaryLevel { get; set; }
+        public string ApprovalInitiatedDate { get; set; }
+        public string ApprovedDate { get; set; }
+        public string CommitmentBookedDate { get; set; }
+        public DateTime CommitteeApprovedDate { get; set; }
+        public string OfferReleasedDate { get; set; }
         public string CandidateName { get; set; }
         public string PostRecommended { get; set; }
         public string ProjectNumber { get; set; }
@@ -2663,11 +2678,6 @@ namespace IOAS.Models
         public DateTime AppointmentStartdate { get; set; }
         public DateTime AppointmentEnddate { get; set; }
         public DateTime CRTD_TS { get; set; }
-        public string ApprovalInitiatedDate { get; set; }
-        public string ApprovedDate { get; set; }
-        public string CommitmentBookedDate { get; set; }
-        public DateTime CommitteeApprovedDate { get; set; }
-        public string OfferReleasedDate { get; set; }
         public decimal BasicPay { get; set; }
         public string ApplicationType { get; set; }
         public string TypeofAppointment { get; set; }
