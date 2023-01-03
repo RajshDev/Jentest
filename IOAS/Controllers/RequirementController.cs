@@ -2339,8 +2339,45 @@ namespace IOAS.Controllers
                 {
                     if (validateOrderVerification(OrderId))
                     {
-
                         model = recruitmentService.GetOrderVerification(OrderId);
+                        if (model.ApplicationType == "STE")
+                        {
+                           
+                            if (model.Status == "Awaiting Verification-Open")
+                            {
+                                var user = Common.getUserIdAndRole(User.Identity.Name);
+                                model.RoleId = user.Item2;
+                                if (model.FlowApprover == "CMAdmin")
+                                    ViewBag.processGuideLineId = Common.GetProcessGuidelineId(188, "STEVERAdminFlow", 0);
+                                else if (model.FlowApprover == "NDean")
+                                    ViewBag.processGuideLineId = Common.GetProcessGuidelineId(188, "STEVERFlowDean", 0);
+                                else
+                                    ViewBag.processGuideLineId = Common.GetProcessGuidelineId(188, "STEVER Flow", 0);
+                                model.List_f = getEmployeeActionLink("STE", "OVAL");
+                                //ViewBag.processGuideLineId = processGuideLineId;
+                                ViewBag.currentRefId = model.STEId;
+
+                            }
+                        }
+                        else if(model.ApplicationType == "OSG")
+                        {
+                            if (model.Status == "Awaiting Verification-Open")
+                            {
+                                var user = Common.getUserIdAndRole(User.Identity.Name);
+                                model.RoleId = user.Item2;
+                                if (model.FlowApprover == "CMAdmin")
+                                    ViewBag.processGuideLineId = Common.GetProcessGuidelineId(206, "OSGORDVERAdminFlow", 0);
+                                else if (model.FlowApprover == "NDean")
+                                    ViewBag.processGuideLineId = Common.GetProcessGuidelineId(206, "OSGORDVERFlowDean", 0);
+                                else
+                                    ViewBag.processGuideLineId = Common.GetProcessGuidelineId(206, "OSGORDVER Flow", 0);
+                                model.List_f = getEmployeeActionLink("STE", "OSGORVAL");
+                                //ViewBag.processGuideLineId = processGuideLineId;
+                                ViewBag.currentRefId = model.OrderId;
+
+                            }
+                        }
+
 
                     }
                     else
@@ -2399,6 +2436,7 @@ namespace IOAS.Controllers
                     else
                     {
                         TempData["errMsg"] = "Something went wrong please contact administrator";
+                        return RedirectToAction("OSGVerificationList", "Requirement");
                     }
                     
                 }
@@ -2415,6 +2453,7 @@ namespace IOAS.Controllers
                     else
                     {
                         TempData["errMsg"] = "Something went wrong please contact administrator";
+                        return RedirectToAction("OSGVerificationList", "Requirement");
                     }
 
                 }

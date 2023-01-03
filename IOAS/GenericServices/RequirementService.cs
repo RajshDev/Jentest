@@ -6301,7 +6301,7 @@ namespace IOAS.GenericServices
                                     }
                                     res = 1;
                                 }
-                                else if (model.ApplicationType == "OSG")
+                                else if (TypeCode == "OSG")
                                 {
                                     var Data = OSGOVWFInit(orderid, userId);
                                     if (Data.Item1 == false)
@@ -9043,7 +9043,7 @@ namespace IOAS.GenericServices
                                 context.tblOrder.Add(Order);
                                 context.SaveChanges();
                                 OrderID = Order.OrderId;
-                                 result = IsRespondTermEndMail(model.ApplicationID, model.TypeCode, logged_in_userId, OrderID, context);
+                                result = IsRespondTermEndMail(model.ApplicationID, model.TypeCode, logged_in_userId, OrderID, context);
                                 if (apptype == 3)
                                 {
                                     var salQuery = context.tblRCTSalaryCalcDetails.FirstOrDefault(m => m.SalaryDetailsId == salarycalcId);
@@ -9324,7 +9324,6 @@ namespace IOAS.GenericServices
                                 OrderID = odQuery.OrderId;
                                 if (prestatus == "PI Initiated")
                                     result = IsRespondTermEndMail(model.ApplicationID, model.TypeCode, logged_in_userId, OrderID, context);
-
                                 if (model.ArrearOrDeductionTillDate != null)
                                 {
                                     var othQuery = (from dec in context.tblRCTOTHPaymentDeduction
@@ -11407,10 +11406,8 @@ namespace IOAS.GenericServices
                                 newstatus = odQuery.Status;
                                 context.SaveChanges();
                                 transaction.Commit();
-
                                 if (prestatus == "PI Initiated")
                                     result = IsRespondTermEndMail(model.ApplicationID, model.TypeCode, logged_in_userId, OrderID, context);
-
                                 PostOrderStatusLog(OrderID, prestatus, newstatus, logged_in_userId);
                                 if (newstatus == "Relieving initiated")
                                 {
