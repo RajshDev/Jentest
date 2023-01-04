@@ -299,34 +299,10 @@
                 itemTemplate: function (value, item) {
                     var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
                     var statusList;
-                    
-                    //if (item.OrderId > 0 && item.SendOffer_f) {
-                    //    statusList = [{ id: "", name: "Action" }, { id: "Verifyorder", name: "Verify" }, { id: "SendOffer", name: "Send Offerletter" }]
-                    //}
-                    //else if (item.Status == "Sent for approval-Verify") {
-                    //    statusList = [{ id: "", name: "Action" }, { id: "View", name: "View" }]
-                    //}
-                    ////else if (item.Status == "Awaiting Verification") {
-                    ////    statusList = [{ id: "", name: "Action" }, { id: "Verify", name: "Verify" }]
-                    ////}
-                    //else if (item.Status == "Awaiting Verification-Draft") {
-                    //    statusList = [{ id: "", name: "Action" }, { id: "Verify", name: "Verify" }]
-                    //}
-                    //else if (item.Status == "Awaiting Verification-Open") {
-                    //    statusList = [{ id: "", name: "Action" }, { id: "Verify", name: "Verify" }, { id: "View", name: "View" }, { id: "Cancel", name: "Cancel" }]
-                    //}
-                    //else if (item.OrderId > 0) {
-                    //    statusList = [{ id: "", name: "Action" }, { id: "Verifyorder", name: "Verify" }, { id: "Cancel", name: "Cancel" }]
-                    //}
+                                       
                     if (item.OrderId > 0 && item.Status == "Sent for approval-Verify") {
                         statusList = [{ id: "", name: "Action" }, { id: "View", name: "View" }]
-                    }
-                    //else if (item.Status == "Awaiting Verification") {
-                    //    statusList = [{ id: "", name: "Action" }, { id: "Verify", name: "Verify" }]
-                    //}
-                    //else if (item.OrderId > 0 && item.Status == "Awaiting Verification") {
-                    //    statusList = [{ id: "", name: "Action" }, { id: "Verifyorder", name: "Verify" }]
-                    //}
+                    }                    
                     else if (item.OrderId > 0 && item.SendOffer_f) {
                         statusList = [{ id: "", name: "Action" }, { id: "Verifyorder", name: "Verify" }, { id: "SendOffer", name: "Send Offerletter" }]
                     }
@@ -338,47 +314,35 @@
                     }
                     else if (item.Status == "Awaiting Verification-Open") {
                         statusList = [{ id: "", name: "Action" }, { id: "Verify", name: "Verify" }, { id: "View", name: "View" }, { id: "Cancel", name: "Cancel" }]
-                    }
-                    
-                    else if (item.Status == "Awaiting Verification-Draft") {
-                        statusList = [{ id: "", name: "Action" }, { id: "Verify", name: "Verify" }]
-                    }
-                    else if (item.OrderId > 0 && item.Status == "Awaiting Verification-Draft") {
-                        statusList = [{ id: "", name: "Action" }, { id: "Verifyorder", name: "Verify" }]
-                    }
+                    }                  
                     else if (item.OrderId > 0) {
                         statusList = [{ id: "", name: "Action" }, { id: "Verifyorder", name: "Verify" }]
                     }
                     else {
 
                         if (item.SendOffer_f) {
-                            console.log('so');
                             if (item.EmailRemaindarCount == 0) {
-                                statusList = [{ id: "", name: "Action" }, { id: "Verify", name: "Verify" }, { id: "EmailNf", name: "Email Notification" }, { id: "Cancel", name: "Cancel" }, { id: "SendOffer", name: "Send Offerletter" }]
+                                statusList = [{ id: "", name: "Action" }, { id: "Verify", name: "Verify" }, { id: "EmailNf", name: "Email Notification" }, { id: "SendOffer", name: "Send Offerletter" }]
                             }
                             else if (item.EmailRemaindarCount == 1) {
-                                statusList = [{ id: "", name: "Action" }, { id: "Verify", name: "Verify" }, { id: "EmailNf", name: "Email Remainder " + " " + item.EmailRemaindarCount }, { id: "Cancel", name: "Cancel" }, { id: "SendOffer", name: "Send Offerletter" }]
+                                statusList = [{ id: "", name: "Action" }, { id: "Verify", name: "Verify" }, { id: "EmailNf", name: "Email Remainder " + " " + item.EmailRemaindarCount }, { id: "SendOffer", name: "Send Offerletter" }]
                             }
                             else {
-                                statusList = [{ id: "", name: "Action" }, { id: "Verify", name: "Verify" }, { id: "EmailNf", name: "Email Reminder" + " " + item.EmailRemaindarCount }, { id: "Cancel", name: "Cancel" }, { id: "SendOffer", name: "Send Offerletter" }]
+                                statusList = [{ id: "", name: "Action" }, { id: "Verify", name: "Verify" }, { id: "EmailNf", name: "Email Reminder" + " " + item.EmailRemaindarCount }, { id: "SendOffer", name: "Send Offerletter" }]
                             }
                         }
                         else {
-                            console.log('email');
-                            if (!item.Status == "Awaiting Verification") {
-                                if (item.EmailRemaindarCount == 0) {
-                                    statusList = [{ id: "", name: "Action" }, { id: "Verify", name: "Verify" }, { id: "EmailNf", name: "Email Notification" }, { id: "Cancel", name: "Cancel" }]
-                                }
-                                else if (item.EmailRemaindarCount == 1) {
-                                    statusList = [{ id: "", name: "Action" }, { id: "Verify", name: "Verify" }, { id: "EmailNf", name: "Email Remainder " + " " + item.EmailRemaindarCount }, { id: "Cancel", name: "Cancel" }]
-                                }
-                                else {
-                                    statusList = [{ id: "", name: "Action" }, { id: "Verify", name: "Verify" }, { id: "EmailNf", name: "Email Reminder" + " " + item.EmailRemaindarCount }, { id: "Cancel", name: "Cancel" }]
-                                }
-                            }
-                            else {
+
+                            if (item.EmailRemaindarCount == 0) {
                                 statusList = [{ id: "", name: "Action" }, { id: "Verify", name: "Verify" }, { id: "EmailNf", name: "Email Notification" }]
                             }
+                            else if (item.EmailRemaindarCount == 1) {
+                                statusList = [{ id: "", name: "Action" }, { id: "Verify", name: "Verify" }, { id: "EmailNf", name: "Email Remainder " + " " + item.EmailRemaindarCount }]
+                            }
+                            else {
+                                statusList = [{ id: "", name: "Action" }, { id: "Verify", name: "Verify" }, { id: "EmailNf", name: "Email Reminder" + " " + item.EmailRemaindarCount }]
+                            }
+
                         }
                     }
                     if (item.Cancel_f)
