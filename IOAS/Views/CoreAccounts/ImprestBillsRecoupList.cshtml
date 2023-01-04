@@ -1,8 +1,12 @@
 ﻿@model IOAS.Models.ImprestBillRecoupModel
+
+
+
 @{
     ViewBag.Title = "Imprest Bills Recoupment List";
     ViewBag.Subtitle = "Imprest Bills Recoupment List";
     Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+    
 }
 <div class="row hd-tt-bg">
     <div class="col-md-4">
@@ -10,7 +14,7 @@
     </div>
     <div id="addnewpage" class="col-md-8 flt-nav-links">
 
-    @*<a href="@Url.Action("ImprestBillsRecoupment")"> <i class="ion-plus"></i>Add New</a>*@
+        @*<a href="@Url.Action("ImprestBillsRecoupment")"> <i class="ion-plus"></i>Add New</a>*@
         <a href="Javascript:void(0)" id="btnFilter" class="pull-right"> <i class="ion-android-funnel"></i>Filters</a>
     </div>
 
@@ -24,8 +28,8 @@
                 </div>
 
                 @*<div class="form-group custom-form-group">
-                        @Html.TextBoxFor(m => m.SearchField.ProjectNumber, new { @id = "srchprojectnumber", @placeholder = "Project Number", @class = "form-control" })
-                    </div>*@
+            @Html.TextBoxFor(m => m.SearchField.ProjectNumber, new { @id = "srchprojectnumber", @placeholder = "Project Number", @class = "form-control" })
+        </div>*@
 
                 <div class="form-group custom-form-group">
                     @Html.TextBoxFor(m => m.SearchField.ImprestcardNumber, new { @id = "srchcardnumber", @placeholder = "Imprest Reference Number", @class = "form-control" })
@@ -40,6 +44,24 @@
                     @Html.TextBoxFor(m => m.SearchField.PIName, new { @id = "srchPIName", @placeholder = "PI Name / ID", @class = "form-control" })
                     @*@Html.DropDownListFor(m => m.SearchField.PIName, new SelectList(ViewBag.PI, "id", "name"), "PI Name", new { @id = "srchPIName", @class = "form-control" })*@
                 </div>
+
+
+
+
+                @*<div class="form-group custom-form-group">
+                       @Html.TextBoxFor(m => m.SearchField.CreditAccountHead, new { @id = "srchaccountHeadnumber", @placeholder = "Credit Account Number", @class = "form-control" })
+                </div>
+
+
+
+                <div class="form-group custom-form-group">
+                      @Html.TextBoxFor(m => m.SearchField.CreditAccountHead, new { @id = "srchaccountHeadnumber", @placeholder = "Account Head", @class = "form-control" })
+                </div>*@
+
+
+
+
+
 
                 <div id="DivCrtdDate" class="form-group custom-form-group">
                     <label class="full-width">Created Date</label>
@@ -115,6 +137,9 @@
         $('#srchacnumber').val('');
         $('#srchrefnumber').val('');
         $('#srchPIName').val('');
+
+        $('#srchaccountHeadnumber').val('');
+
         $('#FromDate').val('');
         $('#ToDate').val('');
     }
@@ -126,15 +151,21 @@
         // var token = $("input[name=__RequestVerificationToken]").val();
         getData();
     });
-   
+
     function getData() {
-       
+
         var input = [];
         input = {
             ExImprestNumber: $('#srchcardnumber').val() || null,
             ExImprestAccNumber: $('#srchacnumber').val() || null,
             ExReferenceNumber: $('#srchrefnumber').val() || null,
             ExImprestNamePI: $('#srchPIName').val() || null,
+
+
+            //ExAccountHead: $('#srchaccountHeadnumber').val() || null,
+            ExCreditAccountHead: $('#srchaccountHeadnumber').val() || null,
+
+
             ExFromDate: $('#FromDate').val() || null,
             ExToDate: $('#ToDate').val() || null
         },
@@ -203,7 +234,7 @@
                 //   && (!filter.Status || ow.Status.toLowerCase().indexOf(filter.Status.toLowerCase()) > -1);
                 //});
                 var searchData = [];
-                searchData = {                    
+                searchData = {
                     InImprestAccNumber: filter.ImprestBankACNumber,
                     InReferenceNumber: filter.ImprestBillRecoupNumber,
                     InImprestNamePI: filter.NameofPI,
@@ -216,7 +247,13 @@
                     ExReferenceNumber: $('#srchrefnumber').val() || null,
                     ExImprestNamePI: $('#srchPIName').val() || null,
                     ExFromDate: $('#FromDate').val() || null,
-                    ExToDate: $('#ToDate').val() || null
+                    ExToDate: $('#ToDate').val() || null,
+
+                    /* Added by Soundarkambli for bug #num */
+                    // CreditAccountHead: filter.AccountHead,
+                    AccountHead: filter.AccountHead
+                    //ExCreditaccountsHead: $('#srchaccountHeadnumber').val() || null,
+                   // ExAccountHead: $('#srchaccountHeadnumber').val() || null
                 },
                 //filter.PostedDate.from = $('#FromDate').val() || null,
                 //filter.PostedDate.to = $('#ToDate').val()||null
@@ -247,55 +284,80 @@
 
         },
 
-        fields: [
+
+
+       
+
+        
+
+     fields: [
             { name: "SlNo", title: "S.No", editing: false, width: 50 },
             { type: "number", name: "ImprestBillRecoupId", title: "Id", visible: false },
             { type: "text", name: "ImprestBillRecoupNumber", title: "Imprest Bills Recoupment Number", editing: false },
             { type: "date", name: "PostedDate", title: "Posted Date", width: 100, align: "center" },
+             
+
+
+            { type: "text", name: "NameofPI", title: "PI Name", editing: false },
+            { type: "text", name: "ImprestBankACNumber", title: "PI Account Number", editing: false },
+            { type: "text", name: "AccountHead", title: "Credit Account Details", editing: false },
+
+
+
+
             { type: "text", name: "CreditAmount", title: "Amount", editing: false },
             { type: "text", name: "Status", title: "Status", editing: false },
+
+
+
              {
-                 type: "control", editButton: false, deleteButton: false, width: 120, title: "Action",
+         type: "control", editButton: false, deleteButton: false, width: 120, title: "Action",
 
                  itemTemplate: function (value, item) {
-                     var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
-                     //if (item.Status == "Open") {
-                     //    statusList = [{ id: "", name: "Select Action" }, { id: "Edit", name: "Edit" }, { id: "Approve", name: "Approve" }, { id: "View", name: "View" }, { id: "Print Bill", name: "Print Bill" }]
-                     //}
-                     if (item.Status == "Open") {
-                         statusList = [{ id: "", name: "Select Action" }, { id: "Edit", name: "Edit" }, { id: "Submit for Approval", name: "Submit for Approval" }, { id: "View", name: "View" }, { id: "Print Bill", name: "Print Bill" }]
-                     }                     
-                     else
-                     {
-                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }, { id: "Bank Advice", name: "Bank Advice" }, { id: "Print Bill", name: "Print Bill" }]
+                 var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+                 //if (item.Status == "Open") {
+                 //    statusList = [{ id: "", name: "Select Action" }, { id: "Edit", name: "Edit" }, { id: "Approve", name: "Approve" }, { id: "View", name: "View" }, { id: "Print Bill", name: "Print Bill" }]
+                 //}
+                 if (item.Status == "Open") {
+                     statusList = [{ id: "", name: "Select Action" }, { id: "Edit", name: "Edit" }, { id: "Submit for Approval", name: "Submit for Approval" }, { id: "View", name: "View" }, { id: "Print Bill", name: "Print Bill" }]
                      }
-                     var $customSelect = $("<select>")
-                         .attr("class", "form-control").prop("selectedIndex", "")
+                 else
+                 {
+                     statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }, { id: "Bank Advice", name: "Bank Advice" }, { id: "Print Bill", name: "Print Bill" }]
+                     }
+                 var $customSelect = $("<select>")
+                     .attr("class", "form-control").prop("selectedIndex", "")
                      $.each(statusList, function (index, itemData) {
                          $customSelect.append($('<option/>', {
 
-                             value: itemData.id,
+                     value: itemData.id,
                              text: itemData.name
                          }));
-                     });
+                 });
                      $customSelect.change(function (e) {
-                         var selVal = $(this).val();
-                         if (selVal == "Edit") {
-                             var url = '@Url.Action("ImprestBillsRecoupment", "CoreAccounts")?id=0&BillRecoupid=' + item.ImprestBillRecoupId;
-                             window.location.href = url;
-                         }
-                         else if (selVal == "View") {
-                             var url = '@Url.Action("ImprestBillsRecoupmentView", "CoreAccounts")?id=' + item.ImprestBillRecoupId;
-                             window.location.href = url;
-                         }
-                         else if (selVal == "Bank Advice") {
-                             var url = '@Url.Action("ImprestRecoupment", "Reports")?Id=' + item.ImprestBillRecoupNumber;
-                             window.location.href = url;
-                         }
-                         else if (selVal == "Print Bill") {
-                             var url = '@Url.Action("ImprestBillsRecoupmentBill", "ReportMaster")?Id=' + item.ImprestBillRecoupNumber;
-                             window.open(url, '_blank');
-                         }
+                     var selVal = $(this).val();
+                     if (selVal == "Edit") {
+                         var url = '@Url.Action("ImprestBillsRecoupment", "CoreAccounts")?id=0&BillRecoupid=' + item.ImprestBillRecoupId;
+                         window.location.href = url;
+                     }
+                     else if (selVal == "View") {
+                         var url = '@Url.Action("ImprestBillsRecoupmentView", "CoreAccounts")?id=' + item.ImprestBillRecoupId;
+                         window.location.href = url;
+                     }
+                     else if (selVal == "Bank Advice") {
+                         var url = '@Url.Action("ImprestRecoupment", "Reports")?Id=' + item.ImprestBillRecoupNumber;
+                         window.location.href = url;
+                     }
+                     else if (selVal == "Print Bill") {
+                         var url = '@Url.Action("ImprestBillsRecoupmentBill", "ReportMaster")?Id=' + item.ImprestBillRecoupNumber;
+                         window.open(url, '_blank');
+                     }
+
+
+
+
+
+
                          @*else if (selVal == "Approve") {
                              var choice = confirm("Are you sure, Do you want to approve this Imprest Bills Recoupment entry?");
                              if (choice === true) {
@@ -383,9 +445,10 @@
             ExReferenceNumber: $('#srchrefnumber').val() || null,
             ExImprestNamePI: $('#srchPIName').val() || null,
             ExFromDate: $('#FromDate').val() || null,
-            ExToDate: $('#ToDate').val() || null
+            ExToDate: $('#ToDate').val() || null,
+            ExAccountHead: $('#srchaccountHeadnumber').val() || null
         },
         $("#ImpBillRecoupList").jsGrid("search", input, pageIndex = 1, pageSize = 5);
     }
-  
+
 </script>

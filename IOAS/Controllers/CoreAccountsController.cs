@@ -28,6 +28,7 @@ namespace IOAS.Controllers
         AdhocSalaryProcess adhoc = new AdhocSalaryProcess();
         FinOp fo = new FinOp(System.DateTime.Now);
         DateTime Today = System.DateTime.Now;
+       // private object id;
         private static readonly Object ProjectlockObj = new Object();
         private static readonly Object POWfInitlockObj = new Object();
         private static readonly Object TravellockObj = new Object();
@@ -71,6 +72,8 @@ namespace IOAS.Controllers
         private static readonly Object AVOWFInitlockObj = new Object();
         public static readonly object ReceiptBUlockObj = new Object();
         private static readonly Object lockInvoiceBOArequestObj = new Object();
+
+       // public bool Pfinit { get; private set; }
         #region Payment
         #region Purchase Order
         #region Advance
