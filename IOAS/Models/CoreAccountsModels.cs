@@ -1214,6 +1214,9 @@ namespace IOAS.Models
         public string ExImprestNamePI { get; set; }
         public Nullable<DateTime> ExFromDate { get; set; }
         public Nullable<DateTime> ExToDate { get; set; }
+
+        /* Added by Soundarkambli for bug #num 7916 */
+        public string AccountHead { get; set; }
         public int TotalRecords { get; set; }
         public List<ImprestPaymentModel> ImpMaster { get; set; }
         public List<ImprestBillRecoupModel> BillRecoup { get; set; }
@@ -1525,6 +1528,10 @@ namespace IOAS.Models
         public string SourceName { get; set; }
         public string SourceEmail { get; set; }
         public bool PFInit { get; set; }
+
+        /* Added by Soundarkambli for bug #num 7916 */
+        public string AccountHead { get; set; }
+       
     }
     public class ImprestBillRecoupDetailModel
     {
@@ -6527,7 +6534,7 @@ namespace IOAS.Models
         public string BankAccount { get; set; }
         public string RefNumber { get; set; }
         public string Remarks { get; set; }
-        [DisplayFormat(DataFormatString = "{0:n2}")]
+       [DisplayFormat(DataFormatString = "{0:n2}")]
         public decimal TotalBillValue { get; set; }
         public string BillNumber { get; set; }
         public string BillType { get; set; }
@@ -6542,10 +6549,10 @@ namespace IOAS.Models
         public string CheqDate { get; set; }
         public string Rupees { get; set; }
         public string InvoiceDate { get; set; }
-       [DisplayFormat(DataFormatString = "{0:n2}")]
+        [DisplayFormat(DataFormatString = "{0:n2}")]
         public decimal PayableAmount { get; set; }
         public decimal TaxAmount { get; set; }
-        [DisplayFormat(DataFormatString = "{0:n2}")]
+       [DisplayFormat(DataFormatString = "{0:n2}")]
         public decimal TotalAmount { get; set; }
         public string BillHeading { get; set; }
         public string PrintedDate { get; set; }
@@ -6565,7 +6572,7 @@ namespace IOAS.Models
     {
         public bool Advance_f { get; set; }
         public string AdvanceNo { get; set; }
-        [DisplayFormat(DataFormatString = "{0:n2}")]
+       [DisplayFormat(DataFormatString = "{0:n2}")]
         public decimal AdvanceAmt { get; set; }
         [DisplayFormat(DataFormatString = "{0:n2}")]
         public decimal AdvanceGSTTDS { get; set; }
@@ -6580,7 +6587,7 @@ namespace IOAS.Models
         public string AccNo { get; set; }
         public string Bank { get; set; }
         public string IFSC { get; set; }
-        [DisplayFormat(DataFormatString = "{0:n2}")]
+       [DisplayFormat(DataFormatString = "{0:n2}")]
         public decimal Amount { get; set; }
         public string PAN { get; set; }
         public string GSTIN { get; set; }
@@ -6591,7 +6598,7 @@ namespace IOAS.Models
         public string Number { get; set; }
         public string ProjNo { get; set; }
         public string Head { get; set; }
-        [DisplayFormat(DataFormatString = "{0:n2}")]
+       [DisplayFormat(DataFormatString = "{0:n2}")]
         public decimal Value { get; set; }
         public string  StartDate { get; set; }
         public string Date { get; set; }
@@ -6603,7 +6610,7 @@ namespace IOAS.Models
     public class TDSITListModel
     {
         public string Head { get; set; }
-        [DisplayFormat(DataFormatString = "{0:n2}")]
+      [DisplayFormat(DataFormatString = "{0:n2}")]
         public decimal Value { get; set; }
     }
     public class TDSGSTModel
@@ -6615,7 +6622,7 @@ namespace IOAS.Models
     public class GSTModel
     {
         public string Head { get; set; }
-        [DisplayFormat(DataFormatString = "{0:n2}")]
+      [DisplayFormat(DataFormatString = "{0:n2}")]
         public decimal Value { get; set; }
     }
     #endregion
