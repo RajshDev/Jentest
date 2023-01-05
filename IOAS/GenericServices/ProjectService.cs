@@ -370,7 +370,7 @@ namespace IOAS.GenericServices
 
                             //karthi changes
 
-                            if (model.ProjectFundingCategoryId == 2 || model.ProjectFundingCategoryId ==3 || model.ProjectFundingCategoryId==4)
+                            if (model.ProjectFundingCategoryId == 2 || model.ProjectFundingCategoryId == 3 || model.ProjectFundingCategoryId == 4)
                             {
                                 create.ProjectFundingCategory = model.ProjectFundingCategoryId;
                                 create.BankID = model.BankID;

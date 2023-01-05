@@ -637,7 +637,7 @@
                         
                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }, { id: "Update RO", name: "Update RO" }]
                     }
-                    else if (item.ProjectFundingCategory == 3 || item.ProjectFundingCategory == 4  && item.Status == "Active") {
+                    else if ((item.ProjectFundingCategory == 3 || item.ProjectFundingCategory == 4 ) && item.Status == "Active") {
 
                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }]
                     }
