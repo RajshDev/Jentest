@@ -370,9 +370,9 @@ namespace IOAS.GenericServices
 
                             //karthi changes
 
-                            if (model.ProjectFundingCategoryId == 2)
+                            if (model.ProjectFundingCategoryId == 2 || model.ProjectFundingCategoryId ==3 || model.ProjectFundingCategoryId==4)
                             {
-                                create.ProjectFundingCategory = 2;
+                                create.ProjectFundingCategory = model.ProjectFundingCategoryId;
                                 create.BankID = model.BankID;
                             }
                             else
@@ -1032,9 +1032,9 @@ namespace IOAS.GenericServices
                             var projectid = query.ProjectId;
                             //query.ProposalNumber = model.ProposalNumber;
                             //query.ProjectNumber = model.ProjectNumber;
-                            if (model.ProjectFundingCategoryId == 2)
+                            if (model.ProjectFundingCategoryId == 2 || model.ProjectFundingCategoryId == 3 || model.ProjectFundingCategoryId == 4)
                             {
-                                query.ProjectFundingCategory = 2;
+                                query.ProjectFundingCategory = model.ProjectFundingCategoryId;
                                 query.BankID = model.BankID;
                             }
                             else
@@ -3151,9 +3151,9 @@ namespace IOAS.GenericServices
                         editProject.ProjectClassification = query.ProjectClassification;
                         editProject.ReportClassifiCation = query.ReportClassification;
                         editProject.ProjectFundingCategoryId = query.ProjectFundingCategory;
-                        if (query.ProjectFundingCategory == 2)
+                        if (query.ProjectFundingCategory == 2 || query.ProjectFundingCategory == 3 || query.ProjectFundingCategory == 4)
                         {
-                         editProject.ProjectFundingCategoryId = 2;
+                        // editProject.ProjectFundingCategoryId = query.ProjectFundingCategory;
                            editProject.BankID = query.BankID;
                             var bankdetails = (from h in context.tblAccountHead
                                         where h.Status == "Active" 
@@ -5587,7 +5587,7 @@ namespace IOAS.GenericServices
                         if (query.ProjectFundingCategory > 0)
                         {
                             prjModel.ProjectFundingCategory = projectFundingCategoryDetail.CodeValDetail;
-                            if(query.ProjectFundingCategory == 2)
+                            if(query.ProjectFundingCategory == 2 || query.ProjectFundingCategory == 3 || query.ProjectFundingCategory == 4)
                             prjModel.BankName = BankDetail.AccountHead;
                         }
                         if (query.FacultyDetailId != null)
