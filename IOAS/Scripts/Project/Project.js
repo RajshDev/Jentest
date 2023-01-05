@@ -637,6 +637,10 @@
                         
                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }, { id: "Update RO", name: "Update RO" }]
                     }
+                    else if (item.ProjectFundingCategory == 3 || item.ProjectFundingCategory == 4  && item.Status == "Active") {
+
+                        statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }]
+                    }
                     else if (item.Status == "Submit for approval") {
                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }]
                     }
@@ -970,7 +974,7 @@ function fillData(result) {
 
     $('#txtprocategory').val(result.ProjectFundingCategoryId);
    
-    if (result.ProjectFundingCategoryId == 2)
+    if (result.ProjectFundingCategoryId == 2 || result.ProjectFundingCategoryId == 3 || result.ProjectFundingCategoryId == 4)
     {
         $('#BankDetails').removeClass("dis-none");
         $('#BankDetails').show();
