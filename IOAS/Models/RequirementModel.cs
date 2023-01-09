@@ -1116,7 +1116,7 @@ namespace IOAS.Models
         [Required]
         [Display(Name = "Government Proof")]
         public Nullable<int> GovProof { get; set; }
-        public Nullable<bool> isVerifiedGovProof { get; set; } = true;
+        public bool isVerifiedGovProof { get; set; } = true;
         public Nullable<int> EmailRemaindarCount { get; set; }
         public List<string> PIJustificationCommands { get; set; }
         public string Typeofappointment { get; set; }

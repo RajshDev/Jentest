@@ -220,7 +220,7 @@
                                             <div class="col-md-2">
                                                 <div class="form-group custom-form-group mb-sm ">
                                                     <label class="required">PAN No </label>
-                                                    @Html.TextBoxFor(m => m.PAN, new { @class = "form-control" })
+                                                    @Html.TextBoxFor(m => m.PAN, new { @class = "form-control", @onblur = "CheckEmployeepanno()" })
                                                     <div>@Html.ValidationMessageFor(m => m.PAN)</div>
                                                 </div>
                                             </div>
@@ -251,7 +251,7 @@
                                             <div class="col-md-2">
                                                 <div class="form-group custom-form-group ">
                                                     <label class="required">Aadhaar Number :</label>
-                                                    @Html.TextBoxFor(m => m.aadharnumber, new { @class = "form-control", @onkeypress = "return isNumberKey(event)" })
+                                                    @Html.TextBoxFor(m => m.aadharnumber, new { @class = "form-control", @onkeypress = "return isNumberKey(event)", @onblur = "CheckEmployeeadhar()" })
                                                     <div>@Html.ValidationMessageFor(m => m.aadharnumber)</div>
                                                 </div>
                                             </div>
@@ -261,7 +261,8 @@
                                         <div class="col-md-3">
                                             <div class="form-group custom-form-group">
                                                 <label class="required">Candidate name verified </label>  <br>
-                                                @Html.CheckBox("isVerifiedGovProof", false) Government Proof
+                                                @*@Html.CheckBox("isVerifiedGovProof", false) Government Proof*@
+                                                @Html.CheckBoxFor(m => m.isVerifiedGovProof)Government Proof
                                                 <div>@Html.ValidationMessage("isVerifiedGovProof")</div>
                                                 @if (Model.STEId > 0 && Model.GovProof > 0)
                                                 {
@@ -362,7 +363,7 @@
                                         </div>
                                         <div class="col-md-2">
                                             <div class="form-group custom-form-group ">
-                                                <label>Request received from PI</label>
+                                                <label>Requested By</label>
                                                 <h4>@Html.DisplayFor(m => m.RequestedfromPI)</h4>
                                             </div>
                                         </div>
@@ -1157,6 +1158,67 @@
             });
         }
     }*@
+
+    function CheckEmployeeadhar() {
+        var adhar = $('#aadharnumber').val() || null;
+        var data = {};
+        if(adhar != null && adhar.length == 12)
+        {
+            var apprefNo = null;
+            if($('#ApplicationNo').val() != "")
+                apprefNo = $('#ApplicationNo').val()
+            data = { adharno : adhar , apptype : "STE", appref : apprefNo};
+            if($('#OldEmployeeNumber').val() != "")
+            {
+                data = { adharno : adhar , oldId : $('#OldEmployeeNumber').val() , apptype : "STE", appref : apprefNo };
+            }
+            $.ajax({
+                url: '@Url.Action("CheckPreviousEmployeeAdhar", "Requirement")',
+                type: "Get",
+                dataType: "JSON",
+                data: data,
+                success: function (result) {
+                    if(result!="")
+                    {
+                        $('#alert').html("This Aadhaar Number is linked to  " +result);
+                        $('#Validation').modal('toggle');
+                        $('#aadharnumber').val('');
+                        $('#aadharnumber').focus();
+                    }
+                }
+            });
+        }
+    }
+
+    function CheckEmployeepanno() {
+        var pnno = $('#PAN').val() || null;
+        var data = {};
+        if(pnno != null && pnno.length == 10) {
+            var apprefNo = null;
+            if($('#ApplicationNo').val() != "")
+                apprefNo = $('#ApplicationNo').val()
+            data = { Panno : pnno , apptype : "STE" , appref : apprefNo};
+            if($('#OldEmployeeNumber').val() != "")
+            {
+                data = { Panno : pnno , oldId : $('#OldEmployeeNumber').val() , apptype : "STE" , appref : apprefNo};
+            }
+            $.ajax({
+                url: '@Url.Action("CheckPreviousEmployeePan", "Requirement")',
+                type: "Get",
+                dataType: "JSON",
+                data: data,
+                success: function (result) {
+                    if(result!="")
+                    {
+                        $('#alert').html("This Pan number is linked to  " +result);
+                        $('#Validation').modal('toggle');
+                        $('#PAN').val('');
+                        $('#PAN').focus();
+                    }
+                }
+            });
+        }
+    }
 
 
     function FillPIDetails() {
