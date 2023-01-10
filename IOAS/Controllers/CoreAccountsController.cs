@@ -97,13 +97,18 @@ namespace IOAS.Controllers
                 ViewBag.BillTypeList = Common.GetBillTypeList();
                 ViewBag.TaxPctList = Common.GetCodeControlList("TaxPercentage");
                 ViewBag.POTypeList = Common.GetCodeControlList("PO Type");
-                ViewBag.ProjectTypeList = ptypeList;
+                //Difference for General - Existing
+                //ViewBag.ProjectTypeList = ptypeList;
                 ViewBag.AccountGroupList =
                 ViewBag.VendorTDSList =
                 ViewBag.TypeOfServiceList =
                 ViewBag.AccountHeadList = emptyList;
                 ViewBag.DocmentTypeList = Common.GetDocTypeList(29);
-                ViewBag.ProjectNumberList = ProjectService.LoadProjecttitledetails(firstPType);
+                //Difference for General -Existing
+                //ViewBag.ProjectNumberList = ProjectService.LoadProjecttitledetails(firstPType);
+                /*7800 - CNA SNA*/
+                //ViewBag.BankHeadList = Common.GetBankAccountHeadList();
+                
                 //ViewBag.AdvPctList = Common.GetAdvancedPercentageList();
                 BillEntryModel model = new BillEntryModel();
                 if (billId > 0 && Common.ValidateBillOnEdit(billId, "ADV"))
@@ -2885,7 +2890,10 @@ namespace IOAS.Controllers
             {
                 lock (ProjectlockObj)
                 {
-                    var data = Common.GetAutoCompleteProjectList(term, type);
+                    //Existing - General
+                    //var data = Common.GetAutoCompleteProjectList(term, type);
+                    //CNA -SNA
+                    var data = Common.GetAutoCompleteProjectByBankIDList(term, type);
                     return Json(data, JsonRequestBehavior.AllowGet);
                 }
             }
@@ -7376,8 +7384,43 @@ namespace IOAS.Controllers
         }
         #endregion
         #endregion
+
+
         #region Commitment
-        public ActionResult _BookCommitment()
+        [HttpGet]
+        public JsonResult _CommitmentDetails(int BankHeadId)
+        {
+            //BillCommitmentDetailModel model = new BillCommitmentDetailModel();
+            //ViewBag.ProjectTypeList =;
+            ViewBag.ProjectNumberList = Common.getProjectNumberByBankId(BankHeadId);
+            ViewBag.ProjectTypeList = Common.getprojecttypeByBankId(BankHeadId);
+
+            return Json(true, JsonRequestBehavior.AllowGet);
+        }
+
+        //public ActionResult _BookCommitment()
+        //{
+        //    CommitmentModel model = new CommitmentModel();
+        //    ViewBag.CommitmentType = Common.getCommitmentType();
+        //    ViewBag.Purpose = Common.getPurpose();
+        //    ViewBag.Currency = Common.getFRMcurrency();
+        //    ViewBag.BudgetHead = Common.getBudgetHead();
+        //    ViewBag.Employee = Common.GetEmployeeName();
+        //    ViewBag.AccountHead = Common.getBudgetHead();
+        //    ViewBag.ProjectNo = Common.getProjectNumber();
+        //    ViewBag.Vendor = Common.getVendor();
+        //    ViewBag.RequestRef = Common.getprojectsource();
+        //    ViewBag.FundingBody = Common.GetFundingBody(model.SelProjectNumber);
+        //    ViewBag.RefNo = new List<MasterlistviewModel>();
+        //    ViewBag.SubheadList =
+        //    ViewBag.RefNo = new List<MasterlistviewModel>();
+        //    model.CommitmentNo = "0";
+        //    model.commitmentValue = 0;
+        //    model.currencyRate = 0;
+        //    return PartialView(model);
+
+        //}
+        public ActionResult _BookCommitment(int BankHeadId)
         {
             CommitmentModel model = new CommitmentModel();
             ViewBag.CommitmentType = Common.getCommitmentType();
@@ -7386,7 +7429,10 @@ namespace IOAS.Controllers
             ViewBag.BudgetHead = Common.getBudgetHead();
             ViewBag.Employee = Common.GetEmployeeName();
             ViewBag.AccountHead = Common.getBudgetHead();
-            ViewBag.ProjectNo = Common.getProjectNumber();
+            if(BankHeadId > 0)
+                ViewBag.ProjectNo = Common.getProjectNumberByBankId(BankHeadId);
+            else
+                ViewBag.ProjectNo = Common.getProjectNumber();
             ViewBag.Vendor = Common.getVendor();
             ViewBag.RequestRef = Common.getprojectsource();
             ViewBag.FundingBody = Common.GetFundingBody(model.SelProjectNumber);
