@@ -1700,11 +1700,7 @@ namespace IOAS.Controllers
                             return View(model);
                         }
                     }
-                    else
-                    {
-                        TempData["alertMsg"] = "Please upload joining report";
-                        return View(model);
-                    }
+                    
                     if (model.Resume != null)
                     {
                         var extension = Path.GetExtension(model.Resume.FileName);
