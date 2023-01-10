@@ -9043,7 +9043,7 @@ namespace IOAS.GenericServices
                                 context.tblOrder.Add(Order);
                                 context.SaveChanges();
                                 OrderID = Order.OrderId;
-                                result = IsRespondTermEndMail(model.ApplicationID, model.TypeCode, logged_in_userId, OrderID, context);
+                                 result = IsRespondTermEndMail(model.ApplicationID, model.TypeCode, logged_in_userId, OrderID, context);
                                 if (apptype == 3)
                                 {
                                     var salQuery = context.tblRCTSalaryCalcDetails.FirstOrDefault(m => m.SalaryDetailsId == salarycalcId);
@@ -10641,7 +10641,7 @@ namespace IOAS.GenericServices
 
                     var vwQuery = (from vw in context.vw_RCTOverAllApplicationEntry
                                    where vw.ApplicationId == appid && vw.AppointmentType == apptypeid
-                             && vw.ApplicationType == "New" && vw.isEmployee == true
+                                   && vw.ApplicationType == "New" && vw.isEmployee == true
                                    select vw).FirstOrDefault();
                     if (vwQuery != null)
                     {
@@ -11166,7 +11166,7 @@ namespace IOAS.GenericServices
                             model.SourceEmailDate = odrQuery.d.RequestEmailDate;
                             model.NODuesFilePath = !string.IsNullOrEmpty(odrQuery.d.NOCForm) ? odrQuery.d.NOCForm.Split(',') : null;
                             model.NODuesFileName = !string.IsNullOrEmpty(odrQuery.d.NOCFormName) ? odrQuery.d.NOCFormName.Split(',') : null;
-                            model.PIRemarks = odrQuery.d.PIJustificationRemarks;                          
+                            model.PIRemarks = odrQuery.d.PIJustificationRemarks;
                             if (odrQuery.o.OrderRequestId > 0)
                                 model.PINoDuesRemarks = (from r in context.tblRCTOrderRequest where r.OrderRequestId == odrQuery.o.OrderRequestId select r.NoDuesRemark).FirstOrDefault();
                             if(odrQuery.o.OrderRequestId>0&& odrQuery.o.InitByPI_f==true)
@@ -11193,7 +11193,7 @@ namespace IOAS.GenericServices
                             model.PermanentAddress = mastQuery.PermanentAddress;
                             model.PresentAddress = mastQuery.TemporaryAddress;
                             model.DateofBirth = string.Format("{0:dd-MMMM-yyyy}", mastQuery.DateofBirth);
-                            model.Appointmentdetails = Getmastappointmentdetails(appid, appTypeId);                           
+                            model.Appointmentdetails = Getmastappointmentdetails(appid, appTypeId);
                         }
                     }
                     else if (appTypeId == 2)
@@ -11214,7 +11214,7 @@ namespace IOAS.GenericServices
                             model.PermanentAddress = mastQuery.PermanentAddress;
                             model.PresentAddress = mastQuery.PresentAddress;
                             model.DateofBirth = string.Format("{0:dd-MMMM-yyyy}", mastQuery.DateofBirth);
-                            model.Appointmentdetails = Getmastappointmentdetails(appid, appTypeId);                           
+                            model.Appointmentdetails = Getmastappointmentdetails(appid, appTypeId);
                         }
                     }
                     else if (appTypeId == 3)
@@ -11235,7 +11235,7 @@ namespace IOAS.GenericServices
                             model.PermanentAddress = mastQuery.PermanentAddress;
                             model.PresentAddress = mastQuery.PresentAddress;
                             model.DateofBirth = string.Format("{0:dd-MMMM-yyyy}", mastQuery.DateofBirth);
-                            model.Appointmentdetails = Getmastappointmentdetails(appid, appTypeId);                           
+                            model.Appointmentdetails = Getmastappointmentdetails(appid, appTypeId);
                         }
                     }
                     int maxOrderId = (from m in context.tblOrder where m.AppointmentId == model.ApplicationID && m.AppointmentType == appTypeId select m.OrderId).Max();
@@ -11868,8 +11868,8 @@ namespace IOAS.GenericServices
                     int apptypeid = getAppointmentType(odrmodel.TypeCode);
                     if (appid > 0)
                     {
-                        
-                        var query = (from m in context.vw_RCTOverAllApplicationEntry                                     
+
+                        var query = (from m in context.vw_RCTOverAllApplicationEntry
                                      where m.ApplicationId == appid && m.Category == appType
                                      && m.ApplicationType == "New"
                                      select m).FirstOrDefault();
@@ -11887,7 +11887,7 @@ namespace IOAS.GenericServices
                             odrmodel.ConsolidatedPay = query.ConsolidatedPay ?? false;
                             odrmodel.IITMPensionerCSIRStaff = query.IITMPensionerorCSIRStaff;
                             odrmodel.IsMsPhd = query.isMsPhd ?? false;
-                            odrmodel.Appointmentdetails = Getmastappointmentdetails(appid, query.AppointmentType ?? 0);                           
+                            odrmodel.Appointmentdetails = Getmastappointmentdetails(appid, query.AppointmentType ?? 0);
                             odrmodel.OrderType = islossofpay == false ? 7 : 8;
                         }
                     }
@@ -20386,8 +20386,8 @@ namespace IOAS.GenericServices
                                     _qryOSG.s.NotetoCMAdmin = model.FlowApprover == "CMAdmin" ? true : false;
                                     context.SaveChanges();
                                     transaction.Commit();
-                                    res = 1;                                  
-                                   
+                                    res = 1;
+
                                     PostOSGStatusLog(OSGID, "Awaiting Verification", "Awaiting Verification-Draft", logged_in_userId);
                                     //PostOfferDetails(OSGID, "OSG", "OfficeOrder", logged_in_userId);
 
@@ -28721,7 +28721,7 @@ namespace IOAS.GenericServices
                 List<OrderListModel> EmployeeList = new List<OrderListModel>();
                 using (var context = new IOASDBEntities())
                 {
-
+                    context.Database.CommandTimeout = 3500;
                     int skiprec = 0;
                     if (page == 1)
                         skiprec = 0;
