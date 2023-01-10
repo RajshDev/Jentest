@@ -163,8 +163,7 @@ new { @class = "form-control" })
                                             <div class="col-md-3">
                                                 <div class="form-group custom-form-group">
                                                     <label class="required">Bill Type</label>
-                                                    @Html.DropDownListFor(m => m.BillType, new SelectList(ViewBag.BillTypeList, "id", "name"), "Select any",
-new { @class = "form-control" })
+                                                    @Html.DropDownListFor(m => m.BillType, new SelectList(ViewBag.BillTypeList, "id", "name"), "Select any",new { @class = "form-control" })
                                                     @Html.ValidationMessageFor(m => m.BillType)
                                                 </div>
 
@@ -196,28 +195,33 @@ new { @class = "form-control" })
                                                     @Html.ValidationMessageFor(m => m.BankGuaranteeAmount)
                                                 </div>
                                             </div>
-                                            
+                                            @*7800 - CNA-SNA*@
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="required">Bank</label>
+                                                    @Html.DropDownListFor(m => m.BankId, new SelectList(ViewBag.BankHeadList, "id", "name"), "Select any", new { @class = "form-control" })
+                                                    @Html.ValidationMessageFor(m => m.BankId)
+                                                    @Html.HiddenFor(m => m.BankHeadId)
+                                                </div>
+                                            </div>
+
                                             <div class="col-md-3">
                                                 <div class="form-group custom-form-group">
                                                     <label>Bank Guarantee Remarks</label>
                                                     @Html.TextAreaFor(m => m.BankGuaranteeRemarks, new { @class = "form-control", @rows = "2" })
                                                     @Html.ValidationMessageFor(M => M.BankGuaranteeRemarks)
                                                 </div>
-
                                             </div>
-                                           
-
-                                        </div>
-                                        <div class="row">
                                             <div class="col-md-3">
                                                 <div class="form-group custom-form-group">
                                                     <label>Remarks</label>
                                                     @Html.TextAreaFor(m => m.Remarks, new { @class = "form-control", @rows = "2" })
                                                     @Html.ValidationMessageFor(M => M.Remarks)
                                                 </div>
-
                                             </div>
 
+                                        </div>
+                                        <div class="row">
                                             <div class="col-md-2">
                                                 <div class="form-group custom-form-group">
                                                     <label>PAN</label>
@@ -517,6 +521,49 @@ new { @class = "form-control" })
         EmptyPODetails();
         applyACToTypeOfService();
     })
+    
+
+
+    $('#BankId').on("change", function() {
+        var BankHeadId = $(this).val()
+        $("#BankHeadId").val(BankHeadId);
+        
+       bookCommitment(BankHeadId);
+    });
+    function bookCommitment(BankHeadId)
+    {
+         $.ajax({
+            type: "GET",
+            url: '@Url.Action("_CommitmentDetails", "CoreAccounts")',
+            data: {
+                "BankHeadId": BankHeadId
+            },
+            contentType: "application/x-www-form-urlencoded",
+             success: function (data) {
+                 console.log(data);
+            }
+        });
+        
+
+    }
+
+    $('#btnbookcommitment').on('click', function () {
+
+        var bankId = $("#BankHeadId").val();
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("_BookCommitment", "CoreAccounts")',
+            data: {
+                "BankHeadId": bankId
+            },
+            contentType: "application/x-www-form-urlencoded",
+            success: function (data) {
+                $("#popup").html(data);
+                $('#TABCModal').modal('toggle');
+            }
+    });
+    });
+       
     //$('input[type=radio][name=GST]').change(function () {
     //    if (this.value == 'NotEligible' || parseInt($("#AdvancePercentage").val()) == 100) {
     //        $('#ExpenseRequired').val('False');

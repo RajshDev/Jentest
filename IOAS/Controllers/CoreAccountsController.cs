@@ -107,7 +107,7 @@ namespace IOAS.Controllers
                 //Difference for General -Existing
                 //ViewBag.ProjectNumberList = ProjectService.LoadProjecttitledetails(firstPType);
                 /*7800 - CNA SNA*/
-                //ViewBag.BankHeadList = Common.GetBankAccountHeadList();
+                ViewBag.BankHeadList = Common.GetBankAccountHeadList();
                 
                 //ViewBag.AdvPctList = Common.GetAdvancedPercentageList();
                 BillEntryModel model = new BillEntryModel();
