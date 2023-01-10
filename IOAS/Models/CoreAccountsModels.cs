@@ -242,6 +242,12 @@ namespace IOAS.Models
         public Nullable<Int32> BankHead { get; set; }
 
         [Required]
+        [Display(Name = "Bank Name")]
+        public Nullable<Int32> BankId { get; set; }
+
+        public Nullable<Int32> BankHeadId { get; set; }
+
+        [Required]
         [Display(Name = "Bill Type")]
         public Nullable<Int32> BillType { get; set; }
 
@@ -4631,6 +4637,10 @@ namespace IOAS.Models
         public string BookedDate { get; set; }
         public string VendorName { get; set; }
         public string RefUCNumber { get; set; }
+
+        /*7800 CNA - SNA*/
+        public Nullable<Int32> BankHeadId { get; set; }
+
     }
 
     public class CommitmentMasterAndDetailModel : BillCommitmentDetailModel
