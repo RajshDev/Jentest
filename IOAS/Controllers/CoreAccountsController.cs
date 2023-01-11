@@ -20779,9 +20779,14 @@ namespace IOAS.Controllers
             string temppass = Cryptography.Decrypt(Pass, "LFPassW0rd");
             return Json(temppass, JsonRequestBehavior.AllowGet);
         }
-
-
         #endregion
-       
+        // Partial Payment Process Posting - Created by Praveen 11-01-2023
+        public ActionResult PostMissedBatchItems(int draftId)
+        {
+            if (coreAccountService.PaymentTestBOATransaction(draftId, 1))
+                return RedirectToAction("PaymentProcessInitList");
+            else
+                return RedirectToAction("PaymentProcessInitList");
+        }
     }
 }
