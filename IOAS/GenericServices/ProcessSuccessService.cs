@@ -1860,6 +1860,51 @@ namespace IOAS.GenericServices
                                      select new { S, D }).FirstOrDefault();
                         if (query != null)
                         {
+                            decimal WidthdrawAmmount = 0;
+                            //if employee late join late join amount should be 
+                            if (query.S.AppointmentStartdate < model.ActualDate && query.S.CSIRStaffPayMode != 2)
+                            {
+                                DateTime FromDate = query.S.AppointmentStartdate ?? DateTime.Now;
+                                DateTime ToDate = model.ActualDate ?? DateTime.Now;
+                                WidthdrawAmmount = Common.calculateWithdrawalAmount(STEID, "STE", FromDate, ToDate, true, 0, true);
+                                if (WidthdrawAmmount > 0)
+                                {
+                                    tblRCTCommitmentRequest wd = new tblRCTCommitmentRequest();
+                                    wd.ReferenceNumber = query.S.ApplicationNumber;
+                                    wd.AppointmentType = "Verfication";
+                                    wd.TypeCode = "STE";
+                                    wd.CandidateName = query.S.Name;
+                                    wd.CandidateDesignation = query.D.Designation;
+                                    wd.ProjectId = query.S.ProjectId;
+                                    wd.ProjectNumber = Common.getprojectnumber(query.S.ProjectId ?? 0);
+                                    wd.TotalSalary = query.S.Salary;
+                                    wd.RequestedCommitmentAmount = WidthdrawAmmount;
+                                    wd.Status = "Awaiting Commitment Booking";
+                                    wd.RequestType = "Withdraw Commitment";
+                                    wd.EmpNumber = query.S.EmployeersID;
+                                    wd.EmpId = loggedInUser;
+                                    wd.Crtd_TS = DateTime.Now;
+                                    wd.Crtd_UserId = loggedInUser;
+                                    context.tblRCTCommitmentRequest.Add(wd);
+                                    context.SaveChanges();
+                                }
+                            }
+
+                            var Updateqry = (from a in context.tblRCTSTE where a.STEID == STEID select a).FirstOrDefault();
+                            if (Updateqry != null)
+                            {
+                                var Actualstartdate = Updateqry.AppointmentStartdate;
+                                Updateqry.ActualAppointmentStartDate = Actualstartdate;
+                                Updateqry.ActualAppointmentEndDate = Updateqry.AppointmentEnddate;
+                                decimal CommitmentAmount = 0;
+                                CommitmentAmount = Updateqry.CommitmentAmount ?? 0;
+                                Updateqry.AppointmentStartdate = model.ActualDate;
+                                if (WidthdrawAmmount > 0)
+                                    Updateqry.CommitmentAmount = CommitmentAmount - WidthdrawAmmount;
+                                context.SaveChanges();
+                            }
+
+
                             query.S.Status = "Verification Completed";
                             int VerificationSeqNo = 0;
                             int VerificationSequenceNo = (from SM in context.tblRCTSTE select SM.VerificationSeqNo).Max() ?? 0;
@@ -2034,6 +2079,52 @@ namespace IOAS.GenericServices
                                        select new { s, d }).FirstOrDefault();
                         if (_qryOSG != null)
                         {
+                            decimal WithdrawAmmount = 0;
+                            //Check Joining date if candtidate join deloy for the appointment tenure should Widthdraw commitment ammount
+                            if (_qryOSG.s.AppointmentStartdate < model.ActualDate && _qryOSG.s.CSIRStaffPayMode != 2)
+                            {
+                                DateTime FromDate = _qryOSG.s.AppointmentStartdate ?? DateTime.Now;
+                                DateTime ToDate = model.ActualDate ?? DateTime.Now;
+                                WithdrawAmmount = Common.calculateWithdrawalAmount(OSGID, "OSG", FromDate, ToDate, true, 0, true);
+                                if (WithdrawAmmount > 0)
+                                {
+                                    tblRCTCommitmentRequest WidthdrawCommitment = new tblRCTCommitmentRequest();
+                                    WidthdrawCommitment.ReferenceNumber = _qryOSG.s.ApplicationNumber;
+                                    WidthdrawCommitment.AppointmentType = "Verfication";
+                                    WidthdrawCommitment.TypeCode = "OSG";
+                                    WidthdrawCommitment.CandidateName = _qryOSG.s.Name;
+                                    WidthdrawCommitment.CandidateDesignation = _qryOSG.d.Designation;
+                                    WidthdrawCommitment.ProjectId = _qryOSG.s.ProjectId;
+                                    WidthdrawCommitment.ProjectNumber = RequirementService.getProjectSummary(_qryOSG.s.ProjectId ?? 0).ProjectNumber;
+                                    WidthdrawCommitment.TotalSalary = _qryOSG.s.Salary;
+                                    WidthdrawCommitment.RequestedCommitmentAmount = WithdrawAmmount;
+                                    WidthdrawCommitment.Status = "Awaiting Commitment Booking";
+                                    WidthdrawCommitment.RequestType = "Withdraw Commitment";
+                                    WidthdrawCommitment.EmpNumber = _qryOSG.s.EmployeersID;
+                                    WidthdrawCommitment.EmpId = loggedInUser;
+                                    WidthdrawCommitment.Crtd_TS = DateTime.Now;
+                                    WidthdrawCommitment.Crtd_UserId = loggedInUser;
+                                    context.tblRCTCommitmentRequest.Add(WidthdrawCommitment);
+                                    context.SaveChanges();
+                                }
+                            }
+
+                            var Updateqry = (from a in context.tblRCTOutsourcing
+                                             where a.OSGID == OSGID
+                                             select a).FirstOrDefault();
+                            if (Updateqry != null)
+                            {
+                                var Actualstartdate = Updateqry.AppointmentStartdate;
+                                Updateqry.ActualAppointmentStartDate = Actualstartdate;
+                                Updateqry.ActualAppointmentEndDate = Updateqry.AppointmentEnddate;
+                                decimal CommitmentAmount = 0;
+                                CommitmentAmount = Updateqry.CommitmentAmount ?? 0;
+                                Updateqry.AppointmentStartdate = model.ActualDate;
+                                if (WithdrawAmmount > 0)
+                                    Updateqry.CommitmentAmount = CommitmentAmount - WithdrawAmmount;
+                                context.SaveChanges();
+                            }
+
                             _qryOSG.s.Status = "Verification Completed";
                             int VerificationSeqNo = 0;
                             var QryVerificationSeqNo = (from SM in context.tblRCTOutsourcing select SM.VerificationSeqNo).Max();

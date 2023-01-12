@@ -1951,11 +1951,11 @@ namespace IOAS.Controllers
         }
         public ActionResult OSGVerificationView(int OSGID, string listf = null)
         {
-            STEVerificationModel model = new STEVerificationModel();
-            //return View(model);
-            if (OSGID > 0)
+            try
             {
+                STEVerificationModel model = new STEVerificationModel();
 
+                model = recruitmentService.GetOSGVerification(OSGID);
                 var user = Common.getUserIdAndRole(User.Identity.Name);
                 model.RoleId = user.Item2;
                 if (model.FlowApprover == "CMAdmin")
@@ -1967,7 +1967,12 @@ namespace IOAS.Controllers
                 model.List_f = getEmployeeActionLink("STE", listf);
                 return View(model);
             }
-            return View(model);
+            catch (Exception ex)
+            {
+                STEVerificationModel model = new STEVerificationModel();
+                WriteLog.SendErrorToText(ex);
+                return View(model);
+            }
         }
 
         public bool validateSTEVerification(int STEID)
@@ -2432,7 +2437,7 @@ namespace IOAS.Controllers
                     else
                     {
                         TempData["errMsg"] = "Something went wrong please contact administrator";
-                        return RedirectToAction("OSGVerificationList", "Requirement");
+                        return RedirectToAction(action, "Requirement");
                     }
                     
                 }
@@ -2449,7 +2454,7 @@ namespace IOAS.Controllers
                     else
                     {
                         TempData["errMsg"] = "Something went wrong please contact administrator";
-                        return RedirectToAction("OSGVerificationList", "Requirement");
+                        return RedirectToAction(action, "Requirement");
                     }
 
                 }
@@ -7452,7 +7457,7 @@ namespace IOAS.Controllers
                         var result = recruitmentService.VerifyOSG(model, userId,button);
                         if (result.Item1 == 1)
                         {
-                            TempData["succMsg"] = "Order verified-Draft successfully";
+                            TempData["succMsg"] = "Draft successfully";
                             return RedirectToAction("OSGVerificationList", "Requirement");
                         }
                         else
@@ -7486,7 +7491,7 @@ namespace IOAS.Controllers
                         var result = recruitmentService.VerifyOSG(model, userId, button);
                         if (result.Item1 == 1)
                         {
-                            TempData["succMsg"] = "Application verified. Employee no generated:" + result.Item2;
+                            TempData["succMsg"] = "Application verified";
                             return RedirectToAction("OSGVerificationList", "Requirement");
                         }
                         else if (result.Item1 == 2)
