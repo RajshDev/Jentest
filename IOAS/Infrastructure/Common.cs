@@ -8628,7 +8628,7 @@ namespace IOAS.Infrastructure
             }
 
         }
-       /* public static List<AutoCompleteModel> GetAutoCompleteProjectList(string term, int? type = null, int? classification = null)
+        public static List<AutoCompleteModel> GetAutoCompleteProjectList(string term, int? type = null, int? classification = null)
         {
             try
             {
@@ -8668,7 +8668,7 @@ namespace IOAS.Infrastructure
                 return new List<AutoCompleteModel>();
             }
 
-        }*/
+        }
 
         public static List<AutoCompleteModel> GetAutoCompleteProjectByBankIDList(string term, int? type = null, int? BankHeadId = 0 , int? classification = null )
         {
@@ -8683,8 +8683,9 @@ namespace IOAS.Infrastructure
                             join U in context.vwFacultyStaffDetails on P.PIName equals U.UserId
                             where (string.IsNullOrEmpty(term) || P.ProjectNumber.Contains(term) || U.FirstName.Contains(term))
                             && (type == null || type == P.ProjectType)
+                            && (BankHeadId == null || BankHeadId == P.BankID )
                             && (classification == null || classification == P.ProjectClassification)
-                            && P.Status == "Active" || P.BankID == BankHeadId
+                            && P.Status == "Active" 
                             orderby P.ProjectNumber
                             select new
                             {
