@@ -1998,7 +1998,7 @@ namespace IOAS.GenericServices
                                                 var statusemail = RCTEmailContentService.SendMailProjectStaffNewuser(projectstaffid, EmployeeContext, query.S.Email);
                                                 if (statusemail == 2 || statusemail == -1)
                                                 {
-                                                    //Employeetransaction.Rollback();
+                                                    Employeetransaction.Rollback();
                                                     //transaction.Rollback();
                                                     //return Tuple.Create(-1,0, "Employee portal Credentials not send this email Please Contact Administrator");
                                                     return false;
@@ -2044,7 +2044,7 @@ namespace IOAS.GenericServices
                                 }
                             }
                             #endregion
-                            RequirementService.PostSTEStatusLog(STEID, "Verification Completed", query.S.Status, loggedInUser);
+                            RequirementService.PostSTEStatusLog(STEID, "Sent for approval-Verify", "Verification Completed", loggedInUser);
                             return true;
                         }
                         return true;
@@ -2221,7 +2221,7 @@ namespace IOAS.GenericServices
                                                 var statusemail = RCTEmailContentService.SendMailProjectStaffNewuser(projectstaffid, EmployeeContext, _qryOSG.s.Email);
                                                 if (statusemail == 2 || statusemail == -1)
                                                 {
-                                                    //Employeetransaction.Rollback();
+                                                    Employeetransaction.Rollback();
                                                     //transaction.Rollback();
                                                     //return Tuple.Create(-1, OSGID, "Employee portal Credentials not send this email Please Contact Administrator");
                                                     return false;
@@ -2273,7 +2273,7 @@ namespace IOAS.GenericServices
                                 }
                             }
                             #endregion
-                            RequirementService.PostOSGStatusLog(OSGID, "Verification Completed", _qryOSG.s.Status, loggedInUser);
+                            RequirementService.PostOSGStatusLog(OSGID, "Sent for approval-Verify", "Verification Completed", loggedInUser);
                             return true;
                         }
                         return true;
@@ -2336,7 +2336,7 @@ namespace IOAS.GenericServices
                             var curr = DateTime.Now.Date;
                             if (query.o.FromDate <= curr)
                                 ExecuteSPSalaryChangeComponent();
-                            RequirementService.PostOrderStatusLog(OrderId, "Verification Completed", query.o.Status, loggedInUser);
+                            RequirementService.PostOrderStatusLog(OrderId, "Sent for approval-Verify", "Verification Completed", loggedInUser);
                             return true;
                         }
                         return false;

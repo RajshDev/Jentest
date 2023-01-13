@@ -9425,6 +9425,9 @@ namespace IOAS.GenericServices
                                     result = IsRespondTermEndMail(model.ApplicationID, model.TypeCode, logged_in_userId, OrderID, context);
                                 if (model.ArrearOrDeductionTillDate != null)
                                 {
+                                    //8396
+                                    odQuery.ArrearOrDeductionAmount = model.ArrearOrDeductionAmount;
+                                    odQuery.ArrearOrDeductionTillDate = model.ArrearOrDeductionTillDate;
                                     var othQuery = (from dec in context.tblRCTOTHPaymentDeduction
                                                     from det in context.tblRCTOTHPaymentDeductionDetail
                                                     where dec.OTHPayDeductionId == det.OTHPayDeductionId && dec.OrderId == model.OrderID && dec.Status == "Open"
@@ -9439,8 +9442,9 @@ namespace IOAS.GenericServices
                                         othQuery.dec.FromDate = model.FromDate;
                                         othQuery.dec.ToDate = model.ArrearOrDeductionTillDate;
                                         othQuery.det.Amount = model.ArrearOrDeductionAmount;
-                                        odQuery.ArrearOrDeductionAmount = model.ArrearOrDeductionAmount;
-                                        odQuery.ArrearOrDeductionTillDate = model.ArrearOrDeductionTillDate;
+                                        //8396
+                                        //odQuery.ArrearOrDeductionAmount = model.ArrearOrDeductionAmount;
+                                        //odQuery.ArrearOrDeductionTillDate = model.ArrearOrDeductionTillDate;
                                         context.SaveChanges();
                                     }
                                     else
