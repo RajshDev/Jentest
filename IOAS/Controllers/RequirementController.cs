@@ -5092,6 +5092,7 @@ namespace IOAS.Controllers
                             psModel.DistributionAmount = Common.GetDistribuAmount(ProjectId);
                             psModel.ExpAmt = psModel.Summary.AmountSpent;
                             model.Projsummary = psModel;
+                            commit.BankId = psModel.Common.BankId;
                         }
                         commit.commitmentValue = model.CommitReqModel.CommitmentAmount ?? 0;
                         commit.selAllocationHead = model.CommitReqModel.AllocationHeadId ?? 0;
@@ -5103,7 +5104,7 @@ namespace IOAS.Controllers
                         commit.BasicPay = basicpayandmedical.Item1;
                         commit.MedicalAllowance = basicpayandmedical.Item2;
                         commit.StartDate = basicpayandmedical.Item3;
-                        commit.CloseDate = basicpayandmedical.Item4;
+                        commit.CloseDate = basicpayandmedical.Item4;                      
 
                         AccountService _AS = new AccountService();
                         var commitmentId = _AS.SaveCommitDetails(commit, userid, true);

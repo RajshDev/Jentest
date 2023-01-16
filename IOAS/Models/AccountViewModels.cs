@@ -281,6 +281,8 @@ namespace IOAS.Models
         public CommitAllocationHeadDetails AllocationDtls { get; set; }
         public ProjectDetailModel ProjectDetail { get; set; }
         public int FinYearId { get; set; } = Infrastructure.Common.GetCurrentFinYearId();
+
+        public Nullable<int> BankId { get; set; }
     } 
     public class CommitmentResultModel
     {
