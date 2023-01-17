@@ -2884,16 +2884,18 @@ namespace IOAS.Controllers
             return Json(data, JsonRequestBehavior.AllowGet);
         }
         [HttpGet]
-        public JsonResult LoadProjectList(string term, int? type = null, int? classification = null)
+        public JsonResult LoadProjectList(string term, int? type = null, int? classification = null, int? BankId =  null)
         {
             try
             {
                 lock (ProjectlockObj)
                 {
+                    var data = new List<AutoCompleteModel>();
                     //Existing - General
-                    //var data = Common.GetAutoCompleteProjectList(term, type);
-                    //CNA -SNA
-                    var data = Common.GetAutoCompleteProjectByBankIDList(term, type);
+                    if(BankId == 0)
+                     data = Common.GetAutoCompleteProjectList(term, type);
+                   else
+                     data = Common.GetAutoCompleteProjectByBankIDList(term, type, BankId); //CNA -SNA
                     return Json(data, JsonRequestBehavior.AllowGet);
                 }
             }
