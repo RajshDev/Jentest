@@ -145,6 +145,7 @@ namespace IOAS.Models
         public Nullable<decimal> PIShare { get; set; }
         public Nullable<decimal> TotalShare { get; set; }
         public string PCFUpdateStatus { get; set; }
+        public Nullable<int> BankId { get; set; }
     }
     public class CoPIModel
     {
