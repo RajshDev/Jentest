@@ -5,6 +5,7 @@
     Layout = "~/Views/Shared/_LayoutFluid.cshtml";
     <link href="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/css/bootstrap-select.min.css")" rel="stylesheet" />
     bool isHaveExperience = RequirementService.checkIsHaveExperience(Model.STEId ?? 0, "STE");
+    var doccount = 0;
 }
 
 <style>
@@ -569,7 +570,7 @@
                                                                             @Html.ValidationMessage(@verify)
                                                                         </td>
                                                                         <td>
-                                                                            <a href="javascript:void(0)" class="btn-sm btn btn-danger dis-none removeEducationDetail"><i class="ion-android-close"></i></a>
+                                                                            <a href="javascript:void(0)" class="btn-sm btn btn-danger removeEducationDetail"><i class="ion-android-close"></i></a>
                                                                         </td>
                                                                     </tr>
                                                                     count++;
@@ -624,7 +625,7 @@
                                                                         @Html.ValidationMessage("EducationDetail[0].Verify")
                                                                     </td>
                                                                     <td>
-                                                                        <a href="javascript:void(0)" class="btn-sm btn btn-danger dis-none removeEducationDetail"><i class="ion-android-close"></i></a>
+                                                                        <a href="javascript:void(0)" class="btn-sm btn btn-danger removeEducationDetail"><i class="ion-android-close"></i></a>
                                                                     </td>
                                                                 </tr>
                                                             }
@@ -689,7 +690,7 @@
                                                                     <tr>
                                                                         <td>
 
-                                                                            @Html.DropDownList(@exptype, new SelectList(ViewBag.Exptype, "id", "name", item.ExperienceTypeId), "Select Qualification",
+                                                                            @Html.DropDownList(@exptype, new SelectList(ViewBag.Exptype, "id", "name", item.ExperienceTypeId), "Select Experience",
                                                                     new { @class = "form-control", @id = "expTypeid" })
                                                                             @Html.ValidationMessage(@exptype)
                                                                             @Html.Hidden("ExperienceDetail.Index", @count)
@@ -713,7 +714,7 @@
                                                                             @Html.ValidationMessage(@todate)
                                                                         </td>
                                                                         <td>
-                                                                            @Html.TextBox(@salarydr, item.SalaryDrawn, new { @class = "form-control", @readonly = "readonly", @onkeypress = "return isNumberKey(event)" })
+                                                                            @Html.TextBox(@salarydr, item.SalaryDrawn, new { @class = "form-control", @onkeypress = "return isNumberKey(event)" })
                                                                             @Html.ValidationMessage(@salarydr)
                                                                         </td>
                                                                         <td>
@@ -742,7 +743,7 @@
                                                                             @Html.ValidationMessage(@remark)
                                                                         </td>
                                                                         <td>
-                                                                            <a href="javascript:void(0)" class="btn-sm btn btn-danger removeExperienceDetail dis-none"><i class="ion-android-close"></i></a>
+                                                                            <a href="javascript:void(0)" class="btn-sm btn btn-danger removeExperienceDetail"><i class="ion-android-close"></i></a>
                                                                         </td>
                                                                     </tr>
                                                                     count++;
@@ -752,7 +753,7 @@
                                                             {
                                                                 <tr>
                                                                     <td>
-                                                                        @Html.DropDownList("ExperienceDetail[0].ExperienceTypeId", new SelectList(ViewBag.Exptype, "id", "name"), "Select Qualification", new { @class = "form-control", @id = "expTypeid" })
+                                                                        @Html.DropDownList("ExperienceDetail[0].ExperienceTypeId", new SelectList(ViewBag.Exptype, "id", "name"), "Select Experience", new { @class = "form-control", @id = "expTypeid" })
                                                                         @Html.ValidationMessage("ExperienceDetail[0].ExperienceTypeId")
                                                                         @Html.Hidden("ExperienceDetail.Index", 0)
                                                                     </td>
@@ -829,24 +830,77 @@
                                                     <table class="table alter-table mb-null">
                                                         <thead>
                                                             <tr>
-                                                                <th style="width:30%;">Document Name</th>
-                                                                <th style="width:70%;">Attachment</th>
+                                                                <th>Document Name</th>
+                                                                <th>Attachment</th>
                                                                 <th></th>
                                                             </tr>
                                                         </thead>
                                                         <tbody id="OtherDoc">
-                                                            @{
-                                                                var docName = "OtherDocList[0].DocumentName";
-                                                                var doc = "OtherDocList[0].Document";
+                                                            @if (Model.OtherDetail != null)
+                                                            {
+                                                                var count = 0;
+                                                                foreach (var item in Model.OtherDetail)
+                                                                {
+                                                                    var othrId = "OtherDetail[" + count + "].OtherDetailId";
+                                                                    var othrnam = "OtherDetail[" + count + "].OtherNames";                                                                  
+                                                                    var file = "OtherDetail[" + count + "].OtherDetailFile";
+                                                                    var filePath = "OtherDetail[" + count + "].OtherDetailFilePath";                                                                    
+                                                                    <tr>
+                                                                        <td>
+                                                                            @Html.TextBox(@othrnam, item.OtherNames, new { @class = "form-control dis-none" })
+                                                                            @Html.ValidationMessage(@othrnam)
+                                                                            @Html.Hidden("OtherDetail.Index", @count)
+                                                                            @Html.Hidden(@othrId, item.OtherDetailId)
+                                                                            <h4 class="lbl-rv">@Html.DisplayFor(m => m.OtherDetail[count].OtherNames)</h4>
+                                                                        </td>
+                                                                    
+                                                                        <td>
+                                                                            @if (Model.STEId > 0 && !string.IsNullOrEmpty(item.OtherDetailFilePath))
+                                                                            {
+                                                                                @Html.ActionLink(item.OtherDetailFileName, "ShowDocument", new { Controller = "Account", filepath = "Requirement", file = item.OtherDetailFilePath }, new { @name = "DocDownload", @target = "_blank" })
+                                                                            }
+                                                                        </td>
+                                                                        <td>
+
+                                                                            @if (item.OtherDetailId == null)
+                                                                            {
+                                                                                <input type="file" class="required form-control" name="@file" />@:&nbsp; &nbsp; &nbsp;
+                                                                            }
+                                                                            else if (item.OtherDetailId != null && string.IsNullOrEmpty(item.OtherDetailFilePath))
+                                                                            {
+                                                                                <input type="file" class="required form-control" name="@file" />@:&nbsp; &nbsp; &nbsp;
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <input type="file" class="form-control" name="@file" />@:&nbsp; &nbsp; &nbsp;
+                                                                            }
+                                                                            @Html.ValidationMessage(@file)
+                                                                        </td>                                                                   
+                                                                        <td>
+                                                                            <a href="javascript:void(0)" class="btn-sm btn btn-danger removeOtherDoc"><i class="ion-android-close"></i></a>
+                                                                        </td>
+                                                                    </tr>
+
+                                                                    count++;
+                                                                }
+                                                            }
+                                                            else
+                                                            {
                                                                 <tr>
+
                                                                     <td>
-                                                                        @Html.TextBox(@docName, null, new { @class = "form-control" })
-                                                                        @Html.ValidationMessage(@docName)
+                                                                        @Html.TextBox("OtherDetail[0].OtherNames", "", new { @class = "form-control" })
+                                                                        @Html.ValidationMessage("OtherDetail[0].OtherNames")
+                                                                        @Html.Hidden("OtherDetail.Index", 0)
                                                                     </td>
+                                                                    
+                                                                    <td></td>
                                                                     <td>
-                                                                        <input type="file" class="" name="@doc" />&nbsp; &nbsp; &nbsp;
-                                                                        @Html.ValidationMessage(@doc)
+                                                                        <input type="file" class="form-control" name="OtherDetail[0].OtherDetailFile" />&nbsp;&nbsp;&nbsp;
+                                                                        @Html.ValidationMessage("OtherDetail[0].OtherDetailFile")
+
                                                                     </td>
+                                                                    
                                                                     <td>
                                                                         <a href="javascript:void(0)" class="btn-sm btn btn-danger removeOtherDoc"><i class="ion-android-close"></i></a>
                                                                     </td>
@@ -1058,12 +1112,12 @@
 
     if (FlowApp == "CMAdmin") {
         $("input[name=FlowApprover][value=CMAdmin]").prop('checked', true);
-        if (Status != "Awaiting Verification-Draft")
+        if (Status != "Awaiting Verification-Draft" && Status != "Awaiting Verification")
             $("#devNoteDean").hide();
     }
     if (FlowApp == "NDean") {
         $("input[name=FlowApprover][value=NDean]").prop('checked', true);
-        if (Status != "Awaiting Verification-Draft")
+        if (Status != "Awaiting Verification-Draft" && Status != "Awaiting Verification")
             $("#devCMAdmin").hide();
     }
 
@@ -1472,25 +1526,54 @@
         }
     });
 
-    var innc = 1;
+    var innc = @doccount;
     $("#btnAddOtherDoc").click(function () {
-        var cln = $('#OtherDoc tr:first').clone().find("input").val("").end();
+        //var cln = $('#OtherDoc tr:first').clone().find("input").val("").end();
+        //$(cln).find(".dis-none").each(function () {
+        //    $(this).removeClass('dis-none');
+        //});
+
+        //$(cln).find("input").each(function () {
+        //    if ($(this).attr("name") != undefined)
+        //        $(this).attr("name", $(this).attr("name").replace(/\d+/, innc));
+        //    console.log($(this).attr("id"));
+        //    var letters = /^[0-9a-zA-Z]+$/;
+        //    if ($(this).attr("id") != undefined)
+        //        $(this).attr("id", $(this).attr("id").replace(/\d+/, innc));
+        //});
+        //$(cln).find("span[data-valmsg-for]").each(function () {
+        //    $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, innc));
+        //});
+        //$(cln).find("a[name='DocDownload'],h4").each(function () {
+        //    $(this).remove();
+        //});
+        //$(cln).insertAfter("#OtherDoc tr:last");
+        //innc++;
+
+
+        var cln = $('#OtherDoc tr:first').clone().find("select,input,textarea").val("").end();
+        var index = $('#OtherDoc tr:last').find("input[name='OtherDetail.Index']").val();
+        index = parseInt(index) + 1;
+        $(cln).find('b').parent('a').remove();
+        $(cln).find('b').remove();
+        $(cln).find('a[name="DocDownload"]').remove();
+        $(cln).find("input[name='OtherDetail.Index']").val(index);
+        $(cln).find("input[name='OtherDetail[0].Verify']").prop('checked', false);
+        $(cln).find(".lbl-rv").each(function () {
+            $(this).remove();
+        })
+        $(cln).find("input, select,textarea").each(function () {
+            $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+            if ($(this).attr("id"))
+                $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+        });
         $(cln).find(".dis-none").each(function () {
             $(this).removeClass('dis-none');
         })
-        $(cln).find("input").each(function () {
-            if ($(this).attr("name") != undefined)
-                $(this).attr("name", $(this).attr("name").replace(/\d+/, innc));
-            console.log($(this).attr("id"));
-            var letters = /^[0-9a-zA-Z]+$/;
-            if ($(this).attr("id") != undefined)
-                $(this).attr("id", $(this).attr("id").replace(/\d+/, innc));
-        });
         $(cln).find("span[data-valmsg-for]").each(function () {
-            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, innc));
+            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
         });
-        $(cln).insertAfter("#OtherDoc tr:last");
-        innc++;
+        $('#OtherDoc').append(cln);             
     });
 
     $(document).on('click', 'a.removeOtherDoc', function () {
@@ -1740,7 +1823,7 @@
         }
         return [isValid, isGov, isVerify];
     }
-
+    
     $(document).on('click', '#btnSave', function (e) {
         e.preventDefault();
         $('.loading-bg').removeClass('dis-none');
@@ -1791,7 +1874,7 @@
             $('.loading-bg').addClass('dis-none');
             return false;
         }
-
+        
         if (!hadError) {
             if($('#formVerification').valid())
                 $('#formVerification').submit();

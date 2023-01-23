@@ -5027,7 +5027,7 @@ namespace IOAS.Infrastructure
                             }
                             else
                             {
-// Added additional condition -- "Open" status  for bug #8120 & #8094
+                                // Added additional condition -- "Open" status  for bug #8120 & #8094
                                 (from p in context.tblProject
                                  join enh in context.tblProjectEnhancement on p.ProjectId equals enh.ProjectId
                                  where (p.ProjectId == projectId && (p.Status == "Active" || p.Status == "Open" )&& enh.Status == "Active")
@@ -22720,7 +22720,7 @@ namespace IOAS.Infrastructure
             }
 
         }
-        public static bool CheckIsExistsInvoiceNo(int billId, int agentId, string invNo)
+        public static bool CheckIsExistsInvoiceNo(int billId, int agentId, string invNo, DateTime InvoiceDt)
         {
             try
             {
@@ -22731,7 +22731,7 @@ namespace IOAS.Infrastructure
                         var Qry = context.tblClearancePaymentEntry.Where(m => m.ClearancePaymentId == billId).FirstOrDefault();
                         agentId = Qry.ClearancePaymentAgentId ?? 0;
                     }
-                    return context.tblClearancePaymentEntry.Any(m => m.InvoiceNumber == invNo && m.ClearancePaymentAgentId == agentId && m.ClearancePaymentId != billId);
+                    return context.tblClearancePaymentEntry.Any(m => m.InvoiceNumber == invNo && m.ClearancePaymentAgentId == agentId && m.InvoiceDate == InvoiceDt && m.ClearancePaymentId != billId);
                 }
 
             }

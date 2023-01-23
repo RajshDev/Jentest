@@ -28,7 +28,6 @@ namespace IOAS.Controllers
         AdhocSalaryProcess adhoc = new AdhocSalaryProcess();
         FinOp fo = new FinOp(System.DateTime.Now);
         DateTime Today = System.DateTime.Now;
-       // private object id;
         private static readonly Object ProjectlockObj = new Object();
         private static readonly Object POWfInitlockObj = new Object();
         private static readonly Object TravellockObj = new Object();
@@ -72,8 +71,6 @@ namespace IOAS.Controllers
         private static readonly Object AVOWFInitlockObj = new Object();
         public static readonly object ReceiptBUlockObj = new Object();
         private static readonly Object lockInvoiceBOArequestObj = new Object();
-
-       // public bool Pfinit { get; private set; }
         #region Payment
         #region Purchase Order
         #region Advance
@@ -5537,7 +5534,7 @@ namespace IOAS.Controllers
                     else if (result == -2)
                         TempData["errMsg"] = "Clearance Payment Bill already exists for this PO Number with the Clearance Agent.";
                     else if (result == -3)
-                        TempData["errMsg"] = "Please select the valid commitment from the list.";
+                        TempData["errMsg"] = "Please select the valid commitment from the list.";               
                     else
                         TempData["errMsg"] = "Something went wrong please contact administrator.";
 
@@ -5591,7 +5588,7 @@ namespace IOAS.Controllers
 
         }
         [HttpPost]
-        public JsonResult ValidateDuplicateCLPBillInvoiceNumber(int BillId, int ClearanceAgentId, string invNo)
+        public JsonResult ValidateDuplicateCLPBillInvoiceNumber(int BillId, int ClearanceAgentId, string invNo, DateTime InvoiceDt)
         {
             string msg = "Valid";
 
@@ -5599,7 +5596,7 @@ namespace IOAS.Controllers
             {
                 try
                 {
-                    bool result = Common.CheckIsExistsInvoiceNo(BillId, ClearanceAgentId, invNo);
+                    bool result = Common.CheckIsExistsInvoiceNo(BillId, ClearanceAgentId, invNo, InvoiceDt);
                     if (result)
                         msg = "Duplicate Invoice Number found";
                     return Json(msg, JsonRequestBehavior.AllowGet);
@@ -20779,6 +20776,8 @@ namespace IOAS.Controllers
             string temppass = Cryptography.Decrypt(Pass, "LFPassW0rd");
             return Json(temppass, JsonRequestBehavior.AllowGet);
         }
+
+
         #endregion
         // Partial Payment Process Posting - Created by Praveen 11-01-2023
         public ActionResult PostMissedBatchItems(int draftId)

@@ -139,7 +139,7 @@
                                             <div class="col-md-3">
                                                 <div class="form-group custom-form-group">
                                                     <label class="required">Invoice Number</label>
-                                                    @Html.TextBoxFor(m => m.InvoiceNumber, new { @class = "form-control" })
+                                                    @Html.TextBoxFor(m => m.InvoiceNumber, new { @class = "form-control",@id = "InvoiceNumber" })
                                                     @Html.ValidationMessageFor(m => m.InvoiceNumber)
                                                 </div>
 
@@ -147,7 +147,7 @@
                                             <div class="col-md-2">
                                                 <div class="form-group custom-form-group">
                                                     <label class="required">Invoice Date</label>
-                                                    @Html.EditorFor(m => m.InvoiceDate, new { @class = "form-control" })
+                                                    @Html.EditorFor(m => m.InvoiceDate, new { @class = "form-control", @id = "InvoiceDate" })
                                                     @Html.ValidationMessageFor(m => m.InvoiceDate)
                                                 </div>
                                             </div>
@@ -879,7 +879,7 @@
         //fixStepIndicator(n)
     }
 
-    function nextPrev(n) {
+    function nextPrev(n) {     
         // This function will figure out which tab to display
         var x = document.getElementsByClassName("tab");
         // Exit the function if any field in the current tab is invalid:
@@ -921,11 +921,21 @@
    function ValidateInvoiceNo() {
         var BillId = parseInt($('#BillId').val()) || 0;
         var ClearanceAgentId = parseInt($('#ClearanceAgentId').val()) || 0;
-        var invNo = parseInt($('#InvoiceNumber').val()) || "";
+       //var invNo = parseInt($('#InvoiceNumber').val()) || "";
+       var invNo = "";
+       var InvoiceDt = "";
+       invNo = $("#InvoiceNumber").val();     
+       InvoiceDt = $("#InvoiceDate").val();
+       
         if (invNo != "") {
             $.ajax({
                 type: "POST",
-                data: JSON.stringify({ 'BillId': BillId, 'ClearanceAgentId': ClearanceAgentId, 'invNo': invNo }),
+                data: JSON.stringify({
+               
+                    'BillId': BillId, 'ClearanceAgentId': ClearanceAgentId,
+                    'invNo': invNo, 'InvoiceDt': InvoiceDt,
+                
+                }),
                 url: '@Url.Action("ValidateDuplicateCLPBillInvoiceNumber", "CoreAccounts")',
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
