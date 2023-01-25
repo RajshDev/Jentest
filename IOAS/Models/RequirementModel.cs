@@ -1124,6 +1124,7 @@ namespace IOAS.Models
         public string VerificationRemarks { get; set; }
         public List<OtherDocModel> OtherDocList { get; set; }
         public string List_f { get; set; }
+        public string ActualDateView { get; set; }
 
         //Order Verification Model
         public Nullable<int> OrderId { get; set; }

@@ -3403,7 +3403,8 @@ namespace IOAS.GenericServices
                         model.Appointmentstartdate = string.Format("{0:dd-MMMM-yyyy}", query.A.AppointmentStartdate);
                         model.AppointmentEndDate = string.Format("{0:dd-MMMM-yyyy}", query.A.AppointmentEnddate);
                         model.PayType = query.A.ConsolidatedPay == true ? "Consolidated Pay" : "Fellowship Pay";
-                        model.ActualDate = query.A.ActualDate;
+                        model.ActualDateView = string.Format("{0:dd-MMMM-yyyy}", query.A.ActualDate);
+                        model.ActualDate = query.A.ActualDate;                       
                         model.VerificationRemarks = query.A.VerificationRemarks;
                         if (query.A.NotetoCMAdmin == true)
                             model.FlowApprover = "CMAdmin";
@@ -20249,8 +20250,9 @@ namespace IOAS.GenericServices
                         model.OfferDate = string.Format("{0:dd-MMMM-yyyy}", QryOSG.A.OfferDate);
                         model.Appointmentstartdate = string.Format("{0:dd-MMMM-yyyy}", QryOSG.A.AppointmentStartdate);
                         model.AppointmentEndDate = string.Format("{0:dd-MMMM-yyyy}", QryOSG.A.AppointmentEnddate);
-                        model.EmployeeWorkplace = QryOSG.A.EmployeeWorkplace;
-
+                        model.EmployeeWorkplace = QryOSG.A.EmployeeWorkplace;                        
+                        model.ActualDate= QryOSG.A.ActualDate;
+                        model.ActualDateView= string.Format("{0:dd-MMMM-yyyy}", QryOSG.A.ActualDate);
                         model.Designation = QryOSG.Designation;
                         model.PayType = QryOSG.A.ConsolidatedPay == true ? "Consolidated Pay" : "Fellowship Pay";
                         model.VerificationRemarks = QryOSG.A.VerificationRemarks;

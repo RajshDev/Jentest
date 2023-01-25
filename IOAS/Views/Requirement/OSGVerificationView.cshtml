@@ -97,22 +97,7 @@
                                             <h4>@Html.DisplayFor(m => m.Expericence)</h4>
                                         </div>
                                     </div>
-                                    <div class="col-md-2">
-                                        <div class="form-group custom-form-group">
-                                            <label>Candidate Signature:</label> <br>
-                                            @if (Model.STEId > 0 && !string.IsNullOrEmpty(Model.CantidateSignatureFilePath))
-                                            {
-                                                <img id="displaySignature" src="@Url.Action("ShowDocument", "Account", new { file = Model.CantidateSignatureFilePath, filepath = "Requirement" })" width="30px" height="30px"><br>
-
-                                            }
-                                            else
-                                            {
-                                                <img id="displaySignature" src="~/Content/IOASContent/img/Image_placeholder.png" width="30px" height="30px"><br>
-
-                                            }
-
-                                        </div>
-                                    </div>
+                                    
                                 </div>
                                 <div class="row">
                                     <div class="col-md-3">
@@ -140,14 +125,15 @@
                                             <h4>@Html.DisplayFor(m => m.MedicalAmmount)</h4>
                                         </div>
                                     </div>
-                                    <div class="col-md-2">
+                                    
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
                                         <div class="form-group custom-form-group">
                                             <label>Appointment Type</label>  <br>
                                             <h4>@Html.DisplayFor(m => m.Typeofappointment)</h4>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="row">
                                     <div class="col-md-3">
                                         <div class="form-group custom-form-group">
                                             <label>Appointment start date:</label> <br>
@@ -160,21 +146,7 @@
                                             <h4 id="txtAppointmentEndDate">@Html.DisplayFor(m => m.AppointmentEndDate)</h4>
                                         </div>
                                     </div>
-                                    <div class="col-md-3">
-                                        <div class="form-group custom-form-group ">
-                                            <label>M.S / Ph.d</label>
-                                            <h4>@Html.DisplayFor(m => m.MsPhdType)</h4>
-                                        </div>
-                                    </div>
-                                    <div class="dis-none" id="divPHDDetail">
-                                        <div class="col-md-3">
-                                            <div class="form-group custom-form-group ">
-                                                <label>Roll Number</label>
-
-                                                <h4>@Html.DisplayFor(m => m.PhdDetail)</h4>
-                                            </div>
-                                        </div>
-                                    </div>
+                                   
                                 </div>
                                 <div class="row ">
                                     <div class="col-md-3">
@@ -216,22 +188,7 @@
 
                                 </div>
                                 <div class="row">
-                                    <div class="col-md-3">
-                                        <div class="form-group custom-form-group">
-                                            <label>Candidate name verified </label>  <br>
-
-                                            @if (Model.STEId > 0 && Model.GovProof > 0)
-                                            {
-
-                                                <h4>@Html.DisplayFor(m => m.GovProof)</h4>
-                                            }
-                                            else
-                                            {
-
-                                                <div>@Html.DisplayFor(m => m.GovProof)</div>
-                                            }
-                                        </div>
-                                    </div>
+                                    
 
                                     <div class="col-md-3">
                                         <div class="form-group custom-form-group  ">
@@ -248,8 +205,6 @@
                                             @Html.DisplayFor(m => m.PermanentAddress, new { @class = "form-control" })
                                         </div>
                                     </div>
-                                </div>
-                                <div class="row ">
                                     <div class="col-md-2">
                                         <div class="form-group custom-form-group">
                                             <label>Contact Number</label>
@@ -257,6 +212,9 @@
                                             <h4>@Html.DisplayFor(m => m.ContactNumber)</h4>
                                         </div>
                                     </div>
+                                </div>
+                                <div class="row ">
+                                    
                                     <div class="col-md-2">
                                         <div class="form-group custom-form-group">
                                             <label>Emergency Contact No</label>
@@ -531,21 +489,21 @@
                                     <h4>Offer Details:</h4>
                                     <div class="row">
                                         <div class="col-md-4">
-                                            <div class="form-group custom-form-group  ">
+                                            <div class="form-group custom-form-group">
                                                 <label>Offer Letter Date </label>
                                                 <h4>@Html.DisplayFor(m => m.OfferDate)</h4>
                                             </div>
                                         </div>
                                         <div class="col-md-4">
-                                            <div class="form-group custom-form-group  ">
+                                            <div class="form-group custom-form-group">
                                                 <label>Offer Letter Attachment </label> <br>
                                                 @Html.ActionLink("OfferLetter", "ShowOrderDocument", new { Controller = "RCTReportMaster", appid = Model.STEId, apptype = "STE", offercategory = "OfferLetter" }, new { @name = "DocDownload", @target = "_blank" })
                                             </div>
                                         </div>
                                         <div class="col-md-4">
-                                            <div class="form-group custom-form-group  ">
+                                            <div class="form-group custom-form-group">
                                                 <label>Actual Date </label>
-                                                @Html.DisplayFor(m => m.ActualDate, new { @class = "form-control" })
+                                                @Html.DisplayFor(m => m.ActualDateView, new { @class = "form-control" })
                                             </div>
                                         </div>
                                         <div class="col-md-4">
@@ -621,7 +579,21 @@
         //}
 
     });
+    function FillPIDetails() {
+        var projectId = $("#ProjectId").val();
+        if (projectId != "" || projectId != 0) {
+            $.getJSON("@Url.Action("LoadProjectDetails", "Requirement")", { ProjectId: projectId },
+                 function (result) {
+                     if (result.projectData.ProjectNumber != null) {
+                         $('#PICode').text(result.projectData.PICode);
+                         $('#PINametxt').text(result.projectData.PIName);
+                         $('#DepartmentNametxt').text(result.projectData.PIDepartmentName);
+                     }
+                 });
+        }
+    }
 
+    FillPIDetails()
     $('a[name="DocDownload"]').click(function (p) {
         p.preventDefault();
         var ref = $(this).attr('href');
