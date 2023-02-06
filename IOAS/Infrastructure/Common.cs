@@ -22720,7 +22720,7 @@ namespace IOAS.Infrastructure
             }
 
         }
-        public static bool CheckIsExistsInvoiceNo(int billId, int agentId, string invNo, DateTime InvoiceDt)
+        public static bool CheckIsExistsInvoiceNo(int billId, int agentId, string invNo)
         {
             try
             {
@@ -22731,7 +22731,7 @@ namespace IOAS.Infrastructure
                         var Qry = context.tblClearancePaymentEntry.Where(m => m.ClearancePaymentId == billId).FirstOrDefault();
                         agentId = Qry.ClearancePaymentAgentId ?? 0;
                     }
-                    return context.tblClearancePaymentEntry.Any(m => m.InvoiceNumber == invNo && m.ClearancePaymentAgentId == agentId && m.InvoiceDate == InvoiceDt && m.ClearancePaymentId != billId);
+                    return context.tblClearancePaymentEntry.Any(m => m.InvoiceNumber == invNo && m.ClearancePaymentAgentId == agentId && m.ClearancePaymentId != billId);
                 }
 
             }

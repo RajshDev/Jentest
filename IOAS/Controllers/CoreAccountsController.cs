@@ -5588,7 +5588,7 @@ namespace IOAS.Controllers
 
         }
         [HttpPost]
-        public JsonResult ValidateDuplicateCLPBillInvoiceNumber(int BillId, int ClearanceAgentId, string invNo, DateTime InvoiceDt)
+        public JsonResult ValidateDuplicateCLPBillInvoiceNumber(int BillId, int ClearanceAgentId, string invNo)
         {
             string msg = "Valid";
 
@@ -5596,7 +5596,7 @@ namespace IOAS.Controllers
             {
                 try
                 {
-                    bool result = Common.CheckIsExistsInvoiceNo(BillId, ClearanceAgentId, invNo, InvoiceDt);
+                    bool result = Common.CheckIsExistsInvoiceNo(BillId, ClearanceAgentId, invNo);
                     if (result)
                         msg = "Duplicate Invoice Number found";
                     return Json(msg, JsonRequestBehavior.AllowGet);
