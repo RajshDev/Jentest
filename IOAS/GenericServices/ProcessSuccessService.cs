@@ -1862,10 +1862,10 @@ namespace IOAS.GenericServices
                         {
                             decimal WidthdrawAmmount = 0;
                             //if employee late join late join amount should be 
-                            if (query.S.AppointmentStartdate < model.ActualDate && query.S.CSIRStaffPayMode != 2)
+                            if (query.S.AppointmentStartdate < query.S.ActualDate && query.S.CSIRStaffPayMode != 2)
                             {
                                 DateTime FromDate = query.S.AppointmentStartdate ?? DateTime.Now;
-                                DateTime ToDate = model.ActualDate ?? DateTime.Now;
+                                DateTime ToDate = query.S.ActualDate ?? DateTime.Now;
                                 WidthdrawAmmount = Common.calculateWithdrawalAmount(STEID, "STE", FromDate, ToDate, true, 0, true);
                                 if (WidthdrawAmmount > 0)
                                 {
@@ -1898,7 +1898,7 @@ namespace IOAS.GenericServices
                                 Updateqry.ActualAppointmentEndDate = Updateqry.AppointmentEnddate;
                                 decimal CommitmentAmount = 0;
                                 CommitmentAmount = Updateqry.CommitmentAmount ?? 0;
-                                Updateqry.AppointmentStartdate = model.ActualDate;
+                                Updateqry.AppointmentStartdate = query.S.ActualDate;                               
                                 if (WidthdrawAmmount > 0)
                                     Updateqry.CommitmentAmount = CommitmentAmount - WidthdrawAmmount;
                                 context.SaveChanges();
@@ -1952,7 +1952,7 @@ namespace IOAS.GenericServices
                             his.AppointmentType = "STE";
                             his.Basic = query.S.Salary;
                             his.DesignationId = query.S.DesignationId;
-                            his.EffectiveFrom = model.ActualDate;
+                            his.EffectiveFrom = query.S.ActualDate;
                             his.EffectiveTo = query.S.AppointmentEnddate;
                             his.EmployeeId = EmployeeID;
                             his.HRA = query.S.HRA;
@@ -1962,7 +1962,7 @@ namespace IOAS.GenericServices
                             his.OrderId = 0;
                             his.OrderType = "New";
                             his.ProjectId = query.S.ProjectId;
-                            his.AppointmentStartDate = model.ActualDate;
+                            his.AppointmentStartDate = query.S.ActualDate;
                             his.AppointmentEndDate = query.S.AppointmentEnddate;
                             his.isMedicalInclusive = query.S.Medical == 2 ? true : false;
                             his.IITMPensioner_f = query.S.IITMPensionerOrCSIRStaff == 1 ? true : false;
@@ -2081,10 +2081,10 @@ namespace IOAS.GenericServices
                         {
                             decimal WithdrawAmmount = 0;
                             //Check Joining date if candtidate join deloy for the appointment tenure should Widthdraw commitment ammount
-                            if (_qryOSG.s.AppointmentStartdate < model.ActualDate && _qryOSG.s.CSIRStaffPayMode != 2)
+                            if (_qryOSG.s.AppointmentStartdate < _qryOSG.s.ActualDate && _qryOSG.s.CSIRStaffPayMode != 2)
                             {
                                 DateTime FromDate = _qryOSG.s.AppointmentStartdate ?? DateTime.Now;
-                                DateTime ToDate = model.ActualDate ?? DateTime.Now;
+                                DateTime ToDate = _qryOSG.s.ActualDate ?? DateTime.Now;
                                 WithdrawAmmount = Common.calculateWithdrawalAmount(OSGID, "OSG", FromDate, ToDate, true, 0, true);
                                 if (WithdrawAmmount > 0)
                                 {
@@ -2119,7 +2119,7 @@ namespace IOAS.GenericServices
                                 Updateqry.ActualAppointmentEndDate = Updateqry.AppointmentEnddate;
                                 decimal CommitmentAmount = 0;
                                 CommitmentAmount = Updateqry.CommitmentAmount ?? 0;
-                                Updateqry.AppointmentStartdate = model.ActualDate;
+                                Updateqry.AppointmentStartdate = _qryOSG.s.ActualDate;                                
                                 if (WithdrawAmmount > 0)
                                     Updateqry.CommitmentAmount = CommitmentAmount - WithdrawAmmount;
                                 context.SaveChanges();
@@ -2162,8 +2162,7 @@ namespace IOAS.GenericServices
                                                  where C.ReferenceNumber == ApplicationRefNo
                                                  && C.Status == "Commitment Booked"
                                                  select C).FirstOrDefault();
-                            QryCommitment.EmpNumber = EmployeersID;
-                            _qryOSG.s.EmployeeWorkplace = model.EmployeeWorkplace;
+                            QryCommitment.EmpNumber = EmployeersID;                            
                             _qryOSG.s.CommitmentNo = CommitmentNo(ApplicationRefNo);
 
 
@@ -2175,7 +2174,7 @@ namespace IOAS.GenericServices
                             his.AppointmentType = "OSG";
                             his.Basic = _qryOSG.s.Salary;
                             his.DesignationId = _qryOSG.s.DesignationId;
-                            his.EffectiveFrom = model.ActualDate;
+                            his.EffectiveFrom = _qryOSG.s.ActualDate;
                             his.EffectiveTo = _qryOSG.s.AppointmentEnddate;
                             his.EmployeeId = EmployeersID;
                             his.HRA = _qryOSG.s.HRA;
@@ -2185,7 +2184,7 @@ namespace IOAS.GenericServices
                             his.OrderTypeId = 0;
                             his.OrderId = 0;
                             his.OrderType = "New";
-                            his.AppointmentStartDate = model.ActualDate;
+                            his.AppointmentStartDate = _qryOSG.s.ActualDate;
                             his.AppointmentEndDate = _qryOSG.s.AppointmentEnddate;
                             his.isMedicalInclusive = _qryOSG.s.Medical == 2 ? true : false;
                             his.IITMPensioner_f = _qryOSG.s.IITMPensionerOrCSIRStaff == 1 ? true : false;
