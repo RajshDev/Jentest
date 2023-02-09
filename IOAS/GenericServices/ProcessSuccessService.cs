@@ -2318,8 +2318,8 @@ namespace IOAS.GenericServices
                                      select new { od, o, vw }).FirstOrDefault();
                         //var query = context.tblOrder.FirstOrDefault(m => m.OrderId == OrderId && m.Status == "Sent for approval-Verify");
                         if (query != null)
-                        {
-                            query.o.Status = "Verification Completed";                           
+                        {                            
+                            query.o.Status = "Completed";
                             context.SaveChanges();
 
                             var othQuery = context.tblRCTOTHPaymentDeduction.FirstOrDefault(m => m.OrderId == OrderId && m.Status == "Open");
@@ -2335,7 +2335,7 @@ namespace IOAS.GenericServices
                             var curr = DateTime.Now.Date;
                             if (query.o.FromDate <= curr)
                                 ExecuteSPSalaryChangeComponent();
-                            RequirementService.PostOrderStatusLog(OrderId, "Sent for approval-Verify", "Verification Completed", loggedInUser);
+                            RequirementService.PostOrderStatusLog(OrderId, "Sent for approval-Verify", "Completed", loggedInUser);
                             return true;
                         }
                         return false;
@@ -2366,7 +2366,7 @@ namespace IOAS.GenericServices
                         //var query = context.tblOrder.FirstOrDefault(m => m.OrderId == OrderId && m.Status == "Sent for approval-Verify");
                         if (query != null)
                         {
-                            query.o.Status = "Verification Completed";
+                            query.o.Status = "Completed";
                             context.SaveChanges();
 
                             var othQuery = context.tblRCTOTHPaymentDeduction.FirstOrDefault(m => m.OrderId == OrderId && m.Status == "Open");
@@ -2382,7 +2382,7 @@ namespace IOAS.GenericServices
                             var curr = DateTime.Now.Date;
                             if (query.o.FromDate <= curr)
                                 ExecuteSPSalaryChangeComponent();
-                            RequirementService.PostOrderStatusLog(OrderId, "Verification Completed", query.o.Status, loggedInUser);
+                            RequirementService.PostOrderStatusLog(OrderId, "Sent for approval-Verify", "Completed", loggedInUser);
                             return true;
                         }
                         return false;
