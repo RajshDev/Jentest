@@ -5578,14 +5578,23 @@ namespace IOAS.Models
         public decimal ProjCost { get; set; }
         public decimal Receipt { get; set; }
         public decimal Balance { get; set; }
-        public string status { get; set; }
+        // public string status { get; set; }
         public decimal NegBalance { get; set; }
         public decimal Exp { get; set; }
         public decimal Commit { get; set; }
         public decimal Net { get; set; }
         //18/10/2022 NegativeBalance #7395
         //public decimal PrevNegBal { get; set; }
-        //public decimal CurrNegBal { get; set; }
+        // public decimal CurrNegBal { get; set; }
+
+        //Negative Balance Changes 
+        public string ProjectNumber { get; set; }
+        public string Status { get; set; }
+        public decimal pennegbal { get; set; }
+        public decimal ClaimAmount { get; set; }
+        public decimal TotalNegativeBalance { get; set; }
+        public decimal ProjectBalance { get; set; }
+        public decimal AvailableBalance { get; set; }
     }
     public class CloseNegativeBalanceModel
     {
