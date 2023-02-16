@@ -12,7 +12,7 @@ namespace IOAS.DataModel
     using System;
     using System.Collections.Generic;
     
-    public partial class vwFacultyStaffDetails
+    public partial class vwFacultyStaffDetails_TSA
     {
         public string EmployeeId { get; set; }
         public Nullable<int> UserId { get; set; }

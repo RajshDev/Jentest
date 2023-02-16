@@ -29,5 +29,13 @@ namespace IOAS.DataModel
         public string PIName { get; set; }
         public string CommiteeApproveName { get; set; }
         public string CheckList { get; set; }
+        public string EmployeeNo { get; set; }
+        public Nullable<System.DateTime> ApplicationReceivedDate { get; set; }
+        public string SalaryLevel { get; set; }
+        public Nullable<System.DateTime> CommiteeApprovedDate { get; set; }
+        public string ApprovalInitiatedDate { get; set; }
+        public string ApprovedDate { get; set; }
+        public string CommitmentBookedDate { get; set; }
+        public string Offerreleaseddate { get; set; }
     }
 }
