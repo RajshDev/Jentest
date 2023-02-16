@@ -5104,7 +5104,7 @@ namespace IOAS.Controllers
                         commit.BasicPay = basicpayandmedical.Item1;
                         commit.MedicalAllowance = basicpayandmedical.Item2;
                         commit.StartDate = basicpayandmedical.Item3;
-                        commit.CloseDate = basicpayandmedical.Item4;                      
+                        commit.CloseDate = basicpayandmedical.Item4;
 
                         AccountService _AS = new AccountService();
                         var commitmentId = _AS.SaveCommitDetails(commit, userid, true);
