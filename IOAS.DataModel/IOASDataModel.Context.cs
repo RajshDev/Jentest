@@ -20,8 +20,6 @@ namespace IOAS.DataModel
         public IOASDBEntities()
             : base("name=IOASDBEntities")
         {
-            this.Database.CommandTimeout = 360;
-            this.Database.ExecuteSqlCommand("SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;");
         }
     
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
@@ -678,20 +676,6 @@ namespace IOAS.DataModel
         public virtual DbSet<tblStaffCommitmentDate> tblStaffCommitmentDate { get; set; }
         public virtual DbSet<tblTDSDetails> tblTDSDetails { get; set; }
         public virtual DbSet<tblUTRwithTapal> tblUTRwithTapal { get; set; }
-        public virtual DbSet<MSpeer_conflictdetectionconfigresponse> MSpeer_conflictdetectionconfigresponse { get; set; }
-        public virtual DbSet<MSpeer_originatorid_history> MSpeer_originatorid_history { get; set; }
-        public virtual DbSet<MSpeer_request> MSpeer_request { get; set; }
-        public virtual DbSet<MSpeer_response> MSpeer_response { get; set; }
-        public virtual DbSet<MSpeer_topologyrequest> MSpeer_topologyrequest { get; set; }
-        public virtual DbSet<MSpeer_topologyresponse> MSpeer_topologyresponse { get; set; }
-        public virtual DbSet<MSpub_identity_range> MSpub_identity_range { get; set; }
-        public virtual DbSet<sysarticlecolumns> sysarticlecolumns { get; set; }
-        public virtual DbSet<sysarticles> sysarticles { get; set; }
-        public virtual DbSet<sysarticleupdates> sysarticleupdates { get; set; }
-        public virtual DbSet<syspublications> syspublications { get; set; }
-        public virtual DbSet<sysschemaarticles> sysschemaarticles { get; set; }
-        public virtual DbSet<syssubscriptions> syssubscriptions { get; set; }
-        public virtual DbSet<systranschemas> systranschemas { get; set; }
         public virtual DbSet<tblAccountsTapalReport> tblAccountsTapalReport { get; set; }
         public virtual DbSet<tblAllClosedTapalReport> tblAllClosedTapalReport { get; set; }
         public virtual DbSet<tblDynamicFilter> tblDynamicFilter { get; set; }
@@ -704,7 +688,6 @@ namespace IOAS.DataModel
         public virtual DbSet<tblRCTSTE_Awaiting_VerificationEntry> tblRCTSTE_Awaiting_VerificationEntry { get; set; }
         public virtual DbSet<tblRecruitmentTapalReport> tblRecruitmentTapalReport { get; set; }
         public virtual DbSet<syncobj_0x3031304232413635> syncobj_0x3031304232413635 { get; set; }
-       
         public virtual DbSet<Tapaltempview> Tapaltempview { get; set; }
         public virtual DbSet<tempAllocationYearWise> tempAllocationYearWise { get; set; }
         public virtual DbSet<vw_AccountsMonthlyReceiptReport> vw_AccountsMonthlyReceiptReport { get; set; }
@@ -927,6 +910,10 @@ namespace IOAS.DataModel
         public virtual DbSet<vw_OverallAnnualAccountsWithSchemecodes> vw_OverallAnnualAccountsWithSchemecodes { get; set; }
         public virtual DbSet<vw_RCTAdhocEmployeeMaster> vw_RCTAdhocEmployeeMaster { get; set; }
         public virtual DbSet<vw_AnnuxSalary> vw_AnnuxSalary { get; set; }
+        public virtual DbSet<tblProjectROApprovalRequest> tblProjectROApprovalRequest { get; set; }
+        public virtual DbSet<tblProjectROLog> tblProjectROLog { get; set; }
+        public virtual DbSet<tblProjectROSummary> tblProjectROSummary { get; set; }
+        public virtual DbSet<vwFacultyStaffDetails_TSA> vwFacultyStaffDetails_TSA { get; set; }
     
         public virtual int AnnualAccounts(Nullable<System.DateTime> date, Nullable<System.DateTime> date2)
         {
