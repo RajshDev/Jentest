@@ -35,6 +35,14 @@ namespace IOAS.Models
         [Required]
         [Display(Name = "Project")]
         public Nullable<int> ProjectId { get; set; }
+
+        [Required]
+        [Display(Name = "Bank Name")]
+        public Nullable<Int32> BankId { get; set; }
+
+        public Nullable<Int32> BankHeadId { get; set; }
+        public string BankName { get; set; }
+
         [Required]
         public Nullable<int> PIId { get; set; }
         public string PIName { get; set; }
@@ -242,6 +250,12 @@ namespace IOAS.Models
         public Nullable<Int32> BankHead { get; set; }
 
         [Required]
+        [Display(Name = "Bank Name")]
+        public Nullable<Int32> BankId { get; set; }
+
+        public Nullable<Int32> BankHeadId { get; set; }
+
+        [Required]
         [Display(Name = "Bill Type")]
         public Nullable<Int32> BillType { get; set; }
 
@@ -387,6 +401,7 @@ namespace IOAS.Models
 
         //Vinoth Changes for adding Account details
         public string VendorBankDetails { get; set; }
+        public string BankName { get; set; }
     }
 
 
@@ -478,6 +493,9 @@ namespace IOAS.Models
         public string TravelBillFromDate { get; set; }
         public string TravelBillToDate { get; set; }
         public bool PFInit { get; set; }
+
+        public Nullable<Int32> BankId { get; set; }
+
     }
 
     public class TravelAdvanceBillEntryModel : CommonPaymentModel
@@ -574,6 +592,15 @@ namespace IOAS.Models
         [Range(0, 9999999999999999.99)]
         public Nullable<decimal> InvoiceBUTotal { get; set; }
 
+
+        [Required]
+        [Display(Name = "Bank Name")]
+        public Nullable<Int32> BankId { get; set; }
+
+        public Nullable<Int32> BankHeadId { get; set; }
+        public string BankHeadName { get; set; }
+
+
         public List<InvoiceBreakUpDetailModel> InvoiceBreakDetail { get; set; } = new List<InvoiceBreakUpDetailModel>();
         public List<PaymentBreakUpDetailModel> PaymentBreakDetail { get; set; } = new List<PaymentBreakUpDetailModel>();
         public string SourceName { get; set; }
@@ -658,6 +685,13 @@ namespace IOAS.Models
         [Range(0, 9999999999999999.99)]
         public Nullable<decimal> InvoiceBUTotal { get; set; }
         public Nullable<decimal> AdvanceValueWOClearanceAgent { get; set; }
+
+        [Required]
+        [Display(Name = "Bank Name")]
+        public Nullable<Int32> BankId { get; set; }
+
+        public Nullable<Int32> BankHeadId { get; set; }
+
         public List<InvoiceBreakUpDetailModel> InvoiceBreakDetail { get; set; } = new List<InvoiceBreakUpDetailModel>();
         public List<PaymentBreakUpDetailModel> PaymentBreakDetail { get; set; } = new List<PaymentBreakUpDetailModel>();
         public string SourceName { get; set; }
@@ -714,6 +748,14 @@ namespace IOAS.Models
         public string Status { get; set; }
         public int SlNo { get; set; }
         public string RequestedDate { get; set; }
+
+        [Required]
+        [Display(Name = "Bank Name")]
+        public Nullable<Int32> BankId { get; set; }
+
+        public Nullable<Int32> BankHeadId { get; set; }
+
+        public string BankName { get; set; }
 
         [DisplayFormat(DataFormatString = "{0:n2}")]
         [Display(Name = "TDS Amount")]
@@ -1379,6 +1421,15 @@ namespace IOAS.Models
         public int CloseId { get; set; }
         public int LedBankId { get; set; }
         public Nullable<decimal> ExistingImpresetBalance { get; set; }
+
+        [Required]
+        [Display(Name = "Bank Name")]
+        public Nullable<Int32> BankId { get; set; }
+
+        public Nullable<Int32> BankHeadId { get; set; }
+
+        public string BankHeadName { get; set; }
+
     }
     public class ImprestBillListModel
     {
@@ -1607,6 +1658,14 @@ namespace IOAS.Models
         public string NameofReceiver { get; set; }
         public Nullable<int> NoofUnsettledAdvance { get; set; }
 
+        [Required]
+        [Display(Name = "Bank Name")]
+        public Nullable<Int32> BankId { get; set; }
+
+        public Nullable<Int32> BankHeadId { get; set; }
+
+        public string BankHeadName { get; set; }
+
         [DisplayFormat(DataFormatString = "{0:n2}")]
         [Range(0, 9999999999999999.99)]
         public Nullable<decimal> PendingSettlementAmount { get; set; }
@@ -1831,6 +1890,15 @@ namespace IOAS.Models
         public Nullable<DateTime> InternshipFromDate { get; set; }
         [Required]
         public Nullable<DateTime> InternshipToDate { get; set; }
+
+        [Required]
+        [Display(Name = "Bank Name")]
+        public Nullable<Int32> BankId { get; set; }
+
+        public Nullable<Int32> BankHeadId { get; set; }
+
+        public string  BankHeadName { get; set; }
+
         public SummerInternshipSearchFieldModel SearchField { get; set; }
 
         public PagedData<SummerInternshipSearchResultModel> SearchResult { get; set; }
@@ -1840,6 +1908,9 @@ namespace IOAS.Models
         public string InternshipStartDate { get; set; }
         public string InternshipCloseDate { get; set; }
         public bool PFInit { get; set; }
+
+
+
     }
     public class SummerInternshipSearchResultModel
     {
@@ -3067,6 +3138,8 @@ namespace IOAS.Models
         public Nullable<DateTime> SourceEmailDate { get; set; }
         public string SourceName { get; set; }
         public string SourceEmail { get; set; }
+
+        public Nullable<Int32> BankHeadId { get; set; }
     }
     #endregion
     #region Contra
@@ -3182,6 +3255,14 @@ namespace IOAS.Models
                 return (this.Source == 1 || this.Source == 3);
             }
         }
+
+
+        [Required]
+        [Display(Name = "Bank Name")]
+        public Nullable<Int32> BankId { get; set; }
+
+        public Nullable<Int32> BankHeadId { get; set; }
+        public string BankName { get; set; }
 
         [RequiredIf("SourceTapalOrWorkflow", true, ErrorMessage = "Ref. Number field is required")]
         public Nullable<Int32> SourceReferenceNumber { get; set; }
@@ -4591,6 +4672,8 @@ namespace IOAS.Models
         [Display(Name = "Creditor Amount")]
         [Range(0, 9999999999999999.99)]
         public Nullable<decimal> CreditorAmount { get; set; }
+
+
         public List<BillCommitmentDetailModel> CommitmentDetail { get; set; } = new List<BillCommitmentDetailModel>();
         public List<BillExpenseDetailModel> ExpenseDetail { get; set; }
         public List<BillDeductionDetailModel> DeductionDetail { get; set; }
@@ -4636,6 +4719,10 @@ namespace IOAS.Models
         public string BookedDate { get; set; }
         public string VendorName { get; set; }
         public string RefUCNumber { get; set; }
+
+        /*7800 CNA - SNA*/
+        public Nullable<Int32> BankHeadId { get; set; }
+
     }
 
     public class CommitmentMasterAndDetailModel : BillCommitmentDetailModel
@@ -5119,6 +5206,15 @@ namespace IOAS.Models
         [Range(0, 9999999999999999.99)]
         public Nullable<decimal> EligibleTaxValue { get; set; }
         public string Remark { get; set; }
+
+        [Required]
+        [Display(Name = "Bank Name")]
+        public Nullable<Int32> BankId { get; set; }
+
+        public Nullable<Int32> BankHeadId { get; set; }
+
+        public string BankHeadName { get; set; }
+
         public string Status { get; set; }
         public int SlNo { get; set; }
         [Display(Name = "Name")]
@@ -5362,6 +5458,15 @@ namespace IOAS.Models
         public string SourceName { get; set; }
         public string SourceEmail { get; set; }
         public bool PFInit { get; set; }
+
+        [Required]
+        [Display(Name = "Bank Name")]
+        public Nullable<Int32> BankId { get; set; }
+
+        public Nullable<Int32> BankHeadId { get; set; }
+
+        public string BankHeadName { get; set; }
+
     }
 
 
@@ -5681,6 +5786,7 @@ namespace IOAS.Models
         public string PaymentCategoryName { get; set; }
         public string BankName { get; set; }
         public bool PFInit { get; set; }
+
     }
     public class GeneralVoucherSearch
     {
@@ -5837,6 +5943,9 @@ namespace IOAS.Models
         public List<ProjectTransferDetailModel> CrDetail { get; set; }
 
         public List<ReversedInvoiceModel> InvDetail { get; set; }
+
+        public Nullable<Int32> BankHeadId { get; set; }
+        public string BankName { get; set; }
     }
 
     public class ReversedInvoiceModel
@@ -5909,6 +6018,14 @@ namespace IOAS.Models
         public string ReqstDate { get; set; }
         public string monthsyear { get; set; }
         public bool PFInit { get; set; }
+
+        [Required]
+        [Display(Name = "Bank Name")]
+        public Nullable<Int32> BankId { get; set; }
+
+        public Nullable<Int32> BankHeadId { get; set; }
+        public string BankHeadName { get; set; }
+
     }
     public class ManDayListmodel
     {

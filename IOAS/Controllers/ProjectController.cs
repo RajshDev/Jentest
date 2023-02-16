@@ -806,6 +806,26 @@ namespace IOAS.Controllers
             return Json(locationdata, JsonRequestBehavior.AllowGet);
         }
 
+
+        [Authorize]
+        [AcceptVerbs(HttpVerbs.Get)]
+        public JsonResult LoadProjecttitlebybankid(string projecttype,int bankid)
+        {
+            projecttype = projecttype == "" ? "0" : projecttype;
+            TempData["BankHeadId"] = bankid;
+            var locationdata = ProjectService.LoadProjecttitlebybankid(Convert.ToInt32(projecttype),bankid);
+            return Json(locationdata, JsonRequestBehavior.AllowGet);
+        }
+
+
+        [Authorize]
+        [AcceptVerbs(HttpVerbs.Get)]
+        public JsonResult Loadbankbyproject(int ProjectId)
+        {           
+            var locationdata = Common.Loadbankbyproject(ProjectId);
+            return Json(locationdata, JsonRequestBehavior.AllowGet);
+        }
+
         [HttpPost]
         public JsonResult GetEnhancedProjectList(ProjectEnchancementSearch model, DateFilterModel PrsntDueDate, int pageIndex, int pageSize)
         {

@@ -86,8 +86,8 @@
                                                 <div class="form-group custom-form-group">
                                                     <label class="required">PI</label>
                                                     @*@Html.DropDownListFor(m => m.ProjectId, new SelectList(ViewBag.ProjectList, "id", "name"), new { @class = "form-control selectpicker", @disabled = "disabled" })
-                                                    @Html.HiddenFor(m => m.ProjectId)
-                                                    @Html.ValidationMessageFor(m => m.ProjectId)*@
+                    @Html.HiddenFor(m => m.ProjectId)
+                    @Html.ValidationMessageFor(m => m.ProjectId)*@
                                                     @Html.TextBoxFor(m => m.PIName, new { @class = "form-control", @disabled = "disabled" })
                                                     @Html.TextBoxFor(m => m.PI, new { @class = "form-control dis-none" })
                                                     @Html.ValidationMessageFor(m => m.PI)
@@ -97,9 +97,9 @@
                                                 <div class="form-group custom-form-group">
                                                     <label class="required">Country</label>
                                                     @Html.DropDownListFor(m => m.CountryId, new SelectList(ViewBag.CountryList, "CountryID", "CountryName"), new { @multiple = "multiple", @disabled = "disabled", @class = "form-control selectpicker", @title = "Select any" })
-@for (int i = 0; i < Model.CountryId.Length; i++)
-{
-                                                 <input type="hidden" name="CountryId" value="@Model.CountryId[i]" />
+                                                    @for (int i = 0; i < Model.CountryId.Length; i++)
+                {
+                                    <input type="hidden" name="CountryId" value="@Model.CountryId[i]" />
 }
                                                     @Html.ValidationMessageFor(m => m.CountryId)
                                                 </div>
@@ -172,22 +172,33 @@
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="form-group custom-form-group">
-                                                    <label>Remarks</label>
-                                                    @Html.TextAreaFor(m => m.Remarks, new { @class = "form-control", @rows = "3", @readonly = "readonly" })
-                                                    @Html.ValidationMessageFor(m => m.Remarks)
+                                                    <label class="required">Bank</label>
+                                                    @Html.DropDownListFor(m => m.BankId, new SelectList(ViewBag.BankHeadList, "id", "name"), "Select any", new { @class = "form-control" })
+                                                    @Html.ValidationMessageFor(m => m.BankId)
+                                                    @Html.HiddenFor(m => m.BankHeadId)
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="form-group custom-form-group">
-                                                    @Html.HiddenFor(m=>m.Adv100Pct_f)
-                                                    @Html.HiddenFor(m=>m.ProformaInvoiceSubmit_f)
+                                                    @Html.HiddenFor(m => m.Adv100Pct_f)
+                                                    @Html.HiddenFor(m => m.ProformaInvoiceSubmit_f)
                                                     @Html.CheckBoxFor(m => m.Adv100Pct_f, new { @disabled = "disabled" })<label class="ml15">Approved for 100%</label> <br />
-                                                    @Html.CheckBoxFor(m => m.ProformaInvoiceSubmit_f, new { @id ="proInv", @disabled = "disabled" })<label class="ml15">Proforma Invoice Attached</label>
+                                                    @Html.CheckBoxFor(m => m.ProformaInvoiceSubmit_f, new { @id = "proInv", @disabled = "disabled" })<label class="ml15">Proforma Invoice Attached</label>
                                                     @*<input type="checkbox" name="vehicle1" value="Bike"><label class="ml15">Proformula Invoice Submit</label>*@
                                                 </div>
                                             </div>
                                         </div>
-
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group custom-form-group">
+                                                    @Html.HiddenFor(m => m.Adv100Pct_f)
+                                                    @Html.HiddenFor(m => m.ProformaInvoiceSubmit_f)
+                                                    @Html.CheckBoxFor(m => m.Adv100Pct_f, new { @disabled = "disabled" })<label class="ml15">Approved for 100%</label> <br />
+                                                    @Html.CheckBoxFor(m => m.ProformaInvoiceSubmit_f, new { @id = "proInv", @disabled = "disabled" })<label class="ml15">Proforma Invoice Attached</label>
+                                                    @*<input type="checkbox" name="vehicle1" value="Bike"><label class="ml15">Proformula Invoice Submit</label>*@
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
 
                                 </div>
@@ -466,6 +477,30 @@
         CalculatePaymentValue();
         calcDateDiff();
         showCommitmentAmount();
+
+
+        var BankId = $('#BankId :selected').val();
+
+        if (BankId != '')
+        {
+            $.getJSON("@Url.Action("LoadProjecttitlebybankid", "Project")", { projecttype: 1, bankid: BankId },
+        function (locationdata) {
+            var select = $("#srchProjectNumber");
+            select.empty();
+
+            $.each(locationdata, function (index, itemData) {
+
+                select.append($('<option/>', {
+                    value: itemData.id,
+                    text: itemData.name
+
+                }));
+            });
+            select.selectpicker('refresh');
+        });
+
+        }
+
     });
     function showCommitmentAmount(){
         var advamt = parseFloat($("#AdvanceValue").val()) || 0;
@@ -789,7 +824,7 @@
             else if (isEle.prop("checked") == true && isInter.prop("checked") == false)
                 intraStateAmt += taxamount;
         });
-        
+
         TDSObj = {};
         $('#tbodyPaymentBU tr').each(function (idx, val) {
             var tdsAmt = parseFloat($(this).find('input[name$=".TDSPayable"]').val()) || 0;
@@ -804,7 +839,7 @@
                     var tdsHeadSec = "varTDSIT_" +mainSec+subSec +"_" +secPct;
                     var prvAmt = parseFloat(TDSObj[tdsHeadSec]) || 0;
                     TDSObj[tdsHeadSec] = prvAmt + tdsAmt;
-                }                
+                }
             }
         });
         $("#varBank").val((totalbillamt - ttlTDSIT).toFixed(2));
@@ -1122,6 +1157,47 @@
         return !hadError; // return the valid status
 
     }
+
+    $('#BankId').on("change", function () {
+        var BankHeadId = $(this).val();
+        $("#BankHeadId").val(BankHeadId);
+        $("#srchProjectType").val(1);
+        EmptyCommitmentSrchList()
+        EmptyCommitmentSelList()
+
+        $.getJSON("@Url.Action("LoadProjecttitlebybankid", "Project")", { projecttype: 1, bankid: BankHeadId },
+        function (locationdata) {
+            var select = $("#srchProjectNumber");
+            select.empty();
+
+            $.each(locationdata, function (index, itemData) {
+
+                select.append($('<option/>', {
+                    value: itemData.id,
+                    text: itemData.name
+
+                }));
+            });
+            select.selectpicker('refresh');
+        });
+
+    });
+
+
+
+    function EmptyCommitmentSelList() {
+        $('#tbodyCommitmentSelList tr').not(':first').remove();
+        $('#tbodyCommitmentSelList tr td').not(':last').not(':nth-last-child(2)').html('');
+        //$('#tbodyCommitmentSelList tr td:last').find("input").val("");
+        $('#tbodyCommitmentSelList tr').find("input[name!='CommitmentDetail.Index']").val("");
+        $('#CommitmentAmount').val('');
+    }
+    function EmptyCommitmentSrchList() {
+        $('#tbodyCommitmentSrchList tr').not(':first').remove();
+        $('#tbodyCommitmentSrchList tr td').not(':first').html('');
+        $('#tbodyCommitmentSrchList tr td:first input').val('');
+    }
+
 </script>
 <script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
 <script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>

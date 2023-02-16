@@ -43,6 +43,13 @@ namespace IOAS.Models
         public string name { get; set; }
         public string code { get; set; }
     }
+
+    public class ProjectlistviewModel
+    {
+        public Nullable<int> id { get; set; }
+        public string name { get; set; }
+        public int ProjectFundingcategory { get; set; }
+    }
     public class AutoCompleteModel
     {
         public string value { get; set; }

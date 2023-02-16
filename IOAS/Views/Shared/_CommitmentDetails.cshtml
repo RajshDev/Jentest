@@ -39,7 +39,7 @@
                         <div class="col-md-3">
                             <div class="form-group custom-form-group">
                                 <label>Project Number</label>
-                                @Html.DropDownList("srchProjectNumber", new SelectList(ViewBag.ProjectNumberList, "id", "name"), new { @class = "form-control selectpicker" })
+                                @Html.DropDownList("srchProjectNumber", new SelectList(ViewBag.ProjectNumberList, "id", "name"), new { @class = "form-control selectpicker" })                                                              
                                 <input type="hidden" id="srchHiddenProjectId" value="" />
                                 <input type="hidden" id="srchHiddenProjectClassification" value="" />
                             </div>
@@ -223,7 +223,38 @@
 </div>
 
 <script type="text/javascript">
+
+    var BankHeadId = '';
+    
+    $(document).ready(function () {
+
+        //var select = $("#srchProjectNumber");
+        //select.empty();
+        //select.selectpicker('refresh');
+
+
+
+        //$("#srchProjectNumber").click(function () {
+
+        //  console.log(TempData["BankHeadId"]);
+        //console.log($("#BankHeadId").val());
+        //console.log("ready!");
+    });
+
+
+    //$('#srchProjectNumber').on('click', function () {
+        //    alert();
+        //    var Projecttype = $(this).val();
+        //    console.log(Projecttype);
+        //  console.log(TempData["BankHeadId"]);
+
+   // });
+
+
+
+
     $('#btnSrchCommitment').click(function () {
+
         var projId = $('#srchHiddenProjectId').val() || undefined;
         searchCommitment(projId);
     });
@@ -328,11 +359,45 @@
             CommitmentType = commitmenttype;
         }
 
+        BankHeadId = $("#BankHeadId").val();
+        if (BankHeadId == null || BankHeadId == '') {
+            
+            BankHeadId = $('#BankId :selected').val();
+
+            if(BankHeadId == undefined)
+            {
+                BankHeadId = $('#BankHead :selected').val();
+
+                if(BankHeadId ==undefined)
+                {
+                    BankHeadId = $('#BankHeadId :selected').val();
+
+                    if(BankHeadId == undefined)
+                    {
+                        BankHeadId = $('#PaymentBank :selected').val();
+
+                        if (BankHeadId == undefined) {
+
+                            BankHeadId = $('#DebitBank :selected').val();
+
+                            if (BankHeadId == undefined) {
+
+                                BankHeadId = $('#Bank :selected').val();
+                            }
+                        }
+
+                    }
+                }
+            }
+
+        }
+
+
         EmptyCommitmentSrchList()
         $.ajax({
             type: "GET",
             url: "@Url.Action("SearchCommitments", "CoreAccounts")",
-            data: { "fromDate": fromDate, "toDate": toDate, "projectType": projectType, "projectId": projectNumber, "keyword": keyword, "commitmentType": CommitmentType, "ProjectClassification": ProjectClassification },
+            data: { "fromDate": fromDate, "toDate": toDate, "projectType": projectType, "projectId": projectNumber, "keyword": keyword, "commitmentType": CommitmentType, "ProjectClassification": ProjectClassification, "BankHeadId": BankHeadId },
             dataType: "json",
             success: function (result) {
                 $.each(result, function (i, item) {
@@ -450,8 +515,10 @@
         $('#tbodyCommitmentSrchList tr td').not(':first').html('');
         $('#tbodyCommitmentSrchList tr td:first input').val('');
     }
-    $("#srchProjectType").change(function () {
+    @*$("#srchProjectType").change(function () {
+
         var Projecttype = $(this).val();
+        console.log( $("#BankHeadId").val());
         if (Projecttype != '') {
             $.getJSON("@Url.Action("Loadprojectdetailsbytype", "Project")", { projecttype: Projecttype },
                         function (locationdata) {
@@ -473,7 +540,64 @@
             select.empty();
             select.selectpicker('refresh');
         }
+    });*@
+
+    $("#srchProjectType").change(function () {
+
+        var Projecttype = $(this).val();
+        BankHeadId = $("#BankHeadId").val();
+        BankHead = $("#BankHead").val();
+        if (BankHeadId == null || BankHeadId == '')
+        {
+            BankHeadId = $('#BankId :selected').val();
+            if (BankHeadId == undefined)
+            {
+                BankHeadId = $('#BankHead :selected').val();
+
+                if (BankHeadId == undefined) {
+                    BankHeadId = $('#BankHeadId :selected').val();
+
+                    if (BankHeadId == undefined) {
+
+                        BankHeadId = $('#PaymentBank :selected').val();
+
+                        if (BankHeadId == undefined) {
+                            BankHeadId = $('#DebitBank :selected').val();
+
+                            if (BankHeadId == undefined) {
+
+                                BankHeadId = $('#Bank :selected').val();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if (Projecttype != '') {
+            $.getJSON("@Url.Action("LoadProjecttitlebybankid", "Project")", { projecttype: Projecttype, bankid: BankHeadId },
+                        function (locationdata) {
+                            var select = $("#srchProjectNumber");
+                            select.empty();
+
+                            $.each(locationdata, function (index, itemData) {
+
+                                select.append($('<option/>', {
+                                    value: itemData.id,
+                                    text: itemData.name
+
+                                }));
+                            });
+                            select.selectpicker('refresh');
+                        });
+        } else {
+            var select = $("#srchProjectNumber");
+            select.empty();
+            select.selectpicker('refresh');
+        }
     });
+
+
     $(document).on('click', 'a.removeCommitment', function () {
         if ($('#tbodyCommitmentSelList tr').length != 1) {
             $(this).closest('tr').remove();
@@ -521,7 +645,8 @@
         $('#CommitmentAmount').val(ttlPaymentVal).trigger("change");
         //$('#NeedUpdateTransDetail').val('true');
     }
-    $('#btnbookcommitment').on('click', function () {
+    @*$('#btnbookcommitment').on('click', function () {
+        alert();
         $.ajax({
             type: "GET",
             url: '@Url.Action("_BookCommitment", "CoreAccounts")',
@@ -535,5 +660,55 @@
             }
         });
 
+    });*@
+
+
+    $('#btnbookcommitment').on('click', function () {
+
+        BankHeadId = $("#BankHeadId").val();
+
+        if (BankHeadId == null || BankHeadId == '') {
+            BankHeadId = $('#BankId :selected').val();
+
+            if(BankHeadId == undefined)
+            {
+                BankHeadId = $('#BankHead :selected').val();
+
+                if (BankHeadId == undefined) {
+
+                    BankHeadId = $('#BankHeadId :selected').val();
+
+                    if (BankHeadId == undefined) {
+
+                        BankHeadId = $('#PaymentBank :selected').val();
+
+                        if(BankHeadId == undefined)
+                        {
+                            BankHeadId = $('#DebitBank :selected').val();
+
+                            if (BankHeadId == undefined) {
+
+                                BankHeadId = $('#Bank :selected').val();
+
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("_BookCommitment", "CoreAccounts")',
+            data: {
+                "BankHeadId": BankHeadId
+            },
+            contentType: "application/x-www-form-urlencoded",
+            success: function (data) {
+                $("#popup").html(data);
+                $('#TABCModal').modal('toggle');
+            }
+        });
     });
 </script>

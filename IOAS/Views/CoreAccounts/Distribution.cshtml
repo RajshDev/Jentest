@@ -82,7 +82,7 @@
                                         <div class="col-md-6">
 
                                             <div class="row">
-                                                <div class="col-md-6">
+                                                <div class="col-md-4">
                                                     <div class="form-group custom-form-group">
                                                         <label>Distribution Type</label>
                                                         @Html.DropDownListFor(m => m.DistributionType, new SelectList(ViewBag.DistributionType, "id", "name"), "Select any", new { @class = "form-control required", @id = "txtdistributiontype" })
@@ -91,13 +91,20 @@
 
                                                     </div>
                                                 </div>
-                                                <div class="col-md-6">
+
+                                                <div class="col-md-4">
                                                     <div class="form-group custom-form-group">
                                                         <label>Project No </label>
                                                         @Html.TextBoxFor(m => m.ProjectNumber, new { @class = "form-control", @id = "txtProjectNumber", @onchange = "calculateamount();" })
                                                         @Html.TextBoxFor(m => m.ProjectId, new { @class = "form-control dis-none" })
                                                         @Html.ValidationMessageFor(m => m.ProjectNumber)
                                                     </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label class="required">Bank</label>
+                                                    @Html.DropDownListFor(m => m.BankId, new SelectList(ViewBag.BankHeadList, "id", "name"), "Select any", new { @class = "form-control" })
+                                                    @Html.ValidationMessageFor(m => m.BankId)
+                                                    @Html.HiddenFor(m => m.BankHeadId)
                                                 </div>
                                             </div>
 
@@ -825,7 +832,11 @@
 <div id="popup"></div>
 <script>
     var errMsg = '@TempData["errMsg"]';
-    var succMsg = '@TempData["succMsg"]';
+    var succMsg = '@TempData["succMsg"]';   
+    var BankId='';
+    
+    
+
     // $('#TravelToDate, #TravelFromDate').datepicker({ minDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
     $('input[name$=".InvDate"]').datepicker({maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
     $('#SourceEmailDate, #srchFromDate, #srchToDate,#InvoiceDate,#PODate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
@@ -843,6 +854,8 @@
             CalculateDeductionTotal();
             GetTransactionDetails();
         }
+
+        
         $("select[name='LabCode']").val('@Model.LabCode');
         $('.selectpicker').selectpicker({
             liveSearch: true
@@ -1155,6 +1168,29 @@
         calculatePCFamount();
 
         $('#NeedUpdateTransDetail').val('false');
+
+         BankId = $('#BankId :selected').val();
+
+        if (BankId != '')
+        {
+            $.getJSON("@Url.Action("LoadProjecttitlebybankid", "Project")", { projecttype: 1, bankid: BankId },
+        function (locationdata) {
+            var select = $("#srchProjectNumber");
+            select.empty();
+
+            $.each(locationdata, function (index, itemData) {
+
+                select.append($('<option/>', {
+                    value: itemData.id,
+                    text: itemData.name
+
+                }));
+            });
+            select.selectpicker('refresh');
+        });
+
+        }
+
     });
     $('#formSI').submit(function () {
         var id = $(this).attr('Id');
@@ -1337,14 +1373,17 @@
             minLength: 3
         });
     }
-    function projectChange(el, mode) {
+    function projectChange(el, mode) {     
+       
+        
         var selProj = $("input[name='ProjectNumber']");
         if (mode != 'U') {
             $("input[name='ProjectId'], input[name='ProjectNumber']").val('');
             //$(el).closest('tr').find("input[name='autoComplete'],input[name='UserId'],input[name='Name']").val('');
         }
         $("input[name='ProjectId']").addClass('required');
-        $("input[name='ProjectNumber']").addClass('required');
+        $("input[name='ProjectNumber']").addClass('required');        
+       // applyAutoComplete($("input[name='ProjectNumber']"),  $("input[name='ProjectId']"), '@Url.Action("LoadProjectList","CoreAccounts")', 'ProjectSummary', true, undefined, {BankHeadId: BankId});
         aplyProjectAutoComplete(selProj, "../CoreAccounts/LoadDistributeProjectList", true)
 
     }
@@ -1500,7 +1539,7 @@
 
     $("input[name='ProjectNumber']").change(function () {
         //projectChange($(this, "U"));
-        var distributiontype = $('#txtdistributiontype').val();
+        var distributiontype = $('#txtdistributiontype').val();       
         if (distributiontype == 2)
         {
             calcDateDiff();
@@ -3334,6 +3373,74 @@
         });
         return !hadError; // return the valid status
 
+    }
+    
+
+    $("#txtProjectNumber").change(function () {
+        var ProjId = $("input[name='ProjectId']").val();
+        console.log(ProjId);
+        if (ProjId == null || ProjId == '' || ProjId == undefined) {
+            ProjId = 0;
+        }
+        $.getJSON("@Url.Action("Loadbankbyproject", "Project")", { ProjectId: ProjId },
+       function (locationdata) {
+           var select = $("#BankId");
+           select.empty();
+           //select.append($('<option/>', {
+           //    value: 0,
+           //    text: 'Select any'
+
+           //}))
+           $.each(locationdata, function (index, itemData) {               
+               select.append($('<option/>', {
+                   value: itemData.id,
+                   text: itemData.name
+
+               }));
+           });
+           select.selectpicker('refresh');
+       });
+
+    });
+
+    $('#BankId').on("change", function () {
+        var BankHeadId = $(this).val();          
+        BankId = $(this).val();   
+        console.log(BankId);
+        $("#BankHeadId").val(BankHeadId);
+        $("#srchProjectType").val(1);
+        EmptyCommitmentSrchList()
+        EmptyCommitmentSelList()
+
+        $.getJSON("@Url.Action("LoadProjecttitlebybankid", "Project")", { projecttype: 1, bankid: BankHeadId },
+        function (locationdata) {
+            var select = $("#srchProjectNumber");
+            select.empty();
+
+            $.each(locationdata, function (index, itemData) {
+
+                select.append($('<option/>', {
+                    value: itemData.id,
+                    text: itemData.name
+
+                }));
+            });
+            select.selectpicker('refresh');
+        });
+
+    });
+
+    function EmptyCommitmentSelList() {
+        $('#tbodyCommitmentSelList tr').not(':first').remove();
+        $('#tbodyCommitmentSelList tr td').not(':last').not(':nth-last-child(2)').html('');
+        //$('#tbodyCommitmentSelList tr td:last').find("input").val("");
+        $('#tbodyCommitmentSelList tr').find("input[name!='CommitmentDetail.Index']").val("");
+        $('#CommitmentAmount').val('');
+    }
+    function EmptyCommitmentSrchList() {
+        $('#tbodyCommitmentSrchList tr').not(':first').remove();
+        $('#tbodyCommitmentSrchList tr td').not(':first').html('');
+        $('#tbodyCommitmentSrchList tr td:first input').val('');
     }
 
 </script>

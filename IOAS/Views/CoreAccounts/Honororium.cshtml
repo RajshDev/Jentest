@@ -78,19 +78,26 @@
                                 <div class="col-md-12">
                                     <div class="white-bg">
                                         <div class="row mb30">
-                                            <div class="col-md-4">
+                                            <div class="col-md-3">
                                                 <label class="required">Request received from:</label>
                                                 @Html.DropDownListFor(m => m.RequestReceivedFrom, new SelectList(ViewBag.ReceviedFrom, "name", "name"), "Select any", new { @class = "form-control required" })
                                                 @Html.ValidationMessageFor(m => m.RequestReceivedFrom)
                                             </div>
+
+                                            <div class="col-md-2">
+                                                <label class="required">Honorarium Date :</label>
+                                                @Html.DropDownListFor(m => m.HonDate, new SelectList(ViewBag.HonDateList, "Value", "Value"), "----Select---", new { @class = "form-control required" })
+                                                @Html.ValidationMessageFor(m => m.HonDate)
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="required">Bank</label>
+                                                @Html.DropDownListFor(m => m.BankId, new SelectList(ViewBag.BankHeadList, "id", "name"), "Select any", new { @class = "form-control" })
+                                                @Html.ValidationMessageFor(m => m.BankId)
+                                                @Html.HiddenFor(m => m.BankHeadId)
+                                            </div>
                                             <div class="col-md-4">
                                                 <label>Remarks :</label>
                                                 @Html.TextAreaFor(m => m.Remarks, new { @class = "form-control", @id = "remarks" })
-                                            </div>
-                                            <div class="col-md-4">
-                                                <label class="required">Honorarium Date :</label>
-                                                @Html.DropDownListFor(m => m.HonDate, new SelectList(ViewBag.HonDateList, "Value", "Value"), "----Select---",new { @class = "form-control required" })
-                                                @Html.ValidationMessageFor(m => m.HonDate)
                                             </div>
                                         </div>
                                         <div class="gray-bg br-rd">
@@ -635,7 +642,31 @@
   
 categoryChange($(this));
 
-        });  });
+        });
+
+        var BankId = $('#BankId :selected').val();
+
+        if (BankId != '')
+        {                         
+            $.getJSON("@Url.Action("LoadProjecttitlebybankid", "Project")", { projecttype: 1, bankid: BankId },
+        function (locationdata) {
+            var select = $("#srchProjectNumber");
+            select.empty();
+
+            $.each(locationdata, function (index, itemData) {
+
+                select.append($('<option/>', {
+                    value: itemData.id,
+                    text: itemData.name
+
+                }));
+            });
+            select.selectpicker('refresh');
+        });
+
+        }
+
+    });
 
 
 
@@ -1586,6 +1617,48 @@ categoryChange($(this));
                     $(el).find('select').selectpicker('refresh');
                     return $(el).children().first().unwrap();
 
+                }
+
+
+
+                $('#BankId').on("change", function () {
+                    var BankHeadId = $(this).val();
+                    $("#BankHeadId").val(BankHeadId);
+                    $("#srchProjectType").val(1);
+                    EmptyCommitmentSrchList()
+                    EmptyCommitmentSelList()
+
+                    $.getJSON("@Url.Action("LoadProjecttitlebybankid", "Project")", { projecttype: 1, bankid: BankHeadId },
+                    function (locationdata) {
+                        var select = $("#srchProjectNumber");
+                        select.empty();
+
+                        $.each(locationdata, function (index, itemData) {
+
+                            select.append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name
+
+                            }));
+                        });
+                        select.selectpicker('refresh');
+                    });
+
+                });
+
+
+
+                function EmptyCommitmentSelList() {
+                    $('#tbodyCommitmentSelList tr').not(':first').remove();
+                    $('#tbodyCommitmentSelList tr td').not(':last').not(':nth-last-child(2)').html('');
+                    //$('#tbodyCommitmentSelList tr td:last').find("input").val("");
+                    $('#tbodyCommitmentSelList tr').find("input[name!='CommitmentDetail.Index']").val("");
+                    $('#CommitmentAmount').val('');
+                }
+                function EmptyCommitmentSrchList() {
+                    $('#tbodyCommitmentSrchList tr').not(':first').remove();
+                    $('#tbodyCommitmentSrchList tr td').not(':first').html('');
+                    $('#tbodyCommitmentSrchList tr td:first input').val('');
                 }
 </script>
 

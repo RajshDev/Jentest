@@ -645,8 +645,40 @@
             });
     var requestRunning = false;
     $(document).ready(function () {
-        applyAutoComplete($('#projectNumber'), $('#SelProjectNumber'), '@Url.Action("LoadProjectList","CoreAccounts")', 'ProjectSummary', true);
-        applyAutoComplete($('#EmployeeId'), $('#CastEmployeeId'), "@Url.Action("LoadFacultyList", "CoreAccounts")");
+        //7800 cna/sna changes.
+        var BankHeadId = $('#BankHeadId').val();
+
+        if (BankHeadId == null || BankHeadId == '') {
+            BankHeadId = $('#BankId :selected').val();
+
+            if(BankHeadId == undefined)
+            {
+                BankHeadId = $('#BankHead :selected').val();
+            }
+            if (BankHeadId == undefined) {
+
+                BankHeadId = $('#BankHeadId :selected').val();
+
+                if (BankHeadId == undefined) {
+
+                    BankHeadId = $('#PaymentBank :selected').val();
+
+                    if (BankHeadId == undefined) {
+
+                        BankHeadId = $('#DebitBank :selected').val();
+                        if (BankHeadId == undefined) {
+
+                            BankHeadId = $('#Bank :selected').val();
+                        }
+                    }
+                }
+            }
+        }
+        var param = { BankHeadId: BankHeadId };
+        
+        applyAutoComplete($('#projectNumber'), $('#SelProjectNumber'), '@Url.Action("LoadProjectList","CoreAccounts")', 'ProjectSummary', true, undefined, param);
+        applyAutoComplete($('#EmployeeId'), $('#CastEmployeeId'), "@Url.Action("LoadFacultyList", "CoreAccounts")");            
+        
         var errMsg = '@ViewBag.errMsg';
         if (errMsg) {
             messageBox(Validation, "error");
@@ -1234,6 +1266,7 @@
             model.append("IsDeansApproval", IsDeansApproval);
             model.append("selFundingBody", selFundingBody);
             model.append("selSubhead", $('#selSubhead').val());
+            model.append("BankId", BankHeadId);
             //var searchdata = {
             //    selCommitmentType: CommitType,
             //    selPurpose: staffPurpose,

@@ -324,7 +324,15 @@
                                         </div>
 
                                         <div class="row">
-                                            <div class="col-md-12">
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="required">Bank</label>
+                                                    @Html.DropDownListFor(m => m.BankId, new SelectList(ViewBag.BankHeadList, "id", "name"), "Select any", new { @class = "form-control" })
+                                                    @Html.ValidationMessageFor(m => m.BankId)
+                                                    @Html.HiddenFor(m => m.BankHeadId)
+                                                </div>
+                                            </div>
+                                            <div class="col-md-9">
                                                 <div class="form-group custom-form-group">
                                                     <label>Remarks</label>
                                                     @Html.TextAreaFor(m => m.Remark, new { @class = "form-control", @id = "txtRemarks" })
@@ -584,7 +592,7 @@
             $("input[name='CreditorType']").val(type);
 
         });
-       
+
         //$('#btnAddPayment input[name$=".HSNCode"]').each(function () {
         //    if ($(this).val() != '') {
         //        $(this).closest('tr').find('input').not('input[name$=".Description"],input[name$=".IsTaxEligible"],input[name$=".IsInterstate"],input[name$=".GSTIN"]').addClass('required');
@@ -727,6 +735,29 @@
         CalculateDeductionTotal();
         calculateeligibletaxamount();
         $('#NeedUpdateTransDetail').val('false');
+
+        var BankId = $('#BankId :selected').val();
+
+        if (BankId != '')
+        {
+            $.getJSON("@Url.Action("LoadProjecttitlebybankid", "Project")", { projecttype: 1, bankid: BankId },
+        function (locationdata) {
+            var select = $("#srchProjectNumber");
+            select.empty();
+
+            $.each(locationdata, function (index, itemData) {
+
+                select.append($('<option/>', {
+                    value: itemData.id,
+                    text: itemData.name
+
+                }));
+            });
+            select.selectpicker('refresh');
+        });
+
+        }
+
     });
     $('#formSI').submit(function () {
         var id = $(this).attr('Id');
@@ -1058,7 +1089,7 @@
         netpayabletotal = totalamount + totaltax;
         totalamount = parseFloat((totalamount).toFixed(2));
         totaltax = parseFloat((totaltax).toFixed(2));
-        
+
         if (!isNaN(netpayabletotal)) {
             $("#txtNetPayableValue").val((netpayabletotal).toFixed(2));
             // $("#CreditorAmount").val(netpayabletotal.toFixed(0));
@@ -1702,6 +1733,47 @@
         return $(el).children().first().unwrap();
 
     }
+
+    $('#BankId').on("change", function () {
+        var BankHeadId = $(this).val();
+        $("#BankHeadId").val(BankHeadId);
+        $("#srchProjectType").val(1);
+        EmptyCommitmentSrchList()
+        EmptyCommitmentSelList()
+
+        $.getJSON("@Url.Action("LoadProjecttitlebybankid", "Project")", { projecttype: 1, bankid: BankHeadId },
+        function (locationdata) {
+            var select = $("#srchProjectNumber");
+            select.empty();
+
+            $.each(locationdata, function (index, itemData) {
+
+                select.append($('<option/>', {
+                    value: itemData.id,
+                    text: itemData.name
+
+                }));
+            });
+            select.selectpicker('refresh');
+        });
+
+    });
+
+
+
+    function EmptyCommitmentSelList() {
+        $('#tbodyCommitmentSelList tr').not(':first').remove();
+        $('#tbodyCommitmentSelList tr td').not(':last').not(':nth-last-child(2)').html('');
+        //$('#tbodyCommitmentSelList tr td:last').find("input").val("");
+        $('#tbodyCommitmentSelList tr').find("input[name!='CommitmentDetail.Index']").val("");
+        $('#CommitmentAmount').val('');
+    }
+    function EmptyCommitmentSrchList() {
+        $('#tbodyCommitmentSrchList tr').not(':first').remove();
+        $('#tbodyCommitmentSrchList tr td').not(':first').html('');
+        $('#tbodyCommitmentSrchList tr td:first input').val('');
+    }
+
 </script>
 <script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
 <script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>

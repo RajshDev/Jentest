@@ -5336,6 +5336,7 @@ namespace IOAS.Controllers
                             psModel.DistributionAmount = Common.GetDistribuAmount(ProjectId);
                             psModel.ExpAmt = psModel.Summary.AmountSpent;
                             model.Projsummary = psModel;
+                            commit.BankId = psModel.Common.BankId;
                         }
                         commit.commitmentValue = model.CommitReqModel.CommitmentAmount ?? 0;
                         commit.selAllocationHead = model.CommitReqModel.AllocationHeadId ?? 0;

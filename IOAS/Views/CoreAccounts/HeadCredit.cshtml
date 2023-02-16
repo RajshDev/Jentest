@@ -80,6 +80,7 @@
 
                                                 </div>
                                             </div>
+
                                             <div class="col-md-6">
                                                 <div class="form-group custom-form-group">
                                                     <label>Attachement</label>
@@ -98,6 +99,12 @@
                                                     @Html.ValidationMessageFor(m => m.ProjectId)
                                                 </div>
                                             </div>
+                                            @*<div class="col-md-6">
+                                                <label class="required">Bank</label>
+                                                @Html.DropDownListFor(m => m.BankId, new SelectList(ViewBag.BankHeadList, "id", "name"), "Select any", new { @class = "form-control" })
+                                                @Html.ValidationMessageFor(m => m.BankId)
+                                                @Html.HiddenFor(m => m.BankHeadId)
+                                            </div>*@
                                         </div>
                                         <div class="row mb-lg mt-lg gray-bg">
                                             <div class="col-md-12 ">
@@ -271,6 +278,7 @@
                                                     <label class="required">Bank</label>
                                                     @Html.DropDownListFor(m => m.Bank, new SelectList(ViewBag.BankList, "id", "name"), "Select any", new { @class = "form-control" })
                                                     @Html.ValidationMessageFor(m => m.Bank)
+                                                    @Html.HiddenFor(m => m.BankHeadId)
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
@@ -534,6 +542,29 @@
 
         CalculateTxTotal();
         CalculateTotal();
+
+
+        var BankId = $('#BankId :selected').val();
+
+        if (BankId != '')
+        {                         
+            $.getJSON("@Url.Action("LoadProjecttitlebybankid", "Project")", { projecttype: 1, bankid: BankId },
+        function (locationdata) {
+            var select = $("#srchProjectNumber");
+            select.empty();
+
+            $.each(locationdata, function (index, itemData) {
+
+                select.append($('<option/>', {
+                    value: itemData.id,
+                    text: itemData.name
+
+                }));
+            });
+            select.selectpicker('refresh');
+        });
+
+        }
     });
 
     $(document).on('change', '#tbodyExpenseList select[name$=".CategoryId"]', function () {
@@ -865,6 +896,75 @@
         });
         return !hadError; // return the valid status
 
+    }
+
+    $("#Project").change(function () {
+        var ProjId = $("#ProjectId").val();
+        
+        if (ProjId == null || ProjId == '' || ProjId == undefined) {
+            ProjId = 0;
+        }
+        $.getJSON("@Url.Action("Loadbankbyproject", "Project")", { ProjectId: ProjId },
+       function (locationdata) {
+           var select = $("#Bank");
+           select.empty();
+           select.append($('<option/>', {
+               value: 0,
+               text: 'Select any'
+
+           }))
+           $.each(locationdata, function (index, itemData) {
+
+               select.append($('<option/>', {
+                   value: itemData.id,
+                   text: itemData.name
+
+               }));
+           });
+           select.selectpicker('refresh');
+       });
+
+    });
+
+
+    $('#Bank').on("change", function () {
+        var BankHeadId = $(this).val();
+        $("#BankHeadId").val(BankHeadId);
+        $("#srchProjectType").val(1);
+        EmptyCommitmentSrchList()
+        EmptyCommitmentSelList()
+
+        $.getJSON("@Url.Action("LoadProjecttitlebybankid", "Project")", { projecttype: 1, bankid: BankHeadId },
+        function (locationdata) {
+            var select = $("#srchProjectNumber");
+            select.empty();
+          
+            $.each(locationdata, function (index, itemData) {
+
+                select.append($('<option/>', {
+                    value: itemData.id,
+                    text: itemData.name
+
+                }));
+            });
+            select.selectpicker('refresh');
+        });
+
+    });
+
+
+
+    function EmptyCommitmentSelList() {
+        $('#tbodyCommitmentSelList tr').not(':first').remove();
+        $('#tbodyCommitmentSelList tr td').not(':last').not(':nth-last-child(2)').html('');
+        //$('#tbodyCommitmentSelList tr td:last').find("input").val("");
+        $('#tbodyCommitmentSelList tr').find("input[name!='CommitmentDetail.Index']").val("");
+        $('#CommitmentAmount').val('');
+    }
+    function EmptyCommitmentSrchList() {
+        $('#tbodyCommitmentSrchList tr').not(':first').remove();
+        $('#tbodyCommitmentSrchList tr td').not(':first').html('');
+        $('#tbodyCommitmentSrchList tr td:first input').val('');
     }
 </script>
 <script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
