@@ -83,6 +83,10 @@
                             <label>Allocated Amount</label>
                             <h4>@Model.ImprestValue</h4>
                         </td>
+                        <td>
+                            <label>Source Bank</label>
+                            <h4>@Model.BankHeadName</h4>
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -497,6 +501,28 @@
                 $('#tbodyPO').append(trEleNew);
             }
         });
+
+        var BankId = $('#BankId :selected').val();
+
+        if (BankId != '')
+        {                         
+            $.getJSON("@Url.Action("LoadProjecttitlebybankid", "Project")", { projecttype: 1, bankid: BankId },
+        function (locationdata) {
+            var select = $("#srchProjectNumber");
+            select.empty();
+
+            $.each(locationdata, function (index, itemData) {
+
+                select.append($('<option/>', {
+                    value: itemData.id,
+                    text: itemData.name
+
+                }));
+            });
+            select.selectpicker('refresh');
+        });
+
+        }
      //   $('#NeedUpdateTransDetail').val('false');
     });
     $(document).on('click', 'a.removeBillDetails', function () {

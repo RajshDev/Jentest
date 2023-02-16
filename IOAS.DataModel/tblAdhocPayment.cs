@@ -42,5 +42,6 @@ namespace IOAS.DataModel
         public Nullable<int> CheckListVerifiedBy { get; set; }
         public Nullable<int> CommitmentId { get; set; }
         public Nullable<bool> Pmt_f { get; set; }
+        public Nullable<int> BankID { get; set; }
     }
 }

@@ -1174,7 +1174,7 @@ namespace IOAS.Models
         public decimal OH { get; set; }
         public decimal Tax { get; set; }
         public string AgencyName { get; set; }
-        public string AgencyAddress { get; set; }
+        public string AgencyAddress { get; set; }       
     }
     public class ProjectEnhancementViewModel
     {

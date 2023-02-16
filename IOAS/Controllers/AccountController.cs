@@ -1360,6 +1360,7 @@ namespace IOAS.Controllers
             ViewBag.RefNo = new List<MasterlistviewModel>();
             ViewBag.SubheadList =
             ViewBag.FundingBody = Common.GetFundingBody(0);
+            ViewBag.BankHeadList = Common.GetBankAccountHeadList();
             model.CommitmentNo = "0";
             model.commitmentValue = 0;
             model.currencyRate = 0;
@@ -1402,6 +1403,7 @@ namespace IOAS.Controllers
                 ViewBag.ProjectType = Common.getprojecttype();
                 ViewBag.AccountHead = Common.getBudgetHead();
                 ViewBag.Employee = Common.GetEmployeeName();
+                ViewBag.BankHeadList = Common.GetBankAccountHeadList();
                 var Data = Common.getProjectNo(model.selProjectType ?? 0);
                 ViewBag.ProjectNo = Data.Item1;
                 ViewBag.Vendor = Common.getVendor();

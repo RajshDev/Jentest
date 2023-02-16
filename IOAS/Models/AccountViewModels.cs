@@ -282,8 +282,13 @@ namespace IOAS.Models
         public ProjectDetailModel ProjectDetail { get; set; }
         public int FinYearId { get; set; } = Infrastructure.Common.GetCurrentFinYearId();
 
-        public Nullable<int> BankId { get; set; }
-    } 
+        [Required]
+        [Display(Name = "Bank Name")]
+        public Nullable<Int32> BankId { get; set; }
+
+        public Nullable<Int32> BankHeadId { get; set; }
+        public string BankName { get; set; }
+    }
     public class CommitmentResultModel
     {
         public CommitAllocationHeadDetails AllocModel { get; set; }
@@ -340,6 +345,9 @@ namespace IOAS.Models
         public string Finalhref { get; set; }
         public string Newhref { get; set; }
         public HttpPostedFileBase FinalAttachDoc { get; set; }
+        public string BankHeadName { get; set; }
+        public int BankHeadId { get; set; }
+        public int Pre_BankID { get; set; }
     }
 
     public class CommitAllocationHeadDetails

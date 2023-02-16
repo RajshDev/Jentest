@@ -596,6 +596,32 @@ new { @class = "form-control" })
         CalculatePaymentValue();
         CalculateDeductionTotal();
         $('#NeedUpdateTransDetail').val('false');
+
+
+
+        var BankHead = $('#BankHead :selected').val();
+
+        if (BankHead != '')
+        {
+            $.getJSON("@Url.Action("LoadProjecttitlebybankid", "Project")", { projecttype: 1, bankid: BankHead },
+        function (locationdata) {
+            var select = $("#srchProjectNumber");
+            select.empty();
+
+            $.each(locationdata, function (index, itemData) {
+
+                select.append($('<option/>', {
+                    value: itemData.id,
+                    text: itemData.name
+
+                }));
+            });
+            select.selectpicker('refresh');
+        });
+
+        }
+
+
     });
 
 
@@ -1433,6 +1459,48 @@ new { @class = "form-control" })
         });
         return !hadError; // return the valid status
 
+    }
+
+
+    $('#BankHead').on("change", function () {
+        var BankHeadId = $(this).val();
+
+        $("#BankHead").val(BankHeadId);
+        $("#srchProjectType").val(1);
+        EmptyCommitmentSrchList();
+        EmptyCommitmentSelList();
+
+        $.getJSON("@Url.Action("LoadProjecttitlebybankid", "Project")", { projecttype: 1, bankid: BankHeadId },
+        function (locationdata) {
+            var select = $("#srchProjectNumber");
+            select.empty();
+
+            $.each(locationdata, function (index, itemData) {
+
+                select.append($('<option/>', {
+                    value: itemData.id,
+                    text: itemData.name
+
+                }));
+            });
+            select.selectpicker('refresh');
+        });
+
+    });
+
+
+    function EmptyCommitmentSelList() {
+        $('#tbodyCommitmentSelList tr').not(':first').remove();
+        $('#tbodyCommitmentSelList tr td').not(':last').not(':nth-last-child(2)').html('');
+        //$('#tbodyCommitmentSelList tr td:last').find("input").val("");
+        $('#tbodyCommitmentSelList tr').find("input[name!='CommitmentDetail.Index']").val("");
+        $('#CommitmentAmount').val('');
+    }
+    function EmptyCommitmentSrchList() {
+
+        $('#tbodyCommitmentSrchList tr').not(':first').remove();
+        $('#tbodyCommitmentSrchList tr td').not(':first').html('');
+        $('#tbodyCommitmentSrchList tr td:first input').val('');
     }
 
 </script>

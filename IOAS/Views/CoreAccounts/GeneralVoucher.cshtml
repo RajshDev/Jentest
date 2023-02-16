@@ -283,6 +283,30 @@
         CalculatePaymentValue();
         CalculatePaymentBUTotal();
         CalculatePayTxTotal();
+
+
+        var PaymentBank = $('#PaymentBank :selected').val();
+
+        if (PaymentBank != '')
+        {
+            $.getJSON("@Url.Action("LoadProjecttitlebybankid", "Project")", { projecttype: 1, bankid: PaymentBank },
+        function (locationdata) {
+            var select = $("#srchProjectNumber");
+            select.empty();
+
+            $.each(locationdata, function (index, itemData) {
+
+                select.append($('<option/>', {
+                    value: itemData.id,
+                    text: itemData.name
+
+                }));
+            });
+            select.selectpicker('refresh');
+        });
+
+        }
+
     });
     $('#PaymentCategory').change(function () {
         removeValidation();
@@ -511,7 +535,7 @@
         var count = stepElements.length; // check that there are inputs
         if (count <= 0) {                // if there are not no reason to loop them
             return true;                 // this can be used to perform other action if there are no steps
-        } else if (currentTab == 0) {            
+        } else if (currentTab == 0) {
             var validationMsg = ValidateTransaction()
             if (validationMsg != 'valid') {
                 hadError = true;
@@ -536,6 +560,47 @@
         });
         return !hadError; // return the valid status
 
+    }
+
+
+    $('#PaymentBank').on("change", function () {
+        var BankHeadId = $(this).val();
+        $("#PaymentBank").val(BankHeadId);
+        $("#srchProjectType").val(1);
+        EmptyCommitmentSrchList()
+        EmptyCommitmentSelList()
+
+        $.getJSON("@Url.Action("LoadProjecttitlebybankid", "Project")", { projecttype: 1, bankid: BankHeadId },
+        function (locationdata) {
+            var select = $("#srchProjectNumber");
+            select.empty();
+
+            $.each(locationdata, function (index, itemData) {
+
+                select.append($('<option/>', {
+                    value: itemData.id,
+                    text: itemData.name
+
+                }));
+            });
+            select.selectpicker('refresh');
+        });
+
+    });
+
+
+
+    function EmptyCommitmentSelList() {
+        $('#tbodyCommitmentSelList tr').not(':first').remove();
+        $('#tbodyCommitmentSelList tr td').not(':last').not(':nth-last-child(2)').html('');
+        //$('#tbodyCommitmentSelList tr td:last').find("input").val("");
+        $('#tbodyCommitmentSelList tr').find("input[name!='CommitmentDetail.Index']").val("");
+        $('#CommitmentAmount').val('');
+    }
+    function EmptyCommitmentSrchList() {
+        $('#tbodyCommitmentSrchList tr').not(':first').remove();
+        $('#tbodyCommitmentSrchList tr td').not(':first').html('');
+        $('#tbodyCommitmentSrchList tr td:first input').val('');
     }
 </script>
 <script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>

@@ -100,7 +100,7 @@
                                             </div>
                                         </div>
                                         <div class="row">
-                                            <div class="col-md-12">
+                                            <div class="col-md-6">
                                                 <div class="form-group custom-form-group">
                                                     <label class="required">Project</label>
                                                     @*@Html.DropDownListFor(m => m.ProjectId, new SelectList(ViewBag.Project, "id", "name"), "Select any", new { @class = "form-control selectpicker", @id = "selectproject" })*@
@@ -108,7 +108,16 @@
                                                     @Html.TextBoxFor(m => m.ProjectId, new { @class = "form-control dis-none" })
                                                     @Html.ValidationMessageFor(m => m.ProjectId)
                                                 </div>
-                                            </div>                                            
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="required">Bank</label>
+                                                    @Html.DropDownListFor(m => m.BankId, new SelectList(ViewBag.BankHeadList, "id", "name"), "Select any", new { @class = "form-control" })
+                                                    @Html.ValidationMessageFor(m => m.BankId)
+                                                    @Html.HiddenFor(m => m.BankHeadId)
+                                                </div>
+                                            </div>
+
                                         </div>    
                                         <div class="row">
                                             <div class="col-md-4">
@@ -404,7 +413,33 @@
         $("input[name='Name']").each(function () {
             piChange($(this), 'U');
         });
-        
+
+
+        var BankId = $('#BankId :selected').val();
+
+        if (BankId != '')
+        {
+            $.getJSON("@Url.Action("LoadProjecttitlebybankid", "Project")", { projecttype: 1, bankid: BankId },
+        function (locationdata) {
+            var select = $("#srchProjectNumber");
+            select.empty();
+
+            $.each(locationdata, function (index, itemData) {
+
+                select.append($('<option/>', {
+                    value: itemData.id,
+                    text: itemData.name
+
+                }));
+            });
+            select.selectpicker('refresh');
+
+        });
+
+        }
+
+
+
     });
     $(document).on('click', 'a.removeTempAdvance', function () {
         $(this).closest('tr').remove();
@@ -453,9 +488,10 @@
         }
         $("input[name='ProjectId']").addClass('required');
         $("input[name='ProjectNumber']").addClass('required');
-        aplyProjectAutoComplete(selProj, "../CoreAccounts/LoadProjectList", true)
 
+        aplyProjectAutoComplete(selProj, "../CoreAccounts/LoadProjectList", true)       
     }
+
     $('#Source').change(function () {
         var selSource = $(this).val();
         $("#SourceReferenceNumber,#ReferenceNumber").val('');
@@ -631,17 +667,17 @@
         return false;
     });
     function piChange(el, mode) {
-       
+
         if (mode != 'U') {
             $("input[name='UserId'],input[name='Name']").val('');
             //$(el).closest('tr').find("input[name='autoComplete'],input[name='UserId'],input[name='Name']").val('');
-        }        
+        }
             $("input[name='UserId']").addClass('required');
             var ele = $("input[name='Name']");
             // $(el).addClass('required');
             $("input[name='Name']").addClass('required');
             aplyAutoComplete(ele, "../CoreAccounts/LoadPIList", true)
-        
+
     }
     function aplyAutoComplete(ele, url, setId) {
         $(ele).autocomplete({
@@ -672,12 +708,12 @@
     }
 
    // $(document).on('change', 'input[name="Name"]', function () {
-    $('input[name="Name"]').change(function () {       
+    $('input[name="Name"]').change(function () {
         var name = $(this).val();
         var user = $('input[name="UserId"]');
         var userid = $('input[name="UserId"]').val();
         var piname = $('input[name="Name"]');
-        
+
             if(userid != "")
             {
                 $.getJSON("@Url.Action("LoadPIDetailsbyName", "CoreAccounts")", { Name: name },
@@ -748,9 +784,9 @@
 
     });
 
-    
+
     //$('#selectproject').change(function () {
-    $('input[name="ProjectNumber"]').change(function () {    
+    $('input[name="ProjectNumber"]').change(function () {
         $('#NeedUpdateTransDetail').val('true');
         var projectid = $('input[name="ProjectId"]').val();
          $.getJSON("@Url.Action("LoadProjectDetails", "CoreAccounts")", { ProjectId: projectid },
@@ -1287,6 +1323,70 @@
         return !hadError; // return the valid status
 
     }
+
+
+    $("#txtProjectNumber").change(function () {
+        var ProjId = $("#ProjectId").val();
+        
+        if (ProjId == null || ProjId == '' || ProjId == undefined) {
+            ProjId = 0;
+        }
+        $.getJSON("@Url.Action("Loadbankbyproject", "Project")", { ProjectId: ProjId },
+       function (locationdata) {
+           var select = $("#BankId");
+           select.empty();
+           $.each(locationdata, function (index, itemData) {
+
+               select.append($('<option/>', {
+                   value: itemData.id,
+                   text: itemData.name
+
+               }));
+           });
+           select.selectpicker('refresh');
+       });
+
+    });
+
+    $('#BankId').on("change", function () {
+        var BankHeadId = $(this).val();
+        $("#BankHeadId").val(BankHeadId);
+        $("#srchProjectType").val(1);
+        EmptyCommitmentSrchList()
+        EmptyCommitmentSelList()
+
+        $.getJSON("@Url.Action("LoadProjecttitlebybankid", "Project")", { projecttype: 1, bankid: BankHeadId },
+        function (locationdata) {
+            var select = $("#srchProjectNumber");
+            select.empty();
+
+            $.each(locationdata, function (index, itemData) {
+
+                select.append($('<option/>', {
+                    value: itemData.id,
+                    text: itemData.name
+
+                }));
+            });
+            select.selectpicker('refresh');
+
+        });
+
+    });
+
+    function EmptyCommitmentSelList() {
+        $('#tbodyCommitmentSelList tr').not(':first').remove();
+        $('#tbodyCommitmentSelList tr td').not(':last').not(':nth-last-child(2)').html('');
+        //$('#tbodyCommitmentSelList tr td:last').find("input").val("");
+        $('#tbodyCommitmentSelList tr').find("input[name!='CommitmentDetail.Index']").val("");
+        $('#CommitmentAmount').val('');
+    }
+    function EmptyCommitmentSrchList() {
+        $('#tbodyCommitmentSrchList tr').not(':first').remove();
+        $('#tbodyCommitmentSrchList tr td').not(':first').html('');
+        $('#tbodyCommitmentSrchList tr td:first input').val('');
+    }
+
 </script>
 <script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
 <script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>

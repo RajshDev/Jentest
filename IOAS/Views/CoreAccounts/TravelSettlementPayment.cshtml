@@ -190,6 +190,14 @@
                                                         @Html.ValidationMessageFor(M => M.Remarks)
                                                     </div>
 
+                                                </div>                                              
+                                                <div class="col-md-3">
+                                                    <div class="form-group custom-form-group">
+                                                        <label class="required">Bank</label>
+                                                        @Html.DropDownListFor(m => m.BankId, new SelectList(ViewBag.BankHeadList, "id", "name"), "Select any", new { @class = "form-control" })
+                                                        @Html.ValidationMessageFor(m => m.BankId)
+                                                        @Html.HiddenFor(m => m.BankHeadId)
+                                                    </div>
                                                 </div>
                                             </div>
                                             </div>
@@ -349,6 +357,29 @@
 
         if ($('#TravelBillId').val() == '') {
             $('#NeedUpdateTransDetail').val('true');
+        }
+
+
+        var BankId = $('#BankId :selected').val();
+
+        if (BankId != '')
+        {
+            $.getJSON("@Url.Action("LoadProjecttitlebybankid", "Project")", { projecttype: 1, bankid: BankId },
+        function (locationdata) {
+            var select = $("#srchProjectNumber");
+            select.empty();
+
+            $.each(locationdata, function (index, itemData) {
+
+                select.append($('<option/>', {
+                    value: itemData.id,
+                    text: itemData.name
+
+                }));
+            });
+            select.selectpicker('refresh');
+        });
+
         }
     });
     function changeACPI() {
@@ -1008,6 +1039,46 @@
                 console.log("error : " + err);
             }
         });
+    }
+
+    $('#BankId').on("change", function () {
+        var BankHeadId = $(this).val();
+        $("#BankHeadId").val(BankHeadId);
+        $("#srchProjectType").val(1);
+        EmptyCommitmentSrchList()
+        EmptyCommitmentSelList()
+
+        $.getJSON("@Url.Action("LoadProjecttitlebybankid", "Project")", { projecttype: 1, bankid: BankHeadId },
+        function (locationdata) {
+            var select = $("#srchProjectNumber");
+            select.empty();
+
+            $.each(locationdata, function (index, itemData) {
+
+                select.append($('<option/>', {
+                    value: itemData.id,
+                    text: itemData.name
+
+                }));
+            });
+            select.selectpicker('refresh');
+        });
+
+    });
+
+
+
+    function EmptyCommitmentSelList() {
+        $('#tbodyCommitmentSelList tr').not(':first').remove();
+        $('#tbodyCommitmentSelList tr td').not(':last').not(':nth-last-child(2)').html('');
+        //$('#tbodyCommitmentSelList tr td:last').find("input").val("");
+        $('#tbodyCommitmentSelList tr').find("input[name!='CommitmentDetail.Index']").val("");
+        $('#CommitmentAmount').val('');
+    }
+    function EmptyCommitmentSrchList() {
+        $('#tbodyCommitmentSrchList tr').not(':first').remove();
+        $('#tbodyCommitmentSrchList tr td').not(':first').html('');
+        $('#tbodyCommitmentSrchList tr td:first input').val('');
     }
 </script>
 <script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>

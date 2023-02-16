@@ -87,13 +87,13 @@
 new { @class = "form-control" })
                                                     @Html.ValidationMessageFor(m => m.VendorId)
                                                     @if (Model.VendorId != null)
-                                                    {
-                                                        <a href="javascript:void(0)" id="lnkBillHistory">View previous bill history</a>
-                                                    }
-                                                    else
-                                                    {
-                                                        <a href="javascript:void(0)" id="lnkBillHistory" class="dis-none">View previous bill history</a>
-                                                    }
+                {
+                                    <a href="javascript:void(0)" id="lnkBillHistory">View previous bill history</a>
+}
+else
+{
+                                    <a href="javascript:void(0)" id="lnkBillHistory" class="dis-none">View previous bill history</a>
+}
                                                 </div>
 
                                             </div>
@@ -163,7 +163,7 @@ new { @class = "form-control" })
                                             <div class="col-md-3">
                                                 <div class="form-group custom-form-group">
                                                     <label class="required">Bill Type</label>
-                                                    @Html.DropDownListFor(m => m.BillType, new SelectList(ViewBag.BillTypeList, "id", "name"), "Select any",new { @class = "form-control" })
+                                                    @Html.DropDownListFor(m => m.BillType, new SelectList(ViewBag.BillTypeList, "id", "name"), "Select any",new { @class = "form-control" })                                                
                                                     @Html.ValidationMessageFor(m => m.BillType)
                                                 </div>
 
@@ -211,7 +211,7 @@ new { @class = "form-control" })
                                                     @Html.TextAreaFor(m => m.BankGuaranteeRemarks, new { @class = "form-control", @rows = "2" })
                                                     @Html.ValidationMessageFor(M => M.BankGuaranteeRemarks)
                                                 </div>
-                                            </div>
+                                            </div>                                     
                                             <div class="col-md-3">
                                                 <div class="form-group custom-form-group">
                                                     <label>Remarks</label>
@@ -493,6 +493,30 @@ new { @class = "form-control" })
         CalculatePaymentValue();
         CalculateDeductionTotal();
         $('#NeedUpdateTransDetail').val('false');
+
+        var BankId = $('#BankId :selected').val();
+
+        if (BankId != '')
+        {                         
+            $.getJSON("@Url.Action("LoadProjecttitlebybankid", "Project")", { projecttype: 1, bankid: BankId },
+        function (locationdata) {
+            var select = $("#srchProjectNumber");
+            select.empty();
+
+            $.each(locationdata, function (index, itemData) {
+
+                select.append($('<option/>', {
+                    value: itemData.id,
+                    text: itemData.name
+
+                }));
+            });
+            select.selectpicker('refresh');
+        });
+
+        }
+
+
     });
     $('#lnkBillHistory').click(function () {
         var vendorId = $('#VendorId').val();
@@ -521,49 +545,71 @@ new { @class = "form-control" })
         EmptyPODetails();
         applyACToTypeOfService();
     })
-    
 
 
-    $('#BankId').on("change", function() {
-        var BankHeadId = $(this).val()
+
+    $('#BankId').on("change", function () {
+        var BankHeadId = $(this).val();
         $("#BankHeadId").val(BankHeadId);
-        
-       bookCommitment(BankHeadId);
-    });
-    function bookCommitment(BankHeadId)
-    {
-         $.ajax({
-            type: "GET",
-            url: '@Url.Action("_CommitmentDetails", "CoreAccounts")',
-            data: {
-                "BankHeadId": BankHeadId
-            },
-            contentType: "application/x-www-form-urlencoded",
-             success: function (data) {
-                 console.log(data);
-            }
-        });
-        
+        $("#srchProjectType").val(1);
+        EmptyCommitmentSrchList()
+        EmptyCommitmentSelList()
 
+        $.getJSON("@Url.Action("LoadProjecttitlebybankid", "Project")", { projecttype: 1, bankid: BankHeadId },
+        function (locationdata) {
+            var select = $("#srchProjectNumber");
+            select.empty();
+
+            $.each(locationdata, function (index, itemData) {
+
+                select.append($('<option/>', {
+                    value: itemData.id,
+                    text: itemData.name
+
+                }));
+            });
+            select.selectpicker('refresh');
+        });
+
+    });
+
+
+
+    function EmptyCommitmentSelList() {
+        $('#tbodyCommitmentSelList tr').not(':first').remove();
+        $('#tbodyCommitmentSelList tr td').not(':last').not(':nth-last-child(2)').html('');
+        //$('#tbodyCommitmentSelList tr td:last').find("input").val("");
+        $('#tbodyCommitmentSelList tr').find("input[name!='CommitmentDetail.Index']").val("");
+        $('#CommitmentAmount').val('');
+    }
+    function EmptyCommitmentSrchList() {
+        $('#tbodyCommitmentSrchList tr').not(':first').remove();
+        $('#tbodyCommitmentSrchList tr td').not(':first').html('');
+        $('#tbodyCommitmentSrchList tr td:first input').val('');
     }
 
-    $('#btnbookcommitment').on('click', function () {
 
-        var bankId = $("#BankHeadId").val();
+    @*$('#btnbookcommitment').on('click', function () {
+
+        var BankHeadId = $("#BankHeadId").val();
+
+        if (BankHeadId == null || BankHeadId == '') {
+            BankHeadId = $('#BankId :selected').val();
+        }
         $.ajax({
             type: "GET",
             url: '@Url.Action("_BookCommitment", "CoreAccounts")',
             data: {
-                "BankHeadId": bankId
+                "BankHeadId": BankHeadId
             },
             contentType: "application/x-www-form-urlencoded",
             success: function (data) {
                 $("#popup").html(data);
                 $('#TABCModal').modal('toggle');
             }
-    });
-    });
-       
+        });
+    });*@
+
     //$('input[type=radio][name=GST]').change(function () {
     //    if (this.value == 'NotEligible' || parseInt($("#AdvancePercentage").val()) == 100) {
     //        $('#ExpenseRequired').val('False');

@@ -84,14 +84,23 @@
                                                 <div class="txt-error txt-red">
                                                     @Html.ValidationMessageFor(m => m.ReqDate)
                                                 </div>
-                                                </div>
+                                            </div>
                                             <div class="col-md-2">
                                                 <label class="required">Month & Year</label>
                                                 @Html.EditorFor(m => m.MonthYear, new { @class = "form-control required", @id = "year", @autocomplete = "off" })
                                                 <div class="txt-error txt-red">
                                                     @Html.ValidationMessageFor(m => m.MonthYear)
                                                 </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="required">Bank</label>
+                                                    @Html.DropDownListFor(m => m.BankId, new SelectList(ViewBag.BankHeadList, "id", "name"), "Select any", new { @class = "form-control" })
+                                                    @Html.ValidationMessageFor(m => m.BankId)
+                                                    @Html.HiddenFor(m => m.BankHeadId)
                                                 </div>
+                                            </div>
+
                                             <div class="col-md-4">
                                                 <label>Remarks :</label>
                                                 @Html.TextAreaFor(m => m.Remark, new { @class = "form-control", @id = "remark", @autocomplete = "off" })
@@ -461,6 +470,28 @@
             aplyAutoComplete(ele, "../CoreAccounts/GetStaffname");
 
         });
+
+        var BankId = $('#BankId :selected').val();
+
+        if (BankId != '')
+        {
+            $.getJSON("@Url.Action("LoadProjecttitlebybankid", "Project")", { projecttype: 1, bankid: BankId },
+        function (locationdata) {
+            var select = $("#srchProjectNumber");
+            select.empty();
+
+            $.each(locationdata, function (index, itemData) {
+
+                select.append($('<option/>', {
+                    value: itemData.id,
+                    text: itemData.name
+
+                }));
+            });
+            select.selectpicker('refresh');
+        });
+
+        }
 
     });
 
@@ -1056,6 +1087,43 @@
 
     }
 
+    $('#BankId').on("change", function () {
+        var BankHeadId = $(this).val();
+        $("#BankHeadId").val(BankHeadId);
+        $("#srchProjectType").val(1);
+        EmptyCommitmentSrchList()
+        EmptyCommitmentSelList()
+
+        $.getJSON("@Url.Action("LoadProjecttitlebybankid", "Project")", { projecttype: 1, bankid: BankHeadId },
+        function (locationdata) {
+            var select = $("#srchProjectNumber");
+            select.empty();
+
+            $.each(locationdata, function (index, itemData) {
+
+                select.append($('<option/>', {
+                    value: itemData.id,
+                    text: itemData.name
+
+                }));
+            });
+            select.selectpicker('refresh');
+        });
+
+    });
+
+    function EmptyCommitmentSelList() {
+        $('#tbodyCommitmentSelList tr').not(':first').remove();
+        $('#tbodyCommitmentSelList tr td').not(':last').not(':nth-last-child(2)').html('');
+        //$('#tbodyCommitmentSelList tr td:last').find("input").val("");
+        $('#tbodyCommitmentSelList tr').find("input[name!='CommitmentDetail.Index']").val("");
+        $('#CommitmentAmount').val('');
+    }
+    function EmptyCommitmentSrchList() {
+        $('#tbodyCommitmentSrchList tr').not(':first').remove();
+        $('#tbodyCommitmentSrchList tr td').not(':first').html('');
+        $('#tbodyCommitmentSrchList tr td:first input').val('');
+    }
 
 </script>
 

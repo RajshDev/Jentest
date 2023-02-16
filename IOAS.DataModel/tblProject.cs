@@ -176,5 +176,7 @@ namespace IOAS.DataModel
         public string InterestRefund { get; set; }
         public string ModeofRefund { get; set; }
         public string DDInFavourOf { get; set; }
+        public int ProjectFundingCategory { get; set; }
+        public Nullable<int> BankID { get; set; }
     }
 }

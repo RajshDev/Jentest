@@ -3154,16 +3154,20 @@ namespace IOAS.GenericServices
                         if (query.ProjectFundingCategory == 2 || query.ProjectFundingCategory == 3 || query.ProjectFundingCategory == 4)
                         {
                         // editProject.ProjectFundingCategoryId = query.ProjectFundingCategory;
-                           editProject.BankID = query.BankID;
-                            var bankdetails = (from h in context.tblAccountHead
-                                        where h.Status == "Active" 
-                                        && h.Bank_f == true
-                                        && h.AccountGroupId == 38 && h.AccountHeadId == query.BankID
-                                            select new Bankdetails()
-                                        {                                           
-                                            bankname = h.AccountHead
-                                        }).FirstOrDefault();
-                            editProject.bankname = bankdetails.bankname.ToString();
+                        if(query.BankID !=null)
+                            {
+                                editProject.BankID = query.BankID;
+                                var bankdetails = (from h in context.tblAccountHead
+                                                   where h.Status == "Active"
+                                                   && h.Bank_f == true
+                                                   && h.AccountGroupId == 38 && h.AccountHeadId == query.BankID
+                                                   select new Bankdetails()
+                                                   {
+                                                       bankname = h.AccountHead
+                                                   }).FirstOrDefault();
+                                editProject.bankname = bankdetails.bankname.ToString();
+                            }
+                          
                         }
                         else
                         {
@@ -3963,6 +3967,154 @@ namespace IOAS.GenericServices
             }
 
         }
+
+
+        public static List<MasterlistviewModel> LoadProjecttitlebybankid(int projecttype, int bankid)
+        {
+            try
+            {
+                List<MasterlistviewModel> Title = new List<MasterlistviewModel>();
+
+                Title.Add(new MasterlistviewModel()
+                {
+                    id = null,
+                    name = "Select Any"
+                });
+                using (var context = new IOASDBEntities())
+                {
+                    if (projecttype == 1 || projecttype == 2)
+                    {
+
+                        var query = (from C in context.tblProject
+                                     join U in context.vwFacultyStaffDetails on C.PIName equals U.UserId
+                                     where (C.Status == "Active"
+                                     && C.BankID == bankid
+                                     && (C.ProjectFundingCategory == 2 || C.ProjectFundingCategory == 3 || C.ProjectFundingCategory == 4))
+                                     orderby C.ProjectId
+                                     select new { U.FirstName, C }).ToList();
+
+
+                        if (query.Count > 0)
+                        {
+                            for (int i = 0; i < query.Count; i++)
+                            {
+                                if(query[i].C.ProjectType == projecttype)
+                                {
+                                    Title.Add(new MasterlistviewModel()
+                                    {
+                                        id = query[i].C.ProjectId,
+                                        name = query[i].C.ProjectNumber + "-" + query[i].C.ProjectTitle + "- " + query[i].FirstName,
+                                    });
+                                }
+                                
+
+
+                            }
+                        }
+                        else
+                        {
+                            var genproject = (from C in context.tblProject
+                                              join U in context.vwFacultyStaffDetails on C.PIName equals U.UserId
+                                              where (C.Status == "Active" && (C.ProjectFundingCategory == 1) && C.BankID != bankid)
+                                              orderby C.ProjectId
+                                              select new { U.FirstName, C }).ToList();
+
+
+                            if (genproject.Count > 0)
+                            {
+                                for (int i = 0; i < genproject.Count; i++)
+                                {
+                                    if (genproject[i].C.ProjectType == projecttype)
+                                    {
+                                        Title.Add(new MasterlistviewModel()
+                                        {
+                                            id = genproject[i].C.ProjectId,
+                                            name = genproject[i].C.ProjectNumber + "-" + genproject[i].C.ProjectTitle + "- " + genproject[i].FirstName,
+                                        });
+                                    }
+                                 
+                                }
+                            }
+
+                        }
+
+                    }
+                }
+
+
+
+                return Title;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+
+        }
+
+        //public static List<MasterlistviewModel> Loadbankbyproject(int ProjectId)
+        //{
+        //    try
+        //    {
+        //        List<MasterlistviewModel> Title = new List<MasterlistviewModel>();
+        //        using (var context = new IOASDBEntities())
+        //        {
+
+
+        //            var query = (from C in context.tblProject
+        //                         join cc in context.tblAccountHead on C.BankID equals cc.AccountHeadId
+        //                         where C.Status == "Active" && C.ProjectId == ProjectId
+        //                         select new {cc }).ToList();
+        //            var Exbankid = context.tblProject.Where(m => m.BankID != null).Select(m=>m.BankID).ToList();              
+
+        //            var allbank = (from cc in context.tblAccountHead.Where(p => !Exbankid.Contains(p.AccountHeadId) && p.AccountGroupId == 38).AsEnumerable() select cc).ToList();
+
+        //            if (query.Count > 0)
+        //                {
+        //                    for (int i = 0; i < query.Count; i++)
+        //                    {
+        //                        Title.Add(new MasterlistviewModel()
+        //                        {
+        //                            id = query[i].cc.AccountHeadId,
+        //                            name = query[i].cc.AccountHead,
+        //                        });
+        //                    }
+        //                }
+        //            else
+        //            {
+        //                for (int i = 0; i < allbank.Count; i++)
+        //                {
+        //                    Title.Add(new MasterlistviewModel()
+        //                    {
+        //                        id = allbank[i].AccountHeadId,
+        //                        name = allbank[i].AccountHead,
+        //                    });
+        //                }
+        //            }
+
+
+        //            MasterlistviewModel str1 = new MasterlistviewModel()
+        //            {
+        //                id = null,
+        //                name = "Select Any"
+        //            };
+                    
+        //            Title.Insert(0, str1);
+
+
+        //        }
+
+
+
+        //        return Title;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return null;
+        //    }
+
+        //}
+
         public static ProjectEnchancementSearch GetEnhancedProjectList(ProjectEnchancementSearch model, DateFilterModel PrsntDueDate, int page, int pageSize)
         {
             try
