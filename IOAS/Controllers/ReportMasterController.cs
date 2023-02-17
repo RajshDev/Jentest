@@ -2486,7 +2486,7 @@ namespace IOAS.Controllers
                 {
                     RotativaOptions = new DriverOptions()
                     {
-                        PageOrientation = Rotativa.Core.Options.Orientation.Portrait,
+                        PageOrientation = Rotativa.Core.Options.Orientation.Landscape,
                         PageSize = Rotativa.Core.Options.Size.A4,
                         IsLowQuality = false,
                         PageMargins = new Margins(0, 0, 0, 0)

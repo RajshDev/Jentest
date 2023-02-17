@@ -1554,19 +1554,51 @@
             var closuredate = moment($('#lblProjectClosureDate').text().split('-').join('/')).toDate();
             if(closuredate != "") {
                 var addedendyear = "";
-                var designtionid = parseInt($('#DesignationId').val()) || 0;
-                if(designtionid == 1) //Designtion 1 is trainee
-                    addedendyear = moment($(this).val().split('-').join('/')).add(+6, 'months').add(-1,'days').toDate();
-                else
+                var fromdate = $('#Appointmentstartdate').val().split('-').join('/');
+                var To = moment($('#AppointmentEndDate').val().split('-').join('/'));
+                var designtionid = parseInt($('#DesignationId').val()) || 0;                
+                if (designtionid == 1) //Designtion 1 is trainee
+                    addedendyear = moment($(this).val().split('-').join('/')).add(+6, 'months').add(-1, 'days').toDate();
+                else {
                     addedendyear = moment($(this).val().split('-').join('/')).add(+364, 'days').toDate();
+                    var years = addedendyear.getFullYear();
+                    var months = addedendyear.getMonth() + 1;
+                    var days = addedendyear.getDate();
+                    var Lyear = years;
+                    var LeapYear = Lyear % 4;
+                    if (LeapYear == 0) {
+                        if (months == 2) {
+                            if (days >= 28) {
+                                
+                                addedendyear = moment($(this).val().split('-').join('/')).add(+365, 'days').toDate();
+                            }
+                            else {
+                               
+                                addedendyear = moment($(this).val().split('-').join('/')).add(+364, 'days').toDate();
+                            }
+                        } else if (months >= 3) {
+                            
+                            addedendyear = moment($(this).val().split('-').join('/')).add(+365, 'days').toDate();
+                        } else {
+                            
+                            addedendyear = moment($(this).val().split('-').join('/')).add(+364, 'days').toDate();
+                        }
+
+                    } else {
+                       
+                        addedendyear = moment($(this).val().split('-').join('/')).add(+364, 'days').toDate();
+                    }
+                    
+                }                                                            
 
                 if(addedendyear > closuredate)
                     enddate = closuredate;
                 else
                     enddate = addedendyear;
             }
+            
             var startdate = moment($(this).val().split('-').join('/')).add(+1, 'months').add(-1,'days').toDate();
-
+            
             $('#AppointmentEndDate').datepicker({
                 dateFormat: 'dd-MM-yy',
                 changeYear: true
