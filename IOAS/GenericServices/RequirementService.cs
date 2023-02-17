@@ -2788,28 +2788,28 @@ namespace IOAS.GenericServices
                             var query = IOAScontext.tblRCTSTE.FirstOrDefault(m => m.STEID == id);
                             if (query != null)
                             {
-                               
+
                                 string Type = "STEVER Flow";
                                 if (model.FlowApprover == "CMAdmin" ? true : false)
                                     Type = "STEVERAdminFlow";
                                 else if (model.FlowApprover == "NDean" ? true : false)
                                     Type = "STEVERFlowDean";
-                                var fw = CoreAccount.ProcessTrigger(188, Type, 0, id, logged_in_user, "STEID-VER", query.ApplicationNumber);
-                                if (String.IsNullOrEmpty(fw.errorMsg))
-                                {
-                                    query.Status = "Sent for approval-Verify";
-                                    query.UptdUser = logged_in_user;
-                                    query.UptdTs = DateTime.Now;
-                                    IOAScontext.SaveChanges();
-                                    transaction.Commit();
-                                    PostSTEStatusLog(id, "Awaiting Verification", "Sent for approval-Verify", logged_in_user);
-                                    return Tuple.Create(true, "");
-                                }
-                                else
-                                    return Tuple.Create(false, fw.errorMsg);
-                            }
-                            return Tuple.Create(false, "Something went wrong please contact administrator");
+                        var fw = CoreAccount.ProcessTrigger(188, Type, 0, id, logged_in_user, "STEID-VER", query.ApplicationNumber);                       
+                        if (String.IsNullOrEmpty(fw.errorMsg))
+                        {
+                            query.Status = "Sent for approval-Verify";
+                            query.UptdUser = logged_in_user;
+                            query.UptdTs = DateTime.Now;
+                            IOAScontext.SaveChanges();
+                            transaction.Commit();
+                            PostSTEStatusLog(id, "Awaiting Verification", "Sent for approval-Verify", logged_in_user);
+                            return Tuple.Create(true, "");
                         }
+                        else
+                            return Tuple.Create(false, fw.errorMsg);
+                    }
+                    return Tuple.Create(false, "Something went wrong please contact administrator");
+                }
                         catch (Exception ex)
                         {
                             transaction.Rollback();
@@ -2817,9 +2817,9 @@ namespace IOAS.GenericServices
                             return Tuple.Create(false, "");
                         }
                     }
-                    
+
                 }
-                
+
             }
             catch (Exception ex)
             {
@@ -2848,17 +2848,17 @@ namespace IOAS.GenericServices
                                 Type = "STEORDVERAdminFlow";
                             else if (model.FlowApprover == "NDean" ? true : false)
                                 Type = "STEORDVERFlowDean";
-                            var fw = CoreAccount.ProcessTrigger(188, Type, 0, id, logged_in_user, "STEID-ORVER", query.o.OrderNo);
-                            if (String.IsNullOrEmpty(fw.errorMsg))
-                            {
-                                query.o.Status = "Sent for approval-Verify";
-                                query.o.UpdtUser = logged_in_user;
-                                query.o.UpdtTS = DateTime.Now;
-                                IOAScontext.SaveChanges();
-                                transaction.Commit();
-                                PostOrderStatusLog(id, "Awaiting Verification", "Sent for approval-Verify", logged_in_user);
-                                return Tuple.Create(true, "");
-                            }
+                        var fw = CoreAccount.ProcessTrigger(188, Type, 0, id, logged_in_user, "STEID-ORVER", query.o.OrderNo);
+                        if (String.IsNullOrEmpty(fw.errorMsg))
+                        {
+                            query.o.Status = "Sent for approval-Verify";
+                            query.o.UpdtUser = logged_in_user;
+                            query.o.UpdtTS = DateTime.Now;
+                            IOAScontext.SaveChanges();
+                            transaction.Commit();
+                            PostOrderStatusLog(id, "Awaiting Verification", "Sent for approval-Verify", logged_in_user);
+                            return Tuple.Create(true, "");
+                        }
                             else
                                 return Tuple.Create(false, fw.errorMsg);
                         }
@@ -2893,17 +2893,17 @@ namespace IOAS.GenericServices
                                 Type = "OSGORDVERAdminFlow";
                             else if (model.FlowApprover == "NDean" ? true : false)
                                 Type = "OSGORDVERFlowDean";
-                            var fw = CoreAccount.ProcessTrigger(206, Type, 0, id, logged_in_user, "OSGID-ORVER", query.o.OrderNo);
-                            if (String.IsNullOrEmpty(fw.errorMsg))
-                            {
-                                query.o.Status = "Sent for approval-Verify";
-                                query.o.UpdtUser = logged_in_user;
-                                query.o.UpdtTS = DateTime.Now;
-                                IOAScontext.SaveChanges();
-                                transaction.Commit();
-                                PostOrderStatusLog(id, "Awaiting Verification", "Sent for approval-Verify", logged_in_user);
-                                return Tuple.Create(true, "");
-                            }
+                        var fw = CoreAccount.ProcessTrigger(206, Type, 0, id, logged_in_user, "OSGID-ORVER", query.o.OrderNo);
+                        if (String.IsNullOrEmpty(fw.errorMsg))
+                        {
+                            query.o.Status = "Sent for approval-Verify";
+                            query.o.UpdtUser = logged_in_user;
+                            query.o.UpdtTS = DateTime.Now;
+                            IOAScontext.SaveChanges();
+                            transaction.Commit();
+                            PostOrderStatusLog(id, "Awaiting Verification", "Sent for approval-Verify", logged_in_user);
+                            return Tuple.Create(true, "");
+                        }
                             else
                                 return Tuple.Create(false, fw.errorMsg);
                         }
@@ -3404,14 +3404,14 @@ namespace IOAS.GenericServices
                         model.AppointmentEndDate = string.Format("{0:dd-MMMM-yyyy}", query.A.AppointmentEnddate);
                         model.PayType = query.A.ConsolidatedPay == true ? "Consolidated Pay" : "Fellowship Pay";
                         model.ActualDateView = string.Format("{0:dd-MMMM-yyyy}", query.A.ActualDate);
-                        model.ActualDate = query.A.ActualDate;                       
+                        model.ActualDate = query.A.ActualDate;
                         model.VerificationRemarks = query.A.VerificationRemarks;
                         if (query.A.NotetoCMAdmin == true)
                             model.FlowApprover = "CMAdmin";
                         if (query.A.NotetoDean == true)
                             model.FlowApprover = "NDean";
-                        //model.FlowApprover = query.A.NotetoCMAdmin == true ? "CMAdmin" : query.A.NotetoDean == true ? "NDean" : "";                       
-                 
+                        //model.FlowApprover = query.A.NotetoCMAdmin == true ? "CMAdmin" : query.A.NotetoDean == true ? "NDean" : "";      
+                        
                         var QryEducation = (from c in context.tblRCTSTEEducationDetail
                                             join q in context.tblRCTQualificationList on c.QualifiCationID equals q.QualificationId into lft
                                             from j in lft.DefaultIfEmpty()
@@ -3448,7 +3448,7 @@ namespace IOAS.GenericServices
                             }
                         }
                         model.EducationDetail = EducationList.Count > 0 ? EducationList : null;
-                       
+
                         model.ExperienceDetail = (from c in context.tblRCTSTEExperienceDetail
                                                   join d in context.tblCodeControl on c.TypeID equals d.CodeValAbbr into lft
                                                   from j in lft.DefaultIfEmpty()
@@ -3511,7 +3511,7 @@ namespace IOAS.GenericServices
                         if (query.A.JoiningReport != null)
                             model.JoiningReportFileName = query.A.JoiningReport.Substring(query.A.JoiningReport.IndexOf("_") + 1);
                         model.JoiningReportPath = query.A.JoiningReport;
-                        model.RequestedfromPI = Common.GetPIName(query.A.RequestedBy ?? 0);                        
+                        model.RequestedfromPI = Common.GetPIName(query.A.RequestedBy ?? 0);
                         model.OtherDetail = (from c in context.tblRCTSupportingDocument
                                              where c.AppointmentId == STEID && c.Status == "Active" && c.AppointmentType == 2
                                              orderby c.DocumentID
@@ -3545,7 +3545,7 @@ namespace IOAS.GenericServices
         {
             int res = 0, STEID = model.STEId ?? 0, OrderID = model.OrderId ?? 0;
             string EmployeeID = string.Empty, errMsg = string.Empty;
-            
+
 
             try
             {
@@ -3956,7 +3956,7 @@ namespace IOAS.GenericServices
                                         query.s.UptdUser = logged_in_userId;
                                         query.s.EmployeeWorkplace = model.EmployeeWorkplace;
                                         context.SaveChanges();
-                                                                               
+
                                         context.tblRCTSTEEducationDetail.Where(x => x.STEID == STEID && x.isCurrentVersion == true)
                                     .ToList()
                                     .ForEach(m =>
@@ -4192,7 +4192,7 @@ namespace IOAS.GenericServices
                                 }
                             }
 
-                            
+
                         }
                         catch (Exception ex)
                         {
@@ -6621,8 +6621,8 @@ namespace IOAS.GenericServices
                                         res = 1;
                                     }
 
-                                }                                                            
-                                
+                                }
+
                                 //return Tuple.Create(1, "");
 
                             }
@@ -13385,16 +13385,18 @@ namespace IOAS.GenericServices
                             model.FromDate = string.Format("{0:dd-MMMM-yyyy}", query.AppointmentStartdate);
                             model.ToDate = string.Format("{0:dd-MMMM-yyyy}", query.AppointmentEnddate);
                             DateTime OfferDate = getOfferLetterDate(query.ApplicationId ?? 0, query.Category, "Order", orderid);
-                            model.OrderDate = string.Format("{0:dd-MMMM-yyyy}", OfferDate);
+                            model.OrderDate = string.Format("{0:dd-MMMM-yyyy}", OfferDate);                            
                             model.PaymentThroughAgency_f = query.CSIRStaffPayMode == 2 ? true : false;
                             model.MsPhd_f = query.isMsPhd;
                             model.RollNumber = query.PhdDetail;
                             model.Gender = query.Sex;
-                            var OrrderDetail = getReferenceOfferDetails(query.ApplicationId ?? 0, query.AppointmentType ?? 0, query.OrderId);
+                            //Requirement Bug #8535 Order-reference number issue
+                            var OrrderDetail = getReferenceOfferDetails(query.ApplicationId ?? 0, query.AppointmentType ?? 0, query.OrderId);                            
                             if (OrrderDetail != null)
                             {
                                 model.ReferenceNumber = OrrderDetail.Item1;
-                                model.ReferenceOrder = OrrderDetail.Item2;
+                                model.ReferenceOrder = OrrderDetail.Item2;                                
+                                model.ExtensionOfficeOrderDate = string.Format("{0:dd-MMMM-yyyy}", OrrderDetail.Item3);                                
                             }
                             model.EmployeeNo = query.EmployeersID;
                             model.Email = query.Email;
@@ -13469,7 +13471,7 @@ namespace IOAS.GenericServices
                 return model;
             }
         }
-
+        
         public RCTOfficeOrderModel getOfficeOrderDetails(int appid, string appType, int? orderid = null)
         {
             RCTOfficeOrderModel model = new RCTOfficeOrderModel();
@@ -19664,8 +19666,8 @@ namespace IOAS.GenericServices
                         //{
                         var query = IOAScontext.tblRCTOutsourcing.FirstOrDefault(m => m.OSGID == id);
                         if (query != null)
-                        {                           
-                                string Type = "OSGVER Flow";
+                        {
+                            string Type = "OSGVER Flow";
                             if (model.FlowApprover == "CMAdmin" ? true : false)
                                 Type = "OSGVERAdminFlow";
                             else if (model.FlowApprover == "NDean" ? true : false)
@@ -19686,7 +19688,7 @@ namespace IOAS.GenericServices
                                 return Tuple.Create(false, msg);
                         }
                     }
-                        return Tuple.Create(false, "Something went wrong please contact administrator");
+                    return Tuple.Create(false, "Something went wrong please contact administrator");
                     //}
                     //else
                     //    return Tuple.Create(false, "This Outsourcing is already approved");
@@ -20250,7 +20252,7 @@ namespace IOAS.GenericServices
                         model.OfferDate = string.Format("{0:dd-MMMM-yyyy}", QryOSG.A.OfferDate);
                         model.Appointmentstartdate = string.Format("{0:dd-MMMM-yyyy}", QryOSG.A.AppointmentStartdate);
                         model.AppointmentEndDate = string.Format("{0:dd-MMMM-yyyy}", QryOSG.A.AppointmentEnddate);
-                        model.EmployeeWorkplace = QryOSG.A.EmployeeWorkplace;                        
+                        model.EmployeeWorkplace = QryOSG.A.EmployeeWorkplace;
                         model.ActualDate= QryOSG.A.ActualDate;
                         model.ActualDateView= string.Format("{0:dd-MMMM-yyyy}", QryOSG.A.ActualDate);
                         model.Designation = QryOSG.Designation;
@@ -20480,7 +20482,7 @@ namespace IOAS.GenericServices
                 int res = 0;
                 int OSGID = model.STEId ?? 0;
                 string EmployeersID = "", errMsg = string.Empty;
-                
+
                 using (var context = new IOASDBEntities())
                 {
                     using (var transaction = context.Database.BeginTransaction())
@@ -20779,12 +20781,12 @@ namespace IOAS.GenericServices
                                             }
                                         }
                                     }
-                                    
+
                                     //_qryOSG.s.isEmployee = true;
                                     //Update Commitment table                                   
                                     _qryOSG.s.EmployeeWorkplace = model.EmployeeWorkplace;
-                                   
-                                    _qryOSG.s.NotetoDean = model.FlowApprover == "NDean" ? true : false;                                  
+
+                                    _qryOSG.s.NotetoDean = model.FlowApprover == "NDean" ? true : false;
                                     _qryOSG.s.NotetoCMAdmin = model.FlowApprover == "CMAdmin" ? true : false;
                                     context.SaveChanges();
                                     transaction.Commit();
@@ -20793,10 +20795,10 @@ namespace IOAS.GenericServices
                                     PostOSGStatusLog(OSGID, "Awaiting Verification", "Awaiting Verification-Draft", logged_in_userId);
                                     //PostOfferDetails(OSGID, "OSG", "OfficeOrder", logged_in_userId);
 
-                                    
+
                                 }
                             }
-                            else 
+                            else
                             {
                                 var _qryOSG = (from s in context.tblRCTOutsourcing
                                                from d in context.tblRCTDesignation
@@ -21104,25 +21106,79 @@ namespace IOAS.GenericServices
                                         _qryOSG.s.NotetoCMAdmin = model.FlowApprover == "CMAdmin" ? true : false;
                                         context.SaveChanges();
                                         transaction.Commit();
-                                        res = 1;                                        
+                                        res = 1;
+                                        decimal WithdrawAmmount = 0;
+                                        //Check Joining date if candtidate join deloy for the appointment tenure should Widthdraw commitment ammount
+                                        if (_qryOSG.s.AppointmentStartdate < model.ActualDate && _qryOSG.s.CSIRStaffPayMode != 2)
+                                        {
+                                            DateTime FromDate = _qryOSG.s.AppointmentStartdate ?? DateTime.Now;
+                                            DateTime ToDate = model.ActualDate ?? DateTime.Now;
+                                            WithdrawAmmount = Common.calculateWithdrawalAmount(OSGID, "OSG", FromDate, ToDate, true, 0, true);
+                                            if (WithdrawAmmount > 0)
+                                            {
+                                                tblRCTCommitmentRequest WidthdrawCommitment = new tblRCTCommitmentRequest();
+                                                WidthdrawCommitment.ReferenceNumber = _qryOSG.s.ApplicationNumber;
+                                                WidthdrawCommitment.AppointmentType = "Verfication";
+                                                WidthdrawCommitment.TypeCode = "OSG";
+                                                WidthdrawCommitment.CandidateName = _qryOSG.s.Name;
+                                                WidthdrawCommitment.CandidateDesignation = _qryOSG.d.Designation;
+                                                WidthdrawCommitment.ProjectId = _qryOSG.s.ProjectId;
+                                                WidthdrawCommitment.ProjectNumber = RequirementService.getProjectSummary(_qryOSG.s.ProjectId ?? 0).ProjectNumber;
+                                                WidthdrawCommitment.TotalSalary = _qryOSG.s.Salary;
+                                                WidthdrawCommitment.RequestedCommitmentAmount = WithdrawAmmount;
+                                                WidthdrawCommitment.Status = "Awaiting Commitment Booking";
+                                                WidthdrawCommitment.RequestType = "Withdraw Commitment";
+                                                WidthdrawCommitment.EmpNumber = _qryOSG.s.EmployeersID;
+                                                WidthdrawCommitment.EmpId = logged_in_userId;
+                                                WidthdrawCommitment.Crtd_TS = DateTime.Now;
+                                                WidthdrawCommitment.Crtd_UserId = logged_in_userId;
+                                                context.tblRCTCommitmentRequest.Add(WidthdrawCommitment);
+                                                context.SaveChanges();
+                                            }
+                                        }
+
+                                        var Updateqry = (from a in context.tblRCTOutsourcing
+                                                         where a.OSGID == OSGID
+                                                         select a).FirstOrDefault();
+                                        if (Updateqry != null)
+                                        {
+                                            var Actualstartdate = Updateqry.AppointmentStartdate;
+                                            Updateqry.ActualAppointmentStartDate = Actualstartdate;
+                                            Updateqry.ActualAppointmentEndDate = Updateqry.AppointmentEnddate;
+                                            decimal CommitmentAmount = 0;
+                                            CommitmentAmount = Updateqry.CommitmentAmount ?? 0;
+                                            Updateqry.AppointmentStartdate = model.ActualDate;
+                                            if (WithdrawAmmount > 0)
+                                                Updateqry.CommitmentAmount = CommitmentAmount - WithdrawAmmount;
+                                            context.SaveChanges();
+                                        }
+
 
                                         //PostOSGStatusLog(OSGID, "Awaiting Verification", "Verification Completed", logged_in_userId);
                                         PostOfferDetails(OSGID, "OSG", "OfficeOrder", logged_in_userId);
+
+
+
+                                        // var Data = OSGVERWFInit(OSGID, logged_in_userId);
+                                        if (Data.Item1 == false)
+                                        {
+                                            return Tuple.Create(-1, OSGID, Data.Item2);
+
+                                        }
+
                                     }
-                                    
                                 }
-                            }
-                            //else
-                            //{
-                            //    //Check is verified
-                            //    int PreVerified = (from P in context.tblRCTOSGStatusLog
-                            //                       where P.OSGID == OSGID && P.NewStatus == "Verification Completed"
-                            //                       select P).ToList().Count;
-                            //    if (PreVerified > 0)
-                            //        res = 2;
-                            //    else
-                            //        res = -1;
-                            //}
+                                //else
+                                //{
+                                //    //Check is verified
+                                //    int PreVerified = (from P in context.tblRCTOSGStatusLog
+                                //                       where P.OSGID == OSGID && P.NewStatus == "Verification Completed"
+                                //                       select P).ToList().Count;
+                                //    if (PreVerified > 0)
+                                //        res = 2;
+                                //    else
+                                //        res = -1;
+                            }   //}
                         }
                         catch (Exception ex)
                         {
@@ -24785,7 +24841,8 @@ namespace IOAS.GenericServices
             }
         }
 
-        public static Tuple<string, string> getReferenceOfferDetails(int appid, int apptype, int? Orderid = null)
+        //Requirement Bug #8535 Order-reference number issue
+        public static Tuple<string, string, DateTime> getReferenceOfferDetails(int appid, int apptype, int? Orderid = null)
         {
             try
             {
@@ -24798,7 +24855,7 @@ namespace IOAS.GenericServices
                         var queryodr = (from o in context.tblOrder
                                         from od in context.tblOrderMaster
                                         where o.AppointmentId == appid && o.AppointmentType == apptype
-                                        && o.OrderType == od.CodeID && o.OrderId != Orderid && o.OrderId < Orderid && o.Status == "Completed" && o.isUpdated == true
+                                        && o.OrderType == od.CodeID && o.OrderId != Orderid && o.OrderId < Orderid && o.Status == "Completed" && o.isUpdated == true 
                                         orderby o.OrderId descending
                                         select new { o.OrderId, OrderTypeStr = od.CodeDescription }).FirstOrDefault();
                         if (queryodr != null)
@@ -24813,12 +24870,13 @@ namespace IOAS.GenericServices
                                  {
                                      o.OfferRefNumber,
                                      o.OfferCategory,
-                                     o.OrderId
+                                     o.CRTD_TS,
+                                     o.OrderId                                          
                                  }).FirstOrDefault();
 
                     if (query != null)
                     {
-                        var RefField = string.Empty;
+                        var RefField = string.Empty;                        
                         if (query.OfferCategory == "OfficeOrder")
                             RefField = "office order";
                         else if (query.OfferCategory == "Order")
@@ -24828,16 +24886,16 @@ namespace IOAS.GenericServices
                                             where o.AppointmentId == appid && o.AppointmentType == apptype && o.OrderType == od.CodeID && o.OrderId == query.OrderId
                                             select new { o.OrderType, OrderTypeStr = od.CodeDescription }).FirstOrDefault();
                             if (queryodr != null)
-                                RefField = (queryodr.OrderTypeStr.ToLower() == "hra booking" ? "hra" : queryodr.OrderTypeStr.ToLower()) + " order";
+                                RefField = (queryodr.OrderTypeStr.ToLower() == "hra booking" ? "hra" : queryodr.OrderTypeStr.ToLower()) + " order";                            
                         }
-                        return Tuple.Create(query.OfferRefNumber, RefField);
+                        return Tuple.Create(query.OfferRefNumber, RefField, Convert.ToDateTime(query.CRTD_TS));                        
                     }
                 }
-                return Tuple.Create("", "");
+                return Tuple.Create("", "", DateTime.Now);
             }
             catch (Exception ex)
             {
-                return Tuple.Create("", "");
+                return Tuple.Create("", "", DateTime.Now);
             }
         }
 
@@ -24848,7 +24906,7 @@ namespace IOAS.GenericServices
                 using (var context = new IOASDBEntities())
                 {
                     var query = (from o in context.tblRCTOfferDetails
-                                 where o.ApplicationId == appid && o.Category == apptype && o.OfferCategory == category
+                                 where o.ApplicationId == appid && o.Category == apptype && o.OfferCategory == category 
                                  && ((orderid == null && o.OrderId == null) || o.OrderId == orderid)
                                  select o.CRTD_TS).FirstOrDefault();
                     if (query != null)
@@ -24862,6 +24920,7 @@ namespace IOAS.GenericServices
             }
         }
 
+        
 
         #region Stored Procedures
 

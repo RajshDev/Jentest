@@ -2289,6 +2289,10 @@ namespace IOAS.Models
 
         public string applicationtype { get; set; }
         public string GSTApplicable { get; set; }
+
+        //Requirement Bug #8535 Order-reference number issue
+        public string ExtensionOfficeOrderDate { get; set; }
+        
     }
 
     public class RCTCommitEmailModel : EmailModel
