@@ -49,7 +49,7 @@ namespace IOAS.Models
         public string tdsITSection { get; set; }
         public string tdsITAmount { get; set; }
         public string tdsGSTAmount { get; set; }
-        public string[] projectNumber { get; set; }
+        public List<string> projectNumber { get; set; }
         public string UTRNo { get; set; }
         public List<PaymentNotificationInvDetailModel> invDetails { get; set; }
     }
