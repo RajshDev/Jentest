@@ -6257,6 +6257,7 @@ namespace IOAS.GenericServices
                             model.FlowApprover = "NDean";
                         string CommitmentNumber = (from c in context.tblRCTCommitmentRequest
                                                    where c.OrderId == OrderId && (c.RequestType == "Add Commitment" || c.RequestType == "New Commitment" || c.RequestType == "Withdraw Commitment")
+                                                   orderby c.RecruitmentRequestId descending
                                                    select c.CommitmentNumber).FirstOrDefault();
                         if (!string.IsNullOrEmpty(CommitmentNumber))
                             model.CommitmentNo = CommitmentNumber;
@@ -21107,78 +21108,24 @@ namespace IOAS.GenericServices
                                         context.SaveChanges();
                                         transaction.Commit();
                                         res = 1;
-                                        decimal WithdrawAmmount = 0;
-                                        //Check Joining date if candtidate join deloy for the appointment tenure should Widthdraw commitment ammount
-                                        if (_qryOSG.s.AppointmentStartdate < model.ActualDate && _qryOSG.s.CSIRStaffPayMode != 2)
-                                        {
-                                            DateTime FromDate = _qryOSG.s.AppointmentStartdate ?? DateTime.Now;
-                                            DateTime ToDate = model.ActualDate ?? DateTime.Now;
-                                            WithdrawAmmount = Common.calculateWithdrawalAmount(OSGID, "OSG", FromDate, ToDate, true, 0, true);
-                                            if (WithdrawAmmount > 0)
-                                            {
-                                                tblRCTCommitmentRequest WidthdrawCommitment = new tblRCTCommitmentRequest();
-                                                WidthdrawCommitment.ReferenceNumber = _qryOSG.s.ApplicationNumber;
-                                                WidthdrawCommitment.AppointmentType = "Verfication";
-                                                WidthdrawCommitment.TypeCode = "OSG";
-                                                WidthdrawCommitment.CandidateName = _qryOSG.s.Name;
-                                                WidthdrawCommitment.CandidateDesignation = _qryOSG.d.Designation;
-                                                WidthdrawCommitment.ProjectId = _qryOSG.s.ProjectId;
-                                                WidthdrawCommitment.ProjectNumber = RequirementService.getProjectSummary(_qryOSG.s.ProjectId ?? 0).ProjectNumber;
-                                                WidthdrawCommitment.TotalSalary = _qryOSG.s.Salary;
-                                                WidthdrawCommitment.RequestedCommitmentAmount = WithdrawAmmount;
-                                                WidthdrawCommitment.Status = "Awaiting Commitment Booking";
-                                                WidthdrawCommitment.RequestType = "Withdraw Commitment";
-                                                WidthdrawCommitment.EmpNumber = _qryOSG.s.EmployeersID;
-                                                WidthdrawCommitment.EmpId = logged_in_userId;
-                                                WidthdrawCommitment.Crtd_TS = DateTime.Now;
-                                                WidthdrawCommitment.Crtd_UserId = logged_in_userId;
-                                                context.tblRCTCommitmentRequest.Add(WidthdrawCommitment);
-                                                context.SaveChanges();
-                                            }
-                                        }
-
-                                        var Updateqry = (from a in context.tblRCTOutsourcing
-                                                         where a.OSGID == OSGID
-                                                         select a).FirstOrDefault();
-                                        if (Updateqry != null)
-                                        {
-                                            var Actualstartdate = Updateqry.AppointmentStartdate;
-                                            Updateqry.ActualAppointmentStartDate = Actualstartdate;
-                                            Updateqry.ActualAppointmentEndDate = Updateqry.AppointmentEnddate;
-                                            decimal CommitmentAmount = 0;
-                                            CommitmentAmount = Updateqry.CommitmentAmount ?? 0;
-                                            Updateqry.AppointmentStartdate = model.ActualDate;
-                                            if (WithdrawAmmount > 0)
-                                                Updateqry.CommitmentAmount = CommitmentAmount - WithdrawAmmount;
-                                            context.SaveChanges();
-                                        }
-
 
                                         //PostOSGStatusLog(OSGID, "Awaiting Verification", "Verification Completed", logged_in_userId);
                                         PostOfferDetails(OSGID, "OSG", "OfficeOrder", logged_in_userId);
-
-
-
-                                        // var Data = OSGVERWFInit(OSGID, logged_in_userId);
-                                        if (Data.Item1 == false)
-                                        {
-                                            return Tuple.Create(-1, OSGID, Data.Item2);
-
-                                        }
-
                                     }
+
                                 }
-                                //else
-                                //{
-                                //    //Check is verified
-                                //    int PreVerified = (from P in context.tblRCTOSGStatusLog
-                                //                       where P.OSGID == OSGID && P.NewStatus == "Verification Completed"
-                                //                       select P).ToList().Count;
-                                //    if (PreVerified > 0)
-                                //        res = 2;
-                                //    else
-                                //        res = -1;
-                            }   //}
+                            }
+                            //else
+                            //{
+                            //    //Check is verified
+                            //    int PreVerified = (from P in context.tblRCTOSGStatusLog
+                            //                       where P.OSGID == OSGID && P.NewStatus == "Verification Completed"
+                            //                       select P).ToList().Count;
+                            //    if (PreVerified > 0)
+                            //        res = 2;
+                            //    else
+                            //        res = -1;
+                            //}
                         }
                         catch (Exception ex)
                         {
