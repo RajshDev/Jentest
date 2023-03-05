@@ -112,7 +112,7 @@
                                             <div class="col-md-6">
                                                 <div class="form-group custom-form-group">
                                                     <label class="required">Bank</label>
-                                                    @Html.DropDownListFor(m => m.BankId, new SelectList(ViewBag.BankHeadList, "id", "name"), "Select any", new { @class = "form-control" })
+                                                    @Html.DropDownListFor(m => m.BankId, new SelectList(ViewBag.BankHeadList, "id", "name"), "Select any", new { @class = "form-control" , @required = "required" })
                                                     @Html.ValidationMessageFor(m => m.BankId)
                                                     @Html.HiddenFor(m => m.BankHeadId)
                                                 </div>
@@ -419,7 +419,8 @@
 
         if (BankId != '')
         {
-            $.getJSON("@Url.Action("LoadProjecttitlebybankid", "Project")", { projecttype: 1, bankid: BankId },
+            LoadProjectbybank(BankId);
+            @*$.getJSON("@Url.Action("LoadProjecttitlebybankid", "Project")", { projecttype: 1, bankid: BankId },
         function (locationdata) {
             var select = $("#srchProjectNumber");
             select.empty();
@@ -434,7 +435,7 @@
             });
             select.selectpicker('refresh');
 
-        });
+        });*@
 
         }
 
@@ -1265,6 +1266,12 @@
         if (count <= 0) {                // if there are not no reason to loop them
             return true;                 // this can be used to perform other action if there are no steps
         } else if (currentTab == 0) {
+           
+            if ($("#BankId").val() == 0) {                
+                hadError = true;
+                $("#alert").text('Bank name is required.');
+                $('#Validation').modal('show');
+            }
             var pendingsettlementcount = $("#txtNoofUnsettledAdv").val();
             var tempadvid = $('input[name="TemporaryAdvanceId"]').val();
             if (tempadvid == 0 && pendingsettlementcount >= 2)
@@ -1273,11 +1280,12 @@
                 $('#ValidationModal').modal('toggle');
                 return false;
             }
-
+            
             var content = $('#tbodyCommitmentSrchList tr td:last').html();
             if (content == '') {
                 searchCommitment()
             }
+
         }
         else if (currentTab == 1) {
             var validationMsg = ValidateCommitment()
@@ -1335,6 +1343,11 @@
        function (locationdata) {
            var select = $("#BankId");
            select.empty();
+           select.append($('<option/>', {
+               value: 0,
+               text: 'Select any'
+
+           }))
            $.each(locationdata, function (index, itemData) {
 
                select.append($('<option/>', {
@@ -1352,27 +1365,30 @@
         var BankHeadId = $(this).val();
         $("#BankHeadId").val(BankHeadId);
         $("#srchProjectType").val(1);
-        EmptyCommitmentSrchList()
-        EmptyCommitmentSelList()
+        EmptyCommitmentSrchList();
+        EmptyCommitmentSelList();
+        LoadProjectbybank(BankHeadId);       
+    });
 
+    function LoadProjectbybank(BankHeadId)
+    {
+      
         $.getJSON("@Url.Action("LoadProjecttitlebybankid", "Project")", { projecttype: 1, bankid: BankHeadId },
-        function (locationdata) {
-            var select = $("#srchProjectNumber");
-            select.empty();
+    function (locationdata) {
+        var select = $("#srchProjectNumber");
+        select.empty();       
+        $.each(locationdata, function (index, itemData) {
 
-            $.each(locationdata, function (index, itemData) {
+            select.append($('<option/>', {
+                value: itemData.id,
+                text: itemData.name
 
-                select.append($('<option/>', {
-                    value: itemData.id,
-                    text: itemData.name
-
-                }));
-            });
-            select.selectpicker('refresh');
-
+            }));
         });
+        select.selectpicker('refresh');
 
     });
+    }
 
     function EmptyCommitmentSelList() {
         $('#tbodyCommitmentSelList tr').not(':first').remove();

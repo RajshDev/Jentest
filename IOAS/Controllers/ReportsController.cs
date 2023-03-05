@@ -5360,7 +5360,7 @@ namespace IOAS.Controllers
                     context.Database.ExecuteSqlCommand("exec OverallProjectDetails @Date, @Date2, @ProjId, @ProjType, @PIName, @Dep, @ProjClass, @ProjCat, @Scheme, @Agency", ReportParam);
 
 
-                    using (var connection = Common.getConnection())
+                    using (var connection = Common.getConnectionforreports())
                     {
                         connection.Open();
                         //SqlHelper.ExecuteSP(connection, CommandType.StoredProcedure, "OverallProjectDetails", ReportParam);

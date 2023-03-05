@@ -16,7 +16,7 @@
         <div class="col-md-12">
             <h4><b>Clearance Payment</b> @*<em>(123asdf123123123)</em>*@</h4>
         </div>
-    </div>      
+    </div>
     <div class="row">
         <div class="white-bg ad-navbar">
             <div class="col-md-3 ds-spl-bg">
@@ -143,11 +143,11 @@
                                                     @Html.ValidationMessageFor(m => m.InvoiceNumber)
                                                 </div>
 
-                                           </div>
+                                            </div>
                                             <div class="col-md-2">
                                                 <div class="form-group custom-form-group">
                                                     <label class="required">Invoice Date</label>
-                                                    @Html.EditorFor(m => m.InvoiceDate, new { @class = "form-control", @id = "InvoiceDate" })                                                    
+                                                    @Html.EditorFor(m => m.InvoiceDate, new { @class = "form-control", @id = "InvoiceDate" })
                                                     @Html.ValidationMessageFor(m => m.InvoiceDate)
                                                 </div>
                                             </div>
@@ -248,7 +248,7 @@
                 <div class="tab">
                     @Html.Partial("_InvoiceBreakUp", Model.InvoiceBreakDetail)
                     @Html.Partial("_PaymentBreakUp", Model.PaymentBreakDetail)
-
+                   
                 </div>
                 <div class="tab" id="PartialResultDivName">
                     @Html.Partial("_CommitmentDetails", Model.CommitmentDetail)
@@ -282,7 +282,7 @@
                     </div>
                 </div>
 
-                <div class="custom-nav-btn text-right">                   
+                <div class="custom-nav-btn text-right">
                     <button type="button" class="btn btn-default pull-left" id="prevBtn" onclick="nextPrev(-1)">Previous</button>
                     <button type="button" class="btn btn-primary pull-right" id="nextBtn" onclick="nextPrev(1)">Next</button>
                     <button type="button" class="btn btn-default pull-right" onclick="window.location.href='@Url.Action("ClearancePaymentList", "CoreAccounts")';">Close</button>
@@ -387,7 +387,7 @@
     var defaultFromDate = moment(new Date()).add(-10, 'days').toDate();
     $('#srchFromDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true }).datepicker("setDate", defaultFromDate);
     $(document).ready(function () {
-        
+
         if (succMsg != '') {
             $('#alertSuccess').html(succMsg);
             $('#Success').modal('toggle');
@@ -898,11 +898,11 @@
             formSave();
             return false;
         }
-            // Increase or decrease the current tab by 1:
-            currentTab = currentTab + n;
+        // Increase or decrease the current tab by 1:
+        currentTab = currentTab + n;
 
-            // Otherwise, display the correct tab:
-            showTab(currentTab);
+        // Otherwise, display the correct tab:
+        showTab(currentTab);
     }
     function formSave() {
         var isValid = $('#formADV').valid();
@@ -929,17 +929,17 @@
        //var invNo = parseInt($('#InvoiceNumber').val()) || "";
        var invNo = "";
        var InvoiceDt = "";
-       invNo = $("#InvoiceNumber").val();     
+       invNo = $("#InvoiceNumber").val();
        InvoiceDt = $("#InvoiceDate").val();
-       
+
         if (invNo != "") {
             $.ajax({
                 type: "POST",
                 data: JSON.stringify({
-               
+
                     'BillId': BillId, 'ClearanceAgentId': ClearanceAgentId,
                     'invNo': invNo, 'InvoiceDt': InvoiceDt,
-                
+
                 }),
                 url: '@Url.Action("ValidateDuplicateCLPBillInvoiceNumber", "CoreAccounts")',
                 contentType: "application/json; charset=utf-8",
@@ -1068,7 +1068,7 @@
         if (count <= 0) {                // if there are not no reason to loop them
             return true;                 // this can be used to perform other action if there are no steps
         } else if (currentTab == 0) {
-            //ValidateInvoiceNo();           
+            //ValidateInvoiceNo();
             var content = $('#tbodyCommitmentSrchList tr td:last').html();
             if (content == '') {
                 searchCommitment();
@@ -1088,38 +1088,38 @@
                     if (!isValid) { hadError = true; } // set our flag if there was an error
                 }
             });
-        } else if (currentTab == 2) {
-            var validationMsg = ValidateCommitment()
-            if (validationMsg != 'valid') {
-                hadError = true;
-                $("#alert").text(validationMsg);
-                $('#Validation').modal('show');
-            } else {
-                if($('#NeedUpdateTransDetail').val() == 'true'){
-                    GetTransactionDetails();
+            } else if (currentTab == 2) {
+                var validationMsg = ValidateCommitment()
+                if (validationMsg != 'valid') {
+                    hadError = true;
+                    $("#alert").text(validationMsg);
+                    $('#Validation').modal('show');
+                } else {
+                    if($('#NeedUpdateTransDetail').val() == 'true'){
+                        GetTransactionDetails();
+                    }
+                    //if($("#AdvancePercentage").val() == 100){
+                    //    $("#CreditorAmount, #ttlCr").val($('#lblAdvTtlAmt').text());
+                    //}else{
+                    //$("#CreditorAmount").val($('#lblAdvTtlAmt').text());
+                    //}
+                    //$("#DeductionAmount, #ttlDr, #ExpenseAmount").val('');
                 }
-                //if($("#AdvancePercentage").val() == 100){
-                //    $("#CreditorAmount, #ttlCr").val($('#lblAdvTtlAmt').text());
-                //}else{
-                //$("#CreditorAmount").val($('#lblAdvTtlAmt').text());
-                //}
-                //$("#DeductionAmount, #ttlDr, #ExpenseAmount").val('');
-            }
-        } else if (currentTab == 3) {
+            } else if (currentTab == 3) {
 
-            var validationMsg = ValidateTransaction()
-            if (validationMsg != 'valid') {
-                hadError = true;
-                $("#alert").text(validationMsg);
-                $('#Validation').modal('show');
+                var validationMsg = ValidateTransaction()
+                if (validationMsg != 'valid') {
+                    hadError = true;
+                    $("#alert").text(validationMsg);
+                    $('#Validation').modal('show');
+                }
+            }else if (currentTab == 4) {
+                if ($('#CheckListVerified_By').val() == '') {
+                    hadError = true;
+                    $("#alert").text('Checklist is not verified.');
+                    $('#Validation').modal('show');
+                }
             }
-        }else if (currentTab == 4) {
-            if ($('#CheckListVerified_By').val() == '') {
-                hadError = true;
-                $("#alert").text('Checklist is not verified.');
-                $('#Validation').modal('show');
-            }
-        }
         if (currentTab != 1) {
             $(stepElements).each(function (idx, ele) {
                 //var name = $(ele).attr('name');
@@ -1131,7 +1131,7 @@
             });
         }
         return !hadError; // return the valid status
-        
+
     }
 
 

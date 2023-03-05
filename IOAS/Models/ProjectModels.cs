@@ -1229,7 +1229,22 @@ namespace IOAS.Models
     }
 
     
-    public class ProjectSummaryDetailModel    {        public List<HeadWiseDetailModel> HeadWise { get; set; }        public ProjectSummaryModel PrjSummary { get; set; }    }    public class HeadWiseDetailModel    {        public int AllocationId { get; set; }        public string AllocationHeadName { get; set; }        public decimal Amount { get; set; }        public decimal BalanceAmount { get; set; }        public decimal Expenditure { get; set; }        public decimal Total { get; set; }        public decimal Available { get; set; }        public bool Validate_f { get; set; }    }
+    public class ProjectSummaryDetailModel
+    {
+        public List<HeadWiseDetailModel> HeadWise { get; set; }
+        public ProjectSummaryModel PrjSummary { get; set; }
+    }
+    public class HeadWiseDetailModel
+    {
+        public int AllocationId { get; set; }
+        public string AllocationHeadName { get; set; }
+        public decimal Amount { get; set; }
+        public decimal BalanceAmount { get; set; }
+        public decimal Expenditure { get; set; }
+        public decimal Total { get; set; }
+        public decimal Available { get; set; }
+        public bool Validate_f { get; set; }
+    }
 
     public class ProposalStatusUpdateModel
     {

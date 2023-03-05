@@ -249,7 +249,7 @@ namespace IOAS.Models
         [Display(Name = "Bank")]
         public Nullable<Int32> BankHead { get; set; }
 
-        [Required]
+       
         [Display(Name = "Bank Name")]
         public Nullable<Int32> BankId { get; set; }
 

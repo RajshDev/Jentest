@@ -96,14 +96,14 @@ namespace IOAS.Controllers
                 ViewBag.SourceList = Common.GetSourceList();
                 ViewBag.BillTypeList = Common.GetBillTypeList();
                 ViewBag.TaxPctList = Common.GetCodeControlList("TaxPercentage");
-                ViewBag.POTypeList = Common.GetCodeControlList("PO Type");
+                ViewBag.POTypeList = Common.GetCodeControlList("PO Type");                
                 ViewBag.ProjectTypeList = ptypeList;
                 ViewBag.AccountGroupList =
                 ViewBag.VendorTDSList =
                 ViewBag.TypeOfServiceList =
                 ViewBag.AccountHeadList = emptyList;
-                ViewBag.DocmentTypeList = Common.GetDocTypeList(29);
-                ViewBag.ProjectNumberList = ProjectService.LoadProjecttitledetails(firstPType);
+                ViewBag.DocmentTypeList = Common.GetDocTypeList(29);               
+                ViewBag.ProjectNumberList = ProjectService.LoadProjecttitledetails(firstPType);               
                 /*7800 - CNA SNA*/
                 ViewBag.BankHeadList = Common.GetBankAccountHeadList();
 
@@ -170,7 +170,7 @@ namespace IOAS.Controllers
                 ViewBag.AccountGroupList =
                 ViewBag.AccountHeadList = emptyList;
                 //ViewBag.AdvPctList = Common.GetAdvancedPercentageList();
-
+                ViewBag.BankHeadList = Common.GetBankAccountHeadList();
                 ViewBag.TypeOfServiceList = Common.GetTypeOfServiceList(model.BillType ?? 0);
                 ViewBag.DocmentTypeList = Common.GetDocTypeList(29);
                 ViewBag.ProjectNumberList = ProjectService.LoadProjecttitledetails(firstPType);
@@ -256,7 +256,7 @@ namespace IOAS.Controllers
                 ViewBag.AccountGroupList =
                 ViewBag.AccountHeadList = emptyList;
                 //ViewBag.AdvPctList = Common.GetAdvancedPercentageList();
-
+                ViewBag.BankHeadList = Common.GetBankAccountHeadList();
                 ViewBag.TypeOfServiceList = Common.GetTypeOfServiceList(model.BillType ?? 0);
                 ViewBag.DocmentTypeList = Common.GetDocTypeList(29);
                 ViewBag.ProjectNumberList = ProjectService.LoadProjecttitledetails(firstPType);
@@ -361,9 +361,9 @@ namespace IOAS.Controllers
                 ViewBag.TypeOfServiceList =
                 ViewBag.AccountHeadList = emptyList;
                 ViewBag.DocmentTypeList = Common.GetDocTypeList(29);
-
-                ViewBag.ProjectNumberList = ProjectService.LoadProjecttitledetails(firstPType);
-
+               
+                    ViewBag.ProjectNumberList = ProjectService.LoadProjecttitledetails(firstPType);
+                               
                 ViewBag.BankHeadList = Common.GetBankAccountHeadList();
                 //ViewBag.AdvPctList = Common.GetAdvancedPercentageList();
                 BillEntryModel model = new BillEntryModel();
@@ -5567,7 +5567,7 @@ namespace IOAS.Controllers
                     bool result1 = Common.CheckIsExistsInvoiceNo(model.BillId, Convert.ToInt32(model.ClearanceAgentId), model.InvoiceNumber, model.InvoiceDate);
                     if (result1)
                     {
-                        TempData["alertMsg"] = "Duplicate Invoice Number found";                       
+                        TempData["alertMsg"] = "Duplicate Invoice Number found";
                         return View(model);
                     }
                     int result = coreAccountService.ClearancePaymentIU(model, logged_in_user);
@@ -7432,7 +7432,7 @@ namespace IOAS.Controllers
         #endregion
 
 
-        #region Commitment
+        #region Commitment       
 
         //public ActionResult _BookCommitment()
         //{
@@ -8969,7 +8969,7 @@ namespace IOAS.Controllers
                 ViewBag.ProjectNumberList = Common.GetProjectNumberList();
                 ViewBag.DocmentTypeList = Common.GetDocTypeList(61);
 
-                /*7800 - CNA SNA*/
+                /*7800 - CNA SNA*/              
                 ViewBag.BankHeadList = Common.GetBankAccountHeadList();
 
                 var ptypeList = Common.getprojecttype();
@@ -8984,7 +8984,7 @@ namespace IOAS.Controllers
                 {
                     ViewBag.BankHeadList = Common.Loadbankbyproject(Convert.ToInt32(model.ProjectId));
                     model = coreAccountService.GetDistributionDetails(distributionId);
-
+                    
                 }
                 else
                 {
@@ -17487,7 +17487,7 @@ namespace IOAS.Controllers
                 ViewBag.ProjectTypeList = ptypeList;
                 ViewBag.ProjectNumberList = ProjectService.LoadProjecttitledetails(firstPType);
 
-
+                
                 if (id > 0 && Common.ValidateHeadCreditStatus(id, "Open"))
                 {
                     model = coreAccountService.GetHeadCreditDetails(id);
@@ -17521,7 +17521,7 @@ namespace IOAS.Controllers
                 ViewBag.ProjectTypeList = ptypeList;
                 ViewBag.ProjectNumberList = ProjectService.LoadProjecttitledetails(firstPType);
 
-
+               
                 foreach (var item in model.ExpenseDetail)
                 {
                     int headId = item.AccountGroupId ?? 0;

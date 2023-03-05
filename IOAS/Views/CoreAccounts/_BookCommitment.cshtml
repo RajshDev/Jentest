@@ -14,7 +14,7 @@
 </style>
 <div class="row mt30">
     <div id="TABCModal" class="modal fade" role="dialog">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-lg" style="width:1500px;">
             @using (Html.BeginForm("_BookCommitment", "CoreAccounts", FormMethod.Post, new { role = "form", @id = "formComitment" }))
              {
                 <div class="modal-content">
@@ -638,6 +638,8 @@
 </div>
 <script type="text/javascript">
     var ValSubhead_f = false;
+    var bankidforcommitment = '';
+    var srchProjectTypeforcommitment = '';
     $("#CloseDate,#StartDate").datepicker
             ({
                 dateFormat: 'dd-MM-yy',
@@ -674,6 +676,7 @@
                 }
             }
         }
+        bankidforcommitment = BankHeadId;
         var param = { BankHeadId: BankHeadId };
         
         applyAutoComplete($('#projectNumber'), $('#SelProjectNumber'), '@Url.Action("LoadProjectList","CoreAccounts")', 'ProjectSummary', true, undefined, param);
@@ -1299,6 +1302,7 @@
             //};
             var prjspanType = $('#spanType').text();
             var prjType = $('#srchProjectType').val();
+           
             var closeDate = moment(parseDateThreeCharacter($('#spanCloseDate').text()));
             if (closeDate < new Date()) {
                 var choice = confirm("Are you sure, Do you want to book commitment for this closed project?");
@@ -1364,6 +1368,8 @@
                                 }
                             });
                             FillSelCommitments(result);
+                            srchProjectTypeforcommitment = $('#srchProjectType').val();
+                            fillproject();
 
                         },
                         error: function (err) {
@@ -1404,4 +1410,31 @@
         return isValid;
     }
 
+
+    function fillproject()
+    {
+        //console.log(srchProjectTypeforcommitment);
+        //console.log(bankidforcommitment);
+        if (srchProjectTypeforcommitment != '') {
+            $.getJSON("@Url.Action("LoadProjecttitlebybankid", "Project")", { projecttype: srchProjectTypeforcommitment, bankid: bankidforcommitment },
+        function (locationdata) {
+            var select = $("#srchProjectNumber");
+            select.empty();
+
+            $.each(locationdata, function (index, itemData) {
+
+                select.append($('<option/>', {
+                    value: itemData.id,
+                    text: itemData.name
+
+                }));
+            });
+            select.selectpicker('refresh');
+        });
+    } else {
+            var select = $("#srchProjectNumber");
+    select.empty();
+    select.selectpicker('refresh');
+    }   
+    }
 </script>

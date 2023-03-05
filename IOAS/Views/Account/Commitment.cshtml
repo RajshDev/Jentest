@@ -39,7 +39,7 @@
                                 <div class="form-group custom-form-group mb-s-md">
                                     <div class="col-md-12">
                                         <label class="required">Bank</label>
-                                        @Html.DropDownListFor(m => m.BankId, new SelectList(ViewBag.BankHeadList, "id", "name"), "Select any", new { @class = "form-control" })
+                                        @Html.DropDownListFor(m => m.BankId, new SelectList(ViewBag.BankHeadList, "id", "name"), "Select any", new { @class = "form-control", @required = "required" })
                                         @Html.ValidationMessageFor(m => m.BankId)
                                         @Html.HiddenFor(m => m.BankHeadId)
                                     </div>
@@ -712,6 +712,10 @@ else
             }
         }
         CommitmentTypeChange();
+        
+
+
+
 
     });
 
@@ -1014,6 +1018,7 @@ else
         var isYearwise = $("#hdnIsYearWise").val();
         var isHaveAllocation = $("#hdnIsAllocation").val();
         var validAllowcationH = $("#selAllocationHead").val() || 0;
+        var BankId = $("#BankId").val() || 0;
         var AllocatinHead = [];
         var Amount = [];
         if (CommitType == "") {
@@ -1188,6 +1193,13 @@ else
                 return false;
             }
         }
+        if ($("#BankId").val() == 0) {
+            isValid = false;
+            messageBox('Bank Name is required', "warning");
+            // $('#btnsave').removeAttr("readonly");
+            return false;
+        }
+
         if (isValid == true) {
             var closeDate = moment(parseDateThreeCharacter($('#spanCloseDate').text()));
             if (closeDate < new Date()) {
@@ -1197,7 +1209,9 @@ else
                 }
             }
             $("#formComitment").submit();
-        }
+        }        
+        
+
     });
 
 
@@ -1232,6 +1246,13 @@ else
 
             return false;
         }
+
+        if ($("#BankId").val() == 0) {
+            isValid = false;
+            messageBox('Bank Name is required', "warning");           
+            return false;
+        }
+
         if (parseFloat(commitVal) > NetBalance) {
             $('#alert').html("Total commitment value cannot be above net balance");
             $('#Validation').modal('toggle'); isValid = false;
@@ -1253,26 +1274,44 @@ else
 
     $("#projectNumber").change(function () {
         var ProjId = $("#SelProjectNumber").val();
-       // console.log(ProjId);
+        
+        Loadbankbyproject(ProjId);
+    });
+
+
+    $("#BankId").click(function () {
+        var ProjId = $("#SelProjectNumber").val();
+        // console.log(ProjId)      
+        //alert('bank');
+        Loadbankbyproject(ProjId);
+    });
+
+    function Loadbankbyproject(ProjId) {
+
         if (ProjId == null || ProjId == '' || ProjId == undefined) {
             ProjId = 0;
         }
         $.getJSON("@Url.Action("Loadbankbyproject", "Project")", { ProjectId: ProjId },
-       function (locationdata) {
-           var select = $("#BankId");
-           select.empty();
-           $.each(locationdata, function (index, itemData) {
+    function (locationdata) {
+        var select = $("#BankId");
+        select.empty();
+        select.append($('<option/>', {
+            value: 0,
+            text: 'Select any'
 
-               select.append($('<option/>', {
-                   value: itemData.id,
-                   text: itemData.name
+        }))
+        $.each(locationdata, function (index, itemData) {
 
-               }));
-           });
-           select.selectpicker('refresh');
-       });
+            select.append($('<option/>', {
+                value: itemData.id,
+                text: itemData.name
 
+            }));
+        });
+        select.selectpicker('refresh');
     });
+    }
+
 </script>
 <script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
 <script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>

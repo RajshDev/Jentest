@@ -2292,7 +2292,7 @@ namespace IOAS.Models
 
         //Requirement Bug #8535 Order-reference number issue
         public string ExtensionOfficeOrderDate { get; set; }
-        
+
     }
 
     public class RCTCommitEmailModel : EmailModel

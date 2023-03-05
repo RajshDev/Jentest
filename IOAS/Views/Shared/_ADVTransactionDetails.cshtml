@@ -77,7 +77,7 @@
                                         @Html.Hidden(@expDetailId, item.BillExpenseDetailId)
                                     </td>
                                     <td>
-                                        @Html.DropDownList(@accountHead, new SelectList(item.AccountHeadList, "id", "name", item.AccountHeadId), new { @class = "form-control required" })
+                                                                             @Html.DropDownList(@accountHead, new SelectList(item.AccountHeadList, "id", "name", item.AccountHeadId), new { @class = "form-control required" })
                                         @Html.ValidationMessage(@accountHead)
                                     </td>
                                     <td>
@@ -237,8 +237,9 @@
 
 </div>
 <script type="text/javascript">
+    
     function CalculateDeductionTotal() {
-        var ttlExpVal = 0, ttlDrVal = 0, ttlDedtVal = 0;
+                   var ttlExpVal = 0, ttlDrVal = 0, ttlDedtVal = 0;
         $('#tbodyExpenseList input[name$=".TransactionType"]').each(function (i, rowEle) {
             if ($(this).val() == 'Credit') {
                 var parseVal = parseFloat($(this).closest('tr').find("input[name$='.Amount']").val());
@@ -268,7 +269,7 @@
         var tlCrs = parseFloat(ttlDrVal + ttlDedtVal);
         ttlExpVal = ttlExpVal.toFixed(2);
         ttlDedtVal = ttlDedtVal.toFixed(2);
-       
+
         $('#ExpenseAmount').val(ttlExpVal);
         $('#DeductionAmount').val(ttlDedtVal);
         $('#ttlDr').val(ttlExpVal);
@@ -277,6 +278,9 @@
     }
     function FillTransactionDetails() {
         var subcode = $('#SubCode').val();
+
+        var bankid = $('#BankId :selected').val();
+        var bankname = $('#BankId :selected').text();
         var tCode = $('#TransactionTypeCode').val();
         var stateCode = $('#lblStateCode').html() || null;
         var interstate = null
@@ -324,11 +328,27 @@
                         var selectHead = $(trEle).find('select[name$=".AccountHeadId"]');
                         selectHead.empty();
                         var grpId = $(trEle).find('select[name$=".AccountGroupId"]').val();
+                        
+
                         if (grpId == 38 && item.AccountHeadList.length > 1) {
-                            selectHead.append($('<option/>', {
-                                value: "",
-                                text: "Select any",
-                            }));
+                           
+
+                            //if (bankid != null && bankname != null)
+                            //{
+                            //    selectHead.append($('<option/>', {
+                            //        value: bankid,
+                            //        text: bankname,
+                            //    }));
+                            //}
+                            //else
+                            //{ 
+                                selectHead.append($('<option/>', {
+                                    value: "",
+                                    text: "Select any",
+                                }));
+
+                           // }
+                           
                         }
                         $.each(item.AccountHeadList, function (idx, itemData) {
                             selectHead.append($('<option/>', {
@@ -361,16 +381,30 @@
                                 text: itemData.name,
                             }));
                         });
-
+                        
                         var selectHead = $(trEleNew).find('select[name$=".AccountHeadId"]');
                         selectHead.empty();
                         var grpId = $(trEleNew).find('select[name$=".AccountGroupId"]').val();
-                        if (grpId == 38 && item.AccountHeadList.length > 1) {
-                            selectHead.append($('<option/>', {
-                                value: "",
-                                text: "Select any",
-                            }));
-                        }
+                        if (grpId == 38 && item.AccountHeadList.length > 1) {                          
+                            //selectHead.append($('<option/>', {
+                            //    value: "",
+                            //    text: "Select any",
+                            //}));
+                            //if (bankid != null && bankname != null) {
+                            //    selectHead.append($('<option/>', {
+                            //        value: bankid,
+                            //        text: bankname,
+                            //    }));
+                            //}
+                            //else {
+                                selectHead.append($('<option/>', {
+                                    value: "",
+                                    text: "Select any",
+                                }));
+
+                          //  }
+                        }                        
+                       
                         $.each(item.AccountHeadList, function (idx, itemData) {
                             selectHead.append($('<option/>', {
                                 value: itemData.id,
@@ -503,4 +537,6 @@
             ele.find('#lblTransType').text('');
         }
     });*@
+
+
 </script>
