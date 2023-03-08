@@ -2788,7 +2788,7 @@ namespace IOAS.GenericServices
                             var query = IOAScontext.tblRCTSTE.FirstOrDefault(m => m.STEID == id);
                             if (query != null)
                             {
-                               
+
                                 string Type = "STEVER Flow";
                                 if (model.FlowApprover == "CMAdmin" ? true : false)
                                     Type = "STEVERAdminFlow";
@@ -2817,9 +2817,9 @@ namespace IOAS.GenericServices
                             return Tuple.Create(false, "");
                         }
                     }
-                    
+
                 }
-                
+
             }
             catch (Exception ex)
             {
@@ -3357,7 +3357,7 @@ namespace IOAS.GenericServices
                                  select new { A, C.CodeValDetail, P.ProjectNumber, D.Designation }).FirstOrDefault();
                     if (query != null)
                     {
-                        model.Status = query.A.Status;                      
+                        model.Status = query.A.Status;
                         model.STEId = query.A.STEID;
                         model.ApplicationNo = query.A.ApplicationNumber;
                         model.TypeofappointmentId = query.A.TypeofAppointment;
@@ -3404,14 +3404,17 @@ namespace IOAS.GenericServices
                         model.AppointmentEndDate = string.Format("{0:dd-MMMM-yyyy}", query.A.AppointmentEnddate);
                         model.PayType = query.A.ConsolidatedPay == true ? "Consolidated Pay" : "Fellowship Pay";
                         model.ActualDateView = string.Format("{0:dd-MMMM-yyyy}", query.A.ActualDate);
-                        model.ActualDate = query.A.ActualDate;                       
+                        model.ActualDate = query.A.ActualDate;
                         model.VerificationRemarks = query.A.VerificationRemarks;
-                        if (query.A.NotetoCMAdmin == true)
-                            model.FlowApprover = "CMAdmin";
-                        if (query.A.NotetoDean == true)
-                            model.FlowApprover = "NDean";
+                        if (query.A.Status != "Awaiting Verification")
+                        {
+                            if (query.A.NotetoCMAdmin == true)
+                                model.FlowApprover = "CMAdmin";
+                            if (query.A.NotetoDean == true)
+                                model.FlowApprover = "NDean";
+                        }
                         //model.FlowApprover = query.A.NotetoCMAdmin == true ? "CMAdmin" : query.A.NotetoDean == true ? "NDean" : "";                       
-                 
+
                         var QryEducation = (from c in context.tblRCTSTEEducationDetail
                                             join q in context.tblRCTQualificationList on c.QualifiCationID equals q.QualificationId into lft
                                             from j in lft.DefaultIfEmpty()
@@ -3448,7 +3451,7 @@ namespace IOAS.GenericServices
                             }
                         }
                         model.EducationDetail = EducationList.Count > 0 ? EducationList : null;
-                       
+
                         model.ExperienceDetail = (from c in context.tblRCTSTEExperienceDetail
                                                   join d in context.tblCodeControl on c.TypeID equals d.CodeValAbbr into lft
                                                   from j in lft.DefaultIfEmpty()
@@ -3511,7 +3514,7 @@ namespace IOAS.GenericServices
                         if (query.A.JoiningReport != null)
                             model.JoiningReportFileName = query.A.JoiningReport.Substring(query.A.JoiningReport.IndexOf("_") + 1);
                         model.JoiningReportPath = query.A.JoiningReport;
-                        model.RequestedfromPI = Common.GetPIName(query.A.RequestedBy ?? 0);                        
+                        model.RequestedfromPI = Common.GetPIName(query.A.RequestedBy ?? 0);
                         model.OtherDetail = (from c in context.tblRCTSupportingDocument
                                              where c.AppointmentId == STEID && c.Status == "Active" && c.AppointmentType == 2
                                              orderby c.DocumentID
@@ -3545,7 +3548,7 @@ namespace IOAS.GenericServices
         {
             int res = 0, STEID = model.STEId ?? 0, OrderID = model.OrderId ?? 0;
             string EmployeeID = string.Empty, errMsg = string.Empty;
-            
+
 
             try
             {
@@ -3956,7 +3959,7 @@ namespace IOAS.GenericServices
                                         query.s.UptdUser = logged_in_userId;
                                         query.s.EmployeeWorkplace = model.EmployeeWorkplace;
                                         context.SaveChanges();
-                                                                               
+
                                         context.tblRCTSTEEducationDetail.Where(x => x.STEID == STEID && x.isCurrentVersion == true)
                                     .ToList()
                                     .ForEach(m =>
@@ -4192,7 +4195,7 @@ namespace IOAS.GenericServices
                                 }
                             }
 
-                            
+
                         }
                         catch (Exception ex)
                         {
@@ -4232,10 +4235,10 @@ namespace IOAS.GenericServices
                         skiprec = (page - 1) * pageSize;
                     }
                     var prequery = (from b in context.vw_RCTVerificationList.AsNoTracking()
-                                    from p in context.tblProject                                   
+                                    from p in context.tblProject
                                     from vw in context.vwFacultyStaffDetails
                                     orderby b.ApplicationId descending
-                                    where b.ProjectId == p.ProjectId && p.PIName == vw.UserId && b.Category == "STE" 
+                                    where b.ProjectId == p.ProjectId && p.PIName == vw.UserId && b.Category == "STE"
                                     && cancelInitiator.Contains(b.CancelInitiator ?? 0)
                                     select new STEVerificationModel()
                                     {
@@ -5980,7 +5983,7 @@ namespace IOAS.GenericServices
                                            && (p.ProjectNumber.Contains(model.SearchInProjectNumber) || model.SearchInProjectNumber == null)
                                            && (vw.EmployeersID.Contains(model.SearchInEmployeeId) || model.SearchInEmployeeId == null)
                                            && (b.Status.Contains(model.SearchInStatus) || model.SearchInStatus == null)
-                                           &&(vw.BasicPay==model.SearchBasicAmount||model.SearchBasicAmount==null)
+                                           && (vw.BasicPay == model.SearchBasicAmount || model.SearchBasicAmount == null)
                                            select new
                                            {
                                                vw.CandidateName,
@@ -6246,6 +6249,7 @@ namespace IOAS.GenericServices
                         model.OfferDate = string.Format("{0:dd-MMMM-yyyy}", odrQuery.Od.OfferDate);
                         model.Attachments = Common.GetCommiteeOfferletterDetails(odrQuery.O.AppointmentId ?? 0, TypeCode, odrQuery.O.OrderId);
                         model.JoiningReportPath = odrQuery.Od.JoiningReport;
+                        model.Qualification = Common.getQualificationWordings(odrQuery.O.AppointmentId ?? 0, Category);
                         if (odrQuery.Od.JoiningReport != null)
                         {
                             model.JoiningReportFileName = odrQuery.Od.JoiningReport.Substring(odrQuery.Od.JoiningReport.IndexOf("_") + 1);
@@ -6373,8 +6377,8 @@ namespace IOAS.GenericServices
                                 }
                                 context.SaveChanges();
                                 //transaction.Commit();
-                                
-                                PostOrderStatusLog(orderid, "Awaiting Verification", "Awaiting Verification-Draft", userId);                              
+
+                                PostOrderStatusLog(orderid, "Awaiting Verification", "Awaiting Verification-Draft", userId);
                                 res= 1;
                                 return Tuple.Create(res, orderid, errMsg);
                             }
@@ -6622,8 +6626,8 @@ namespace IOAS.GenericServices
                                         res = 1;
                                     }
 
-                                }                                                            
-                                
+                                }
+
                                 //return Tuple.Create(1, "");
 
                             }
@@ -7955,7 +7959,7 @@ namespace IOAS.GenericServices
                                     model.Fellowship = QrySTE.A.Fellowship ?? false;
                                     model.PayType = QrySTE.A.ConsolidatedPay == true ? "Consolidated Pay" : QrySTE.A.Fellowship == true ? "Fellowship pay" : "-";
                                 }
-                                if(QryOrder.OrderType==2&&QryOrder.InitByPI_f==true)
+                                if (QryOrder.OrderType == 2 && QryOrder.InitByPI_f == true)
                                 {
                                     model.ConsolidatedPay = QrySTE.A.ConsolidatedPay ?? false;
                                     model.Fellowship = QrySTE.A.Fellowship ?? false;
@@ -8019,7 +8023,7 @@ namespace IOAS.GenericServices
                                     model.ConsolidatedPay = QryOSG.A.ConsolidatedPay ?? false;
                                     model.Fellowship = QryOSG.A.Fellowship ?? false;
                                     model.PayType = QryOSG.A.ConsolidatedPay == true ? "Consolidated Pay" : QryOSG.A.Fellowship == true ? "Fellowship pay" : "-";
-                                    
+
                                 }
                                 if (QryOrder.OrderType == 2 && QryOrder.InitByPI_f == true)
                                 {
@@ -8048,7 +8052,7 @@ namespace IOAS.GenericServices
                                 model.ToMail = QryOSG.A.ToMail;
                                 model.CCMail = QryOSG.A.bcc;
                                 model.MailSent_f = context.tblRCTOSGEmailLog.Any(m => m.OrderId == orderid && m.TypeofMail == 6 && !m.Subject.Contains("structure approval"));
-                                if (appid >0  && orderid > 0)
+                                if (appid > 0 && orderid > 0)
                                 {
                                     var Qrysalcalc = (from A in context.tblRCTSalaryCalcDetails
                                                       where A.ID == appid && A.OrderId == Orderid && A.Status == "Active"
@@ -9355,7 +9359,7 @@ namespace IOAS.GenericServices
                                 context.tblOrder.Add(Order);
                                 context.SaveChanges();
                                 OrderID = Order.OrderId;
-                                 result = IsRespondTermEndMail(model.ApplicationID, model.TypeCode, logged_in_userId, OrderID, context);
+                                result = IsRespondTermEndMail(model.ApplicationID, model.TypeCode, logged_in_userId, OrderID, context);
                                 if (apptype == 3)
                                 {
                                     var salQuery = context.tblRCTSalaryCalcDetails.FirstOrDefault(m => m.SalaryDetailsId == salarycalcId);
@@ -9956,7 +9960,7 @@ namespace IOAS.GenericServices
                                 context.tblOrder.Add(Order);
                                 context.SaveChanges();
                                 OrderID = Order.OrderId;
-                                 result = IsRespondTermEndMail(model.ApplicationID, model.TypeCode, logged_in_userId, OrderID, context);
+                                result = IsRespondTermEndMail(model.ApplicationID, model.TypeCode, logged_in_userId, OrderID, context);
                                 if (AppointmentType == 3)
                                 {
                                     var salQuery = context.tblRCTSalaryCalcDetails.FirstOrDefault(m => m.SalaryDetailsId == salarycalcId);
@@ -11038,11 +11042,11 @@ namespace IOAS.GenericServices
                                                   && o.OrderId == od.OrderId && o.OrderId == model.OrderID && o.Is_Clarify == true
                                                   select new { o, od }).FirstOrDefault();
                                 var odPIInQuery = (from o in context.tblOrder
-                                               from od in context.tblOrderDetail
-                                               where o.Status == "PI Initiated" && o.OrderType == 10
-                                               && o.OrderId == od.OrderId && o.OrderId == model.OrderID
-                                               select new { o, od }).FirstOrDefault();
-                                
+                                                   from od in context.tblOrderDetail
+                                                   where o.Status == "PI Initiated" && o.OrderType == 10
+                                                   && o.OrderId == od.OrderId && o.OrderId == model.OrderID
+                                                   select new { o, od }).FirstOrDefault();
+
                                 if (odQuery != null)
                                 {
                                     OrderID = odQuery.o.OrderId;
@@ -11398,7 +11402,7 @@ namespace IOAS.GenericServices
                                 context.SaveChanges();
                                 res = 1;
                             }
-                            
+
                             if (res > 0)
                                 transaction.Commit();
                             //if (lossPayOrderId > 0) //Intiate loss of pay
@@ -11485,8 +11489,8 @@ namespace IOAS.GenericServices
                             model.PIRemarks = odrQuery.d.PIJustificationRemarks;
                             if (odrQuery.o.OrderRequestId > 0)
                                 model.PINoDuesRemarks = (from r in context.tblRCTOrderRequest where r.OrderRequestId == odrQuery.o.OrderRequestId select r.NoDuesRemark).FirstOrDefault();
-                            if(odrQuery.o.OrderRequestId>0&& odrQuery.o.InitByPI_f==true)
-                                model.PIrequestedRelievingDate= string.Format("{0:dd-MMMM-yyyy}", odrQuery.d.RelievingDate);
+                            if (odrQuery.o.OrderRequestId > 0 && odrQuery.o.InitByPI_f == true)
+                                model.PIrequestedRelievingDate = string.Format("{0:dd-MMMM-yyyy}", odrQuery.d.RelievingDate);
                         }
                     }
                     //master table details
@@ -11726,7 +11730,7 @@ namespace IOAS.GenericServices
                                         appointmentfromdate = model.RelievingDate;
                                     odQuery.WithdrawAmmount = Common.calculateWithdrawalAmount(model.ApplicationID, model.TypeCode, appointmentfromdate ?? DateTime.Now, appointmenttodate ?? DateTime.Now);
                                 }
-                                if(odQuery.InitByPI_f == true&&model.CommitmentOption==2)
+                                if (odQuery.InitByPI_f == true && model.CommitmentOption == 2)
                                 {
                                     odQuery.WithdrawAmmount = 0;
                                 }
@@ -11933,7 +11937,7 @@ namespace IOAS.GenericServices
                                 context.tblOrder.Add(order);
                                 context.SaveChanges();
                                 OrderID = order.OrderId;
-                                 result = IsRespondTermEndMail(model.ApplicationID, model.TypeCode, logged_in_userId, OrderID, context);
+                                result = IsRespondTermEndMail(model.ApplicationID, model.TypeCode, logged_in_userId, OrderID, context);
                                 orderdetail.OrderId = OrderID;
                                 if (model.PILetter != null)
                                 {
@@ -13865,7 +13869,7 @@ namespace IOAS.GenericServices
             List<RCTPopupListModel> listmodel = new List<RCTPopupListModel>();
             List<AppointmenttypeExperienceModel> totexplistmodel = new List<AppointmenttypeExperienceModel>();
             try
-            {
+            {               
                 ExecuteSPEmployeeExperience();
                 using (var context = new IOASDBEntities())
                 {
@@ -13927,11 +13931,11 @@ namespace IOAS.GenericServices
                                          }).ToList();
 
                             listmodel.ForEach(x =>
-                            {
+                            {                               
                                 var data = DateDifference(x.EffectFromDate, x.EffectToDate);
                                 x.Years = data.Item1;
                                 x.Months = data.Item2;
-                                x.Days = data.Item3;
+                                x.Days = data.Item3;                                                 
                                 if (x.AppType == "OSG")
                                 {
                                     var emppfQuery = context.tblRCTSalaryCalcDetails.Where(s => s.ID == x.AppId && (x.OrderId == 0 || s.OrderId == x.OrderId)).Select(s => s.PFBasicWages).FirstOrDefault();
@@ -13957,7 +13961,7 @@ namespace IOAS.GenericServices
                                     var dateDiff = DateDifference(x.effectFrom, x.effectTo);
                                     x.Years = dateDiff.Item1;
                                     x.Months = dateDiff.Item2;
-                                    x.Days = dateDiff.Item3;
+                                    x.Days = dateDiff.Item3;                                    
                                 });
 
                                 var arrEffectFrom = listmodel.Select(x => x.EffectFromDate).ToArray();
@@ -18431,7 +18435,7 @@ namespace IOAS.GenericServices
                         model.SalaryLevelId = QryOSG.A.SalaryLevelId;
                         model.Comments = QryOSG.A.Comments;
                         if (QryOSG.A.EmployeeCategory == "Old Employee")
-                         model.IITMExperience = IITExperienceInWording(QryOSG.A.OldNumber);
+                            model.IITMExperience = IITExperienceInWording(QryOSG.A.OldNumber);
                     }
                 }
                 return model;
@@ -19667,8 +19671,8 @@ namespace IOAS.GenericServices
                         //{
                         var query = IOAScontext.tblRCTOutsourcing.FirstOrDefault(m => m.OSGID == id);
                         if (query != null)
-                        {                           
-                                string Type = "OSGVER Flow";
+                        {
+                            string Type = "OSGVER Flow";
                             if (model.FlowApprover == "CMAdmin" ? true : false)
                                 Type = "OSGVERAdminFlow";
                             else if (model.FlowApprover == "NDean" ? true : false)
@@ -19689,7 +19693,7 @@ namespace IOAS.GenericServices
                                 return Tuple.Create(false, msg);
                         }
                     }
-                        return Tuple.Create(false, "Something went wrong please contact administrator");
+                    return Tuple.Create(false, "Something went wrong please contact administrator");
                     //}
                     //else
                     //    return Tuple.Create(false, "This Outsourcing is already approved");
@@ -20253,16 +20257,19 @@ namespace IOAS.GenericServices
                         model.OfferDate = string.Format("{0:dd-MMMM-yyyy}", QryOSG.A.OfferDate);
                         model.Appointmentstartdate = string.Format("{0:dd-MMMM-yyyy}", QryOSG.A.AppointmentStartdate);
                         model.AppointmentEndDate = string.Format("{0:dd-MMMM-yyyy}", QryOSG.A.AppointmentEnddate);
-                        model.EmployeeWorkplace = QryOSG.A.EmployeeWorkplace;                        
+                        model.EmployeeWorkplace = QryOSG.A.EmployeeWorkplace;
                         model.ActualDate= QryOSG.A.ActualDate;
                         model.ActualDateView= string.Format("{0:dd-MMMM-yyyy}", QryOSG.A.ActualDate);
                         model.Designation = QryOSG.Designation;
                         model.PayType = QryOSG.A.ConsolidatedPay == true ? "Consolidated Pay" : "Fellowship Pay";
                         model.VerificationRemarks = QryOSG.A.VerificationRemarks;
-                        if (QryOSG.A.NotetoCMAdmin == true)
-                            model.FlowApprover = "CMAdmin";
-                        if (QryOSG.A.NotetoDean == true)
-                            model.FlowApprover = "NDean";
+                        if (QryOSG.A.Status != "Awaiting Verification")
+                        {
+                            if (QryOSG.A.NotetoCMAdmin == true)
+                                model.FlowApprover = "CMAdmin";
+                            if (QryOSG.A.NotetoDean == true)
+                                model.FlowApprover = "NDean";
+                        }
                         if (QryOSG.A.JoiningReport != null)
                         {
                             model.JoiningReportFileName = QryOSG.A.JoiningReport.Substring(QryOSG.A.JoiningReport.IndexOf("_") + 1);
@@ -20483,7 +20490,7 @@ namespace IOAS.GenericServices
                 int res = 0;
                 int OSGID = model.STEId ?? 0;
                 string EmployeersID = "", errMsg = string.Empty;
-                
+
                 using (var context = new IOASDBEntities())
                 {
                     using (var transaction = context.Database.BeginTransaction())
@@ -20782,12 +20789,12 @@ namespace IOAS.GenericServices
                                             }
                                         }
                                     }
-                                    
+
                                     //_qryOSG.s.isEmployee = true;
                                     //Update Commitment table                                   
                                     _qryOSG.s.EmployeeWorkplace = model.EmployeeWorkplace;
-                                   
-                                    _qryOSG.s.NotetoDean = model.FlowApprover == "NDean" ? true : false;                                  
+
+                                    _qryOSG.s.NotetoDean = model.FlowApprover == "NDean" ? true : false;
                                     _qryOSG.s.NotetoCMAdmin = model.FlowApprover == "CMAdmin" ? true : false;
                                     context.SaveChanges();
                                     transaction.Commit();
@@ -20796,10 +20803,10 @@ namespace IOAS.GenericServices
                                     PostOSGStatusLog(OSGID, "Awaiting Verification", "Awaiting Verification-Draft", logged_in_userId);
                                     //PostOfferDetails(OSGID, "OSG", "OfficeOrder", logged_in_userId);
 
-                                    
+
                                 }
                             }
-                            else 
+                            else
                             {
                                 var _qryOSG = (from s in context.tblRCTOutsourcing
                                                from d in context.tblRCTDesignation
@@ -21107,12 +21114,12 @@ namespace IOAS.GenericServices
                                         _qryOSG.s.NotetoCMAdmin = model.FlowApprover == "CMAdmin" ? true : false;
                                         context.SaveChanges();
                                         transaction.Commit();
-                                        res = 1;                                        
+                                        res = 1;
 
                                         //PostOSGStatusLog(OSGID, "Awaiting Verification", "Verification Completed", logged_in_userId);
                                         PostOfferDetails(OSGID, "OSG", "OfficeOrder", logged_in_userId);
                                     }
-                                    
+
                                 }
                             }
                             //else
@@ -21734,7 +21741,7 @@ namespace IOAS.GenericServices
                             model.SalaryLevelDescription = data.Item2;
                         }
                         if (QryOSG.A.EmployeeCategory == "Old Employee")
-                        { 
+                        {
                             model.IITMExperience = IITExperienceInWording(QryOSG.A.OldNumber);
                             /*Changes done by Madhu for Bug id - 7689 old Employee number not shown*/
                             model.OldNumber = QryOSG.A.OldNumber;
@@ -24836,7 +24843,7 @@ namespace IOAS.GenericServices
                                 RefField = (queryodr.OrderTypeStr.ToLower() == "hra booking" ? "hra" : queryodr.OrderTypeStr.ToLower()) + " order";
                         }
                         return Tuple.Create(query.OfferRefNumber, RefField, Convert.ToDateTime(query.CRTD_TS));
-                                            }
+                    }
                 }
                 return Tuple.Create("", "", DateTime.Now);
             }
@@ -27930,6 +27937,8 @@ namespace IOAS.GenericServices
                 return hraValue;
             }
         }
+        //private int[] monthDay = new int[12] { 31, -1, 31, 30, 31, 30, 31, 31, 30, 31, 30,
+        //        31 };
         public static Tuple<int, int, int> DateDifference(DateTime From, DateTime To)
         {
             try
