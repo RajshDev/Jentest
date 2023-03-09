@@ -15909,10 +15909,20 @@ namespace IOAS.Infrastructure
                 {
                     using (var context = new IOASDBEntities())
                     {
-                        var query = (from exp in context.vw_ProjectExpenditureReport.AsNoTracking()
-                                     join p in context.tblProject on exp.ProjectId equals p.ProjectId
+                        //var query = (from exp in context.vw_ProjectExpenditureReport.AsNoTracking()
+                        //             join p in context.tblProject on exp.ProjectId equals p.ProjectId
+                        //             join U in context.vwFacultyStaffDetails on p.PIName equals U.UserId
+                        //             where exp.BillNumber == refNo
+                        //             group U by U.Email into g
+                        //             select new { Email = g.Key }).ToList();
+
+                        /* Payment Process Mail issue */
+                        var query = (from bcd in context.tblBOACommitmentDetail
+                                     join cd in context.tblCommitmentDetails on bcd.CommitmentDetailId equals cd.ComitmentDetailId
+                                     join c in context.tblCommitment on cd.CommitmentId equals c.CommitmentId
+                                     join p in context.tblProject on c.ProjectId equals p.ProjectId
                                      join U in context.vwFacultyStaffDetails on p.PIName equals U.UserId
-                                     where exp.BillNumber == refNo
+                                     where bcd.ReferenceNumber == refNo
                                      group U by U.Email into g
                                      select new { Email = g.Key }).ToList();
                         if (query.Count > 0)
@@ -15922,6 +15932,7 @@ namespace IOAS.Infrastructure
                                 cc.Add(query[i].Email);
                             }
                         }
+                        
                     }
                 }
                 return cc;
