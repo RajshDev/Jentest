@@ -4798,18 +4798,104 @@ namespace IOAS.GenericServices
             }
         }
         public static int CloseThisCommitment(CommitmentResultModel model, int UserId)        {            try            {               lock (ClsCommitlockObj)
-               {                 bool isClosed = true;                int result = 0;                List<BillCommitmentDetailModel> commitbalance = new List<BillCommitmentDetailModel>();                using (var context = new IOASDBEntities())                {                    var CommQry = (from C in context.tblCommitment                                   join D in context.tblCommitmentDetails on C.CommitmentId equals D.CommitmentId                                   where C.Status == "Active" && C.CommitmentId == model.ComitmentId                                   select new                                   { C, D }).FirstOrDefault();                    if (commitbalance != null)                    {                        decimal? AvailBal = CommQry.D.BalanceAmount;                        if (model.LogTypeId == 1)                        {                            var validation = Common.ValidateCommitment(model.ProjectId, model.AllHeadId, model.AddCloseAmt);                            if (validation != "Valid")                                return -2;                            else if (Common.IsInUcCommitment(model.ComitmentId))                                return -2;                        }                        if (model.LogTypeId == 3)                        {
-                            bool valres = Common.ValidateCloseCommitment(model.ComitmentId, model.AddCloseAmt);
-                            if (!valres)                                return -2;                            if (model.AddCloseAmt > AvailBal || model.AddCloseAmt < AvailBal)                                return -1;                            commitbalance = (from C in context.tblCommitment                                             join D in context.tblCommitmentDetails on C.CommitmentId equals D.CommitmentId                                             where C.Status == "Active" && C.CommitmentId == model.ComitmentId                                             select new BillCommitmentDetailModel()                                             {                                                 CommitmentDetailId = D.ComitmentDetailId,                                                 AvailableAmount = D.BalanceAmount,                                                 CommitmentId = C.CommitmentId,                                             }).ToList();                            CoreAccountsService _CAS = new CoreAccountsService();                            bool commitdetls = _CAS.UpdateCommitmentBalance(commitbalance, false, false, UserId, 0, "", isClosed);                            if (commitdetls == true)                            {                                var query = (from D in context.tblCommitment                                             where (D.CommitmentId == model.ComitmentId)                                             select D).FirstOrDefault();                                if (query != null)                                {                                    query.Status = "Closed";                                    query.UPDT_UserID = UserId;                                    query.UPDT_TS = DateTime.Now;                                    context.SaveChanges();                                    tblCommitmentClosedLog clLog = new tblCommitmentClosedLog();                                    clLog.CommitmentID = model.ComitmentId;                                    clLog.Reason = model.Reason;                                    clLog.Remarks = model.Remarks;                                    clLog.CRTD_By = UserId;                                    clLog.CRTD_TS = DateTime.Now;                                    context.tblCommitmentClosedLog.Add(clLog);                                    context.SaveChanges();
-                                    tblCommitment updatecommit = new tblCommitment();
-                                    updatecommit.BankID = model.BankHeadId;
-                                    context.tblCommitment.Add(updatecommit);
-                                    context.SaveChanges();
-                                    tblCommitmentAddandCloseLog clAddClose = new tblCommitmentAddandCloseLog();                                    clAddClose.LogType = model.LogTypeId;                                    clAddClose.CommitmentId = CommQry.C.CommitmentId;                                    clAddClose.CommitmentDetailId = CommQry.D.ComitmentDetailId;                                    clAddClose.PrevCommitmentAmount = CommQry.C.CommitmentAmount;                                    clAddClose.PrevCommtBalanceAmount = CommQry.C.CommitmentBalance;                                    clAddClose.PrevCommtDetBalanceAmount = CommQry.D.BalanceAmount;                                    clAddClose.Remarks = model.strRemarks;                                    clAddClose.Amount = model.AddCloseAmt;                                    clAddClose.ProjectId = model.ProjectId;                                    clAddClose.Reason = model.Reason;                                    clAddClose.HeadId = model.AllHeadId;                                    clAddClose.CRTD_BY = UserId;                                    clAddClose.CRTD_TS = DateTime.Now;
-                                    clAddClose.BankID = model.BankHeadId;
-                                    clAddClose.Pre_BankID = model.Pre_BankID;
-                                    context.tblCommitmentAddandCloseLog.Add(clAddClose);                                    context.SaveChanges();                                    result = 1;                                }                            }                        }                        else                        {
-                                //var query = (from D in context.tblCommitment                                //             where (D.CommitmentId == model.ComitmentId)                                //             select D).FirstOrDefault();
+               {                 bool isClosed = true;                int result = 0;                List<BillCommitmentDetailModel> commitbalance = new List<BillCommitmentDetailModel>();                using (var context = new IOASDBEntities())                {                    var CommQry = (from C in context.tblCommitment                                   join D in context.tblCommitmentDetails on C.CommitmentId equals D.CommitmentId                                   where C.Status == "Active" && C.CommitmentId == model.ComitmentId                                   select new                                   { C, D }).FirstOrDefault();                        var prveBankID = CommQry.C.BankID;
+                        var bankheadname = (from D in context.tblAccountHead
+                                            join P in context.tblProject on D.AccountHeadId equals P.BankID
+                                            where (P.ProjectId == model.ProjectId && P.Status == "Active")
+                                            select D).FirstOrDefault();
+
+                        if (commitbalance != null)
+                        {
+                            decimal? AvailBal = CommQry.D.BalanceAmount;
+                            if (model.LogTypeId == 1)
+                            {
+                                var validation = Common.ValidateCommitment(model.ProjectId, model.AllHeadId, model.AddCloseAmt);
+                                if (validation != "Valid")
+                                    return -2;
+                                else if (Common.IsInUcCommitment(model.ComitmentId))
+                                    return -2;
+                            }
+
+                            if (model.LogTypeId == 3)
+                            {
+                                bool valres = Common.ValidateCloseCommitment(model.ComitmentId, model.AddCloseAmt);
+                                if (!valres)
+                                    return -2;
+                                if (model.AddCloseAmt > AvailBal || model.AddCloseAmt < AvailBal)
+                                    return -1;
+                                commitbalance = (from C in context.tblCommitment
+                                                 join D in context.tblCommitmentDetails on C.CommitmentId equals D.CommitmentId
+                                                 where C.Status == "Active" && C.CommitmentId == model.ComitmentId
+                                                 select new BillCommitmentDetailModel()
+                                                 {
+                                                     CommitmentDetailId = D.ComitmentDetailId,
+                                                     AvailableAmount = D.BalanceAmount,
+                                                     CommitmentId = C.CommitmentId,
+                                                 }).ToList();
+                                CoreAccountsService _CAS = new CoreAccountsService();
+                                bool commitdetls = _CAS.UpdateCommitmentBalance(commitbalance, false, false, UserId, 0, "", isClosed);
+
+                                if (commitdetls == true)
+                                {
+                                    var query = (from D in context.tblCommitment
+                                                 where (D.CommitmentId == model.ComitmentId)
+                                                 select D).FirstOrDefault();
+
+                                    if (query != null)                                    {
+                                        query.Status = "Closed";
+                                        query.UPDT_UserID = UserId;
+                                        query.UPDT_TS = DateTime.Now;
+                                        if (bankheadname != null)
+                                            query.BankID = bankheadname.AccountHeadId; //model.BankHeadId;
+                                        else
+                                            query.BankID = 0;
+                                        context.SaveChanges();
+                                        tblCommitmentClosedLog clLog = new tblCommitmentClosedLog();
+                                        clLog.CommitmentID = model.ComitmentId;
+                                        clLog.Reason = model.Reason;
+                                        clLog.Remarks = model.Remarks;
+                                        clLog.CRTD_By = UserId;
+                                        clLog.CRTD_TS = DateTime.Now;
+                                        context.tblCommitmentClosedLog.Add(clLog);
+                                        context.SaveChanges();
+
+                                        tblCommitmentAddandCloseLog clAddClose = new tblCommitmentAddandCloseLog();
+                                        clAddClose.LogType = model.LogTypeId;
+                                        clAddClose.CommitmentId = CommQry.C.CommitmentId;
+                                        clAddClose.CommitmentDetailId = CommQry.D.ComitmentDetailId;
+                                        clAddClose.PrevCommitmentAmount = CommQry.C.CommitmentAmount;
+                                        clAddClose.PrevCommtBalanceAmount = CommQry.C.CommitmentBalance;
+                                        clAddClose.PrevCommtDetBalanceAmount = CommQry.D.BalanceAmount;
+                                        clAddClose.Remarks = model.strRemarks;
+                                        clAddClose.Amount = model.AddCloseAmt;
+                                        clAddClose.ProjectId = model.ProjectId;
+                                        clAddClose.Reason = model.Reason;
+                                        clAddClose.HeadId = model.AllHeadId;
+                                        clAddClose.CRTD_BY = UserId;
+                                        clAddClose.CRTD_TS = DateTime.Now;
+
+                                        if (bankheadname != null)
+                                        {
+                                            clAddClose.BankID = bankheadname.AccountHeadId;
+                                            clAddClose.Pre_BankID = prveBankID;//model.BankHeadId;
+                                        }
+                                        else
+                                        {
+                                            clAddClose.Pre_BankID = 0;
+                                            clAddClose.BankID = 0;
+                                        }
+
+                                        context.tblCommitmentAddandCloseLog.Add(clAddClose);
+                                        context.SaveChanges();
+                                        result = 1;
+
+                                    }
+                                }                            }
+                            else
+                            {
+                                //var query = (from D in context.tblCommitment
+                                //             where (D.CommitmentId == model.ComitmentId)
+                                //             select D).FirstOrDefault();
 
                                 //if(query !=null)
                                 //{
@@ -4818,13 +4904,63 @@ namespace IOAS.GenericServices
                                 //    context.tblCommitment.Add(updatecommit);
                                 //    context.SaveChanges();
                                 //}
-                                tblCommitmentAddandCloseLog clAddClose = new tblCommitmentAddandCloseLog();                            clAddClose.LogType = model.LogTypeId;                            clAddClose.CommitmentId = CommQry.C.CommitmentId;                            clAddClose.CommitmentDetailId = CommQry.D.ComitmentDetailId;                            clAddClose.PrevCommitmentAmount = CommQry.C.CommitmentAmount;                            clAddClose.PrevCommtBalanceAmount = CommQry.C.CommitmentBalance;                            clAddClose.PrevCommtDetBalanceAmount = CommQry.D.BalanceAmount;                            clAddClose.Remarks = model.strRemarks;                            clAddClose.Amount = model.AddCloseAmt;                            clAddClose.ProjectId = model.ProjectId;                            clAddClose.Reason = model.Reason;                            clAddClose.HeadId = model.AllHeadId;                            clAddClose.CRTD_BY = UserId;                            clAddClose.CRTD_TS = DateTime.Now;                                clAddClose.BankID = model.BankHeadId;
-                                clAddClose.Pre_BankID = model.Pre_BankID;
-                                context.tblCommitmentAddandCloseLog.Add(clAddClose);                            context.SaveChanges();                            result = 1;                        }                        var Comqry = context.tblCommitment.Where(m => m.CommitmentId == model.ComitmentId).FirstOrDefault();                        var ComDetqry = context.tblCommitmentDetails.Where(m => m.CommitmentId == model.ComitmentId).FirstOrDefault();                        if (Comqry != null && ComDetqry != null)                        {                            if (model.LogTypeId == 2)                            {                                if (model.AddCloseAmt > AvailBal)                                    return -1;
-                                //Comqry.CommitmentAmount = (Comqry.CommitmentAmount - model.AddCloseAmt);
-                                Comqry.CommitmentBalance = (Comqry.CommitmentBalance - model.AddCloseAmt);                                context.SaveChanges();
-                                //ComDetqry.Amount = (ComDetqry.Amount - model.AddCloseAmt);
-                                ComDetqry.BalanceAmount = (ComDetqry.BalanceAmount - model.AddCloseAmt);                                context.SaveChanges();                            }                            else if (model.LogTypeId == 1)                            {                                Comqry.CommitmentAmount = (Comqry.CommitmentAmount + model.AddCloseAmt);                                Comqry.CommitmentBalance = (Comqry.CommitmentBalance + model.AddCloseAmt);                                context.SaveChanges();                                ComDetqry.Amount = (ComDetqry.Amount + model.AddCloseAmt);                                ComDetqry.BalanceAmount = (ComDetqry.BalanceAmount + model.AddCloseAmt);                                context.SaveChanges();                            }                        }                    }
+                                tblCommitmentAddandCloseLog clAddClose = new tblCommitmentAddandCloseLog();
+                                clAddClose.LogType = model.LogTypeId;
+                                clAddClose.CommitmentId = CommQry.C.CommitmentId;
+                                clAddClose.CommitmentDetailId = CommQry.D.ComitmentDetailId;
+                                clAddClose.PrevCommitmentAmount = CommQry.C.CommitmentAmount;
+                                clAddClose.PrevCommtBalanceAmount = CommQry.C.CommitmentBalance;
+                                clAddClose.PrevCommtDetBalanceAmount = CommQry.D.BalanceAmount;
+                                clAddClose.Remarks = model.strRemarks;
+                                clAddClose.Amount = model.AddCloseAmt;
+                                clAddClose.ProjectId = model.ProjectId;
+                                clAddClose.Reason = model.Reason;
+                                clAddClose.HeadId = model.AllHeadId;
+                                clAddClose.CRTD_BY = UserId;
+                                clAddClose.CRTD_TS = DateTime.Now;
+                                //clAddClose.BankID = model.BankHeadId;
+                                //clAddClose.Pre_BankID = model.Pre_BankID;
+                                if (bankheadname != null)
+                                {
+                                    clAddClose.BankID = bankheadname.AccountHeadId;
+                                    clAddClose.Pre_BankID = prveBankID;
+                                }
+                                else
+                                {
+                                    clAddClose.Pre_BankID = 0;
+                                    clAddClose.BankID = 0;
+                                }
+                                context.tblCommitmentAddandCloseLog.Add(clAddClose);
+                                context.SaveChanges();
+                                result = 1;
+                            }
+                            var Comqry = context.tblCommitment.Where(m => m.CommitmentId == model.ComitmentId).FirstOrDefault();
+                            var ComDetqry = context.tblCommitmentDetails.Where(m => m.CommitmentId == model.ComitmentId).FirstOrDefault();
+                            if (Comqry != null && ComDetqry != null)
+                            {
+                                if (model.LogTypeId == 2)
+                                {
+                                    if (model.AddCloseAmt > AvailBal)
+                                        return -1;
+                                    //Comqry.CommitmentAmount = (Comqry.CommitmentAmount - model.AddCloseAmt);
+                                    Comqry.CommitmentBalance = (Comqry.CommitmentBalance - model.AddCloseAmt);
+                                    context.SaveChanges();
+                                    //ComDetqry.Amount = (ComDetqry.Amount - model.AddCloseAmt);
+                                    ComDetqry.BalanceAmount = (ComDetqry.BalanceAmount - model.AddCloseAmt);
+                                    context.SaveChanges();
+                                }
+                                else if (model.LogTypeId == 1)
+                                {
+                                    Comqry.CommitmentAmount = (Comqry.CommitmentAmount + model.AddCloseAmt);
+                                    Comqry.CommitmentBalance = (Comqry.CommitmentBalance + model.AddCloseAmt);
+                                    context.SaveChanges();
+                                    ComDetqry.Amount = (ComDetqry.Amount + model.AddCloseAmt);
+                                    ComDetqry.BalanceAmount = (ComDetqry.BalanceAmount + model.AddCloseAmt);
+                                    context.SaveChanges();
+                                }
+                            }
+                        }
+
                     //return 
 
                 }                return result;
