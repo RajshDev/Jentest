@@ -1422,7 +1422,7 @@ namespace IOAS.Models
         public int LedBankId { get; set; }
         public Nullable<decimal> ExistingImpresetBalance { get; set; }
 
-        [Required]
+       
         [Display(Name = "Bank Name")]
         public Nullable<Int32> BankId { get; set; }
 
