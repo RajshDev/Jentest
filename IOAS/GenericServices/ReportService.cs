@@ -142,11 +142,11 @@ namespace IOAS.GenericServices
                         }
                         else if (Pay[i].CategoryId == 5)
                         {
-                            nam = Common.GetVWCombineStaffName(catid, "Project Staff") + "-T&M Staff";
-                            Bank = Common.GetBankDetailsFromStaffBankAccount(catid, "ProjectStaff").Bank == null ? Common.GetBankDetailsFromPayment(typecode, refid, catid, "T&M Staff", name).Bank : Common.GetBankDetailsFromStaffBankAccount(catid, "ProjectStaff").Bank;
-                            Ifsc = Common.GetBankDetailsFromStaffBankAccount(catid, "ProjectStaff").IFSC == null ? Common.GetBankDetailsFromPayment(typecode, refid, catid, "T&M Staff", name).IFSC : Common.GetBankDetailsFromStaffBankAccount(catid, "ProjectStaff").IFSC;
-                            Branch = Common.GetBankDetailsFromStaffBankAccount(catid, "ProjectStaff").Branch == null ? Common.GetBankDetailsFromPayment(typecode, refid, catid, "T&M Staff", name).Branch : Common.GetBankDetailsFromStaffBankAccount(catid, "ProjectStaff").Branch;
-                            Accno = Common.GetBankDetailsFromStaffBankAccount(catid, "ProjectStaff").AccNo == null ? Common.GetBankDetailsFromPayment(typecode, refid, catid, "T&M Staff", name).AccNo : Common.GetBankDetailsFromStaffBankAccount(catid, "ProjectStaff").AccNo;
+                            nam = Common.GetVWCombineStaffName(catid, "Project Staff") + "-Vendor Staff";
+                            Bank = Common.GetBankDetailsFromStaffBankAccount(catid, "ProjectStaff").Bank == null ? Common.GetBankDetailsFromPayment(typecode, refid, catid, "Vendor Staff", name).Bank : Common.GetBankDetailsFromStaffBankAccount(catid, "ProjectStaff").Bank;
+                            Ifsc = Common.GetBankDetailsFromStaffBankAccount(catid, "ProjectStaff").IFSC == null ? Common.GetBankDetailsFromPayment(typecode, refid, catid, "Vendor Staff", name).IFSC : Common.GetBankDetailsFromStaffBankAccount(catid, "ProjectStaff").IFSC;
+                            Branch = Common.GetBankDetailsFromStaffBankAccount(catid, "ProjectStaff").Branch == null ? Common.GetBankDetailsFromPayment(typecode, refid, catid, "Vendor Staff", name).Branch : Common.GetBankDetailsFromStaffBankAccount(catid, "ProjectStaff").Branch;
+                            Accno = Common.GetBankDetailsFromStaffBankAccount(catid, "ProjectStaff").AccNo == null ? Common.GetBankDetailsFromPayment(typecode, refid, catid, "Vendor Staff", name).AccNo : Common.GetBankDetailsFromStaffBankAccount(catid, "ProjectStaff").AccNo;
                         }
                         else if (Pay[i].CategoryId == 6)
                         {
@@ -452,11 +452,11 @@ namespace IOAS.GenericServices
                             if (Pay[i].CategoryId == 5)
                             {
 
-                                nam = Common.GetVWCombineStaffName(catid, "Project Staff") + "-T&M Staff";
-                                Bank = Common.GetBankDetailsFromStaffBankAccount(catid, "ProjectStaff").Bank == null ? Common.GetBankDetailsFromPayment(typecode, refid, catid, "T&M Staff", name).Bank : Common.GetBankDetailsFromStaffBankAccount(catid, "ProjectStaff").Bank;
-                                Ifsc = Common.GetBankDetailsFromStaffBankAccount(catid, "ProjectStaff").IFSC == null ? Common.GetBankDetailsFromPayment(typecode, refid, catid, "T&M Staff", name).IFSC : Common.GetBankDetailsFromStaffBankAccount(catid, "ProjectStaff").IFSC;
-                                Branch = Common.GetBankDetailsFromStaffBankAccount(catid, "ProjectStaff").Branch == null ? Common.GetBankDetailsFromPayment(typecode, refid, catid, "T&M Staff", name).Branch : Common.GetBankDetailsFromStaffBankAccount(catid, "ProjectStaff").Branch;
-                                Accno = Common.GetBankDetailsFromStaffBankAccount(catid, "ProjectStaff").AccNo == null ? Common.GetBankDetailsFromPayment(typecode, refid, catid, "T&M Staff", name).AccNo : Common.GetBankDetailsFromStaffBankAccount(catid, "ProjectStaff").AccNo;
+                                nam = Common.GetVWCombineStaffName(catid, "Project Staff") + "-Vendor Staff";
+                                Bank = Common.GetBankDetailsFromStaffBankAccount(catid, "ProjectStaff").Bank == null ? Common.GetBankDetailsFromPayment(typecode, refid, catid, "Vendor Staff", name).Bank : Common.GetBankDetailsFromStaffBankAccount(catid, "ProjectStaff").Bank;
+                                Ifsc = Common.GetBankDetailsFromStaffBankAccount(catid, "ProjectStaff").IFSC == null ? Common.GetBankDetailsFromPayment(typecode, refid, catid, "Vendor Staff", name).IFSC : Common.GetBankDetailsFromStaffBankAccount(catid, "ProjectStaff").IFSC;
+                                Branch = Common.GetBankDetailsFromStaffBankAccount(catid, "ProjectStaff").Branch == null ? Common.GetBankDetailsFromPayment(typecode, refid, catid, "Vendor Staff", name).Branch : Common.GetBankDetailsFromStaffBankAccount(catid, "ProjectStaff").Branch;
+                                Accno = Common.GetBankDetailsFromStaffBankAccount(catid, "ProjectStaff").AccNo == null ? Common.GetBankDetailsFromPayment(typecode, refid, catid, "Vendor Staff", name).AccNo : Common.GetBankDetailsFromStaffBankAccount(catid, "ProjectStaff").AccNo;
 
                             }
                             if (Pay[i].CategoryId == 6)

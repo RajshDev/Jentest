@@ -12606,27 +12606,27 @@ namespace IOAS.Infrastructure
         public static string getpayeetype(int PayeeType)
         {
             var payeename = "";
-            if (PayeeType == 3)
+            if (PayeeType == 1)
             {
                 payeename = "PI";
             }
-            else if (PayeeType == 4)
+            else if (PayeeType == 2)
             {
                 payeename = "Student";
             }
-            else if (PayeeType == 7)
+            else if (PayeeType == 4)
             {
                 payeename = "Institute Staff";
             }
-            else if (PayeeType == 9)
+            else if (PayeeType == 3)
             {
-                payeename = "T&M Staff";
+                payeename = "Vendor Staff";
             }
-            else if (PayeeType == 10)
+            else if (PayeeType == 5)
             {
                 payeename = "Adhoc Staff";
             }
-            else
+            else if (PayeeType == 6)
             {
                 payeename = "Others";
             }
@@ -23115,43 +23115,43 @@ namespace IOAS.Infrastructure
                 using (var transaction = context.Database.BeginTransaction())
                 {
                     try
-                    {                       
+                    {
                         if (model.TransactionTypeCode == "OHAR")
                         {
                             var RecQry = context.tblOHReversal.Where(m => m.OHReversalNumber == model.RefNumber && m.Type == 2).FirstOrDefault();
-                            if (RecQry != null)
-                            {
-                                RecQry.CRTD_TS = model.PostedDate;
-                                context.SaveChanges();
-                                status = true;
-                                return status;
-                            }
-                        }
-                        var queryRef = context.vw_AllBillReferenceNumber.FirstOrDefault(m => m.RefNo == model.RefNumber);
-                        if (queryRef != null)
+                        if (RecQry != null)
                         {
-                            context.tblCommitmentLog.Where(x => x.TransactionTypeCode == queryRef.TransactionTypeCode && x.RefId == queryRef.RefId)
-                                    .ToList()
-                                    .ForEach(m =>
-                                    {
-                                        m.BOAId = model.BOAId;
-                                        m.CRTD_TS = model.PostedDate;
-                                        m.Posted_f = true;
-                                    });
+                            RecQry.CRTD_TS = model.PostedDate;
                             context.SaveChanges();
                             status = true;
+                            return status;
                         }
-                        if (model.TransactionTypeCode == "RCV" || model.TransactionTypeCode == "RBU")
-                        {
-                            var RecQry = context.tblReceipt.Where(m => m.ReceiptNumber == model.RefNumber).FirstOrDefault();
-                            RecQry.CrtdTS = model.PostedDate;
-                            context.SaveChanges();
-                            status = true;
-                        }
+                    }
+                    var queryRef = context.vw_AllBillReferenceNumber.FirstOrDefault(m => m.RefNo == model.RefNumber);
+                    if (queryRef != null)
+                    {
+                        context.tblCommitmentLog.Where(x => x.TransactionTypeCode == queryRef.TransactionTypeCode && x.RefId == queryRef.RefId)
+                                .ToList()
+                                .ForEach(m =>
+                                {
+                                    m.BOAId = model.BOAId;
+                                    m.CRTD_TS = model.PostedDate;
+                                    m.Posted_f = true;
+                                });
+                        context.SaveChanges();
+                        status = true;
+                    }
+                    if (model.TransactionTypeCode == "RCV" || model.TransactionTypeCode == "RBU")
+                    {
+                        var RecQry = context.tblReceipt.Where(m => m.ReceiptNumber == model.RefNumber).FirstOrDefault();
+                        RecQry.CrtdTS = model.PostedDate;
+                        context.SaveChanges();
+                        status = true;
+                    }
 
-                        if (model.TransactionTypeCode == "STV" || model.TransactionTypeCode == "PTV" || model.TransactionTypeCode == "CLV")
-                        {
-                            var BoaQry = context.tblBOA.Where(m => m.RefNumber == model.RefNumber && (m.TransactionTypeCode == "STM" || m.TransactionTypeCode == "PTM" || m.TransactionTypeCode == "CLP") && m.Status == "Posted").FirstOrDefault();
+                    if (model.TransactionTypeCode == "STV" || model.TransactionTypeCode == "PTV" || model.TransactionTypeCode == "CLV")
+                    {
+                        var BoaQry = context.tblBOA.Where(m => m.RefNumber == model.RefNumber && (m.TransactionTypeCode == "STM" || m.TransactionTypeCode == "PTM" || m.TransactionTypeCode == "CLP") && m.Status == "Posted").FirstOrDefault();
                             if (BoaQry != null)
                             {
                                 BoaQry.PostedDate = model.PostedDate;
@@ -25213,8 +25213,24 @@ namespace IOAS.Infrastructure
                 return "";
             }
         }
+        //public static string getOrderQualificationWordings(int appid, string apptype)
+        //{
+        //    try
+        //    {
+        //        string Qualification = string.Empty;               
+        //        using (var context = new IOASDBEntities())
+        //        {
 
-        
+        //               var query = context.vw_RCTOverAllApplicationEntry.Where(m => m.ApplicationId == appid && m.Category == apptype && m.ApplicationType == "Enhancement").Select(m => m.Qualification).FirstOrDefault();
+        //                return query;
+
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return "";
+        //    }
+        //}
 
         public static Tuple<int, int, int> DateDifference(DateTime d1, DateTime d2)
         {
@@ -27011,10 +27027,10 @@ namespace IOAS.Infrastructure
                     count++;
                 }
                 totdays = totdays / count;
-            }           
+            }
             return totdays;
         }
-        
+
         public static Tuple<List<CheckListModel>, bool> GetDeviationofAppointments(CheckDevationModel model)
         {
             List<CheckListModel> list = new List<CheckListModel>();
@@ -29443,7 +29459,7 @@ namespace IOAS.Infrastructure
                 if (query != null)
                 {
                     if (!String.IsNullOrEmpty(query.FirstOrDefault().RO_Status)){ 
-
+                     
                     if (query.FirstOrDefault().RO_Status == "Open")
                     {
                         TotNewvalue = (from p in context.tblProjectROSummary
