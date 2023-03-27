@@ -15733,7 +15733,15 @@ namespace IOAS.GenericServices
                                                     orderquery.Status = "Completed";
                                                 else
                                                 {
-                                                    orderquery.Status = "Awaiting Committee Approval";
+                                                    if (orderquery.OldDesignation != orderquery.NewDesignation)//|| orderquery.Basic > empdetls.A.Salary
+                                                    {
+                                                        orderquery.Status = "Awaiting Committee Approval";
+                                                    }
+                                                    else
+                                                    {
+                                                        orderquery.Status = "Awaiting Verification";
+                                                    }
+                                                    //orderquery.Status = "Awaiting Committee Approval";
                                                     if (orderquery.isGovAgencyFund)
                                                         orderquery.Status = "Awaiting Verification";
                                                 }
@@ -15760,25 +15768,53 @@ namespace IOAS.GenericServices
                                                 if (orderquery.FromDate >= empdetls.AppointmentStartdate && orderquery.ToDate <= empdetls.AppointmentEnddate && orderquery.Basic > empdetls.Salary && orderquery.OldProjectId == orderquery.NewProjectId && orderquery.NewDesignation != null && orderquery.OldDesignation == orderquery.NewDesignation)
                                                     orderquery.Status = "Completed";
                                                 else
-                                                    orderquery.Status = "Awaiting Committee Approval";
+                                                {
+                                                    if (orderquery.OldDesignation != orderquery.NewDesignation)//|| orderquery.Basic > empdetls.A.Salary
+                                                    {
+                                                        orderquery.Status = "Awaiting Committee Approval";
+                                                    }
+                                                    else
+                                                    {
+                                                        orderquery.Status = "Awaiting Verification";
+                                                    }
+                                                }
+                                                  //orderquery.Status = "Awaiting Committee Approval";
                                             }
                                         }
                                         else
                                         {
-                                            if (commitrequest.AppointmentType == "Extension" && orderquery.Basic < basicpay && appointtyp != 4 && (isgovtagency == false || isgovtagency == null))
+                                            //if (commitrequest.AppointmentType == "Extension" && orderquery.Basic < basicpay && appointtyp != 4 && (isgovtagency == false || isgovtagency == null))
+                                            //{
+                                               
+                                            //    orderquery.Status = "Awaiting Committee Approval";
+                                            //    if (typecode == "CON")
+                                            //        orderquery.Status = "Awaiting Verification";
+                                            //}
+                                            //else if (commitrequest.AppointmentType == "Extension" && typecode == "STE" && orderquery.Basic < basicpay && appointtyp == 4 && isgovtagency == true)
+                                            //{
+                                            //    orderquery.Status = "Awaiting Verification";
+                                            //}
+                                            //else if (commitrequest.AppointmentType == "Extension" && orderquery.Basic >= basicpay)
+                                            //{
+                                            //    orderquery.Status = "Completed";
+                                            //}
+
+                                            if (commitrequest.AppointmentType == "Extension")
                                             {
-                                                orderquery.Status = "Awaiting Committee Approval";
+                                                if (orderquery.Basic >= basicpay)
+                                                {
+                                                    orderquery.Status = "Completed";
+                                                }
+                                                else
+                                                {
+                                                    orderquery.Status = "Awaiting Verification";
+                                                }
+
                                                 if (typecode == "CON")
                                                     orderquery.Status = "Awaiting Verification";
+
                                             }
-                                            else if (commitrequest.AppointmentType == "Extension" && typecode == "STE" && orderquery.Basic < basicpay && appointtyp == 4 && isgovtagency == true)
-                                            {
-                                                orderquery.Status = "Awaiting Verification";
-                                            }
-                                            else if (commitrequest.AppointmentType == "Extension" && orderquery.Basic >= basicpay)
-                                            {
-                                                orderquery.Status = "Completed";
-                                            }
+
                                         }
                                         orderquery.UpdtTS = DateTime.Now;
                                         orderquery.UpdtUser = logged_in_userId;
@@ -15947,7 +15983,14 @@ namespace IOAS.GenericServices
                                         orderquery.UpdtUser = logged_in_userId;
                                         if (commitrequest.AppointmentType == "Change of Project")
                                         {
-                                            orderquery.Status = "Awaiting Committee Approval";
+                                            if (orderquery.OldDesignation != orderquery.NewDesignation)//|| orderquery.Basic > empdetls.A.Salary
+                                            {
+                                                orderquery.Status = "Awaiting Committee Approval";
+                                            }
+                                            else
+                                            {
+                                                orderquery.Status = "Awaiting Verification";
+                                            }
                                             if (typecode == "CON")
                                                 orderquery.Status = "Awaiting Verification";
                                         }
@@ -16039,7 +16082,18 @@ namespace IOAS.GenericServices
                                                 if (empdetls != null && orderquery.FromDate >= empdetls.A.AppointmentStartdate && orderquery.ToDate <= empdetls.A.AppointmentEnddate && orderquery.Basic > empdetls.A.Salary && orderquery.OldProjectId == orderquery.NewProjectId && orderquery.NewDesignation != null && orderquery.OldDesignation == orderquery.NewDesignation)
                                                     orderquery.Status = "Completed";
                                                 else
-                                                    orderquery.Status = "Awaiting Committee Approval";
+                                                {
+                                                    //orderquery.Status = "Awaiting Committee Approval";
+                                                    if (orderquery.OldDesignation != orderquery.NewDesignation)//|| orderquery.Basic > empdetls.A.Salary
+                                                    {
+                                                        orderquery.Status = "Awaiting Committee Approval";
+                                                    }
+                                                    else
+                                                    {
+                                                        orderquery.Status = "Awaiting Verification";
+                                                    }
+                                                }
+                                                    
                                             }
                                             else if (typecode == "CON")
                                             {
@@ -16059,7 +16113,17 @@ namespace IOAS.GenericServices
                                                 if (empdetls != null && orderquery.FromDate >= empdetls.A.AppointmentStartdate && orderquery.ToDate <= empdetls.A.AppointmentEnddate && orderquery.Basic > empdetls.A.Salary && orderquery.OldProjectId == orderquery.NewProjectId && orderquery.NewDesignation != null && orderquery.OldDesignation == orderquery.NewDesignation)
                                                     orderquery.Status = "Completed";
                                                 else
-                                                    orderquery.Status = "Awaiting Committee Approval";
+                                                {
+                                                    if (orderquery.OldDesignation != orderquery.NewDesignation)
+                                                    {
+                                                        orderquery.Status = "Awaiting Committee Approval";
+                                                    }
+                                                    else
+                                                    {
+                                                        orderquery.Status = "Awaiting Verification";
+                                                    }
+                                                }
+                                                  //orderquery.Status = "Awaiting Committee Approval";
                                             }
                                         }
                                         else
@@ -16214,7 +16278,16 @@ namespace IOAS.GenericServices
                                         orderquery.UpdtUser = logged_in_userId;
                                         if (commitrequest.AppointmentType == "Change of Project")
                                         {
-                                            orderquery.Status = "Awaiting Committee Approval";
+                                             
+                                            if (orderquery.OldDesignation != orderquery.NewDesignation)//|| orderquery.Basic > empdetls.A.Salary
+                                            {
+                                                orderquery.Status = "Awaiting Committee Approval";
+                                            }
+                                            else 
+                                            {                                               
+                                                orderquery.Status = "Awaiting Verification";
+                                            }
+                                            //orderquery.Status = "Awaiting Verification";
                                             if (typecode == "CON")
                                                 orderquery.Status = "Awaiting Verification";
                                         }
@@ -16228,13 +16301,23 @@ namespace IOAS.GenericServices
                                                                 where A.EmployeersID == empno && A.IsActiveNow == true
                                                                 select new { A, C }).FirstOrDefault();
 
+
+
                                                 if (orderquery.FromDate >= empdetls.A.AppointmentStartdate && orderquery.ToDate <= empdetls.A.AppointmentEnddate && orderquery.Basic > empdetls.A.Salary && orderquery.OldProjectId == orderquery.NewProjectId && orderquery.NewDesignation != null && orderquery.OldDesignation == orderquery.NewDesignation)
                                                 {
                                                     orderquery.Status = "Completed";
                                                 }
                                                 else
                                                 {
-                                                    orderquery.Status = "Awaiting Committee Approval";
+                                                    if (orderquery.OldDesignation != orderquery.NewDesignation)//|| orderquery.Basic > empdetls.A.Salary
+                                                    {
+                                                        orderquery.Status = "Awaiting Committee Approval";
+                                                    }
+                                                    else
+                                                    {
+                                                        orderquery.Status = "Awaiting Verification";
+                                                    }
+
                                                     if (orderquery.isGovAgencyFund)
                                                         orderquery.Status = "Awaiting Verification";
                                                 }
@@ -16271,7 +16354,15 @@ namespace IOAS.GenericServices
                                                 }
                                                 else
                                                 {
-                                                    orderquery.Status = "Awaiting Committee Approval";
+                                                    if (orderquery.OldDesignation != orderquery.NewDesignation)
+                                                    {
+                                                        orderquery.Status = "Awaiting Committee Approval";
+                                                    }
+                                                    else
+                                                    {
+                                                        orderquery.Status = "Awaiting Verification";
+                                                    }
+                                                  //orderquery.Status = "Awaiting Committee Approval";
                                                 }
                                             }
                                         }
