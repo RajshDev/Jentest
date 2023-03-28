@@ -28028,23 +28028,369 @@ namespace IOAS.GenericServices
                 return hraValue;
             }
         }
-        //private int[] monthDay = new int[12] { 31, -1, 31, 30, 31, 30, 31, 31, 30, 31, 30,
-        //        31 };
-        public static Tuple<int, int, int> DateDifference(DateTime From, DateTime To)
+        private int[] monthDay = new int[12] { 31, -1, 31, 30, 31, 30, 31, 31, 30, 31, 30,
+                31 };
+        public Tuple<int, int, int> DateDifference(DateTime From, DateTime To)
         {
+
             try
             {
                 using (var context = new IOASDBEntities())
                 {
-                    DateTime zeroTime = new DateTime(1, 1, 1);
-                    TimeSpan? span = zeroTime - zeroTime;
-                    span = To.AddDays(+1) - From;
-                    int ms = (int)span.Value.TotalMilliseconds;
-                    var spanc = span.Value.TotalMilliseconds;
-                    var Year = Math.Floor(spanc / 31536000000);
-                    var Month = Math.Floor((spanc % 31536000000) / 2628000000);
-                    var Days = Math.Floor(((spanc % 31536000000) % 2628000000) / 86400000);
-                    return Tuple.Create((int)Year, (int)Month, (int)Days);
+                    var increment = 0;
+                    var incrementDay = 0;
+                    int day = 0;
+                    int days1 = 0;
+                    int month = 0;
+                    int Total = 0;
+                    int Todate = Convert.ToInt32(this.monthDay[To.Month - 1]);
+                    int Fromdate = 0;
+                    //Todate = 
+                    if (To.Month == 2)
+                    {
+                        if (From.Day == 1 && To.Day == 28)
+                        {
+                            To = To.AddDays(+1);
+                        }
+                        else if (From.Day == 1 && To.Day == 29)
+                        {
+                            To = To.AddDays(+1);
+                        }
+                        else
+                        {
+                            From = From.AddDays(-1);
+                            Fromdate = Convert.ToInt32(this.monthDay[From.Month - 1]);
+                            //From.Month
+                        }
+
+                    }
+                    else if (From.Month == 2)
+                    {
+                        if (From.Day == 1 && To.Day == 28)
+                        {
+                            To = To.AddDays(+1);
+                        }
+                        else if (From.Day == 1 && To.Day == 29)
+                        {
+                            To = To.AddDays(+1);
+                        }
+                        else if (From.Day == 1 && To.Day == 30 && To.Day == Todate)
+                        {
+
+                            To = To.AddDays(+1);
+                        }
+                        else if (From.Day == 1 && To.Day == 31)
+                        {
+                            To = To.AddDays(+1);
+                        }
+                        else
+                        {
+                            From = From.AddDays(-1);
+                            Fromdate = Convert.ToInt32(this.monthDay[From.Month - 1]);
+                            //From.Month
+                        }
+
+                    }
+                    else
+                    {
+                        To = To.AddDays(+1);
+                    }
+
+                    if (From.Day > To.Day)
+                    {
+                        increment = this.monthDay[From.Month - 1];
+                    }
+
+                    if (increment == -1)
+                    {
+                        if (DateTime.IsLeapYear(From.Year))
+                        {
+                            increment = 29;
+                        }
+                        else if (DateTime.IsLeapYear(To.Year))
+                        {
+                            increment = 29;
+                        }
+                        else
+                        {
+                            increment = 1;
+                        }
+                    }
+                    if (increment != 0)
+                    {
+                        //From = From.AddDays(-1);
+                        //increment = this.monthDay[From.Month - 1];
+                        //day = From.Day - increment;
+                        if (To.Month == 2)
+                        {
+
+                            if (DateTime.IsLeapYear(To.Year))
+                            {
+                                if (To.Day == 29)
+                                {
+                                    incrementDay = this.monthDay[From.Month - 1];
+                                    day = incrementDay - From.Day;
+                                    increment = 0;
+                                }
+                                //increment = 29;
+                                else if (!(From.Day == 1 && To.Day == 29))
+                                {
+                                    incrementDay = this.monthDay[From.Month - 1];
+                                    day = incrementDay - From.Day;
+                                    increment = 1;
+                                }
+                                else
+                                {
+                                    day = (To.Day + increment) - From.Day;
+                                    increment = 1;
+                                }
+                            }
+                            else
+                            {
+                                //increment = 28;
+                                if (To.Day == 28)
+                                {
+                                    day = (To.Day + increment) - From.Day;
+                                    increment = 1;
+                                }
+                                else if (To.Month == From.Month)
+                                {
+                                    incrementDay = this.monthDay[From.Month];
+                                    //day = incrementDay - From.Day;
+                                    day = (To.Day + incrementDay) - From.Day;
+                                    increment = 1;
+                                }
+                                else if (From.Day == 31)
+                                {
+                                    //incrementDay = 28;
+                                    //day = incrementDay - To.Day;
+                                    day = To.Day;
+                                    increment = 1;
+
+                                }
+                                else if (From.Day == 30 && Fromdate == 30)
+                                {
+                                    //incrementDay = 28;
+                                    //day = incrementDay - To.Day;
+                                    day = To.Day;
+                                    increment = 1;
+
+                                }
+                                else
+                                {
+                                    incrementDay = this.monthDay[From.Month - 1];
+                                    //day = incrementDay - From.Day;
+                                    day = (To.Day + incrementDay) - From.Day;
+                                    increment = 1;
+                                }
+                            }
+                            
+
+                        }
+                        else if (From.Month == 2)
+                        {
+
+
+                            if (DateTime.IsLeapYear(From.Year))
+                            {
+                                if (From.Day == 29)
+                                {
+                                    incrementDay = this.monthDay[From.Month - 1];
+                                    day = incrementDay - From.Day;
+                                    //increment = 1;
+                                }
+                                
+                                else
+                                {
+                                    //day = (To.Day + increment) - From.Day;
+                                    //increment = 1;
+                                    day = To.Day - From.Day;
+                                }
+                            }
+                            else
+                            {
+                                //increment = 28;
+                                if (From.Day == 28)
+                                {
+                                    incrementDay = this.monthDay[From.Month - 1];
+                                    day = incrementDay - From.Day;
+                                    //increment = 1;
+                                }
+                                else
+                                {
+                                    //day = (To.Day + increment) - From.Day;
+                                    //increment = 1;
+                                    if (To.Day == 1 && From.Day == 1)
+                                    {
+                                        day = To.Day - From.Day;
+                                    }
+                                    else if (To.Day == 31)
+                                    {
+                                        incrementDay = 28;
+                                        day = incrementDay - From.Day;
+
+                                    }
+                                    else
+                                    {
+                                        //incrementDay = 28;
+                                        //day = incrementDay - From.Day;
+                                        //day = (incrementDay) - From.Day;
+                                        day = To.Day - From.Day;
+                                        //increment = 1;
+                                    }
+
+                                }
+                            }
+
+                        }
+                        else
+                        {
+                            day = (To.Day + increment) - From.Day;
+                            increment = 1;
+                        }
+
+
+
+                    }
+                    else if (To.Month == 2)
+                    {
+
+
+                        if (DateTime.IsLeapYear(To.Year))
+                        {
+                            if (To.Day == 29)
+                            {
+                                incrementDay = this.monthDay[From.Month - 1];
+                                day = incrementDay - From.Day;
+                                increment = 0;
+                            }
+                            
+                            else
+                            {
+                                //day = (To.Day + increment) - From.Day;
+                                //increment = 1;
+                                day = To.Day - From.Day;
+                            }
+                        }
+                        else
+                        {
+                            //increment = 28;
+                            if (To.Day == 28)
+                            {
+                                incrementDay = this.monthDay[From.Month - 1];
+                                day = incrementDay - From.Day;
+                                //increment = 1;
+                            }
+                            else if (To.Day == 1 && From.Day == 1)
+                            {
+                                day = To.Day - From.Day;
+                            }
+                            else if (From.Day == 31)
+                            {
+                                incrementDay = 28;
+                                day = incrementDay - To.Day;
+
+                            }
+                            
+
+                            else
+                            {
+                                //day = (To.Day + increment) - From.Day;
+                                //increment = 1;
+                                day = To.Day - From.Day;
+                            }
+                        }
+
+                    }
+                    else if (From.Month == 2)
+                    {
+
+
+                        if (DateTime.IsLeapYear(From.Year))
+                        {
+                            if (From.Day == 29)
+                            {
+                                incrementDay = this.monthDay[From.Month - 1];
+                                day = incrementDay - From.Day;
+                                increment = 0;
+                            }
+                            
+                            else
+                            {
+                                //day = (To.Day + increment) - From.Day;
+                                //increment = 1;
+                                day = To.Day - From.Day;
+                            }
+                        }
+                        else
+                        {
+                            //increment = 28;
+                            if (From.Day == 28)
+                            {
+                                incrementDay = this.monthDay[From.Month - 1];
+                                day = incrementDay - From.Day;
+                                //increment = 1;
+                            }
+                            else
+                            {
+                                //day = (To.Day + increment) - From.Day;
+                                //increment = 1;
+                                if (To.Day == 1 && From.Day == 1)
+                                {
+                                    day = To.Day - From.Day;
+                                }
+                                else if (To.Day == 31)
+                                {
+                                    incrementDay = 28;
+                                    day = incrementDay - From.Day;
+                                    //day = From.Day + 1;
+
+                                }
+                                else
+                                {
+                                    //incrementDay = 28;
+                                    //day = incrementDay - From.Day;
+                                    //day = (incrementDay) - From.Day;
+                                    day = To.Day - From.Day;
+                                    //increment = 1;
+                                }
+
+                            }
+                        }
+
+                    }
+                    else
+                    {
+                        day = To.Day - From.Day;
+                    }
+
+                    if ((From.Month + increment) > To.Month)
+                    {
+                        month = (To.Month + 12) - (From.Month + increment);
+                        increment = 1;
+                    }
+                    else
+                    {
+                        month = (To.Month) - (From.Month + increment);
+                        increment = 0;
+                    }
+
+                    int year = To.Year - (From.Year + increment);
+
+                    
+
+                    return Tuple.Create((int)year, (int)month, (int)day);
+
+                    //DateTime zeroTime = new DateTime(1, 1, 1);
+                    //TimeSpan? span = zeroTime - zeroTime;
+                    //span = To.AddDays(+1) - From;
+                    //int ms = (int)span.Value.TotalMilliseconds;
+                    //var spanc = span.Value.TotalMilliseconds;
+                    //var Year = Math.Floor(spanc / 31536000000);
+                    //var Month = Math.Floor((spanc % 31536000000) / 2628000000);
+                    //var Days = Math.Floor(((spanc % 31536000000) % 2628000000) / 86400000);
+                    //return Tuple.Create((int)Year, (int)Month, (int)Days);
+
                 }
                 return Tuple.Create(0, 0, 0);
             }
@@ -28054,7 +28400,7 @@ namespace IOAS.GenericServices
             }
         }
 
-        public static Tuple<int, int, int> DateDifference(DateTime[] From, DateTime[] To)
+        public Tuple<int, int, int> DateDifference(DateTime[] From, DateTime[] To)
         {
             try
             {
@@ -28062,19 +28408,376 @@ namespace IOAS.GenericServices
                 {
                     DateTime zeroTime = new DateTime(1, 1, 1);
                     TimeSpan? span = zeroTime - zeroTime;
+                    int day = 0;
+                    int month = 0;
+                    int year = 0;
                     if (From.Count() > 0)
                     {
                         for (int i = 0; i < From.Count(); i++)
                         {
                             span += To[i].AddDays(+1) - From[i];
+
+
+                            var increment = 0;
+                            var incrementDay = 0;
+
+                            int days1 = 0;
+                            //int month = 0;
+                            int Total = 0;
+                            int Todate = Convert.ToInt32(this.monthDay[To[i].Month - 1]);
+                            int Fromdate = 0;
+                            //Todate = 
+                            if (To[i].Month == 2)
+                            {
+                                if (From[i].Day == 1 && To[i].Day == 28)
+                                {
+                                    To[i] = To[i].AddDays(+1);
+                                }
+                                else if (From[i].Day == 1 && To[i].Day == 29)
+                                {
+                                    To[i] = To[i].AddDays(+1);
+                                }
+                                else
+                                {
+                                    From[i] = From[i].AddDays(-1);
+                                    Fromdate = Convert.ToInt32(this.monthDay[From[i].Month - 1]);
+                                    //From.Month
+                                }
+
+                            }
+                            else if (From[i].Month == 2)
+                            {
+                                if (From[i].Day == 1 && To[i].Day == 28)
+                                {
+                                    To[i] = To[i].AddDays(+1);
+                                }
+                                else if (From[i].Day == 1 && To[i].Day == 29)
+                                {
+                                    To[i] = To[i].AddDays(+1);
+                                }
+                                else if (From[i].Day == 1 && To[i].Day == 30 && To[i].Day == Todate)
+                                {
+
+                                    To[i] = To[i].AddDays(+1);
+                                }
+                                else if (From[i].Day == 1 && To[i].Day == 31)
+                                {
+                                    To[i] = To[i].AddDays(+1);
+                                }
+                                else
+                                {
+                                    From[i] = From[i].AddDays(-1);
+                                    Fromdate = Convert.ToInt32(this.monthDay[From[i].Month - 1]);
+                                    //From.Month
+                                }
+
+                            }
+                            else
+                            {
+                                To[i] = To[i].AddDays(+1);
+                            }
+
+                            if (From[i].Day > To[i].Day)
+                            {
+                                increment = this.monthDay[From[i].Month - 1];
+                            }
+
+                            if (increment == -1)
+                            {
+                                if (DateTime.IsLeapYear(From[i].Year))
+                                {
+                                    increment = 29;
+                                }
+                                else if (DateTime.IsLeapYear(To[i].Year))
+                                {
+                                    increment = 29;
+                                }
+                                else
+                                {
+                                    increment = 1;
+                                }
+                            }
+                            if (increment != 0)
+                            {
+                                
+                                if (To[i].Month == 2)
+                                {
+
+                                    if (DateTime.IsLeapYear(To[i].Year))
+                                    {
+                                        if (To[i].Day == 29)
+                                        {
+                                            incrementDay = this.monthDay[From[i].Month - 1];
+                                            day += incrementDay - From[i].Day;
+                                            //day = incrementDay - From[i].Day;
+                                            increment = 0;
+                                        }
+                                        //increment = 29;
+                                        else if (!(From[i].Day == 1 && To[i].Day == 29))
+                                        {
+                                            incrementDay = this.monthDay[From[i].Month - 1];
+                                            day += incrementDay - From[i].Day;
+                                            //day = incrementDay - From[i].Day;
+                                            increment = 1;
+                                        }
+                                        else
+                                        {
+                                            //day = (To[i].Day + increment) - From[i].Day;
+                                            day += (To[i].Day + increment) - From[i].Day;
+                                            increment = 1;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        //increment = 28;
+                                        if (To[i].Day == 28)
+                                        {
+                                            //day = (To[i].Day + increment) - From[i].Day;
+                                            day += (To[i].Day + increment) - From[i].Day;
+                                            increment = 1;
+                                        }
+                                        else if (To[i].Month == From[i].Month)
+                                        {
+                                            incrementDay = this.monthDay[From[i].Month];                                           
+                                            day += (To[i].Day + incrementDay) - From[i].Day;
+                                            increment = 1;
+                                        }
+                                        else if (From[i].Day == 31)
+                                        {
+                                            
+                                            day += To[i].Day;
+                                            increment = 1;
+
+                                        }
+                                        else if (From[i].Day == 30 && Fromdate == 30)
+                                        {                                           
+                                            day += To[i].Day;
+                                            increment = 1;
+
+                                        }
+                                        else
+                                        {
+                                            incrementDay = this.monthDay[From[i].Month - 1];
+                                            //day = incrementDay - From.Day;
+                                            //day = (To[i].Day + incrementDay) - From[i].Day;
+                                            day += (To[i].Day + incrementDay) - From[i].Day;
+                                            increment = 1;
+                                        }
+                                    }
+
+
+                                }
+                                else if (From[i].Month == 2)
+                                {
+
+
+                                    if (DateTime.IsLeapYear(From[i].Year))
+                                    {
+                                        if (From[i].Day == 29)
+                                        {
+                                            incrementDay = this.monthDay[From[i].Month - 1];
+                                            //day = incrementDay - From[i].Day;
+                                            day += incrementDay - From[i].Day;
+                                            //increment = 1;
+                                        }
+
+                                        else
+                                        {
+                                            
+                                            day += To[i].Day - From[i].Day;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        //increment = 28;
+                                        if (From[i].Day == 28)
+                                        {
+                                            incrementDay = this.monthDay[From[i].Month - 1];
+                                            //day = incrementDay - From[i].Day;
+                                            day += incrementDay - From[i].Day;
+                                            //increment = 1;
+                                        }
+                                        else
+                                        {
+                                            
+                                            if (To[i].Day == 1 && From[i].Day == 1)
+                                            {
+                                                //day = To[i].Day - From[i].Day;
+                                                day += To[i].Day - From[i].Day;
+                                            }
+                                            else if (To[i].Day == 31)
+                                            {
+                                                incrementDay = 28;
+                                                //day = incrementDay - From[i].Day;
+                                                day += incrementDay - From[i].Day;
+
+                                            }
+                                            else
+                                            {
+                                                
+                                                day += To[i].Day - From[i].Day;
+                                                //increment = 1;
+                                            }
+
+                                        }
+                                    }
+
+                                }
+                                else
+                                {
+                                    //day = (To[i].Day + increment) - From[i].Day;
+                                    day += (To[i].Day + increment) - From[i].Day;
+                                    increment = 1;
+                                }
+
+
+
+                            }
+                            else if (To[i].Month == 2)
+                            {
+
+
+                                if (DateTime.IsLeapYear(To[i].Year))
+                                {
+                                    if (To[i].Day == 29)
+                                    {
+                                        incrementDay = this.monthDay[From[i].Month - 1];
+                                        //day = incrementDay - From[i].Day;
+                                        day += incrementDay - From[i].Day;
+                                        increment = 0;
+                                    }
+
+                                    else
+                                    {
+                                        
+                                        day += To[i].Day - From[i].Day;
+                                    }
+                                }
+                                else
+                                {
+                                    //increment = 28;
+                                    if (To[i].Day == 28)
+                                    {
+                                        incrementDay = this.monthDay[From[i].Month - 1];
+                                        //day = incrementDay - From[i].Day;
+                                        day += incrementDay - From[i].Day;
+                                        //increment = 1;
+                                    }
+                                    else if (To[i].Day == 1 && From[i].Day == 1)
+                                    {
+                                        //day = To[i].Day - From[i].Day;
+                                        day += To[i].Day - From[i].Day;
+                                    }
+                                    else if (From[i].Day == 31)
+                                    {
+                                        incrementDay = 28;
+                                        //day = incrementDay - To[i].Day;
+                                        day += incrementDay - To[i].Day;
+
+                                    }
+
+
+                                    else
+                                    {
+                                        
+                                        day += To[i].Day - From[i].Day;
+                                    }
+                                }
+
+                            }
+                            else if (From[i].Month == 2)
+                            {
+
+
+                                if (DateTime.IsLeapYear(From[i].Year))
+                                {
+                                    if (From[i].Day == 29)
+                                    {
+                                        incrementDay = this.monthDay[From[i].Month - 1];
+                                        //day = incrementDay - From[i].Day;
+                                        day += incrementDay - From[i].Day;
+                                        increment = 0;
+                                    }
+
+                                    else
+                                    {
+                                        
+                                        day += To[i].Day - From[i].Day;
+                                    }
+                                }
+                                else
+                                {
+                                    //increment = 28;
+                                    if (From[i].Day == 28)
+                                    {
+                                        incrementDay = this.monthDay[From[i].Month - 1];
+                                        //day = incrementDay - From[i].Day;
+                                        day += incrementDay - From[i].Day;
+                                        //increment = 1;
+                                    }
+                                    else
+                                    {
+                                        
+                                        if (To[i].Day == 1 && From[i].Day == 1)
+                                        {
+                                            //day = To[i].Day - From[i].Day;
+                                            day += To[i].Day - From[i].Day;
+                                        }
+                                        else if (To[i].Day == 31)
+                                        {
+                                            incrementDay = 28;
+                                            //day = incrementDay - From[i].Day;
+                                            day += incrementDay - From[i].Day;
+                                            //day = From.Day + 1;
+
+                                        }
+                                        else
+                                        {
+                                            
+                                            day += To[i].Day - From[i].Day;
+                                            //increment = 1;
+                                        }
+
+                                    }
+                                }
+
+                            }
+                            else
+                            {
+                                //day = To[i].Day - From[i].Day;
+                                day += To[i].Day - From[i].Day;
+                            }
+
+
+                            if ((From[i].Month + increment) > To[i].Month)
+                            {
+                                month += (To[i].Month + 12) - (From[i].Month + increment);
+                                increment = 1;
+                            }
+                            else
+                            {
+                                month += (To[i].Month) - (From[i].Month + increment);
+                                increment = 0;
+                            }
+                            if (day > 30)
+                            {
+                                month++;
+                                day = day - 30;
+                            }
+
+                            if (month >= 12)
+                            {
+                                year++;
+                                month = month - 12;
+                            }
+
+                            year += To[i].Year - (From[i].Year + increment);
+
+
                         }
                     }
-                    int ms = (int)span.Value.TotalMilliseconds;
-                    var spanc = span.Value.TotalMilliseconds;
-                    var Year = Math.Floor(spanc / 31536000000);
-                    var Month = Math.Floor((spanc % 31536000000) / 2628000000);
-                    var Days = Math.Floor(((spanc % 31536000000) % 2628000000) / 86400000);
-                    return Tuple.Create((int)Year, (int)Month, (int)Days);
+
+                    return Tuple.Create((int)year, (int)month, (int)day);
                 }
                 return Tuple.Create(0, 0, 0);
             }
