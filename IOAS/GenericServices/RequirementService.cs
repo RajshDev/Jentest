@@ -16397,6 +16397,10 @@ namespace IOAS.GenericServices
                                             }
                                         }
 
+                                        if (orderquery.Status == "Awaiting Verification")
+                                        {
+                                            PostOfferDetails(orderquery.AppointmentId ?? 0, typecode, "OfferLetter", logged_in_userId, orderquery.OrderId);
+                                        }
                                         if (orderquery.Status == "Awaiting Verification" && typecode == "CON")
                                         {
                                             PostOfferDetails(orderquery.AppointmentId ?? 0, typecode, "OfferLetter", logged_in_userId, orderquery.OrderId);
