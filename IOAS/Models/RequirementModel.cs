@@ -39,6 +39,7 @@ namespace IOAS.Models
         public string AnnouncementRequestBy { get; set; }
         [RequiredIf("IsAnnouncementCreate", true, ErrorMessage = "The Announcement Category field is required")]
         public string AnnouncementCategory { get; set; }
+        public string CanceledReason { get; set; }
         public bool ValidAnnouncementPlatform_f
         {
             get

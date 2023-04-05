@@ -420,6 +420,7 @@ namespace IOAS.GenericServices
                                 if (query.Status == 1 || query.Status == 2)
                                 {
                                     query.AnnouncementTitle = model.AnnouncementTitle;
+                                    query.CanceledReason = model.CanceledReason;
                                     query.AnnouncementCategory = Common.GetCodeControlAbbrId("Announcement Category", model.AnnouncementCategory);
                                     query.Upt_TS = DateTime.Now;
                                     query.Upt_User = logged_in_userId;
@@ -429,7 +430,7 @@ namespace IOAS.GenericServices
                                     query.ModeOfRequest = Common.GetCodeControlAbbrId("ModeOfRequest", model.ModeOfRequest);
                                     query.RequestReceiveDate = model.RequestReceiveDate;
                                     query.ClosureDate = model.AnnouncementClosureDate;
-                                    query.FlowApprover = model.FlowApprover;
+                                    query.FlowApprover = model.FlowApprover;                                   
                                     if (model.AnnouncementCategory == "Project wise")
                                         query.ProjectID = model.ProjectId;
                                     query.PIName = model.PIId;
@@ -696,6 +697,7 @@ namespace IOAS.GenericServices
                                 var SeqNo = (from R in context.tblRCTAnnouncementMaster where R.Crt_TS.Value.Year == DateTime.Now.Year select R.YearlySeq).Max() ?? 0;
                                 tblRCTAnnouncementMaster create = new tblRCTAnnouncementMaster();
                                 create.AnnouncementTitle = model.AnnouncementTitle;
+                                create.CanceledReason = model.CanceledReason;
                                 create.AnnouncementCategory = Common.GetCodeControlAbbrId("Announcement Category", model.AnnouncementCategory);
                                 create.Status = button == "Save as drafts" ? 1 : 2;
                                 create.DraftedDate = DateTime.Now;
@@ -705,7 +707,7 @@ namespace IOAS.GenericServices
                                 create.DAComments = model.DAComments;
                                 create.ModeOfRequest = Common.GetCodeControlAbbrId("ModeOfRequest", model.ModeOfRequest);
                                 create.RequestReceiveDate = model.RequestReceiveDate;
-                                create.ClosureDate = model.AnnouncementClosureDate;
+                                create.ClosureDate = model.AnnouncementClosureDate;                               
                                 if (model.AnnouncementCategory == "Project wise")
                                     create.ProjectID = model.ProjectId;
                                 create.PIName = model.PIId;
@@ -838,6 +840,7 @@ namespace IOAS.GenericServices
                         model.AnnouncementID = query.A.AnnouncementID;
                         model.RefNo = query.A.RefNo;
                         model.AnnouncementTitle = query.A.AnnouncementTitle;
+                        model.CanceledReason = query.A.CanceledReason;
                         model.AnnouncementCategory = Common.GetCodeControlDes(query.A.AnnouncementCategory ?? 0, "Announcement Category");
                         if (model.AnnouncementCategory == "Project wise")
                         {
@@ -981,7 +984,8 @@ namespace IOAS.GenericServices
                                                    b.AnnouncementCategory,
                                                    p.CodeValDetail,
                                                    b.RequestReceiveDate,
-                                                   b.ClosureDate,
+                                                   b.ClosureDate, 
+                                                   b.CanceledReason,
                                                    FirstName = j == null ? "" : j.FirstName,
                                                    DepartmentName = j == null ? "" : j.DepartmentName
                                                }).ToList();
@@ -989,7 +993,7 @@ namespace IOAS.GenericServices
                     if (model.SearchINStatus == null)
                     {
                         list.TotalRecords = QryAnnouncementList.Where(x => x.Status != 13).Count();
-                        QryAnnouncementList = QryAnnouncementList.Where(x => x.Status != 13).Skip(skiprec).Take(pageSize).ToList();
+                        QryAnnouncementList = QryAnnouncementList.Where(x => x.Status != 13).Skip(skiprec).Take(pageSize).ToList();                        
                     }
                     else if (model.SearchINStatus != null)
                     {
@@ -1014,6 +1018,7 @@ namespace IOAS.GenericServices
                                 SNo = sno + i,
                                 AnnouncementID = QryAnnouncementList[i].AnnouncementID,
                                 RefNo = QryAnnouncementList[i].RefNo,
+                                CanceledReason=QryAnnouncementList[i].CanceledReason,
                                 AnnouncementTitle = QryAnnouncementList[i].AnnouncementTitle,
                                 AnnouncementRequestBy = Common.GetCodeControlDes(QryAnnouncementList[i].RequestedBy ?? 0, "Announcement Requestedby"),
                                 AnnouncementCategory = Common.GetCodeControlDes(QryAnnouncementList[i].AnnouncementCategory ?? 0, "Announcement Category"),
@@ -1025,7 +1030,7 @@ namespace IOAS.GenericServices
                                 StatusID = QryAnnouncementList[i].Status ?? 0,
                                 PIName = QryAnnouncementList[i].FirstName,
                                 PIDepartment = QryAnnouncementList[i].DepartmentName
-                            });
+                        });
                         }
                     }
 
@@ -28188,7 +28193,7 @@ namespace IOAS.GenericServices
                                     increment = 1;
                                 }
                             }
-                            
+
 
                         }
                         else if (From.Month == 2)
@@ -28203,7 +28208,7 @@ namespace IOAS.GenericServices
                                     day = incrementDay - From.Day;
                                     //increment = 1;
                                 }
-                                
+
                                 else
                                 {
                                     //day = (To.Day + increment) - From.Day;
@@ -28268,7 +28273,7 @@ namespace IOAS.GenericServices
                                 day = incrementDay - From.Day;
                                 increment = 0;
                             }
-                            
+
                             else
                             {
                                 //day = (To.Day + increment) - From.Day;
@@ -28295,7 +28300,7 @@ namespace IOAS.GenericServices
                                 day = incrementDay - To.Day;
 
                             }
-                            
+
 
                             else
                             {
@@ -28318,7 +28323,7 @@ namespace IOAS.GenericServices
                                 day = incrementDay - From.Day;
                                 increment = 0;
                             }
-                            
+
                             else
                             {
                                 //day = (To.Day + increment) - From.Day;
@@ -28381,7 +28386,7 @@ namespace IOAS.GenericServices
 
                     int year = To.Year - (From.Year + increment);
 
-                    
+
 
                     return Tuple.Create((int)year, (int)month, (int)day);
 
@@ -28503,7 +28508,7 @@ namespace IOAS.GenericServices
                             }
                             if (increment != 0)
                             {
-                                
+
                                 if (To[i].Month == 2)
                                 {
 
@@ -28542,19 +28547,19 @@ namespace IOAS.GenericServices
                                         }
                                         else if (To[i].Month == From[i].Month)
                                         {
-                                            incrementDay = this.monthDay[From[i].Month];                                           
+                                            incrementDay = this.monthDay[From[i].Month];
                                             day += (To[i].Day + incrementDay) - From[i].Day;
                                             increment = 1;
                                         }
                                         else if (From[i].Day == 31)
                                         {
-                                            
+
                                             day += To[i].Day;
                                             increment = 1;
 
                                         }
                                         else if (From[i].Day == 30 && Fromdate == 30)
-                                        {                                           
+                                        {
                                             day += To[i].Day;
                                             increment = 1;
 
@@ -28587,7 +28592,7 @@ namespace IOAS.GenericServices
 
                                         else
                                         {
-                                            
+
                                             day += To[i].Day - From[i].Day;
                                         }
                                     }
@@ -28603,7 +28608,7 @@ namespace IOAS.GenericServices
                                         }
                                         else
                                         {
-                                            
+
                                             if (To[i].Day == 1 && From[i].Day == 1)
                                             {
                                                 //day = To[i].Day - From[i].Day;
@@ -28618,7 +28623,7 @@ namespace IOAS.GenericServices
                                             }
                                             else
                                             {
-                                                
+
                                                 day += To[i].Day - From[i].Day;
                                                 //increment = 1;
                                             }
@@ -28653,7 +28658,7 @@ namespace IOAS.GenericServices
 
                                     else
                                     {
-                                        
+
                                         day += To[i].Day - From[i].Day;
                                     }
                                 }
@@ -28683,7 +28688,7 @@ namespace IOAS.GenericServices
 
                                     else
                                     {
-                                        
+
                                         day += To[i].Day - From[i].Day;
                                     }
                                 }
@@ -28705,7 +28710,7 @@ namespace IOAS.GenericServices
 
                                     else
                                     {
-                                        
+
                                         day += To[i].Day - From[i].Day;
                                     }
                                 }
@@ -28721,7 +28726,7 @@ namespace IOAS.GenericServices
                                     }
                                     else
                                     {
-                                        
+
                                         if (To[i].Day == 1 && From[i].Day == 1)
                                         {
                                             //day = To[i].Day - From[i].Day;
@@ -28737,7 +28742,7 @@ namespace IOAS.GenericServices
                                         }
                                         else
                                         {
-                                            
+
                                             day += To[i].Day - From[i].Day;
                                             //increment = 1;
                                         }
