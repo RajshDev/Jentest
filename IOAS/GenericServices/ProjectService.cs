@@ -7174,6 +7174,9 @@ namespace IOAS.GenericServices
                             var deprtcode = context.vwFacultyStaffDetails.Where(x => x.UserId == model.PINameId).Select(x => x.DepartmentCode).FirstOrDefault();
                             CreateProject.FinancialYear = model.FinancialYear;
                             CreateProject.PIName = model.PINameId;
+                            CreateProject.ProjectTitle = model.ProjectTitle;                        
+
+
                             if (model.SponsoredFundingType == 16)
                             {
                                 CreateProject.ProjectType = 1;
@@ -7225,7 +7228,7 @@ namespace IOAS.GenericServices
                             CreateProject.SponsoredTypeCode = model.SponsoredFundingType;
                             CreateProject.CrtdUserId = model.CrtdUserId;
                             CreateProject.CrtdTS = DateTime.Now;
-                            CreateProject.PIDepartment = deprtcode;
+                            CreateProject.PIDepartment = deprtcode;                            
                             var financialyear = Common.GetFinYear(model.FinancialYear ?? 0);
                             var Sequencenumber = Common.GetProjectSequenceNumber(model.FinancialYear ?? 0);
                             var Agencycode = Common.getagencycode(model.AgencyNameId ?? 0);
@@ -7348,6 +7351,19 @@ namespace IOAS.GenericServices
                                 }
 
                             }
+                            for(int i=0; i < model.CoPIname.Length; i++)
+                            {
+                                tblProjectCoPI CoInverstigator = new tblProjectCoPI();
+                                CoInverstigator.Name = model.CoPIname[i];                                
+                                CoInverstigator.Department = model.CoPIDepartment[i];
+                                CoInverstigator.Email = model.CoPIEmail[i];
+                                CoInverstigator.ProjectId = model.Projectid;
+                                CoInverstigator.Crtd_TS = DateTime.Now;                               
+                                CoInverstigator.Status = "Active";
+                                context.tblProjectCoPI.Add(CoInverstigator);
+                                context.SaveChanges();
+                            }
+                            
 
                             transaction.Commit();
                             return 1;
@@ -7370,6 +7386,7 @@ namespace IOAS.GenericServices
                                 updatePrj.SponsoredTypeCode = model.SponsoredFundingType;
                                 updatePrj.UpdatedUserId = model.CrtdUserId;
                                 updatePrj.UpdatedTS = DateTime.Now;
+                                updatePrj.ProjectTitle = model.ProjectTitle;
                                 if (model.SponsoredFundingType == 16)
                                 {
                                     updatePrj.ProjectType = 1;
@@ -7468,7 +7485,36 @@ namespace IOAS.GenericServices
                                     }
 
                                 }
-                                transaction.Commit();
+                                for (int i = 0; i < model.CoPIname.Length; i++)
+                                {
+                                    int copiid = model.CoPIname[i];
+                                    var CoPIquery = (from CoPI in context.tblProjectCoPI
+                                                     where CoPI.ProjectId == model.Projectid && CoPI.Name == copiid
+                                                     select CoPI).ToList();
+                                    if (CoPIquery.Count == 0)
+                                    {
+                                        tblProjectCoPI CoInverDetails = new tblProjectCoPI();
+                                        CoInverDetails.ProjectId = model.Projectid;
+                                        CoInverDetails.Name = model.CoPIname[i];
+                                        CoInverDetails.Email = model.CoPIEmail[i];
+                                        CoInverDetails.Department = model.CoPIDepartment[i];
+                                        CoInverDetails.Status = "Active";
+                                        CoInverDetails.Updt_TS = DateTime.Now;
+                                        context.tblProjectCoPI.Add(CoInverDetails);
+                                        context.SaveChanges();
+                                    }
+                                    else if (CoPIquery.Count > 0)
+                                    {
+
+                                        CoPIquery[0].Name = model.CoPIname[i];
+                                        CoPIquery[0].Email = model.CoPIEmail[i];
+                                        CoPIquery[0].Department = model.CoPIDepartment[i];                                        
+                                        context.SaveChanges();
+
+
+                                    }
+                                }
+                                    transaction.Commit();
 
                             }
                             return 2;
@@ -7572,6 +7618,9 @@ namespace IOAS.GenericServices
                     var SupportDocquery = (from Doc in context.tblSupportDocuments
                                            where Doc.ProjectId == ProjectId && Doc.IsCurrentVersion == true
                                            select Doc).ToList();
+                    var CoPIquery = (from CoPI in context.tblProjectCoPI
+                                     where CoPI.ProjectId == ProjectId && CoPI.Status == "Active"
+                                     select CoPI).ToList();
                     if (query != null)
                     {
                         int piId = query.PIName ?? 0;
@@ -7602,6 +7651,7 @@ namespace IOAS.GenericServices
                         editInternal.ClosingDate = query.TentativeCloseDate;
                         editInternal.SponsoredFundingType = query.SponsoredTypeCode;
                         editInternal.FinancialYear = query.FinancialYear;
+                        editInternal.ProjectTitle = query.ProjectTitle;
                         editInternal.ProjectClassification = query.ProjectClassification;
                         if (SupportDocquery.Count > 0)
                         {
@@ -7624,6 +7674,24 @@ namespace IOAS.GenericServices
                             editInternal.DocPath = _docpath;
                             editInternal.Docid = _docid;
                         }
+
+                        if (CoPIquery.Count > 0)
+                        {
+                            int[] CoPIname = new int[CoPIquery.Count];
+                            string[] CoPIEmail = new string [CoPIquery.Count];
+                            string[] CoPIDepartment = new string[CoPIquery.Count];
+
+                            for (int i = 0; i < CoPIquery.Count; i++)
+                            {
+                                CoPIDepartment[i] = (CoPIquery[i].Department);
+                                CoPIname[i] = Convert.ToInt32(CoPIquery[i].Name);
+                                CoPIEmail[i] = (CoPIquery[i].Email);
+                            }
+                            editInternal.CoPIname = CoPIname;
+                            editInternal.CoPIEmail = CoPIEmail;
+                            editInternal.CoPIDepartment = CoPIDepartment;
+
+                        }
                     }
                 }
                 return editInternal;
@@ -7638,17 +7706,24 @@ namespace IOAS.GenericServices
         {
             InternalProjectModel viewProject = new InternalProjectModel();
             List<DocumentDetailsModel> listDocument = new List<DocumentDetailsModel>();
+            List<CoInverstigators> CoPiList = new List<CoInverstigators>();
             try
             {
                 using (var context = new IOASDBEntities())
                 {
-                    var query = context.tblProject.Where(x => x.ProjectId == ProjectId).FirstOrDefault();
+                    
+                       var query = context.tblProject.Where(x => x.ProjectId == ProjectId).FirstOrDefault();
                     var SupportDocquery = (from Doc in context.tblSupportDocuments
                                            where Doc.ProjectId == ProjectId && Doc.IsCurrentVersion == true
                                            select Doc).ToList();
+                    var CoInverstigatorview = (from conint in context.tblProjectCoPI
+                                               where conint.ProjectId == ProjectId
+                                               select conint).ToList();
+                    
                     if (query != null)
                     {
                         viewProject.Projectid = ProjectId;
+                        
                         int agyid = query.SponsoringAgency ?? 0;
                         int fundingtype = query.SponsoredTypeCode ?? 0;
                         int clsfiacode = query.ProjectClassification ?? 0;
@@ -7683,9 +7758,10 @@ namespace IOAS.GenericServices
                                     viewProject.Centername = facname;
                             }
                         }
+                        viewProject.ProjectTitle = query.ProjectTitle;
                         viewProject.ProjectNumber = query.ProjectNumber;
                         viewProject.SelFinyear = Common.GetFinYear(query.FinancialYear ?? 0);
-                        viewProject.PIName = Common.GetPIName(query.PIName ?? 0);
+                        viewProject.PIName = Common.GetPIName(query.PIName ?? 0);                        
                         viewProject.SanctionValue = query.SanctionValue ?? 0;
                         if (agydetais != null)
                             viewProject.AgencyName = agydetais.AgencyName + "-" + agydetais.AgencyCode;
@@ -7695,6 +7771,7 @@ namespace IOAS.GenericServices
                             viewProject.Typename = fundingtypecode.ConsultancyFundingCategory;
                         if (clsname != null)
                             viewProject.ProjectClassificationName = clsname.CodeValDetail;
+
                         if (SupportDocquery.Count > 0)
                         {
                             for (int i = 0; i < SupportDocquery.Count; i++)
@@ -7708,7 +7785,22 @@ namespace IOAS.GenericServices
                                 });
                             }
                         }
+                        if(CoInverstigatorview.Count>0)
+                        {
+                            for(int i = 0; i <CoInverstigatorview.Count; i++)
+                            {
+                                CoPiList.Add(new CoInverstigators()
+                                {
+                                CoPIname = (int)CoInverstigatorview[i].Name,
+                                CoPIname_fullname = Common.GetPIName(CoInverstigatorview[i].Name ?? 0),
+                                CoPIDepartment = CoInverstigatorview[i].Department,
+                                CoPIEmail = CoInverstigatorview[i].Email
+                                });
+                               
+                            }
+                        }
                     }
+                    viewProject.CoPiList = CoPiList;
                     viewProject.Doclist = listDocument;
                 }
                 return viewProject;

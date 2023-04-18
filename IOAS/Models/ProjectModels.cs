@@ -1112,8 +1112,15 @@ namespace IOAS.Models
         public string AttachemntPath { get; set; }
     }
 
+    public class CoInverstigators
+    {
+        public int CoPIname { get; set; }
+        public string CoPIEmail { get; set; }
+        public string CoPIDepartment { get; set; }
+        public string CoPIname_fullname { get; set; }
+    }
 
-    public class projectFundingModel
+public class projectFundingModel
     {
         public string IndProjectFundingGovtBodyName { get; set; }
         public string IndProjectFundingNonGovtBodyName { get; set; }
@@ -1324,7 +1331,13 @@ namespace IOAS.Models
         public string[] DocName { get; set; }
         public string[] AttachName { get; set; }
         public List<DocumentDetailsModel> Doclist { get; set; }
-        public bool PFInit { get; set; }
+        public bool PFInit { get; set; }       
+        public string ProjectTitle { get; set; }        
+        public List<CoInverstigators> CoPiList { get; set; }
+        public int[] CoPIname { get; set; }
+        public string[] CoPIEmail { get; set; }
+        public string[] CoPIDepartment { get; set; }
+
     }
     public class InternalProjectSearchModel
     {

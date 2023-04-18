@@ -110,11 +110,11 @@
                             @Html.DropDownListFor(m => m.FacultyCode, new SelectList(ViewBag.FacultyCodeList, "id", "name"), "Select any", new { @class = "form-control" })
                             @Html.ValidationMessageFor(m => m.FacultyCode)
                         </div>
-                        </div>
+                    </div>
                     <div id="divCentre" class="col-md-4 dis-none">
                         <div class="form-group custom-form-group">
                             <label class="required">Centre</label>
-                            @Html.DropDownListFor(m => m.SelCentre, new SelectList(ViewBag.CentreList, "id", "name"), "Select any", new { @class = "form-control",@onchange= "GetNumberingFormat();" })
+                            @Html.DropDownListFor(m => m.SelCentre, new SelectList(ViewBag.CentreList, "id", "name"), "Select any", new { @class = "form-control", @onchange = "GetNumberingFormat();" })
                             @Html.ValidationMessageFor(m => m.SelCentre)
                         </div>
                     </div>
@@ -186,16 +186,16 @@
                     <div class="col-md-4">
                         <div class="form-group custom-form-group">
                             <label class="required">Type</label>
-                            @Html.DropDownListFor(m => m.SponsoredFundingType, new SelectList(ViewBag.Type, "id", "name"), "Select Type", new { @class = "form-control",@onchange = "GetNumberingFormat();" })
+                            @Html.DropDownListFor(m => m.SponsoredFundingType, new SelectList(ViewBag.Type, "id", "name"), "Select Type", new { @class = "form-control", @onchange = "GetNumberingFormat();" })
                             <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.SponsoredFundingType)</div>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="form-group custom-form-group">
                             <label class="required">Project Classification</label>
-                            @Html.DropDownListFor(m=>m.ProjectClassification,new SelectList(ViewBag.InternalClassfication,"id","name"),"Select Classification",new {@class="form-control" })
+                            @Html.DropDownListFor(m => m.ProjectClassification, new SelectList(ViewBag.InternalClassfication, "id", "name"), "Select Classification", new { @class = "form-control" })
                             <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.ProjectClassification)</div>
-                        </div> 
+                        </div>
                     </div>
                     <div class="col-md-5 dis-none" id="lblPrjNoFormat">
                         <div class="reg-no">
@@ -207,6 +207,55 @@
                     </div>
                 </div>
             </div>
+
+            <div class="col-md-12">
+                <div class="form-group custom-form-group ">
+                    <label class="required"> Project title </label>
+                    @Html.TextBoxFor(m => m.ProjectTitle, new { @class = "form-control", @required = "required", @id = "ProjectTitle" })
+
+                    @Html.ValidationMessageFor(m => m.ProjectTitle)
+
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <h3 class="spl-title">Co Investigator Details</h3>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div id="CoPidivContent">
+                        <div class="row">
+                            <label class="col-md-3 fn-normal">Department of Co PI</label>
+                            <label class="col-md-3 fn-normal">Name of Co PI </label>
+                            <label class="col-md-3 fn-normal">Email </label>
+                        </div>
+                        <div class="m-b-sm row" id="CopiprimaryDiv">
+                            <div class="col-md-3" id="copidprt">
+                                @Html.DropDownList("CoPIDepartment", new SelectList(ViewBag.deprtmnt, "code", "name"), "Select any", new { @class = "form-control", @id = "copidepartment" })
+                            </div>
+                            <div class="col-md-3 bost-sel-ht-sm" id="copinam">
+                                @Html.DropDownList("CoPIname", new SelectList(ViewBag.PI, "id", "name"), "Select any", new { @class = "form-control", @id = "CoPI" })
+                                @Html.Hidden("CoPIid")
+                            </div>
+                            <div class="col-md-3" id="copimail">
+                                @Html.TextBox("CoPIEmail", "", new { @class = "form-control", @id = "CoPIEmail" })
+                            </div>
+                            <div class="col-md-1">
+                                <button class="dis-none btn-sm btn btn-danger" type="button" name="removeButton"><i class="ion-android-close"></i></button>
+                            </div>
+                        </div>
+                        <div class="row p-b-sm">
+                            <div class="col-md-12">
+                                <h4 class="text-right">
+                                    <button type="button" id="btnAddCoPI" class="btn-primary btn pull-left"><i class="ion-android-add"></i>Add</button>
+                                </h4>
+                            </div>
+                        </div>                        
+                    </div>
+                </div>
+            </div>
+
             <div class="row">
                 <div class="col-md-12">
 
@@ -405,11 +454,45 @@
         $(cln).insertBefore($('#DocdivContent').find('.p-b-sm'));
 
     });
+    
+    $('#btnAddCoPI').click(function () {
+        var cln = $("#CopiprimaryDiv").clone().find("input").val("").end();
+        $(cln).find('.doclink').addClass('dis-none');
+        $(cln).find('.dis-none').removeClass('dis-none');
+        $(cln).insertBefore($(this).closest('#CoPidivContent').find('.p-b-sm'));
+    });
+
     $(document).on('click', '#DocdivContent button[name="removeButton"]', function () {
         $(this).parent().parent("Div").remove();
     });
-    //Fill Attachment in Edit Mode
 
+    $(document).on('click', '#CoPidivContent button[name="removeButton"]', function () {
+        $(this).parent().parent("Div").remove();
+    });
+    
+    //Co Investigator Details
+
+    var CoPIname =@Html.Raw(Json.Encode(Model.CoPIname));
+    var CoPIEmail  =@Html.Raw(Json.Encode(Model.CoPIEmail));
+    var CoPIDepartment =@Html.Raw(Json.Encode(Model.CoPIDepartment));
+
+    $.each(CoPIname, function (i, val) {
+        if (i == 0) {
+            document.getElementsByName('CoPIDepartment')[0].value = CoPIDepartment[0];
+            document.getElementsByName('CoPIname')[0].value = CoPIname[0];
+            document.getElementsByName('CoPIEmail')[0].value = CoPIEmail[0];
+        } else {
+            var cln = $("#CopiprimaryDiv").clone().find("input").val("").end();    
+            $(cln).find('.dis-none').removeClass('dis-none');
+            $(cln).insertBefore($('#CoPidivContent').find('.p-b-sm'));
+            document.getElementsByName('CoPIDepartment')[i].value = CoPIDepartment[i];
+            document.getElementsByName('CoPIname')[i].value = CoPIname[i];
+            document.getElementsByName('CoPIEmail')[i].value = CoPIEmail[i];
+        } 
+    });
+
+    //Fill Attachment in Edit Mode
+    
     var Docname = @Html.Raw(Json.Encode(Model.DocName));
     var Attachname = @Html.Raw(Json.Encode(Model.AttachName));
     var Doctype =@Html.Raw(Json.Encode(Model.DocType));
@@ -485,7 +568,7 @@
                 console.log("error : " + err);
             }
         });
-    }
+    }  
 </script>
 <script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
 <script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>

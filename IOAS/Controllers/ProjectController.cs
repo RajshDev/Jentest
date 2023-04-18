@@ -1318,6 +1318,9 @@ namespace IOAS.Controllers
                 ViewBag.InternalClassfication = Common.GetInternalProjectClassfication();
                 ViewBag.refFinYear = Common.GetCurrentFinYearId();
                 ViewBag.Docmenttype = Common.GetDocTypeList(9);
+                ViewBag.deprtmnt = Common.getDepartment();
+                ViewBag.PI = Common.GetProjectPIWithDetails();
+
                 if (ProjectId > 0)
                 {
                     model = ProjectService.EditInternalProject(ProjectId);
@@ -1345,6 +1348,8 @@ namespace IOAS.Controllers
                 ViewBag.LabList = Common.GetCommonHeadList(2, 4);
                 ViewBag.InternalClassfication = Common.GetInternalProjectClassfication();
                 ViewBag.Docmenttype = Common.GetDocTypeList(9);
+                ViewBag.deprtmnt = Common.getDepartment();
+                ViewBag.PI = Common.GetProjectPIWithDetails();
                 if (ModelState.IsValid)
                 {
                     var allowedExtensions = new[] { ".pdf", ".doc", ".docx", ".DOC", ".DOCX", ".PDF" };
