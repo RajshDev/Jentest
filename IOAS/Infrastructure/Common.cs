@@ -12640,8 +12640,8 @@ namespace IOAS.Infrastructure
                 using (var context = new IOASDBEntities())
                 {
                     var qry = context.vwCombineStaffDetails.Where(m => m.Category == type && m.ID == id).FirstOrDefault();
-                    var Id = context.vwCombineStaffDetails.Where(m => m.Category == type && m.ID == id).FirstOrDefault();
-                    Name = Id.EmployeeId + "-" + qry.Name;
+                   // var Id = context.vwCombineStaffDetails.Where(m => m.Category == type && m.ID == id).FirstOrDefault();
+                    Name = qry.EmployeeId + "-" + qry.Name;
                     return Name;
                 }
             }
@@ -12652,6 +12652,28 @@ namespace IOAS.Infrastructure
                 return Name;
             }
         }
+
+        public static string GetVWStudentName(string id, string type)
+        {
+            var Name = "";
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    var qry = context.vwStudentDetails.Where(m => m.RollNumber == id).FirstOrDefault();
+                   // var Id = context.vwStudentDetails.Where(m => m.RollNumber == id).FirstOrDefault();
+                    Name = qry.RollNumber + "-" + qry.FirstName;
+                    return Name;
+                }
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+(object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                return Name;
+            }
+        }
+
         public static bool ApprovalForHonororium(int HonorId, int LoggedInUser)
         {
             bool update = false;

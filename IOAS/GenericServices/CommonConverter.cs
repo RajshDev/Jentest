@@ -237,6 +237,77 @@ namespace IOAS.GenericServices
 
             return returnValue.ToList();
         }
+        public static List<T> GetHonororiumEntityList<T>(DataTable dt)
+        {
+            if (dt == null)
+            {
+                return null;
+            }
+
+            List<T> returnValue = new List<T>();
+            List<string> typeProperties = new List<string>();
+
+            T typeInstance = Activator.CreateInstance<T>();
+
+            foreach (DataColumn column in dt.Columns)
+            {
+                var prop = typeInstance.GetType().GetProperty(column.ColumnName, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public);
+                if (prop != null)
+                {
+                    typeProperties.Add(column.ColumnName);
+                }
+            }
+
+            foreach (DataRow row in dt.Rows)
+            {
+                T entity = Activator.CreateInstance<T>();
+
+                foreach (var propertyName in typeProperties)
+                {
+
+                    if (row[propertyName] != DBNull.Value)
+                    {
+                        string str = row[propertyName].GetType().FullName;
+                        if (propertyName == "Amount" || propertyName == "TDS" )
+                        {
+                            string Val = row[propertyName].ToString();
+                            decimal parsed = 0;
+                            decimal.TryParse(Val, NumberStyles.AllowLeadingSign | NumberStyles.AllowExponent |
+            NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite | NumberStyles.AllowCurrencySymbol | NumberStyles.AllowDecimalPoint | NumberStyles.AllowThousands, CultureInfo.CurrentCulture, out parsed);
+                            entity.GetType().GetProperty(propertyName, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public).SetValue(entity, parsed, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public, null, null, null);
+                        }
+                        else if (entity.GetType().GetProperty(propertyName).PropertyType == typeof(System.String) || propertyName == "UserId")
+                        {
+                            object Val = row[propertyName].ToString();
+                            entity.GetType().GetProperty(propertyName, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public).SetValue(entity, Val, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public, null, null, null);
+                        }
+                        else if (entity.GetType().GetProperty(propertyName).PropertyType == typeof(System.Int32) || entity.GetType().GetProperty(propertyName).PropertyType == typeof(Nullable<Int32>))
+                        {
+                            string Val = row[propertyName].ToString();
+                            Int32 parsed = 0;
+                            Int32.TryParse(Val, NumberStyles.AllowLeadingSign | NumberStyles.AllowExponent |
+            NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite | NumberStyles.AllowCurrencySymbol | NumberStyles.AllowDecimalPoint | NumberStyles.AllowThousands, CultureInfo.CurrentCulture, out parsed);
+                            entity.GetType().GetProperty(propertyName, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public).SetValue(entity, parsed, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public, null, null, null);
+                        }
+
+                        else
+                        {
+                            entity.GetType().GetProperty(propertyName, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public).SetValue(entity, row[propertyName], BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public, null, null, null);
+                        }
+                    }
+                    else
+                    {
+                        entity.GetType().GetProperty(propertyName, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public).SetValue(entity, null, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public, null, null, null);
+                    }
+                }
+
+                returnValue.Add(entity);
+            }
+
+            return returnValue.ToList();
+        }
+
+
         public static List<T> GetBRSEntityList<T>(DataTable dt)
         {
             if (dt == null)

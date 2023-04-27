@@ -4,6 +4,7 @@ using IOAS.Filter;
 using IOAS.GenericServices;
 using IOAS.Infrastructure;
 using IOAS.Models;
+using Excel = Microsoft.Office.Interop.Excel;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,7 @@ using System.Configuration;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
@@ -9474,6 +9476,295 @@ namespace IOAS.Controllers
             {
                 return RedirectToAction("Home", "Dashboard");
             }
+
+        }
+        [HttpPost]
+        public JsonResult ImportHonorarium(HttpPostedFileBase file)
+        {
+            Utility _uty = new Utility();
+            HonororiumModel model = new HonororiumModel();
+            List<HonororiumExportListModel> honoruploadlist = new List<HonororiumExportListModel>();
+            List<HonororiumListModel> honorpaylist = new List<HonororiumListModel>();
+            string msg = "Valid";
+            string path1 = "";
+            string docName = "";
+            bool validimport = true;
+            if (file != null)
+            {
+                string extension = Path.GetExtension(file.FileName).ToLower();
+                string connString = "";
+                string[] validFileTypes = { ".xls", ".xlsx" };
+                string actName = Path.GetFileName(file.FileName);
+                var guid = Guid.NewGuid().ToString();
+                docName = DateTime.Now.ToString("yyyyMMdd_hhmmss") + "_" + actName;
+                path1 = string.Format("{0}/{1}", Server.MapPath("~/Content/HonorariumImport"), docName);
+
+                if (!Directory.Exists(path1))
+                {
+                    Directory.CreateDirectory(Server.MapPath("~/Content/HonorariumImport"));
+                }
+                if (validFileTypes.Contains(extension))
+                {
+                    if (System.IO.File.Exists(path1))
+                    { System.IO.File.Delete(path1); }
+                    file.SaveAs(path1);
+                    //file.UploadFile("BankStatement", docName);
+                    //Connection String to Excel Workbook  
+                    List<HonororiumExportListModel> listUpload = new List<HonororiumExportListModel>();
+                    if (extension.ToLower().Trim() == ".csv")
+                    {
+                        System.Data.DataTable dt = _uty.ConvertCSVtoDataTable(path1);
+                        listUpload = Converter.GetHonororiumEntityList<HonororiumExportListModel>(dt);
+                    }
+                    else if (extension.ToLower().Trim() == ".xls") //  && Environment.Is64BitOperatingSystem == false
+                    {
+                        connString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + path1 + ";Extended Properties=\"Excel 8.0;HDR=Yes;IMEX=2\"";
+                        System.Data.DataTable dt = _uty.ConvertXSLXtoDataTable(path1, connString);
+                        listUpload = Converter.GetHonororiumEntityList<HonororiumExportListModel>(dt);
+                    }
+                    else
+                    {
+                        connString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + path1 + ";Extended Properties=\"Excel 12.0;HDR=Yes;IMEX=1\"";
+                        System.Data.DataTable dt = _uty.ConvertXSLXtoDataTable(path1, connString);
+                        listUpload = Converter.GetHonororiumEntityList<HonororiumExportListModel>(dt);
+                    }
+                    if (listUpload.Count > 0)
+                        honoruploadlist.AddRange(listUpload);
+                }
+                else
+                {
+                    msg = "Please Upload Files in .xls or .xlsx format";
+                }
+            }
+            //listvalidate = list;
+
+            /*
+            honorpaylist = honoruploadlist
+                    .Select(g => new HonororiumListModel
+                    {
+                        AccountNo = g.AccountNo,
+                        BankName = g.BankName,
+                        Amount = g.Amount,
+                        Branch = g.Branch,
+                        IFSC = g.IFSC,
+                        Name = g.Name,
+                        PAN = g.PAN,
+                        PayeeType = g.PayeeType,
+                        PaymentModeName = g.PaymentModeName,
+                        SelectedTdssection = g.SelectedTdssection,
+                        UserId = g.UserId,
+                        TDS = g.TDS
+                    }).ToList();
+
+            model.PODetail = honorpaylist;*/
+
+            foreach (var honorpay in honoruploadlist)
+            {
+                string name_status = "";
+                string amt_status = "";
+                string tds_status = "";
+                string pay_status = "";
+                string tdsacc_status = "";
+                string bank_status = "";
+
+                //Console.WriteLine("Payee Name {0} and amtis {1}", honorpay.Name, honorpay.Amount);
+                honorpay.PayeeType = honorpay.PayeeType == null ? "" : honorpay.PayeeType;
+                honorpay.Amount = honorpay.Amount == null ? 0 : honorpay.Amount;
+                honorpay.TDS = honorpay.TDS == null ? 0 : honorpay.TDS;
+                int userid=0;
+                bool isNumeric = int.TryParse(honorpay.UserId, out userid);
+
+
+                switch (honorpay.PayeeType.ToUpper())
+                {
+                    case "OTHERS":
+                        if (honorpay.Name.Trim() == "")
+                            name_status = "Invalid Name";
+                        
+                        break;
+                    case "PI": // Payee Type 1
+                        if (userid > 0 && isNumeric)
+                        {
+                            //int userid = (int)honorpay.UserId;
+                            honorpay.Name = Common.GetVWCombineStaffName(userid, "Professor");
+                            if (honorpay.Name.Trim() == "")
+                            { name_status = "Invalid PI"; }
+                        }
+                        else
+                            name_status = "Invalid PI ID";
+                        break;
+                    case "STUDENT": // Payee Type 2
+                        if (honorpay.UserId != "" && isNumeric == false)                        {
+                            //int userid = (int)honorpay.UserId;
+                            honorpay.Name = Common.GetVWStudentName(honorpay.UserId, "Student");
+                            honorpay.UserId = "0"; 
+                            if (honorpay.Name.Trim() == "")
+                            { name_status = "Invalid Student"; }
+                        }
+                        else
+                            name_status = "Invalid Student ID";
+                        break;
+                    case "VENDOR STAFF": // Payee Type 3
+                        if (userid > 0 && isNumeric)
+                        {
+                            //int userid = (int)honorpay.UserId;
+                            honorpay.Name = Common.GetVWCombineStaffName(userid, "Project Staff");
+                            if (honorpay.Name.Trim() == "")
+                            { name_status = "Invalid Vendor Name"; }
+                        }
+                        else
+                            name_status = "Invalid Vendor ID";
+                        break;
+                    case "INSTITUTE STAFF": // Payee Type 4
+                        if (userid > 0)
+                        {
+                            //int userid = (int)honorpay.UserId;
+                            honorpay.Name = Common.GetVWCombineStaffName(userid, "Staff");
+                            if (honorpay.Name.Trim() == "")
+
+                            { name_status = "Invalid Staff Name"; }
+                        }
+                        else
+                            name_status = "Invalid Staff ID";
+                        break;
+                    case "ADHOC STAFF": // Payee Type 5
+                        if (userid > 0)
+                        {
+                           // int userid = (int)honorpay.UserId;
+                            honorpay.Name = Common.GetVWCombineStaffName(userid, "AdhocStaff");
+                            if (honorpay.Name.Trim() == "")
+                            { name_status = "Invalid ADHOC STAFF Name"; }
+                        }
+                        else
+                            name_status = "Invalid ADHOC STAFF ID";
+                        break;
+                    default:
+                        name_status = "Invalid Payee Type";
+                        break;
+                }
+
+                if (honorpay.Amount <= 0 || honorpay.Amount == null )
+                { amt_status = "Invalid Amount"; }
+
+
+
+                if (honorpay.TDS != 0 && honorpay.TDS != (decimal)0.10 && honorpay.TDS != (decimal)0.20  && honorpay.TDS != null)  
+                { tds_status = "Invalid TDS"; }
+
+                honorpay.Status = (name_status == "" ? "" : name_status + " / ") + (tds_status == "" ? "" : tds_status + " / ") + (amt_status == "" ? "" : amt_status + " / ");
+                if (honorpay.Status.Trim() == "")
+                {
+                    string[] arrPayment = { "", "Cheque", "Bank Transfer" ,"Salary"};
+                    string[] arrTdsSection = {"TDS on Contract  (94C) 2%","TDS on Salary (92B)","TDS on Fees (94J) 10%","TDS on Rent (94I) 10%",
+"TDS on Commission (94H) 5%","TDS Payable TDS Payable Income Tax","TDS on Contract  (94C) 1%","TDS on Rent (94I) 2%",
+"TDS on Non Residents (195) 10%","TDS on Non Residents (195) 15%","TDS on Non Residents (195) 20%",
+"TDS on Non Residents (195) 25%","TDS on Non Residents (195) 30%","TDS on Contract  (94C) 0.75%",
+"TDS on Non Residents (195) 31.2%","No PAN ","TDS on Interest (194A) 10%","TDS on Contract (94C) 1.5%",
+"TDS on Commission (94H) 3.75%","TDS on Rent (94I) 7.5%","TDS on Rent (94I) 1.5%","TDS on Fees (94J) 7.5%",
+"94(J) - 2%","TDS on Contract  (94C) 4%","TDS on Fees (94J) 20%","TDS on Commission (94H) 10%","TDS on Rent (94I) 4%",
+"TDS on Rent (94I) 20%","TDS on Purchase of Goods  (94Q) 0.1%","TDS on Double Rate 5%","TDS on Fees (94J) 1.5%"};
+                    string[] arrTdsSectionId = {"39","40","41","42","43","135","330","331","332","333","334","335","336","350","355",
+"356","357","373","374","375","376","377","427","459","460","461","462","463","464","465","492" };
+
+
+
+                 
+
+                    honorpay.TDSAmt = honorpay.Amount * (honorpay.TDS );
+                    honorpay.NetAmount= honorpay.Amount - honorpay.TDSAmt;
+                    if (Array.IndexOf(arrPayment, honorpay.PaymentModeName) >= 0)
+                    {
+                        honorpay.PaymentModeVal = Array.IndexOf(arrPayment, honorpay.PaymentModeName);
+                        if ((honorpay.PayeeType.ToUpper() == "STUDENT" || honorpay.PayeeType.ToUpper() == "OTHERS") && honorpay.PaymentModeVal == 3)
+                        { pay_status = "Salary Not Allowed For " + honorpay.PayeeType; }
+
+                        if (honorpay.PaymentModeVal == 2 &&
+                            ((honorpay.BankName == null || honorpay.Branch == null || honorpay.IFSC == null|| honorpay.AccountNo== null)||
+                            (honorpay.BankName.Trim() == "" || honorpay.Branch.Trim() == "" || honorpay.IFSC.Trim() == "" || honorpay.AccountNo.Trim() == "")))
+                        { bank_status = "Invalid Bank/Branch/IFSC/AccounNo Details"; }
+
+
+                    }
+                    else
+                    { pay_status = "Invalid Pay Status"; }
+
+                    int tdsid = Array.IndexOf(arrTdsSection, honorpay.SelectedTdssection);
+                    if (tdsid >= 0)
+                    {
+                        honorpay.SelectedTdssectionID = arrTdsSectionId[tdsid];
+                        System.Text.RegularExpressions.Regex panregex = new System.Text.RegularExpressions.Regex("([A-Z]){5}([0-9]){4}([A-Z]){1}$");
+                       
+                            if ((honorpay.SelectedTdssectionID != "356" && honorpay.TDS  > 0 ) && (honorpay.PAN == null || honorpay.PAN.Trim() == ""))
+                                { pay_status = "Pan No Required"; }
+                            else if ((honorpay.SelectedTdssectionID != "356" && honorpay.TDS > 0) && !panregex.IsMatch(honorpay.PAN.Trim()) )
+                            { pay_status = "Invalid Pan no"; }
+                    }
+                    else if (honorpay.TDS > 0)
+                    { tdsacc_status = "Invalid TDS Section"; }
+
+                    honorpay.Status = (pay_status == "" ? "" : pay_status + " / ") + (tdsacc_status == "" ? "" : tdsacc_status + " / ") + (bank_status == "" ? "" : bank_status + " / "); ;
+
+                    if (honorpay.Status =="")
+                        honorpay.Status = "Valid";
+                    else
+                        validimport = false;
+                }
+                else
+                { validimport = false; }
+            }
+            if (validimport == false)
+            { msg = "Data Imported with Validation Error, Upload Corrected Data"; }
+
+            //start excel
+            Excel.Application excapp = new Microsoft.Office.Interop.Excel.Application
+            {
+                Visible = false
+            };
+
+            //create a blank workbook
+             var workbook = excapp.Workbooks.Add(Excel.XlWBATemplate.xlWBATWorksheet);
+
+            //var workbook = excapp.Workbooks.Open(path1,
+            // 0, false, 5, "", "", false, Excel.XlPlatform.xlWindows, "",
+            // true, false, 0, false, false, false);
+
+            string[] ColHeaders = { "SNo", "PayeeType", "UserId", "Name", "Amount", "TDS", "PaymentModeName", "BankName", "Branch", "IFSC", "AccountNo", "PAN", "SelectedTdssection", "Status" };
+
+            var sheet = (Excel.Worksheet)workbook.Sheets[1]; //indexing starts from 1
+
+            int counter = 2;
+            for (int i = 0; i < ColHeaders.Length; i++)
+            {
+                sheet.Cells[1, i+1] = ColHeaders[i];
+            }
+
+            foreach (var item in honoruploadlist)
+            {
+                
+                sheet.Cells[counter, 1] = item.SNo;
+                sheet.Cells[counter, 2] = item.PayeeType;
+                sheet.Cells[counter, 3] = item.UserId;
+                sheet.Cells[counter, 4] = item.Name;
+                sheet.Cells[counter, 5] = item.Amount;
+                sheet.Cells[counter, 6] = String.Format("{0:P2}", item.TDS)   ;
+                sheet.Cells[counter, 7] = item.PaymentModeName;
+                sheet.Cells[counter, 8] = item.BankName;
+                sheet.Cells[counter, 9] = item.Branch;
+                sheet.Cells[counter, 10] = item.IFSC;
+                sheet.Cells[counter, 11] = item.AccountNo;
+                sheet.Cells[counter, 12] = item.PAN;
+                sheet.Cells[counter, 13] = item.SelectedTdssection;
+                sheet.Cells[counter, 14] = item.Status;
+                
+                
+                ++counter;
+            }
+            excapp.Visible = true;
+
+
+            var jsonResult = Json(new { status = msg, data = honoruploadlist }, JsonRequestBehavior.AllowGet);
+            jsonResult.MaxJsonLength = int.MaxValue;
+            return jsonResult;
 
         }
         [HttpPost]

@@ -3288,7 +3288,28 @@ namespace IOAS.Models
         public bool PFInit { get; set; }
     }
 
-
+    public class HonororiumExportListModel
+    {
+        public double SNo { get; set; }
+        public string PayeeType { get; set; }
+        public string UserId { get; set; }
+        public string Name{ get; set; }
+        public Nullable<decimal> Amount { get; set; }
+        public Nullable<decimal> NetAmount { get; set; }
+        public Nullable<decimal> TDS { get; set; }
+        public Nullable<decimal> TDSAmt { get; set; }
+        public string PaymentModeName { get; set; }
+        public Nullable<int> PaymentModeVal { get; set; }
+        public string BankName { get; set; }
+        public string Branch { get; set; }
+        public string IFSC { get; set; }
+        public string AccountNo { get; set; }
+        public string PAN { get; set; }
+        public string SelectedTdssection { get; set; }
+        public string SelectedTdssectionID { get; set; }
+        public string Status { get; set; }
+    
+    }
     public class HonororiumListModel
     {
         public Nullable<decimal> Amount { get; set; }
