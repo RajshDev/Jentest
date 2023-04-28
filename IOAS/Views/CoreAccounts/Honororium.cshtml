@@ -112,6 +112,9 @@
 
                                                             <input id="HonorFile" type="file" accept=".xls,.xlsx">
                                                             <a id="btnImportHonor" href="javascript:void(0)" class="btn btn-default">Import Excel</a>
+                                                            <span id="downloadSpan" style="display:none">
+                                                                <a class="link" href="#">Download</a>
+                                                            </span>
                                                         </div>
 
                                                     </div>
@@ -1701,13 +1704,24 @@ $('#btnImportHonor').click(function () {
     dataType: "json",
     processData: false,
     success: function (result) {
+    console.log(result.xlspath);
+    if (result.xlspath != "") {
+   //  var a = document.createElement("a");
+     // document.body.appendChild(a);
+     // a.href = result.xlspath;
+      //a.download = this.response.name || "download-" + $.now();
+      //a.click();
+      $(".link").attr("href", result.xlspath);
+  $('#downloadSpan').css('display', 'block')
 
+    }
         if (result.status == "Valid") {
             var responseData = result.data;
             $("#thonorarium").find("tr:gt(2)").remove();
 
             // Excel Data to Input
             console.log(responseData);
+
             $.each(responseData, function (idx, item) {
                 console.log(item);
 

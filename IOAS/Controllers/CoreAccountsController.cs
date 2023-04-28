@@ -4,7 +4,7 @@ using IOAS.Filter;
 using IOAS.GenericServices;
 using IOAS.Infrastructure;
 using IOAS.Models;
-using Excel = Microsoft.Office.Interop.Excel;
+//using Excel = Microsoft.Office.Interop.Excel;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -9489,6 +9489,8 @@ namespace IOAS.Controllers
             string path1 = "";
             string docName = "";
             bool validimport = true;
+            MemoryStream workStream = new MemoryStream();
+            string  savepath;
             if (file != null)
             {
                 string extension = Path.GetExtension(file.FileName).ToLower();
@@ -9716,37 +9718,56 @@ namespace IOAS.Controllers
             { msg = "Data Imported with Validation Error, Upload Corrected Data"; }
 
             //start excel
-            Excel.Application excapp = new Microsoft.Office.Interop.Excel.Application
-            {
-                Visible = false
-            };
+            //Microsoft.Office.Interop.Excel.Application excapp = new Microsoft.Office.Interop.Excel.Application();
+            //excapp.Visible = false;
 
             //create a blank workbook
-             var workbook = excapp.Workbooks.Add(Excel.XlWBATemplate.xlWBATWorksheet);
+            //var workbook = excapp.Workbooks.Add(Microsoft.Office.Interop.Excel.XlWBATemplate.xlWBATWorksheet);
+            
+            byte[] byteInfo = workStream.ToArray();
+            workStream.Write(byteInfo, 0, byteInfo.Length);
 
-            //var workbook = excapp.Workbooks.Open(path1,
-            // 0, false, 5, "", "", false, Excel.XlPlatform.xlWindows, "",
-            // true, false, 0, false, false, false);
-
-            string[] ColHeaders = { "SNo", "PayeeType", "UserId", "Name", "Amount", "TDS", "PaymentModeName", "BankName", "Branch", "IFSC", "AccountNo", "PAN", "SelectedTdssection", "Status" };
-
-            var sheet = (Excel.Worksheet)workbook.Sheets[1]; //indexing starts from 1
-
-            int counter = 2;
-            for (int i = 0; i < ColHeaders.Length; i++)
+            using (XLWorkbook wb = new XLWorkbook())
             {
-                sheet.Cells[1, i+1] = ColHeaders[i];
-            }
+                var ws = wb.Worksheets.Add("sheet1");
 
-            foreach (var item in honoruploadlist)
-            {
+                string[] ColHeaders = { "SNo", "PayeeType", "UserId", "Name", "Amount", "TDS", "PaymentModeName", "BankName", "Branch", "IFSC", "AccountNo", "PAN", "SelectedTdssection", "Status" };
+
+               // var sheet = (Microsoft.Office.Interop.Excel.Worksheet)workbook.Sheets[1]; //indexing starts from 1
+
+                int counter = 2;
+                for (int i = 0; i < ColHeaders.Length; i++)
+                {
+                    ws.Cell(1,i+1 ).Value = ColHeaders[i];
+                    //   sheet.Cells[1, i + 1] = ColHeaders[i];
+                }
+
+                foreach (var item in honoruploadlist)
+                {
                 
-                sheet.Cells[counter, 1] = item.SNo;
+
+                         ws.Cell(counter, 1).Value = item.SNo;
+                    ws.Cell(counter, 2).Value = item.PayeeType;
+                    ws.Cell(counter, 3).Value = item.UserId;
+                    ws.Cell(counter, 4).Value = item.Name;
+                    ws.Cell(counter, 5).Value = item.Amount;
+                    ws.Cell(counter, 6).Value = String.Format("{0:P2}", item.TDS);
+                    ws.Cell(counter, 7).Value = item.PaymentModeName;
+                    ws.Cell(counter, 8).Value = item.BankName;
+                    ws.Cell(counter, 9).Value = item.Branch;
+                    ws.Cell(counter, 10).Value = item.IFSC;
+                    ws.Cell(counter, 11).Value = item.AccountNo;
+                    ws.Cell(counter, 12).Value = item.PAN;
+                    ws.Cell(counter, 13).Value = item.SelectedTdssection;
+                    ws.Cell(counter, 14).Value = item.Status;
+
+
+                    /*sheet.Cells[counter, 1] = item.SNo;
                 sheet.Cells[counter, 2] = item.PayeeType;
                 sheet.Cells[counter, 3] = item.UserId;
                 sheet.Cells[counter, 4] = item.Name;
                 sheet.Cells[counter, 5] = item.Amount;
-                sheet.Cells[counter, 6] = String.Format("{0:P2}", item.TDS)   ;
+                sheet.Cells[counter, 6] = String.Format("{0:P2}", item.TDS);
                 sheet.Cells[counter, 7] = item.PaymentModeName;
                 sheet.Cells[counter, 8] = item.BankName;
                 sheet.Cells[counter, 9] = item.Branch;
@@ -9754,15 +9775,27 @@ namespace IOAS.Controllers
                 sheet.Cells[counter, 11] = item.AccountNo;
                 sheet.Cells[counter, 12] = item.PAN;
                 sheet.Cells[counter, 13] = item.SelectedTdssection;
-                sheet.Cells[counter, 14] = item.Status;
+                sheet.Cells[counter, 14] = item.Status;*/
+
+
+                    ++counter;
+                }
+                //  excapp.Visible = true;
+                wb.SaveAs(workStream);
+                workStream.Position = 0;
+
+                string save_docName = DateTime.Now.ToString("yyyyMMdd_hhmmss") + "_HonorariumImport.xlsx"  ;
+                 savepath = string.Format("{0}/{1}", Server.MapPath("~/Content/HonorariumImport"), docName);
+
+                wb.SaveAs(savepath);
                 
-                
-                ++counter;
+
+                ///return new FileStreamResult(workStream, "application/vnd.ms-excel");
+                // Response.ContentType = "application/vnd.ms-excel";
+                // xlfiledata= new FileStreamResult(workStream, "application/vnd.ms-excel");
             }
-            excapp.Visible = true;
 
-
-            var jsonResult = Json(new { status = msg, data = honoruploadlist }, JsonRequestBehavior.AllowGet);
+            var jsonResult = Json(new { status = msg, data = honoruploadlist ,xlspath=savepath}, JsonRequestBehavior.AllowGet);
             jsonResult.MaxJsonLength = int.MaxValue;
             return jsonResult;
 
