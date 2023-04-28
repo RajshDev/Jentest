@@ -9510,8 +9510,7 @@ namespace IOAS.Controllers
                     if (System.IO.File.Exists(path1))
                     { System.IO.File.Delete(path1); }
                     file.SaveAs(path1);
-                    //file.UploadFile("BankStatement", docName);
-                    //Connection String to Excel Workbook  
+                
                     List<HonororiumExportListModel> listUpload = new List<HonororiumExportListModel>();
                     if (extension.ToLower().Trim() == ".csv")
                     {
@@ -9520,7 +9519,7 @@ namespace IOAS.Controllers
                     }
                     else if (extension.ToLower().Trim() == ".xls") //  && Environment.Is64BitOperatingSystem == false
                     {
-                        connString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + path1 + ";Extended Properties=\"Excel 8.0;HDR=Yes;IMEX=2\"";
+                        connString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + path1 + ";Extended Properties=\"Excel 8.0;HDR=Yes;IMEX=1\"";
                         System.Data.DataTable dt = _uty.ConvertXSLXtoDataTable(path1, connString);
                         listUpload = Converter.GetHonororiumEntityList<HonororiumExportListModel>(dt);
                     }
@@ -9538,27 +9537,7 @@ namespace IOAS.Controllers
                     msg = "Please Upload Files in .xls or .xlsx format";
                 }
             }
-            //listvalidate = list;
-
-            /*
-            honorpaylist = honoruploadlist
-                    .Select(g => new HonororiumListModel
-                    {
-                        AccountNo = g.AccountNo,
-                        BankName = g.BankName,
-                        Amount = g.Amount,
-                        Branch = g.Branch,
-                        IFSC = g.IFSC,
-                        Name = g.Name,
-                        PAN = g.PAN,
-                        PayeeType = g.PayeeType,
-                        PaymentModeName = g.PaymentModeName,
-                        SelectedTdssection = g.SelectedTdssection,
-                        UserId = g.UserId,
-                        TDS = g.TDS
-                    }).ToList();
-
-            model.PODetail = honorpaylist;*/
+           
 
             foreach (var honorpay in honoruploadlist)
             {
@@ -9717,12 +9696,6 @@ namespace IOAS.Controllers
             if (validimport == false)
             { msg = "Data Imported with Validation Error, Upload Corrected Data"; }
 
-            //start excel
-            //Microsoft.Office.Interop.Excel.Application excapp = new Microsoft.Office.Interop.Excel.Application();
-            //excapp.Visible = false;
-
-            //create a blank workbook
-            //var workbook = excapp.Workbooks.Add(Microsoft.Office.Interop.Excel.XlWBATemplate.xlWBATWorksheet);
             
             byte[] byteInfo = workStream.ToArray();
             workStream.Write(byteInfo, 0, byteInfo.Length);
@@ -9733,13 +9706,13 @@ namespace IOAS.Controllers
 
                 string[] ColHeaders = { "SNo", "PayeeType", "UserId", "Name", "Amount", "TDS", "PaymentModeName", "BankName", "Branch", "IFSC", "AccountNo", "PAN", "SelectedTdssection", "Status" };
 
-               // var sheet = (Microsoft.Office.Interop.Excel.Worksheet)workbook.Sheets[1]; //indexing starts from 1
+
 
                 int counter = 2;
                 for (int i = 0; i < ColHeaders.Length; i++)
                 {
                     ws.Cell(1,i+1 ).Value = ColHeaders[i];
-                    //   sheet.Cells[1, i + 1] = ColHeaders[i];
+
                 }
 
                 foreach (var item in honoruploadlist)
@@ -9762,37 +9735,21 @@ namespace IOAS.Controllers
                     ws.Cell(counter, 14).Value = item.Status;
 
 
-                    /*sheet.Cells[counter, 1] = item.SNo;
-                sheet.Cells[counter, 2] = item.PayeeType;
-                sheet.Cells[counter, 3] = item.UserId;
-                sheet.Cells[counter, 4] = item.Name;
-                sheet.Cells[counter, 5] = item.Amount;
-                sheet.Cells[counter, 6] = String.Format("{0:P2}", item.TDS);
-                sheet.Cells[counter, 7] = item.PaymentModeName;
-                sheet.Cells[counter, 8] = item.BankName;
-                sheet.Cells[counter, 9] = item.Branch;
-                sheet.Cells[counter, 10] = item.IFSC;
-                sheet.Cells[counter, 11] = item.AccountNo;
-                sheet.Cells[counter, 12] = item.PAN;
-                sheet.Cells[counter, 13] = item.SelectedTdssection;
-                sheet.Cells[counter, 14] = item.Status;*/
 
 
                     ++counter;
                 }
-                //  excapp.Visible = true;
+
                 wb.SaveAs(workStream);
                 workStream.Position = 0;
 
-                string save_docName = DateTime.Now.ToString("yyyyMMdd_hhmmss") + "_HonorariumImport.xlsx"  ;
-                 savepath = string.Format("{0}/{1}", Server.MapPath("~/Content/HonorariumImport"), docName);
-
-                wb.SaveAs(savepath);
                 
+                 string xlspath = string.Format("{0}/{1}", Server.MapPath("~/Content/HonorariumImport"), docName);
 
-                ///return new FileStreamResult(workStream, "application/vnd.ms-excel");
-                // Response.ContentType = "application/vnd.ms-excel";
-                // xlfiledata= new FileStreamResult(workStream, "application/vnd.ms-excel");
+                wb.SaveAs(xlspath);
+                savepath = "/Content/HonorariumImport/" + docName;
+
+
             }
 
             var jsonResult = Json(new { status = msg, data = honoruploadlist ,xlspath=savepath}, JsonRequestBehavior.AllowGet);
