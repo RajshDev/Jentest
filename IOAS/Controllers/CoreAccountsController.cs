@@ -9517,7 +9517,7 @@ namespace IOAS.Controllers
                         System.Data.DataTable dt = _uty.ConvertCSVtoDataTable(path1);
                         listUpload = Converter.GetHonororiumEntityList<HonororiumExportListModel>(dt);
                     }
-                    else if (extension.ToLower().Trim() == ".xls") //  && Environment.Is64BitOperatingSystem == false
+                    else if (extension.ToLower().Trim() == ".xls"  && Environment.Is64BitOperatingSystem == false)
                     {
                         connString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + path1 + ";Extended Properties=\"Excel 8.0;HDR=Yes;IMEX=1\"";
                         System.Data.DataTable dt = _uty.ConvertXSLXtoDataTable(path1, connString);
@@ -9744,10 +9744,10 @@ namespace IOAS.Controllers
                 workStream.Position = 0;
 
                 
-                 string xlspath = string.Format("{0}/{1}", Server.MapPath("~/Content/HonorariumImport"), docName);
+                 string xlspath = string.Format("{0}/r_{1}", Server.MapPath("~/Content/HonorariumImport"), docName);
 
                 wb.SaveAs(xlspath);
-                savepath = "/Content/HonorariumImport/" + docName;
+                savepath = "/Content/HonorariumImport/r_" + docName;
 
 
             }
