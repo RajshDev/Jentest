@@ -12640,7 +12640,7 @@ namespace IOAS.Infrastructure
                 using (var context = new IOASDBEntities())
                 {
                     var qry = context.vwCombineStaffDetails.Where(m => m.Category == type && m.ID == id).FirstOrDefault();
-                   // var Id = context.vwCombineStaffDetails.Where(m => m.Category == type && m.ID == id).FirstOrDefault();
+                    // var Id = context.vwCombineStaffDetails.Where(m => m.Category == type && m.ID == id).FirstOrDefault();
                     Name = qry.EmployeeId + "-" + qry.Name;
                     return Name;
                 }
@@ -12661,7 +12661,7 @@ namespace IOAS.Infrastructure
                 using (var context = new IOASDBEntities())
                 {
                     var qry = context.vwStudentDetails.Where(m => m.RollNumber == id).FirstOrDefault();
-                   // var Id = context.vwStudentDetails.Where(m => m.RollNumber == id).FirstOrDefault();
+                    // var Id = context.vwStudentDetails.Where(m => m.RollNumber == id).FirstOrDefault();
                     Name = qry.RollNumber + "-" + qry.FirstName;
                     return Name;
                 }
@@ -23131,16 +23131,13 @@ namespace IOAS.Infrastructure
         public static bool UpdateExpDate(BOAModel model)
         {
             bool status = false;
-
-            using (var context = new IOASDBEntities())
+            try
             {
-                using (var transaction = context.Database.BeginTransaction())
+                using (var context = new IOASDBEntities())
                 {
-                    try
+                    if (model.TransactionTypeCode == "OHAR")
                     {
-                        if (model.TransactionTypeCode == "OHAR")
-                        {
-                            var RecQry = context.tblOHReversal.Where(m => m.OHReversalNumber == model.RefNumber && m.Type == 2).FirstOrDefault();
+                        var RecQry = context.tblOHReversal.Where(m => m.OHReversalNumber == model.RefNumber && m.Type == 2).FirstOrDefault();
                         if (RecQry != null)
                         {
                             RecQry.CRTD_TS = model.PostedDate;
@@ -23174,23 +23171,20 @@ namespace IOAS.Infrastructure
                     if (model.TransactionTypeCode == "STV" || model.TransactionTypeCode == "PTV" || model.TransactionTypeCode == "CLV")
                     {
                         var BoaQry = context.tblBOA.Where(m => m.RefNumber == model.RefNumber && (m.TransactionTypeCode == "STM" || m.TransactionTypeCode == "PTM" || m.TransactionTypeCode == "CLP") && m.Status == "Posted").FirstOrDefault();
-                            if (BoaQry != null)
-                            {
-                                BoaQry.PostedDate = model.PostedDate;
-                                context.SaveChanges();
-                            }
+                        if (BoaQry != null)
+                        {
+                            BoaQry.PostedDate = model.PostedDate;
+                            context.SaveChanges();
                         }
-                        transaction.Commit();
-                        return status;
                     }
-                    catch (Exception ex)
-                    {
-                        transaction.Rollback();
-                        return status;
-                    }
-                }
-            }
 
+                }
+                return status;
+            }
+            catch (Exception ex)
+            {
+                return status;
+            }
         }
 
         public static List<MasterlistviewModel> GetReceiptNoByInvoice(int invId)
@@ -25235,24 +25229,8 @@ namespace IOAS.Infrastructure
                 return "";
             }
         }
-        //public static string getOrderQualificationWordings(int appid, string apptype)
-        //{
-        //    try
-        //    {
-        //        string Qualification = string.Empty;               
-        //        using (var context = new IOASDBEntities())
-        //        {
 
-        //               var query = context.vw_RCTOverAllApplicationEntry.Where(m => m.ApplicationId == appid && m.Category == apptype && m.ApplicationType == "Enhancement").Select(m => m.Qualification).FirstOrDefault();
-        //                return query;
-
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return "";
-        //    }
-        //}
+        
 
         public static Tuple<int, int, int> DateDifference(DateTime d1, DateTime d2)
         {
@@ -27049,10 +27027,10 @@ namespace IOAS.Infrastructure
                     count++;
                 }
                 totdays = totdays / count;
-            }
+            }           
             return totdays;
         }
-
+        
         public static Tuple<List<CheckListModel>, bool> GetDeviationofAppointments(CheckDevationModel model)
         {
             List<CheckListModel> list = new List<CheckListModel>();
@@ -29481,7 +29459,7 @@ namespace IOAS.Infrastructure
                 if (query != null)
                 {
                     if (!String.IsNullOrEmpty(query.FirstOrDefault().RO_Status)){ 
-                     
+
                     if (query.FirstOrDefault().RO_Status == "Open")
                     {
                         TotNewvalue = (from p in context.tblProjectROSummary
