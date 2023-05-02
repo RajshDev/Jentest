@@ -167,6 +167,10 @@ namespace IOAS.Controllers
                     }
                     else
                     {
+                        if (UserId == -3)
+                        {
+                            ViewBag.Msg = string.Format("This user is already logged in.");
+                        }
                         if (UserId == 0)
                         {
                             ViewBag.Msg = string.Format("The username or password provided is incorrect.");
