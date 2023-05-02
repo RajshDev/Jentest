@@ -212,6 +212,8 @@ namespace IOAS.Controllers
             //Response.Cache.SetExpires(DateTime.Now.AddDays(-1d));
             //Response.Cache.SetNoStore();
             //Response.Cookies.Clear();
+            string UserName = User.Identity.Name;
+            bool setLoggedin = AccountService.setLogin(UserName);
             FormsAuthentication.SignOut();
             return RedirectToAction("Login", "Account");
         }

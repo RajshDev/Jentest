@@ -35,11 +35,16 @@ namespace IOAS.GenericServices
 
                     if (userquery != null)
                     {
+                        var Loggedin = context.tblLoginDetails.OrderByDescending(l => l.LoginTime).FirstOrDefault(l => l.UserId == userquery.UserId);
+                        if (Loggedin != null)
+                            if (Loggedin.isLoggedIn == true)
+                                return -3;
                         if (userexpiry != null)
                             return -2;
                         tblLoginDetails log = new tblLoginDetails();
                         log.UserId = userquery.UserId;
                         log.LoginTime = DateTime.Now;
+                        log.isLoggedIn = true;
                         context.tblLoginDetails.Add(log);
                         context.SaveChanges();
                         return userquery.UserId;
@@ -61,7 +66,27 @@ namespace IOAS.GenericServices
                 return -1;
             }
         }
+        public static bool setLogin(string userName)
+        {
+            using (var context = new IOASDBEntities())
+            {
+                var user = context.tblUser.SingleOrDefault(dup => dup.UserName.ToLower() == userName.ToLower() && dup.Status == "Active");
 
+                if (user != null)
+                {
+                    var userloggedIn = context.tblLoginDetails.OrderByDescending(log => log.LoginTime).FirstOrDefault(log => log.UserId == user.UserId);
+                    if (userloggedIn != null)
+                    {
+                        if (userloggedIn.isLoggedIn == true)
+                        {
+                            userloggedIn.isLoggedIn = false;
+                            context.SaveChanges();
+                        }
+                    }
+                }
+            }
+            return true;
+        }
         public static bool ChangePasswordforuser(ChangePasswordModel model, String username)
         {
             try
