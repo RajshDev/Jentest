@@ -3,6 +3,48 @@
     ViewBag.Title = "InternalProject";
     Layout = "~/Views/Shared/_LayoutFluid.cshtml";
 }
+<script src="@Url.Content("~/Scripts/Project/Project.js")"></script>
+
+<script>
+    var selectPickerApiElement = function (el, choice, options, select) {
+        $(el).find('select').selectpicker({
+            liveSearch: true
+        });
+        $(el).children().eq(2).siblings().remove();
+        if (choice == "add") {
+            $(el).find('.selectpicker').append("<option>" + options + "</option>");
+        } else if (choice == "all" && select != '') {
+            $(el).find('.selectpicker').children().remove();
+            for (var i = 0; i < options.length; i++) {
+                $(el).find('.selectpicker').append("<option value=" + options[i].id + ">" + options[i].name + "</option>");
+            }
+            $(el).find('.selectpicker option[value=' + select + ']').attr('selected', 'selected');
+        } else if (choice == "all" && select == '') {
+            $(el).find('.selectpicker').children().remove();
+            for (var i = 0; i < options.length; i++) {
+                $(el).find('.selectpicker').append("<option value=" + options[i].id + ">" + options[i].name + "</option>");
+            }
+        } else if (choice == "empty") {
+            $(el).find('.selectpicker').children().remove();
+            $(el).find('.selectpicker').append("<option value=''>Select any</option>");
+        } else {
+            var selectOptionsLength = $(el).find('.selectpicker').children().length;
+            for (var i = 1; i <= selectOptionsLength; i++) {
+                if (options == $(el).find('.selectpicker').children().eq(i).val()) {
+                    $(el).find('.selectpicker').children().eq(i).remove();
+                    break;
+                } else {
+                    continue;
+                }
+
+            }
+
+        }
+        $(el).find('select').selectpicker('refresh');
+        return $(el).children().first().unwrap();
+
+    }
+</script>
 <style>
     /* Hide all steps by default: */
     .tab {
@@ -235,8 +277,9 @@
                                 @Html.DropDownList("CoPIDepartment", new SelectList(ViewBag.deprtmnt, "code", "name"), "Select any", new { @class = "form-control", @id = "copidepartment" })
                             </div>
                             <div class="col-md-3 bost-sel-ht-sm" id="copinam">
-                                @Html.DropDownList("CoPIname", new SelectList(ViewBag.PI, "id", "name"), "Select any", new { @class = "form-control", @id = "CoPI" })
+                                @Html.DropDownList("CoPIname", new SelectList(ViewBag.PI, "id", "name"), "Select any", new { @class = "form-control selectpicker", @id = "CoPI" })
                                 @Html.Hidden("CoPIid")
+
                             </div>
                             <div class="col-md-3" id="copimail">
                                 @Html.TextBox("CoPIEmail", "", new { @class = "form-control", @id = "CoPIEmail" })
@@ -251,7 +294,7 @@
                                     <button type="button" id="btnAddCoPI" class="btn-primary btn pull-left"><i class="ion-android-add"></i>Add</button>
                                 </h4>
                             </div>
-                        </div>                        
+                        </div>
                     </div>
                 </div>
             </div>
@@ -317,7 +360,45 @@
     </div>
 }
 <script type="text/javascript">
-    var faccode=@Html.Raw(Json.Encode(Model.FacultyCode));
+    var faccode =@Html.Raw(Json.Encode(Model.FacultyCode));
+    var selectPickerApiElement = function (el, choice, options, select) {
+        $(el).find('select').selectpicker({
+            liveSearch: true
+        });
+        $(el).children().eq(2).siblings().remove();
+        if (choice == "add") {
+            $(el).find('.selectpicker').append("<option>" + options + "</option>");
+        } else if (choice == "all" && select != '') {
+            $(el).find('.selectpicker').children().remove();
+            for (var i = 0; i < options.length; i++) {
+                $(el).find('.selectpicker').append("<option value=" + options[i].id + ">" + options[i].name + "</option>");
+            }
+            $(el).find('.selectpicker option[value=' + select + ']').attr('selected', 'selected');
+        } else if (choice == "all" && select == '') {
+            $(el).find('.selectpicker').children().remove();
+            for (var i = 0; i < options.length; i++) {
+                $(el).find('.selectpicker').append("<option value=" + options[i].id + ">" + options[i].name + "</option>");
+            }
+        } else if (choice == "empty") {
+            $(el).find('.selectpicker').children().remove();
+            $(el).find('.selectpicker').append("<option value=''>Select any</option>");
+        } else {
+            var selectOptionsLength = $(el).find('.selectpicker').children().length;
+            for (var i = 1; i <= selectOptionsLength; i++) {
+                if (options == $(el).find('.selectpicker').children().eq(i).val()) {
+                    $(el).find('.selectpicker').children().eq(i).remove();
+                    break;
+                } else {
+                    continue;
+                }
+
+            }
+
+        }
+        $(el).find('select').selectpicker('refresh');
+        return $(el).children().first().unwrap();
+
+    }
     if(faccode!="")
     {
         GetFacalityCode();
@@ -353,7 +434,7 @@
         else if (selVal == "4") {
             $('#divLab').removeClass('dis-none');
         }
-        
+
     }
     $("#FacultyCode").change(function () {
         var selVal = $(this).val();
@@ -402,6 +483,48 @@
                 return false;
             }
         }
+
+        // to validate if copi department or copiname is left unselected when either one of them is selected
+        var copideptvalues = [];
+        var copinamvalues = [];
+
+         //var Piname= $("#PI").val();
+        $('select[name="CoPIDepartment"]').each(function (idx, val) { copideptvalues.push($(val).val()); });
+        $('select[name="CoPIname"]').each(function (idx, val) { copinamvalues.push($(val).val()); });
+        //// Sort it
+        copideptvalues.sort();
+        copinamvalues.sort();
+
+        for (var k = 0; k < copideptvalues.length; ++k) {
+            if ((copideptvalues[k] > 0) && (copinamvalues[k] == null || copinamvalues[k] == 0)) {
+                $('#MsgValidation').html("Please fill Co PI name.");
+                $('#ValidationModal').modal('toggle');
+                return false;
+            }
+            if ((copideptvalues[k] == null || copideptvalues[k] == 0) && (copinamvalues[k] > 0)) {
+                $('#MsgValidation').html("Please fill Department of selected Co PI.");
+                $('#ValidationModal').modal('toggle');
+                return false;
+            }
+            //if (copinamvalues[k] == piname) {
+            //    $('#MsgValidation').html("Co PI should not be the PI what you have declared. Please rectify and submit again.");
+            //    $('#ValidationModal').modal('toggle');
+            //    return false;
+            //}
+
+        }
+
+
+
+        // duplicate check
+        for (var k = 1; k < copinamvalues.length; ++k) {
+            if (copinamvalues[k] == copinamvalues[k - 1]) {
+                $('#MsgValidation').html("Co PI already selected. Please select a different Co PI.");
+                $('#ValidationModal').modal('toggle');
+                return false;
+            }
+        }
+
         // to validate if attachment type or attachment name is not left blank when either one of them is filled
         var doctypevalues = [];
         var docnamevalues = [];
@@ -447,6 +570,7 @@
     function noedit() {
         return false;
     }
+
     $('#btnAddDoc').click(function () {
         var cln = $("#DocprimaryDiv").clone().find("input").val("").end();
         $(cln).find('.dis-none').removeClass('dis-none');
@@ -454,10 +578,19 @@
         $(cln).insertBefore($('#DocdivContent').find('.p-b-sm'));
 
     });
-    
-    $('#btnAddCoPI').click(function () {
+
+   /* $('#btnAddCoPI').click(function () {
         var cln = $("#CopiprimaryDiv").clone().find("input").val("").end();
         $(cln).find('.doclink').addClass('dis-none');
+        $(cln).find('.dis-none').removeClass('dis-none');
+        $(cln).insertBefore($(this).closest('#CoPidivContent').find('.p-b-sm'));
+    });*/
+
+
+    $('#btnAddCoPI').click(function () {
+        var cln = $("#CopiprimaryDiv").clone().find("input").val("").end();
+        var cloneElement = $("#CopiprimaryDiv").find('#CoPI').parent().clone();
+        cln.find('#CoPI').parent().replaceWith(selectPickerApiElement($(cloneElement), "empty", [], ''));
         $(cln).find('.dis-none').removeClass('dis-none');
         $(cln).insertBefore($(this).closest('#CoPidivContent').find('.p-b-sm'));
     });
@@ -469,7 +602,7 @@
     $(document).on('click', '#CoPidivContent button[name="removeButton"]', function () {
         $(this).parent().parent("Div").remove();
     });
-    
+
     //Co Investigator Details
 
     var CoPIname =@Html.Raw(Json.Encode(Model.CoPIname));
@@ -482,17 +615,54 @@
             document.getElementsByName('CoPIname')[0].value = CoPIname[0];
             document.getElementsByName('CoPIEmail')[0].value = CoPIEmail[0];
         } else {
-            var cln = $("#CopiprimaryDiv").clone().find("input").val("").end();    
+            var cln = $("#CopiprimaryDiv").clone().find("input").val("").end();
             $(cln).find('.dis-none').removeClass('dis-none');
             $(cln).insertBefore($('#CoPidivContent').find('.p-b-sm'));
             document.getElementsByName('CoPIDepartment')[i].value = CoPIDepartment[i];
             document.getElementsByName('CoPIname')[i].value = CoPIname[i];
             document.getElementsByName('CoPIEmail')[i].value = CoPIEmail[i];
-        } 
+        }
+    });
+
+    $(document).on('change', 'select[name="CoPIDepartment"]', function () {
+        var Departmentid = $(this).val();
+        var select = $(this).closest('#CopiprimaryDiv').find('select[name="CoPIname"]');
+        $(select).empty().selectpicker('refresh');
+        $.getJSON("@Url.Action("LoadPIByDepartment", "Account")", { Departmentid: Departmentid },
+                    function (locationdata) {
+                        // $(select).selectpicker("destroy");
+                        $.each(locationdata, function (index, itemData) {
+                            $(select).append($('<option/>', {
+                                value: itemData.id,
+                                text: itemData.name
+                            })).selectpicker('refresh');
+                        });
+                    });
+
+    });
+
+
+
+     $(document).on('change', 'select[name="CoPIname"]', function () {
+        var CoPIid = $(this).val();
+         var CoPIEmail = $(this).closest('#CopiprimaryDiv').find('input[name="CoPIEmail"]');
+        if (CoPIid > 0) {
+            $.getJSON("@Url.Action("LoadPIEmailById", "Account")", { Profid: CoPIid },
+                    function (locationdata) {
+                        CoPIEmail.val(locationdata.name);
+                    });
+        }
+        else {
+            var Copiid = 0;
+            $.getJSON("../Account/LoadPIEmailById", { Profid: Copiid },
+                    function (locationdata) {
+                        CoPIEmail.val(locationdata.name);
+                    });
+        }
     });
 
     //Fill Attachment in Edit Mode
-    
+
     var Docname = @Html.Raw(Json.Encode(Model.DocName));
     var Attachname = @Html.Raw(Json.Encode(Model.AttachName));
     var Doctype =@Html.Raw(Json.Encode(Model.DocType));
@@ -523,7 +693,7 @@
             document.getElementsByClassName('link1')[i].href = "ShowDocument?file=" + Docpath[i] + "&filepath=~%2FContent%2FSupportDocuments%2F";
         }
     });
-    
+
     function GetNumberingFormat()
     {
         var InputData = [];
@@ -555,7 +725,7 @@
                     {
                         $('#lblPrjNoFormat').removeClass('dis-none');
                         $('#lblPrjNo').text(result);
-                        
+
                     }
                     else
                     {
@@ -568,9 +738,10 @@
                 console.log("error : " + err);
             }
         });
-    }  
+    }
 </script>
+<link href="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/css/bootstrap-select.min.css")" rel="stylesheet" />
+<script src="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/js/bootstrap-select.min.js")"></script>
 <script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
 <script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
 <script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>
-

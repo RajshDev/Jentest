@@ -7717,7 +7717,7 @@ namespace IOAS.GenericServices
                                            where Doc.ProjectId == ProjectId && Doc.IsCurrentVersion == true
                                            select Doc).ToList();
                     var CoInverstigatorview = (from conint in context.tblProjectCoPI
-                                               where conint.ProjectId == ProjectId
+                                               where conint.ProjectId == ProjectId && conint.Status != "InActive"
                                                select conint).ToList();
                     
                     if (query != null)
