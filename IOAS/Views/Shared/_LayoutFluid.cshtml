@@ -163,7 +163,35 @@
             $(window).resize(function () {
                 setHeight();
             });
+            var maxTabs = 3;
+            // Get the current tab count from sessionStorage, or set it to zero
+            var tabCount = sessionStorage.getItem('tabCount') || 0;
+            var firstTab = sessionStorage.getItem('firstTab', 3);
 
+            // Increment the tab count and store it in sessionStorage
+            tabCount++;
+            sessionStorage.setItem('tabCount', tabCount);
+
+            sessionStorage.setItem('firstTab', firstTab);
+            firstTab--;
+            // If the tab count exceeds the maximum, close the current tab
+            tabCount = parseInt(tabCount);
+            firstTab = parseInt(firstTab);
+
+            console.log(tabCount);
+            console.log(firstTab);
+
+            if (tabCount > maxTabs) {
+                window.location.href = "https://tula.icsr.in/TulaTabs.html";
+            }
+            
+            $(window).on('beforeunload', function () {
+                userListCheck();
+                // Decrement the tab count and update sessionStorage when the tab is closed
+                var tabCount = sessionStorage.getItem('tabCount') || 0;
+                tabCount--;
+                sessionStorage.setItem('tabCount', tabCount);
+            });
             loadTapalView();
         });
         $('form').on('submit',function () {
@@ -197,6 +225,22 @@
                 }
             });
         }
+        }
+        function userListCheck() {
+            
+            $.ajax({
+                url: '@Url.Action("SetLogin", "Account")',
+                type: "Get",
+                dataType: "JSON",
+                data: { },
+                success: function (result) {
+                    if(result)
+                    {
+                        $('#alertSuccess').text('1');
+                        window.location.href = "https://tula.icsr.in/maintenance.html";
+                    }
+                }
+            });
         }
     </script>
 

@@ -386,7 +386,18 @@ namespace IOAS.Controllers
         [HttpGet]
         public JsonResult GetCheckUserList(string userName)
         {
+            
             object output = AccountService.GetVerifyUsername(userName);
+            return Json(output, JsonRequestBehavior.AllowGet);
+        }
+        [Authorized]
+        [HttpGet]
+        public JsonResult SetLogin()
+        {
+            string userName = User.Identity.Name;
+            
+            object output = AccountService.setLogin(userName);
+
             return Json(output, JsonRequestBehavior.AllowGet);
         }
         [Authorized]

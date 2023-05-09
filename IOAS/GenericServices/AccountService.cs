@@ -81,11 +81,14 @@ namespace IOAS.GenericServices
                         {
                             userloggedIn.isLoggedIn = false;
                             context.SaveChanges();
+                            return true;
                         }
+                       
                     }
                 }
+                return false;
             }
-            return true;
+            
         }
         public static bool ChangePasswordforuser(ChangePasswordModel model, String username)
         {
