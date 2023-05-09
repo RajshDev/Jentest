@@ -1556,23 +1556,23 @@ namespace IOAS.Controllers
                 if (validateSTEVerification(STEID))
                 {
                     model = recruitmentService.GetVerification(STEID);
-                    if (model.Status == "Awaiting Verification-Open")
-                    {
-                        var user = Common.getUserIdAndRole(User.Identity.Name);
-                        model.RoleId = user.Item2;
-                        if (model.FlowApprover == "CMAdmin")
-                            ViewBag.processGuideLineId = Common.GetProcessGuidelineId(188, "STEVERAdminFlow", 0);
-                        else if (model.FlowApprover == "NDean")
-                            ViewBag.processGuideLineId = Common.GetProcessGuidelineId(188, "STEVERFlowDean", 0);
-                        else
-                            ViewBag.processGuideLineId = Common.GetProcessGuidelineId(188, "STEVER Flow", 0);
-                        model.List_f = getEmployeeActionLink("STE", "VAL");
-                        //ViewBag.processGuideLineId = processGuideLineId;
-                        ViewBag.currentRefId = model.STEId;
+                if (model.Status == "Awaiting Verification-Open")
+                {
+                    var user = Common.getUserIdAndRole(User.Identity.Name);
+                    model.RoleId = user.Item2;
+                    if (model.FlowApprover == "CMAdmin")
+                        ViewBag.processGuideLineId = Common.GetProcessGuidelineId(188, "STEVERAdminFlow", 0);
+                    else if (model.FlowApprover == "NDean")
+                        ViewBag.processGuideLineId = Common.GetProcessGuidelineId(188, "STEVERFlowDean", 0);
+                    else
+                        ViewBag.processGuideLineId = Common.GetProcessGuidelineId(188, "STEVER Flow", 0);
+                    model.List_f = getEmployeeActionLink("STE", "VAL");
+                    //ViewBag.processGuideLineId = processGuideLineId;
+                    ViewBag.currentRefId = model.STEId;
 
 
-                        
-                    }
+
+                }
                 }
                 else
                 {
@@ -2426,7 +2426,7 @@ namespace IOAS.Controllers
                     {
                         TempData["alertMsg"] = "Date of joining should be only within the tenure.";
                         return RedirectToAction(action, "Requirement");
-                    }                  
+                    }
                     RequirementService requirement = new RequirementService();
                     var result = requirement.UpdateVerificationOrder(model, userId, button);
                     if (result.Item1 == 1 && model.OrderId > 0)
@@ -4014,6 +4014,10 @@ namespace IOAS.Controllers
             using (var context = new IOASDBEntities())
             {
                 var mastQuery = context.vw_RCTOverAllApplicationEntry.Where(m => m.ApplicationId == model.ApplicationID && m.Category == model.TypeCode && m.ApplicationType == "New").Select(m => new { m.ProjectId, m.AppointmentStartdate, m.AppointmentEnddate, m.TypeofAppointmentinInt }).FirstOrDefault();
+                var queryExp = (from E in context.tblRCTEmployeeExperience
+                              where E.ApplicationId == model.ApplicationID
+                              orderby E.EffectiveFrom descending
+                              select E).FirstOrDefault();
                 if (mastQuery != null)
                 {
                     var projectDetail = Common.GetProjectsDetails(mastQuery.ProjectId ?? 0);
@@ -4029,9 +4033,13 @@ namespace IOAS.Controllers
 
                             if (!(projectDetail.SancationDate <= model.FromDate && model.ToDate <= projectDetail.CloseDate))
                                 msg = msg == "Valid" ? "Appointment tenure must be between the project start date and project closure date." : msg + "<br /> Appointment tenure must be between the project start date and project closure date.";
-                            if (mastQuery.AppointmentStartdate != model.FromDate)
+                            //if (mastQuery.AppointmentStartdate != model.FromDate)
+                            //    msg = msg == "Valid" ? "Appointment from date must be same as appointment start date." : msg + "<br /> Appointment from date must be same as appointment start date.";
+                            //if (mastQuery.AppointmentEnddate < model.ToDate)
+                            //    msg = msg == "Valid" ? "Appointment to date must be lesser than appointment end date." : msg + "<br /> Appointment to date must be lesser than appointment end date.";
+                            if (queryExp.EffectiveFrom != model.FromDate)
                                 msg = msg == "Valid" ? "Appointment from date must be same as appointment start date." : msg + "<br /> Appointment from date must be same as appointment start date.";
-                            if (mastQuery.AppointmentEnddate < model.ToDate)
+                            if (queryExp.EffectiveTo < model.ToDate)
                                 msg = msg == "Valid" ? "Appointment to date must be lesser than appointment end date." : msg + "<br /> Appointment to date must be lesser than appointment end date.";
                             if (model.isWithdrawCommitment != true)
                             {

@@ -6797,12 +6797,21 @@ namespace IOAS.GenericServices
                                     mastmodel.MedicalText = Common.GetCodeControlnameCommon(QrySTE.A.Medical ?? 0, "SETMedical");
                                     mastmodel.MedicalAmmount = QrySTE.A.MedicalAmmount ?? 0;
                                     mastmodel.CommitmentAmmount = QrySTE.A.CommitmentAmount ?? 0;
-                                    mastmodel.AppointmentStartDate = string.Format("{0:dd-MMMM-yyyy}", QrySTE.A.AppointmentStartdate);
-                                    mastmodel.AppointmentStartDt = QrySTE.A.AppointmentStartdate ?? DateTime.Now;
+                                    //mastmodel.AppointmentStartDate = string.Format("{0:dd-MMMM-yyyy}", QrySTE.A.AppointmentStartdate);
+                                    //mastmodel.AppointmentStartDt = QrySTE.A.AppointmentStartdate ?? DateTime.Now;
                                     mastmodel.AppointmentClosureDate = string.Format("{0:dd-MMMM-yyyy}", QrySTE.A.AppointmentEnddate);
                                     var query = (from c in context.tblCommitment
                                                  where c.CommitmentNumber == QrySTE.A.CommitmentNo
                                                  select c).FirstOrDefault();
+                                    var queryExp = (from E in context.tblRCTEmployeeExperience
+                                                  where E.ApplicationId == appid
+                                                  orderby E.EffectiveFrom descending
+                                                  select E).FirstOrDefault();
+                                    if (queryExp != null)
+                                    {
+                                        mastmodel.AppointmentStartDate = string.Format("{0:dd-MMMM-yyyy}", queryExp.EffectiveFrom);
+                                        mastmodel.AppointmentStartDt = queryExp.EffectiveFrom ?? DateTime.Now;
+                                    }
                                     if (query != null)
                                     {
                                         mastmodel.CommitmentBalance = query.CommitmentBalance;
@@ -6871,8 +6880,17 @@ namespace IOAS.GenericServices
                                     mastmodel.MedicalAmmount = QryOSG.A.MedicalAmmount ?? 0;
                                     mastmodel.CommitmentAmmount = QryOSG.A.CommitmentAmount ?? 0;
                                     mastmodel.EmployeeCTC = getEmployeeCTC(QryOSG.A.OSGID);
-                                    mastmodel.AppointmentStartDate = string.Format("{0:dd-MMMM-yyyy}", QryOSG.A.AppointmentStartdate);
-                                    mastmodel.AppointmentStartDt = QryOSG.A.AppointmentStartdate ?? DateTime.Now;
+                                    var queryExp = (from E in context.tblRCTEmployeeExperience
+                                                  where E.ApplicationId == appid
+                                                  orderby E.EffectiveFrom descending
+                                                  select E).FirstOrDefault();
+                                    if (queryExp != null)
+                                    {
+                                        mastmodel.AppointmentStartDate = string.Format("{0:dd-MMMM-yyyy}", queryExp.EffectiveFrom);
+                                        mastmodel.AppointmentStartDt = queryExp.EffectiveFrom ?? DateTime.Now;
+                                        //mastmodel.AppointmentStartDate = string.Format("{0:dd-MMMM-yyyy}", QryOSG.A.AppointmentStartdate);
+                                        //mastmodel.AppointmentStartDt = QryOSG.A.AppointmentStartdate ?? DateTime.Now;
+                                    }
                                     mastmodel.AppointmentClosureDate = string.Format("{0:dd-MMMM-yyyy}", QryOSG.A.AppointmentEnddate);
                                     var query = (from c in context.tblCommitment
                                                  where c.CommitmentNumber == QryOSG.A.CommitmentNo
@@ -7370,7 +7388,7 @@ namespace IOAS.GenericServices
                                            where O.OrderId == Od.OrderId && O.Status == "Open"
                                            && O.isCommitmentReject != true && O.isGovAgencyFund != true
                                            && O.OrderId == model.OrderID
-                                           select new { O, Od }).FirstOrDefault();
+                                           select new { O, Od }).FirstOrDefault();                            
                             if (odQuery != null)
                             {
                                 OrderID = odQuery.O.OrderId;
@@ -7482,6 +7500,15 @@ namespace IOAS.GenericServices
                                 Order.SeqId = number;
                                 string value = number.ToString("D4");
                                 Order.OrderNo = "AM" + DateTime.Now.Year + "" + DateTime.Now.Month + "" + value;
+                                var queryAmendmentOrder = (from E in context.tblRCTEmployeeExperience
+                                                           where E.ApplicationId == model.ApplicationID
+                                                           orderby E.EffectiveFrom descending
+                                                           select E).FirstOrDefault();
+                                
+                                if (queryAmendmentOrder != null)
+                                {
+                                    Order.AmendmentOrderID = queryAmendmentOrder.OrderId;
+                                }
                                 context.tblOrder.Add(Order);
                                 context.SaveChanges();
                                 OrderID = Order.OrderId;
@@ -9361,6 +9388,15 @@ namespace IOAS.GenericServices
                                 Order.CommitteeMember = model.CommiteeMemberId1;
                                 Order.CommitteeMembers = model.CommiteeMemberId2;
                                 Order.Chairperson = model.ChairpersonNameId;
+                                var queryAmendmentOrder = (from E in context.tblRCTEmployeeExperience
+                                                           where E.ApplicationId == model.ApplicationID
+                                                           orderby E.EffectiveFrom descending
+                                                           select E).FirstOrDefault();
+                                
+                                if (queryAmendmentOrder != null)
+                                {
+                                    Order.AmendmentOrderID = 0;
+                                }
                                 context.tblOrder.Add(Order);
                                 context.SaveChanges();
                                 OrderID = Order.OrderId;
@@ -9962,6 +9998,15 @@ namespace IOAS.GenericServices
                                 Order.CommitteeMember = model.CommiteeMemberId1;
                                 Order.CommitteeMembers = model.CommiteeMemberId2;
                                 Order.Chairperson = model.ChairpersonNameId;
+                                var queryAmendmentOrder = (from E in context.tblRCTEmployeeExperience
+                                                           where E.ApplicationId == model.ApplicationID
+                                                           orderby E.EffectiveFrom descending
+                                                           select E).FirstOrDefault();
+                                
+                                if (queryAmendmentOrder != null)
+                                {
+                                    Order.AmendmentOrderID = 0;
+                                }
                                 context.tblOrder.Add(Order);
                                 context.SaveChanges();
                                 OrderID = Order.OrderId;
