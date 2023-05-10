@@ -109,11 +109,20 @@
                                                     </div>
                                                     <div class="col-md-8">
                                                         <div class="form-group custom-form-group mb-null" style="display:flex;flex-flow:row;">
+                                                          
 
-                                                            <input id="HonorFile" type="file" accept=".xls,.xlsx">
-                                                            <a id="btnImportHonor" href="javascript:void(0)" class="btn btn-default">Import Excel</a>
+                                                               
+
+                                                            <input id="HonorFile" type="file" accept=".xls,.xlsx" @{ if (Model.PODetail != null)
+                                                                    {
+                                                                        @:disabled="disabled"
+                                                                    } }>
+                                                            <a id="btnImportHonor" href="javascript:void(0)" class="btn btn-default"  @{ if (Model.PODetail != null)
+                                                                    {
+                                                                        @:disabled="disabled"
+                                                                    } }>Import Excel</a>
                                                             <span id="downloadSpan" style="display:none">
-                                                                <a class="link" href="#">Download</a>
+                                                                <a class="link" href="#">Download Result</a>
                                                             </span>
                                                         </div>
 
@@ -1770,7 +1779,24 @@ $('#btnImportHonor').click(function () {
             messageBox("Import Sucessfull", "success");
         }
         else {
+            $("#thonorarium").find("tr:gt(2)").remove();
+            var irow =0;
+            $('[name="PODetail[' + irow + '].PayeeType"]').val("")
+            $('[name="PODetail[' + irow + '].Name"]').val("")
+            $('[name="PODetail[' + irow + '].UserId"]').val("")
+            $('[name="PODetail[' + irow + '].Amount"]').val("")
+            $('[name="PODetail[' + irow + '].tdsdropdown"]').val("")
+            $('[name="PODetail[' + irow + '].NetAmount"]').val("")
+            $('[name="PODetail[' + irow + '].PaymentMode"]').val("")
+
+            $('[name="PODetail[' + irow + '].BankName"]').val("")
+            $('[name="PODetail[' + irow + '].Branch"]').val("")
+            $('[name="PODetail[' + irow + '].AccountNo"]').val("")
+            $('[name="PODetail[' + irow + '].PAN"]').val("")
+            $('[name="PODetail[' + irow + '].IFSC"]').val("")
+            $('[name="PODetail[' + irow + '].HonororiumTdsSection"]').val("")
             messageBox(result.status, "error");
+
         }
         requestRunning = false;
         $('.loading-bg').addClass('dis-none');

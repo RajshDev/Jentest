@@ -12653,6 +12653,49 @@ namespace IOAS.Infrastructure
             }
         }
 
+        public static string GetVWCombineStaffNameByEmpCode(string code, string type)
+        {
+            var Name = "";
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    var qry = context.vwCombineStaffDetails.Where(m => m.Category == type && m.EmployeeId == code).FirstOrDefault();
+                    // var Id = context.vwCombineStaffDetails.Where(m => m.Category == type && m.ID == id).FirstOrDefault();
+                    Name = qry.EmployeeId + "-" + qry.Name;
+                    return Name;
+                }
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+(object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                return Name;
+            }
+        }
+
+
+        public static int GetVWCombineStaffIdByEmpCode(string code, string type)
+        {
+            int Id =0;
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    var qry = context.vwCombineStaffDetails.Where(m => m.Category == type && m.EmployeeId == code).FirstOrDefault();
+                    // var Id = context.vwCombineStaffDetails.Where(m => m.Category == type && m.ID == id).FirstOrDefault();
+                    Id = (int)qry.ID ;
+                    return Id;
+                }
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+(object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                return Id;
+            }
+        }
+
         public static string GetVWStudentName(string id, string type)
         {
             var Name = "";
@@ -29826,7 +29869,7 @@ namespace IOAS.Infrastructure
                             {
                                 id = qryProjectNo[i].ProjectId,
                                 name = qryProjectNo[i].ProjectNumber,
-                                ProjectFundingcategory = qryProjectNo[i].ProjectFundingCategory
+                                ProjectFundingcategory = (int)qryProjectNo[i].ProjectFundingCategory
                             });
                         }
                     }

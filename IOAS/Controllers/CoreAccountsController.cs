@@ -9575,7 +9575,8 @@ namespace IOAS.Controllers
                             name_status = "Invalid PI ID";
                         break;
                     case "STUDENT": // Payee Type 2
-                        if (honorpay.UserId != "" && isNumeric == false)                        {
+                        if (honorpay.UserId != "")                      // && isNumeric == false  
+                        {
                             //int userid = (int)honorpay.UserId;
                             honorpay.Name = Common.GetVWStudentName(honorpay.UserId, "Student");
                             honorpay.UserId = "0"; 
@@ -9586,10 +9587,11 @@ namespace IOAS.Controllers
                             name_status = "Invalid Student ID";
                         break;
                     case "VENDOR STAFF": // Payee Type 3
-                        if (userid > 0 && isNumeric)
+                        if (honorpay.UserId != "")
                         {
                             //int userid = (int)honorpay.UserId;
-                            honorpay.Name = Common.GetVWCombineStaffName(userid, "Project Staff");
+                            honorpay.Name = Common.GetVWCombineStaffNameByEmpCode(honorpay.UserId, "Project Staff");
+                            honorpay.UserId = Common.GetVWCombineStaffIdByEmpCode(honorpay.UserId, "AdhocStaff").ToString();
                             if (honorpay.Name.Trim() == "")
                             { name_status = "Invalid Vendor Name"; }
                         }
@@ -9609,10 +9611,11 @@ namespace IOAS.Controllers
                             name_status = "Invalid Staff ID";
                         break;
                     case "ADHOC STAFF": // Payee Type 5
-                        if (userid > 0)
+                        if (honorpay.UserId != "" )
                         {
                            // int userid = (int)honorpay.UserId;
-                            honorpay.Name = Common.GetVWCombineStaffName(userid, "AdhocStaff");
+                            honorpay.Name = Common.GetVWCombineStaffNameByEmpCode(honorpay.UserId, "AdhocStaff");
+                            honorpay.UserId= Common.GetVWCombineStaffIdByEmpCode(honorpay.UserId, "AdhocStaff").ToString ();
                             if (honorpay.Name.Trim() == "")
                             { name_status = "Invalid ADHOC STAFF Name"; }
                         }
@@ -9675,9 +9678,9 @@ namespace IOAS.Controllers
                         honorpay.SelectedTdssectionID = arrTdsSectionId[tdsid];
                         System.Text.RegularExpressions.Regex panregex = new System.Text.RegularExpressions.Regex("([A-Z]){5}([0-9]){4}([A-Z]){1}$");
                        
-                            if ((honorpay.SelectedTdssectionID != "356" && honorpay.TDS  > 0 ) && (honorpay.PAN == null || honorpay.PAN.Trim() == ""))
+                            if ((honorpay.SelectedTdssectionID != "356" && honorpay.TDS  > 0 && honorpay.TDS*100 < 20) && (honorpay.PAN == null || honorpay.PAN.Trim() == ""))
                                 { pay_status = "Pan No Required"; }
-                            else if ((honorpay.SelectedTdssectionID != "356" && honorpay.TDS > 0) && !panregex.IsMatch(honorpay.PAN.Trim()) )
+                            else if ((honorpay.SelectedTdssectionID != "356" && honorpay.TDS > 0 && honorpay.TDS * 100 < 20) && !panregex.IsMatch(honorpay.PAN.Trim()) )
                             { pay_status = "Invalid Pan no"; }
                     }
                     else if (honorpay.TDS > 0)
@@ -9692,6 +9695,26 @@ namespace IOAS.Controllers
                 }
                 else
                 { validimport = false; }
+
+                if (honorpay.TDS == 0 )
+                {
+                    honorpay.PAN = "";
+                    honorpay.SelectedTdssection = "";
+                    honorpay.SelectedTdssectionID = "";
+                }
+
+
+                if (honorpay.TDS * 100 == 20)
+                {
+                    honorpay.PAN = "";
+                   
+                }
+
+                if (honorpay.PaymentModeVal != 2)
+                {
+                    honorpay.BankName = honorpay.Branch = honorpay.AccountNo = honorpay.IFSC = "";
+                   
+                }
             }
             if (validimport == false)
             { msg = "Data Imported with Validation Error, Upload Corrected Data"; }
@@ -9726,12 +9749,18 @@ namespace IOAS.Controllers
                     ws.Cell(counter, 5).Value = item.Amount;
                     ws.Cell(counter, 6).Value = String.Format("{0:P2}", item.TDS);
                     ws.Cell(counter, 7).Value = item.PaymentModeName;
-                    ws.Cell(counter, 8).Value = item.BankName;
-                    ws.Cell(counter, 9).Value = item.Branch;
-                    ws.Cell(counter, 10).Value = item.IFSC;
-                    ws.Cell(counter, 11).Value = item.AccountNo;
-                    ws.Cell(counter, 12).Value = item.PAN;
-                    ws.Cell(counter, 13).Value = item.SelectedTdssection;
+                   
+                        ws.Cell(counter, 8).Value = item.BankName;
+                        ws.Cell(counter, 9).Value = item.Branch;
+                        ws.Cell(counter, 10).Value = item.IFSC;
+                        ws.Cell(counter, 11).Value = item.AccountNo;
+                    
+                        ws.Cell(counter, 12).Value = item.PAN;
+                        ws.Cell(counter, 13).Value = item.SelectedTdssection;
+                   
+                        ws.Cell(counter, 12).Value = "";
+                        ws.Cell(counter, 13).Value = "";
+                    
                     ws.Cell(counter, 14).Value = item.Status;
 
 
@@ -9769,7 +9798,7 @@ namespace IOAS.Controllers
             {
                 string extension = Path.GetExtension(file.FileName).ToLower();
                 string connString = "";
-                string[] validFileTypes = { ".xls", ".xlsx" };
+                string[] validFileTypes = { ".xls", ".xlsx", ".xlsm" };
                 string actName = Path.GetFileName(file.FileName);
                 var guid = Guid.NewGuid().ToString();
                 var docName = guid + "_" + actName;
@@ -9795,13 +9824,13 @@ namespace IOAS.Controllers
                     }
                     else if (extension.ToLower().Trim() == ".xls" && Environment.Is64BitOperatingSystem == false)
                     {
-                        connString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + path1 + ";Extended Properties=\"Excel 8.0;HDR=Yes;IMEX=2\"";
+                        connString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + path1 + ";Extended Properties=\"Excel 8.0;HDR=Yes;IMEX=1\"";
                         DataTable dt = _uty.ConvertXSLXtoDataTable(path1, connString);
                         listUpload = Converter.GetBRSEntityList<BankStatementDetailModel>(dt);
                     }
                     else
                     {
-                        connString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + path1 + ";Extended Properties=\"Excel 12.0;HDR=Yes;IMEX=2\"";
+                        connString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + path1 + ";Extended Properties=\"Excel 12.0;HDR=Yes;IMEX=1\"";
                         DataTable dt = _uty.ConvertXSLXtoDataTable(path1, connString);
                         listUpload = Converter.GetBRSEntityList<BankStatementDetailModel>(dt);
                     }

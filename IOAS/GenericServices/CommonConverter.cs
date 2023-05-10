@@ -362,6 +362,11 @@ namespace IOAS.GenericServices
                             object Val = Guid.Parse(row[propertyName].ToString());
                             entity.GetType().GetProperty(propertyName, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public).SetValue(entity, Convert.ToDateTime(Val), BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public, null, null, null);
                         }
+                        else if (propertyName== "TransactionDate" && entity.GetType().GetProperty(propertyName).PropertyType != typeof(System.DateTime))
+                        {
+                            object Val = (row[propertyName].ToString());
+                            entity.GetType().GetProperty(propertyName, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public).SetValue(entity, Convert.ToDateTime(Val), BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public, null, null, null);
+                        }
                         else
                         {
                             entity.GetType().GetProperty(propertyName, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public).SetValue(entity, row[propertyName], BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public, null, null, null);
