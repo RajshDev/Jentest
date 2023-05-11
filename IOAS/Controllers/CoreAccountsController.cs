@@ -9643,7 +9643,7 @@ namespace IOAS.Controllers
 "TDS on Commission (94H) 5%","TDS Payable TDS Payable Income Tax","TDS on Contract  (94C) 1%","TDS on Rent (94I) 2%",
 "TDS on Non Residents (195) 10%","TDS on Non Residents (195) 15%","TDS on Non Residents (195) 20%",
 "TDS on Non Residents (195) 25%","TDS on Non Residents (195) 30%","TDS on Contract  (94C) 0.75%",
-"TDS on Non Residents (195) 31.2%","No PAN ","TDS on Interest (194A) 10%","TDS on Contract (94C) 1.5%",
+"TDS on Non Residents (195) 31.2%","No PAN","TDS on Interest (194A) 10%","TDS on Contract (94C) 1.5%",
 "TDS on Commission (94H) 3.75%","TDS on Rent (94I) 7.5%","TDS on Rent (94I) 1.5%","TDS on Fees (94J) 7.5%",
 "94(J) - 2%","TDS on Contract  (94C) 4%","TDS on Fees (94J) 20%","TDS on Commission (94H) 10%","TDS on Rent (94I) 4%",
 "TDS on Rent (94I) 20%","TDS on Purchase of Goods  (94Q) 0.1%","TDS on Double Rate 5%","TDS on Fees (94J) 1.5%"};
@@ -9671,8 +9671,20 @@ namespace IOAS.Controllers
                     }
                     else
                     { pay_status = "Invalid Pay Status"; }
+                    if (honorpay.TDS * 100 == 10)
+                    {
+                        honorpay.SelectedTdssection = "TDS on Fees (94J) 10%";
 
-                    int tdsid = Array.IndexOf(arrTdsSection, honorpay.SelectedTdssection);
+                    }
+
+                    if (honorpay.TDS * 100 == 20)
+                    {
+                        honorpay.SelectedTdssection = "No PAN ";
+
+                    }
+                    int tdsid=-1;
+                    if (honorpay.SelectedTdssection != null)
+                        tdsid = Array.IndexOf(arrTdsSection, honorpay.SelectedTdssection.Trim());
                     if (tdsid >= 0)
                     {
                         honorpay.SelectedTdssectionID = arrTdsSectionId[tdsid];
@@ -9713,7 +9725,8 @@ namespace IOAS.Controllers
                 if (honorpay.PaymentModeVal != 2)
                 {
                     honorpay.BankName = honorpay.Branch = honorpay.AccountNo = honorpay.IFSC = "";
-                   
+                    honorpay.PAN = "";
+
                 }
             }
             if (validimport == false)
@@ -13287,7 +13300,11 @@ namespace IOAS.Controllers
                 ViewBag.Project = Common.GetProjectNumberList();
                 ViewBag.Department = Common.getDepartment();
                 ViewBag.Student = Common.GetStudentList();
-                ViewBag.TDS = Common.GetTDS();
+                List<MasterlistviewModel> tds = new List<MasterlistviewModel>();
+                tds = Common.GetTDS();
+                var tdsfilter = tds.Where(t => t.id == 0 || t.id ==10 || t.id == 20);
+                ViewBag.TDS = tdsfilter;
+
                 ViewBag.OH = Common.GetOH();
                 ViewBag.ReceviedFrom = Common.GetReceivedFrom();
                 ViewBag.CategoryList = Common.GetCodeControlList("HonorCategory");
@@ -13298,7 +13315,11 @@ namespace IOAS.Controllers
                 ViewBag.AccountHeadList = emptyList;
                 ViewBag.ProjectNumberList = Common.GetProjectNumberList();
                 ViewBag.DocmentTypeList = Common.GetDocTypeList(63);
-                ViewBag.HonTdsSection = Common.GetHonororiumTdsSection();
+                List<MasterlistviewModel> tdssec = new List<MasterlistviewModel>();
+
+                tdssec = Common.GetHonororiumTdsSection();
+                var tdssecfilter = tdssec.Where(t => t.id == 41 || t.id == 356);
+                ViewBag.HonTdsSection = tdssecfilter;
                 var ptypeList = Common.getprojecttype();
                 int firstPType = ptypeList != null ? ptypeList[0].codevalAbbr : 0;
                 ViewBag.ProjectTypeList = ptypeList;
