@@ -951,8 +951,7 @@ new { @class = "form-control" })
         if (requestRunning) { // don't do anything if an AJAX request is pending
             return;
         }
-        $('.loading-bg').removeClass('dis-none');
-        resetDetail();
+
         //var frmDate = $('#BOAFromDate').val();
         var toDate = $('#BOAToDate').val();
         var headId = $('#BankHeadId').val();
@@ -963,6 +962,8 @@ new { @class = "form-control" })
             messageBox("please select the bank from the list.", "warning");
             return false;
         }
+            $('.loading-bg').removeClass('dis-none');
+        resetDetail();
         var token = $("input[name=__RequestVerificationToken]").val();
         var BRSId = $('#BRSId').val();
         var searchdata = { "__RequestVerificationToken": token, "toDate": toDate, "headId": headId, "BRSId": BRSId };
@@ -1053,6 +1054,11 @@ new { @class = "form-control" })
         if (requestRunning) { // don't do anything if an AJAX request is pending
             return;
         }
+       if ($('#BankHeadId').val()=="")
+    {
+        messageBox("Please select bank", "warning");
+                return false;
+    }
         $('.loading-bg').removeClass('dis-none');
         resetDetail();
         var file = $('#BSRFile').val();//$('#BSRFile')[0].files[0];
@@ -1063,6 +1069,7 @@ new { @class = "form-control" })
             switch (extension) {
                 case 'xls':
                 case 'xlsx':
+                case 'xlsm':
                     isValidExten = true;
                     break;
                 default:
