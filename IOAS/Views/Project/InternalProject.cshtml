@@ -3,48 +3,7 @@
     ViewBag.Title = "InternalProject";
     Layout = "~/Views/Shared/_LayoutFluid.cshtml";
 }
-<script src="@Url.Content("~/Scripts/Project/Project.js")"></script>
 
-<script>
-    var selectPickerApiElement = function (el, choice, options, select) {
-        $(el).find('select').selectpicker({
-            liveSearch: true
-        });
-        $(el).children().eq(2).siblings().remove();
-        if (choice == "add") {
-            $(el).find('.selectpicker').append("<option>" + options + "</option>");
-        } else if (choice == "all" && select != '') {
-            $(el).find('.selectpicker').children().remove();
-            for (var i = 0; i < options.length; i++) {
-                $(el).find('.selectpicker').append("<option value=" + options[i].id + ">" + options[i].name + "</option>");
-            }
-            $(el).find('.selectpicker option[value=' + select + ']').attr('selected', 'selected');
-        } else if (choice == "all" && select == '') {
-            $(el).find('.selectpicker').children().remove();
-            for (var i = 0; i < options.length; i++) {
-                $(el).find('.selectpicker').append("<option value=" + options[i].id + ">" + options[i].name + "</option>");
-            }
-        } else if (choice == "empty") {
-            $(el).find('.selectpicker').children().remove();
-            $(el).find('.selectpicker').append("<option value=''>Select any</option>");
-        } else {
-            var selectOptionsLength = $(el).find('.selectpicker').children().length;
-            for (var i = 1; i <= selectOptionsLength; i++) {
-                if (options == $(el).find('.selectpicker').children().eq(i).val()) {
-                    $(el).find('.selectpicker').children().eq(i).remove();
-                    break;
-                } else {
-                    continue;
-                }
-
-            }
-
-        }
-        $(el).find('select').selectpicker('refresh');
-        return $(el).children().first().unwrap();
-
-    }
-</script>
 <style>
     /* Hide all steps by default: */
     .tab {
@@ -361,6 +320,10 @@
 }
 <script type="text/javascript">
     var faccode =@Html.Raw(Json.Encode(Model.FacultyCode));
+    $('.selectpicker').selectpicker({
+        liveSearch: true
+    });
+
     var selectPickerApiElement = function (el, choice, options, select) {
         $(el).find('select').selectpicker({
             liveSearch: true
@@ -519,8 +482,8 @@
         // duplicate check
         for (var k = 1; k < copinamvalues.length; ++k) {
             if (copinamvalues[k] == copinamvalues[k - 1]) {
-                $('#MsgValidation').html("Co PI already selected. Please select a different Co PI.");
-                $('#ValidationModal').modal('toggle');
+                $('#alert').html("Co PI already selected. Please select a different Co PI.");
+                $('#Validation').modal('toggle');
                 return false;
             }
         }
@@ -579,14 +542,6 @@
 
     });
 
-   /* $('#btnAddCoPI').click(function () {
-        var cln = $("#CopiprimaryDiv").clone().find("input").val("").end();
-        $(cln).find('.doclink').addClass('dis-none');
-        $(cln).find('.dis-none').removeClass('dis-none');
-        $(cln).insertBefore($(this).closest('#CoPidivContent').find('.p-b-sm'));
-    });*/
-
-
     $('#btnAddCoPI').click(function () {
         var cln = $("#CopiprimaryDiv").clone().find("input").val("").end();
         var cloneElement = $("#CopiprimaryDiv").find('#CoPI').parent().clone();
@@ -604,30 +559,13 @@
     });
 
     //Co Investigator Details
-
-    var CoPIname =@Html.Raw(Json.Encode(Model.CoPIname));
-    var CoPIEmail  =@Html.Raw(Json.Encode(Model.CoPIEmail));
-    var CoPIDepartment =@Html.Raw(Json.Encode(Model.CoPIDepartment));
-
-    $.each(CoPIname, function (i, val) {
-        if (i == 0) {
-            document.getElementsByName('CoPIDepartment')[0].value = CoPIDepartment[0];
-            document.getElementsByName('CoPIname')[0].value = CoPIname[0];
-            document.getElementsByName('CoPIEmail')[0].value = CoPIEmail[0];
-        } else {
-            var cln = $("#CopiprimaryDiv").clone().find("input").val("").end();
-            $(cln).find('.dis-none').removeClass('dis-none');
-            $(cln).insertBefore($('#CoPidivContent').find('.p-b-sm'));
-            document.getElementsByName('CoPIDepartment')[i].value = CoPIDepartment[i];
-            document.getElementsByName('CoPIname')[i].value = CoPIname[i];
-            document.getElementsByName('CoPIEmail')[i].value = CoPIEmail[i];
-        }
-    });
-
+    
     $(document).on('change', 'select[name="CoPIDepartment"]', function () {
         var Departmentid = $(this).val();
         var select = $(this).closest('#CopiprimaryDiv').find('select[name="CoPIname"]');
         $(select).empty().selectpicker('refresh');
+        $(select).selectpicker("destroy");
+        console.log(Departmentid);
         $.getJSON("@Url.Action("LoadPIByDepartment", "Account")", { Departmentid: Departmentid },
                     function (locationdata) {
                         // $(select).selectpicker("destroy");
@@ -640,8 +578,6 @@
                     });
 
     });
-
-
 
      $(document).on('change', 'select[name="CoPIname"]', function () {
         var CoPIid = $(this).val();
@@ -660,6 +596,7 @@
                     });
         }
     });
+
 
     //Fill Attachment in Edit Mode
 
@@ -739,6 +676,65 @@
             }
         });
     }
+       
+    var CoPIname =@Html.Raw(Json.Encode(Model.CoPIname));
+    var CoPIEmail  =@Html.Raw(Json.Encode(Model.CoPIEmail));
+    var CoPIDepartment =@Html.Raw(Json.Encode(Model.CoPIDepartment));
+    var piList = '@Html.Raw(Json.Encode(ViewBag.PI))';
+    $.each(CoPIname, function (i, val) {
+        if (i == 0) {
+            ////document.getElementsByName('CoPIDepartment')[0].value = CoPIDepartment[0];   
+            //$('[name="CoPIDepartment').eq(0).val(CoPIDepartment[0]).trigger('change');
+            //document.getElementsByName('CoPIname')[0].value = CoPIname[0];
+            ////$('[name="CoPIname').eq(0).val(CoPIname[0])
+            ////document.getElementsByName('CoPIEmail')[0].value = CoPIEmail[0];
+            //$('[name="CoPIEmail').eq(0).val(CoPIEmail[0])
+            var select = $("#CoPI");
+            select.empty();
+            select.append($('<option/>', {
+                value: '0',
+                text: 'Select any'
+            }));
+            $.each(JSON.parse(piList), function (index, itemData) {
+                if (itemData.code == CoPIDepartment[0]) {
+                    select.append($('<option/>', {
+                        value: itemData.id,
+                        text: itemData.name
+                    }));
+                }
+            });
+            $('#CoPI').val(CoPIname[0]);
+            select.selectpicker('refresh');
+            document.getElementsByName('CoPIname')[0].value = CoPIname[0];
+            document.getElementsByName('CoPIDepartment')[0].value = CoPIDepartment[0];
+            document.getElementsByName('CoPIEmail')[0].value = CoPIEmail[0];
+        }       
+        else
+        {
+            var cln = $("#CopiprimaryDiv").clone().find("input").val("").end();
+            var cloneElement = $("#CopiprimaryDiv").find('#CoPI').parent().clone();
+            var dptPIs = []
+            $.each(JSON.parse(piList), function (index, itemData) {
+                //console.log(itemData.code);
+                console.log(CoPIDepartment[0]);
+                if (itemData.code == CoPIDepartment[i]) {
+                    dptPIs.push(itemData);
+
+                }
+            });
+            cln.find('#CoPI').parent().replaceWith(selectPickerApiElement($(cloneElement), "all", dptPIs, CoPIname[i]));
+            $(cln).find('.dis-none').removeClass('dis-none');
+            $(cln).insertBefore($('#CoPidivContent').find('.p-b-sm'));
+            // document.getElementsByName('CoPIDepartment')[i].value = CoPIDepartment[i];
+            //$('[name="CoPIDepartment').eq(i).val(CoPIDepartment[i]).trigger('change');
+            //document.getElementsById('CoPIname')[i].value = CoPIname[i];
+            
+            //$('[id="CoPI').eq(i).val(CoPIname[i])
+            document.getElementsByName('CoPIname')[i].value = CoPIname[i];
+            document.getElementsByName('CoPIDepartment')[i].value = CoPIDepartment[i];
+            document.getElementsByName('CoPIEmail')[i].value = CoPIEmail[i];
+        }
+    });
 </script>
 <link href="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/css/bootstrap-select.min.css")" rel="stylesheet" />
 <script src="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/js/bootstrap-select.min.js")"></script>

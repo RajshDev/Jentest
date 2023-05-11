@@ -3150,7 +3150,7 @@ namespace IOAS.GenericServices
                         editProject.IsSubProject = query.IsSubProject ?? false;
                         editProject.ProjectClassification = query.ProjectClassification;
                         editProject.ReportClassifiCation = query.ReportClassification;
-                        editProject.ProjectFundingCategoryId = query.ProjectFundingCategory;
+                        editProject.ProjectFundingCategoryId = (int)query.ProjectFundingCategory;
                         if (query.ProjectFundingCategory == 2 || query.ProjectFundingCategory == 3 || query.ProjectFundingCategory == 4)
                         {
                         // editProject.ProjectFundingCategoryId = query.ProjectFundingCategory;
@@ -6530,7 +6530,7 @@ namespace IOAS.GenericServices
                                 PrpsalApprovedDate = String.Format("{0:s}", query[i].prj.ProposalApprovedDate),
                                 Status = query[i].prj.Status,
                                 SanctionOrderNumber = query[i].prj.SanctionOrderNumber,
-                                ProjectFundingCategory=query[i].prj.ProjectFundingCategory
+                                ProjectFundingCategory=(int)query[i].prj.ProjectFundingCategory
 
                             });
                         }
@@ -7485,11 +7485,22 @@ namespace IOAS.GenericServices
                                     }
 
                                 }
+
+
+                                context.tblProjectCoPI.Where(x => x.ProjectId == model.Projectid && !model.CoPIname.Contains(x.CoPIId) && x.Status != "InActive")
+                                .ToList()
+                                .ForEach(m =>
+                                {
+                                    m.Status = "InActive";
+                                    m.DeletedDate = DateTime.Now;
+                                    m.DeletedUserid = model.CrtdUserId;
+                                });
+
                                 for (int i = 0; i < model.CoPIname.Length; i++)
                                 {
                                     int copiid = model.CoPIname[i];
                                     var CoPIquery = (from CoPI in context.tblProjectCoPI
-                                                     where CoPI.ProjectId == model.Projectid && CoPI.Name == copiid
+                                                     where CoPI.ProjectId == model.Projectid && CoPI.Name == copiid && CoPI.Status=="Active"                                                     
                                                      select CoPI).ToList();
                                     if (CoPIquery.Count == 0)
                                     {
@@ -7508,10 +7519,11 @@ namespace IOAS.GenericServices
 
                                         CoPIquery[0].Name = model.CoPIname[i];
                                         CoPIquery[0].Email = model.CoPIEmail[i];
-                                        CoPIquery[0].Department = model.CoPIDepartment[i];                                        
+                                        CoPIquery[0].Department = model.CoPIDepartment[i];
+                                        CoPIquery[0].Status = "Active";
+
+
                                         context.SaveChanges();
-
-
                                     }
                                 }
                                     transaction.Commit();
