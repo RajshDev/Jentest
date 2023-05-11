@@ -196,7 +196,7 @@ namespace IOAS.Controllers
             try
             {
                 model.UserName = User.Identity.Name;
-                int UserId = AccountService.Logon(model);
+                int UserId = AccountService.LogonForAcknowledgement(model);
                 if (UserId > 0)
                 {
                     string name = Common.GetUserFirstName(UserId);

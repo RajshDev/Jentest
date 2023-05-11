@@ -66,6 +66,45 @@ namespace IOAS.GenericServices
                 return -1;
             }
         }
+
+        public static int LogonForAcknowledgement(LogOnModel logon)
+        {
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    String Encpassword = Cryptography.Encrypt(logon.Password, "LFPassW0rd");
+                    var userquery = context.tblUser.SingleOrDefault(dup => dup.UserName == logon.UserName && dup.Password == Encpassword && dup.Status == "Active");
+                    var userexpiry = context.tblUser.SingleOrDefault(exp => exp.UserName == logon.UserName && exp.Password == Encpassword && exp.Status == "Active" && exp.ExpiryDate < DateTime.Now);
+
+                    if (userquery != null)
+                    {
+                        if (userexpiry != null)
+                            return -2;
+                        //tblLoginDetails log = new tblLoginDetails();
+                        //log.UserId = userquery.UserId;
+                        //log.LoginTime = DateTime.Now;
+                        //context.tblLoginDetails.Add(log);
+                        //context.SaveChanges();
+                        return userquery.UserId;
+
+                    }
+
+                    else
+                    {
+                        return 0;
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+ (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+
+                return -1;
+            }
+        }
         public static bool setLogin(string userName)
         {
             using (var context = new IOASDBEntities())
