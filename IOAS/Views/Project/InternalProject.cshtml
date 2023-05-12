@@ -260,14 +260,12 @@
 
             <div class="row">
                 <div class="col-md-12">
-
-
                     <div id="DocdivContent">
                         <div class="row">
                             <div class="col-md-12">
                                 <label class="col-md-3 fn-normal">Attachment type</label>
                                 <label class="col-md-3 fn-normal">Attachment Name </label>
-                                <label class="col-md-3 fn-normal">Attachment </label>
+                                <label class="col-md-3 fn-normal">Attachment</label>
                             </div>
                         </div>
 
@@ -676,6 +674,28 @@
             }
         });
     }
+    $(document).on('change', 'input[name="file"]', function () {
+        var file = $(this).val();
+        if (file != "") {
+            var extension = file.substr((file.lastIndexOf('.') + 1)).toLowerCase();
+            switch (extension) {
+                case 'doc':
+                case 'docx':
+                case 'pdf':
+                    isValidExten = true;
+                    break;
+                default:
+                    isValidExten = false;
+            }
+            if (isValidExten == false) {
+                $('#alert').html("Please upload any one of these type file [doc, docx, pdf].");
+                $('#Validation').modal('toggle');
+                $(this).val('');
+                return false;
+            }
+
+        }
+    });
        
     var CoPIname =@Html.Raw(Json.Encode(Model.CoPIname));
     var CoPIEmail  =@Html.Raw(Json.Encode(Model.CoPIEmail));
