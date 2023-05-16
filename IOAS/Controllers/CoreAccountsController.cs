@@ -9744,6 +9744,11 @@ namespace IOAS.Controllers
 
                 if (honorpay.PaymentModeVal != 2)
                 {
+                    honorpay.BankName = honorpay.Branch = honorpay.AccountNo = honorpay.IFSC = "";               
+                }
+
+                if (honorpay.PaymentModeVal == 3)
+                {
                     honorpay.BankName = honorpay.Branch = honorpay.AccountNo = honorpay.IFSC = "";
                     honorpay.PAN = "";
                     honorpay.TDS = 0;
@@ -9846,7 +9851,7 @@ namespace IOAS.Controllers
                     Directory.CreateDirectory(Server.MapPath("~/Content/BankStatement"));
                 }
 
-              
+
 
                 if (validFileTypes.Contains(extension))
                 {
@@ -9855,79 +9860,84 @@ namespace IOAS.Controllers
                     file.SaveAs(path1);
                     file.UploadFile("BankStatement", docName);
 
+                    bool _FlagManualXL = false;
 
-                    /* Read Excel File Manully 
-                    XLWorkbook wbook = new XLWorkbook(path1);
-                    var ws1 = wbook.Worksheet(1);
-                    int DataRows = ws1.LastRowUsed().RowNumber();
-                    List<BankStatementDetailModel> brsxllist = new List<BankStatementDetailModel>();
-                    for (int iRow = 2; iRow < DataRows; iRow++)
+                    if (_FlagManualXL)
                     {
-                        DateTime TransactionDate;
-                        string ReferenceNumber;
-                        string Description;
-                        decimal Debit;
-                        decimal Credit;
-                        decimal Balance;
-                       bool validdate= ws1.Cell(iRow, 1).TryGetValue<DateTime>(out TransactionDate);
-                        if (!validdate)
+                        /* Read Excel File Manully */
+                        XLWorkbook wbook = new XLWorkbook(path1);
+                        var ws1 = wbook.Worksheet(1);
+                        int DataRows = ws1.LastRowUsed().RowNumber();
+                        List<BankStatementDetailModel> brsxllist = new List<BankStatementDetailModel>();
+                        for (int iRow = 2; iRow < DataRows; iRow++)
                         {
-                            string tmpdate = ws1.Cell(iRow, 1).GetValue<String>();
+                            DateTime TransactionDate;
+                            string ReferenceNumber;
+                            string Description;
+                            decimal Debit;
+                            decimal Credit;
+                            decimal Balance;
+                            bool validdate = ws1.Cell(iRow, 1).TryGetValue<DateTime>(out TransactionDate);
+                            if (!validdate)
+                            {
+                                string tmpdate = ws1.Cell(iRow, 1).GetValue<String>();
+                            }
+                            //TransactionDate = ws1.Cell(iRow, 1).GetValue<DateTime>();
+                            ReferenceNumber = ws1.Cell(iRow, 2).GetValue<String>();
+                            Description = ws1.Cell(iRow, 3).GetValue<String>();
+                            ws1.Cell(iRow, 4).TryGetValue<Decimal>(out Debit);
+                            ws1.Cell(iRow, 4).TryGetValue<Decimal>(out Credit);
+                            ws1.Cell(iRow, 4).TryGetValue<Decimal>(out Balance);
+
+                            brsxllist.Add(new BankStatementDetailModel()
+                            {
+                                TransactionDate = TransactionDate,
+                                ReferenceNumber = ReferenceNumber,
+                                Description = Description,
+                                Reason = null,
+                                Debit = Debit,
+                                Credit = Credit,
+                                Balance = Balance,
+                                Status = "",
+                                BRSDetailId = null,
+                                BOAPaymentDetailId = ""
+                            });
+
+
+
+
                         }
-                        //TransactionDate = ws1.Cell(iRow, 1).GetValue<DateTime>();
-                        ReferenceNumber = ws1.Cell(iRow, 2).GetValue<String>();
-                        Description = ws1.Cell(iRow, 3).GetValue<String>();
-                        ws1.Cell(iRow, 4).TryGetValue<Decimal>(out Debit);
-                        ws1.Cell(iRow, 4).TryGetValue<Decimal>(out Credit);
-                        ws1.Cell(iRow, 4).TryGetValue<Decimal>(out Balance);
-
-                        brsxllist.Add(new BankStatementDetailModel()
-                        {
-                            TransactionDate = TransactionDate,
-                            ReferenceNumber=ReferenceNumber,
-                            Description=Description,
-                            Reason = null,
-                            Debit=Debit,
-                            Credit=Credit,
-                            Balance=Balance,
-                            Status="",
-                            BRSDetailId=null,
-                            BOAPaymentDetailId=""
-                        });
-    
-
-                        
-
-                    }
-                    list = brsxllist;
-
-                    /* var data = ws1.Cell("A1").GetValue<string>();
+                        list = brsxllist;
+                        /* var data = ws1.Cell("A1").GetValue<string>();
 
                      /* end Read Excel File Manully */
-
-                    /*
-                     */
-                    //Connection String to Excel Workbook  
-                    List<BankStatementDetailModel> listUpload = new List<BankStatementDetailModel>();
-                    if (extension.ToLower().Trim() == ".csv")
-                    {
-                        DataTable dt = _uty.ConvertCSVtoDataTable(path1);
-                        listUpload = Converter.GetBRSEntityList<BankStatementDetailModel>(dt);
-                    }
-                    else if (extension.ToLower().Trim() == ".xls" && Environment.Is64BitOperatingSystem == false)
-                    {
-                        connString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + path1 + ";Extended Properties=\"Excel 8.0;HDR=Yes;IMEX=1\"";
-                        DataTable dt = _uty.ConvertXSLXtoDataTable(path1, connString);
-                        listUpload = Converter.GetBRSEntityList<BankStatementDetailModel>(dt);
                     }
                     else
                     {
-                        connString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + path1 + ";Extended Properties=\"Excel 12.0;HDR=Yes;IMEX=1\"";
-                        DataTable dt = _uty.ConvertXSLXtoDataTable(path1, connString);
-                        listUpload = Converter.GetBRSEntityList<BankStatementDetailModel>(dt);
+
+
+                        //Connection String to Excel Workbook  
+                        List<BankStatementDetailModel> listUpload = new List<BankStatementDetailModel>();
+                        if (extension.ToLower().Trim() == ".csv")
+                        {
+                            DataTable dt = _uty.ConvertCSVtoDataTable(path1);
+                            listUpload = Converter.GetBRSEntityList<BankStatementDetailModel>(dt);
+                        }
+                        else if (extension.ToLower().Trim() == ".xls" && Environment.Is64BitOperatingSystem == false)
+                        {
+                            connString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + path1 + ";Extended Properties=\"Excel 8.0;HDR=Yes;IMEX=1\"";
+                            DataTable dt = _uty.ConvertXSLXtoDataTable(path1, connString);
+                            listUpload = Converter.GetBRSEntityList<BankStatementDetailModel>(dt);
+                        }
+                        else
+                        {
+                            connString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + path1 + ";Extended Properties=\"Excel 12.0;HDR=Yes;IMEX=1\"";
+                            DataTable dt = _uty.ConvertXSLXtoDataTable(path1, connString);
+                            listUpload = Converter.GetBRSEntityList<BankStatementDetailModel>(dt);
+                        }
+                        if (listUpload.Count > 0)
+                            list.AddRange(listUpload);
                     }
-                    if (listUpload.Count > 0)
-                        list.AddRange(listUpload);
                 }
                 else
                 {
