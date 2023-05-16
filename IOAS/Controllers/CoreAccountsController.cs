@@ -9559,7 +9559,7 @@ namespace IOAS.Controllers
                 switch (honorpay.PayeeType.ToUpper())
                 {
                     case "OTHERS":
-                        if (honorpay.Name.Trim() == "")
+                        if (honorpay.Name ==null || honorpay.Name.Trim() == "")
                             name_status = "Invalid Name";
                         
                         break;
@@ -9590,8 +9590,18 @@ namespace IOAS.Controllers
                         if (honorpay.UserId != "")
                         {
                             //int userid = (int)honorpay.UserId;
-                            honorpay.Name = Common.GetVWCombineStaffNameByEmpCode(honorpay.UserId, "Project Staff");
-                            honorpay.UserId = Common.GetVWCombineStaffIdByEmpCode(honorpay.UserId, "AdhocStaff").ToString();
+                            int tmp_userid = 0;
+                            bool istmpNumeric = int.TryParse(honorpay.UserId, out tmp_userid);
+
+                            if (!istmpNumeric)
+                            {
+                                honorpay.Name = Common.GetVWCombineStaffNameByEmpCode(honorpay.UserId, "Project Staff");
+                                honorpay.UserId = Common.GetVWCombineStaffIdByEmpCode(honorpay.UserId, "Project Staff").ToString();
+                            }
+                            else
+                            {
+                                honorpay.Name = Common.GetVWCombineStaffName(userid, "Project Staff");
+                            }
                             if (honorpay.Name.Trim() == "")
                             { name_status = "Invalid Vendor Name"; }
                         }
@@ -9613,9 +9623,19 @@ namespace IOAS.Controllers
                     case "ADHOC STAFF": // Payee Type 5
                         if (honorpay.UserId != "" )
                         {
-                           // int userid = (int)honorpay.UserId;
-                            honorpay.Name = Common.GetVWCombineStaffNameByEmpCode(honorpay.UserId, "AdhocStaff");
-                            honorpay.UserId= Common.GetVWCombineStaffIdByEmpCode(honorpay.UserId, "AdhocStaff").ToString ();
+                            // int userid = (int)honorpay.UserId;
+                            int tmp_userid = 0;
+                            bool istmpNumeric = int.TryParse(honorpay.UserId, out tmp_userid);
+
+                            if (!istmpNumeric)
+                            {
+                                honorpay.Name = Common.GetVWCombineStaffNameByEmpCode(honorpay.UserId, "AdhocStaff");
+                                honorpay.UserId = Common.GetVWCombineStaffIdByEmpCode(honorpay.UserId, "AdhocStaff").ToString();
+                            }
+                            else
+                            {
+                                honorpay.Name = Common.GetVWCombineStaffName(userid, "AdhocStaff");
+                            }
                             if (honorpay.Name.Trim() == "")
                             { name_status = "Invalid ADHOC STAFF Name"; }
                         }
@@ -9726,7 +9746,9 @@ namespace IOAS.Controllers
                 {
                     honorpay.BankName = honorpay.Branch = honorpay.AccountNo = honorpay.IFSC = "";
                     honorpay.PAN = "";
-
+                    honorpay.TDS = 0;
+                    honorpay.SelectedTdssection = "";
+                    honorpay.SelectedTdssectionID = "";
                 }
             }
             if (validimport == false)
@@ -9816,18 +9838,75 @@ namespace IOAS.Controllers
                 var guid = Guid.NewGuid().ToString();
                 var docName = guid + "_" + actName;
                 string path1 = string.Format("{0}/{1}", Server.MapPath("~/Content/BankStatement"), docName);
+
                 model.DocumentActualName = actName;
                 model.DocumentName = docName;
                 if (!Directory.Exists(path1))
                 {
                     Directory.CreateDirectory(Server.MapPath("~/Content/BankStatement"));
                 }
+
+              
+
                 if (validFileTypes.Contains(extension))
                 {
                     if (System.IO.File.Exists(path1))
                     { System.IO.File.Delete(path1); }
                     file.SaveAs(path1);
                     file.UploadFile("BankStatement", docName);
+
+
+                    /* Read Excel File Manully 
+                    XLWorkbook wbook = new XLWorkbook(path1);
+                    var ws1 = wbook.Worksheet(1);
+                    int DataRows = ws1.LastRowUsed().RowNumber();
+                    List<BankStatementDetailModel> brsxllist = new List<BankStatementDetailModel>();
+                    for (int iRow = 2; iRow < DataRows; iRow++)
+                    {
+                        DateTime TransactionDate;
+                        string ReferenceNumber;
+                        string Description;
+                        decimal Debit;
+                        decimal Credit;
+                        decimal Balance;
+                       bool validdate= ws1.Cell(iRow, 1).TryGetValue<DateTime>(out TransactionDate);
+                        if (!validdate)
+                        {
+                            string tmpdate = ws1.Cell(iRow, 1).GetValue<String>();
+                        }
+                        //TransactionDate = ws1.Cell(iRow, 1).GetValue<DateTime>();
+                        ReferenceNumber = ws1.Cell(iRow, 2).GetValue<String>();
+                        Description = ws1.Cell(iRow, 3).GetValue<String>();
+                        ws1.Cell(iRow, 4).TryGetValue<Decimal>(out Debit);
+                        ws1.Cell(iRow, 4).TryGetValue<Decimal>(out Credit);
+                        ws1.Cell(iRow, 4).TryGetValue<Decimal>(out Balance);
+
+                        brsxllist.Add(new BankStatementDetailModel()
+                        {
+                            TransactionDate = TransactionDate,
+                            ReferenceNumber=ReferenceNumber,
+                            Description=Description,
+                            Reason = null,
+                            Debit=Debit,
+                            Credit=Credit,
+                            Balance=Balance,
+                            Status="",
+                            BRSDetailId=null,
+                            BOAPaymentDetailId=""
+                        });
+    
+
+                        
+
+                    }
+                    list = brsxllist;
+
+                    /* var data = ws1.Cell("A1").GetValue<string>();
+
+                     /* end Read Excel File Manully */
+
+                    /*
+                     */
                     //Connection String to Excel Workbook  
                     List<BankStatementDetailModel> listUpload = new List<BankStatementDetailModel>();
                     if (extension.ToLower().Trim() == ".csv")
