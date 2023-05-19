@@ -347,6 +347,7 @@ namespace IOAS.Controllers
                             Type = "Announcement Selectlist Note";
                     }
                     ViewBag.processGuideLineId = Common.GetProcessGuidelineId(191, Type, 0);
+                    ViewBag.Backdateannouncementenabled = System.Web.Configuration.WebConfigurationManager.AppSettings["Backdateannouncementenabled"];
                     model.isRepost = isRepost;
                 }
                 else

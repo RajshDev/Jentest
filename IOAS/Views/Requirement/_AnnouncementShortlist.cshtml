@@ -485,11 +485,26 @@
 </div>
 
 <script>
-      $('#InterviewDate').datepicker({
-        dateFormat: 'dd-MM-yy',
-        changeYear: true
-    }).datepicker("option", "maxDate", +30).datepicker("option", "minDate", -60);
-	
+    var backdateenable = '@ViewBag.Backdateannouncementenabled';    
+    if (backdateenable == 'false') {
+        $('#InterviewDate').datepicker({
+            dateFormat: 'dd-MM-yy',
+            changeYear: true
+        }).datepicker("option", "maxDate", +30).datepicker("option", "minDate", -60);
+
+    }
+    else {       
+        $('#InterviewDate').datepicker({
+            dateFormat: 'dd-MM-yy',          
+            changeMonth: true,
+            changeYear: true,                     
+            minDate: '-2Y',
+            maxDate: '+30D',
+           
+        });
+    }
+
+      
     var annonceshortId = @Html.Raw(Json.Encode(Model.AnnouncementID)) || 0;
     var isShortlist = @Html.Raw(Json.Encode(Model.isShortlist)) || false;
     var StatusID = @Html.Raw(Json.Encode(Model.StatusID)) || 0;
