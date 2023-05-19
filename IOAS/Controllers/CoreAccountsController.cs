@@ -9859,8 +9859,8 @@ namespace IOAS.Controllers
                     { System.IO.File.Delete(path1); }
                     file.SaveAs(path1);
                     file.UploadFile("BankStatement", docName);
-
-                    bool _FlagManualXL = false;
+                    string invalidrownos = "";
+                    bool _FlagManualXL = true;
 
                     if (_FlagManualXL)
                     {
@@ -9868,51 +9868,72 @@ namespace IOAS.Controllers
                         XLWorkbook wbook = new XLWorkbook(path1);
                         var ws1 = wbook.Worksheet(1);
                         int DataRows = ws1.LastRowUsed().RowNumber();
-                        List<BankStatementDetailModel> brsxllist = new List<BankStatementDetailModel>();
-                        for (int iRow = 2; iRow < DataRows; iRow++)
+                        int DataCols = ws1.LastColumnUsed().ColumnNumber();
+
+                        if (DataCols == 6 && ws1.Cell(1, 1).GetValue<String>() == "TransactionDate"
+                            && ws1.Cell(1, 2).GetValue<String>() == "ReferenceNumber"
+                            && ws1.Cell(1, 3).GetValue<String>() == "Description"
+                            && ws1.Cell(1, 4).GetValue<String>() == "Credit"
+                            && ws1.Cell(1, 5).GetValue<String>() == "Debit"
+                            && ws1.Cell(1, 6).GetValue<String>() == "Balance"
+                            )
                         {
-                            DateTime TransactionDate;
-                            string ReferenceNumber;
-                            string Description;
-                            decimal Debit;
-                            decimal Credit;
-                            decimal Balance;
-                            bool validdate = ws1.Cell(iRow, 1).TryGetValue<DateTime>(out TransactionDate);
-                            if (!validdate)
+
+                            List<BankStatementDetailModel> brsxllist = new List<BankStatementDetailModel>();
+                            for (int iRow = 2; iRow < DataRows; iRow++)
                             {
-                                string tmpdate = ws1.Cell(iRow, 1).GetValue<String>();
+                                DateTime tmpdate;
+                                string RefNumber;
+                                string Descrip;
+                                decimal t_Debit;
+                                decimal t_Credit;
+                                decimal t_Balance;
+                                bool validdate = ws1.Cell(iRow, 1).TryGetValue<DateTime>(out tmpdate);
+                                if (validdate)
+                                {
+                                    //string tmpdate = ws1.Cell(iRow, 1).GetValue<String>();
+                                    ws1.Cell(iRow, 1).Style.DateFormat.NumberFormatId = 14;
+                                    tmpdate = ws1.Cell(iRow, 1).GetValue<DateTime>();
+                                    RefNumber = ws1.Cell(iRow, 2).GetValue<String>();
+                                    Descrip = ws1.Cell(iRow, 3).GetValue<String>();
+                                    ws1.Cell(iRow, 4).TryGetValue<Decimal>(out t_Debit);
+                                    ws1.Cell(iRow, 5).TryGetValue<Decimal>(out t_Credit);
+                                    ws1.Cell(iRow, 6).TryGetValue<Decimal>(out t_Balance);
+
+                                    brsxllist.Add(new BankStatementDetailModel()
+                                    {
+                                        TransactionDate = tmpdate,
+                                        ReferenceNumber = RefNumber,
+                                        Description = Descrip,
+                                        Reason = null,
+                                        Debit = t_Debit,
+                                        Credit = t_Credit,
+                                        Balance = t_Balance,
+                                        Status = "",
+                                        BRSDetailId = null,
+                                        BOAPaymentDetailId = ""
+                                    });
+                                }
+                                else
+                                {
+                                    invalidrownos += iRow.ToString("#0") + ", ";
+                                }
+
                             }
-                            //TransactionDate = ws1.Cell(iRow, 1).GetValue<DateTime>();
-                            ReferenceNumber = ws1.Cell(iRow, 2).GetValue<String>();
-                            Description = ws1.Cell(iRow, 3).GetValue<String>();
-                            ws1.Cell(iRow, 4).TryGetValue<Decimal>(out Debit);
-                            ws1.Cell(iRow, 4).TryGetValue<Decimal>(out Credit);
-                            ws1.Cell(iRow, 4).TryGetValue<Decimal>(out Balance);
 
-                            brsxllist.Add(new BankStatementDetailModel()
-                            {
-                                TransactionDate = TransactionDate,
-                                ReferenceNumber = ReferenceNumber,
-                                Description = Description,
-                                Reason = null,
-                                Debit = Debit,
-                                Credit = Credit,
-                                Balance = Balance,
-                                Status = "",
-                                BRSDetailId = null,
-                                BOAPaymentDetailId = ""
-                            });
-
-
-
-
+                            if (invalidrownos.Trim() != "")
+                            { msg = "Invalid Date Values Found in Excel Row(s): " + invalidrownos.Substring(0, invalidrownos.Length - 2); }
+                            list = brsxllist;
                         }
-                        list = brsxllist;
+                        else
+                        {
+                            msg = "Invalid Excel Format Uploaded";
+                        }
                         /* var data = ws1.Cell("A1").GetValue<string>();
 
                      /* end Read Excel File Manully */
                     }
-                    else
+                    else // Dataadapter based excel reading
                     {
 
 
