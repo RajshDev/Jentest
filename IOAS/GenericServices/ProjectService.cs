@@ -1229,7 +1229,7 @@ namespace IOAS.GenericServices
                                     }
 
                                 }
-                               
+
                                 if (query.IndianFundedBy == 2)
                                 {
                                     if (model.IndProjectFundingNonGovtBody_Qust_1.Length > 0)
@@ -3153,8 +3153,8 @@ namespace IOAS.GenericServices
                         editProject.ProjectFundingCategoryId = (int)query.ProjectFundingCategory;
                         if (query.ProjectFundingCategory == 2 || query.ProjectFundingCategory == 3 || query.ProjectFundingCategory == 4)
                         {
-                        // editProject.ProjectFundingCategoryId = query.ProjectFundingCategory;
-                        if(query.BankID !=null)
+                            // editProject.ProjectFundingCategoryId = query.ProjectFundingCategory;
+                            if(query.BankID !=null)
                             {
                                 editProject.BankID = query.BankID;
                                 var bankdetails = (from h in context.tblAccountHead
@@ -3167,7 +3167,7 @@ namespace IOAS.GenericServices
                                                    }).FirstOrDefault();
                                 editProject.bankname = bankdetails.bankname.ToString();
                             }
-                          
+
                         }
                         else
                         {
@@ -4006,7 +4006,7 @@ namespace IOAS.GenericServices
                                         name = query[i].C.ProjectNumber + "-" + query[i].C.ProjectTitle + "- " + query[i].FirstName,
                                     });
                                 }
-                                
+
 
 
                             }
@@ -4032,7 +4032,7 @@ namespace IOAS.GenericServices
                                             name = genproject[i].C.ProjectNumber + "-" + genproject[i].C.ProjectTitle + "- " + genproject[i].FirstName,
                                         });
                                     }
-                                 
+
                                 }
                             }
 
@@ -4098,7 +4098,7 @@ namespace IOAS.GenericServices
         //                id = null,
         //                name = "Select Any"
         //            };
-                    
+
         //            Title.Insert(0, str1);
 
 
@@ -5740,7 +5740,7 @@ namespace IOAS.GenericServices
                         {
                             prjModel.ProjectFundingCategory = projectFundingCategoryDetail.CodeValDetail;
                             if(query.ProjectFundingCategory == 2 || query.ProjectFundingCategory == 3 || query.ProjectFundingCategory == 4)
-                            prjModel.BankName = BankDetail.AccountHead;
+                                prjModel.BankName = BankDetail.AccountHead;
                         }
                         if (query.FacultyDetailId != null)
                         {
@@ -6279,7 +6279,7 @@ namespace IOAS.GenericServices
                             }
                         }
 
-
+                        int Stafftlt = 0;
                         if (prjctstaffquery.Count > 0)
                         {
                             for (int i = 0; i < prjctstaffquery.Count; i++)
@@ -6287,11 +6287,13 @@ namespace IOAS.GenericServices
                                 listStaffDetails.Add(new StaffDetailsModel()
                                 {
                                     Catagory = Common.getStaffCategoryName(prjctstaffquery[i].ProjectStaffCategory ?? 0),
-                                    NoofStaffs = prjctstaffquery[i].NoofStaffs ?? 0,
+                                    NoofStaffs = prjctstaffquery[i].NoofStaffs ?? 0,                                   
                                     Salary = prjctstaffquery[i].SalaryofStaffs ?? 0
                                 });
+                                Stafftlt += prjctstaffquery[i].NoofStaffs ?? 0;
                             }
-                            prjModel.TotalNoOfStaff = listStaffDetails.Select(x => x.NoofStaffs).Count();
+                            prjModel.TotalNoOfStaff = Stafftlt;
+                            //listStaffDetails.Select(x => x.NoofStaffs).Count();
                             prjModel.TotalSalary = listStaffDetails.Select(x => x.Salary).Sum();
                         }
                         if (OtherCompanyStaff.Count > 0)
@@ -7174,7 +7176,7 @@ namespace IOAS.GenericServices
                             var deprtcode = context.vwFacultyStaffDetails.Where(x => x.UserId == model.PINameId).Select(x => x.DepartmentCode).FirstOrDefault();
                             CreateProject.FinancialYear = model.FinancialYear;
                             CreateProject.PIName = model.PINameId;
-                            CreateProject.ProjectTitle = model.ProjectTitle;                        
+                            CreateProject.ProjectTitle = model.ProjectTitle;
 
 
                             if (model.SponsoredFundingType == 16)
@@ -7228,7 +7230,7 @@ namespace IOAS.GenericServices
                             CreateProject.SponsoredTypeCode = model.SponsoredFundingType;
                             CreateProject.CrtdUserId = model.CrtdUserId;
                             CreateProject.CrtdTS = DateTime.Now;
-                            CreateProject.PIDepartment = deprtcode;                            
+                            CreateProject.PIDepartment = deprtcode;
                             var financialyear = Common.GetFinYear(model.FinancialYear ?? 0);
                             var Sequencenumber = Common.GetProjectSequenceNumber(model.FinancialYear ?? 0);
                             var Agencycode = Common.getagencycode(model.AgencyNameId ?? 0);
@@ -7354,16 +7356,16 @@ namespace IOAS.GenericServices
                             for(int i=0; i < model.CoPIname.Length; i++)
                             {
                                 tblProjectCoPI CoInverstigator = new tblProjectCoPI();
-                                CoInverstigator.Name = model.CoPIname[i];                                
+                                CoInverstigator.Name = model.CoPIname[i];
                                 CoInverstigator.Department = model.CoPIDepartment[i];
                                 CoInverstigator.Email = model.CoPIEmail[i];
                                 CoInverstigator.ProjectId = model.Projectid;
-                                CoInverstigator.Crtd_TS = DateTime.Now;                               
+                                CoInverstigator.Crtd_TS = DateTime.Now;
                                 CoInverstigator.Status = "Active";
                                 context.tblProjectCoPI.Add(CoInverstigator);
                                 context.SaveChanges();
                             }
-                            
+
 
                             transaction.Commit();
                             return 1;
@@ -7500,7 +7502,7 @@ namespace IOAS.GenericServices
                                 {
                                     int copiid = model.CoPIname[i];
                                     var CoPIquery = (from CoPI in context.tblProjectCoPI
-                                                     where CoPI.ProjectId == model.Projectid && CoPI.Name == copiid && CoPI.Status=="Active"                                                     
+                                                     where CoPI.ProjectId == model.Projectid && CoPI.Name == copiid && CoPI.Status=="Active"
                                                      select CoPI).ToList();
                                     if (CoPIquery.Count == 0)
                                     {
@@ -7526,7 +7528,7 @@ namespace IOAS.GenericServices
                                         context.SaveChanges();
                                     }
                                 }
-                                    transaction.Commit();
+                                transaction.Commit();
 
                             }
                             return 2;
@@ -7723,19 +7725,19 @@ namespace IOAS.GenericServices
             {
                 using (var context = new IOASDBEntities())
                 {
-                    
-                       var query = context.tblProject.Where(x => x.ProjectId == ProjectId).FirstOrDefault();
+
+                    var query = context.tblProject.Where(x => x.ProjectId == ProjectId).FirstOrDefault();
                     var SupportDocquery = (from Doc in context.tblSupportDocuments
                                            where Doc.ProjectId == ProjectId && Doc.IsCurrentVersion == true
                                            select Doc).ToList();
                     var CoInverstigatorview = (from conint in context.tblProjectCoPI
                                                where conint.ProjectId == ProjectId && conint.Status != "InActive"
                                                select conint).ToList();
-                    
+
                     if (query != null)
                     {
                         viewProject.Projectid = ProjectId;
-                        
+
                         int agyid = query.SponsoringAgency ?? 0;
                         int fundingtype = query.SponsoredTypeCode ?? 0;
                         int clsfiacode = query.ProjectClassification ?? 0;
@@ -7773,7 +7775,7 @@ namespace IOAS.GenericServices
                         viewProject.ProjectTitle = query.ProjectTitle;
                         viewProject.ProjectNumber = query.ProjectNumber;
                         viewProject.SelFinyear = Common.GetFinYear(query.FinancialYear ?? 0);
-                        viewProject.PIName = Common.GetPIName(query.PIName ?? 0);                        
+                        viewProject.PIName = Common.GetPIName(query.PIName ?? 0);
                         viewProject.SanctionValue = query.SanctionValue ?? 0;
                         if (agydetais != null)
                             viewProject.AgencyName = agydetais.AgencyName + "-" + agydetais.AgencyCode;
@@ -7803,12 +7805,12 @@ namespace IOAS.GenericServices
                             {
                                 CoPiList.Add(new CoInverstigators()
                                 {
-                                CoPIname = (int)CoInverstigatorview[i].Name,
-                                CoPIname_fullname = Common.GetPIName(CoInverstigatorview[i].Name ?? 0),
-                                CoPIDepartment = CoInverstigatorview[i].Department,
-                                CoPIEmail = CoInverstigatorview[i].Email
+                                    CoPIname = (int)CoInverstigatorview[i].Name,
+                                    CoPIname_fullname = Common.GetPIName(CoInverstigatorview[i].Name ?? 0),
+                                    CoPIDepartment = CoInverstigatorview[i].Department,
+                                    CoPIEmail = CoInverstigatorview[i].Email
                                 });
-                               
+
                             }
                         }
                     }
