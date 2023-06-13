@@ -2105,8 +2105,8 @@ namespace IOAS.Controllers
                             workStream.Position = 0;
                         }
                     }
-                    string fileType = Common.GetMimeType("xls");
-                    Response.AddHeader("Content-Disposition", "filename=" + excelname + ".xls");
+                    string fileType = Common.GetMimeType("xlsx");
+                    Response.AddHeader("Content-Disposition", "filename=" + excelname + ".xlsx");
                     return File(workStream, fileType);
                 }
             }
@@ -2145,8 +2145,8 @@ namespace IOAS.Controllers
                             workStream.Position = 0;
                         }
                     }
-                    string fileType = Common.GetMimeType("xls");
-                    Response.AddHeader("Content-Disposition", "filename=" + excelname + ".xls");
+                    string fileType = Common.GetMimeType("xlsx");
+                    Response.AddHeader("Content-Disposition", "filename=" + excelname + ".xlsx");
                     return File(workStream, fileType);
                 }
             }
