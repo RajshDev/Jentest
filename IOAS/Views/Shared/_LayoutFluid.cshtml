@@ -172,42 +172,100 @@
             // Increment the tab count and store it in sessionStorage
             tabCount++;
             sessionStorage.setItem('tabCount', tabCount);
-            localStorage['tab'] = sessionStorage['tabCount'];
 
             // If the tab count exceeds the maximum, close the current tab
             tabCount = parseInt(tabCount);
-            //console.log("tabcount:" +tabCount);
-            //console.log("tab:" + localStorage['tab']);
+            console.log("tabcount:" + tabCount);
             
-            if (tabCount == 3)
-                window.localStorage.setItem('openPage3', Date.now());
+            /*Assign Localstorage on each  tab occurence for the 1st time*/
+            if (tabCount == 3) {
+                localStorage.setItem('openPage3', Date.now());
+            }
 
-            var onLocalStorageEvent = function (e) {
-                
-                if (e.key == "openPage3") {
-                        window.localStorage.setItem('pageAlreadyOpen3', Date.now());
-                    }
-                if (e.key == "pageAlreadyOpen3") {
-                        alert("The tabs are restricted.Kindly close the tabs which are unused.");
-                        window.location.href = "https://devtula.icsr.in/TulaTabs.html";
-                        return false;
-                    }
+            if (tabCount == 2) { localStorage.setItem('open2', Date.now()); }
+
+            if (tabCount == 1) {
+                localStorage.setItem('open1', Date.now());
+            }
+
+            /**
+             * Declare storage event for each tab
+             * 
+             */
+            var onLocalStorageEvent1 = function (e) {
+
+                if (e.key == "open1") {
+                    window.localStorage.setItem('pageAlreadyOpen1', Date.now());
+                }
+                if (e.key == "pageAlreadyOpen1") {
+                    alert("The tabs are restricted.Kindly close the tabs which are unused.");
+                    window.location.href = "https://devtula.icsr.in/TulaTabs.html";
+                    return false;
+                }
             };
+            var onLocalStorageEvent2 = function (e) {
+
+                if (e.key == "open2") {
+                    window.localStorage.setItem('pageAlreadyOpen2', Date.now());
+                }
+                if (e.key == "pageAlreadyOpen2") {
+                    alert("The tabs are restricted.Kindly close the tabs which are unused.");
+                    window.location.href = "https://devtula.icsr.in/TulaTabs.html";
+                    return false;
+                }
+            };
+            var onLocalStorageEvent = function (e) {
+
+                if (e.key == "openPage3") {
+                    window.localStorage.setItem('pageAlreadyOpen3', Date.now());
+                }
+                if (e.key == "pageAlreadyOpen3") {
+                    alert("The tabs are restricted.Kindly close the tabs which are unused.");
+                    window.location.href = "https://devtula.icsr.in/TulaTabs.html";
+                    return false;
+                }
+            };
+            /*Restrict each tabs second occurence*/
             if (tabCount == 3) {
                 var localStoragedate3 = window.localStorage.getItem('openPage3');
                 console.log("localStorageDate3:" + localStoragedate3);
-                window.localStorage.setItem('page3', Date.now());
-                var localStoragedate4 = window.localStorage.setItem('page3', Date.now());
+                //window.localStorage.setItem('page1', Date.now());
+                var localStoragedate4 = window.localStorage.getItem('page1');
 
                 console.log("localStorageDate4:" + localStoragedate4);
-                if (localStoragedate3 != localStoragedate4)
+                if (localStoragedate3 != localStoragedate4) {
                     window.addEventListener('storage', onLocalStorageEvent, false);
+                }
             }
 
             if (tabCount > maxTabs) {
                 window.location.href = "https://devtula.icsr.in/TulaTabs.html";
                 return false;
             }
+
+            if (tabCount == 2) {
+                var localStoragePage2 = localStorage.getItem('open2');
+                console.log('sessionPage2 :' + localStoragePage2);
+                var localStoragedate3 = localStorage.getItem('openPage3');
+                console.log("localStorageDate3:" + localStoragedate3);
+                if (localStoragedate3 != localStoragePage2) {
+                    //tabCount = tabCount - 1;
+                    window.addEventListener('storage', onLocalStorageEvent2, false);
+                }               
+            }
+            if (tabCount == 1) {
+                var localStoragePage1 = localStorage.getItem('open1');
+                console.log('sessionPage2 :' + localStoragePage1);
+                //window.localStorage.setItem('page', Date.now());
+
+                var localStoragedate2 = window.localStorage.getItem('open2');
+                console.log('localStoragedate2:' + localStoragedate2);
+                if (localStoragePage1 != localStoragedate2) {
+                    //tabCount = tabCount - 1;
+                    window.addEventListener('storage', onLocalStorageEvent1, false);
+                }
+            }
+            
             $(window).on('beforeunload', function () {
                 // Decrement the tab count and update sessionStorage when the tab is closed
                 var tabCount = sessionStorage.getItem('tabCount') || 0;
