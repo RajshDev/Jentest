@@ -165,7 +165,7 @@
             });
 
             //8917 - Browser tab restriction.
-            var maxTabs = 3;
+            var maxTabs = 4;
             // Get the current tab count from sessionStorage, or set it to zero
             var tabCount = sessionStorage.getItem('tabCount') || 0;
 
@@ -178,13 +178,19 @@
             console.log("tabcount:" + tabCount);
             
             /*Assign Localstorage on each  tab occurence for the 1st time*/
+            if (tabCount == 4) {
+                localStorage.setItem('openPage4', Date.now());
+            }
             if (tabCount == 3) {
                 localStorage.setItem('openPage3', Date.now());
             }
 
-            if (tabCount == 2) { localStorage.setItem('open2', Date.now()); }
+            if (tabCount == 2) {
+                localStorage.setItem('open2', Date.now());
+            }
 
             if (tabCount == 1) {
+                document.title = "Root";
                 localStorage.setItem('open1', Date.now());
             }
 
@@ -214,6 +220,17 @@
                     return false;
                 }
             };
+            var onLocalStorageEvent3 = function (e) {
+
+                if (e.key == "openPage4") {
+                    window.localStorage.setItem('pageAlreadyOpen4', Date.now());
+                }
+                if (e.key == "pageAlreadyOpen4") {
+                    alert("The tabs are restricted.Kindly close the tabs which are unused.");
+                    window.location.href = "https://devtula.icsr.in/TulaTabs.html";
+                    return false;
+                }
+            };
             var onLocalStorageEvent = function (e) {
 
                 if (e.key == "openPage3") {
@@ -226,10 +243,20 @@
                 }
             };
             /*Restrict each tabs second occurence*/
+            if (tabCount == 4) {
+                var localStoragedate4 = window.localStorage.getItem('openPage4');
+                console.log("localStorageDate4:" + localStoragedate3);
+                var localStoragedate5 = window.localStorage.getItem('page1');
+
+                console.log("localStorageDate5:" + localStoragedate5);
+                if (localStoragedate4 != localStoragedate5) {
+                    window.addEventListener('storage', onLocalStorageEvent3, false);
+                }
+            }
+
             if (tabCount == 3) {
                 var localStoragedate3 = window.localStorage.getItem('openPage3');
                 console.log("localStorageDate3:" + localStoragedate3);
-                //window.localStorage.setItem('page1', Date.now());
                 var localStoragedate4 = window.localStorage.getItem('page1');
 
                 console.log("localStorageDate4:" + localStoragedate4);
@@ -249,15 +276,13 @@
                 var localStoragedate3 = localStorage.getItem('openPage3');
                 console.log("localStorageDate3:" + localStoragedate3);
                 if (localStoragedate3 != localStoragePage2) {
-                    //tabCount = tabCount - 1;
                     window.addEventListener('storage', onLocalStorageEvent2, false);
                 }               
             }
             if (tabCount == 1) {
                 var localStoragePage1 = localStorage.getItem('open1');
                 console.log('sessionPage2 :' + localStoragePage1);
-                //window.localStorage.setItem('page', Date.now());
-
+                
                 var localStoragedate2 = window.localStorage.getItem('open2');
                 console.log('localStoragedate2:' + localStoragedate2);
                 if (localStoragePage1 != localStoragedate2) {
@@ -270,7 +295,8 @@
                 // Decrement the tab count and update sessionStorage when the tab is closed
                 var tabCount = sessionStorage.getItem('tabCount') || 0;
                 tabCount--;
-                sessionStorage.setItem('tabCount', tabCount);
+                if (parseInt(tabCount) != 0)
+                    sessionStorage.setItem('tabCount', tabCount);
             });
             loadTapalView();
         });
