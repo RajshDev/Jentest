@@ -45,5 +45,6 @@ namespace IOAS.DataModel
         public string AgencyState { get; set; }
         public Nullable<decimal> OpeningReceiptAmount { get; set; }
         public string AgencyRegCommunicationAddress { get; set; }
+        public string ConsultancyType { get; set; }
     }
 }

@@ -4726,7 +4726,7 @@ namespace IOAS.GenericServices
                     //}
 
                     decimal taxmaxvalue = 700000;
-                    if (model.ITElegible_c == true && model.TaxableIncome >= taxmaxvalue)
+                    if (model.ITElegible_c == true && model.TaxableIncome > taxmaxvalue)
                     {
                         model = CalculateIT(model, verify);
                     }

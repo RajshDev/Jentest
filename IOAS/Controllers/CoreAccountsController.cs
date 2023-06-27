@@ -21470,7 +21470,7 @@ namespace IOAS.Controllers
             }
             model.BOADraftId = boaDraftId;
             model.txDetail = list;
-            if (list.Count > 0 && msg== "Valid")
+            if (list.Count > 0)
                 model = coreAccountService.VerifyUTR(model);
            return Json(new { status = msg, data = model }, JsonRequestBehavior.AllowGet);
         }
