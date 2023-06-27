@@ -53,5 +53,8 @@ namespace IOAS.DataModel
         public Nullable<decimal> Comm_InterestRefund { get; set; }
         public Nullable<decimal> Comm_Distribution { get; set; }
         public Nullable<decimal> Comm_Outsourcing { get; set; }
+        public Nullable<decimal> Comm_InternalTransfer { get; set; }
+        public Nullable<decimal> Comm_TransfertoOtherInstitute { get; set; }
+        public Nullable<decimal> Comm_Fellowship { get; set; }
     }
 }

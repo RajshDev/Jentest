@@ -9884,7 +9884,7 @@ namespace IOAS.Controllers
                             {
                                 bool validrow = false;
                                 IXLRangeRow rowdata;
-                                
+
                                 try
                                 {
                                     rowdata = ws1.Row(iRow).RowUsed(false);
@@ -21259,158 +21259,6 @@ namespace IOAS.Controllers
                     if (System.IO.File.Exists(path1))
                     { System.IO.File.Delete(path1); }
                     file.SaveAs(path1);
-                    file.UploadFile("UTRStatement", docName);
-                    string invalidrownos = "";
-                   
-                    string t_Name;
-                    string t_BeneficiaryAccountNumber;
-                    string t_Recordreferencenumber;
-                    decimal t_Amount;
-                    DateTime t_InputValueDate;
-                    string t_Status;
-                    string t_UserReferenceNumber;
-                    string t_UTRNO;
-                    string t_VerifyStatus;
-
-                    bool _FlagManualXL = true;
-
-                    if (_FlagManualXL)
-                    {
-                        /* Read Excel File Manully */
-                        XLWorkbook wbook = new XLWorkbook(path1);
-                        var ws1 = wbook.Worksheet(1);
-                        int DataRows = ws1.LastRowUsed().RowNumber();
-                        int DataCols = ws1.LastColumnUsed().ColumnNumber();
-                        string tmpvalue; DateTime tmpdate;
-                        if (DataCols == 8 && ws1.Cell(1, 1).GetValue<String>().Replace(" ", "").Trim().ToLower() == "name"
-                            && ws1.Cell(1, 2).GetValue<String>().Replace(" ", "").Trim().ToLower() == "recordreferencenumber"
-                            && ws1.Cell(1, 3).GetValue<String>().Replace(" ", "").Trim().ToLower() == "amount"
-                            && ws1.Cell(1, 4).GetValue<String>().Replace(" ", "").Trim().ToLower() == "beneficiaryaccountnumber"
-                            && ws1.Cell(1, 5).GetValue<String>().Replace(" ", "").Trim().ToLower() == "inputvaluedate"
-                            && ws1.Cell(1, 6).GetValue<String>().Replace(" ", "").Trim().ToLower() == "status"
-                            && ws1.Cell(1, 7).GetValue<String>().Replace(" ", "").Trim().ToLower() == "userreferencenumber"
-                            && ws1.Cell(1, 8).GetValue<String>().Replace(" ", "").Trim().ToLower() == "utrno"
-                            )
-                        {
-
-                            List<UTRStatementDetailModel> utrxllist = new List<UTRStatementDetailModel>();
-                            for (int iRow = 2; iRow <= DataRows; iRow++)
-                            {
-                                bool validrow = false;
-                                IXLRangeRow rowdata;
-
-                                try
-                                {
-                                    rowdata = ws1.Row(iRow).RowUsed(false);
-                                    validrow = true;
-                                }
-                                catch (Exception e)
-                                {
-                                    validrow = false;
-                                }
-
-                                if (validrow)
-                                {
-                                   
-                                    bool validdate = false;
-                                    bool validamt = false;
-                                    bool validdtstring = false;
-                                    bool validamtstring = false;
-
-                                    //Check Date is Valid
-                                    validdtstring = (ws1.Cell(iRow, 5).TryGetValue<string>(out tmpvalue));
-
-                                    int dtpos1 = tmpvalue.IndexOf("-");
-                                    int dtpos2 = tmpvalue.LastIndexOf("-");
-                                    System.Globalization.CultureInfo provider = System.Globalization.CultureInfo.InvariantCulture;
-                                    Nullable<DateTime> dt = null;
-                                    if (dtpos1 > 0 && dtpos2 > 0 && dtpos1 < dtpos2 && tmpvalue.Length >= 8)
-                                    {
-                                        try
-                                        {
-                                            int dt_d = Int16.Parse(tmpvalue.Substring(0, dtpos1));
-                                            int dt_m = Int16.Parse(tmpvalue.Substring(dtpos1 + 1, (dtpos2 - dtpos1) - 1));
-                                            int dt_y = Int16.Parse(tmpvalue.Substring(dtpos2 + 1));
-                                            
-                                            dt = new DateTime(dt_y, dt_m, dt_d);
-                                            validdate = true;
-                                        }
-                                        catch (Exception e)
-                                        {
-                                            validdate = false;
-                                        }
-                                    }
-
-                                    //Check Amount is Valid
-                                    validamtstring = (ws1.Cell(iRow, 3).TryGetValue<string>(out tmpvalue));
-                                    tmpvalue = tmpvalue.Replace("INR", "");
-                                    tmpvalue = tmpvalue.Replace(" ", "");
-                                    tmpvalue = tmpvalue.Replace(",", "");
-
-                                    decimal amt =0;
-                                    validamt = decimal.TryParse(tmpvalue.Trim(), out amt);
-
-
-
-
-                                    //validdate = ws1.Cell(iRow, 5).TryGetValue<DateTime>(out tmpdate);
-                                    if (validdate && validamt)
-                                    {
-                                        //string tmpdate = ws1.Cell(iRow, 1).GetValue<String>();
-                                        t_Name = ws1.Cell(iRow, 1).GetValue<String>();
-                                        t_Recordreferencenumber = ws1.Cell(iRow, 2).GetValue<String>();
-                                        t_Amount=amt;
-                                        t_BeneficiaryAccountNumber = ws1.Cell(iRow, 4).GetValue<String>();
-                                        t_InputValueDate = (DateTime)dt;
-                                        t_Status = ws1.Cell(iRow, 6).GetValue<String>();
-                                        t_UserReferenceNumber = ws1.Cell(iRow, 7).GetValue<String>();
-                                        t_UTRNO = ws1.Cell(iRow, 8).GetValue<String>();
-
-
-
-
-                                        utrxllist.Add(new UTRStatementDetailModel()
-                                        {
-                                            Name = t_Name,
-                                            BeneficiaryAccountNumber = t_BeneficiaryAccountNumber,
-                                            Recordreferencenumber = t_Recordreferencenumber,
-                                            Amount = t_Amount,
-                                            InputValueDate = t_InputValueDate,
-                                            Status = t_Status,
-                                         UserReferenceNumber= t_UserReferenceNumber,
-                                         UTRNO= t_UTRNO,
-                                         VerifyStatus= "",
-                                        });
-                                    }
-                                    else if (ws1.Cell(iRow, 1).GetValue<String>() != "")
-                                    {
-                                        if (validdtstring)
-                                        {
-                                            invalidrownos += iRow.ToString("#0") + ", ";
-                                        }
-                                    }
-
-                                }
-
-                                if (invalidrownos.Trim() != "")
-                                { msg = "Invalid Date Values Found in Excel Row(s): " + invalidrownos.Substring(0, invalidrownos.Length - 2); }
-                                list = utrxllist;
-                            }
-                        }
-                        else
-                        {
-                            msg = "Invalid Excel Format Uploaded";
-                        }
-                        /* var data = ws1.Cell("A1").GetValue<string>();
-
-                     /* end Read Excel File Manully */
-                    }
-                    else // Dataadapter based excel reading
-                    {
-
-                        if (System.IO.File.Exists(path1))
-                    { System.IO.File.Delete(path1); }
-                    file.SaveAs(path1);
                     //file.UploadFile("UTRStatement", docName);
                     //Connection String to Excel Workbook  
                     var query = "SELECT * FROM [Sheet0$] where Name is not null and Name <> ''";
@@ -21432,7 +21280,6 @@ namespace IOAS.Controllers
                         list = Converter.GetUTREntityList<UTRStatementDetailModel>(dt);
                     }
                 }
-                }
                 else
                 {
                     msg = "Please Upload Files in .xls or .xlsx format";
@@ -21442,7 +21289,7 @@ namespace IOAS.Controllers
             }
             model.BOADraftId = boaDraftId;
             model.txDetail = list;
-            if (list.Count > 0 && msg== "Valid")
+            if (list.Count > 0)
                 model = coreAccountService.VerifyUTR(model);
            return Json(new { status = msg, data = model }, JsonRequestBehavior.AllowGet);
         }
@@ -21518,5 +21365,296 @@ namespace IOAS.Controllers
             else
                 return RedirectToAction("PaymentProcessInitList");
         }
+
+        //Internal service  
+        public ActionResult ImprestClosed(int CloseId)
+        {
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    using (var transaction = context.Database.BeginTransaction())
+                    {
+
+                        var ImpMaster = context.tblIMPUserDetails.Where(m => m.IMPUserDetailsId == 28).FirstOrDefault();
+                        var billQuery = context.tblImprestClose.SingleOrDefault(m => m.ImprestCloseId == CloseId);
+                        BOAModel model1 = new BOAModel();
+                        List<BOATransactionModel> txList = new List<BOATransactionModel>();
+                        List<BOAPaymentDetailModel> BOAPaymentDetail = new List<BOAPaymentDetailModel>();
+
+                        decimal netAmt = (ImpMaster.ImprestTotalValue ?? 0);
+                        model1.PostedDate = DateTime.Now;
+                        model1.VoucherType = 3;
+                        model1.VoucherNumber = Common.GetNewVoucherNo("Payment");
+                        model1.TempVoucherNumber = "IMC/2223/000006";
+                        model1.RefNumber = "IMC/2223/000006";
+                        model1.BOAValue = netAmt;
+                        model1.TransactionTypeCode = "IMC";
+
+                        txList = (from exp in context.tblImprestCloseExpenseDetail
+                                  where exp.ImprestCloseId == CloseId && exp.Status == "Active"
+                                  select new BOATransactionModel()
+                                  {
+                                      AccountHeadId = exp.AccountHeadId,
+                                      Amount = exp.Amount,
+                                      TransactionType = exp.TransactionType
+
+                                  }).ToList();
+
+                        var credit = (from exp in context.tblImprestCloseExpenseDetail
+                                      join hd in context.tblAccountHead on exp.AccountHeadId equals hd.AccountHeadId
+                                      join g in context.tblAccountGroup on hd.AccountGroupId equals g.AccountGroupId
+                                      where exp.ImprestCloseId == CloseId && exp.Status == "Active" && exp.TransactionType == "Credit"
+                                      select new
+                                      {
+                                          exp.TransactionType,
+                                          exp.AccountHeadId,
+                                          exp.Amount,
+                                          hd.AccountHead,
+                                      }).FirstOrDefault();
+                        var debit = (from exp in context.tblImprestCloseExpenseDetail
+                                     join hd in context.tblAccountHead on exp.AccountHeadId equals hd.AccountHeadId
+                                     join g in context.tblAccountGroup on hd.AccountGroupId equals g.AccountGroupId
+                                     where exp.ImprestCloseId == CloseId && exp.Status == "Active" && exp.TransactionType == "Debit"
+                                     select new
+                                     {
+                                         exp.TransactionType,
+                                         exp.AccountHeadId,
+                                         exp.Amount,
+                                         hd.AccountHead,
+                                     }).FirstOrDefault();
+
+                        BOAPaymentDetail.Add(new BOAPaymentDetailModel()
+                        {
+                            TransactionType = credit.TransactionType,
+                            BankHeadID = credit.AccountHeadId,
+                            Amount = credit.Amount,
+                            ReferenceNumber = "IMC/2223/000006",
+                            ReferenceDate = DateTime.Now,
+                            PayeeId = debit.AccountHeadId,
+                            PayeeBank = debit.AccountHead,
+                            PayeeName = debit.AccountHead,
+                            PayeeType = "Bank",
+                            PaymentMode = 2,
+                            Remarks = "",
+                            Reconciliation_f = false,
+
+                        });
+                        BOAPaymentDetail.Add(new BOAPaymentDetailModel()
+                        {
+                            TransactionType = debit.TransactionType,
+                            BankHeadID = debit.AccountHeadId,
+                            Amount = debit.Amount,
+                            ReferenceNumber = "IMC/2223/000006",
+                            ReferenceDate = DateTime.Now,
+                            PayeeId = credit.AccountHeadId,
+                            PayeeBank = credit.AccountHead,
+                            PayeeName = credit.AccountHead,
+                            PayeeType = "Bank",
+                            PaymentMode = 2,
+                            Remarks = "",
+                            Reconciliation_f = false,
+                        });
+
+
+                        model1.BOATransaction = txList;
+                        model1.BOAPaymentDetail = BOAPaymentDetail;
+                        if (coreAccountService.BOATransaction(model1))
+                        {
+                            ImpMaster.Status = "Closed";
+                            context.SaveChanges();
+                            transaction.Commit();
+                            return RedirectToAction("PaymentProcessInitList");
+                        }
+                        else
+                        {
+                            transaction.Rollback();
+                            return RedirectToAction("PaymentProcessInitList");
+                        }
+                    }
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("PaymentProcessInitList");
+            }
+        }
+
+        #region backendprocess
+        public ActionResult TestImprestEnhancement()
+        {
+            getImprestEnhanceBOAmodeldetails(271);
+            return RedirectToAction("PaymentProcessInitList");
+        }
+
+        public bool getImprestEnhanceBOAmodeldetails(int prjctdetailsid)
+        {
+            try
+            {
+                BOAModel model = new BOAModel();
+                List<BOATransactionModel> txList = new List<BOATransactionModel>();
+                List<BOAPaymentDetailModel> BOAPaymentDetail = new List<BOAPaymentDetailModel>();
+                using (var context = new IOASDBEntities())
+                {
+                    var enhancequery = context.tblImprestPaymentDetails.SingleOrDefault(m => m.ImprestPaymentDetailsId == prjctdetailsid);
+                    var billQuery = context.tblIMPUserDetails.SingleOrDefault(m => m.IMPUserDetailsId == enhancequery.IMPUserDetailsId);
+                    if (prjctdetailsid > 0)
+                    {
+                        decimal netAmt = (enhancequery.AmountAllocated ?? 0);
+                        model.PostedDate = DateTime.Now;
+                        model.VoucherType = 3;
+                        model.VoucherNumber = Common.GetNewVoucherNo("Payment");
+                        model.TempVoucherNumber = billQuery.ImprestNumber;
+                        model.RefNumber = enhancequery.ImprestEnhanceNumber;
+                        model.BOAValue = enhancequery.AmountAllocated;
+                        model.TransactionTypeCode = enhancequery.TransactionTypeCode;
+
+                        txList = (from exp in context.tblImprestExpenseDetail
+                                  where exp.ImprestDetailsId == prjctdetailsid && exp.Status == "Active"
+                                  select new BOATransactionModel()
+                                  {
+                                      AccountHeadId = exp.AccountHeadId,
+                                      Amount = exp.Amount,
+                                      TransactionType = exp.TransactionType
+
+                                  })
+                             .Concat(from d in context.tblImprestDeductionDetail
+                                     join ah in context.tblDeductionHead on d.DeductionHeadId equals ah.DeductionHeadId
+                                     where d.ImprestDetailsId == prjctdetailsid && d.Status == "Active" && d.Amount > 0
+                                     select new BOATransactionModel()
+                                     {
+                                         AccountHeadId = ah.AccountHeadId,
+                                         Amount = d.Amount,
+                                         TransactionType = "Debit"
+                                     }).ToList();
+                        txList.Add(new BOATransactionModel()
+                        {
+                            Amount = netAmt,
+                            TransactionType = "Credit",
+                            Creditor_f = true,
+                            SubLedgerType = 1,
+                            SubLedgerId = billQuery.PIUserId
+                        });
+
+                        var credit = (from exp in context.tblImprestExpenseDetail
+                                      join hd in context.tblAccountHead on exp.AccountHeadId equals hd.AccountHeadId
+                                      join g in context.tblAccountGroup on hd.AccountGroupId equals g.AccountGroupId
+                                      where exp.ImprestDetailsId == prjctdetailsid && exp.Status == "Active" && exp.TransactionType == "Credit"
+                                      select new
+                                      {
+                                          exp.TransactionType,
+                                          exp.AccountHeadId,
+                                          exp.Amount,
+                                          hd.AccountHead,
+                                      }).FirstOrDefault();
+                        var debit = (from exp in context.tblImprestExpenseDetail
+                                     join hd in context.tblAccountHead on exp.AccountHeadId equals hd.AccountHeadId
+                                     join g in context.tblAccountGroup on hd.AccountGroupId equals g.AccountGroupId
+                                     where exp.ImprestDetailsId == prjctdetailsid && exp.Status == "Active" && exp.TransactionType == "Debit"
+                                     select new
+                                     {
+                                         exp.TransactionType,
+                                         exp.AccountHeadId,
+                                         exp.Amount,
+                                         hd.AccountHead,
+                                     }).FirstOrDefault();
+
+                        BOAPaymentDetail.Add(new BOAPaymentDetailModel()
+                        {
+                            TransactionType = credit.TransactionType,
+                            BankHeadID = credit.AccountHeadId,
+                            Amount = credit.Amount,
+                            ReferenceNumber = billQuery.ImprestNumber,
+                            ReferenceDate = billQuery.CrtdTS,
+                            PayeeId = debit.AccountHeadId,
+                            PayeeBank = debit.AccountHead,
+                            PayeeName = debit.AccountHead,
+                            PayeeType = "Bank",
+                            PaymentMode = 2,
+                            Remarks = model.Narration,
+                            Reconciliation_f = false,
+
+                        });
+                        BOAPaymentDetail.Add(new BOAPaymentDetailModel()
+                        {
+                            TransactionType = debit.TransactionType,
+                            BankHeadID = debit.AccountHeadId,
+                            Amount = debit.Amount,
+                            ReferenceNumber = billQuery.ImprestNumber,
+                            ReferenceDate = billQuery.CrtdTS,
+                            PayeeId = credit.AccountHeadId,
+                            PayeeBank = credit.AccountHead,
+                            PayeeName = credit.AccountHead,
+                            PayeeType = "Bank",
+                            PaymentMode = 2,
+                            Remarks = model.Narration,
+                            Reconciliation_f = false,
+                        });
+
+                    }
+                    else
+                        return false;
+                    model.BOATransaction = txList;
+                    model.BOAPaymentDetail = BOAPaymentDetail;
+                    return coreAccountService.BOATransaction(model);
+                }
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(this, ex);
+                return false;
+            }
+        }
+        //public ActionResult testIMRapprovalentries()
+        //{
+        //    var BillId = 15871;
+        //    var boolIMR = coreAccountService.getImprestRecoupmentBOAmodeldetails(BillId);
+
+        //    return RedirectToAction("PaymentProcessInitList");
+        //}
+        //public ActionResult testHonororiumBOATransaction()
+        //{
+        //    int[] arrid = {4762,
+        //                    4766,
+        //                    4767,
+        //                    4768,
+        //                    4773,
+        //                    4787,
+        //                    4929,
+        //                    4937,
+        //                    4938,
+        //                    4941,
+        //                    4942,
+        //                    4949,
+        //                    4950,
+        //                    4953,
+        //                    4954,
+        //                    4958,
+        //                    4964,
+        //                    4965,
+        //                    4968,
+        //                    4969,
+        //                    4974,
+        //                    4977,
+        //                    4982,
+        //                    4996,
+        //                    4999,
+        //                    5000
+        //    };
+        //    bool boolHono = false;
+        //    foreach (var id in arrid)
+        //    {
+        //        using (var context = new IOASDBEntities())
+        //        {
+        //            boolHono = coreAccountService.HonororiumBOATransaction(id, context);
+
+        //        }
+        //    }
+        //    return RedirectToAction("PaymentProcessInitList");
+
+        //}
+        #endregion
     }
 }

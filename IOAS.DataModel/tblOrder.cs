@@ -68,5 +68,6 @@ namespace IOAS.DataModel
         public Nullable<int> CommitteeMember { get; set; }
         public Nullable<int> CommitteeMembers { get; set; }
         public Nullable<int> Chairperson { get; set; }
+        public Nullable<int> AmendmentOrderID { get; set; }
     }
 }

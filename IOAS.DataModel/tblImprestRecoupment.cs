@@ -40,5 +40,6 @@ namespace IOAS.DataModel
         public Nullable<decimal> TotalEligibleGST { get; set; }
         public Nullable<decimal> NetPayableAmount { get; set; }
         public Nullable<decimal> BillAmount { get; set; }
+        public Nullable<int> BankID { get; set; }
     }
 }
