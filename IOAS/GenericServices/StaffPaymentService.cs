@@ -4703,7 +4703,7 @@ namespace IOAS.GenericServices
                     model.PreviousIT = data.Item2;
                     model.PreviousGross = data.Item3;
                     model.AnnualExemption = payment.GetITExemptionCurrentFinyear(paybill);
-                    model.AnnualExemption = model.AnnualExemption + model.PreviousPT;
+                    model.AnnualExemption = model.AnnualExemption; //+ model.PreviousPT;
                     if (model.TaxExempted == true)
                         model.AnnualTaxableSalary = prevTaxableBasic + currMonthOtherBasicHraIT_e + prevTaxableHRA + preTaxableOA + preTaxableDA;
                     else
@@ -4720,10 +4720,18 @@ namespace IOAS.GenericServices
                     model.DirectAllowanceAmount = ttlDirectAllow;
                     model.AffectableProjExp = ttlAffectableProjExp;
 
-                    if (model.ITElegible_c == true)
+                    //if (model.ITElegible_c == true)
+                    //{
+                    //    model = CalculateIT(model, verify);
+                    //}
+
+                    decimal taxmaxvalue = 700000;
+                    if (model.ITElegible_c == true && model.TaxableIncome >= taxmaxvalue)
                     {
                         model = CalculateIT(model, verify);
                     }
+
+                    
                     decimal maxPTDeduction = Convert.ToDecimal(WebConfigurationManager.AppSettings["PT_Deduction_MaxLimit"]);
                     if (model.PTElegible_c == true && !verify && maxPTDeduction > model.PreviousPT)
                     {
