@@ -292,6 +292,7 @@ namespace IOAS.Models
 
         public List<VendorInvoiceBreakUpDetailModel> InvoiceBreakDetail { get; set; } = new List<VendorInvoiceBreakUpDetailModel>();
         public bool BillProcessingStatus { get; set; }
+
     }
 
     public class BillPODetailModel
@@ -5762,6 +5763,30 @@ namespace IOAS.Models
     #region General Voucher
     public class GeneralVoucherModel
     {
+        public int BillId { get; set; }
+
+
+        public bool SourceTapalOrWorkflow
+        {
+            get
+            {
+                return (this.Source == 1 || this.Source == 3);
+            }
+        }
+
+        [RequiredIf("SourceTapalOrWorkflow", true, ErrorMessage = "Ref. Number field is required")]
+        public Nullable<Int32> SourceReferenceNumber { get; set; }
+        public string ReferenceNumber { get; set; }
+
+        [RequiredIf("Source", 2, ErrorMessage = "Email Date field is required")]
+        public Nullable<DateTime> SourceEmailDate { get; set; }
+
+        [Required]
+        public Nullable<Int32> Source { get; set; }
+
+        public string BillNumber { get; set; }
+        public string SubCode { get; set; } = "1";
+        public bool NeedUpdateTransDetail { get; set; }
         public string VoucherNumber { get; set; }
         public Nullable<int> VoucherId { get; set; }
         [Required]
