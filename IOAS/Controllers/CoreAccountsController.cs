@@ -10588,6 +10588,7 @@ namespace IOAS.Controllers
                 detail.RemoveAt(2);
                 detail.RemoveAt(2);
                 ViewBag.PaymentCategoryList = detail;
+                ViewBag.SourceList = Common.GetSourceList();
                 ViewBag.AccountGroupList = Common.GetAccountGroup(false);
                 ViewBag.BankList = Common.GetBankAccountHeadList(true);
                 ViewBag.PayerCategoryList = Common.GetCodeControlList("PayerCategory", "TAD");
@@ -20394,6 +20395,7 @@ namespace IOAS.Controllers
             //ViewBag.AccountHeadList = Common.GetAccHeadforAdminVoucher();
             ViewBag.AccountHeadList = emptyList;
             ViewBag.BankList = Common.GetBankAccountHeadList(true);
+            ViewBag.SourceList = Common.GetSourceList();
             //ViewBag.AccountGroupList = Common.GetAccGroupforAdminVoucher();
             ViewBag.AccountGroupList = Common.GetAccountGroup(false);
             ViewBag.TransactionTypeList = Common.GetCodeControlList("Transaction Type");
@@ -21446,7 +21448,7 @@ namespace IOAS.Controllers
             }
             model.BOADraftId = boaDraftId;
             model.txDetail = list;
-            if (list.Count > 0 && msg== "Valid")
+            if (list.Count > 0)
                 model = coreAccountService.VerifyUTR(model);
            return Json(new { status = msg, data = model }, JsonRequestBehavior.AllowGet);
         }

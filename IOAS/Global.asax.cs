@@ -52,6 +52,6 @@ namespace IOAS
                 Response.ClearContent();
                 Response.RedirectToRoute("Default", new { controller = "Error", action = "AccessDenied" });
             }
-        }
+        }       
     }
 }

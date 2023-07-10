@@ -38,5 +38,6 @@ namespace IOAS.DataModel
         public Nullable<bool> OHP_F { get; set; }
         public Nullable<System.DateTime> HonorariumDate { get; set; }
         public string HonorariumMonth { get; set; }
+        public Nullable<int> BankID { get; set; }
     }
 }

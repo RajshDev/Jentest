@@ -32,5 +32,6 @@ namespace IOAS.DataModel
         public string ACTIVE { get; set; }
         public string REMARKES { get; set; }
         public string UpdatedCommitment { get; set; }
+        public int ID { get; set; }
     }
 }
