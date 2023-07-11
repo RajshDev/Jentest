@@ -18656,6 +18656,42 @@ namespace IOAS.Controllers
             }
         }
 
+
+        [HttpPost]
+        public ActionResult UnVerifyPaymentProcess(int? boaDraftId, int? payeeId, int? modeOfPayment)
+        {
+            try
+            {
+                lock (PaymentVerifyWFInitlockObj)
+                {
+                    if (ModelState.IsValid)
+                    {
+                        int userId = Common.GetUserid(User.Identity.Name);
+                        int draftID = coreAccountService.UnVerifyPaymentProcess(boaDraftId, payeeId, modeOfPayment, userId);
+                        if (draftID > 0)
+                            TempData["succMsg"] = "Bill has been unverified for payment process successfully.";
+                        else
+                            TempData["errMsg"] = "Something went wrong please contact administrator.";
+                        return RedirectToAction("PaymentProcess", new { boaDraftId = draftID });
+                    }
+                    else
+                    {
+                        string messages = string.Join("<br />", ModelState.Values
+                                            .SelectMany(x => x.Errors)
+                                            .Select(x => x.ErrorMessage));
+
+                        TempData["errMsg"] = messages;
+                    }
+                    return RedirectToAction("PaymentProcess", new { boaDraftId = Convert.ToInt32(boaDraftId) });
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["errMsg"] = "Something went wrong please contact administrator.";
+                return RedirectToAction("PaymentProcess", new { boaDraftId = Convert.ToInt32(boaDraftId) });
+            }
+        }
+
         [HttpGet]
         public JsonResult ApproveBOADraft(int boaDraftId)
         {
