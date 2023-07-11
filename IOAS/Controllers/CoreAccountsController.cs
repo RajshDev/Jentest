@@ -21233,19 +21233,7 @@ namespace IOAS.Controllers
             string msg = "Valid";
             if (file != null)
             {
-                //using (var context = new IOASDBEntities())
-                //{
-                //    var query = context.vw_CanaraBankBulkDetails.Where(m => m.BOADraftId == 4270).ToList();
-
-
-                //    List<string> txUTRDuplicateDetail = new List<string>();
-                //    var dupes = query.GroupBy(x => new { x.SendertoReceiverInfo, x.BeneficiaryAccountNo, x.Amount })
-                //       .Where(x => x.Skip(1).Any()).ToArray();
-                //    foreach (var item in dupes)
-                //    {
-                //        txUTRDuplicateDetail.Add(item.Select(m => m.SendertoReceiverInfo).FirstOrDefault());
-                //    }
-                //}
+              
                 string extension = Path.GetExtension(file.FileName).ToLower();
                 string connString = "";
                 string[] validFileTypes = { ".xls", ".xlsx" };
