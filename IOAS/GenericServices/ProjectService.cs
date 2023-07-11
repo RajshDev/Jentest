@@ -7177,6 +7177,7 @@ namespace IOAS.GenericServices
                             CreateProject.FinancialYear = model.FinancialYear;
                             CreateProject.PIName = model.PINameId;
                             CreateProject.ProjectTitle = model.ProjectTitle;
+                            CreateProject.ProjectFundingCategory = 1;
 
 
                             if (model.SponsoredFundingType == 16)
@@ -7389,6 +7390,7 @@ namespace IOAS.GenericServices
                                 updatePrj.UpdatedUserId = model.CrtdUserId;
                                 updatePrj.UpdatedTS = DateTime.Now;
                                 updatePrj.ProjectTitle = model.ProjectTitle;
+                                updatePrj.ProjectFundingCategory = 1;
                                 if (model.SponsoredFundingType == 16)
                                 {
                                     updatePrj.ProjectType = 1;
