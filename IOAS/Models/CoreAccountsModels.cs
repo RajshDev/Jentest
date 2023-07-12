@@ -4326,7 +4326,18 @@ namespace IOAS.Models
         public List<RCMOuputModel> RCMOutput { get; set; }
         public GSTOffsetSearchFieldModel SearchField { get; set; }
         public GSTOffsetTotalAmtModel TotalModel { get; set; }
+        public GSTOffsetChallanDetail ChallanDetail { get; set; }
 
+    }
+
+    public class GSTOffsetChallanDetail
+    {
+        [Required(AllowEmptyStrings = false, ErrorMessage = "DepositDate is Required")]
+        public Nullable<DateTime> DepositDate { get; set; }
+        
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Ref.Number field is required")]
+        public string GSTOffsetCINNumber { get; set; }
+        
     }
     public class GSTOffsetOutputModel
     {

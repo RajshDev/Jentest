@@ -20,10 +20,10 @@ using System.Web.Script.Serialization;
 namespace IOAS.Controllers
 {
     [Authorized]
-   
+
     public class CoreAccountsController : Controller
     {
-        
+
         CoreAccountsService coreAccountService = new CoreAccountsService();
         //  private static readonly Object lockObj = new Object();
         StaffPaymentService payment = new StaffPaymentService();
@@ -98,14 +98,14 @@ namespace IOAS.Controllers
                 ViewBag.SourceList = Common.GetSourceList();
                 ViewBag.BillTypeList = Common.GetBillTypeList();
                 ViewBag.TaxPctList = Common.GetCodeControlList("TaxPercentage");
-                ViewBag.POTypeList = Common.GetCodeControlList("PO Type");                
+                ViewBag.POTypeList = Common.GetCodeControlList("PO Type");
                 ViewBag.ProjectTypeList = ptypeList;
                 ViewBag.AccountGroupList =
                 ViewBag.VendorTDSList =
                 ViewBag.TypeOfServiceList =
                 ViewBag.AccountHeadList = emptyList;
-                ViewBag.DocmentTypeList = Common.GetDocTypeList(29);               
-                ViewBag.ProjectNumberList = ProjectService.LoadProjecttitledetails(firstPType);               
+                ViewBag.DocmentTypeList = Common.GetDocTypeList(29);
+                ViewBag.ProjectNumberList = ProjectService.LoadProjecttitledetails(firstPType);
                 /*7800 - CNA SNA*/
                 ViewBag.BankHeadList = Common.GetBankAccountHeadList();
 
@@ -363,9 +363,9 @@ namespace IOAS.Controllers
                 ViewBag.TypeOfServiceList =
                 ViewBag.AccountHeadList = emptyList;
                 ViewBag.DocmentTypeList = Common.GetDocTypeList(29);
-               
-                    ViewBag.ProjectNumberList = ProjectService.LoadProjecttitledetails(firstPType);
-                               
+
+                ViewBag.ProjectNumberList = ProjectService.LoadProjecttitledetails(firstPType);
+
                 ViewBag.BankHeadList = Common.GetBankAccountHeadList();
                 //ViewBag.AdvPctList = Common.GetAdvancedPercentageList();
                 BillEntryModel model = new BillEntryModel();
@@ -5586,7 +5586,7 @@ namespace IOAS.Controllers
                     else if (result == -2)
                         TempData["errMsg"] = "Clearance Payment Bill already exists for this PO Number with the Clearance Agent.";
                     else if (result == -3)
-                        TempData["errMsg"] = "Please select the valid commitment from the list.";               
+                        TempData["errMsg"] = "Please select the valid commitment from the list.";
                     else
                         TempData["errMsg"] = "Something went wrong please contact administrator.";
 
@@ -8406,7 +8406,7 @@ namespace IOAS.Controllers
                 {
                     if (Common.ValidateProjectDirectTransferStatus(id, "Open"))
                     {
-                       
+
                         int userId = Common.GetUserid(User.Identity.Name);
                         bool cStatus = coreAccountService.ProjectTransferCommitmentBalanceUpdate(id, false, false, userId, "PDT");
                         if (!cStatus)
@@ -8971,7 +8971,7 @@ namespace IOAS.Controllers
                 ViewBag.ProjectNumberList = Common.GetProjectNumberList();
                 ViewBag.DocmentTypeList = Common.GetDocTypeList(61);
 
-                /*7800 - CNA SNA*/              
+                /*7800 - CNA SNA*/
                 ViewBag.BankHeadList = Common.GetBankAccountHeadList();
 
                 var ptypeList = Common.getprojecttype();
@@ -8986,7 +8986,7 @@ namespace IOAS.Controllers
                 {
                     ViewBag.BankHeadList = Common.Loadbankbyproject(Convert.ToInt32(model.ProjectId));
                     model = coreAccountService.GetDistributionDetails(distributionId);
-                    
+
                 }
                 else
                 {
@@ -9510,7 +9510,7 @@ namespace IOAS.Controllers
                     if (System.IO.File.Exists(path1))
                     { System.IO.File.Delete(path1); }
                     file.SaveAs(path1);
-                
+
                     List<HonororiumExportListModel> listUpload = new List<HonororiumExportListModel>();
                     if (extension.ToLower().Trim() == ".csv")
                     {
@@ -9537,7 +9537,7 @@ namespace IOAS.Controllers
                     msg = "Please Upload Files in .xls or .xlsx format";
                 }
             }
-           
+
 
             foreach (var honorpay in honoruploadlist)
             {
@@ -9561,7 +9561,7 @@ namespace IOAS.Controllers
                     case "OTHERS":
                         if (honorpay.Name ==null || honorpay.Name.Trim() == "")
                             name_status = "Invalid Name";
-                        
+
                         break;
                     case "PI": // Payee Type 1
                         if (userid > 0 && isNumeric)
@@ -9579,7 +9579,7 @@ namespace IOAS.Controllers
                         {
                             //int userid = (int)honorpay.UserId;
                             honorpay.Name = Common.GetVWStudentName(honorpay.UserId, "Student");
-                            honorpay.UserId = "0"; 
+                            honorpay.UserId = "0";
                             if (honorpay.Name.Trim() == "")
                             { name_status = "Invalid Student"; }
                         }
@@ -9652,7 +9652,7 @@ namespace IOAS.Controllers
 
 
 
-                if (honorpay.TDS != 0 && honorpay.TDS != (decimal)0.10 && honorpay.TDS != (decimal)0.20  && honorpay.TDS != null)  
+                if (honorpay.TDS != 0 && honorpay.TDS != (decimal)0.10 && honorpay.TDS != (decimal)0.20  && honorpay.TDS != null)
                 { tds_status = "Invalid TDS"; }
 
                 honorpay.Status = (name_status == "" ? "" : name_status + " / ") + (tds_status == "" ? "" : tds_status + " / ") + (amt_status == "" ? "" : amt_status + " / ");
@@ -9672,7 +9672,7 @@ namespace IOAS.Controllers
 
 
 
-                 
+
 
                     honorpay.TDSAmt = honorpay.Amount * (honorpay.TDS );
                     honorpay.NetAmount= honorpay.Amount - honorpay.TDSAmt;
@@ -9709,11 +9709,11 @@ namespace IOAS.Controllers
                     {
                         honorpay.SelectedTdssectionID = arrTdsSectionId[tdsid];
                         System.Text.RegularExpressions.Regex panregex = new System.Text.RegularExpressions.Regex("([A-Z]){5}([0-9]){4}([A-Z]){1}$");
-                       
-                            if ((honorpay.SelectedTdssectionID != "356" && honorpay.TDS  > 0 && honorpay.TDS*100 < 20) && (honorpay.PAN == null || honorpay.PAN.Trim() == ""))
-                                { pay_status = "Pan No Required"; }
-                            else if ((honorpay.SelectedTdssectionID != "356" && honorpay.TDS > 0 && honorpay.TDS * 100 < 20) && !panregex.IsMatch(honorpay.PAN.Trim()) )
-                            { pay_status = "Invalid Pan no"; }
+
+                        if ((honorpay.SelectedTdssectionID != "356" && honorpay.TDS  > 0 && honorpay.TDS*100 < 20) && (honorpay.PAN == null || honorpay.PAN.Trim() == ""))
+                        { pay_status = "Pan No Required"; }
+                        else if ((honorpay.SelectedTdssectionID != "356" && honorpay.TDS > 0 && honorpay.TDS * 100 < 20) && !panregex.IsMatch(honorpay.PAN.Trim()) )
+                        { pay_status = "Invalid Pan no"; }
                     }
                     else if (honorpay.TDS > 0)
                     { tdsacc_status = "Invalid TDS Section"; }
@@ -9739,12 +9739,12 @@ namespace IOAS.Controllers
                 if (honorpay.TDS * 100 == 20)
                 {
                     honorpay.PAN = "";
-                   
+
                 }
 
                 if (honorpay.PaymentModeVal != 2)
                 {
-                    honorpay.BankName = honorpay.Branch = honorpay.AccountNo = honorpay.IFSC = "";               
+                    honorpay.BankName = honorpay.Branch = honorpay.AccountNo = honorpay.IFSC = "";
                 }
 
                 if (honorpay.PaymentModeVal == 3)
@@ -9759,7 +9759,7 @@ namespace IOAS.Controllers
             if (validimport == false)
             { msg = "Data Imported with Validation Error, Upload Corrected Data"; }
 
-            
+
             byte[] byteInfo = workStream.ToArray();
             workStream.Write(byteInfo, 0, byteInfo.Length);
 
@@ -9780,27 +9780,27 @@ namespace IOAS.Controllers
 
                 foreach (var item in honoruploadlist)
                 {
-                
 
-                         ws.Cell(counter, 1).Value = item.SNo;
+
+                    ws.Cell(counter, 1).Value = item.SNo;
                     ws.Cell(counter, 2).Value = item.PayeeType;
                     ws.Cell(counter, 3).Value = item.UserId;
                     ws.Cell(counter, 4).Value = item.Name;
                     ws.Cell(counter, 5).Value = item.Amount;
                     ws.Cell(counter, 6).Value = String.Format("{0:P2}", item.TDS);
                     ws.Cell(counter, 7).Value = item.PaymentModeName;
-                   
-                        ws.Cell(counter, 8).Value = item.BankName;
-                        ws.Cell(counter, 9).Value = item.Branch;
-                        ws.Cell(counter, 10).Value = item.IFSC;
-                        ws.Cell(counter, 11).Value = item.AccountNo;
-                    
-                        ws.Cell(counter, 12).Value = item.PAN;
-                        ws.Cell(counter, 13).Value = item.SelectedTdssection;
-                   
-                        ws.Cell(counter, 12).Value = "";
-                        ws.Cell(counter, 13).Value = "";
-                    
+
+                    ws.Cell(counter, 8).Value = item.BankName;
+                    ws.Cell(counter, 9).Value = item.Branch;
+                    ws.Cell(counter, 10).Value = item.IFSC;
+                    ws.Cell(counter, 11).Value = item.AccountNo;
+
+                    ws.Cell(counter, 12).Value = item.PAN;
+                    ws.Cell(counter, 13).Value = item.SelectedTdssection;
+
+                    ws.Cell(counter, 12).Value = "";
+                    ws.Cell(counter, 13).Value = "";
+
                     ws.Cell(counter, 14).Value = item.Status;
 
 
@@ -9812,8 +9812,8 @@ namespace IOAS.Controllers
                 wb.SaveAs(workStream);
                 workStream.Position = 0;
 
-                
-                 string xlspath = string.Format("{0}/r_{1}", Server.MapPath("~/Content/HonorariumImport"), docName);
+
+                string xlspath = string.Format("{0}/r_{1}", Server.MapPath("~/Content/HonorariumImport"), docName);
 
                 wb.SaveAs(xlspath);
                 savepath = "/Content/HonorariumImport/r_" + docName;
@@ -9884,7 +9884,7 @@ namespace IOAS.Controllers
                             {
                                 bool validrow = false;
                                 IXLRangeRow rowdata;
-
+                                
                                 try
                                 {
                                     rowdata = ws1.Row(iRow).RowUsed(false);
@@ -9919,20 +9919,20 @@ namespace IOAS.Controllers
                                         ws1.Cell(iRow, 5).TryGetValue<Decimal>(out t_Credit);
                                         ws1.Cell(iRow, 6).TryGetValue<Decimal>(out t_Balance);
 
-                                        brsxllist.Add(new BankStatementDetailModel()
-                                        {
-                                            TransactionDate = tmpdate,
-                                            ReferenceNumber = RefNumber,
-                                            Description = Descrip,
-                                            Reason = null,
-                                            Debit = t_Debit,
-                                            Credit = t_Credit,
-                                            Balance = t_Balance,
-                                            Status = "",
-                                            BRSDetailId = null,
-                                            BOAPaymentDetailId = ""
-                                        });
-                                    }
+                                    brsxllist.Add(new BankStatementDetailModel()
+                                    {
+                                        TransactionDate = tmpdate,
+                                        ReferenceNumber = RefNumber,
+                                        Description = Descrip,
+                                        Reason = null,
+                                        Debit = t_Debit,
+                                        Credit = t_Credit,
+                                        Balance = t_Balance,
+                                        Status = "",
+                                        BRSDetailId = null,
+                                        BOAPaymentDetailId = ""
+                                    });
+                                }
                                     else if (ws1.Cell(iRow, 1).GetValue<String>() != "")
                                     {
                                         if (validstring)
@@ -9946,7 +9946,7 @@ namespace IOAS.Controllers
                                 if (invalidrownos.Trim() != "")
                                 { msg = "Invalid Date Values Found in Excel Row(s): " + invalidrownos.Substring(0, invalidrownos.Length - 2); }
                                 list = brsxllist;
-                            }
+                            }                          
                         }
                         else
                         {
@@ -13418,7 +13418,7 @@ namespace IOAS.Controllers
             }
 
         }
-       
+
         [HttpGet]
         public ActionResult Honororium(int HonorId = 0)
         {
@@ -17038,7 +17038,7 @@ namespace IOAS.Controllers
             {
                 lock (lockInvoiceBOArequestObj)
                 {
-                 bool IsValidRequest = Common.CheckBOAPostingProjectInvoice(model.InvoiceId ?? 0);
+                    bool IsValidRequest = Common.CheckBOAPostingProjectInvoice(model.InvoiceId ?? 0);
                     if (IsValidRequest)
                     {
                         var roleId = Common.GetRoleId(User.Identity.Name);
@@ -17084,7 +17084,7 @@ namespace IOAS.Controllers
                         ViewBag.errMsg = "This Request already Approved";
                         return View(model);
                     }
-            }
+                }
             }
             catch (Exception ex)
             {
@@ -17952,7 +17952,7 @@ namespace IOAS.Controllers
                 ViewBag.ProjectTypeList = ptypeList;
                 ViewBag.ProjectNumberList = ProjectService.LoadProjecttitledetails(firstPType);
 
-                
+
                 if (id > 0 && Common.ValidateHeadCreditStatus(id, "Open"))
                 {
                     model = coreAccountService.GetHeadCreditDetails(id);
@@ -17986,7 +17986,7 @@ namespace IOAS.Controllers
                 ViewBag.ProjectTypeList = ptypeList;
                 ViewBag.ProjectNumberList = ProjectService.LoadProjecttitledetails(firstPType);
 
-               
+
                 foreach (var item in model.ExpenseDetail)
                 {
                     int headId = item.AccountGroupId ?? 0;
@@ -19809,6 +19809,24 @@ namespace IOAS.Controllers
                 throw ex;
             }
         }
+        public JsonResult GSTOffsetListChallan(int GSTOffsetId, DateTime DepositDate,string CINNumber)
+
+        {
+            int logged_in_user = Common.GetUserid(User.Identity.Name);
+            GSTOffsetChallanDetail model = new GSTOffsetChallanDetail();
+            model.DepositDate = DepositDate;
+            model.GSTOffsetCINNumber = CINNumber;
+            try
+            {
+                var value = Common.GSTOffsetListChallan(model,GSTOffsetId, logged_in_user);
+                return Json(value, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(this, ex);
+                return null;
+            }
+        }
         public JsonResult ApprovalPendingForGSTOffset(int GSTOffsetId)
         {
             int logged_in_user = Common.GetUserid(User.Identity.Name);
@@ -19845,8 +19863,8 @@ namespace IOAS.Controllers
             object output = CoreAccountsService.SearchGSTOffsetList(model);
             return Json(output, JsonRequestBehavior.AllowGet);
         }
-        public ActionResult GSTOffsetView(int GSTOffsetId = 0)
-        {
+        public ActionResult GSTOffsetView(int GSTOffsetId = 0)     
+{
             try
             {
                 var emptyList = new List<GSTOffsetModel>();
@@ -21293,7 +21311,7 @@ namespace IOAS.Controllers
             model.txDetail = list;
             if (list.Count > 0)
                 model = coreAccountService.VerifyUTR(model);
-           return Json(new { status = msg, data = model }, JsonRequestBehavior.AllowGet);
+            return Json(new { status = msg, data = model }, JsonRequestBehavior.AllowGet);
         }
         #endregion
         #region Journal Date
@@ -21343,7 +21361,7 @@ namespace IOAS.Controllers
         }
         #endregion
         #region Test
-        
+
         public JsonResult TestPass(int userid)
         {
             var Pass = "";
