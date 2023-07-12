@@ -12995,6 +12995,33 @@ namespace IOAS.Infrastructure
 
             }
         }
+        public static bool GSTOffsetListChallan(GSTOffsetChallanDetail model,int GSTOffsetId, int LoggedInUser)
+        {
+            bool update = false;
+            tblGSTOffsetChallonDetails challan = new tblGSTOffsetChallonDetails();
+            challan.FK_GSTOffsetid = GSTOffsetId;
+            challan.CIN = model.GSTOffsetCINNumber;
+            challan.DepositDate = model.DepositDate;
+            challan.CreatedDate = DateTime.Now;
+            challan.CreateUser = LoggedInUser.ToString();
+            challan.Status = "Active";
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    var query = context.tblGSTOffsetChallonDetails.Add(challan);
+                    context.SaveChanges();
+                    update = true;
+                }
+                return update;
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+(object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                throw ex;
+            }
+        }
         public static bool ApprovalPendingForGSTOffset(int GSTOffsetId, int LoggedInUser)
         {
             bool update = false;
