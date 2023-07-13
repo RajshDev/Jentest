@@ -206,7 +206,7 @@ new { @class = "form-control" })
                                                     @Html.ValidationMessageFor(m => m.BankGuaranteeAmount)
                                                 </div>
                                             </div>
-
+                                           
                                         </div>
                                         <div class="row">
                                             <div class="col-md-3">
@@ -545,12 +545,6 @@ new { @class = "form-control" })
                     $('#lblVendorAddr').text(result.Address);
                     $('#lblStateCode').text(result.StateCode);
                     $('#lblBankDetails').text(result.BankName + "-" + result.AccountNumber);
-                    if (parseFloat(result.TDSLimit) > 5000000) {
-                        //alert("Hello! I am an alert box!!");
-                        $('#FailedAlert').html("TDS 50Lac Limit Exceed : ");
-                        //+ result.TDSLimit
-                        $('#Failed').modal('show');
-                    }
                     UpdateGSTSplitUp()
                 },
                 error: function (err) {
@@ -588,7 +582,7 @@ new { @class = "form-control" })
         var BankHead = $('#BankHead :selected').val();
 
         if (BankHead != '')
-        {
+        {                         
             $.getJSON("@Url.Action("LoadProjecttitlebybankid", "Project")", { projecttype: 1, bankid: BankHead },
         function (locationdata) {
             var select = $("#srchProjectNumber");
@@ -719,18 +713,6 @@ new { @class = "form-control" })
                     $('#lblVendorAddr').text(result.Address);
                     $('#lblStateCode').text(result.StateCode);
                     $('#lblBankDetails').text(result.BankName + "-" + result.AccountNumber);
-                    if (result.TDSLimit > 5000000) {
-                        //alert("Hello! I am an alert box!!");
-                        $('#FailedAlert').html("TDS 50Lac Limit Exceed : " + result.TDSLimit.toFixed(2));
-                        $('#Failed').modal('show');
-                    }
-                    console.log(result.TDSLimit);
-                    if (parseFloat(result.TDSLimit) > 5000000) {
-                        //alert("Hello! I am an alert box!!");
-                        $('#FailedAlert').html("TDS 50Lac Limit Exceed : ");
-                        //+ result.TDSLimit.toFixed(2)
-                        $('#Failed').modal('show');
-                    }
                     UpdateGSTSplitUp();
                     ele.empty();
                     ele.append($('<option/>', {
@@ -1217,28 +1199,6 @@ new { @class = "form-control" })
         //}
         return msg;
     }
-
-    function validatetds(vendorId, settlementamt) {
-        retval = true;
-        $.ajax({
-            type: "GET",
-            url: "@Url.Action("GetVendorDetails", "CoreAccounts")",
-            data: { "vendorId": vendorId, "poNumberRequired": true, "transTypeCode": 'ADV', "TDSRequired": true },
-            dataType: "json",
-            success: function (result) {
-                console.log(result.TDSLimit);
-                if ((parseFloat(result.TDSLimit) + parseFloat(settlementamt)) > 5000000 ) {
-                    //alert("Hello! I am an alert box!!");
-                    retval = false;
-                    $('#FailedAlert').html("TDS 50Lac Limit Exceed : ");
-                    //+ result.TDSLimit.toFixed(2)
-                    $('#Failed').modal('show');
-                }
-            }
-            });
-        return retval;
-    };
-
     function validateForm(n) {
         // This function deals with validation of the form fields
         var isValid = false;
@@ -1252,10 +1212,6 @@ new { @class = "form-control" })
             return true;                 // this can be used to perform other action if there are no steps
         } else if (currentTab == 0) {
             var content = $('#tbodyCommitmentSrchList tr td:last').html();
-            var SettleAmt = $('#lblAdvTtlAmt').text() || 0;
-            var vendorid = $('#VendorId').val() || 0;
-            validatetds(vendorid, SettleAmt);
-
             if (content == '') {
                 searchCommitment()
             }
@@ -1340,7 +1296,7 @@ new { @class = "form-control" })
     });
 
 
-    function EmptyCommitmentSelList() {
+    function EmptyCommitmentSelList() {        
         $('#tbodyCommitmentSelList tr').not(':first').remove();
         $('#tbodyCommitmentSelList tr td').not(':last').not(':nth-last-child(2)').html('');
         //$('#tbodyCommitmentSelList tr td:last').find("input").val("");
@@ -1348,7 +1304,7 @@ new { @class = "form-control" })
         $('#CommitmentAmount').val('');
     }
     function EmptyCommitmentSrchList() {
-
+        
         $('#tbodyCommitmentSrchList tr').not(':first').remove();
         $('#tbodyCommitmentSrchList tr td').not(':first').html('');
         $('#tbodyCommitmentSrchList tr td:first input').val('');

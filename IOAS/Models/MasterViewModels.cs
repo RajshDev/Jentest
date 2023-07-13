@@ -7,19 +7,19 @@ using System.Web;
 
 namespace IOAS.Models
 {
-    public class BankMasterViewModel
-    {
+        public class BankMasterViewModel
+        {
 
-        public string Bankname { get; set; }
-        public string AccountNumber { get; set; }
-        public string BranchName { get; set; }
-        public string SwiftCode { get; set; }
-        public string MICRCode { get; set; }
-        public string IFSCCode { get; set; }
-        public string BankAddress { get; set; }
-    }
-
-
+            public string Bankname { get; set; }
+            public string AccountNumber { get; set; }
+            public string BranchName { get; set; }
+            public string SwiftCode { get; set; }
+            public string MICRCode { get; set; }
+            public string IFSCCode { get; set; }
+            public string BankAddress { get; set; }
+        }
+        
+    
     public class InternalAgencyViewModel
     {
         public int sno { get; set; }
@@ -55,7 +55,7 @@ namespace IOAS.Models
         //[Required]
         //[Display(Name = "State")]
         public string InternalAgencyState { get; set; }
-
+        
         public int InternalAgencyUserId { get; set; }
         public string InternalAgencyType { get; set; }
         public HttpPostedFileBase[] File { get; set; }
@@ -74,7 +74,7 @@ namespace IOAS.Models
         public string NatureOfIncome { get; set; }
         public decimal Percentage { get; set; }
     }
-
+   
     public class LedgerOBBalanceModel
     {
         public int AccountCategoryId { get; set; }
@@ -92,7 +92,7 @@ namespace IOAS.Models
         public int sno { get; set; }
 
     }
-
+   
     public class BankAccountMaster
     {
         public Nullable<int> StaffBankId { get; set; }
@@ -176,7 +176,7 @@ namespace IOAS.Models
         [Display(Name = "TAN Number")]
         public string TAN { get; set; }
         [MaxLength(15)]
-        // [RegularExpression("^([0]{1}[1-9]{1}|[1-2]{1}[0-9]{1}|[3]{1}[0-7]{1})([a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[1-9a-zA-Z]{1}[zZ]{1}[0-9a-zA-Z]{1})+$", ErrorMessage = "Invalid GST Number")]
+       // [RegularExpression("^([0]{1}[1-9]{1}|[1-2]{1}[0-9]{1}|[3]{1}[0-7]{1})([a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[1-9a-zA-Z]{1}[zZ]{1}[0-9a-zA-Z]{1})+$", ErrorMessage = "Invalid GST Number")]
         [Display(Name = "GST Number")]
         public string GSTIN { get; set; }
 
@@ -274,7 +274,6 @@ namespace IOAS.Models
         public string Status { get; set; }
         public bool ClearanceAgency_f { get; set; }
         public bool TravelAgency_f { get; set; }
-        public decimal TDSLimit { get; set; }
     }
 
 

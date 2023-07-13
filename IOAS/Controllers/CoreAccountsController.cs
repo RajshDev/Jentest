@@ -1398,14 +1398,10 @@ namespace IOAS.Controllers
             try
             {
                 var output = coreAccountService.GetVendorDetails(vendorId);
-                var tdslimit = coreAccountService.VendorPaymentTds(vendorId);
-                output.TDSLimit = (Decimal)tdslimit;
                 if (poNumberRequired)
                     output.PONumberList = Common.GetBillPONumberList(vendorId, null, transTypeCode);
                 if (TDSRequired)
                     output.TDSList = Common.GetVendorTDSList(vendorId);
-
-
                 return Json(output, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -1447,7 +1443,7 @@ namespace IOAS.Controllers
             }
         }
         [HttpGet]
-        public JsonResult SearchCommitments(DateTime? fromDate, DateTime? toDate, int? projectType, int projectId, string keyword, int commitmentType = 0, int ProjectClassification = 0, int BankHeadId = 0)
+        public JsonResult SearchCommitments(DateTime? fromDate, DateTime? toDate, int? projectType, int projectId, string keyword, int commitmentType = 0, int ProjectClassification = 0,int BankHeadId = 0)
         {
             try
             {
@@ -2900,7 +2896,7 @@ namespace IOAS.Controllers
             return Json(data, JsonRequestBehavior.AllowGet);
         }
         [HttpGet]
-        public JsonResult LoadProjectList(string term, int? type = null, int? classification = null, int? BankHeadId = null)
+        public JsonResult LoadProjectList(string term, int? type = null, int? classification = null, int? BankHeadId =  null)
         {
             try
             {
@@ -2908,7 +2904,7 @@ namespace IOAS.Controllers
                 {
                     var data = new List<AutoCompleteModel>();
                     //Existing - General
-                    if (BankHeadId == 0 || BankHeadId == null)
+                    if(BankHeadId == 0 || BankHeadId == null )
                         data = Common.GetAutoCompleteProjectList(term, type);
                     else
                         data = Common.GetAutoCompleteProjectByBankIDList(term, type, BankHeadId); //CNA -SNA
@@ -4309,7 +4305,7 @@ namespace IOAS.Controllers
 
         [Authorized]
         [AcceptVerbs(HttpVerbs.Get)]
-        public JsonResult LoadPIBankProject(string PIId, int BankHeadId)
+        public JsonResult LoadPIBankProject(string PIId,int BankHeadId)
         {
             PIId = PIId == "" ? "0" : PIId;
             var locationdata = Common.getProjectListofPIandBank(Convert.ToInt32(PIId), BankHeadId);
@@ -7471,7 +7467,7 @@ namespace IOAS.Controllers
             ViewBag.BudgetHead = Common.getBudgetHead();
             ViewBag.Employee = Common.GetEmployeeName();
             ViewBag.AccountHead = Common.getBudgetHead();
-            if (BankHeadId > 0)
+            if(BankHeadId > 0)
                 ViewBag.ProjectNo = Common.getProjectNumberByBankId(BankHeadId);
             else
                 ViewBag.ProjectNo = Common.getProjectNumber();
@@ -8031,7 +8027,7 @@ namespace IOAS.Controllers
         {
             try
             {
-                object output = coreAccountService.GetProjectFundTransferList(model, pageIndex, pageSize, PostedDate);
+                object output = coreAccountService.GetProjectFundTransferList(model,pageIndex,  pageSize,PostedDate);
                 return Json(output, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -8301,7 +8297,7 @@ namespace IOAS.Controllers
                         TempData["errMsg"] = "There is a mismatch between the payment value and allocated commitment value. Please update the value to continue.";
                         return View(model);
                     }
-                    if (!Common.ValidateProjectBalanceOnReceipt(model.CreditProjectId ?? 0, 0, model.DebitAmount ?? 0))
+                    if(!Common.ValidateProjectBalanceOnReceipt(model.CreditProjectId ?? 0,0,model.DebitAmount ?? 0))
                     {
                         TempData["errMsg"] = "Should not exceed the credit project sanction value. Please update the value to continue.";
                         return View(model);
@@ -9494,7 +9490,7 @@ namespace IOAS.Controllers
             string docName = "";
             bool validimport = true;
             MemoryStream workStream = new MemoryStream();
-            string savepath;
+            string  savepath;
             if (file != null)
             {
                 string extension = Path.GetExtension(file.FileName).ToLower();
@@ -9521,7 +9517,7 @@ namespace IOAS.Controllers
                         System.Data.DataTable dt = _uty.ConvertCSVtoDataTable(path1);
                         listUpload = Converter.GetHonororiumEntityList<HonororiumExportListModel>(dt);
                     }
-                    else if (extension.ToLower().Trim() == ".xls" && Environment.Is64BitOperatingSystem == false)
+                    else if (extension.ToLower().Trim() == ".xls"  && Environment.Is64BitOperatingSystem == false)
                     {
                         connString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + path1 + ";Extended Properties=\"Excel 8.0;HDR=Yes;IMEX=1\"";
                         System.Data.DataTable dt = _uty.ConvertXSLXtoDataTable(path1, connString);
@@ -9556,14 +9552,14 @@ namespace IOAS.Controllers
                 honorpay.PayeeType = honorpay.PayeeType == null ? "" : honorpay.PayeeType;
                 honorpay.Amount = honorpay.Amount == null ? 0 : honorpay.Amount;
                 honorpay.TDS = honorpay.TDS == null ? 0 : honorpay.TDS;
-                int userid = 0;
+                int userid=0;
                 bool isNumeric = int.TryParse(honorpay.UserId, out userid);
 
 
                 switch (honorpay.PayeeType.ToUpper())
                 {
                     case "OTHERS":
-                        if (honorpay.Name == null || honorpay.Name.Trim() == "")
+                        if (honorpay.Name ==null || honorpay.Name.Trim() == "")
                             name_status = "Invalid Name";
 
                         break;
@@ -9625,7 +9621,7 @@ namespace IOAS.Controllers
                             name_status = "Invalid Staff ID";
                         break;
                     case "ADHOC STAFF": // Payee Type 5
-                        if (honorpay.UserId != "")
+                        if (honorpay.UserId != "" )
                         {
                             // int userid = (int)honorpay.UserId;
                             int tmp_userid = 0;
@@ -9651,18 +9647,18 @@ namespace IOAS.Controllers
                         break;
                 }
 
-                if (honorpay.Amount <= 0 || honorpay.Amount == null)
+                if (honorpay.Amount <= 0 || honorpay.Amount == null )
                 { amt_status = "Invalid Amount"; }
 
 
 
-                if (honorpay.TDS != 0 && honorpay.TDS != (decimal)0.10 && honorpay.TDS != (decimal)0.20 && honorpay.TDS != null)
+                if (honorpay.TDS != 0 && honorpay.TDS != (decimal)0.10 && honorpay.TDS != (decimal)0.20  && honorpay.TDS != null)
                 { tds_status = "Invalid TDS"; }
 
                 honorpay.Status = (name_status == "" ? "" : name_status + " / ") + (tds_status == "" ? "" : tds_status + " / ") + (amt_status == "" ? "" : amt_status + " / ");
                 if (honorpay.Status.Trim() == "")
                 {
-                    string[] arrPayment = { "", "Cheque", "Bank Transfer", "Salary" };
+                    string[] arrPayment = { "", "Cheque", "Bank Transfer" ,"Salary"};
                     string[] arrTdsSection = {"TDS on Contract  (94C) 2%","TDS on Salary (92B)","TDS on Fees (94J) 10%","TDS on Rent (94I) 10%",
 "TDS on Commission (94H) 5%","TDS Payable TDS Payable Income Tax","TDS on Contract  (94C) 1%","TDS on Rent (94I) 2%",
 "TDS on Non Residents (195) 10%","TDS on Non Residents (195) 15%","TDS on Non Residents (195) 20%",
@@ -9678,8 +9674,8 @@ namespace IOAS.Controllers
 
 
 
-                    honorpay.TDSAmt = honorpay.Amount * (honorpay.TDS);
-                    honorpay.NetAmount = honorpay.Amount - honorpay.TDSAmt;
+                    honorpay.TDSAmt = honorpay.Amount * (honorpay.TDS );
+                    honorpay.NetAmount= honorpay.Amount - honorpay.TDSAmt;
                     if (Array.IndexOf(arrPayment, honorpay.PaymentModeName) >= 0)
                     {
                         honorpay.PaymentModeVal = Array.IndexOf(arrPayment, honorpay.PaymentModeName);
@@ -9687,7 +9683,7 @@ namespace IOAS.Controllers
                         { pay_status = "Salary Not Allowed For " + honorpay.PayeeType; }
 
                         if (honorpay.PaymentModeVal == 2 &&
-                            ((honorpay.BankName == null || honorpay.Branch == null || honorpay.IFSC == null || honorpay.AccountNo == null) ||
+                            ((honorpay.BankName == null || honorpay.Branch == null || honorpay.IFSC == null|| honorpay.AccountNo== null)||
                             (honorpay.BankName.Trim() == "" || honorpay.Branch.Trim() == "" || honorpay.IFSC.Trim() == "" || honorpay.AccountNo.Trim() == "")))
                         { bank_status = "Invalid Bank/Branch/IFSC/AccounNo Details"; }
 
@@ -9706,7 +9702,7 @@ namespace IOAS.Controllers
                         honorpay.SelectedTdssection = "No PAN ";
 
                     }
-                    int tdsid = -1;
+                    int tdsid=-1;
                     if (honorpay.SelectedTdssection != null)
                         tdsid = Array.IndexOf(arrTdsSection, honorpay.SelectedTdssection.Trim());
                     if (tdsid >= 0)
@@ -9714,9 +9710,9 @@ namespace IOAS.Controllers
                         honorpay.SelectedTdssectionID = arrTdsSectionId[tdsid];
                         System.Text.RegularExpressions.Regex panregex = new System.Text.RegularExpressions.Regex("([A-Z]){5}([0-9]){4}([A-Z]){1}$");
 
-                        if ((honorpay.SelectedTdssectionID != "356" && honorpay.TDS > 0 && honorpay.TDS * 100 < 20) && (honorpay.PAN == null || honorpay.PAN.Trim() == ""))
+                        if ((honorpay.SelectedTdssectionID != "356" && honorpay.TDS  > 0 && honorpay.TDS*100 < 20) && (honorpay.PAN == null || honorpay.PAN.Trim() == ""))
                         { pay_status = "Pan No Required"; }
-                        else if ((honorpay.SelectedTdssectionID != "356" && honorpay.TDS > 0 && honorpay.TDS * 100 < 20) && !panregex.IsMatch(honorpay.PAN.Trim()))
+                        else if ((honorpay.SelectedTdssectionID != "356" && honorpay.TDS > 0 && honorpay.TDS * 100 < 20) && !panregex.IsMatch(honorpay.PAN.Trim()) )
                         { pay_status = "Invalid Pan no"; }
                     }
                     else if (honorpay.TDS > 0)
@@ -9724,7 +9720,7 @@ namespace IOAS.Controllers
 
                     honorpay.Status = (pay_status == "" ? "" : pay_status + " / ") + (tdsacc_status == "" ? "" : tdsacc_status + " / ") + (bank_status == "" ? "" : bank_status + " / "); ;
 
-                    if (honorpay.Status == "")
+                    if (honorpay.Status =="")
                         honorpay.Status = "Valid";
                     else
                         validimport = false;
@@ -9732,7 +9728,7 @@ namespace IOAS.Controllers
                 else
                 { validimport = false; }
 
-                if (honorpay.TDS == 0)
+                if (honorpay.TDS == 0 )
                 {
                     honorpay.PAN = "";
                     honorpay.SelectedTdssection = "";
@@ -9778,7 +9774,7 @@ namespace IOAS.Controllers
                 int counter = 2;
                 for (int i = 0; i < ColHeaders.Length; i++)
                 {
-                    ws.Cell(1, i + 1).Value = ColHeaders[i];
+                    ws.Cell(1,i+1 ).Value = ColHeaders[i];
 
                 }
 
@@ -9825,7 +9821,7 @@ namespace IOAS.Controllers
 
             }
 
-            var jsonResult = Json(new { status = msg, data = honoruploadlist, xlspath = savepath }, JsonRequestBehavior.AllowGet);
+            var jsonResult = Json(new { status = msg, data = honoruploadlist ,xlspath=savepath}, JsonRequestBehavior.AllowGet);
             jsonResult.MaxJsonLength = int.MaxValue;
             return jsonResult;
 
@@ -9836,6 +9832,7 @@ namespace IOAS.Controllers
             Utility _uty = new Utility();
             BRSModel model = new BRSModel();
             List<BankStatementDetailModel> list = new List<BankStatementDetailModel>();
+            List<BankStatementDetailModel> list_excel = new List<BankStatementDetailModel>();
             string msg = "Valid";
             list = coreAccountService.GetPendingBankTx(brsId, bankId);
             if (file != null)
@@ -9874,35 +9871,54 @@ namespace IOAS.Controllers
                         int DataRows = ws1.LastRowUsed().RowNumber();
                         int DataCols = ws1.LastColumnUsed().ColumnNumber();
 
-                        if (DataCols == 6 && ws1.Cell(1, 1).GetValue<String>() == "TransactionDate"
-                            && ws1.Cell(1, 2).GetValue<String>() == "ReferenceNumber"
-                            && ws1.Cell(1, 3).GetValue<String>() == "Description"
-                            && ws1.Cell(1, 4).GetValue<String>() == "Credit"
-                            && ws1.Cell(1, 5).GetValue<String>() == "Debit"
-                            && ws1.Cell(1, 6).GetValue<String>() == "Balance"
+                        if (DataCols == 6 && ws1.Cell(1, 1).GetValue<String>().Replace(" ", "").Trim().ToLower() == "transactiondate"
+                            && ws1.Cell(1, 2).GetValue<String>().Replace(" ","").Trim().ToLower() == "referencenumber"
+                            && ws1.Cell(1, 3).GetValue<String>().Replace(" ", "").Trim().ToLower() == "description"
+                            && ws1.Cell(1, 4).GetValue<String>().Replace(" ", "").Trim().ToLower() == "credit"
+                            && ws1.Cell(1, 5).GetValue<String>().Replace(" ", "").Trim().ToLower() == "debit"
+                            && ws1.Cell(1, 6).GetValue<String>().Replace(" ", "").Trim().ToLower() == "balance"
                             )
                         {
 
                             List<BankStatementDetailModel> brsxllist = new List<BankStatementDetailModel>();
-                            for (int iRow = 2; iRow < DataRows; iRow++)
+                            for (int iRow = 2; iRow <= DataRows; iRow++)
                             {
-                                DateTime tmpdate;
-                                string RefNumber;
-                                string Descrip;
-                                decimal t_Debit;
-                                decimal t_Credit;
-                                decimal t_Balance;
-                                bool validdate = ws1.Cell(iRow, 1).TryGetValue<DateTime>(out tmpdate);
-                                if (validdate)
+                                bool validrow = false;
+                                IXLRangeRow rowdata;
+                                
+                                try
                                 {
-                                    //string tmpdate = ws1.Cell(iRow, 1).GetValue<String>();
-                                    ws1.Cell(iRow, 1).Style.DateFormat.NumberFormatId = 14;
-                                    tmpdate = ws1.Cell(iRow, 1).GetValue<DateTime>();
-                                    RefNumber = ws1.Cell(iRow, 2).GetValue<String>();
-                                    Descrip = ws1.Cell(iRow, 3).GetValue<String>();
-                                    ws1.Cell(iRow, 4).TryGetValue<Decimal>(out t_Debit);
-                                    ws1.Cell(iRow, 5).TryGetValue<Decimal>(out t_Credit);
-                                    ws1.Cell(iRow, 6).TryGetValue<Decimal>(out t_Balance);
+                                    rowdata = ws1.Row(iRow).RowUsed(false);
+                                    validrow = true;
+                                }
+                                catch (Exception e)
+                                {
+                                    validrow = false;
+                                }
+
+                                if (validrow)
+                                {
+                                    DateTime tmpdate;
+                                    string tmpvalue;
+                                    string RefNumber;
+                                    string Descrip;
+                                    decimal t_Debit;
+                                    decimal t_Credit;
+                                    decimal t_Balance;
+                                    bool validdate = false;
+                                    bool validstring = false;
+                                    validstring =(ws1.Cell(iRow, 1).TryGetValue<string>(out tmpvalue)) ;
+                                    validdate = ws1.Cell(iRow, 1).TryGetValue<DateTime>(out tmpdate);
+                                    if (validdate)
+                                    {
+                                        //string tmpdate = ws1.Cell(iRow, 1).GetValue<String>();
+                                        ws1.Cell(iRow, 1).Style.DateFormat.NumberFormatId = 14;
+                                        tmpdate = ws1.Cell(iRow, 1).GetValue<DateTime>();
+                                        RefNumber = ws1.Cell(iRow, 2).GetValue<String>();
+                                        Descrip = ws1.Cell(iRow, 3).GetValue<String>();
+                                        ws1.Cell(iRow, 4).TryGetValue<Decimal>(out t_Credit);
+                                        ws1.Cell(iRow, 5).TryGetValue<Decimal>(out t_Debit);
+                                        ws1.Cell(iRow, 6).TryGetValue<Decimal>(out t_Balance);
 
                                     brsxllist.Add(new BankStatementDetailModel()
                                     {
@@ -9918,16 +9934,23 @@ namespace IOAS.Controllers
                                         BOAPaymentDetailId = ""
                                     });
                                 }
-                                else
-                                {
-                                    invalidrownos += iRow.ToString("#0") + ", ";
+                                    else if (ws1.Cell(iRow, 1).GetValue<String>() != "")
+                                    {
+                                        if (validstring)
+                                        {
+                                            invalidrownos += iRow.ToString("#0") + ", ";
+                                        }
+                                    }
+
                                 }
+                                
+                                if (invalidrownos.Trim() != "")
+                                { msg = "Invalid Date Values Found in Excel Row(s): " + invalidrownos.Substring(0, invalidrownos.Length - 2); }
+                                list_excel = brsxllist;
 
                             }
-
-                            if (invalidrownos.Trim() != "")
-                            { msg = "Invalid Date Values Found in Excel Row(s): " + invalidrownos.Substring(0, invalidrownos.Length - 2); }
-                            list = brsxllist;
+                            if (list_excel.Count > 0)
+                                list.AddRange(list_excel);
                         }
                         else
                         {
@@ -10565,6 +10588,7 @@ namespace IOAS.Controllers
                 detail.RemoveAt(2);
                 detail.RemoveAt(2);
                 ViewBag.PaymentCategoryList = detail;
+                ViewBag.SourceList = Common.GetSourceList();
                 ViewBag.AccountGroupList = Common.GetAccountGroup(false);
                 ViewBag.BankList = Common.GetBankAccountHeadList(true);
                 ViewBag.PayerCategoryList = Common.GetCodeControlList("PayerCategory", "TAD");
@@ -13416,7 +13440,7 @@ namespace IOAS.Controllers
                 ViewBag.Student = Common.GetStudentList();
                 List<MasterlistviewModel> tds = new List<MasterlistviewModel>();
                 tds = Common.GetTDS();
-                var tdsfilter = tds.Where(t => t.id == 0 || t.id == 10 || t.id == 20);
+                var tdsfilter = tds.Where(t => t.id == 0 || t.id ==10 || t.id == 20);
                 ViewBag.TDS = tdsfilter;
 
                 ViewBag.OH = Common.GetOH();
@@ -18301,7 +18325,7 @@ namespace IOAS.Controllers
         public JsonResult LoadConsultancyOHPostCal(int projectid)
         {
             string projectfundingcategoryid = coreAccountService.getconsultancyfundingcategory(projectid);
-            return Json(projectfundingcategoryid, JsonRequestBehavior.AllowGet);
+            return Json(projectfundingcategoryid,JsonRequestBehavior.AllowGet);
         }
         public ActionResult OHReversalList()
         {
@@ -19789,6 +19813,24 @@ namespace IOAS.Controllers
                 throw ex;
             }
         }
+        public JsonResult GSTOffsetListChallan(int GSTOffsetId, DateTime DepositDate,string CINNumber)
+
+        {
+            int logged_in_user = Common.GetUserid(User.Identity.Name);
+            GSTOffsetChallanDetail model = new GSTOffsetChallanDetail();
+            model.DepositDate = DepositDate;
+            model.GSTOffsetCINNumber = CINNumber;
+            try
+            {
+                var value = Common.GSTOffsetListChallan(model,GSTOffsetId, logged_in_user);
+                return Json(value, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(this, ex);
+                return null;
+            }
+        }
         public JsonResult ApprovalPendingForGSTOffset(int GSTOffsetId)
         {
             int logged_in_user = Common.GetUserid(User.Identity.Name);
@@ -19825,8 +19867,8 @@ namespace IOAS.Controllers
             object output = CoreAccountsService.SearchGSTOffsetList(model);
             return Json(output, JsonRequestBehavior.AllowGet);
         }
-        public ActionResult GSTOffsetView(int GSTOffsetId = 0)
-        {
+        public ActionResult GSTOffsetView(int GSTOffsetId = 0)     
+{
             try
             {
                 var emptyList = new List<GSTOffsetModel>();
@@ -20371,6 +20413,7 @@ namespace IOAS.Controllers
             //ViewBag.AccountHeadList = Common.GetAccHeadforAdminVoucher();
             ViewBag.AccountHeadList = emptyList;
             ViewBag.BankList = Common.GetBankAccountHeadList(true);
+            ViewBag.SourceList = Common.GetSourceList();
             //ViewBag.AccountGroupList = Common.GetAccGroupforAdminVoucher();
             ViewBag.AccountGroupList = Common.GetAccountGroup(false);
             ViewBag.TransactionTypeList = Common.GetCodeControlList("Transaction Type");
@@ -20458,22 +20501,6 @@ namespace IOAS.Controllers
                 throw new Exception(ex.Message);
             }
         }
-        [HttpGet]
-        public JsonResult VendorPaymentTds(int VendorId)
-        {
-            try
-            {
-                double VendorPayment = coreAccountService.VendorPaymentTds(VendorId);
-                return Json(new { VendorPayment, msg = "" }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-
-
-
         public ActionResult AdminVoucherView(int id = 0, bool Pfinit = false)
         {
             try
@@ -21224,19 +21251,7 @@ namespace IOAS.Controllers
             string msg = "Valid";
             if (file != null)
             {
-                //using (var context = new IOASDBEntities())
-                //{
-                //    var query = context.vw_CanaraBankBulkDetails.Where(m => m.BOADraftId == 4270).ToList();
-
-
-                //    List<string> txUTRDuplicateDetail = new List<string>();
-                //    var dupes = query.GroupBy(x => new { x.SendertoReceiverInfo, x.BeneficiaryAccountNo, x.Amount })
-                //       .Where(x => x.Skip(1).Any()).ToArray();
-                //    foreach (var item in dupes)
-                //    {
-                //        txUTRDuplicateDetail.Add(item.Select(m => m.SendertoReceiverInfo).FirstOrDefault());
-                //    }
-                //}
+              
                 string extension = Path.GetExtension(file.FileName).ToLower();
                 string connString = "";
                 string[] validFileTypes = { ".xls", ".xlsx" };
@@ -21256,25 +21271,178 @@ namespace IOAS.Controllers
                     if (System.IO.File.Exists(path1))
                     { System.IO.File.Delete(path1); }
                     file.SaveAs(path1);
-                    //file.UploadFile("UTRStatement", docName);
-                    //Connection String to Excel Workbook  
-                    var query = "SELECT * FROM [Sheet0$] where Name is not null and Name <> ''";
-                    if (extension.ToLower().Trim() == ".csv")
+                    file.UploadFile("UTRStatement", docName);
+                    string invalidrownos = "";
+
+                    string t_Name;
+                    string t_BeneficiaryAccountNumber;
+                    string t_Recordreferencenumber;
+                    decimal t_Amount;
+                    DateTime t_InputValueDate;
+                    string t_Status;
+                    string t_UserReferenceNumber;
+                    string t_UTRNO;
+                    string t_VerifyStatus;
+
+                    bool _FlagManualXL = true;
+
+                    if (_FlagManualXL)
                     {
-                        DataTable dt = _uty.ConvertCSVtoDataTable(path1);
-                        list = Converter.GetUTREntityList<UTRStatementDetailModel>(dt);
+                        /* Read Excel File Manully */
+                        XLWorkbook wbook = new XLWorkbook(path1);
+                        var ws1 = wbook.Worksheet(1);
+                        int DataRows = ws1.LastRowUsed().RowNumber();
+                        int DataCols = ws1.LastColumnUsed().ColumnNumber();
+                        string tmpvalue; DateTime tmpdate;
+                        if (DataCols == 8 && ws1.Cell(1, 1).GetValue<String>().Replace(" ", "").Trim().ToLower() == "name"
+                            && ws1.Cell(1, 2).GetValue<String>().Replace(" ", "").Trim().ToLower() == "recordreferencenumber"
+                            && ws1.Cell(1, 3).GetValue<String>().Replace(" ", "").Trim().ToLower() == "amount"
+                            && ws1.Cell(1, 4).GetValue<String>().Replace(" ", "").Trim().ToLower() == "beneficiaryaccountnumber"
+                            && ws1.Cell(1, 5).GetValue<String>().Replace(" ", "").Trim().ToLower() == "inputvaluedate"
+                            && ws1.Cell(1, 6).GetValue<String>().Replace(" ", "").Trim().ToLower() == "status"
+                            && ws1.Cell(1, 7).GetValue<String>().Replace(" ", "").Trim().ToLower() == "userreferencenumber"
+                            && ws1.Cell(1, 8).GetValue<String>().Replace(" ", "").Trim().ToLower() == "utrno"
+                            )
+                        {
+
+                            List<UTRStatementDetailModel> utrxllist = new List<UTRStatementDetailModel>();
+                            for (int iRow = 2; iRow <= DataRows; iRow++)
+                            {
+                                bool validrow = false;
+                                IXLRangeRow rowdata;
+
+                                try
+                                {
+                                    rowdata = ws1.Row(iRow).RowUsed(false);
+                                    validrow = true;
+                                }
+                                catch (Exception e)
+                                {
+                                    validrow = false;
+                                }
+
+                                if (validrow)
+                                {
+
+                                    bool validdate = false;
+                                    bool validamt = false;
+                                    bool validdtstring = false;
+                                    bool validamtstring = false;
+
+                                    //Check Date is Valid
+                                    validdtstring = (ws1.Cell(iRow, 5).TryGetValue<string>(out tmpvalue));
+
+                                    int dtpos1 = tmpvalue.IndexOf("-");
+                                    int dtpos2 = tmpvalue.LastIndexOf("-");
+                                    System.Globalization.CultureInfo provider = System.Globalization.CultureInfo.InvariantCulture;
+                                    Nullable<DateTime> dt = null;
+                                    if (dtpos1 > 0 && dtpos2 > 0 && dtpos1 < dtpos2 && tmpvalue.Length >= 8)
+                                    {
+                                        try
+                                        {
+                                            int dt_d = Int16.Parse(tmpvalue.Substring(0, dtpos1));
+                                            int dt_m = Int16.Parse(tmpvalue.Substring(dtpos1 + 1, (dtpos2 - dtpos1) - 1));
+                                            int dt_y = Int16.Parse(tmpvalue.Substring(dtpos2 + 1));
+
+                                            dt = new DateTime(dt_y, dt_m, dt_d);
+                                            validdate = true;
+                                        }
+                                        catch (Exception e)
+                                        {
+                                            validdate = false;
+                                        }
+                                    }
+
+                                    //Check Amount is Valid
+                                    validamtstring = (ws1.Cell(iRow, 3).TryGetValue<string>(out tmpvalue));
+                                    tmpvalue = tmpvalue.Replace("INR", "");
+                                    tmpvalue = tmpvalue.Replace(" ", "");
+                                    tmpvalue = tmpvalue.Replace(",", "");
+
+                                    decimal amt =0;
+                                    validamt = decimal.TryParse(tmpvalue.Trim(), out amt);
+
+
+
+
+                                    //validdate = ws1.Cell(iRow, 5).TryGetValue<DateTime>(out tmpdate);
+                                    if (validdate && validamt)
+                                    {
+                                        //string tmpdate = ws1.Cell(iRow, 1).GetValue<String>();
+                                        t_Name = ws1.Cell(iRow, 1).GetValue<String>();
+                                        t_Recordreferencenumber = ws1.Cell(iRow, 2).GetValue<String>();
+                                        t_Amount=amt;
+                                        t_BeneficiaryAccountNumber = ws1.Cell(iRow, 4).GetValue<String>();
+                                        t_InputValueDate = (DateTime)dt;
+                                        t_Status = ws1.Cell(iRow, 6).GetValue<String>();
+                                        t_UserReferenceNumber = ws1.Cell(iRow, 7).GetValue<String>();
+                                        t_UTRNO = ws1.Cell(iRow, 8).GetValue<String>();
+
+
+
+
+                                        utrxllist.Add(new UTRStatementDetailModel()
+                                        {
+                                            Name = t_Name,
+                                            BeneficiaryAccountNumber = t_BeneficiaryAccountNumber,
+                                            Recordreferencenumber = t_Recordreferencenumber,
+                                            Amount = t_Amount,
+                                            InputValueDate = t_InputValueDate,
+                                            Status = t_Status,
+                                            UserReferenceNumber= t_UserReferenceNumber,
+                                            UTRNO= t_UTRNO,
+                                            VerifyStatus= "",
+                                        });
+                                    }
+                                    else if (ws1.Cell(iRow, 1).GetValue<String>() != "")
+                                    {
+                                        if (validdtstring)
+                                        {
+                                            invalidrownos += iRow.ToString("#0") + ", ";
+                                        }
+                                    }
+
+                                }
+
+                                if (invalidrownos.Trim() != "")
+                                { msg = "Invalid Date Values Found in Excel Row(s): " + invalidrownos.Substring(0, invalidrownos.Length - 2); }
+                                list = utrxllist;
+                            }
+                        }
+                        else
+                        {
+                            msg = "Invalid Excel Format Uploaded";
+                        }
+                        /* var data = ws1.Cell("A1").GetValue<string>();
+
+                     /* end Read Excel File Manully */
                     }
-                    else if (extension.ToLower().Trim() == ".xls" && Environment.Is64BitOperatingSystem == false)
+                    else // Dataadapter based excel reading
                     {
-                        connString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + path1 + ";Extended Properties=\"Excel 8.0;HDR=Yes;IMEX=2\"";
-                        DataTable dt = _uty.ConvertXSLXtoDataTable(path1, connString, "", query);
-                        list = Converter.GetUTREntityList<UTRStatementDetailModel>(dt);
-                    }
-                    else
-                    {
-                        connString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + path1 + ";Extended Properties=\"Excel 12.0;HDR=Yes;IMEX=2\"";
-                        DataTable dt = _uty.ConvertXSLXtoDataTable(path1, connString, "", query);
-                        list = Converter.GetUTREntityList<UTRStatementDetailModel>(dt);
+
+                        if (System.IO.File.Exists(path1))
+                        { System.IO.File.Delete(path1); }
+                        file.SaveAs(path1);
+                        //file.UploadFile("UTRStatement", docName);
+                        //Connection String to Excel Workbook  
+                        var query = "SELECT * FROM [Sheet0$] where Name is not null and Name <> ''";
+                        if (extension.ToLower().Trim() == ".csv")
+                        {
+                            DataTable dt = _uty.ConvertCSVtoDataTable(path1);
+                            list = Converter.GetUTREntityList<UTRStatementDetailModel>(dt);
+                        }
+                        else if (extension.ToLower().Trim() == ".xls" && Environment.Is64BitOperatingSystem == false)
+                        {
+                            connString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + path1 + ";Extended Properties=\"Excel 8.0;HDR=Yes;IMEX=2\"";
+                            DataTable dt = _uty.ConvertXSLXtoDataTable(path1, connString, "", query);
+                            list = Converter.GetUTREntityList<UTRStatementDetailModel>(dt);
+                        }
+                        else
+                        {
+                            connString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + path1 + ";Extended Properties=\"Excel 12.0;HDR=Yes;IMEX=2\"";
+                            DataTable dt = _uty.ConvertXSLXtoDataTable(path1, connString, "", query);
+                            list = Converter.GetUTREntityList<UTRStatementDetailModel>(dt);
+                        }
                     }
                 }
                 else
