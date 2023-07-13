@@ -14,6 +14,7 @@ namespace IOAS.DataModel
     
     public partial class tblDynamicFilter
     {
+        public int ReportFilterID { get; set; }
         public Nullable<int> ReportID { get; set; }
         public string ReportField { get; set; }
         public string FieldType { get; set; }

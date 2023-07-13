@@ -45,5 +45,6 @@ namespace IOAS.DataModel
         public Nullable<int> PI { get; set; }
         public string PIName { get; set; }
         public Nullable<decimal> PaymentTDSAmount { get; set; }
+        public Nullable<int> BankID { get; set; }
     }
 }

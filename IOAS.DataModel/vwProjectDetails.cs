@@ -33,8 +33,6 @@ namespace IOAS.DataModel
         public int ProjectId { get; set; }
         public string Status { get; set; }
         public Nullable<System.DateTime> SanctionOrderDate { get; set; }
-        public string DomainName { get; set; }
-        public string DomainDescription { get; set; }
         public string SchemeCode { get; set; }
     }
 }

@@ -56,5 +56,6 @@ namespace IOAS.DataModel
         public Nullable<int> CastEmployeeId { get; set; }
         public string VendorNameStr { get; set; }
         public Nullable<int> FinYearId { get; set; }
+        public Nullable<int> BankID { get; set; }
     }
 }

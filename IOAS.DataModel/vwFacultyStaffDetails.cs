@@ -24,5 +24,6 @@ namespace IOAS.DataModel
         public string ContactNumber { get; set; }
         public int FacultyDetailsId { get; set; }
         public string PaybillNo { get; set; }
+        public string PiIdName { get; set; }
     }
 }

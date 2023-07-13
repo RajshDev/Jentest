@@ -29975,7 +29975,8 @@ namespace IOAS.GenericServices
                 SearchOrderModel list = new SearchOrderModel();
                 List<OrderListModel> EmployeeList = new List<OrderListModel>();
                 using (var context = new IOASDBEntities())
-                {                   
+                {
+                    context.Database.CommandTimeout = 3500;
                     int skiprec = 0;
                     if (page == 1)
                         skiprec = 0;
@@ -30030,7 +30031,7 @@ namespace IOAS.GenericServices
                         predicate = predicate.And(d => d.RelievingType.Contains(model.relievingType) || d.RelievingType.Contains(model.relievingType));
                     if (EmployeeDateofBirth.@from!=null&& EmployeeDateofBirth.to!=null)
                         predicate = predicate.And(d => d.DateofBirth >= EmployeeDateofBirth.@from && d.DateofBirth <= EmployeeDateofBirth.to);
-                    var querylist= prequery.Where(predicate).OrderByDescending(m => m.OrderId).Skip(skiprec).Take(pageSize).ToList();
+                    var querylist= prequery.Where(predicate).Skip(skiprec).Take(pageSize).ToList();
                     list.TotalRecords=prequery.Where(predicate).Count();
                     if (querylist.Count > 0)
                     {
