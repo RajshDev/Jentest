@@ -915,18 +915,6 @@ namespace IOAS.DataModel
         public virtual DbSet<tblRCTSTEMarchOld> tblRCTSTEMarchOld { get; set; }
         public virtual DbSet<tblTaxMasterInvoice> tblTaxMasterInvoice { get; set; }
         public virtual DbSet<tblLoginDetails> tblLoginDetails { get; set; }
-        public virtual DbSet<BackendReceipt> BackendReceipt { get; set; }
-        public virtual DbSet<backendRecRMF> backendRecRMF { get; set; }
-        public virtual DbSet<SponOverallExpenditure> SponOverallExpenditure { get; set; }
-        public virtual DbSet<SponOverallReceipt> SponOverallReceipt { get; set; }
-        public virtual DbSet<tax_update> tax_update { get; set; }
-        public virtual DbSet<tblTapalreportForTapalSec> tblTapalreportForTapalSec { get; set; }
-        public virtual DbSet<Temp_1403_BRS> Temp_1403_BRS { get; set; }
-        public virtual DbSet<Temp_1410brs> Temp_1410brs { get; set; }
-        public virtual DbSet<Temp_1413brs> Temp_1413brs { get; set; }
-        public virtual DbSet<Temp_paymentBOA> Temp_paymentBOA { get; set; }
-        public virtual DbSet<temp_taxUpdate> temp_taxUpdate { get; set; }
-        public virtual DbSet<Temp2_paymentBOA> Temp2_paymentBOA { get; set; }
     
         public virtual int AnnualAccounts(Nullable<System.DateTime> date, Nullable<System.DateTime> date2)
         {
@@ -1708,15 +1696,6 @@ namespace IOAS.DataModel
         public virtual int TestSPRCTTermEndReminder1()
         {
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("TestSPRCTTermEndReminder1");
-        }
-    
-        public virtual int spVendorPaymentCeilingCheck(Nullable<int> vendorId, ObjectParameter vendorTrans)
-        {
-            var vendorIdParameter = vendorId.HasValue ?
-                new ObjectParameter("VendorId", vendorId) :
-                new ObjectParameter("VendorId", typeof(int));
-    
-            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("spVendorPaymentCeilingCheck", vendorIdParameter, vendorTrans);
         }
     }
 }

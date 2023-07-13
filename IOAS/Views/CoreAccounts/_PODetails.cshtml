@@ -77,7 +77,6 @@
                     count++;
                 }
 
-
             }
             else
             {
@@ -116,7 +115,7 @@
             }
         </tbody>
     </table>
-    @Html.Hidden("TotalInvoiceValue", 0)
+
 </div>
 
 <script type="text/javascript">
@@ -208,63 +207,51 @@
         CalculatePOValue();
     }
     function fillPODetail(poDetials) {
-        var totInvoiceValue = 0.00;
-
-            $.each(poDetials, function (i, result) {
-                if (i == 0) {
-                    var trEle = $('#tbodyPO tr:nth-child(2)');
-                    $('#tbodyPO tr').not(':first,:nth-child(2)').remove();
+        $.each(poDetials, function (i, result) {
+            if (i == 0) {
+                var trEle = $('#tbodyPO tr:nth-child(2)');
+                $('#tbodyPO tr').not(':first,:nth-child(2)').remove();
                 
-                    $(trEle).find("input[name='PODetail.Index']").val(0);
-                    trEle.find('select[name$=".TaxPct"]').val(result.TaxPct);
-                    trEle.find('input[name$=".Description"]').val(result.Description);
-                    trEle.find('input[name$=".TypeOfServiceOrCategory"]').val(result.TypeOfServiceOrCategory);
-                    trEle.find('input[name$=".ItemName"]').val(result.ItemName);
-                    trEle.find('input[name$=".TotalAmount"]').val(result.TotalAmount);
-
-                    totInvoiceValue = (parseFloat(totInvoiceValue) + parseFloat(result.TotalAmount));
-                    if (result.IsTaxEligible) {
-                        trEle.find('input[type="hidden"][name$=".IsTaxEligible"]').val('true');
-                        trEle.find('input[name$=".IsTaxEligible"]').prop('checked', true);
-                    } else {
-                        trEle.find('input[type="hidden"][name$=".IsTaxEligible"]').val('false');
-                        trEle.find('input[name$=".IsTaxEligible"]').prop('checked', false);
-                    }
-                    
+                $(trEle).find("input[name='PODetail.Index']").val(0);
+                trEle.find('select[name$=".TaxPct"]').val(result.TaxPct);
+                trEle.find('input[name$=".Description"]').val(result.Description);
+                trEle.find('input[name$=".TypeOfServiceOrCategory"]').val(result.TypeOfServiceOrCategory);
+                trEle.find('input[name$=".ItemName"]').val(result.ItemName);
+                trEle.find('input[name$=".TotalAmount"]').val(result.TotalAmount);
+                if (result.IsTaxEligible) {
+                    trEle.find('input[type="hidden"][name$=".IsTaxEligible"]').val('true');
+                    trEle.find('input[name$=".IsTaxEligible"]').prop('checked', true);
+                } else {
+                    trEle.find('input[type="hidden"][name$=".IsTaxEligible"]').val('false');
+                    trEle.find('input[name$=".IsTaxEligible"]').prop('checked', false);
                 }
+            } else {
+                var trEle = $('#tbodyPO tr:nth-child(2)').clone();
+                $(trEle).find("input[name='PODetail.Index']").val(i);
+                $(trEle).find("input, select").each(function () {
+                    $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                    if ($(this).attr("id"))
+                    $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                });
+                $(trEle).find("span[data-valmsg-for]").each(function () {
+                    $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                });
                 
-
-                else {
-                    var trEle = $('#tbodyPO tr:nth-child(2)').clone();
-                    $(trEle).find("input[name='PODetail.Index']").val(i);
-                    $(trEle).find("input, select").each(function () {
-                        $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
-                        if ($(this).attr("id"))
-                        $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
-                    });
-                    $(trEle).find("span[data-valmsg-for]").each(function () {
-                        $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
-                    });
-                
-                    trEle.find('select[name$=".TaxPct"]').val(result.TaxPct);
-                    trEle.find('input[name$=".Description"]').val(result.Description);
-                    trEle.find('input[name$=".TypeOfServiceOrCategory"]').val(result.TypeOfServiceOrCategory);
-                    trEle.find('input[name$=".ItemName"]').val(result.ItemName);
-                    trEle.find('input[name$=".TotalAmount"]').val(result.TotalAmount);
-                    totInvoiceValue = (parseFloat(totInvoiceValue) + parseFloat(result.TotalAmount));
-                    if (result.IsTaxEligible) {
-                        trEle.find('input[type="hidden"][name$=".IsTaxEligible"]').val('true');
-                        trEle.find('input[name$=".IsTaxEligible"]').prop('checked', true);
-                    } else {
-                        trEle.find('input[type="hidden"][name$=".IsTaxEligible"]').val('false');
-                        trEle.find('input[name$=".IsTaxEligible"]').prop('checked', false);
-                    }
-                    $('#tbodyPO').append(trEle);
-                    
+                trEle.find('select[name$=".TaxPct"]').val(result.TaxPct);
+                trEle.find('input[name$=".Description"]').val(result.Description);
+                trEle.find('input[name$=".TypeOfServiceOrCategory"]').val(result.TypeOfServiceOrCategory);
+                trEle.find('input[name$=".ItemName"]').val(result.ItemName);
+                trEle.find('input[name$=".TotalAmount"]').val(result.TotalAmount);
+                if (result.IsTaxEligible) {
+                    trEle.find('input[type="hidden"][name$=".IsTaxEligible"]').val('true');
+                    trEle.find('input[name$=".IsTaxEligible"]').prop('checked', true);
+                } else {
+                    trEle.find('input[type="hidden"][name$=".IsTaxEligible"]').val('false');
+                    trEle.find('input[name$=".IsTaxEligible"]').prop('checked', false);
+                }
+                $('#tbodyPO').append(trEle);
             }
         });
-        //Html.Hidden("TotalInvoiceValue", totInvoiceValue);
-        
         CalculatePOValue();
         applyACToTypeOfService();
     }

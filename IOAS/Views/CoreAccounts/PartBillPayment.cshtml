@@ -465,8 +465,6 @@
         $('#btnAddExpense').addClass('dis-none');
         var selSource = $('#Source').val();
         var vendorId = $('#VendorId').val();
-        var TotalInvoice = $("#TotalInvoiceValue").val();
-        var CurrentValue = $("#lblAdvNetAmt").val();
         if(vendorId != ''){
             $.ajax({
                 type: "GET",
@@ -478,13 +476,7 @@
                     $('#lblVendorGSTIN').text(result.GSTIN);
                     $('#lblVendorAddr').text(result.Address);
                     $('#lblStateCode').text(result.StateCode);
-                    console.log(result.TDSLimit);
-                    // 1st Open Alert Popup
-                    if (parseFloat((result.TDSLimit - TotalInvoice) + CurrentValue) > 5000000) {
-                        $('#FailedAlert').html("The Total payment is" + " Rs: " + result.TDSLimit.toFixed(2) + " hence 194Q is applicable for goods. ");
-                        $('#Failed').modal('show');
-                    }
-                        UpdateGSTSplitUp();
+                    UpdateGSTSplitUp()
                 },
                 error: function (err) {
                     console.log("error : " + err);
@@ -719,10 +711,6 @@
         $('#lblVendorName').html($('#VendorId option:selected').text());
         var selPO = $('#PONumber');
         selPO.empty();
-        var TotalInvoice = $("#TotalInvoiceValue").val();
-        var CurrentValue = $("#lblPONetAmt").val();
-        console.log(TotalInvoice);
-        console.log(CurrentValue);
         if (vendorId != '') {
             $('#lnkBillHistory').removeClass('dis-none');
             $.ajax({
@@ -735,13 +723,7 @@
                     $('#lblVendorGSTIN').text(result.GSTIN);
                     $('#lblVendorAddr').text(result.Address);
                     $('#lblStateCode').text(result.StateCode);
-                    fillMasterDropDown(selPO, result.PONumberList, true);
-                    console.log(result.TDSLimit);
-                    // Edit Vendor InputBox Alert Popup
-                    if (parseFloat((result.TDSLimit - TotalInvoice) + CurrentValue) > 5000000) {
-                        $('#FailedAlert').html("The Total payment is" + " Rs: " + result.TDSLimit.toFixed(2) + " hence 194Q is applicable for goods. ");
-                        $('#Failed').modal('show');
-                    }
+                    fillMasterDropDown(selPO,result.PONumberList,true);
                     UpdateGSTSplitUp();
                     ele.empty();
                     ele.append($('<option/>', {
@@ -1070,14 +1052,12 @@
             $('#lblPOTtlTaxAmt').text(ttlPOTaxVal.toFixed(2));
             netPOVal = (ttlPOVal + ttlPOTaxVal).toFixed(2);
             $('#lblPONetAmt').text(netPOVal);
-           
             $('#lblAdvTtlAmt').text(ttlAdvVal.toFixed(2));
             $('#lblAdvTtlTaxAmt').text(ttlAdvTaxVal.toFixed(2));
             $('#hiddenTaxEligibleAmt').val(ttlGSTElgAmt.toFixed(2)).trigger('change');
             $('#lblTaxEligibleAmt').text(ttlGSTElgAmt.toFixed(2));
             netAdvVal = (ttlAdvVal + ttlAdvTaxVal).toFixed(2);
             $('#lblAdvNetAmt').text(netAdvVal);
-            if ($('#TotalInvoiceValue').val() == 0 && $('#BillId').val() != "0") { $('#TotalInvoiceValue').val(netAdvVal); }
             UpdateGSTSplitUp();
             var roundValItc = $('#hiddenTaxEligibleAmt').val() || 0;
             var validCmtAmt = (netAdvVal - roundValItc).toFixed(2);
@@ -1228,28 +1208,6 @@
         //}
         return msg;
     }
-    // Next Button Alert Popup
-    function validatetds(vendorId, settlementamt, TotalInvoice) {
-    retval = true;
-        $.ajax({    
-            type: "GET",   
-            url: "@Url.Action("GetVendorDetails", "CoreAccounts")",   
-            data: { "vendorId": vendorId, "poNumberRequired": true, "transTypeCode": 'ADV', "TDSRequired": true },
-            dataType: "json",
-            success: function (result) {
-                console.log(result.TDSLimit);
-                console.log(TotalInvoice);
-                console.log(settlementamt);
-                var tdsCal = ((parseFloat(result.TDSLimit) - parseFloat(TotalInvoice)) + parseFloat(settlementamt))
-                if (tdsCal > 5000000) {
-                    retval = false;
-                    $('#FailedAlert').html("The Total payment is" + " Rs: " + tdsCal.toFixed(2) + " hence 194Q is applicable for goods.");
-                    $('#Failed').modal('show');
-                }
-            }
-        });
-    return retval;
-    };
     function validateForm(n) {
         // This function deals with validation of the form fields
         var isValid = false;
@@ -1264,10 +1222,6 @@
         } else if (currentTab == 0) {
             var content = $('#tbodyCommitmentSrchList tr td:last').html();
             var advPct = parseFloat($("#AdvancePercentage").val());
-            var SettleAmt = $('#lblAdvNetAmt').text() || 0;
-            var vendorid = $('#VendorId').val() || 0;
-            var TotalInvoice = $("#TotalInvoiceValue").val() || 0;
-            validatetds(vendorid, SettleAmt, TotalInvoice);
             if (99 < advPct) {
                 hadError = true;
                 $("#alert").text("Part percentage should not be greater than 99%. ");

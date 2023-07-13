@@ -454,8 +454,6 @@ new { @class = "form-control" })
         }
         var selSource = $('#Source').val();
         var vendorId = $('#VendorId').val();
-        var TotalInvoice = $("#TotalInvoiceValue").val();
-        var CurrentValue = $("#lblPONetAmt").val();   
         if (vendorId != '') {
             $.ajax({
                 type: "GET",
@@ -469,11 +467,11 @@ new { @class = "form-control" })
                     $('#lblStateCode').text(result.StateCode);
                     $('#lblBankDetails').text(result.BankName + "-" + result.AccountNumber);
                     console.log(result.TDSLimit);
-                    // 1st Open Alert Popup
-                    if (parseFloat((result.TDSLimit - TotalInvoice) + CurrentValue) > 5000000) {
-                        $('#FailedAlert').html("The Total payment is" + " Rs: " + result.TDSLimit.toFixed(2) + " hence 194Q is applicable for goods. ");
+                    if (parseFloat(result.TDSLimit) > 5000000) {
+                        //alert("Hello! I am an alert box!!");
+                        $('#FailedAlert').html("TDS 50Lac Limit Exceed : ");
+                        //+ result.TDSLimit
                         $('#Failed').modal('show');
-                        //hideTdsAmount.hide();
                     }
                     UpdateGSTSplitUp()
                 },
@@ -693,10 +691,6 @@ new { @class = "form-control" })
         $('#NeedUpdateTransDetail').val('true');
         var ele = $('#VendorTDSDetailId');
         $('#lblVendorName').html($('#VendorId option:selected').text());
-        var TotalInvoice = $("#TotalInvoiceValue").val();
-        var CurrentValue = $("#lblPONetAmt").val();
-        console.log(TotalInvoice);
-        console.log(CurrentValue);
         if (vendorId != '') {
             $('#lnkBillHistory').removeClass('dis-none');
             $.ajax({
@@ -711,9 +705,10 @@ new { @class = "form-control" })
                     $('#lblStateCode').text(result.StateCode);
                     $('#lblBankDetails').text(result.BankName + "-" + result.AccountNumber);
                     console.log(result.TDSLimit);
-                    // Edit Vendor InputBox Alert Popup
-                    if (parseFloat((result.TDSLimit - TotalInvoice) + CurrentValue) > 5000000) {
-                        $('#FailedAlert').html("The Total payment is" + " Rs: " + result.TDSLimit.toFixed(2) + " hence 194Q is applicable for goods. ");
+                    if (result.TDSLimit > 5000000) {
+                        //alert("Hello! I am an alert box!!");
+                        $('#FailedAlert').html("TDS 50Lac Limit Exceed : ");
+                        //+ result.TDSLimit.toFixed(2)
                         $('#Failed').modal('show');
                     }
                     UpdateGSTSplitUp();
@@ -1013,9 +1008,7 @@ new { @class = "form-control" })
             $('#lblPOTtlAmt').text(ttlPOVal.toFixed(2));
             $('#lblPOTtlTaxAmt').text(ttlPOTaxVal.toFixed(2));
             netPOVal = (ttlPOVal + ttlPOTaxVal).toFixed(2);
-            $('#lblPONetAmt').text(netPOVal);            
-            if ($('#TotalInvoiceValue').val() == 0 && $('#BillId').val() != "0") { $('#TotalInvoiceValue').val(netPOVal); }
-           //if ($('#TotalInvoiceValue').val() == 0) { $('#TotalInvoiceValue').val(netPOVal); }
+            $('#lblPONetAmt').text(netPOVal);
             $('#lblAdvTtlAmt').text(ttlAdvVal.toFixed(2));
             $('#lblAdvTtlTaxAmt').text(ttlAdvTaxVal.toFixed(2));
             netAdvVal = (ttlAdvVal + ttlAdvTaxVal).toFixed(2);
@@ -1182,9 +1175,8 @@ new { @class = "form-control" })
         }
         return msg;
     }
-    function validatetds(vendorId, settlementamt, TotalInvoice) {
+    function validatetds(vendorId, settlementamt) {
         retval = true;
-
         $.ajax({
             type: "GET",
             url: "@Url.Action("GetVendorDetails", "CoreAccounts")",
@@ -1192,12 +1184,11 @@ new { @class = "form-control" })
             dataType: "json",
             success: function (result) {
                 console.log(result.TDSLimit);
-                console.log(TotalInvoice);
-                console.log(settlementamt);
-                var tdsCal = ((parseFloat(result.TDSLimit) - parseFloat(TotalInvoice)) + parseFloat(settlementamt))
-                if (tdsCal > 5000000 ) {
+                if ((parseFloat(result.TDSLimit) + parseFloat(settlementamt)) > 5000000 ) {
+                    //alert("Hello! I am an alert box!!");
                     retval = false;
-                    $('#FailedAlert').html("The Total payment is" + " Rs: " + tdsCal.toFixed(2) + " hence 194Q is applicable for goods.");
+                    $('#FailedAlert').html("TDS 50Lac Limit Exceed : ");
+                    //+ result.TDSLimit.toFixed(2)
                     $('#Failed').modal('show');
                 }
             }
@@ -1216,11 +1207,10 @@ new { @class = "form-control" })
         if (count <= 0) {                // if there are not no reason to loop them
             return true;                 // this can be used to perform other action if there are no steps
         } else if (currentTab == 0) {
-            var content = $('#tbodyCommitmentSrchList tr td:last').html();           
-            var SettleAmt = $('#lblPONetAmt').text() || 0;
+            var content = $('#tbodyCommitmentSrchList tr td:last').html();
+            var SettleAmt = $('#lblAdvTtlAmt').text() || 0;
             var vendorid = $('#VendorId').val() || 0;
-            var TotalInvoice = $("#TotalInvoiceValue").val() || 0;
-            validatetds(vendorid, SettleAmt, TotalInvoice);      
+            validatetds(vendorid, SettleAmt);
             if (content == '') {
                 searchCommitment()
             }
