@@ -18,5 +18,6 @@ namespace IOAS.DataModel
         public Nullable<int> UserId { get; set; }
         public Nullable<System.DateTime> LoginTime { get; set; }
         public Nullable<bool> isLoggedIn { get; set; }
+        public string currSession { get; set; }
     }
 }

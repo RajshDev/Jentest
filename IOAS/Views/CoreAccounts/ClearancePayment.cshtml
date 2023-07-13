@@ -265,6 +265,7 @@
                         <div>
                             @Html.HiddenFor(m => m.CheckListVerified_By)
                             @Html.HiddenFor(m => m.CheckListVerifierName)
+
                             <div class="col-md-3 col-md-offset-9">
                                 <div class="form-group custom-form-group">
                                     <label>Verified by</label>
@@ -373,6 +374,8 @@
 <div id="popup"></div>
 
 <script>
+    let TdsVendorList = "";
+
     $(function () {
         $('[data-toggle="tooltip"]').tooltip()
     });
@@ -402,6 +405,8 @@
         }
         var selSource = $('#Source').val();
         var agentId = $('#ClearanceAgentId').val();
+        
+        var vendorId = $('#VendorId').val();
         if(agentId != ''){
             $.ajax({
                 type: "GET",
@@ -413,6 +418,12 @@
                     $('#lblAgentGSTIN').text(result.GSTIN);
                     $('#lblAgentAddr').text(result.Address);
                     $('#lblStateCode').text(result.StateCode);
+                    //if (parseFloat(result.TDSLimit) > 5000000) {                        
+                    //    $('#FailedAlert').html("TDS 50Lac Limit Exceed : ");
+                    //    //+ result.TDSLimit
+                    //    $('#Failed').modal('show');
+                    //}
+
                     UpdateGSTSplitUp()
                 },
                 error: function (err) {
@@ -1055,6 +1066,101 @@
     //    amt = $(this).val();
     //    $('#CreditorAmount').val(amt);
     //});
+    //function updatevendorsName() {
+    //    $('#tbodyPaymentBU tr').each(function (idx, val) {
+
+    //        //var vendorId = $(this).find('input[name$="PaymentBreakDetailID"]').val();
+    //        var vendorNames = $(this).find('input[name$="autoComplete"]').val();
+    //        var vendorId = $(this).find('input[name$="PaymentBreakUpDetailId"]').val();
+    //        //$(this).find('input[name$="PaymentBreakUpDetailId"]').val(); autoComplete           
+    //        validatetds(vendorId, 0);
+    //    });
+    //};
+
+     function validatetds(vendorId, settlementamt) {
+        retval = true;
+        $.ajax({
+            type: "GET",
+            url: "@Url.Action("GetVendorDetails", "CoreAccounts")",
+            data: { "vendorId": vendorId, "poNumberRequired": true, "transTypeCode": 'ADV', "TDSRequired": true },
+            dataType: "json",
+            success: function (result) {
+                console.log(result.TDSLimit);
+                if ((parseFloat(result.TDSLimit) + parseFloat(settlementamt)) > 0 ) {
+                    //alert("Hello! I am an alert box!!");
+                    retval = false;
+                    $('#FailedAlert').html("TDS 50Lac Limit Exceed : ");
+                    //+ result.TDSLimit.toFixed(2)
+                    $('#Failed').modal('show');
+                }
+            }
+            });
+        return retval;
+    };
+    function validatetds1(vendorId,vendorName,settleAmt) {
+        return   $.ajax({
+                type: "GET",
+                url: "@Url.Action("GetVendorDetails", "CoreAccounts")",
+                data: { "vendorId": vendorId, "poNumberRequired": true, "transTypeCode": 'ADV', "TDSRequired": true },
+                dataType: "json",
+            success: function (result) {
+                    
+                if (result.TDSLimit + settleAmt  > 0) {
+                        retval = false;
+                    TdsVendorList = TdsVendorList + vendorName+", ";
+                    console.log(TdsVendorList);
+                  
+                    }
+
+                }
+            });
+    }
+    async function updatevendorsName() {
+        var p = $.when();
+        var tdsres = "N/A";
+        TdsVendorList = "";
+        $('#tbodyPaymentBU tr').each(function (idx, val) {
+
+            var vendorId = $(this).find('input[name$="PaymentBreakDetailID"]').val();
+            var vendorName = $(this).find('input[name$="autoComplete"]').val();
+            var vendorIds = $(this).find('input[name$="UserId"]').val();
+
+            //$(this).find('input[name$="PaymentBreakUpDetailId"]').val(); autoComplete
+            
+            console.log(vendorIds);
+            console.log(vendorName);
+            console.log(vendorId); 
+            console.log("Trigger Start");
+            var tdsres = "N/A";
+            p = p.then(function () {
+                tdsres = tdsres+ validatetds1(9061,vendorName,0);
+            });
+            console.log(TdsVendorList);
+            //console.log(TDSLimit);
+
+            $('#FailedAlert').html( "<br> TDS Above 50 lakh ");               
+            $('#Failed').modal('show');                
+        });
+    } @*
+     function validatetds(vendorId, settlementamt) {     
+        retval = true;
+        $.ajax({
+            type: "GET",
+            url: "@Url.Action("GetVendorDetails", "CoreAccounts")",
+            data: { "vendorId": vendorId, "poNumberRequired": true, "transTypeCode": 'ADV', "TDSRequired": true },
+            dataType: "json",
+            success: function (result) {
+                console.log(result.TDSLimit);               
+                if ((parseFloat(result.TDSLimit) + parseFloat(settlementamt)) > 0 ) {                   
+                    retval = false;
+                    $('#FailedAlert').html("Above 50 lakh");
+                    //+ result.TDSLimit.toFixed(2)
+                    $('#Failed').modal('show');
+                }               
+            }
+            });
+        return retval;
+    };*@
     function validateForm(n) {
 
         // This function deals with validation of the form fields
@@ -1074,6 +1180,10 @@
                 searchCommitment();
             }
         } if (currentTab == 1) {
+            var SettleAmt = $('#lblAdvTtlAmt').text() || 0;
+            var vendorid = $('#VendorId').val() || 0;
+            validatetds(vendorid, SettleAmt); 
+            updatevendorsName();
 
             var validationMsg = ValidatePaymentBU()
             if (validationMsg != 'valid') {
