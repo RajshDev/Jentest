@@ -915,6 +915,7 @@ namespace IOAS.DataModel
         public virtual DbSet<tblRCTSTEMarchOld> tblRCTSTEMarchOld { get; set; }
         public virtual DbSet<tblTaxMasterInvoice> tblTaxMasterInvoice { get; set; }
         public virtual DbSet<tblLoginDetails> tblLoginDetails { get; set; }
+        public virtual DbSet<tblGSTOffsetChallonDetails> tblGSTOffsetChallonDetails { get; set; }
     
         public virtual int AnnualAccounts(Nullable<System.DateTime> date, Nullable<System.DateTime> date2)
         {
