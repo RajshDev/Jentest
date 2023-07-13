@@ -1398,10 +1398,14 @@ namespace IOAS.Controllers
             try
             {
                 var output = coreAccountService.GetVendorDetails(vendorId);
+                var tdslimit = coreAccountService.VendorPaymentTds(vendorId);
+                output.TDSLimit = (Decimal)tdslimit;
                 if (poNumberRequired)
                     output.PONumberList = Common.GetBillPONumberList(vendorId, null, transTypeCode);
                 if (TDSRequired)
                     output.TDSList = Common.GetVendorTDSList(vendorId);
+
+
                 return Json(output, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -9885,7 +9889,7 @@ namespace IOAS.Controllers
                             {
                                 bool validrow = false;
                                 IXLRangeRow rowdata;
-                                
+
                                 try
                                 {
                                     rowdata = ws1.Row(iRow).RowUsed(false);
@@ -18661,6 +18665,42 @@ namespace IOAS.Controllers
             }
         }
 
+
+        [HttpPost]
+        public ActionResult UnVerifyPaymentProcess(int? boaDraftId, int? payeeId, int? modeOfPayment)
+        {
+            try
+            {
+                lock (PaymentVerifyWFInitlockObj)
+                {
+                    if (ModelState.IsValid)
+                    {
+                        int userId = Common.GetUserid(User.Identity.Name);
+                        int draftID = coreAccountService.UnVerifyPaymentProcess(boaDraftId, payeeId, modeOfPayment, userId);
+                        if (draftID > 0)
+                            TempData["succMsg"] = "Bill has been unverified for payment process successfully.";
+                        else
+                            TempData["errMsg"] = "Something went wrong please contact administrator.";
+                        return RedirectToAction("PaymentProcess", new { boaDraftId = draftID });
+                    }
+                    else
+                    {
+                        string messages = string.Join("<br />", ModelState.Values
+                                            .SelectMany(x => x.Errors)
+                                            .Select(x => x.ErrorMessage));
+
+                        TempData["errMsg"] = messages;
+                    }
+                    return RedirectToAction("PaymentProcess", new { boaDraftId = Convert.ToInt32(boaDraftId) });
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["errMsg"] = "Something went wrong please contact administrator.";
+                return RedirectToAction("PaymentProcess", new { boaDraftId = Convert.ToInt32(boaDraftId) });
+            }
+        }
+
         [HttpGet]
         public JsonResult ApproveBOADraft(int boaDraftId)
         {
@@ -19867,8 +19907,8 @@ namespace IOAS.Controllers
             object output = CoreAccountsService.SearchGSTOffsetList(model);
             return Json(output, JsonRequestBehavior.AllowGet);
         }
-        public ActionResult GSTOffsetView(int GSTOffsetId = 0)     
-{
+        public ActionResult GSTOffsetView(int GSTOffsetId = 0)
+        {
             try
             {
                 var emptyList = new List<GSTOffsetModel>();
@@ -20501,6 +20541,22 @@ namespace IOAS.Controllers
                 throw new Exception(ex.Message);
             }
         }
+        [HttpGet]
+        public JsonResult VendorPaymentTds(int VendorId)
+        {
+            try
+            {
+                double VendorPayment = coreAccountService.VendorPaymentTds(VendorId);
+                return Json(new { VendorPayment, msg = "" }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+
+
         public ActionResult AdminVoucherView(int id = 0, bool Pfinit = false)
         {
             try
@@ -21506,7 +21562,7 @@ namespace IOAS.Controllers
         }
         #endregion
         #region Test
-
+        
         public JsonResult TestPass(int userid)
         {
             var Pass = "";
