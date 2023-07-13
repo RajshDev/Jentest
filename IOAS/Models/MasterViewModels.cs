@@ -274,6 +274,7 @@ namespace IOAS.Models
         public string Status { get; set; }
         public bool ClearanceAgency_f { get; set; }
         public bool TravelAgency_f { get; set; }
+        public decimal TDSLimit { get; set; }
     }
 
 
