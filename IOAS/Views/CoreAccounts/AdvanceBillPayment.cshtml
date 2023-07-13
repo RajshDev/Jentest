@@ -87,23 +87,23 @@
 new { @class = "form-control" })
                                                     @Html.ValidationMessageFor(m => m.VendorId)
                                                     @if (Model.VendorId != null)
-                {
-                                    <a href="javascript:void(0)" id="lnkBillHistory">View previous bill history</a>
-}
-else
-{
-                                    <a href="javascript:void(0)" id="lnkBillHistory" class="dis-none">View previous bill history</a>
-}
+                                                    {
+                                                        <a href="javascript:void(0)" id="lnkBillHistory">View previous bill history</a>
+                                                    }
+                                                    else
+                                                    {
+                                                        <a href="javascript:void(0)" id="lnkBillHistory" class="dis-none">View previous bill history</a>
+                                                    }
                                                 </div>
 
                                             </div>
                                             <div class="col-md-3">
                                                 <div class="form-group custom-form-group">
                                                     <label>TDS Section</label>
-                                                    @Html.DropDownListFor(m => m.VendorTDSDetailId, new SelectList(ViewBag.VendorTDSList, "id", "name"),"Select any", new { @class = "form-control selectpicker" })
+                                                    @Html.DropDownListFor(m => m.VendorTDSDetailId, new SelectList(ViewBag.VendorTDSList, "id", "name"), "Select any", new { @class = "form-control selectpicker" })
                                                     @Html.ValidationMessageFor(m => m.VendorTDSDetailId)
                                                     @Html.HiddenFor(m => m.SubCode)
-                                                    @Html.Hidden("TransactionTypeCode","ADV")
+                                                    @Html.Hidden("TransactionTypeCode", "ADV")
                                                     @Html.Hidden("varVendorAdvance")
                                                     @Html.Hidden("varBank")
                                                     @Html.Hidden("varTDSIT")
@@ -155,7 +155,7 @@ else
                                             <div class="col-md-3">
                                                 <div class="form-group custom-form-group">
                                                     <label>Pro-forma Invoice Date</label>
-                                                    @Html.EditorFor(m=>m.InvoiceDate, new { @class = "form-control" })
+                                                    @Html.EditorFor(m => m.InvoiceDate, new { @class = "form-control" })
                                                     @Html.ValidationMessageFor(m => m.InvoiceDate)
                                                 </div>
 
@@ -163,7 +163,7 @@ else
                                             <div class="col-md-3">
                                                 <div class="form-group custom-form-group">
                                                     <label class="required">Bill Type</label>
-                                                    @Html.DropDownListFor(m => m.BillType, new SelectList(ViewBag.BillTypeList, "id", "name"), "Select any",new { @class = "form-control" })                                                
+                                                    @Html.DropDownListFor(m => m.BillType, new SelectList(ViewBag.BillTypeList, "id", "name"), "Select any", new { @class = "form-control" })
                                                     @Html.ValidationMessageFor(m => m.BillType)
                                                 </div>
 
@@ -211,7 +211,7 @@ else
                                                     @Html.TextAreaFor(m => m.BankGuaranteeRemarks, new { @class = "form-control", @rows = "2" })
                                                     @Html.ValidationMessageFor(M => M.BankGuaranteeRemarks)
                                                 </div>
-                                            </div>                                     
+                                            </div>
                                             <div class="col-md-3">
                                                 <div class="form-group custom-form-group">
                                                     <label>Remarks</label>
@@ -454,6 +454,8 @@ else
         }
         var selSource = $('#Source').val();
         var vendorId = $('#VendorId').val();
+        var TotalInvoice = $("#TotalInvoiceValue").val();
+        var CurrentValue = $("#lblPONetAmt").val();   
         if (vendorId != '') {
             $.ajax({
                 type: "GET",
@@ -466,6 +468,13 @@ else
                     $('#lblVendorAddr').text(result.Address);
                     $('#lblStateCode').text(result.StateCode);
                     $('#lblBankDetails').text(result.BankName + "-" + result.AccountNumber);
+                    console.log(result.TDSLimit);
+                    // 1st Open Alert Popup
+                    if (parseFloat((result.TDSLimit - TotalInvoice) + CurrentValue) > 5000000) {
+                        $('#FailedAlert').html("The Total payment is" + " Rs: " + result.TDSLimit.toFixed(2) + " hence 194Q is applicable for goods. ");
+                        $('#Failed').modal('show');
+                        //hideTdsAmount.hide();
+                    }
                     UpdateGSTSplitUp()
                 },
                 error: function (err) {
@@ -497,7 +506,7 @@ else
         var BankId = $('#BankId :selected').val();
 
         if (BankId != '')
-        {                         
+        {
             $.getJSON("@Url.Action("LoadProjecttitlebybankid", "Project")", { projecttype: 1, bankid: BankId },
         function (locationdata) {
             var select = $("#srchProjectNumber");
@@ -684,6 +693,10 @@ else
         $('#NeedUpdateTransDetail').val('true');
         var ele = $('#VendorTDSDetailId');
         $('#lblVendorName').html($('#VendorId option:selected').text());
+        var TotalInvoice = $("#TotalInvoiceValue").val();
+        var CurrentValue = $("#lblPONetAmt").val();
+        console.log(TotalInvoice);
+        console.log(CurrentValue);
         if (vendorId != '') {
             $('#lnkBillHistory').removeClass('dis-none');
             $.ajax({
@@ -696,7 +709,13 @@ else
                     $('#lblVendorGSTIN').text(result.GSTIN);
                     $('#lblVendorAddr').text(result.Address);
                     $('#lblStateCode').text(result.StateCode);
-                    $('#lblBankDetails').text(result.BankName +"-"+ result.AccountNumber);
+                    $('#lblBankDetails').text(result.BankName + "-" + result.AccountNumber);
+                    console.log(result.TDSLimit);
+                    // Edit Vendor InputBox Alert Popup
+                    if (parseFloat((result.TDSLimit - TotalInvoice) + CurrentValue) > 5000000) {
+                        $('#FailedAlert').html("The Total payment is" + " Rs: " + result.TDSLimit.toFixed(2) + " hence 194Q is applicable for goods. ");
+                        $('#Failed').modal('show');
+                    }
                     UpdateGSTSplitUp();
                     ele.empty();
                     ele.append($('<option/>', {
@@ -994,7 +1013,9 @@ else
             $('#lblPOTtlAmt').text(ttlPOVal.toFixed(2));
             $('#lblPOTtlTaxAmt').text(ttlPOTaxVal.toFixed(2));
             netPOVal = (ttlPOVal + ttlPOTaxVal).toFixed(2);
-            $('#lblPONetAmt').text(netPOVal);
+            $('#lblPONetAmt').text(netPOVal);            
+            if ($('#TotalInvoiceValue').val() == 0 && $('#BillId').val() != "0") { $('#TotalInvoiceValue').val(netPOVal); }
+           //if ($('#TotalInvoiceValue').val() == 0) { $('#TotalInvoiceValue').val(netPOVal); }
             $('#lblAdvTtlAmt').text(ttlAdvVal.toFixed(2));
             $('#lblAdvTtlTaxAmt').text(ttlAdvTaxVal.toFixed(2));
             netAdvVal = (ttlAdvVal + ttlAdvTaxVal).toFixed(2);
@@ -1161,6 +1182,28 @@ else
         }
         return msg;
     }
+    function validatetds(vendorId, settlementamt, TotalInvoice) {
+        retval = true;
+
+        $.ajax({
+            type: "GET",
+            url: "@Url.Action("GetVendorDetails", "CoreAccounts")",
+            data: { "vendorId": vendorId, "poNumberRequired": true, "transTypeCode": 'ADV', "TDSRequired": true },
+            dataType: "json",
+            success: function (result) {
+                console.log(result.TDSLimit);
+                console.log(TotalInvoice);
+                console.log(settlementamt);
+                var tdsCal = ((parseFloat(result.TDSLimit) - parseFloat(TotalInvoice)) + parseFloat(settlementamt))
+                if (tdsCal > 5000000 ) {
+                    retval = false;
+                    $('#FailedAlert').html("The Total payment is" + " Rs: " + tdsCal.toFixed(2) + " hence 194Q is applicable for goods.");
+                    $('#Failed').modal('show');
+                }
+            }
+            });
+        return retval;
+    };
     function validateForm(n) {
         // This function deals with validation of the form fields
         var isValid = false;
@@ -1173,7 +1216,11 @@ else
         if (count <= 0) {                // if there are not no reason to loop them
             return true;                 // this can be used to perform other action if there are no steps
         } else if (currentTab == 0) {
-            var content = $('#tbodyCommitmentSrchList tr td:last').html();
+            var content = $('#tbodyCommitmentSrchList tr td:last').html();           
+            var SettleAmt = $('#lblPONetAmt').text() || 0;
+            var vendorid = $('#VendorId').val() || 0;
+            var TotalInvoice = $("#TotalInvoiceValue").val() || 0;
+            validatetds(vendorid, SettleAmt, TotalInvoice);      
             if (content == '') {
                 searchCommitment()
             }
