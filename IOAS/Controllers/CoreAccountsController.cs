@@ -9944,7 +9944,7 @@ namespace IOAS.Controllers
                                 }
 
                                 }
-                                
+
                                 if (invalidrownos.Trim() != "")
                                 { msg = "Invalid Date Values Found in Excel Row(s): " + invalidrownos.Substring(0, invalidrownos.Length - 2); }
                                 list_excel = brsxllist;
@@ -19850,6 +19850,24 @@ namespace IOAS.Controllers
                 throw ex;
             }
         }
+        public JsonResult GSTOffsetListChallan(int GSTOffsetId, DateTime DepositDate,string CINNumber)
+
+        {
+            int logged_in_user = Common.GetUserid(User.Identity.Name);
+            GSTOffsetChallanDetail model = new GSTOffsetChallanDetail();
+            model.DepositDate = DepositDate;
+            model.GSTOffsetCINNumber = CINNumber;
+            try
+            {
+                var value = Common.GSTOffsetListChallan(model,GSTOffsetId, logged_in_user);
+                return Json(value, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(this, ex);
+                return null;
+            }
+        }
         public JsonResult ApprovalPendingForGSTOffset(int GSTOffsetId)
         {
             int logged_in_user = Common.GetUserid(User.Identity.Name);
@@ -20514,6 +20532,19 @@ namespace IOAS.Controllers
                         return Json(new { output = false, msg = "Something went wrong ,pls contact Admin." }, JsonRequestBehavior.AllowGet);
                     return Json(output, JsonRequestBehavior.AllowGet);
                 }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        [HttpGet]
+        public JsonResult VendorPaymentTds(int VendorId)
+        {
+            try
+            {
+                double VendorPayment = coreAccountService.VendorPaymentTds(VendorId);
+                return Json(new { VendorPayment, msg = "" }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
