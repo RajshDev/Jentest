@@ -31,5 +31,8 @@ namespace IOAS.DataModel
         public Nullable<bool> Pmt_f { get; set; }
         public Nullable<bool> Payee_f { get; set; }
         public Nullable<int> BankID { get; set; }
+        public Nullable<System.DateTime> SourceEmailDate { get; set; }
+        public Nullable<int> Source { get; set; }
+        public Nullable<int> SourceReferenceNumber { get; set; }
     }
 }

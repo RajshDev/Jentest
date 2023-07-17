@@ -25,5 +25,8 @@ namespace IOAS.DataModel
         public string Status { get; set; }
         public Nullable<bool> Pmt_f { get; set; }
         public string AdminVoucherNumber { get; set; }
+        public Nullable<System.DateTime> SourceEmailDate { get; set; }
+        public Nullable<int> SourceReferenceNumber { get; set; }
+        public Nullable<int> Source { get; set; }
     }
 }
