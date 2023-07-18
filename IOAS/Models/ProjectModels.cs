@@ -1338,6 +1338,8 @@ public class projectFundingModel
         public string[] CoPIEmail { get; set; }
         public string[] CoPIDepartment { get; set; }
 
+        public int ProjectFundingCategory { get; set; }
+
     }
     public class InternalProjectSearchModel
     {
