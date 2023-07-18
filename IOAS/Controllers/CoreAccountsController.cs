@@ -18664,7 +18664,7 @@ namespace IOAS.Controllers
 
 
         [HttpPost]
-        public ActionResult UnVerifyPaymentProcess(int? boaDraftId, int? payeeId, int? modeOfPayment)
+        public ActionResult UnVerifyPaymentProcess(int? boaDraftId, int? payeeId, string modeOfPayment)
         {
             try
             {
@@ -20551,22 +20551,6 @@ namespace IOAS.Controllers
                 throw new Exception(ex.Message);
             }
         }
-        [HttpGet]
-        public JsonResult VendorPaymentTds(int VendorId)
-        {
-            try
-            {
-                double VendorPayment = coreAccountService.VendorPaymentTds(VendorId);
-                return Json(new { VendorPayment, msg = "" }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-
-
-
         public ActionResult AdminVoucherView(int id = 0, bool Pfinit = false)
         {
             try
