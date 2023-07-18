@@ -18,8 +18,6 @@ namespace IOASExternal.DataModel
         public IOASExternalEntities()
             : base("name=IOASExternalEntities")
         {
-            this.Database.CommandTimeout = 180;
-            this.Database.ExecuteSqlCommand("SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;");
         }
     
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
