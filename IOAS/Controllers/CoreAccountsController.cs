@@ -1398,8 +1398,6 @@ namespace IOAS.Controllers
             try
             {
                 var output = coreAccountService.GetVendorDetails(vendorId);
-                var tdslimit = coreAccountService.VendorPaymentTds(vendorId);
-                output.TDSLimit = (Decimal)tdslimit;
                 if (poNumberRequired)
                     output.PONumberList = Common.GetBillPONumberList(vendorId, null, transTypeCode);
                 if (TDSRequired)
@@ -9834,7 +9832,6 @@ namespace IOAS.Controllers
             Utility _uty = new Utility();
             BRSModel model = new BRSModel();
             List<BankStatementDetailModel> list = new List<BankStatementDetailModel>();
-            List<BankStatementDetailModel> list_excel = new List<BankStatementDetailModel>();
             string msg = "Valid";
             list = coreAccountService.GetPendingBankTx(brsId, bankId);
             if (file != null)
@@ -9918,8 +9915,8 @@ namespace IOAS.Controllers
                                         tmpdate = ws1.Cell(iRow, 1).GetValue<DateTime>();
                                         RefNumber = ws1.Cell(iRow, 2).GetValue<String>();
                                         Descrip = ws1.Cell(iRow, 3).GetValue<String>();
-                                        ws1.Cell(iRow, 4).TryGetValue<Decimal>(out t_Credit);
-                                        ws1.Cell(iRow, 5).TryGetValue<Decimal>(out t_Debit);
+                                        ws1.Cell(iRow, 4).TryGetValue<Decimal>(out t_Debit);
+                                        ws1.Cell(iRow, 5).TryGetValue<Decimal>(out t_Credit);
                                         ws1.Cell(iRow, 6).TryGetValue<Decimal>(out t_Balance);
 
                                         brsxllist.Add(new BankStatementDetailModel()
@@ -9948,11 +9945,8 @@ namespace IOAS.Controllers
 
                                 if (invalidrownos.Trim() != "")
                                 { msg = "Invalid Date Values Found in Excel Row(s): " + invalidrownos.Substring(0, invalidrownos.Length - 2); }
-                                list_excel = brsxllist;
-
-                            }
-                            if (list_excel.Count > 0)
-                                list.AddRange(list_excel);
+                                list = brsxllist;
+                            }                          
                         }
                         else
                         {
@@ -21302,7 +21296,19 @@ namespace IOAS.Controllers
             string msg = "Valid";
             if (file != null)
             {
-              
+                //using (var context = new IOASDBEntities())
+                //{
+                //    var query = context.vw_CanaraBankBulkDetails.Where(m => m.BOADraftId == 4270).ToList();
+
+
+                //    List<string> txUTRDuplicateDetail = new List<string>();
+                //    var dupes = query.GroupBy(x => new { x.SendertoReceiverInfo, x.BeneficiaryAccountNo, x.Amount })
+                //       .Where(x => x.Skip(1).Any()).ToArray();
+                //    foreach (var item in dupes)
+                //    {
+                //        txUTRDuplicateDetail.Add(item.Select(m => m.SendertoReceiverInfo).FirstOrDefault());
+                //    }
+                //}
                 string extension = Path.GetExtension(file.FileName).ToLower();
                 string connString = "";
                 string[] validFileTypes = { ".xls", ".xlsx" };
@@ -21322,178 +21328,25 @@ namespace IOAS.Controllers
                     if (System.IO.File.Exists(path1))
                     { System.IO.File.Delete(path1); }
                     file.SaveAs(path1);
-                    file.UploadFile("UTRStatement", docName);
-                    string invalidrownos = "";
-
-                    string t_Name;
-                    string t_BeneficiaryAccountNumber;
-                    string t_Recordreferencenumber;
-                    decimal t_Amount;
-                    DateTime t_InputValueDate;
-                    string t_Status;
-                    string t_UserReferenceNumber;
-                    string t_UTRNO;
-                    string t_VerifyStatus;
-
-                    bool _FlagManualXL = true;
-
-                    if (_FlagManualXL)
+                    //file.UploadFile("UTRStatement", docName);
+                    //Connection String to Excel Workbook  
+                    var query = "SELECT * FROM [Sheet0$] where Name is not null and Name <> ''";
+                    if (extension.ToLower().Trim() == ".csv")
                     {
-                        /* Read Excel File Manully */
-                        XLWorkbook wbook = new XLWorkbook(path1);
-                        var ws1 = wbook.Worksheet(1);
-                        int DataRows = ws1.LastRowUsed().RowNumber();
-                        int DataCols = ws1.LastColumnUsed().ColumnNumber();
-                        string tmpvalue; DateTime tmpdate;
-                        if (DataCols == 8 && ws1.Cell(1, 1).GetValue<String>().Replace(" ", "").Trim().ToLower() == "name"
-                            && ws1.Cell(1, 2).GetValue<String>().Replace(" ", "").Trim().ToLower() == "recordreferencenumber"
-                            && ws1.Cell(1, 3).GetValue<String>().Replace(" ", "").Trim().ToLower() == "amount"
-                            && ws1.Cell(1, 4).GetValue<String>().Replace(" ", "").Trim().ToLower() == "beneficiaryaccountnumber"
-                            && ws1.Cell(1, 5).GetValue<String>().Replace(" ", "").Trim().ToLower() == "inputvaluedate"
-                            && ws1.Cell(1, 6).GetValue<String>().Replace(" ", "").Trim().ToLower() == "status"
-                            && ws1.Cell(1, 7).GetValue<String>().Replace(" ", "").Trim().ToLower() == "userreferencenumber"
-                            && ws1.Cell(1, 8).GetValue<String>().Replace(" ", "").Trim().ToLower() == "utrno"
-                            )
-                        {
-
-                            List<UTRStatementDetailModel> utrxllist = new List<UTRStatementDetailModel>();
-                            for (int iRow = 2; iRow <= DataRows; iRow++)
-                            {
-                                bool validrow = false;
-                                IXLRangeRow rowdata;
-
-                                try
-                                {
-                                    rowdata = ws1.Row(iRow).RowUsed(false);
-                                    validrow = true;
-                                }
-                                catch (Exception e)
-                                {
-                                    validrow = false;
-                                }
-
-                                if (validrow)
-                                {
-
-                                    bool validdate = false;
-                                    bool validamt = false;
-                                    bool validdtstring = false;
-                                    bool validamtstring = false;
-
-                                    //Check Date is Valid
-                                    validdtstring = (ws1.Cell(iRow, 5).TryGetValue<string>(out tmpvalue));
-
-                                    int dtpos1 = tmpvalue.IndexOf("-");
-                                    int dtpos2 = tmpvalue.LastIndexOf("-");
-                                    System.Globalization.CultureInfo provider = System.Globalization.CultureInfo.InvariantCulture;
-                                    Nullable<DateTime> dt = null;
-                                    if (dtpos1 > 0 && dtpos2 > 0 && dtpos1 < dtpos2 && tmpvalue.Length >= 8)
-                                    {
-                                        try
-                                        {
-                                            int dt_d = Int16.Parse(tmpvalue.Substring(0, dtpos1));
-                                            int dt_m = Int16.Parse(tmpvalue.Substring(dtpos1 + 1, (dtpos2 - dtpos1) - 1));
-                                            int dt_y = Int16.Parse(tmpvalue.Substring(dtpos2 + 1));
-
-                                            dt = new DateTime(dt_y, dt_m, dt_d);
-                                            validdate = true;
-                                        }
-                                        catch (Exception e)
-                                        {
-                                            validdate = false;
-                                        }
-                                    }
-
-                                    //Check Amount is Valid
-                                    validamtstring = (ws1.Cell(iRow, 3).TryGetValue<string>(out tmpvalue));
-                                    tmpvalue = tmpvalue.Replace("INR", "");
-                                    tmpvalue = tmpvalue.Replace(" ", "");
-                                    tmpvalue = tmpvalue.Replace(",", "");
-
-                                    decimal amt =0;
-                                    validamt = decimal.TryParse(tmpvalue.Trim(), out amt);
-
-
-
-
-                                    //validdate = ws1.Cell(iRow, 5).TryGetValue<DateTime>(out tmpdate);
-                                    if (validdate && validamt)
-                                    {
-                                        //string tmpdate = ws1.Cell(iRow, 1).GetValue<String>();
-                                        t_Name = ws1.Cell(iRow, 1).GetValue<String>();
-                                        t_Recordreferencenumber = ws1.Cell(iRow, 2).GetValue<String>();
-                                        t_Amount=amt;
-                                        t_BeneficiaryAccountNumber = ws1.Cell(iRow, 4).GetValue<String>();
-                                        t_InputValueDate = (DateTime)dt;
-                                        t_Status = ws1.Cell(iRow, 6).GetValue<String>();
-                                        t_UserReferenceNumber = ws1.Cell(iRow, 7).GetValue<String>();
-                                        t_UTRNO = ws1.Cell(iRow, 8).GetValue<String>();
-
-
-
-
-                                        utrxllist.Add(new UTRStatementDetailModel()
-                                        {
-                                            Name = t_Name,
-                                            BeneficiaryAccountNumber = t_BeneficiaryAccountNumber,
-                                            Recordreferencenumber = t_Recordreferencenumber,
-                                            Amount = t_Amount,
-                                            InputValueDate = t_InputValueDate,
-                                            Status = t_Status,
-                                            UserReferenceNumber= t_UserReferenceNumber,
-                                            UTRNO= t_UTRNO,
-                                            VerifyStatus= "",
-                                        });
-                                    }
-                                    else if (ws1.Cell(iRow, 1).GetValue<String>() != "")
-                                    {
-                                        if (validdtstring)
-                                        {
-                                            invalidrownos += iRow.ToString("#0") + ", ";
-                                        }
-                                    }
-
-                                }
-
-                                if (invalidrownos.Trim() != "")
-                                { msg = "Invalid Date Values Found in Excel Row(s): " + invalidrownos.Substring(0, invalidrownos.Length - 2); }
-                                list = utrxllist;
-                            }
-                        }
-                        else
-                        {
-                            msg = "Invalid Excel Format Uploaded";
-                        }
-                        /* var data = ws1.Cell("A1").GetValue<string>();
-
-                     /* end Read Excel File Manully */
+                        DataTable dt = _uty.ConvertCSVtoDataTable(path1);
+                        list = Converter.GetUTREntityList<UTRStatementDetailModel>(dt);
                     }
-                    else // Dataadapter based excel reading
+                    else if (extension.ToLower().Trim() == ".xls" && Environment.Is64BitOperatingSystem == false)
                     {
-
-                        if (System.IO.File.Exists(path1))
-                        { System.IO.File.Delete(path1); }
-                        file.SaveAs(path1);
-                        //file.UploadFile("UTRStatement", docName);
-                        //Connection String to Excel Workbook  
-                        var query = "SELECT * FROM [Sheet0$] where Name is not null and Name <> ''";
-                        if (extension.ToLower().Trim() == ".csv")
-                        {
-                            DataTable dt = _uty.ConvertCSVtoDataTable(path1);
-                            list = Converter.GetUTREntityList<UTRStatementDetailModel>(dt);
-                        }
-                        else if (extension.ToLower().Trim() == ".xls" && Environment.Is64BitOperatingSystem == false)
-                        {
-                            connString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + path1 + ";Extended Properties=\"Excel 8.0;HDR=Yes;IMEX=2\"";
-                            DataTable dt = _uty.ConvertXSLXtoDataTable(path1, connString, "", query);
-                            list = Converter.GetUTREntityList<UTRStatementDetailModel>(dt);
-                        }
-                        else
-                        {
-                            connString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + path1 + ";Extended Properties=\"Excel 12.0;HDR=Yes;IMEX=2\"";
-                            DataTable dt = _uty.ConvertXSLXtoDataTable(path1, connString, "", query);
-                            list = Converter.GetUTREntityList<UTRStatementDetailModel>(dt);
-                        }
+                        connString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + path1 + ";Extended Properties=\"Excel 8.0;HDR=Yes;IMEX=2\"";
+                        DataTable dt = _uty.ConvertXSLXtoDataTable(path1, connString, "", query);
+                        list = Converter.GetUTREntityList<UTRStatementDetailModel>(dt);
+                    }
+                    else
+                    {
+                        connString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + path1 + ";Extended Properties=\"Excel 12.0;HDR=Yes;IMEX=2\"";
+                        DataTable dt = _uty.ConvertXSLXtoDataTable(path1, connString, "", query);
+                        list = Converter.GetUTREntityList<UTRStatementDetailModel>(dt);
                     }
                 }
                 else
