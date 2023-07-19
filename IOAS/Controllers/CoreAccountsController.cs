@@ -9834,6 +9834,7 @@ namespace IOAS.Controllers
             Utility _uty = new Utility();
             BRSModel model = new BRSModel();
             List<BankStatementDetailModel> list = new List<BankStatementDetailModel>();
+            List<BankStatementDetailModel> list_excel = new List<BankStatementDetailModel>();
             string msg = "Valid";
             list = coreAccountService.GetPendingBankTx(brsId, bankId);
             if (file != null)
@@ -9917,8 +9918,8 @@ namespace IOAS.Controllers
                                         tmpdate = ws1.Cell(iRow, 1).GetValue<DateTime>();
                                         RefNumber = ws1.Cell(iRow, 2).GetValue<String>();
                                         Descrip = ws1.Cell(iRow, 3).GetValue<String>();
-                                        ws1.Cell(iRow, 4).TryGetValue<Decimal>(out t_Debit);
-                                        ws1.Cell(iRow, 5).TryGetValue<Decimal>(out t_Credit);
+                                        ws1.Cell(iRow, 4).TryGetValue<Decimal>(out t_Credit);
+                                        ws1.Cell(iRow, 5).TryGetValue<Decimal>(out t_Debit);
                                         ws1.Cell(iRow, 6).TryGetValue<Decimal>(out t_Balance);
 
                                         brsxllist.Add(new BankStatementDetailModel()
@@ -9947,8 +9948,11 @@ namespace IOAS.Controllers
 
                                 if (invalidrownos.Trim() != "")
                                 { msg = "Invalid Date Values Found in Excel Row(s): " + invalidrownos.Substring(0, invalidrownos.Length - 2); }
-                                list = brsxllist;
-                            }                          
+                                list_excel = brsxllist;
+
+                            }
+                            if (list_excel.Count > 0)
+                                list.AddRange(list_excel);
                         }
                         else
                         {
