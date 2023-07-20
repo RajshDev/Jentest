@@ -1136,7 +1136,7 @@ namespace IOAS.Controllers
                 converter.Options.PdfPageOrientation = pdfOrientation;
                 converter.Options.WebPageWidth = webPageWidth;
                 converter.Options.WebPageHeight = webPageHeight;
-                converter.Options.MaxPageLoadTime = 300;     
+                converter.Options.MaxPageLoadTime = 300;
                 SelectPdf.PdfDocument doc = converter.ConvertUrl(url);
                 byte[] pdf = doc.Save();
                 doc.Close();
@@ -1217,7 +1217,7 @@ namespace IOAS.Controllers
                     //command.CommandText = "select ROW_NUMBER() OVER(ORDER BY [Employee ID]) AS [S.No.],* from [vw_RCTOSGPayroll] where RelieveDate is null and RCTPayrollId =" + payrollId;
                     var adapter = new SqlDataAdapter(command);
                     var dataset = new DataSet();
-                    adapter.Fill(dataset);                    
+                    adapter.Fill(dataset);
                     dt1 = dataset.Tables[0].Copy();
                     dt1.TableName = "Active_Employee";
 
@@ -1642,7 +1642,7 @@ namespace IOAS.Controllers
                     var dataset = new DataSet();
                     adapter.Fill(dataset);
                     dt1 = dataset.Tables[0].Copy();
-                    dt1.TableName = "OS Calculation Report";                           
+                    dt1.TableName = "OS Calculation Report";
                     ds.Tables.Add(dt1);
                 }
                 return ds;
@@ -1978,6 +1978,9 @@ namespace IOAS.Controllers
             DataTable dt6 = new DataTable();
             DataTable dt7 = new DataTable();
             DataTable dt8 = new DataTable();
+            DataTable dt9 = new DataTable();
+            DataTable dt10 = new DataTable();
+            DataTable dt11 = new DataTable();
             try
             {
                 using (var connection = Common.getConnection())
@@ -1990,6 +1993,9 @@ namespace IOAS.Controllers
                     var dataset6 = new DataSet();
                     var dataset7 = new DataSet();
                     var dataset8 = new DataSet();
+                    var dataset9 = new DataSet();
+                    var dataset10 = new DataSet();
+                    var dataset11 = new DataSet();
                     To = To.AddDays(+1);
                     string strFrom = string.Format("{0:yyyy-MM-dd}", From);
                     string strTo = string.Format("{0:yyyy-MM-dd}", To);
@@ -2058,6 +2064,28 @@ namespace IOAS.Controllers
                     dt8.TableName = "AMENDMENT";
 
 
+                    command.CommandText = "select ROW_NUMBER() OVER(ORDER BY [EMPLOYEE ID]) AS [S. No.],* from [dbo].[vw_RCTOSGLOPReport] where LOG_TIME between '" + strFrom + "' and '" + strTo + "'";
+                    var adapter9 = new SqlDataAdapter(command);
+                    adapter9 = new SqlDataAdapter(command);
+                    adapter9.Fill(dataset9);
+                    dt9 = dataset9.Tables[0].Copy();
+                    dt9.TableName = "LOSS OF PAY";
+
+                    command.CommandText = "select ROW_NUMBER() OVER(ORDER BY [EMPLOYEE ID]) AS [S. No.],* from [dbo].[vw_RCTOSGMaternity] where LOG_TIME between '" + strFrom + "' and '" + strTo + "'";
+                    var adapter10 = new SqlDataAdapter(command);
+                    adapter10 = new SqlDataAdapter(command);
+                    adapter10.Fill(dataset10);
+                    dt10 = dataset10.Tables[0].Copy();
+                    dt10.TableName = "Maternity";
+
+                    command.CommandText = "select ROW_NUMBER() OVER(ORDER BY [EMPLOYEE ID]) AS [S. No.],* from [dbo].[vw_RCTOSGStoppayment] where LOG_TIME between '" + strFrom + "' and '" + strTo + "'";
+                    var adapter11 = new SqlDataAdapter(command);
+                    adapter11 = new SqlDataAdapter(command);
+                    adapter11.Fill(dataset11);
+                    dt11 = dataset11.Tables[0].Copy();
+                    dt11.TableName = "Stop Payment";
+
+
                     ds.Tables.Add(dt1);
                     ds.Tables.Add(dt2);
                     ds.Tables.Add(dt3);
@@ -2066,6 +2094,9 @@ namespace IOAS.Controllers
                     ds.Tables.Add(dt6);
                     ds.Tables.Add(dt7);
                     ds.Tables.Add(dt8);
+                    ds.Tables.Add(dt9);
+                    ds.Tables.Add(dt10);
+                    ds.Tables.Add(dt11);
 
                 }
                 return ds;
