@@ -6086,6 +6086,13 @@ namespace IOAS.GenericServices
                             context.tblAdhocSalaryOtherAllowance.RemoveRange(context.tblAdhocSalaryOtherAllowance.Where(c => c.PaymentId == paymentId));
                         }
 
+                        var removeid = context.tbl_sal_edit_opt.Where(x => x.PayrollProDetId == record.RCTPayrollProcessDetailId).SingleOrDefault();
+                        if (removeid != null)
+                        {
+                            removeid.Verified_status = false;
+                            context.SaveChanges();
+                        }
+
                         //var otherPayment = (from OA in context.tblEmpOtherAllowance
                         //                    where OA.EmployeeIdStr == EmployeeId &&
                         //                    OA.PaymentHeadId == PaymentHeadId
