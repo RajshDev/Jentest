@@ -6024,6 +6024,33 @@ namespace IOAS.GenericServices
                 return new AdhocOtherAllowDetailModel();
             }
         }
+
+
+
+        public int updateverify(int PayrollProDetId)
+        {
+            try
+            {
+
+                using (var context = new IOASDBEntities())
+                {
+                    var record = context.tbl_sal_edit_opt.Where(x => x.PayrollProDetId == PayrollProDetId).SingleOrDefault();
+                    if (record != null)
+                    {
+                        record.Verified_status = true;
+                        context.SaveChanges();
+                    }
+                    return 1;
+                }
+            }
+            catch (Exception ex)
+            {
+                return 0;
+            }
+
+
+
+        }
         public int RemoveVerifiedEmployee(int PaymentHeadId, string EmployeeId, int userId, bool verify, int? paymentId)
         {
             try
