@@ -181,7 +181,7 @@ new { @class = "form-control required" })
                                                 <div class="form-group custom-form-group">
                                                     <label class="required">Bill Type</label>
                                                     @Html.DropDownListFor(m => m.BillType, new SelectList(ViewBag.BillTypeList, "id", "name"), "Select any",
-new { @class = "form-control" })
+                                                    new { @class = "form-control" })
                                                     @Html.ValidationMessageFor(m => m.BillType)
                                                     @Html.HiddenFor(m => m.BillType, new { @id = "hiddenBillType" })
                                                 </div>
@@ -514,25 +514,9 @@ new { @class = "form-control" })
     $('.selectpicker').selectpicker({
         liveSearch: true
     });
-    var errMsg = '@TempData["errMsg"]';
-    /**/
-/**/
-/**/
-/**/
- var succMsg = '@TempData["succMsg"]';
-        /**/
-        /**/
-     /**/
-    /**/
-    /**/
-    /**/
-    /**/
-    /**/
-    /**/
-    /**/
-    $('#SourceEmailDate, #srchFromDate, #srchToDate,#InvoiceDate,#PODate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true }).attr('readonly', 'readonly');
-    /**/
-    /**/
+    var errMsg = '@TempData["errMsg"]';   
+    var succMsg = '@TempData["succMsg"]';        
+    $('#SourceEmailDate, #srchFromDate, #srchToDate,#InvoiceDate,#PODate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true }).attr('readonly', 'readonly');    
     $('#srchToDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true }).datepicker("setDate", "0");
     var defaultFromDate = moment(new Date()).add(-10, 'days').toDate();
     $('#srchFromDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true }).datepicker("setDate", defaultFromDate);
@@ -554,219 +538,177 @@ new { @class = "form-control" })
             $.ajax({
                 type: "GET",
                 url: "@Url.Action("GetVendorDetails", "CoreAccounts")",
-                /**/
-  
-     
-     
-     
-     
-    data: { "vendorId": vendorId },
-     
-     
-    dataType: "json",
-    success: function (result) {
-        $('#lblVendorPAN').text(result.PAN);
-        $('#lblVendorGSTIN').text(result.GSTIN);
-        $('#lblVendorAddr').text(result.Address);
-        $('#lblStateCode').text(result.StateCode);
-        $('#lblBankDetails').text(result.BankName + "-" + result.AccountNumber);
-        console.log(result.TDSLimit);
-        // 1st Open Alert Popup
-        if (parseFloat((result.TDSLimit - TotalInvoice) + CurrentValue) > 5000000) {
-            $('#FailedAlert').html("The Total payment is" + " Rs: " + result.TDSLimit.toFixed(2) + " hence 194Q is applicable for goods. ");
-            $('#Failed').modal('show');
-            //hideTdsAmount.hide();
+                data: { "vendorId": vendorId },
+                dataType: "json",
+                success: function (result) {
+                    $('#lblVendorPAN').text(result.PAN);
+                    $('#lblVendorGSTIN').text(result.GSTIN);
+                    $('#lblVendorAddr').text(result.Address);
+                    $('#lblStateCode').text(result.StateCode);
+                    $('#lblBankDetails').text(result.BankName + "-" + result.AccountNumber);
+                    console.log(result.TDSLimit);
+                    // 1st Open Alert Popup
+                    if (result.TDSLimit === '' || result.TDSLimit === null)
+                        result.TDSLimit = 0;
+                    if (TotalInvoice === '' || TotalInvoice === null)
+                        TotalInvoice = 0;
+                    if (CurrentValue === '' || CurrentValue === null)
+                        CurrentValue = 0;
+                    if (parseFloat((result.TDSLimit - TotalInvoice) + CurrentValue) > 5000000) {
+                        $('#FailedAlert').html("The Total payment is" + " Rs: " + result.TDSLimit.toFixed(2) + " hence 194Q is applicable for goods. ");
+                        $('#Failed').modal('show');
+                        //hideTdsAmount.hide();
+                    }
+                    UpdateGSTSplitUp()
+                },
+                error: function (err) {
+                    console.log("error : " + err);
+                }
+            });
         }
-        UpdateGSTSplitUp()
-    },
-    error: function (err) {
-        console.log("error : " + err);
-    }
-});
-}
 
 $("#divRefNum, #divRefEmailDate").addClass('dis-none');
-if (selSource == '1') {
- 
- 
- 
- 
-applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACWorkflowRefNumber", "Proposal")");
-     
-     
-     
-     
-    $("#divRefNum").removeClass('dis-none');
-} else if (selSource == '3') {
-     
-     
-     
-     
-    applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACTapalRefNumber", "Proposal")");
-     
-     
-     
-     
-    $("#divRefNum").removeClass('dis-none');
-}
-else if (selSource == '2') {
-    $('#divRefEmailDate').removeClass('dis-none');
-} else {
-    $("#divRefNum").removeClass('dis-none');
-}
+        if (selSource == '1') {
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACWorkflowRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+        } else if (selSource == '3') {
+            applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACTapalRefNumber", "Proposal")");
+            $("#divRefNum").removeClass('dis-none');
+        }
+        else if (selSource == '2') {
+            $('#divRefEmailDate').removeClass('dis-none');
+        } else {
+            $("#divRefNum").removeClass('dis-none');
+             }
+        var offsetValue = $("input[name='GST']:checked").val();
+        if (offsetValue == 'NotEligible') {
+            $('#ExpenseRequired').val('False');
+        }
+        resetByPaymentType();
+        if ($('#PaymentType').val() == 2) {
+            $('#selPONumber option').map(function () {
+                if ($(this).text() == $('#PONumber').val()) return this;
+            }).attr('selected', 'selected');
+            $('#divAdvSummary').removeClass('dis-none');
+        }
 
-var offsetValue = $("input[name='GST']:checked").val();
-if (offsetValue == 'NotEligible') {
-    $('#ExpenseRequired').val('False');
-}
-resetByPaymentType();
-if ($('#PaymentType').val() == 2) {
-    $('#selPONumber option').map(function () {
-        if ($(this).text() == $('#PONumber').val()) return this;
-    }).attr('selected', 'selected');
-    $('#divAdvSummary').removeClass('dis-none');
-}
+        if ($('#hiddenSettAmt').val() == '0') {
+            //$('select[name="ExpenseDetail[0].AccountGroupId"],select[name="ExpenseDetail[0].AccountHeadId"],input[name="ExpenseDetail[0].Amount"]').removeClass('required');
+            //$("input[name='ExpenseDetail.Index']").val('');
+        } else {
+            var ttlAdv = parseFloat($('#hiddenSettAmt').val()) || 0;
+            var ttlTax = parseFloat($('#hiddenSettTaxAmt').val()) || 0;
+            $('#lblPreAdvTtlAmt').text(ttlAdv.toFixed(2));
+            $('#lblPreAdvTtlTaxAmt').text(ttlTax.toFixed(2));
+            netAdvVal = (ttlAdv + ttlTax).toFixed(2);
+            $('#lblPreAdvNetAmt').text(netAdvVal);
+            //$('select[name="ExpenseDetail[0].AccountGroupId"],select[name="ExpenseDetail[0].AccountHeadId"],input[name="ExpenseDetail[0].Amount"]').addClass('required');
+        }
+        $('#lblVendorName').html($('#VendorId option:selected').text());
+        CalculatePOValue();
+        CalculatePaymentValue();
+        CalculateDeductionTotal();
+        $('#NeedUpdateTransDetail').val('false');
+        var BankHead = $('#BankHead :selected').val();
 
-if ($('#hiddenSettAmt').val() == '0') {
-    //$('select[name="ExpenseDetail[0].AccountGroupId"],select[name="ExpenseDetail[0].AccountHeadId"],input[name="ExpenseDetail[0].Amount"]').removeClass('required');
-    //$("input[name='ExpenseDetail.Index']").val('');
-} else {
-    var ttlAdv = parseFloat($('#hiddenSettAmt').val()) || 0;
-    var ttlTax = parseFloat($('#hiddenSettTaxAmt').val()) || 0;
-    $('#lblPreAdvTtlAmt').text(ttlAdv.toFixed(2));
-    $('#lblPreAdvTtlTaxAmt').text(ttlTax.toFixed(2));
-    netAdvVal = (ttlAdv + ttlTax).toFixed(2);
-    $('#lblPreAdvNetAmt').text(netAdvVal);
-    //$('select[name="ExpenseDetail[0].AccountGroupId"],select[name="ExpenseDetail[0].AccountHeadId"],input[name="ExpenseDetail[0].Amount"]').addClass('required');
-}
+        if (BankHead != '') {
+            $.getJSON("@Url.Action("LoadProjecttitlebybankid", "Project")", { projecttype: 1, bankid: BankHead },
+                function (locationdata) {
+                    var select = $("#srchProjectNumber");
+                    select.empty();
 
-$('#lblVendorName').html($('#VendorId option:selected').text());
-CalculatePOValue();
-CalculatePaymentValue();
-CalculateDeductionTotal();
-$('#NeedUpdateTransDetail').val('false');
+                    $.each(locationdata, function (index, itemData) {
 
+                        select.append($('<option/>', {
+                            value: itemData.id,
+                            text: itemData.name
 
-
-var BankHead = $('#BankHead :selected').val();
-
-if (BankHead != '') {
-     
-     
-     
-     
-    $.getJSON("@Url.Action("LoadProjecttitlebybankid", "Project")", { projecttype: 1, bankid: BankHead },
-         
-         
-         
-         
-        function (locationdata) {
-            var select = $("#srchProjectNumber");
-            select.empty();
-
-            $.each(locationdata, function (index, itemData) {
-
-                select.append($('<option/>', {
-                    value: itemData.id,
-                    text: itemData.name
-
-                }));
-            });
-            select.selectpicker('refresh');
-        });
-
-}
-
-
-});
+                        }));
+                    });
+                    select.selectpicker('refresh');
+                });
+        }
+    });
 
 
 $('#lnkBillHistory').click(function () {
 var vendorId = $('#VendorId').val();
 if (vendorId != '') {
-    var token = $("input[name=__RequestVerificationToken]").val();
-    var searchData = { "__RequestVerificationToken": token, "vendorId": vendorId };
-    $.ajax({
-         
-         
-         
-         
-        url: "@Url.Action("_PreviousBillHistory", "CoreAccounts")",
-     
-     
-     
-     
+var token = $("input[name=__RequestVerificationToken]").val();
+var searchData = { "__RequestVerificationToken": token, "vendorId": vendorId };
+    $.ajax({      
+            url: "@Url.Action("_PreviousBillHistory", "CoreAccounts")",
     type: "POST",
     data: searchData,
     contentType: "application/x-www-form-urlencoded",
     success: function (data) {
         $("#popup").html(data);
         $("#preBillHistoryModal").modal('toggle');
-    },
+        },
     error: function (err) {
         console.log("error : " + err);
-    }
-});
-}
+            }
+        });
+        }
 });
 
 $('#PODate').change(function () {
-$('#hiddenPODate').val($(this).val());
-});
-$(document).on('change', 'input[type="checkbox"][name$=".IsTaxEligible"]', function () {
-$('#NeedUpdateTransDetail').val('true');
-});
-$('#BillType').change(function () {
-$('#NeedUpdateTransDetail').val('true');
-EmptyPODetails();
-applyACToTypeOfService();
-})
+    $('#hiddenPODate').val($(this).val());
+    });
+    $(document).on('change', 'input[type="checkbox"][name$=".IsTaxEligible"]', function () {
+    $('#NeedUpdateTransDetail').val('true');
+    });
+    $('#BillType').change(function () {
+    $('#NeedUpdateTransDetail').val('true');
+    EmptyPODetails();
+    applyACToTypeOfService();
+    })
 
-$('#PaymentType').change(function () {
-EmptyPODetails();
-resetVendor();
-$('#VendorTDSDetailId').val('').selectpicker('refresh');
-resetPOMasterDetails();
-$('#VendorId').val('');
-resetByPaymentType();
-});
-function resetByPaymentType() {
-var pType = $('#PaymentType').val();
-if (pType == '2') {
-$('table .bg-blue,.tdNetAmt,.tdTaxAmt,.tdAdvAmt,.tdAdvPct,#btnAddPO,.removePOItem').addClass('dis-none');
-$('#divPODDL,#divAdvSummary').removeClass('dis-none');
-//  $('#VendorTDSDetailId').prop("disabled", true).selectpicker('refresh')
-$('#divPOTxt').addClass('dis-none');
-$('#BillType').prop("disabled", true);
-$('#POType').prop("disabled", true);
-$('#tbodyPO tr').find('select,input').each(function (i, rowEle) {
-    if ($(rowEle).is('select')) {
-        $(rowEle).addClass("ronly");
-    } else if ($(rowEle).is(':checkbox')) {
-        $(rowEle).addClass("ronly");
-    } else if ($(rowEle).is(':visible')) {
-        $(rowEle).prop("readonly", true);
+    $('#PaymentType').change(function () {
+    EmptyPODetails();
+    resetVendor();
+    $('#VendorTDSDetailId').val('').selectpicker('refresh');
+    resetPOMasterDetails();
+    $('#VendorId').val('');
+    resetByPaymentType();
+    });
+    function resetByPaymentType() {
+    var pType = $('#PaymentType').val();
+    if (pType == '2') {
+    $('table .bg-blue,.tdNetAmt,.tdTaxAmt,.tdAdvAmt,.tdAdvPct,#btnAddPO,.removePOItem').addClass('dis-none');
+    $('#divPODDL,#divAdvSummary').removeClass('dis-none');
+    //  $('#VendorTDSDetailId').prop("disabled", true).selectpicker('refresh')
+    $('#divPOTxt').addClass('dis-none');
+    $('#BillType').prop("disabled", true);
+    $('#POType').prop("disabled", true);
+    $('#tbodyPO tr').find('select,input').each(function (i, rowEle) {
+        if ($(rowEle).is('select')) {
+            $(rowEle).addClass("ronly");
+        } else if ($(rowEle).is(':checkbox')) {
+            $(rowEle).addClass("ronly");
+        } else if ($(rowEle).is(':visible')) {
+            $(rowEle).prop("readonly", true);
+            }
+        });
     }
-});
-}
-else {
-$('table .bg-blue,.tdNetAmt,.tdTaxAmt,.tdAdvAmt,.tdAdvPct,#btnAddPO,.removePOItem').removeClass('dis-none');
-$('#divPOTxt').removeClass('dis-none');
-$('#divPODDL,#divAdvSummary').addClass('dis-none');
-// $('#VendorTDSDetailId').prop("disabled", false).selectpicker('refresh');
-$('#BillType').prop("disabled", false);
-$('#POType').prop("disabled", false);
-$('#tbodyPO tr').find('select,input').each(function (i, rowEle) {
-    if ($(rowEle).is('select')) {
-        $(rowEle).attr("disabled", false);
-    } else if ($(rowEle).is(':checkbox')) {
-        // $(rowEle).prop("disabled", false);
-    } else if ($(rowEle).is(':visible')) {
-        $(rowEle).prop("readonly", false);
+        else {
+        $('table .bg-blue,.tdNetAmt,.tdTaxAmt,.tdAdvAmt,.tdAdvPct,#btnAddPO,.removePOItem').removeClass('dis-none');
+        $('#divPOTxt').removeClass('dis-none');
+        $('#divPODDL,#divAdvSummary').addClass('dis-none');
+        // $('#VendorTDSDetailId').prop("disabled", false).selectpicker('refresh');
+        $('#BillType').prop("disabled", false);
+        $('#POType').prop("disabled", false);
+        $('#tbodyPO tr').find('select,input').each(function (i, rowEle) {
+            if ($(rowEle).is('select')) {
+                $(rowEle).attr("disabled", false);
+            } else if ($(rowEle).is(':checkbox')) {
+                // $(rowEle).prop("disabled", false);
+            } else if ($(rowEle).is(':visible')) {
+                $(rowEle).prop("readonly", false);
+                }
+            });
+        }
     }
-});
-}
-}
 //var preSelVal = '';
 //$(document).on('mousedown', '.ronly', function (e) {
 //    //if ($(this).is(':checkbox'))
@@ -776,44 +718,28 @@ $('#tbodyPO tr').find('select,input').each(function (i, rowEle) {
 //    $(this).val(preSelVal);
 //    CalculatePOValue();
 //});
-$('#Source').change(function () {
-var selSource = $(this).val();
-$("#SourceReferenceNumber,#ReferenceNumber").val('');
-$("#divRefNum, #divRefEmailDate").addClass('dis-none');
-$("#SourceTapalOrWorkflow").val('False');
-if (selSource == '1') {
- 
- 
- 
- 
-applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACWorkflowRefNumber", "Proposal")");
-     
-     
-     
-     
-    $("#divRefNum").removeClass('dis-none');
-    $("#SourceTapalOrWorkflow").val('True');
-} else if (selSource == '3') {
-    applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACTapalRefNumber", "Proposal")");
-     
-     
-     
-     
-     
-    $("#divRefNum").removeClass('dis-none');
-     
-     
-     
-    $("#SourceTapalOrWorkflow").val('True');
-}
-else if (selSource == '2') {
-    $('#divRefEmailDate').removeClass('dis-none');
+    $('#Source').change(function () {
+    var selSource = $(this).val();
+    $("#SourceReferenceNumber,#ReferenceNumber").val('');
+    $("#divRefNum, #divRefEmailDate").addClass('dis-none');
     $("#SourceTapalOrWorkflow").val('False');
-} else {
-    $("#divRefNum").removeClass('dis-none');
-    $("#SourceTapalOrWorkflow").val('True');
-}
-});
+    if (selSource == '1') {
+    applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACWorkflowRefNumber", "Proposal")");
+        $("#divRefNum").removeClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('True');
+    } else if (selSource == '3') {
+        applyAutoComplete($('#ReferenceNumber'), $('#SourceReferenceNumber'), "@Url.Action("GetACTapalRefNumber", "Proposal")");
+        $("#divRefNum").removeClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('True');
+    }
+    else if (selSource == '2') {
+        $('#divRefEmailDate').removeClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('False');
+    } else {
+        $("#divRefNum").removeClass('dis-none');
+        $("#SourceTapalOrWorkflow").val('True');
+        }
+    });
 function resetVendor() {
 $('#lblVendorPAN, #lblVendorGSTIN, #lblVendorAddr, #lblStateCode,#lblBankDetails').text('');
 //$('#divPreBill').addClass('dis-none');
@@ -837,16 +763,8 @@ var settId = $('#BillId').val() || 0;
 $('#NeedUpdateTransDetail').val('true');
 if (id != '') {
     $.ajax({
-        type: "GET",
-         
-         
-         
-         
+        type: "GET",     
         url: "@Url.Action("GetBillPODetails", "CoreAccounts")",
-    /**/
-    /**/
-    /**/
-    /**/
     data: { "billId": id, "isSettlement": true, "settlId": settId },
     dataType: "json",
     traditional: true,
@@ -879,9 +797,9 @@ if (id != '') {
     },
     error: function (err) {
         console.log("error : " + err);
+            }
+        });
     }
-});
-}
 });
 $('#ICSROverHead_f').click(function () {
 $('#NeedUpdateTransDetail').val('true');
@@ -898,7 +816,7 @@ $('#tbodyPO tr input[type="checkbox"]').prop('checked', false);
 $('#tbodyInvoiceBU tr input[type="checkbox"]').prop('checked', false);
 $('#tbodyPO tr input[type="checkbox"]').attr("readonly", false);
 $('#tbodyInvoiceBU tr input[type="checkbox"]').attr("readonly", false);
-}
+    }
 
 });
 $('#VendorId').change(function () {
@@ -917,16 +835,9 @@ if (vendorId != '') {
 $('#lnkBillHistory').removeClass('dis-none');
 $.ajax({
     type: "GET",
-    /**/
+    
     url: "@Url.Action("GetVendorDetails", "CoreAccounts")",
-    /**/
-    /**/
- /**/
-    /**/
-    /**/
-    data: { "vendorId": vendorId, "poNumberRequired": true, "transTypeCode": 'ADV', "TDSRequired": true },
-    /**/
-    /**/
+     data: { "vendorId": vendorId, "poNumberRequired": true, "transTypeCode": 'ADV', "TDSRequired": true },
     dataType: "json",
     success: function (result) {
         $('#lblVendorPAN').text(result.PAN);
@@ -937,6 +848,12 @@ $.ajax({
         fillMasterDropDown(selPO, result.PONumberList, true);
         console.log(result.TDSLimit);
         // Edit Vendor InputBox Alert Popup
+        if (result.TDSLimit === '' || result.TDSLimit === null)
+            result.TDSLimit = 0;
+        if (TotalInvoice === '' || TotalInvoice === null)
+            TotalInvoice = 0;
+        if (CurrentValue === '' || CurrentValue === null)
+            CurrentValue = 0;
         if (parseFloat((result.TDSLimit - TotalInvoice) + CurrentValue) > 5000000) {
             $('#FailedAlert').html("The Total payment is" + " Rs: " + result.TDSLimit.toFixed(2) + " hence 194Q is applicable for goods. ");
             $('#Failed').modal('show');
@@ -961,7 +878,7 @@ $.ajax({
 });
 } else {
 $('#lnkBillHistory').addClass('dis-none');
-}
+    }
 });
 
 
@@ -971,16 +888,8 @@ function AddNewExpense() {
 var subcode = $('#SubCode').val();
 $.ajax({
 type: "GET",
-/**/
-/**/
-url: "@Url.Action("GetAddNewExpenseDetails", "CoreAccounts")",
-    /**/
-    /**/
-    /**/
-    /**/
-    data: { "typeCode": "STM", "tSubCode": subcode },
-    /**/
-    /**/
+url: "@Url.Action("GetAddNewExpenseDetails", "CoreAccounts")",   
+    data: { "typeCode": "STM", "tSubCode": subcode },    
     traditional: true,
     dataType: "json",
     success: function (result) {
@@ -1075,9 +984,6 @@ if (!interstate && invElgTaxAmt > 0) {
     $("#varIGSTInput").val(invElgTaxAmt.toFixed(2));
 }
 FillTransactionDetails();
-/**/
-/**/
-/**/
 @*var stateCode = $('#lblStateCode').html();
         var interstate = IsInterState(stateCode);
         var BillType = $('#BillType').val();
@@ -1221,9 +1127,7 @@ FillTransactionDetails();
         /**/
         console.log("error : " + err);
     }
-/**/
-/**/
-/**/
+
 });*@
 }
 
@@ -1441,93 +1345,90 @@ if (validCmtAmt != commitmentAmt) {
 return msg;
 }
 function ValidateTransaction() {
-var msg = 'valid';
-var netCrAmt = parseFloat($('#CreditorAmount').val());
-var commitmentAmt = parseFloat($('#CommitmentAmount').val());
-//var ttlExpAmt = parseFloat($('#ExpenseAmount').val()) || 0;
-//var ttldeductAmt = parseFloat($('#DeductionAmount').val()) || 0;
-var crAmt = parseFloat($('#ttlCr').val()) || 0;
-var ttlAdvAmt = parseFloat($('#InvoiceAmount').val()) || 0;
-var invTaxAmt = parseFloat($('#InvoiceTaxAmount').val()) || 0;
-var ttlJVExpVal = parseFloat($('#ttlJVDr').val()) || 0;
-var ttlJVDrVal = parseFloat($('#ttlJVCr').val()) || 0;
-var netAdvAmt = (ttlAdvAmt + invTaxAmt).toFixed(2);
-var netDrAmt = parseFloat($('#ttlDr').val()) || 0;// ttlExpAmt + ttldeductAmt;
-var offsetValue = $("input[name='GST']:checked").val();
-var TransAmt = (netDrAmt - ttlJVExpVal).toFixed(2);
-var TransCrAmt = (netCrAmt + ttlJVExpVal).toFixed(2);
-var rcm = $('#RCM_f').is(':checked');
-if (isNaN(netCrAmt)) {
-    return 'Total Credit Value is not valid.';
-}
-if (ttlJVExpVal != ttlJVDrVal) {
-    msg = 'Not a valid entry. Credit and Debit value of JV are not equal.';
-}
-if ((netDrAmt != crAmt) || (TransCrAmt != crAmt)) {
-    msg = 'Not a valid entry. Credit and Debit value are not equal.';
-}
-if (TransAmt != netAdvAmt && !rcm) {
-    msg = 'There is a mismatch between the credit value and invoice value. Please update the value to continue.';
-}
-//if (offsetValue == "Eligible") {
-//    if (isNaN(ttlExpAmt) || isNaN(commitmentAmt)) {
-//        msg = 'The expense value / allocated commitment value is not a valid entry.';
-//    } else if (ttlExpAmt != commitmentAmt) {
-//        msg = 'There is a mismatch between the expense value and allocated commitment value. Please update the value to continue.';
-//    }
-//}else if (offsetValue == "NotEligible") {
-//    if (isNaN(netCrAmt) || isNaN(commitmentAmt)) {
-//        msg = 'Total Credit Value / Total Commitment Value is not a valid entry';
-//    } else if (netCrAmt != commitmentAmt) {
-//        msg = 'Total Credit and Total Commitment Values are not equal.';
-//    }
-//}
-var hdList = [];
-var hdJVList = [];
-$('#tbodyExpenseList tr').find('select[name$=".AccountHeadId"]').each(function (idx, val) {
-    var jv = $(this).closest('tr').find("input[name$='.IsJV']").val();
-    if (jv.toLowerCase() == "true")
-        hdJVList.push($(val).val());
-    else
-        hdList.push($(val).val());
-});
-hdList.sort();
-hdJVList.sort();
-// duplicate check
-for (var k = 1; k < hdList.length; ++k) {
-    if (hdList[k] == hdList[k - 1]) {
-        msg = "Duplicate account head exist in expense details. Please select a different head.";
-    }
-}
-//for (var k = 1; k < hdJVList.length; ++k) {
-//    if (hdJVList[k] == hdJVList[k - 1]) {
-//        msg = "Duplicate account head exist in expense details. Please select a different head.";
-//    }
-//}
-return msg;
+        var msg = 'valid';
+        var netCrAmt = parseFloat($('#CreditorAmount').val());
+        var commitmentAmt = parseFloat($('#CommitmentAmount').val());
+        //var ttlExpAmt = parseFloat($('#ExpenseAmount').val()) || 0;
+        //var ttldeductAmt = parseFloat($('#DeductionAmount').val()) || 0;
+        var crAmt = parseFloat($('#ttlCr').val()) || 0;
+        var ttlAdvAmt = parseFloat($('#InvoiceAmount').val()) || 0;
+        var invTaxAmt = parseFloat($('#InvoiceTaxAmount').val()) || 0;
+        var ttlJVExpVal = parseFloat($('#ttlJVDr').val()) || 0;
+        var ttlJVDrVal = parseFloat($('#ttlJVCr').val()) || 0;
+        var netAdvAmt = (ttlAdvAmt + invTaxAmt).toFixed(2);
+        var netDrAmt = parseFloat($('#ttlDr').val()) || 0;// ttlExpAmt + ttldeductAmt;
+        var offsetValue = $("input[name='GST']:checked").val();
+        var TransAmt = (netDrAmt - ttlJVExpVal).toFixed(2);
+        var TransCrAmt = (netCrAmt + ttlJVExpVal).toFixed(2);
+        var rcm = $('#RCM_f').is(':checked');
+            if (isNaN(netCrAmt)) {
+            return 'Total Credit Value is not valid.';
+            }
+            if (ttlJVExpVal != ttlJVDrVal) {
+            msg = 'Not a valid entry. Credit and Debit value of JV are not equal.';
+            }
+            if ((netDrAmt != crAmt) || (TransCrAmt != crAmt)) {
+            msg = 'Not a valid entry. Credit and Debit value are not equal.';
+            }
+            if (TransAmt != netAdvAmt && !rcm) {
+            msg = 'There is a mismatch between the credit value and invoice value. Please update the value to continue.';
+            }
+            //if (offsetValue == "Eligible") {
+            //    if (isNaN(ttlExpAmt) || isNaN(commitmentAmt)) {
+            //        msg = 'The expense value / allocated commitment value is not a valid entry.';
+            //    } else if (ttlExpAmt != commitmentAmt) {
+            //        msg = 'There is a mismatch between the expense value and allocated commitment value. Please update the value to continue.';
+            //    }
+            //}else if (offsetValue == "NotEligible") {
+            //    if (isNaN(netCrAmt) || isNaN(commitmentAmt)) {
+            //        msg = 'Total Credit Value / Total Commitment Value is not a valid entry';
+            //    } else if (netCrAmt != commitmentAmt) {
+            //        msg = 'Total Credit and Total Commitment Values are not equal.';
+            //    }
+            //}
+        var hdList = [];
+        var hdJVList = [];
+        $('#tbodyExpenseList tr').find('select[name$=".AccountHeadId"]').each(function (idx, val) {
+        var jv = $(this).closest('tr').find("input[name$='.IsJV']").val();
+        if (jv.toLowerCase() == "true")
+            hdJVList.push($(val).val());
+        else
+            hdList.push($(val).val());
+        });
+        hdList.sort();
+        hdJVList.sort();
+        // duplicate check
+        for (var k = 1; k < hdList.length; ++k) {
+        if (hdList[k] == hdList[k - 1]) {
+            msg = "Duplicate account head exist in expense details. Please select a different head.";
+            }
+        }
+        //for (var k = 1; k < hdJVList.length; ++k) {
+        //    if (hdJVList[k] == hdJVList[k - 1]) {
+        //        msg = "Duplicate account head exist in expense details. Please select a different head.";
+        //    }
+        //}
+        return msg;
 }
 // Next Button Alert Popup
 function validatetds(vendorId, settlementamt, TotalInvoice) {
 retval = true;
-
 $.ajax({
-    /**/
+    
     type: "GET",
-    /**/
-    /**/
-    /**/
-    /**/
     url: "@Url.Action("GetVendorDetails", "CoreAccounts")",
-    /**/
-    /**/
-    /**/
-    data: { "vendorId": vendorId, "poNumberRequired": true, "transTypeCode": 'ADV', "TDSRequired": true },
+     data: { "vendorId": vendorId, "poNumberRequired": true, "transTypeCode": 'ADV', "TDSRequired": true },
     dataType: "json",
     success: function (result) {
         console.log(result.TDSLimit);
         console.log(TotalInvoice);
         console.log(settlementamt);
-
+        if (result.TDSLimit === '' || result.TDSLimit === null)
+            result.TDSLimit = 0;
+        if (TotalInvoice === '' || TotalInvoice === null)
+            TotalInvoice = 0;
+        if (settlementamt === '' || settlementamt === null)
+            settlementamt = 0;
         var tdsCal = ((parseFloat(result.TDSLimit) - parseFloat(TotalInvoice)) + parseFloat(settlementamt))
         if (tdsCal > 5000000) {
             retval = false;
@@ -1632,21 +1533,13 @@ $("#srchProjectType").val(1);
 EmptyCommitmentSrchList();
 EmptyCommitmentSelList();
 
-/**/
 $.getJSON("@Url.Action("LoadProjecttitlebybankid", "Project")", { projecttype: 1, bankid: BankHeadId },
-        /**/
-        /**/
-        /**/
-        /**/
-        function (locationdata) {
-            /**/
-            /**/
-            /**/
+        
+        function (locationdata) {           
             var select = $("#srchProjectNumber");
             select.empty();
 
             $.each(locationdata, function (index, itemData) {
-
                 select.append($('<option/>', {
                     value: itemData.id,
                     text: itemData.name
@@ -1657,21 +1550,19 @@ $.getJSON("@Url.Action("LoadProjecttitlebybankid", "Project")", { projecttype: 1
         });
 
 });
+    function EmptyCommitmentSelList() {
+        $('#tbodyCommitmentSelList tr').not(':first').remove();
+        $('#tbodyCommitmentSelList tr td').not(':last').not(':nth-last-child(2)').html('');
+        //$('#tbodyCommitmentSelList tr td:last').find("input").val("");
+        $('#tbodyCommitmentSelList tr').find("input[name!='CommitmentDetail.Index']").val("");
+        $('#CommitmentAmount').val('');
+    }
+    function EmptyCommitmentSrchList() {
 
-
-function EmptyCommitmentSelList() {
-    $('#tbodyCommitmentSelList tr').not(':first').remove();
-    $('#tbodyCommitmentSelList tr td').not(':last').not(':nth-last-child(2)').html('');
-    //$('#tbodyCommitmentSelList tr td:last').find("input").val("");
-    $('#tbodyCommitmentSelList tr').find("input[name!='CommitmentDetail.Index']").val("");
-    $('#CommitmentAmount').val('');
-}
-function EmptyCommitmentSrchList() {
-
-    $('#tbodyCommitmentSrchList tr').not(':first').remove();
-    $('#tbodyCommitmentSrchList tr td').not(':first').html('');
-    $('#tbodyCommitmentSrchList tr td:first input').val('');
-}
+        $('#tbodyCommitmentSrchList tr').not(':first').remove();
+        $('#tbodyCommitmentSrchList tr td').not(':first').html('');
+        $('#tbodyCommitmentSrchList tr td:first input').val('');
+    }
 
 </script>
 <script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>

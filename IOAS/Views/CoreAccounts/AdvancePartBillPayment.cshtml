@@ -547,14 +547,16 @@ new { @class = "form-control" })
                     $('#lblVendorAddr').text(result.Address);
                     $('#lblStateCode').text(result.StateCode);
                     $('#lblBankDetails').text(result.BankName + "-" + result.AccountNumber);
-                    if (parseFloat(result.TDSLimit) > 5000000) {
-                        //alert("Hello! I am an alert box!!");
-                        $('#FailedAlert').html("TDS 50Lac Limit Exceed : ");
-                        //+ result.TDSLimit
-                        $('#Failed').modal('show');
-                    }
+                    
                     console.log(result.TDSLimit);
                     // 1st Open Alert Popup
+                    if (result.TDSLimit === '' || result.TDSLimit === null)
+                        result.TDSLimit = 0;
+                    if (TotalInvoice === '' || TotalInvoice === null)
+                        TotalInvoice = 0;
+                    if (CurrentValue === '' || CurrentValue === null)
+                        CurrentValue = 0;
+
                     if (parseFloat((result.TDSLimit - TotalInvoice) + CurrentValue) > 5000000) {
                         $('#FailedAlert').html("The Total payment is" + " Rs: " + result.TDSLimit.toFixed(2) + " hence 194Q is applicable for goods. ");
                         $('#Failed').modal('show');
@@ -732,11 +734,13 @@ new { @class = "form-control" })
                     $('#lblVendorAddr').text(result.Address);
                     $('#lblStateCode').text(result.StateCode);
                     $('#lblBankDetails').text(result.BankName + "-" + result.AccountNumber);
-                    if (result.TDSLimit > 5000000) {
-                        //alert("Hello! I am an alert box!!");
-                        $('#FailedAlert').html("TDS 50Lac Limit Exceed : " + result.TDSLimit.toFixed(2));
-                        $('#Failed').modal('show');
-                    }
+                    if (result.TDSLimit === '' || result.TDSLimit === null)
+                        result.TDSLimit = 0;
+                    if (TotalInvoice === '' || TotalInvoice === null)
+                        TotalInvoice = 0;
+                    if (CurrentValue === '' || CurrentValue === null)
+                        CurrentValue = 0;
+                    
                     console.log(result.TDSLimit);
                     // Edit Vendor InputBox Alert Popup
                     if (parseFloat((result.TDSLimit - TotalInvoice) + CurrentValue) > 5000000) {
@@ -1243,7 +1247,14 @@ new { @class = "form-control" })
                 console.log(result.TDSLimit);
                 console.log(TotalInvoice);
                 console.log(settlementamt);
+                if (result.TDSLimit === '' || result.TDSLimit === null)
+                    result.TDSLimit = 0;
+                if (TotalInvoice === '' || TotalInvoice === null)
+                    TotalInvoice = 0;
+                if (settlementamt === '' || settlementamt === null)
+                    settlementamt = 0;
                 var tdsCal = ((parseFloat(result.TDSLimit) - parseFloat(TotalInvoice)) + parseFloat(settlementamt))
+                
                 if (tdsCal > 5000000) {
                     retval = false;
                     $('#FailedAlert').html("The Total payment is" + " Rs: " + tdsCal.toFixed(2) + " hence 194Q is applicable for goods.");

@@ -22015,6 +22015,7 @@ namespace IOAS.GenericServices
                     var query = (from vw in context.vw_RCTOverAllApplicationEntry
                                  where vw.Status != "Cancel" && vw.ApplicationType == "New" && vw.IsActiveNow == true
                                  && vw.EmployeeNo == EmployeeNo
+                                 orderby vw.AppointmentEnddate descending
                                  select vw).FirstOrDefault();
                     if (query != null)
                     {
