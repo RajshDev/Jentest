@@ -11100,10 +11100,11 @@ namespace IOAS.GenericServices
                                 if (odQuery != null)
                                 {
                                     OrderID = odQuery.o.OrderId;
+                                    var MaternityOrderID = OrderID;
                                     prestatus = odQuery.o.Status;
                                     var toDate = odQuery.o.ToDate;
                                     if (toDate.Value.AddDays(+2) <= model.RejoinDate)//If employee take extra leave system take loss of pay
-                                        ExecuteSPMaternity(null, model.RejoinDate);
+                                        ExecuteSPMaternity(null, model.RejoinDate, MaternityOrderID);
                                     string docname = "", docfileId = "", docpath = "";
                                     odQuery.od.isRejoined = model.RejoinDate != null ? true : false;
                                     odQuery.od.RejoinDate = model.RejoinDate;
@@ -25062,13 +25063,13 @@ namespace IOAS.GenericServices
             }
         }
 
-        public static bool ExecuteSPMaternity(IOASDBEntities ctx = null, DateTime? RejoinDate = null)
+        public static bool ExecuteSPMaternity(IOASDBEntities ctx = null, DateTime? RejoinDate = null , int MaternityOrderID=0)
         {
             try
             {
                 using (var context = ctx == null ? new IOASDBEntities() : ctx)
                 {
-                    context.Database.ExecuteSqlCommand("SPRCTMaternityLeave @p0", RejoinDate);
+                    context.Database.ExecuteSqlCommand("SPRCTMaternityLeave @p0,@p1", RejoinDate, MaternityOrderID);
                 }
                 return true;
             }
