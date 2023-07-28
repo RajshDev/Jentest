@@ -29954,10 +29954,186 @@ namespace IOAS.Infrastructure
 
 
 
+        #endregion
 
+        #region ConsultantMaster
+        public static List<MasterlistviewModel> GetConsultantCategory()
+        {
+            try
+            {
+                List<MasterlistviewModel> agencytype = new List<MasterlistviewModel>();
+                using (var context = new IOASDBEntities())
+                {
+                    var query = (from AT in context.tblCodeControl
+                                 where (AT.CodeName == "ConsultantCategory")
+                                 select new { AT.CodeValAbbr, AT.CodeValDetail }).ToList();
+                    if (query.Count > 0)
+                    {
+                        for (int i = 0; i < query.Count; i++)
+                        {
+                            agencytype.Add(new MasterlistviewModel()
+                            {
+                                id = query[i].CodeValAbbr,
+                                name = query[i].CodeValDetail
+                            });
+                        }
+                    }
+                }
+                return agencytype;
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+ (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                List<MasterlistviewModel> agencytype = new List<MasterlistviewModel>();
+                return agencytype;
+            }
+        }
 
+        public static List<MasterlistviewModel> GetConsultantNationality()
+        {
+            try
+            {
+                List<MasterlistviewModel> agencytype = new List<MasterlistviewModel>();
+                using (var context = new IOASDBEntities())
+                {
+                    var query = (from AT in context.tblCodeControl
+                                 where (AT.CodeName == "ConsultantNationality")
+                                 select new { AT.CodeValAbbr, AT.CodeValDetail }).ToList();
+                    if (query.Count > 0)
+                    {
+                        for (int i = 0; i < query.Count; i++)
+                        {
+                            agencytype.Add(new MasterlistviewModel()
+                            {
+                                id = query[i].CodeValAbbr,
+                                name = query[i].CodeValDetail
+                            });
+                        }
+                    }
+                }
+                return agencytype;
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+ (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                List<MasterlistviewModel> agencytype = new List<MasterlistviewModel>();
+                return agencytype;
+            }
+        }
 
+        public static List<ConsultantMaster> GetConsultantMasterList()
+        {
+            try
+            {
 
+                List<ConsultantMaster> list = new List<ConsultantMaster>();
+
+                using (var context = new IOASDBEntities())
+                {
+                    var query = (from C in context.tblRCTConsultantMaster
+                                 orderby C.Consultant_EmpId
+                                 where C.Status == "Open"
+                                 select new { C.Consultant_EmpId, C.Consultant_MasterId }).ToList();
+
+                    if (query.Count > 0)
+                    {
+                        for (int i = 0; i < query.Count; i++)
+                        {
+                            list.Add(new ConsultantMaster()
+                            {
+                                Consultant_EmpId = query[i].Consultant_EmpId,
+                                Consultant_MasterId = query[i].Consultant_MasterId,
+                            });
+                        }
+                    }
+                }
+
+                return list;
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+ (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                List<ConsultantMaster> list = new List<ConsultantMaster>();
+                return list;
+            }
+
+        }
+
+        public static string CheckPreviousGSTNumber(string GSTno)
+        {
+            string isalreadyEmp = string.Empty;
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    var checkquery = (from cc in context.tblRCTConsultantMaster
+                                      where cc.GSTIN.Contains(GSTno)
+
+                                      orderby cc.Consultant_MasterId descending
+                                      select new { cc.Status, cc.Consultant_EmpId, cc.Consultant_MasterId, cc.GSTIN }).FirstOrDefault();
+                    if (checkquery != null)
+                    {
+                        isalreadyEmp = checkquery.GSTIN;
+                    }
+                }
+                return isalreadyEmp;
+            }
+            catch (Exception ex)
+            {
+                return isalreadyEmp;
+            }
+        }
+
+        public static string CheckTINNumber(string Tinno)
+        {
+            string isalreadyEmp = string.Empty;
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    var checkquery = (from cc in context.tblRCTConsultantMaster
+                                      where cc.Consultant_TIN.Contains(Tinno)
+
+                                      orderby cc.Consultant_MasterId descending
+                                      select new { cc.Status, cc.Consultant_EmpId, cc.Consultant_MasterId, cc.Consultant_TIN }).FirstOrDefault();
+                    if (checkquery != null)
+                    {
+                        isalreadyEmp = checkquery.Consultant_TIN;
+                    }
+                }
+                return isalreadyEmp;
+            }
+            catch (Exception ex)
+            {
+                return isalreadyEmp;
+            }
+        }
+
+        public static string CheckConsultantEmployeePan(string Panno)
+        {
+            string isalreadyEmp = string.Empty;
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    var checkquery = (from cc in context.vwConsultantMasterPanNo
+                                      where cc.PANNo.Contains(Panno) && cc.Type != "Consultant"
+                                      select new { cc.PANNo }).FirstOrDefault();
+                    if (checkquery != null)
+                    {
+                        isalreadyEmp = checkquery.PANNo;
+                    }
+                }
+                return isalreadyEmp;
+            }
+            catch (Exception ex)
+            {
+                return isalreadyEmp;
+            }
+        }
 
         #endregion
 

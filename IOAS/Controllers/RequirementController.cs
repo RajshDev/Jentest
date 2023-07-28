@@ -8229,6 +8229,12 @@ namespace IOAS.Controllers
             object output = Common.CheckPreviousEmployeePanserver(Panno, appref, true, oldId, apptype);
             return Json(output, JsonRequestBehavior.AllowGet);
         }
+        [HttpGet]
+        public JsonResult CheckConsultantEmployeePan(string Panno)
+        {
+            object output = Common.CheckConsultantEmployeePan(Panno);
+            return Json(output, JsonRequestBehavior.AllowGet);
+        }
         #endregion
 
         #region VerficationUserApplicationCancel
@@ -10491,6 +10497,163 @@ namespace IOAS.Controllers
                 return Json(0, JsonRequestBehavior.AllowGet);
             }
         }
+
+        public ActionResult ConsultantMaster()
+        {
+            ViewBag.consultantNationality = Common.GetConsultantNationality();
+            ViewBag.Gender = Common.GetCodeControlList("RCTGender");
+            ViewBag.state = Common.GetStatelist();
+            ViewBag.country = Common.getCountryList();
+            ViewBag.GstDoc = Common.GetGstSupportingDoc();
+            ViewBag.Vensupdoc = Common.GetVendorSupportingDoc();
+            ViewBag.ventdsdoc = Common.GetVendorTdsDoc();
+            ViewBag.consultantCategory = Common.GetConsultantCategory();
+            ViewBag.serviceCategory = Common.GetCategoryService();
+            ViewBag.serviceType = Common.GetServiceTypeList();
+            ViewBag.suppliertype = Common.GetSupplierType();
+            ViewBag.tdssection = Common.GetTdsList();
+            ViewBag.bankcountry = Common.getCountryList();
+            ViewBag.Professional = Common.GetCodeControlList("ConsultantProfessional");
+            ViewBag.ProfessionalFirm = Common.GetCodeControlList("ConsultantFirmProfessional");
+            ViewBag.ConsultantMasterList = Common.GetConsultantMasterList();
+            return View();
+        }
+
+        [Authorized]
+        [HttpPost]
+        public JsonResult GetConsultantMaster(ConsultantMasterSearchModel model, int pageIndex, int pageSize)
+        {
+
+            
+            object output = RequirementService.GetConsultantMasterList(model, pageIndex, pageSize);
+            
+            //object output = MasterService.GetVendorList(model, pageIndex, pageSize);
+            return Json(output, JsonRequestBehavior.AllowGet);
+        }
+
+
+        
+        [HttpPost]
+        public ActionResult ConsultantMaster(ConsultantMaster model)
+        {
+            ViewBag.consultantNationality = Common.GetConsultantNationality();
+            ViewBag.consultantCategory = Common.GetConsultantCategory();
+            ViewBag.vendorCountry = Common.GetAgencyType();
+            ViewBag.Professional = Common.GetCodeControlList("ConsultantProfessional");
+            ViewBag.ProfessionalFirm = Common.GetCodeControlList("ConsultantFirmProfessional");
+            ViewBag.Gender = Common.getGender();
+            ViewBag.state = Common.GetStatelist();
+            ViewBag.country = Common.getCountryList();
+            ViewBag.GstDoc = Common.GetGstSupportingDoc();
+            ViewBag.Vensupdoc = Common.GetVendorSupportingDoc();
+            ViewBag.ventdsdoc = Common.GetVendorTdsDoc();
+            ViewBag.vendorcode = MasterService.GetVendorCode();
+            ViewBag.serviceCategory = Common.GetCategoryService();
+            ViewBag.serviceType = Common.GetServiceTypeList();
+            ViewBag.suppliertype = Common.GetSupplierType();
+            ViewBag.tdssection = Common.GetTdsList();
+            var Username = User.Identity.Name;
+            model.UserId = Common.GetUserid(Username);
+            ViewBag.bankcountry = Common.getCountryList();
+            //model.ConsultantCategory= txtNationality.
+
+
+
+            if (ModelState.IsValid)
+            {
+                var allowedExtensions = new[] { ".pdf", ".doc", ".docx", ".DOC", ".DOCX", ".PDF" };
+
+                if ((model.AttachmentName != null))
+                {
+                    for (int i = 0; i < model.AttachmentName.Length; i++)
+                    {
+                        if (model.ConsultantFile[i] != null)
+                        {
+                            string docname = Path.GetFileName(model.ConsultantFile[i].FileName);
+                            var docextension = Path.GetExtension(docname);
+                            if (!allowedExtensions.Contains(docextension))
+                            {
+                                ViewBag.filemsg = "Please upload any one of these type doc [.pdf, .doc, .docx]";
+                                return View(model);
+                            }
+                        }
+
+                    }
+                }
+
+                int vendorStatus = RequirementService.ConsultantEmpMaster(model);
+                if (vendorStatus == 1)
+                {
+                    ViewBag.success = "Saved successfully";
+                }
+                else if (vendorStatus == 2)
+                {
+                    ViewBag.Msg = "This Vendor Account Number and GSTIN Number Already Exits";
+                    return View(model);
+                }
+                else if (vendorStatus == 3)
+                {
+                    ViewBag.update = "ConsultantEmpMaster updated successfully";
+                }
+                else if (vendorStatus == 4)
+                {
+                    ViewBag.Msgs = "This PFMS Number Alredy Exits";
+                    return View(model);
+                }
+                else
+                {
+                    ViewBag.error = "Somthing went to worng please contact Admin!.";
+                    return View(model);
+                }
+                return View();
+            }
+            else
+            {
+                string messages = string.Join("<br />", ModelState.Values
+                                    .SelectMany(x => x.Errors)
+                                    .Select(x => x.ErrorMessage));
+
+                ViewBag.error = messages;
+
+
+                return View();
+            }
+        }
+
+        [Authorized]
+        [HttpPost]
+        public JsonResult EditConsultantMasterlist(int consultantMasterId)
+        {
+            object output = RequirementService.EditConsultantMaster(consultantMasterId);
+            return Json(output, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult ConsultantMasterView(int Vendorid = 0)
+        {
+            try
+            {
+                ConsultantMasterView model = new ConsultantMasterView();
+                model = RequirementService.GetConsultantMasterView(Vendorid);
+                ViewBag.processGuideLineId = 160;
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        [HttpGet]
+        public JsonResult CheckPreviousGSTNumber(string GSTno)
+        {
+            object output = Common.CheckPreviousGSTNumber(GSTno);
+            return Json(output, JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet]
+        public JsonResult CheckTINNumber(string TINno)
+        {
+            object output = Common.CheckTINNumber(TINno);
+            return Json(output, JsonRequestBehavior.AllowGet);
+        }
+
 
         #region EmployeeMaster Separate
         public ActionResult CONEmployeeMaster()

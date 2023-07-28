@@ -1567,6 +1567,8 @@ namespace IOAS.Models
         public string ChairpersonName { get; set; }
         public Nullable<int> ChairpersonNameId { get; set; }
         public bool AcknowledgementSent_f { get; set; }
+        public int AmendmentOrderID { get; set; }
+
     }
 
     public class HRAOrderModel
@@ -1745,6 +1747,7 @@ namespace IOAS.Models
         public Nullable<decimal> OldTotalCTC { get; set; }
         public Nullable<decimal> LWFAmount { get; set; }
         public string List_f { get; set; }
+        public int AmendmentOrderID { get; set; }
     }
 
     public class RelievingModel
@@ -3113,6 +3116,284 @@ namespace IOAS.Models
         public string Status { get; set; }
         public List<ConsultantAppointmentModel> conList { get; set; }
         public int TotalRecords { get; set; }
+    }
+
+    public class ConsultantMaster
+    {
+
+        public Nullable<int> Consultant_MasterId { get; set; }
+        
+        public string Consultant_EmpId { get; set; }
+        
+        public int Consultant_Nationality { get; set; }
+        
+        public int Consultant_Category { get; set; }
+        
+        public string Consultant_EmpType { get; set; }
+
+        
+        public Nullable<int> Consultant_Salutation { get; set; }
+        
+        public string Consultant_Name { get; set; }
+        
+        public Nullable<int> Consultant_Gender { get; set; }
+        
+        public Nullable<System.DateTime> Consultant_DOB { get; set; }
+
+        [MaxLength(10)]
+        [RegularExpression("[0-9]{10}", ErrorMessage = "Invalid Phone Number")]
+        [Display(Name = "Contact Number")]
+        public string Consultant_ContactNumber { get; set; }
+        [EmailAddress]
+        public string Consultant_Email { get; set; }
+        [Range(100000000000, 999999999999, ErrorMessage = "Aadhaar number should not exceed 12 characters")]
+        public string Consultant_AadhaarNo { get; set; }
+        [MaxLength(10)]
+        [RegularExpression("[A-Z]{5}[0-9]{4}[A-Z]{1}", ErrorMessage = "Invalid PAN Number")]
+        [Display(Name = "PAN No")]
+        public string Consultant_PanNo { get; set; }
+        public string Consultant_Address { get; set; }
+               
+        public string Consultant_Qualification { get; set; }
+        
+        public string Consultant_Experience { get; set; }
+
+        public HttpPostedFileBase PersonImage { get; set; }
+        public HttpPostedFileBase PersonFIImage { get; set; }
+
+        public string Consultant_Photo { get; set; }
+        public string PersonImagePath { get; set; }
+        public string PersonImageFIPath { get; set; }
+
+        public string PersonDocPath { get; set; }
+        
+        public Nullable<int> Consultant_Country { get; set; }
+        
+        public string Consultant_City { get; set; }
+        
+        public Nullable<int> Consultant_StateId { get; set; }
+        
+        public Nullable<int> Consultant_StateCode { get; set; }
+        
+        public string Consultant_Pincode { get; set; }
+        public string Consultant_ServiceAddress { get; set; }
+        public bool IsGST { get; set; }
+        
+        [RegularExpression ("^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$",ErrorMessage = "Invalid GST Number")]
+        [MaxLength(15)]
+        [Display(Name = "GST No")]
+        public string GSTIN { get; set; }
+
+        #region IF
+
+        public Nullable<int> Consultant_IFSalutation { get; set; }
+        
+        public string Consultant_IFName { get; set; }
+        [MaxLength(10)]
+        [RegularExpression("[0-9]{10}", ErrorMessage = "Invalid Phone Number")]
+        [Display(Name = "Contact Number")]
+        public string Consultant_IFContactNumber { get; set; }
+        [EmailAddress]
+        public string Consultant_IFEmail { get; set; }
+        [MaxLength(10)]
+        [RegularExpression("[A-Z]{5}[0-9]{4}[A-Z]{1}", ErrorMessage = "Invalid PAN Number")]
+        [Display(Name = "PAN No")]
+        public string Consultant_IFPanNo { get; set; }
+        public string Consultant_IFAddress { get; set; }
+        public Nullable<int> Consultant_IFStateId { get; set; }
+        public Nullable<int> Consultant_IFStateCode { get; set; }
+        public string Consultant_IFCity { get; set; }
+        public string Consultant_IFPincode { get; set; }
+        public string Consultant_IFServiceAddress { get; set; }
+        public bool isSameAsIFAddress { get; set; }
+
+        public string PersonDocIFPath { get; set; }
+        #endregion
+
+        public bool IsGSTIF { get; set; }
+        [MaxLength(15)]
+        [Display(Name = "GST No")]
+        public string GSTINIF { get; set; }
+
+        #region FI
+
+        public Nullable<int> Consultant_FISalutation { get; set; }
+
+        public string Consultant_FIName { get; set; }
+
+        public Nullable<int> Consultant_FIGender { get; set; }
+
+        public Nullable<System.DateTime> Consultant_fi_DOB { get; set; }
+        [MaxLength(10)]
+        [RegularExpression("[0-9]{10}", ErrorMessage = "Invalid Phone Number")]
+        [Display(Name = "Contact Number")]
+        public string Consultant_FIContactNumber { get; set; }
+
+        [EmailAddress]
+        public string Consultant_FIEmail { get; set; }
+
+        public string Consultant_FIAddress { get; set; }
+
+        public string Consultant_FIQualification { get; set; }
+
+        public string Consultant_FIExperience { get; set; }
+
+        public string Consultant_FIPhoto { get; set; }
+
+        public string PersonDocFIPath { get; set; }
+
+        public Nullable<int> Consultant_FICountry { get; set; }
+
+        public string Consultant_FICity { get; set; }      
+        public string Consultant_FIPincode { get; set; }
+        public string Consultant_FIServiceAddress { get; set; }
+        public bool isSameAsFIAddress { get; set; }
+        public string Consultant_FITIN { get; set; }
+        #endregion
+
+        #region FF
+
+        public Nullable<int> Consultant_FFSalutation { get; set; }
+
+        public string Consultant_FFName { get; set; }
+
+        [MaxLength(10)]
+        [RegularExpression("[0-9]{10}", ErrorMessage = "Invalid Phone Number")]
+        [Display(Name = "Contact Number")]
+        public string Consultant_FFContactNumber { get; set; }
+
+        [EmailAddress]
+        public string Consultant_FFEmail { get; set; }
+
+        
+        public string Consultant_FFAddress { get; set; }       
+
+        public Nullable<int> Consultant_FFCountry { get; set; }
+
+        public string Consultant_FFCity { get; set; }       
+
+        public string Consultant_FFPincode { get; set; }
+        public string Consultant_FFServiceAddress { get; set; }
+        public bool isSameAsFFAddress { get; set; }
+        public string Consultant_FFTIN { get; set; }
+
+        #endregion
+
+
+        public string Consultant_AccountHolderName { get; set; }
+      
+        public string Consultant_BankName { get; set; }
+       
+        public string Consultant_Branch { get; set; }
+        [MaxLength(11)]
+        [RegularExpression("[A-Z|a-z]{4}[0][a-zA-Z0-9]{6}", ErrorMessage = "Invalid IFSC Code")]
+        [Display(Name = "IFSC")]
+        public string Consultant_IFSC { get; set; }
+        
+        public string Consultant_AccountNumber { get; set; }
+       
+        public string Consultant_BankAddress { get; set; }
+        public string Consultant_ABANumber { get; set; }
+        public string Consultant_SortCode { get; set; }
+        public string Consultant_IBAN { get; set; }
+        public string Consultant_SWIFTorBICCode { get; set; }
+        public string Consultant_BankNature { get; set; }
+        public string Consultant_MICRCode { get; set; }
+        public Nullable<int> Consultant_BankCountry { get; set; }
+        [EmailAddress]
+        public string Consultant_BankEmailId { get; set; }
+        public Nullable<int> CrtdUser { get; set; }
+        public Nullable<System.DateTime> CrtdTs { get; set; }
+        public Nullable<int> UptdUser { get; set; }
+        public Nullable<System.DateTime> UptdTs { get; set; }
+        public string Status { get; set; }
+        public Nullable<bool> IsActiveNow { get; set; }
+        public bool isSameAsAddress { get; set; }
+        public int sno { get; set; }
+        public string CountryName { get; set; }
+        public string ConsultantCategory { get; set; }
+        public string ConsultantEmpId { get; set; }
+        public int UserId { get; set; }
+
+        public int[] ConsultantDocumentID { get; set; }
+        public HttpPostedFileBase[] ConsultantFile { get; set; }
+        public string[] AttachmentName { get; set; }
+        public string[] AttachmentFileName { get; set; }
+        
+        public string[] AttachmentPath { get; set; }
+        public Nullable<bool> IsCurrentVersion { get; set; }
+        public Nullable<int> DocumentUploadUserId { get; set; }
+        public Nullable<System.DateTime> DocumentUpload_Ts { get; set; }
+
+        
+        
+
+    }
+
+    public class ConsultantMasterSearchModel
+    {
+
+        public string INConsultantSearchname { get; set; }
+        public string INConsultantsearchID { get; set; }
+        public string INStatus { get; set; }
+        public Nullable<int> INCountry { get; set; }
+        public int EXCountryName { get; set; }
+        public string EXConsultantSearchname { get; set; }
+        public int INConsultantCategory { get; set; }
+        public int EXINConsultantsearchCode { get; set; }
+        public int TotalRecords { get; set; }
+       
+        public List<ConsultantMaster> ConsultantList { get; set; }
+    }
+
+    public class ConsultantMasterView
+    {
+        public int Consultant_MasterId { get; set; }
+        public string ConsultantName { get; set; }
+        public string Nationality { get; set; }
+        public string Category { get; set; }
+        public string Address { get; set; }
+        public string Email { get; set; }        
+        public string PhoneNo { get; set; }
+        public string MobileNo { get; set; }
+        public string Country { get; set; }
+        public string State { get; set; }
+        public string StateCode { get; set; }
+        public string City { get; set; }
+        public string PinCode { get; set; }
+        public string RegName { get; set; }
+        public string PAN { get; set; }
+        public string AadhaarNo { get; set; }
+        public string AccHolderName { get; set; }
+        public string AccNo { get; set; }
+        public string IFSC { get; set; }
+        public string BankName { get; set; }
+        public string BankNature { get; set; }
+        public string Branch { get; set; }
+        public string BankAddress { get; set; }
+        public string BankEmail { get; set; }
+        public string MICRCode { get; set; }
+        public string TIN { get; set; }
+        public string GSTIN { get; set; }
+        public string ABANumber { get; set; }
+        public string SortCode { get; set; }
+        public string IBAN { get; set; }
+        public string SWiftCode { get; set; }
+        public string BankCountry { get; set; }
+        
+        public List<OtherDocumentModel> TdsDocument { get; set; }
+        public List<TaxDocumentModel> TaxDocument { get; set; }
+
+    }
+
+    public class OtherDocumentModel
+    {
+        public int ConsultantDocumentID { get; set; }
+        public string TdsDocumentName { get; set; }
+        public string TdsAttachementName { get; set; }
+        public string TdsDocumenttypename { get; set; }
+        public string TdsDocumentPath { get; set; }
+
     }
 
     #endregion

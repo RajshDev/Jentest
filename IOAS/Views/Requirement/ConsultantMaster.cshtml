@@ -1,0 +1,2197 @@
+﻿@model IOAS.Models.ConsultantMaster
+@{
+    ViewBag.Title = "ConsultantMaster";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+
+   
+}
+@Styles.Render("~/bundles/JSGridCss")
+@Scripts.Render("~/bundles/JSGrid")
+<script src="@Url.Content("~/Scripts/Master/ConsultantMaster.js")"></script>
+
+
+
+<div class="row hd-tt-bg" id="addnewpage">
+    <div class="col-md-4">
+        <h3>ConsultantMaster</h3>
+    </div>
+    <div class="col-md-8 flt-nav-links">
+        <a href="#" id="btnaddnew"> <i class="ion-plus"></i>Add New</a>
+        <a href="Javascript:void(0)" id="btnFilterUser" class="pull-right"> <i class="ion-android-funnel"></i>Filters</a>
+    </div>
+
+</div>
+<div id="popFilterUser" class="filter-popup">
+    <div class="">
+        <div class="filter-content">
+            <div class="white-bg">
+                <div class="form-group custom-form-group">
+                    <h3>Filter by</h3>
+                </div>
+                <div class="form-group custom-form-group">
+                    <label>Consultant Name</label><br>
+                    @Html.TextBoxFor(M => M.Consultant_Name, new { @class = "form-control", @id = "txtsrcnsltname" })@*txtsrchname*@
+                </div>
+                <div class="form-group custom-form-group">
+                    <label>Category</label><br>
+                    @Html.DropDownListFor(M => M.Consultant_Category, new SelectList(ViewBag.consultantCategory, "id", "name"), "Select Category", new { @id = "ddlSearchcnsltCode", @class = "form-control selectpicker" })
+                </div>
+                <div class="form-group custom-form-group">
+                    <label>Country</label><br>
+                    @Html.DropDownListFor(M => M.Consultant_Nationality, new SelectList(ViewBag.consultantNationality, "id", "name"), "Select Nationality", new { @id = "ddlSeaCountry", @class = "form-control selectpicker" })
+                </div>
+                <div class="form-group custom-form-group mt30 text-center">
+                    <button id="btnSrchUser" type="button" class="btn btn-primary mr10">Search</button>
+                    <button id="btnResetSrchUser" type="button" class="btn btn-default">Reset</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <a href="javascript:void(0)" name="btnCloseUser" class="close-btn"><i class="ion-android-cancel"></i></a>
+
+</div>
+@using (Html.BeginForm("ConsultantMaster", "Requirement", FormMethod.Post, new { @class = "", role = "form", @id = "formCP", enctype = "multipart/form-data" }))
+{
+    <div class="col-md-12">
+        <div id="vendorMaster" style="display:none">
+            <div class="page-wrapper" id="vendorhead1" style="display:none">
+
+                <div class="white-bg">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h3 class="spl-title">Consultant Master</h3>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group custom-form-group">
+                                <label>Nationality</label>
+                                @Html.DropDownListFor(M => M.Consultant_Nationality, new SelectList(ViewBag.consultantNationality, "id", "name"), "Select Nationality", new { @id = "ddlcnsltctry", @class = "form-control", @onchange = "Dayanamiccountryvalidation()" })
+                                <div class="txt-error txt-red"> @Html.ValidationMessageFor(M => M.Consultant_Nationality)</div>
+                                @Html.HiddenFor(M => M.Consultant_Nationality, new { @id = "txtNationality" })
+                                @Html.HiddenFor(M => M.Consultant_MasterId, new { @id = "txtVendorId" })
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group custom-form-group">
+                                <label>Category</label>
+                                @Html.DropDownListFor(M => M.Consultant_Category, new SelectList(ViewBag.consultantCategory, "id", "name"), "Select Category", new { @id = "ddlcnsltCategory", @class = "form-control", @onchange = "Dayanamiccountryvalidation()" })
+                                <div class="txt-error txt-red"> @Html.ValidationMessageFor(M => M.Consultant_Category)</div>
+                                @Html.HiddenFor(M => M.Consultant_Category, new { @id = "txtCategory" })
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+            <div class="page-wrapper" id="vendorhead2" style="display:none">
+                <div class="white-bg">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h3 class="spl-title">Personal Details</h3>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Name</label>
+                                        @Html.DropDownListFor(m => m.Consultant_Salutation, new SelectList(ViewBag.Professional, "id", "name"), "Select", new { @id = "ddlIcnsltSalutation", @required = "required" })
+                                        <div>@Html.ValidationMessageFor(m => m.Consultant_Salutation)</div>
+                                        @Html.TextBoxFor(M => M.Consultant_Name, new { @class = "form-control", @id = "txtIConsultantName", @required = "required" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Consultant_Name)</div>
+                                        @Html.HiddenFor(M => M.Consultant_Name, new { @id = "hiddVendorName" })
+
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        @Html.HiddenFor(m => m.Consultant_MasterId)
+                                        <label class="required">Gender</label><br>
+                                        @Html.DropDownListFor(m => m.Consultant_Gender, new SelectList(ViewBag.Gender, "id", "name"), "Select", new { @id = "ddlIcnsltGender", @class = "form-control", @required = "required" })
+                                        <label id="lblSex"></label>
+                                        <div>@Html.ValidationMessageFor(m => m.Consultant_Gender)</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Date of Birth</label>
+                                        @Html.EditorFor(m => m.Consultant_DOB, new { @id = "txIcnslttDOB", @class = "form-control", @required = "required" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.Consultant_DOB)</div>
+                                        @*@Html.Hidden("txIcnslttDOB")*@
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Contact Number</label>
+                                        @Html.TextBoxFor(m => m.Consultant_ContactNumber, new { @class = "form-control", @id = "txtIPhoneNumber", @required = "required", @onkeypress = "return isNumberKey(event)" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.Consultant_ContactNumber)</div>
+
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Email</label>
+                                        @Html.TextBoxFor(M => M.Consultant_Email, new { @class = "form-control", @id = "txtIEmail", @required = "required" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Consultant_Email)</div>
+                                        @Html.HiddenFor(M => M.Consultant_Email, new { @id = "hiddEmailAddress" })
+
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label>Aadhaar Number</label>
+                                        @Html.TextBoxFor(m => m.Consultant_AadhaarNo, new { @class = "form-control", @id = "txtIAadhaarno", @onkeypress = "return isNumberKey(event)" })
+                                        @*<div>@Html.ValidationMessageFor(m => m.Consultant_AadhaarNo)</div>*@
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        @*<label>IsGST</label>*@
+                                        <label class="required">@Html.CheckBoxFor(m => m.IsGST) IsGST	</label> <br>
+                                        @*@Html.CheckBoxFor(m => m.IsGST, new { @id = "chkIGST" })*@
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label>GST No </label>
+                                        @Html.TextBoxFor(m => m.GSTIN, new { @class = "form-control", @id = "txtIGSTNumber", @readonly = "readonly", @onblur = "CheckIGSTno()" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.GSTIN)</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">PAN No </label>
+                                        @Html.TextBoxFor(m => m.Consultant_PanNo, new { @class = "form-control", @id = "txtIPANNumber", @required = "required", @onchange = "CheckIEmployeepanno()" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Consultant_PanNo)</div>
+
+                                    </div>
+                                </div>
+
+
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Address</label>
+                                        @Html.TextBoxFor(M => M.Consultant_Address, new { @class = "form-control", @id = "txtIAddress", @required = "required" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Consultant_Address)</div>
+                                        @Html.HiddenFor(M => M.Consultant_Address, new { @id = "hiddAddress" })
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">State</label>
+                                        @Html.DropDownListFor(M => M.Consultant_StateId, new SelectList(ViewBag.state, "id", "name"), "Select state", new { @class = "form-control", @id = "ddlIstate", @required = "required" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Consultant_StateId)</div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">State Code</label>
+                                        @Html.TextBoxFor(M => M.Consultant_StateCode, new { @class = "form-control", @id = "txtIStateCode", @readonly = "readonly", @required = "required" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Consultant_StateCode)</div>
+                                    </div>
+                                </div>
+
+
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">City</label>
+                                        @Html.TextBoxFor(M => M.Consultant_City, new { @class = "form-control", @id = "txtICity", @required = "required" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Consultant_City)</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Pin Code</label>
+                                        @Html.TextBoxFor(M => M.Consultant_Pincode, new { @class = "form-control", @id = "txtIPinCode", @required = "required", @onkeypress = "return isNumberKey(event)" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Consultant_Pincode)</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label>Consultant Qualification</label>
+                                        @Html.TextBoxFor(M => M.Consultant_Qualification, new { @class = "form-control", @id = "txtIconsltquali" })
+                                        @*<div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Consultant_Qualification)</div>*@
+
+                                    </div>
+                                </div>
+
+
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label>Consultant Experience</label>
+                                        @Html.TextBoxFor(M => M.Consultant_Experience, new { @class = "form-control", @id = "txtIconsltexp" })
+                                        @*<div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Consultant_Experience)</div>*@
+
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">@Html.CheckBoxFor(m => m.isSameAsAddress) same as above <br>Service Address</label> <br>
+                                        @*@Html.HiddenFor(M => M.isSameAsAddress, new { @id = "hiddSameAddress" })*@
+                                        @Html.TextAreaFor(m => m.Consultant_ServiceAddress, new { @class = "form-control", @id = "txtIServiceAddress", @required = "required" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Consultant_ServiceAddress)</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label>Photo</label> <br>
+
+                                        @if (Model != null)
+                                        {
+                                            if (Model.Consultant_MasterId != null && !string.IsNullOrEmpty(Model.PersonImagePath))
+                                            {
+                                                <img id="displayImg" src="@Url.Action("ShowDocument", "Account", new { file = Model.PersonImagePath, filepath = "RCTEmployeeImages" })" width="30px" height="30px"><br>
+                                                <input class="form-control" type="file" name="PersonImage" onchange="readURL(this);">
+                                            }
+
+                                        }
+                                        else
+                                        {
+                                            <img id="displayImg" src="~/Content/IOASContent/img/Image_placeholder.png" width="30px" height="30px"><br>
+                                            <input class="form-control" type="file" name="PersonImage" onchange="readURL(this);">
+                                        }
+
+                                        @*<img id="displayImg" src="~/Content/IOASContent/img/Image_placeholder.png" width="30px" height="30px"><br>
+                <input class="form-control" type="file" name="PersonImage" onchange="readURL(this);">*@
+                                        @Html.HiddenFor(m => m.PersonImagePath)
+                                        <em style="color:red;font-size:12px;">upload [.jpeg,.png,.jpg] and file size below 1MB</em>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="page-wrapper" id="indfirmdiv" style="display:none">
+                <div class="white-bg">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h3 class="spl-title">Personal Details</h3>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Name</label>
+                                        @Html.DropDownListFor(m => m.Consultant_IFSalutation, new SelectList(ViewBag.ProfessionalFirm, "id", "name"), "Select", new { @id = "ddlIFcnsltSalutation",@required = "required" })
+                                        <div>@Html.ValidationMessageFor(m => m.Consultant_IFSalutation)</div>
+                                        @Html.TextBoxFor(M => M.Consultant_IFName, new { @class = "form-control", @id = "txtIFConsultantName", @required = "required" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Consultant_IFName)</div>
+                                        @Html.HiddenFor(M => M.Consultant_IFName, new { @id = "hiddVendorName" })
+
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Contact Number</label>
+                                        @Html.TextBoxFor(M => M.Consultant_IFContactNumber, new { @class = "form-control", @id = "txtIFPhoneNumber", @required = "required", @onkeypress = "return isNumberKey(event)" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Consultant_IFContactNumber)</div>
+
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Email</label>
+                                        @Html.TextBoxFor(M => M.Consultant_IFEmail, new { @class = "form-control", @id = "txtIFEmail", @required = "required" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Consultant_IFEmail)</div>
+                                        @*@Html.HiddenFor(M => M.Email, new { @id = "hiddEmailAddress" })*@
+
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        @*<label>IsGST</label>*@
+                                        <label class="required">@Html.CheckBoxFor(m => m.IsGSTIF) IsGST	</label> <br>@*, new { @id = "chkIFIsGST" }*@
+                                        @*@Html.CheckBoxFor(m => m.IsGSTIF, new { @id = "chkIFGST" })*@
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label>GST No </label>
+                                        @Html.TextBoxFor(m => m.GSTINIF, new { @class = "form-control", @id = "txtIFGSTNumber", @readonly = "readonly", @onblur = "CheckIFGSTno()" })
+                                        @*<div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.GSTIN)</div>*@
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">PAN No</label>
+                                        @Html.TextBoxFor(m => m.Consultant_IFPanNo, new { @class = "form-control", @id = "txtIFPANNumber", @onchange = "CheckEmployeepanno()", @required = "required" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Consultant_IFPanNo)</div>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="row">
+
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Address</label>
+                                        @Html.TextBoxFor(M => M.Consultant_IFAddress, new { @class = "form-control", @id = "txtIFAddress", @required = "required" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Consultant_IFAddress)</div>
+                                        @Html.HiddenFor(M => M.Consultant_IFAddress, new { @id = "hiddIFAddress" })
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">State</label>
+                                        @Html.DropDownListFor(M => M.Consultant_IFStateId, new SelectList(ViewBag.state, "id", "name"), "Select state", new { @class = "form-control", @id = "ddlIFstate", @required = "required" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Consultant_IFStateId)</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">State Code</label>
+                                        @Html.TextBoxFor(M => M.Consultant_IFStateCode, new { @class = "form-control", @id = "txtIFStateCode", @readonly = "readonly", @required = "required" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Consultant_IFStateCode)</div>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="row">
+                                
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">City</label>
+                                        @Html.TextBoxFor(M => M.Consultant_IFCity, new { @class = "form-control", @id = "txtIFCity", @required = "required" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Consultant_IFCity)</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Pin Code</label>
+                                        @Html.TextBoxFor(M => M.Consultant_IFPincode, new { @class = "form-control", @id = "txtIFPinCode", @required = "required", @onkeypress = "return isNumberKey(event)" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Consultant_IFPincode)</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">@Html.CheckBoxFor(m => m.isSameAsIFAddress) same as above <br>Service Address</label> <br>@*, new { @id = "chkisSameAsIFAddress" }*@
+                                        @Html.TextAreaFor(m => m.Consultant_IFServiceAddress, new { @class = "form-control", @required = "required", @id = "txtIFServiceAddress" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Consultant_IFServiceAddress)</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="page-wrapper" id="frginddiv" style="display:none">
+                <div class="white-bg">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h3 class="spl-title">Personal Details</h3>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Name</label>
+                                        @Html.DropDownListFor(m => m.Consultant_FISalutation, new SelectList(ViewBag.Professional, "id", "name"), "Select", new { @id = "ddlFIcnsltSalutation", @required = "required" })
+                                        <div>@Html.ValidationMessageFor(m => m.Consultant_FISalutation)</div>
+                                        @Html.TextBoxFor(M => M.Consultant_FIName, new { @class = "form-control", @id = "txtFIConsultantName", @required = "required" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Consultant_FIName)</div>
+                                        @Html.HiddenFor(M => M.Consultant_FIName, new { @id = "hiddVendorName" })
+
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Gender</label><br>
+                                        @Html.DropDownListFor(m => m.Consultant_FIGender, new SelectList(ViewBag.Gender, "id", "name"), "Select", new { @id = "ddlFIcnsltGender", @class = "form-control", @required = "required" })
+                                        <label id="lblSex"></label>
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.Consultant_FIGender)</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Date of Birth</label>
+                                        @Html.EditorFor(m => m.Consultant_fi_DOB, new { @id = "txFIcnslttDOB", @class = "form-control", @required = "required" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.Consultant_fi_DOB)</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">TIN Number</label>
+                                        @Html.TextBoxFor(M => M.Consultant_FITIN, new { @class = "form-control", @id = "txtFITin", @required = "required", @onblur = "CheckEmployeeFITINNo()" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Consultant_FITIN)</div>
+
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Contact Number</label>
+                                        @Html.TextBoxFor(M => M.Consultant_FIContactNumber, new { @class = "form-control", @id = "txtFIPhoneNumber", @required = "required", @onkeypress = "return isNumberKey(event)" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Consultant_FIContactNumber)</div>
+
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Email</label>
+                                        @Html.TextBoxFor(M => M.Consultant_FIEmail, new { @class = "form-control", @id = "txtFIEmail", @required = "required" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Consultant_FIEmail)</div>
+                                        @*@Html.HiddenFor(M => M.Email, new { @id = "hiddEmailAddress" })*@
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Address</label>
+                                        @Html.TextBoxFor(M => M.Consultant_FIAddress, new { @class = "form-control", @id = "txtFIAddress", @required = "required" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Consultant_FIAddress)</div>
+                                        @Html.HiddenFor(M => M.Consultant_FIAddress, new { @id = "hiddFIAddress" })
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label>Consultant Qualification</label>
+                                        @Html.TextBoxFor(M => M.Consultant_FIQualification, new { @class = "form-control", @id = "txtFIconsltquali" })
+
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label>Consultant Experience</label>
+                                        @Html.TextBoxFor(M => M.Consultant_FIExperience, new { @class = "form-control", @id = "txtFIconsltexp" })
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Country</label>
+                                        @Html.DropDownListFor(M => M.Consultant_FICountry, new SelectList(ViewBag.country, "CountryID", "CountryName"), "Select country", new { @id = "ddlFIcountry", @class = "form-control", @required = "required" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Consultant_FICountry)</div>
+
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label>City</label>
+                                        @Html.TextBoxFor(M => M.Consultant_FICity, new { @class = "form-control", @id = "txtFICity" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Consultant_FICity)</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label>Pin Code</label>
+                                        @Html.TextBoxFor(M => M.Consultant_FIPincode, new { @class = "form-control", @id = "txtFIPinCode", @onkeypress = "return isNumberKey(event)" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Consultant_FIPincode)</div>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="row">
+
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">@Html.CheckBoxFor(m => m.isSameAsFIAddress) same as above	   <br>Service Address</label> <br>@*, new { @id = "chkisSameAsFIAddress" }*@
+                                        @Html.TextAreaFor(m => m.Consultant_FIServiceAddress, new { @class = "form-control", @required = "required", @id = "txtFIServiceAddress" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Consultant_FFServiceAddress)</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label>Photo</label> <br>
+                                        @if (Model != null)
+                                        {
+                                            if (Model.Consultant_MasterId != null && !string.IsNullOrEmpty(Model.PersonImageFIPath))
+                                            {
+                                                <img id="displayFIImg" src="@Url.Action("ShowDocument", "Account", new { file = Model.PersonImageFIPath, filepath = "RCTEmployeeImages" })" width="30px" height="30px"><br>
+                                                <input class="form-control" type="file" name="PersonFIImage" onchange="readFIURL(this);">
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <img id="displayFIImg" src="~/Content/IOASContent/img/Image_placeholder.png" width="30px" height="30px"><br>
+                                            <input class="form-control" type="file" name="PersonFIImage" onchange="readFIURL(this);">
+                                        }
+                                        @*<img id="displayFIImg" src="~/Content/IOASContent/img/Image_placeholder.png" width="30px" height="30px"><br>
+                <input class="form-control" type="file" name="PersonFIImage" onchange="readFIURL(this);">*@
+                                        @Html.HiddenFor(m => m.PersonImageFIPath)
+                                        <em style="color:red;font-size:12px;">upload [.jpeg,.png,.jpg] and file size below 1MB</em>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        </div>
+                </div>
+            </div>
+
+            <div class="page-wrapper" id="frgfirmdiv" style="display:none">
+                <div class="white-bg">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h3 class="spl-title">Personal Details</h3>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Name</label>
+                                        @Html.DropDownListFor(m => m.Consultant_FFSalutation, new SelectList(ViewBag.ProfessionalFirm, "id", "name"), "Select", new { @id = "ddlFFcnsltSalutation", @required = "required" })
+                                        <div>@Html.ValidationMessageFor(m => m.Consultant_FFSalutation)</div>
+                                        @Html.TextBoxFor(M => M.Consultant_FFName, new { @class = "form-control", @id = "txtFFConsultantName", @required = "required" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Consultant_FFName)</div>
+                                        @Html.HiddenFor(M => M.Consultant_FFName, new { @id = "hiddVendorName" })
+
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Contact Number</label>
+                                        @Html.TextBoxFor(M => M.Consultant_FFContactNumber, new { @class = "form-control", @id = "txtFFPhoneNumber", @required = "required", @onkeypress = "return isNumberKey(event)" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Consultant_FFContactNumber)</div>
+
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">TIN Number</label>
+                                        @Html.TextBoxFor(M => M.Consultant_FFTIN, new { @class = "form-control", @id = "txtFFTin", @required = "required", @onblur = "CheckEmployeeFFTINNo()" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Consultant_FFTIN)</div>
+
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="row">
+                                
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group">
+                                            <label class="required">Email</label>
+                                            @Html.TextBoxFor(M => M.Consultant_FFEmail, new { @class = "form-control", @id = "txtFFEmail", @required = "required" })
+                                            <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Consultant_FFEmail)</div>
+                                            @*@Html.HiddenFor(M => M.Email, new { @id = "hiddEmailAddress" })*@
+
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group">
+                                            <label class="required">Address</label>
+                                            @Html.TextBoxFor(M => M.Consultant_FFAddress, new { @class = "form-control", @id = "txtFFAddress", @required = "required" })
+                                            <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Consultant_FFAddress)</div>
+                                            @Html.HiddenFor(M => M.Consultant_FFAddress, new { @id = "hiddFFAddress" })
+                                        </div>
+                                    </div>                               
+
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Country</label>
+                                        @Html.DropDownListFor(M => M.Consultant_FFCountry, new SelectList(ViewBag.country, "CountryID", "CountryName"), "Select country", new { @id = "ddlFFcountry", @class = "form-control", @required = "required" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Consultant_FFCountry)</div>
+
+                                    </div>
+
+                                </div>
+                                
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">City</label>
+                                        @Html.TextBoxFor(M => M.Consultant_FFCity, new { @class = "form-control", @id = "txtFFCity", @required = "required" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Consultant_FFCity)</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Pin Code</label>
+                                        @Html.TextBoxFor(M => M.Consultant_FFPincode, new { @class = "form-control", @id = "txtFFPinCode", @required = "required", @onkeypress = "return isNumberKey(event)" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Consultant_FFPincode)</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">@Html.CheckBoxFor(m => m.isSameAsFFAddress) same as above	   <br>Service Address</label> <br>
+                                        @Html.TextAreaFor(m => m.Consultant_FFServiceAddress, new { @class = "form-control", @required = "required", @id = "txtFFServiceAddress" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Consultant_FFServiceAddress)</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="page-wrapper" id="vendorhead4" style="display:none">
+                <div class="white-bg">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h3 class="spl-title">Bank Details</h3>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label>Account Holder's Name</label>
+                                        @Html.TextBoxFor(M => M.Consultant_AccountHolderName, new { @class = "form-control", @id = "txtAcctHolderName" })
+                                        <p class="m-b-sm hint">Name as per the bank account</p>
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Consultant_AccountHolderName)</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Bank Name</label>
+                                        @Html.TextBoxFor(M => M.Consultant_BankName, new { @class = "form-control", @id = "txtBankName", @required = "required" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Consultant_BankName)</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label>Branch</label>
+                                        @Html.TextBoxFor(M => M.Consultant_Branch, new { @class = "form-control", @id = "txtBranch" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Consultant_Branch)</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label class="required">Account Number</label>
+                                        @Html.TextBoxFor(M => M.Consultant_AccountNumber, new { @class = "form-control", @id = "txtAcctNum", @required = "required", @onkeypress = "return isOnlyNumericKey(event)" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Consultant_AccountNumber)</div>
+                                    </div>
+                                </div>
+                                <div id="ifsccode" style="display:none">
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group">
+                                            <label class="required">IFSC</label>
+                                            @Html.TextBoxFor(M => M.Consultant_IFSC, new { @class = "form-control", @id = "txtIfscCode", @required = "required" })
+                                            <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Consultant_IFSC)</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label>Bank Address</label>
+                                        @Html.TextBoxFor(M => M.Consultant_BankAddress, new { @class = "form-control", @id = "txtBankAddress" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Consultant_BankAddress)</div>
+                                    </div>
+                                </div>
+                                <div id="hiddenBankcountry" style="display:none">
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group">
+                                            <label class="required">Bank Country</label>
+                                            @Html.DropDownListFor(M => M.Consultant_BankCountry, new SelectList(ViewBag.bankcountry, "CountryID", "CountryName"), "Select Bank country", new { @id = "ddlBankcountry", @class = "form-control", @required = "required" })
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row" id="abaDiv" style="display:none">
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label>ABA Number</label>
+                                        @Html.TextBoxFor(M => M.Consultant_ABANumber, new { @class = "form-control", @id = "txtABANumber" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Consultant_ABANumber)</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label>Sort Code</label>
+                                        @Html.TextBoxFor(M => M.Consultant_SortCode, new { @class = "form-control", @id = "txtSortCode" })
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label>IBAN</label>
+                                        @Html.TextBoxFor(M => M.Consultant_IBAN, new { @class = "form-control", @id = "txtIBAN" })
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4" id="swiftCode" style="display:none">
+                                    <div class="form-group custom-form-group">
+                                        <label>SWIFT / BIC code</label>
+                                        @Html.TextBoxFor(M => M.Consultant_SWIFTorBICCode, new { @class = "form-control", @id = "txtSwiftBICCode" })
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label>Bank Nature</label>
+                                        @Html.TextBoxFor(M => M.Consultant_BankNature, new { @class = "form-control", @id = "txtBankNature" })
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label>Bank Email</label>
+                                        @Html.TextBoxFor(M => M.Consultant_BankEmailId, new { @class = "form-control", @id = "txtBankEmail" })
+                                        <div class="txt-error txt-red">@Html.ValidationMessageFor(M => M.Consultant_BankEmailId)</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label>MICR Code</label>
+                                        @Html.TextBoxFor(M => M.Consultant_MICRCode, new { @class = "form-control", @id = "txtMICRCode" })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="page-wrapper" id="vendorhead5" style="display:none">
+                <div class="white-bg">
+                    <h3 class="spl-title">Other Documents Details</h3>
+                    <div class="row">
+                        <div id="DocdivVendorContent">
+                            <div class="col-md-11 mt10">
+
+                                <div class="col-md-3">
+                                    <div class="form-group custom-form-group">
+                                        <label> Attachment Name </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group custom-form-group">
+                                        <label> Attachment (.pdf, .doc, .docx)</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-1">
+
+                                </div>
+                            </div>
+                            <div id="DocprimaryVendorDiv">
+                                <div class="col-md-11">
+                                    @*<div class="col-md-4">
+                                                                                <div class="form-group custom-form-group">
+                                                                                    @Html.DropDownList("VendorDocumentType", new SelectList(ViewBag.Vensupdoc, "id", "name"), "Select Document Type",
+                                        new { @class = "form-control", @id = "vendordoctype" })
+                                                                                    @Html.Hidden("VendorDocumentId")
+                                                                                </div>
+                                                                            </div>*@
+                                    <div class="col-md-3">
+                                        <div class="form-group custom-form-group">
+                                            <input class="form-control" name="AttachmentName" id="vendordocname" value="" type="text">
+                                            @Html.Hidden("ConsultantDocumentID")
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3" id="browsebtn">
+                                        <div class="form-group custom-form-group mt5">
+                                            <input type="file" name="ConsultantFile" id="vendordocfile" />&nbsp;&nbsp;&nbsp;
+                                            @Html.ValidationMessageFor(m => m.AttachmentPath)
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 doclink mt6" id="vendordoclink">
+
+                                        <a href="#" class="link2" target="_blank"></a>
+                                    </div>
+                                    <div class="col-md-1 ml40 mt5">
+                                        <button class="dis-none" type="button" name="removeButton"><i class="ion-android-close"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                            <button type="button" id="btnAddvendorDoc" class="btn-sm"><i class="ion-android-add"></i> </button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" id="Divbutton" style="display:none">
+                <div class="col-md-12 text-center pd-tb-30">
+                    <input type="submit" class="btn btn-primary mr10" value="Save" name="Button" id="btnSave" />
+                    <input type="submit" class="btn btn-primary mr10" value="Update" name="Button" id="btnUpdate" style="display:none" />
+                    <input type="button" onclick="window.location.href='@Url.Action("ConsultantMaster", "Requirement")';" class="btn btn-default" value="Close" name="Button" id="btnReset" />
+                </div>
+            </div>
+        </div>
+        <div class="row mt30" id="gridlist">
+
+            <div class="col-md-12">
+                <div class="page-wrapper">
+                    <div class="custom-jsgrid-normal">
+                        <div id="consultantList"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+}
+
+<script type="text/javascript">
+    @*var Consultant_MasterId = @Html.Raw(Json.Encode(Model.Consultant_MasterId)) || 0;*@
+    $('#btnaddnew').on('click', function () {
+
+        $('#vendorMaster,#vendorhead1,#vendorhead2,#vendorhead4,#Divbutton').show();
+        $('#ddlVondorctry,#txtConsultantName,#txtAddress,#txtEmail,#txtContactPerson,#txtPhoneNumber,#txtMobileNum,#ddlcountry,#ddlstate').prop('disabled', false);
+        $('#txtStateCode,#txtRegisteredName,#txtPANNumber,#txtTANNumber,#txtVendorCode').prop('disabled', false);
+        $('#gridlist').hide();
+        $('#addnewpage').hide();
+        Reset();
+
+    });
+
+    @*function CheckIFGSTno() {
+        var pnno = $('#txtIFGSTNumber').val() || null;
+        var data = {};
+        if(pnno != null && pnno.length == 15) {
+            var apprefNo = null;
+            //if($('#ApplicationNo').val() != "")
+            //    apprefNo = $('#ApplicationNo').val()
+            data = { Panno : pnno };
+            //if($('#OldEmployeeNumber').val() != "")
+            //{
+            //    data = { Panno : pnno , oldId : $('#OldEmployeeNumber').val() , apptype : "STE" , appref : apprefNo};
+            //}
+            $.ajax({
+                url: '@Url.Action("CheckPreviousGSTNumber", "Requirement")',
+                type: "Get",
+                dataType: "JSON",
+                data: data,
+                success: function (result) {
+                    if(result!="")
+                    {
+                        $('#alert').html("This GST number is linked to  " +result);
+                        $('#Validation').modal('toggle');
+                        $('#txtIFGSTNumber').val('');
+                        $('#txtIFGSTNumber').focus();
+                    }
+                }
+            });
+        }
+    }*@
+
+    function CheckIGSTno() {
+        var Gst = $('#txtIGSTNumber').val() || null;
+        var data = {};
+        if (Gst != null && Gst.length == 15) {
+            var apprefNo = null;
+            //if($('#ApplicationNo').val() != "")
+            //    apprefNo = $('#ApplicationNo').val()
+            data = { GSTno: Gst };
+            //if($('#OldEmployeeNumber').val() != "")
+            //{
+            //    data = { Panno : pnno , oldId : $('#OldEmployeeNumber').val() , apptype : "STE" , appref : apprefNo};
+            //}
+            $.ajax({
+                url: '@Url.Action("CheckPreviousGSTNumber", "Requirement")',
+                type: "Get",
+                dataType: "JSON",
+                data: data,
+                success: function (result) {
+                    if (result != "") {
+                        $('#alert').html("This GST number is linked to  " + result);
+                        $('#Validation').modal('toggle');
+                        $('#txtIGSTNumber').val('');
+                        $('#txtIGSTNumber').focus();
+                    }
+                }
+            });
+        }
+        //else {
+        //    $("#txtIGSTNumber").prop('required', true);
+        //}
+
+    }
+
+    function isOnlyNumericKey(e) {
+        //if the letter is not digit then display error and don't type anything
+        if (e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)) {
+            return false;
+        }
+    }
+
+    function CheckIFGSTno() {
+        var Gst = $('#txtIFGSTNumber').val() || null;
+        var data = {};
+        if (Gst != null && Gst.length == 15) {
+            var apprefNo = null;
+            //if($('#ApplicationNo').val() != "")
+            //    apprefNo = $('#ApplicationNo').val()
+            data = { GSTno: Gst };
+            //if($('#OldEmployeeNumber').val() != "")
+            //{
+            //    data = { Panno : pnno , oldId : $('#OldEmployeeNumber').val() , apptype : "STE" , appref : apprefNo};
+            //}
+            $.ajax({
+                url: '@Url.Action("CheckPreviousGSTNumber", "Requirement")',
+                type: "Get",
+                dataType: "JSON",
+                data: data,
+                success: function (result) {
+                    if(result!="")
+                    {
+                        $('#alert').html("This GST number is linked to  " +result);
+                        $('#Validation').modal('toggle');
+                        $('#txtIFGSTNumber').val('');
+                        $('#txtIFGSTNumber').focus();
+                    }
+                }
+            });
+        }
+    }
+
+
+    $('input[name^="IsGSTIF"]').on('click', function () {
+        if ($(this).is(":checked")) {
+            $('#txtIFGSTNumber').removeAttr('readonly');
+            //$("#txtIFGSTNumber").prop('required', true);
+            //$("#lblGSTNumber").addClass("required");
+        } else {
+            $('#txtIFGSTNumber').attr('readonly', 'readonly');
+            $('#txtIFGSTNumber').val('');
+        }
+    });
+    
+    $('input[name^="IsGST"]').on('click', function () {
+        if ($(this).is(":checked")) {
+            $('#txtIGSTNumber').removeAttr('readonly');
+            //$("#txtIGSTNumber").prop('required', true);
+            //$("#lblGSTNumber").addClass("required");
+        } else {
+            
+            $('#txtIGSTNumber').attr('readonly', 'readonly');
+            $('#txtIGSTNumber').val('');
+        }
+    });
+
+    $('input[name^="isSameAsAddress"]').on('click', function () {
+        if ($(this).is(":checked")) {
+            $('#txtIServiceAddress').val($('#txtIAddress').val());
+            //$('#hiddSameAddress').val($('#isSameAsAddress').val());
+            //$('#isSameAsAddress')
+        } else {
+            $('#txtIServiceAddress').val('');
+        }
+    });
+
+    $('textarea[name="#txtIServiceAddress"]').on('keyup', function () {
+        var value = $(this).val();
+        if ($('#isSameAsAddress').is(":checked")) {
+            $('#txtIServiceAddress').val(value);
+        }
+    });
+
+    $('input[name^="isSameAsIFAddress"]').on('click', function () {
+        if ($(this).is(":checked")) {
+            $('#txtIFServiceAddress').val($('#txtIFAddress').val());
+        } else {
+            $('#txtIFServiceAddress').val('');
+        }
+    });
+
+    $('textarea[name="#txtIFServiceAddress"]').on('keyup', function () {
+        var value = $(this).val();
+        if ($('#isSameAsIFAddress').is(":checked")) {
+            $('#txtIFServiceAddress').val(value);
+        }
+    });
+
+    $('input[name^="isSameAsFIAddress"]').on('click', function () {
+        if ($(this).is(":checked")) {
+            $('#txtFIServiceAddress').val($('#txtFIAddress').val());
+        } else {
+            $('#txtFIServiceAddress').val('');
+        }
+    });
+
+    $('textarea[name="#txtFIServiceAddress"]').on('keyup', function () {
+        var value = $(this).val();
+        if ($('#isSameAsFIAddress').is(":checked")) {
+            $('#txtFIServiceAddress').val(value);
+        }
+    });
+
+    $('input[name^="isSameAsFFAddress"]').on('click', function () {
+        if ($(this).is(":checked")) {
+            $('#txtFFServiceAddress').val($('#txtFFAddress').val());
+
+        } else {
+            $('#txtFFServiceAddress').val('');
+        }
+    });
+
+    $('textarea[name="#txtFFServiceAddress"]').on('keyup', function () {
+        var value = $(this).val();
+        if ($('#isSameAsFFAddress').is(":checked")) {
+            $('#txtFFServiceAddress').val(value);
+        }
+    });
+
+    function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                $('#displayImg')
+                    .attr('src', e.target.result)
+                    .width(30)
+                    .height(30);
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+    function readFIURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                $('#displayFIImg')
+                    .attr('src', e.target.result)
+                    .width(30)
+                    .height(30);
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    $('input[name="PersonImage"]').change(function (e) {
+        var _size = this.files[0].size;
+        var iSize = (_size / 1024);
+        iSize = (Math.round(iSize * 100) / 100)
+        var filename = e.target.files[0].name;
+        var allowedextensions = [".jpeg", ".png", ".jpg", ".gif", ".JPEG", ".PNG", ".JPG"];
+        var extension = filename.substr((filename.lastIndexOf('.') + 1)).toLowerCase();
+        var imgformat = allowedextensions.includes('.' + extension);
+        if (imgformat) {
+            if (iSize > 1024) {
+                $('#alert').html('Image size should be allow below 1MB');
+                $('#Validation').modal('toggle');
+                $(this).val('');
+                return;
+            }
+        }
+        else {
+            $('#alert').html('Image should be allowd document type [.jpg,.jpeg,.png]');
+            $('#Validation').modal('toggle');
+            $(this).val('');
+            return;
+        }
+    });
+
+    $('input[name="PersonFIImage"]').change(function (e) {
+        var _size = this.files[0].size;
+        var iSize = (_size / 1024);
+        iSize = (Math.round(iSize * 100) / 100)
+        var filename = e.target.files[0].name;
+        var allowedextensions = [".jpeg", ".png", ".jpg", ".gif", ".JPEG", ".PNG", ".JPG"];
+        var extension = filename.substr((filename.lastIndexOf('.') + 1)).toLowerCase();
+        var imgformat = allowedextensions.includes('.' + extension);
+        if (imgformat) {
+            if (iSize > 1024) {
+                $('#alert').html('Image size should be allow below 1MB');
+                $('#Validation').modal('toggle');
+                $(this).val('');
+                return;
+            }
+        }
+        else {
+            $('#alert').html('Image should be allowd document type [.jpg,.jpeg,.png]');
+            $('#Validation').modal('toggle');
+            $(this).val('');
+            return;
+        }
+    });
+
+    function Dayanamiccountryvalidation() {
+        
+        var consltcountry = $('#ddlcnsltctry').val();
+        var consltCategory = $('#ddlcnsltCategory').val();
+
+
+        if (consltcountry == 1 && consltCategory == 1) {
+            Reset();
+            //$("#lblemail").addClass("required");
+            //$("#txtEmail").prop('required', true);
+
+            $('#indfirmdiv').hide();
+            $('#vendorhead2').show();
+
+            $('#frginddiv').hide();
+            $('#frgfirmdiv').hide();
+            
+            $('#abaDiv').hide();
+            $('#swiftCode').hide();
+            $('#stateCodeDiv').show();
+
+
+            //$("#txtIAddress").removeAttr('required');
+            //$("#txtIAddress").prop('required', true);
+            //$("#ddlIcnsltSalutation ").prop('required', true);
+            //$("#ddlIcnsltGender").prop('required', true);
+            //$("#txIcnslttDOB").prop('required', true);
+            ////$("#txtIAadhaarno").prop('required', true);
+            //$("#txtIPANNumber").prop('required', true);
+            ////$("#txtIconsltquali").prop('required', true);
+            ////$("#txtIconsltdetails").prop('required', true);
+            ////$("#txtIconsltexp").prop('required', true);
+            //$("#ddlIstate").prop('required', true);
+            //$("#txtIStateCode").prop('required', true);
+            //$("#txtICity").prop('required', true);
+            
+            //$("#txtIGSTNumber").prop('required', true);
+            //$("#lblGSTNumber").addClass("required");
+            //$("#txtFIConsultantName").prop('required', false);
+            //$("#txtFIAddress").prop('required', false);
+            //$("#ddlFIcnsltSalutation ").prop('required', false);
+            //$("#ddlFIcnsltGender").prop('required', false);
+            //$("#txFIcnslttDOB").prop('required', false);
+            //$("#txtFIconsltquali").prop('required', false);
+            //$("#txtFIconsltexp").prop('required', false);
+            //$("#ddlFIcountry").prop('required', false);
+            //$("#ddlFIstate").prop('required', false);
+            //$("#txtFIStateCode").prop('required', false);
+
+
+            //$("#txtIFConsultantName").prop('required', false);
+            //$("#txtIFAddress").prop('required', false);
+            //$("#ddlIFcnsltSalutation ").prop('required', false);
+            //$("#txtIFPANNumber").prop('required', false);
+            //$("#ddlIFstate").prop('required', false);
+            //$("#txtIFStateCode").prop('required', false);
+            //$("#txtIFCity").prop('required', false);
+            //$("#txtIFPhoneNumber").prop('required', false);
+            //$("#txtIFEmail").prop('required', false);
+            
+
+
+
+            //$("#txtFFConsultantName").prop('required', false);
+            //$("#txtFFAddress").prop('required', false);
+            //$("#ddlFFcnsltSalutation ").prop('required', false);
+
+            //$("#txtFFPhoneNumber").prop('required', false);
+
+            //$("#txtFFCity").prop('required', false);
+            //$("#ddlFFstate").prop('required', false);
+            //$("#txtFFStateCode").prop('required', false);
+            //$("#ddlFFcountry").prop('required', false);
+
+
+
+
+            //$("#lblifsc").addClass("required");
+            $("#ifsccode").show();
+            $("#hiddenBankcountry").hide();
+            //$("#lblservice").addClass("required");
+            //$("#ddlcategoryservice").prop('required', true);
+            $("#vendorhead5").show();
+
+            //$('#txtAcctHolderName').val('');
+            //$('#txtBankName').val('');
+            //$('#txtBranch').val('');
+            //$('#txtIfscCode').val('');
+            //$('#ddlBankcountry').val('');
+            //$('#txtAcctNum').val('');
+            //$('#txtBankAddress').val('');
+            //$('#txtABANumber').val('');
+            //$('#txtSortCode').val('');
+            //$('#txtIBAN').val('');
+            //$('#txtBankNature').val('');
+            //$('#txtBankEmail').val('');
+            //$('#txtMICRCode').val('');
+            //$('#txtSwiftBICCode').val('');
+
+        }
+        else if (consltcountry == 2 && consltCategory == 2) {
+            Reset();
+            //$("#lblemail").removeClass("required");
+            //$("#txtEmail").prop('required', false);
+            $('#indfirmdiv').hide();
+            $('#vendorhead2').hide();
+
+            $('#frginddiv').hide();
+            $('#frgfirmdiv').show();
+
+            
+            //$('#countryDiv').show();
+            $('#abaDiv').show();
+            $('#swiftCode').show();
+            
+            
+            $("#ifsccode").hide();
+            $("#hiddenBankcountry").show();
+            $("#lblservice").removeClass("required");
+            $("#ddlcategoryservice").prop('required', false);
+            $("#ddlcountry option[value='128']").remove();
+            $("#vendorhead5").show();
+
+            //$("#txtIAddress").prop('required', false);
+            //$("#ddlIcnsltSalutation ").prop('required', false);
+            //$("#ddlIcnsltGender").prop('required', false);
+            //$("#txIcnslttDOB").prop('required', false);
+            //$("#txtIAadhaarno").prop('required', false);
+            //$("#txtIPANNumber").prop('required', false);
+            //$("#txtIconsltquali").prop('required', false);
+            //$("#txtIconsltdetails").prop('required', false);
+            //$("#txtIconsltexp").prop('required', false);
+            //$("#ddlIstate").prop('required', false);
+            //$("#txtIStateCode").prop('required', false);
+            //$("#txtICity").prop('required', false);
+            //$("#txtIPinCode").prop('required', false);
+
+            //$("#txtIFConsultantName").prop('required', false);
+            //$("#txtIFAddress").prop('required', false);
+            //$("#ddlIFcnsltSalutation ").prop('required', false);
+            //$("#txtIFPANNumber").prop('required', false);
+            //$("#ddlIFstate").prop('required', false);
+            //$("#txtIFStateCode").prop('required', false);
+            //$("#txtIFCity").prop('required', false);
+            //$("#txtIFPhoneNumber").prop('required', false);
+            //$("#txtIFEmail").prop('required', false);
+            //$("#txtIFPinCode").prop('required', false);
+
+            //$("#txtFIConsultantName").prop('required', false);
+            //$("#txtFIAddress").prop('required', false);
+            //$("#ddlFIcnsltSalutation ").prop('required', false);
+            //$("#ddlFIcnsltGender").prop('required', false);
+            //$("#txFIcnslttDOB").prop('required', false);
+            //$("#txtFIconsltquali").prop('required', false);
+            //$("#txtFIconsltexp").prop('required', false);
+            //$("#ddlFIcountry").prop('required', false);
+            //$("#ddlFIstate").prop('required', false);
+            //$("#txtFIStateCode").prop('required', false);
+            //$("#txtFIPinCode").prop('required', false);
+
+            //$("#txtFFConsultantName").prop('required', true);
+            //$("#txtFFAddress").prop('required', true);
+            //$("#ddlFFcnsltSalutation ").prop('required', true);
+            //$("#txtFFPhoneNumber").prop('required', true);
+            //$("#txtFFCity").prop('required', true);            
+            //$("#ddlFFcountry").prop('required', true);
+            //$("#txtFFEmail").prop('required', true);            
+            //$("#txtFFPinCode").prop('required', true);
+            //$("#txtFFServiceAddress").prop('required', true);
+            
+            //$('#txtAcctHolderName').val('');
+            //$('#txtBankName').val('');
+            //$('#txtBranch').val('');
+            //$('#txtIfscCode').val('');
+            //$('#ddlBankcountry').val('');
+            //$('#txtAcctNum').val('');
+            //$('#txtBankAddress').val('');
+            //$('#txtABANumber').val('');
+            //$('#txtSortCode').val('');
+            //$('#txtIBAN').val('');
+            //$('#txtBankNature').val('');
+            //$('#txtBankEmail').val('');
+            //$('#txtMICRCode').val('');
+            //$('#txtSwiftBICCode').val('');
+        }
+        else if (consltcountry == 1 && consltCategory == 2) {
+            Reset();
+            //$("#lblemail").removeClass("required");
+            //$("#txtEmail").prop('required', false);
+
+
+            $('#indfirmdiv').show();
+            $('#vendorhead2').hide();
+
+            $('#frginddiv').hide();
+            $('#frgfirmdiv').hide();
+
+            
+            //$("#txtIAddress").prop('required', false);
+            //$("#ddlIcnsltSalutation ").prop('required', false);
+            //$("#ddlIcnsltGender").prop('required', false);
+            //$("#txIcnslttDOB").prop('required', false);
+            //$("#txtIAadhaarno").prop('required', false);
+            //$("#txtIPANNumber").prop('required', false);
+            //$("#txtIconsltquali").prop('required', false);
+            //$("#txtIconsltdetails").prop('required', false);
+            //$("#txtIconsltexp").prop('required', false);
+            //$("#ddlIstate").prop('required', false);
+            //$("#txtIStateCode").prop('required', false);
+            //$("#txtICity").prop('required', false);
+
+            
+            //$("#txtIFConsultantName").prop('required', true);
+            //$("#txtIFAddress").prop('required', true);
+            //$("#ddlIFcnsltSalutation ").prop('required', true);
+            //$("#txtIFPANNumber").prop('required', true);
+            //$("#ddlIFstate").prop('required', true);
+            //$("#txtIFStateCode").prop('required', true);
+            //$("#txtIFCity").prop('required', true);
+            //$("#txtIFPhoneNumber").prop('required', true);
+            //$("#txtIFEmail").prop('required', true);
+            
+
+
+            //$("#txtFIConsultantName").prop('required', false);
+            //$("#txtFIAddress").prop('required', false);
+            //$("#ddlFIcnsltSalutation ").prop('required', false);
+            //$("#ddlFIcnsltGender").prop('required', false);
+            //$("#txFIcnslttDOB").prop('required', false);
+            //$("#txtFIconsltquali").prop('required', false);
+            //$("#txtFIconsltexp").prop('required', false);
+            //$("#ddlFIcountry").prop('required', false);
+            //$("#ddlFIstate").prop('required', false);
+            //$("#txtFIStateCode").prop('required', false);
+
+
+            //$("#txtFFConsultantName").prop('required', false);
+            //$("#txtFFAddress").prop('required', false);
+            //$("#ddlFFcnsltSalutation ").prop('required', false);
+            //$("#txtFFPhoneNumber").prop('required', false);
+            //$("#txtFFCity").prop('required', false);
+            //$("#ddlFFstate").prop('required', false);
+            //$("#txtFFStateCode").prop('required', false);
+            //$("#ddlFFcountry").prop('required', false);
+            
+            $('#abaDiv').hide();
+            $('#swiftCode').hide();
+            
+            
+            $("#ifsccode").show();
+            $("#hiddenBankcountry").hide();
+            $("#lblservice").removeClass("required");
+            $("#ddlcategoryservice").prop('required', false);
+            $("#ddlcountry option[value='128']").remove();
+            $("#vendorhead5").show();
+
+            //$('#txtAcctHolderName').val('');
+            //$('#txtBankName').val('');
+            //$('#txtBranch').val('');
+            //$('#txtIfscCode').val('');
+            //$('#ddlBankcountry').val('');
+            //$('#txtAcctNum').val('');
+            //$('#txtBankAddress').val('');
+            //$('#txtABANumber').val('');
+            //$('#txtSortCode').val('');
+            //$('#txtIBAN').val('');
+            //$('#txtBankNature').val('');
+            //$('#txtBankEmail').val('');
+            //$('#txtMICRCode').val('');
+            //$('#txtSwiftBICCode').val('');
+            $('#vendordocname,#vendordocfile,#txtVendorCode').val('');
+        }
+        else if (consltcountry == 2 && consltCategory == 1) {
+            Reset();
+            //$("#lblemail").removeClass("required");
+            //$("#txtEmail").prop('required', false);
+            $('#indfirmdiv').hide();
+            $('#vendorhead2').hide();
+
+            $('#frginddiv').show();
+            $('#frgfirmdiv').hide();
+
+            $('#stateDiv').hide();
+            //$('#countryDiv').show();
+            $('#abaDiv').show();
+            $('#swiftCode').show();
+            
+            
+            
+            $("#ifsccode").hide();
+            $("#hiddenBankcountry").show();
+            $("#lblservice").removeClass("required");
+            $("#ddlcategoryservice").prop('required', false);
+            $("#ddlcountry option[value='128']").remove();
+            $("#vendorhead5").show();
+
+            //$('#txtAcctHolderName').val('');
+            //$('#txtBankName').val('');
+            //$('#txtBranch').val('');
+            //$('#txtIfscCode').val('');
+            //$('#ddlBankcountry').val('');
+            //$('#txtAcctNum').val('');
+            //$('#txtBankAddress').val('');
+            //$('#txtABANumber').val('');
+            //$('#txtSortCode').val('');
+            //$('#txtIBAN').val('');
+            //$('#txtBankNature').val('');
+            //$('#txtBankEmail').val('');
+            //$('#txtMICRCode').val('');
+            //$('#txtSwiftBICCode').val('');
+        }
+
+    }
+
+    $('#txtConsultantName').on('blur', function () {
+        if ($('#txtConsultantName').val() != '') {
+            $('#txtRegisteredName,#txtAcctHolderName').val($('#txtConsultantName').val());
+
+        }
+    });
+    
+    $('#txtIConsultantName').on('blur', function () {
+        if ($('#txtIConsultantName').val() != '') {
+            $('#txtAcctHolderName').val($('#txtIConsultantName').val());
+
+        }
+    });
+    $('#txtIFConsultantName').on('blur', function () {
+        if ($('#txtIFConsultantName').val() != '') {
+            $('#txtAcctHolderName').val($('#txtIFConsultantName').val());
+
+        }
+    });
+    $('#txtFIConsultantName').on('blur', function () {
+        if ($('#txtFIConsultantName').val() != '') {
+            $('#txtAcctHolderName').val($('#txtFIConsultantName').val());
+
+        }
+    });
+    $('#txtFFConsultantName').on('blur', function () {
+        if ($('#txtFFConsultantName').val() != '') {
+            $('#txtAcctHolderName').val($('#txtFFConsultantName').val());
+
+        }
+    });
+
+    function Reset() {
+        
+        $('#indfirmdiv').hide();
+        $('#vendorhead2').hide();
+
+        $('#frginddiv').hide();
+        $('#frgfirmdiv').hide();
+
+        $('#ddlIcnsltSalutation,#ddlIcnsltGender,#ddlIstate,#ddlBankcountry').prop('selectedIndex', 0);
+        $('#ddlFIcnsltSalutation,#ddlFIcnsltGender,#ddlFIcountry,#ddlBankcountry').prop('selectedIndex', 0);
+        $('#ddlIFcnsltSalutation,#ddlIFcnsltGender,#ddlIFstate,#ddlBankcountry').prop('selectedIndex', 0);
+        $('#ddlFFcnsltSalutation,#ddlFFcountry,#ddlBankcountry').prop('selectedIndex', 0);
+        //$('#chkIIsGST')
+        
+        //$('#isSameAsAddress').prop('checked', false);
+        //$('#chkisSameAsFIAddress').prop('checked', false);
+        //$('#chkisSameAsIFAddress').prop('checked', false);
+        //$('#chkisSameAsFFAddress').prop('checked', false);
+
+        $('#IsGST').prop('checked', false);
+        //$('#chkIFIsGST').prop('checked', false);
+        
+        $('#txtIConsultantName,#txIcnslttDOB,#Consultant_DOB,#txtIAadhaarno,#txtIPANNumber,#txtIGSTNumber,#txtIconsltquali,#txtIconsltexp,#txtIStateCode,#txtIAddress,#txtIPhoneNumber,#txtIEmail,#txtICity,#txtIPinCode,#txtIServiceAddress,#txtBankEmail,#txtMICRCode').val('');
+
+        $('#txFIcnslttDOB,#Consultant_fi_DOB,#txtFIConsultantName,#txtFIAadhaarno,#txtFIPANNumber,#txtFIPhoneNumber,#txtFIEmail,#txtFIconsltquali,#txtFIconsltexp,#txtFIAddress,#txtFITin,#txtFIServiceAddress,#txtFICity,#txtBankNature,#txtBankEmail,#txtMICRCode,#txtCity,#txtPinCode').val('');
+        $('#txtIFConsultantName,#txtIFAddress,#txtIFPANNumber,#txtIFStateCode,#txtIFCity,#txtIFPhoneNumber,#txtIFEmail,#txtIFGSTNumber,#txtIFPinCode,#txtIFServiceAddress').val('');
+        $('#txtFFConsultantName,#txtFFAddress,#txtFFPhoneNumber,#txtFFCity,#txtIFEmail,#txtFFTin,#txtFFServiceAddress,#txtBankNature,#txtBankEmail,#txtMICRCode,#txtFFPinCode').val('');
+        $('#txtAcctHolderName,#txtBankName,#txtBranch,#txtIfscCode,#txtAcctNum,#txtBankAddress,#txtABANumber,#txtSortCode,#txtIBAN,#txtSwiftBICCode').val('');        
+        $('#vendordocname,#vendordocfile').val('');
+        
+    }
+    
+
+    $('#ddlIstate').on('change', function () {
+
+        var stateid = $('#ddlIstate').val();
+        $.ajax({
+            type: "Post",
+            url: '@Url.Action("GetStateCode", "Account")',
+            data: { StateId: stateid },
+            dataType: "json",
+            success: function (result) {
+                if (result != "") {
+                    $('#txtIStateCode').val(result);
+                }
+                else {
+                    $('#FailedAlert').html("Somthing went to worng please contact Admin!.");
+                    $('#Failed').modal('toggle');
+                }
+            }
+        });
+
+    });
+
+    $('#ddlIFstate').on('change', function () {
+
+        var stateid = $('#ddlIFstate').val();
+        $.ajax({
+            type: "Post",
+            url: '@Url.Action("GetStateCode", "Account")',
+            data: { StateId: stateid },
+            dataType: "json",
+            success: function (result) {
+                if (result != "") {
+                    $('#txtIFStateCode').val(result);
+                }
+                else {
+                    $('#FailedAlert').html("Somthing went to worng please contact Admin!.");
+                    $('#Failed').modal('toggle');
+                }
+            }
+        });
+
+    });
+
+    $(document).ready(function () {       
+        Reset();
+        var add = '@ViewBag.success';
+        if (add != '') {
+            $('#Success').modal('toggle');
+
+        }
+        var warrning = '@ViewBag.Msg';
+        if (warrning != '') {
+            $('#alert').html(warrning);
+            $('#Validation').modal('toggle');
+        }
+        var update = '@ViewBag.update';
+        if (update != '') {
+            $('#alertSuccess').html(update);
+            $('#Success').modal('toggle');
+            $("#btnReset").trigger('click');
+        }
+        var error = '@ViewBag.error';
+        if (error != '') {
+
+
+            $('#FailedAlert').html(error);
+            $('#Failed').modal('toggle');
+
+        }
+        var pfmsmsg = '@ViewBag.Msgs'
+        if (pfmsmsg != '') {
+            $('#alert').html(pfmsmsg);
+            $('#Validation').modal('toggle');
+        }
+        var filemsg = '@ViewBag.filemsg';
+        if (filemsg != '') {
+            $('#alert').html(filemsg);
+            $('#Validation').modal('toggle');
+        }
+
+    });
+    var msg = '@Model'
+    if (msg != '') {
+
+        $('#gridlist').hide();
+        $('#vendorMaster,#vendorhead1,#vendorhead2,#vendorhead4,#Divbutton').show();
+        Dayanamiccountryvalidation();
+
+        @*var tdssection ='@Model.Section';
+        var tdsdetailid ='@Model.VendorTDSDetailId';
+        var tdsnature ='@Model.NatureOfIncome';
+        var tdspercentage ='@Model.TDSPercentage';*@
+
+        //$.each(tdssection, function (i, doc) {
+
+        //    if (i == 0) {
+        //        document.getElementsByName('VendorTDSDetailId')[0].value = tdsdetailid[0];
+        //        document.getElementsByName('Section')[0].value = tdssection[0];
+        //        document.getElementsByName('NatureOfIncome')[0].value = tdsnature[0];
+        //        document.getElementsByName('TDSPercentage')[0].value = tdspercentage[0];
+        //    }
+        //    else {
+        //        var cln = $('#tbodyPO tr:nth-child(2)').clone().find("input").val("").end();
+        //        $(cln).find('.dis-none').removeClass('dis-none');
+        //        $('#tbodyPO').append(cln);
+        //        document.getElementsByName('VendorTDSDetailId')[i].value = tdsdetailid[i];
+        //        document.getElementsByName('Section')[i].value = tdssection[i];
+        //        document.getElementsByName('NatureOfIncome')[i].value = tdsnature[i];
+        //        document.getElementsByName('TDSPercentage')[i].value = tdspercentage[i];
+        //    }
+        //});
+    }
+
+
+    $('#btnAddvendorDoc').click(function () {
+
+        var cln = $("#DocprimaryVendorDiv").clone().find("input").val("").end();
+        $(cln).find('.dis-none').removeClass('dis-none');
+        $(cln).find('.doclink').addClass('dis-none');
+        $('#DocdivVendorContent').append(cln)
+
+    });
+    $(document).on('click', '#DocdivVendorContent button', function () {
+
+        $(this).parent().parent("Div").remove();
+
+    });
+   
+
+    function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode != 46 && charCode > 31
+            && (charCode < 48 || charCode > 57))
+            return false;
+
+        return true;
+    }
+
+    $('#btnSave').click(function (d) {
+        d.preventDefault();
+        //Dayanamiccountryvalidation();
+        var isValid = $('#formCP').valid();
+        if (!isValid)
+            return false;
+
+        var docnamevendor = [];
+        var attachvendorfile = [];
+        var attachvendorfileSize = [];
+
+        //$('select[name="VendorDocumentType"]').each(function (idx, val) { doctypevendor.push($(val).val()); });
+        $('input[name="AttachmentName"]').each(function (idx, val) { docnamevendor.push($(val).val()); });
+        $('input[name="ConsultantFile"]').each(function (idx, val) { attachvendorfile.push($(val).val()); });
+        $('input[name="ConsultantFile"]').each(function (idx, val) { attachvendorfileSize.push($(this).size); });
+
+        //doctypevendor.sort();
+        docnamevendor.sort();
+        attachvendorfile.sort();
+        attachvendorfileSize.sort();
+
+        for (var j = 0; j < docnamevendor.length; ++j) {
+            if (docnamevendor.length > 1) {
+                //if (doctypevendor[j] == null || doctypevendor[j] == 0) {
+                //    isValid = false;
+                //    $('#alert').html("Please select Attachment type");
+                //    $('#Validation').modal('toggle');
+                //    return false;
+                //}
+                if (docnamevendor[j] == null || docnamevendor[j] == "") {
+                    isValid = false;
+                    $('#alert').html("Please fill Attachment name");
+                    $('#Validation').modal('toggle');
+                    return false;
+                }
+                if (attachvendorfile[j] == null || attachvendorfile[j] == "") {
+                    isValid = false;
+                    $('#alert').html("Please upload any one of these type file [doc, docx, pdf].");
+                    $('#Validation').modal('toggle');
+                    return false;
+                }
+
+            }
+            //if ((doctypevendor[j] > 0) && ((docnamevendor[j] == null) || docnamevendor[j] == "")) {
+            //    isValid = false;
+
+            //    $('#alert').html("Please fill Attachment name");
+            //    $('#Validation').modal('toggle');
+            //    return false;
+
+            //}
+            if ((docnamevendor[j] > 0) && ((docnamevendor[j] == null) || docnamevendor[j] == "")) {
+                isValid = false;
+
+                $('#alert').html("Please fill Attachment name");
+                $('#Validation').modal('toggle');
+                return false;
+
+            }
+            //if ((docnamevendor[j] != null && docnamevendor[j] != "") && (doctypevendor[j] == null || doctypevendor[j] == 0)) {
+            //    isValid = false;
+
+            //    $('#alert').html("Please select Attachment type");
+            //    $('#Validation').modal('toggle');
+            //    return false;
+
+            //}
+            if ((docnamevendor[j] != 0) && (docnamevendor[j] != null || docnamevendor[j] != "") && (attachvendorfile[j] == null || attachvendorfile[j] == "")) {
+                isValid = false;
+                $('#alert').html("Please upload any one of these type file [doc, docx, pdf].");
+                $('#Validation').modal('toggle');
+                return false;
+            }
+            //if ((docnamevendor[j] != 0) && (docnamevendor[j] != null || docnamevendor[j] != "")) {
+            //    isValid = false;
+            //    $('#alert').html("Please upload any one of these type file [doc, docx, pdf].");
+            //    $('#Validation').modal('toggle');
+            //    return false;
+            //}
+            if (attachvendorfile[j] != null || attachvendorfile[j] != "") {
+                var vendorextension = attachvendorfile[j].split('.').pop().toLowerCase();
+                if (vendorextension != "") {
+                    if ($.inArray(vendorextension, ["pdf", "doc", "docx", "DOC", "DOCX", "PDF"]) === -1) {
+                        isValid = false;
+                        $('#alert').html("Please upload any one of these type doc [.pdf, .doc, .docx]");
+                        $('#Validation').modal('toggle');
+                        return false;
+                    }
+                    if (docnamevendor[j] == null || docnamevendor[j] == "") {
+                        isValid = false;
+
+                        $('#alert').html("Please fill Attachment name");
+                        $('#Validation').modal('toggle');
+                        return false;
+
+                    }
+                    
+                    if (attachvendorfileSize[j] > 5242880) {
+                        isValid = false;
+                        $('#alert').html("You can upload the file up to 5 MB.");
+                        $('#Validation').modal('toggle');
+                        return false;
+                    }
+                }
+            }
+
+        }
+
+        if (isValid) {
+            //$("#btnSave").attr('disabled', 'true');
+            $('.loading-bg').removeClass('dis-none');
+            $('#formCP').submit();
+        }
+    });
+
+    //$('#btnSave').click(function (d) {
+
+    //    d.preventDefault();
+    //    //var isValid = $('#formCP').valid();
+    //    //var isValid = $('#vendorhead1').valid();
+
+    //   // Dayanamiccountryvalidation();
+    //    //if (!isValid)
+    //    //    return false;
+    //    // to validate if attachment type or attachment name is not left blank when either one of them is filled
+
+    //    //e.preventDefault();
+    //    //$('.loading-bg').removeClass('dis-none');
+    //    var isValid = false;
+    //    var hadError = false;
+    //    var tabs = $("#vendorMaster");
+    //    var currentTabEle = tabs[0];
+    //    var inputs = $("input, textarea,select"); // get all the form inputs and selects
+    //    var stepElements = $(currentTabEle).find(inputs); // get inputs for current step
+    //    var count = stepElements.length; // check that there are inputs
+    //    if (count <= 0) {                // if there are not no reason to loop them
+    //        return true;
+    //    }
+    //    $(stepElements).each(function (idx) {
+    //        if (!$(this).is(':radio') && !$(this).is(':checkbox')) {
+    //            console.log($(this).attr('id'));
+    //            isValid = $(this).valid();// check that the input is valid. This can also be used on a per input basis to perform another action if the field is not valid.
+    //            if (!isValid)
+    //                hadError = true;
+    //        }
+    //    });
+
+    //    //if (!hadError) {
+    //    //    if ($('#formCP').valid())
+    //    //        $('#formCP').submit();
+    //    //    else
+    //    //        return;
+    //    //}
+    //    //else {
+    //    //    $('.loading-bg').addClass('dis-none');
+    //    //}
+
+    //    if (hadError) {
+    //        $("#btnSave").attr('disabled', 'false');
+    //        //$('.loading-bg').removeClass('dis-none');
+    //        $("#formCP").submit();
+    //    }
+    //    //return !hadError;
+
+    //    //var docnamevendor = [];
+    //    //var attachvendorfile = [];
+    //    //var attachvendorfileSize = [];
+
+
+    //    //$('input[name="VendorAttachName"]').each(function (idx, val) { docnamevendor.push($(val).val()); });
+    //    //$('input[name="VendorFile"]').each(function (idx, val) { attachvendorfile.push($(val).val()); });
+    //    //$('input[name="VendorFile"]').each(function (idx, val) { attachvendorfileSize.push($(this).size); });
+
+
+    //    // //Sort it
+
+    //    //docnamevendor.sort();
+    //    //attachvendorfile.sort();
+    //    //attachvendorfileSize.sort();
+
+
+    //    //var countryid = $('#ddlVondorctry').val();
+
+
+
+    //    //for (var j = 0; j < docnamevendor.length; ++j) {
+    //    //    if (doctypevendor.length > 1) {
+
+    //    //        if (docnamevendor[j] == null || docnamevendor[j] == "") {
+    //    //            isValid = false;
+    //    //            $('#alert').html("Please fill Attachment name");
+    //    //            $('#Validation').modal('toggle');
+    //    //            return false;
+    //    //        }
+    //    //        if (attachvendorfile[j] == null || attachvendorfile[j] == "") {
+    //    //            isValid = false;
+    //    //            $('#alert').html("Please upload any one of these type file [doc, docx, pdf].");
+    //    //            $('#Validation').modal('toggle');
+    //    //            return false;
+    //    //        }
+
+    //    //    }
+    //    //    if (((docnamevendor[j] == null) || docnamevendor[j] == "")) {
+    //    //        isValid = false;
+
+    //    //        $('#alert').html("Please fill Attachment name");
+    //    //        $('#Validation').modal('toggle');
+    //    //        return false;
+
+    //    //    }
+    //    //    if ((docnamevendor[j] != null && docnamevendor[j] != "")) {
+    //    //        isValid = false;
+
+    //    //        $('#alert').html("Please select Attachment type");
+    //    //        $('#Validation').modal('toggle');
+    //    //        return false;
+
+    //    //    }
+    //    //    if ((docnamevendor[j] != null || docnamevendor[j] != "") && (attachvendorfile[j] == null || attachvendorfile[j] == "")) {
+    //    //        isValid = false;
+    //    //        $('#alert').html("Please upload any one of these type file [doc, docx, pdf].");
+    //    //        $('#Validation').modal('toggle');
+    //    //        return false;
+    //    //    }
+    //    //    if (attachvendorfile[j] != null || attachvendorfile[j] != "") {
+    //    //        var vendorextension = attachvendorfile[j].split('.').pop().toLowerCase();
+    //    //        if (vendorextension != "") {
+    //    //            if ($.inArray(vendorextension, ["pdf", "doc", "docx", "DOC", "DOCX", "PDF"]) === -1) {
+    //    //                isValid = false;
+    //    //                $('#alert').html("Please upload any one of these type doc [.pdf, .doc, .docx]");
+    //    //                $('#Validation').modal('toggle');
+    //    //                return false;
+    //    //            }
+    //    //            if (docnamevendor[j] == null || docnamevendor[j] == "") {
+    //    //                isValid = false;
+
+    //    //                $('#alert').html("Please fill Attachment name");
+    //    //                $('#Validation').modal('toggle');
+    //    //                return false;
+
+    //    //            }
+
+    //    //            if (attachvendorfileSize[j] > 5242880) {
+    //    //                isValid = false;
+    //    //                $('#alert').html("You can upload the file up to 5 MB.");
+    //    //                $('#Validation').modal('toggle');
+    //    //                return false;
+    //    //            }
+    //    //        }
+    //    //    }
+
+    //    //}
+
+
+
+    //});
+    $('#btnUpdate').click(function (d) {
+
+        d.preventDefault();        
+        //Dayanamiccountryvalidation();
+        var isValid = $('#formCP').valid();
+        if (!isValid)
+            return false;
+
+        var docnamevendor = [];
+        var attachvendorfile = [];
+        var attachvendorfileSize = [];
+
+        //$('select[name="VendorDocumentType"]').each(function (idx, val) { doctypevendor.push($(val).val()); });
+        $('input[name="AttachmentName"]').each(function (idx, val) { docnamevendor.push($(val).val()); });
+        $('input[name="ConsultantFile"]').each(function (idx, val) { attachvendorfile.push($(val).val()); });
+        $('input[name="ConsultantFile"]').each(function (idx, val) { attachvendorfileSize.push($(this).size); });
+
+        //doctypevendor.sort();
+        docnamevendor.sort();
+        attachvendorfile.sort();
+        attachvendorfileSize.sort();
+
+        for (var k = 0; k < docnamevendor.length; ++k) {
+            if (((docnamevendor[k] == null) || docnamevendor[k] == "")) {
+                isValid = false;
+                $('#alert').html("Please fill Attachment name");
+                $('#Validation').modal('toggle');                
+                return false;
+
+            }
+            
+            if (attachvendorfile[k] != null || attachvendorfile[k] != "") {
+                var extension = attachvendorfile[k].split('.').pop().toLowerCase();
+                if (extension != "") {
+                    if ($.inArray(extension, ["pdf", "doc", "docx", "DOC", "DOCX", "PDF"]) === -1) {
+                        isValid = false;
+                        $('#alert').html("Please upload any one of these type doc [.pdf, .doc, .docx]");
+                        $('#Validation').modal('toggle');
+                        return false;
+                    }
+                }
+            }
+        }
+        // duplicate check
+        
+
+        //for (var j = 0; j < docnamevendor.length; ++j) {
+        //    if (docnamevendor.length > 1) {
+        //        //if (doctypevendor[j] == null || doctypevendor[j] == 0) {
+        //        //    isValid = false;
+        //        //    $('#alert').html("Please select Attachment type");
+        //        //    $('#Validation').modal('toggle');
+        //        //    return false;
+        //        //}
+        //        if (docnamevendor[j] == null || docnamevendor[j] == "") {
+        //            isValid = false;
+        //            $('#alert').html("Please fill Attachment name");
+        //            $('#Validation').modal('toggle');
+        //            return false;
+        //        }
+        //        if (attachvendorfile[j] == null || attachvendorfile[j] == "") {
+        //            isValid = false;
+        //            $('#alert').html("Please upload any one of these type file [doc, docx, pdf].");
+        //            $('#Validation').modal('toggle');
+        //            return false;
+        //        }
+
+        //    }
+        //    //if ((doctypevendor[j] > 0) && ((docnamevendor[j] == null) || docnamevendor[j] == "")) {
+        //    //    isValid = false;
+
+        //    //    $('#alert').html("Please fill Attachment name");
+        //    //    $('#Validation').modal('toggle');
+        //    //    return false;
+
+        //    //}
+        //    if ((docnamevendor[j] > 0) && ((docnamevendor[j] == null) || docnamevendor[j] == "")) {
+        //        isValid = false;
+
+        //        $('#alert').html("Please fill Attachment name");
+        //        $('#Validation').modal('toggle');
+        //        return false;
+
+        //    }
+        //    //if ((docnamevendor[j] != null && docnamevendor[j] != "") && (doctypevendor[j] == null || doctypevendor[j] == 0)) {
+        //    //    isValid = false;
+
+        //    //    $('#alert').html("Please select Attachment type");
+        //    //    $('#Validation').modal('toggle');
+        //    //    return false;
+
+        //    //}
+        //    if ((docnamevendor[j] != 0) && (docnamevendor[j] != null || docnamevendor[j] != "") && (attachvendorfile[j] == null || attachvendorfile[j] == "")) {
+        //        isValid = false;
+        //        $('#alert').html("Please upload any one of these type file [doc, docx, pdf].");
+        //        $('#Validation').modal('toggle');
+        //        return false;
+        //    }
+        //    //if ((docnamevendor[j] != 0) && (docnamevendor[j] != null || docnamevendor[j] != "")) {
+        //    //    isValid = false;
+        //    //    $('#alert').html("Please upload any one of these type file [doc, docx, pdf].");
+        //    //    $('#Validation').modal('toggle');
+        //    //    return false;
+        //    //}
+        //    if (attachvendorfile[j] != null || attachvendorfile[j] != "") {
+        //        var vendorextension = attachvendorfile[j].split('.').pop().toLowerCase();
+        //        if (vendorextension != "") {
+        //            if ($.inArray(vendorextension, ["pdf", "doc", "docx", "DOC", "DOCX", "PDF"]) === -1) {
+        //                isValid = false;
+        //                $('#alert').html("Please upload any one of these type doc [.pdf, .doc, .docx]");
+        //                $('#Validation').modal('toggle');
+        //                return false;
+        //            }
+        //            if (docnamevendor[j] == null || docnamevendor[j] == "") {
+        //                isValid = false;
+
+        //                $('#alert').html("Please fill Attachment name");
+        //                $('#Validation').modal('toggle');
+        //                return false;
+
+        //            }
+
+        //            if (attachvendorfileSize[j] > 5242880) {
+        //                isValid = false;
+        //                $('#alert').html("You can upload the file up to 5 MB.");
+        //                $('#Validation').modal('toggle');
+        //                return false;
+        //            }
+        //        }
+        //    }
+
+        //}
+
+        
+
+        
+        if (isValid) {
+            $("#btnUpdate").attr('disabled', 'true');
+            $('.loading-bg').removeClass('dis-none');
+            $('#formCP').submit();
+        }
+
+
+        //$(this).closest("form").submit();
+    });
+    $('#btnFilterUser').off("click").on("click", function () {
+        $('#popFilterUser').css("display", "Block");
+    });
+    $('a[name="btnCloseUser"],button[name="btnCloseUser"]').click(function () {
+        $('#popFilterUser').css("display", "none");
+    });
+    $('.selectpicker').selectpicker({
+        liveSearch: true
+    });
+    $('.selectpicker').selectpicker('refresh');
+
+    function CheckEmployeeadhar() {
+        var adhar = $('#txtIAadhaarno').val() || null;
+        var data = {};
+        if(adhar != null && adhar.length == 12)
+        {
+            //var apprefNo = null;
+            //if($('#ApplicationNo').val() != "")
+            //    apprefNo = $('#ApplicationNo').val()
+            data = { adharno : adhar};
+            //if($('#OldEmployeeNumber').val() != "")
+            //{
+            //    data = { adharno : adhar , oldId : $('#OldEmployeeNumber').val() , apptype : "STE", appref : apprefNo };
+            //}
+            $.ajax({
+                url: '@Url.Action("CheckPreviousEmployeeAdhar", "Requirement")',
+                type: "Get",
+                dataType: "JSON",
+                data: data,
+                success: function (result) {
+                    if(result!="")
+                    {
+                        $('#alert').html("This Aadhaar Number is linked to  " +result);
+                        $('#Validation').modal('toggle');
+                        $('#txtIAadhaarno').val('');
+                        $('#txtIAadhaarno').focus();
+                    }
+                }
+            });
+        }
+    }
+
+    function CheckIEmployeepanno() {
+        var pnno = $('#txtIPANNumber').val() || null;
+        var data = {};
+        if(pnno != null && pnno.length == 10) {
+            var apprefNo = null;
+            //if($('#ApplicationNo').val() != "")
+            //    apprefNo = $('#ApplicationNo').val()
+            data = { Panno : pnno };
+            //if($('#OldEmployeeNumber').val() != "")
+            //{
+            //    data = { Panno : pnno , oldId : $('#OldEmployeeNumber').val() , apptype : "STE" , appref : apprefNo};
+            //}
+            $.ajax({
+                url: '@Url.Action("CheckConsultantEmployeePan", "Requirement")',
+                type: "Get",
+                dataType: "JSON",
+                data: data,
+                success: function (result) {
+                    if(result!="")
+                    {
+                        $('#alert').html("This Pan number is linked to  " +result);
+                        $('#Validation').modal('toggle');
+                        //$('#txtIPANNumber').val('');
+                        $('#txtIPANNumber').focus();
+                    }
+                }
+            });
+        }
+    }
+
+    function CheckEmployeeFITINNo() {
+        var pnno = $('#txtFITin').val() || null;
+        var data = {};
+        if(pnno != null && pnno.length == 10) {
+            var apprefNo = null;
+            //if($('#ApplicationNo').val() != "")
+            //    apprefNo = $('#ApplicationNo').val()
+            data = { Panno : pnno };
+            //if($('#OldEmployeeNumber').val() != "")
+            //{
+            //    data = { Panno : pnno , oldId : $('#OldEmployeeNumber').val() , apptype : "STE" , appref : apprefNo};
+            //}
+            $.ajax({
+                url: '@Url.Action("CheckTINNumber", "Requirement")',
+                type: "Get",
+                dataType: "JSON",
+                data: data,
+                success: function (result) {
+                    if(result!="")
+                    {
+                        $('#alert').html("This TIN number is linked to  " +result);
+                        $('#Validation').modal('toggle');
+                        $('#txtFITin').val('');
+                        $('#txtFITin').focus();
+                    }
+                }
+            });
+        }
+    }
+
+    function CheckEmployeeFFTINNo() {
+        var pnno = $('#txtFFTin').val() || null;
+        var data = {};
+        if(pnno != null && pnno.length == 10) {
+            var apprefNo = null;
+            //if($('#ApplicationNo').val() != "")
+            //    apprefNo = $('#ApplicationNo').val()
+            data = { Panno : pnno };
+            //if($('#OldEmployeeNumber').val() != "")
+            //{
+            //    data = { Panno : pnno , oldId : $('#OldEmployeeNumber').val() , apptype : "STE" , appref : apprefNo};
+            //}
+            $.ajax({
+                url: '@Url.Action("CheckTINNumber", "Requirement")',
+                type: "Get",
+                dataType: "JSON",
+                data: data,
+                success: function (result) {
+                    if(result!="")
+                    {
+                        $('#alert').html("This TIN number is linked to  " +result);
+                        $('#Validation').modal('toggle');
+                        $('#txtFFTin').val('');
+                        $('#txtFFTin').focus();
+                    }
+                }
+            });
+        }
+    }
+
+    function CheckEmployeepanno() {
+        var pnno = $('#txtIFPANNumber').val() || null;
+        var data = {};
+        if(pnno != null && pnno.length == 10) {
+            var apprefNo = null;
+            //if($('#ApplicationNo').val() != "")
+            //    apprefNo = $('#ApplicationNo').val()
+            data = { Panno : pnno };
+            //if($('#OldEmployeeNumber').val() != "")
+            //{
+            //    data = { Panno : pnno , oldId : $('#OldEmployeeNumber').val() , apptype : "STE" , appref : apprefNo};
+            //}
+            $.ajax({
+                url: '@Url.Action("CheckConsultantEmployeePan", "Requirement")',
+                type: "Get",
+                dataType: "JSON",
+                data: data,
+                success: function (result) {
+                    if(result!="")
+                    {
+                        $('#alert').html("This Pan number is linked to  " +result);
+                        $('#Validation').modal('toggle');
+                        //$('#txtIFPANNumber').val('');
+                        $('#txtIFPANNumber').focus();
+                    }
+                }
+            });
+        }
+    }
+
+</script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")"></script>
