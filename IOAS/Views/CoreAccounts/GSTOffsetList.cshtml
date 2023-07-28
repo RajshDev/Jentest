@@ -1,9 +1,9 @@
 ﻿@model IOAS.Models.GSTOffsetModel
 
-@{
-    ViewBag.Title = "GSTOffset";
-    ViewBag.Subtitle = "GSTOffset List";
-    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+@{               
+                ViewBag.Title = "GSTOffset";
+                ViewBag.Subtitle = "GSTOffset List";
+                Layout = "~/Views/Shared/_LayoutFluid.cshtml";
 }
 
 <div class="row hd-tt-bg">
@@ -45,7 +45,7 @@
                 <div class="form-group custom-form-group">
                     @Html.TextBoxFor(m => m.SearchField.GSTOffsetNumber, new { @id = "gstoffsetnumber", @placeholder = "GSTOffset Number", @class = "form-control" })
                 </div>
-               
+
                 <div class="form-group custom-form-group">
                     @Html.TextBoxFor(m => m.SearchField.Status, new { @id = "status", @placeholder = "Status", @class = "form-control" })
                 </div>
@@ -56,24 +56,44 @@
                     <button id="btnSearch" type="button" class="btn btn-primary mr10">Search</button>
                     <button name="btnClose" type="button" class="btn btn-default">Close</button>
                 </div>
-
-
-
-
-
             </div>
         </div>
 
     </div>
-
     <a href="javascript:void(0)" name="btnClose" class="close-btn"><i class="ion-android-cancel"></i></a>
+</div>
+<div id="popupChallon" class="filter-popup" style="display:none">
+    <div class="">
+        <div class="filter-content">
+            <div class="white-bg">
+                <div class="form-group custom-form-group">
+                    <h3>GSTOffeset Challan</h3>
+                </div>
+                <div id="dfdgd" class="form-group custom-form-group">
+                    <label class="full-width">Deposit Date</label>
+                    @Html.EditorFor(m => m.ChallanDetail.DepositDate, new { @id = "DepositDate", @class = "form-control half-form" })                   
+                </div>
+                <div class="form-group custom-form-group">
+                    <label class="full-width">CIN Number</label>
+                    @Html.TextBoxFor(m => m.ChallanDetail.GSTOffsetCINNumber, new { @id = "GSTOffsetCINNumber", @placeholder = "Enter CIN Number", @class = "form-control" })                  
+                </div>
+                <div id="value" style="display:none">
+                </div>
+                <div class="form-group custom-form-group text-center">
+                    <button id="btnSubmit" type="button" class="btn btn-primary mr10">Submit</button>
+                    <button name="Challanpopupclose" type="button" class="btn btn-default">Close</button>
+                </div>
+            </div>
+        </div>
 
+    </div>
+    <a href="javascript:void(0)" name="Challanpopupclose" class="close-btn"><i class="ion-android-cancel"></i></a>
 </div>
 
 <script>
     var errMsg = '@TempData["errMsg"]';
     var succMsg = '@TempData["succMsg"]';
-    $("#FromDate, #ToDate").datepicker
+    $("#FromDate, #ToDate, #DepositDate").datepicker
          ({
              dateFormat: 'dd-MM-yy',
              showStatus: true,
@@ -89,6 +109,9 @@
          });
     $('a[name="btnClose"],button[name="btnClose"]').click(function () {
         $('#popupFilter').css("display", "none");
+     });
+    $('a[name="Challanpopupclose"],button[name="Challanpopupclose"]').click(function () {
+       $('#popupChallon').css("display", "none");
     });
     $("#btnFilter").click(function () {
         $('#popupFilter').css("display", "Block");
@@ -236,11 +259,11 @@
                  itemTemplate: function (value, item) {
                      var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
                      if (item.Status == "Open") {
-                         statusList = [{ id: "", name: "Select Action" }, { id: "Edit", name: "Edit" }, { id: "Submit for approval", name: "Submit for approval" }, { id: "View", name: "View" }, { id: "Print Bill", name: "Print Bill" }]
+                         statusList = [{ id: "", name: "Select Action" }, { id: "Edit", name: "Edit" }, { id: "Submit for approval", name: "Submit for approval" }, { id: "View", name: "View" }, { id: "Print Bill", name: "Print Bill" }, { id: "Challan Upload", name: "Challan Upload"}]
                      } else if (item.Status == "Approval Pending") {
-                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }, { id: "Approve", name: "Approve" }, { id: "Print Bill", name: "Print Bill" }]
+                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }, { id: "Approve", name: "Approve" }, { id: "Print Bill", name: "Print Bill" }, { id: "Challan Upload", name: "Challan Upload" }]
                      } else if (item.Status == "Approved") {
-                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }, { id: "Print Bill", name: "Print Bill" }]
+                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }, { id: "Print Bill", name: "Print Bill" }, { id: "Challan Upload", name: "Challan Upload" }]
                      }
 
                      var $customSelect = $("<select>")
@@ -255,6 +278,7 @@
                      });
 
                      $customSelect.change(function (e) {
+                         $("#value").val("");
                          var selVal = $(this).val();
                          if (selVal == "Edit") {
                              var url = '@Url.Action("GSTOffset", "CoreAccounts")?GSTOffsetId=' + item.GSTOffsetId;
@@ -262,6 +286,13 @@
                          } else if (selVal == "Print Bill") {
                              var url = '@Url.Action("GSTOffsetBill", "ReportMaster")?Id=' + item.GSTOffsetId;
                              window.open(url, '_blank');
+                         }
+                         else if (selVal == "Challan Upload") {
+                             $('#popupChallon').css("display", "Block");
+                             $("#value").val(item.GSTOffsetId);
+                             $('#ChallanDetail_DepositDate').val('');
+                             $("#GSTOffsetCINNumber").val('');
+                             
                          }
                          else if (selVal == "Submit for approval") {
                              var choice = confirm("Are you sure, Do you want to submit this bill for approval process?");
@@ -325,6 +356,11 @@
                          e.stopPropagation();
                      });
 
+                     $('a[name="Challanpopupclose"],button[name="Challanpopupclose"]').click(function () {
+                         $('#popupChallon').css("display", "none");
+                     });
+
+
                      return $result.add($customSelect);
                  },
                  _createFilterSwitchButton: function () {
@@ -335,6 +371,41 @@
 
         ],
 
+    });
+
+    $('#btnSubmit').on('click', function () {
+        var GSTOffsetDepositDate = $('#ChallanDetail_DepositDate').val();
+        var GSTOffsetCINNumber = $("#GSTOffsetCINNumber").val();
+        var gstffsetId = $("#value").val();
+         if (GSTOffsetDepositDate == "" || GSTOffsetCINNumber == "") {
+             $('#FailedAlert').html("Enter Valid Details!");
+             $('#Failed').modal('toggle');
+             return false
+         }
+          $.ajax({
+              type: "GET",
+              url: '@Url.Action("GSTOffsetListChallan", "CoreAccounts")',
+              data: {
+                  GSTOffsetId: gstffsetId,
+                  DepositDate: GSTOffsetDepositDate,
+                  CINNumber: GSTOffsetCINNumber
+              },
+              success: function (result) {
+                  if (result == true) {
+                      $('#alertSuccess').html("GSTOffset has been submitted successfully.");
+                      $('#popupChallon').css("display", "none");
+                      $('#Success').modal('toggle');
+                  } else if (result == false) {
+                      $('#FailedAlert').html("Something went wrong!");
+                      $('#Failed').modal('toggle');
+                  }
+              },
+              error: function (err) {
+                  console.log("error1 : " + err);
+              }
+         });
+         $("#DepositDate").val('');
+         $("#GSTOffsetCINNumber").val('');
     });
 
     $("#GSTOffsetList").jsGrid("option", "filtering", false);

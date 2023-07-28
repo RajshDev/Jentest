@@ -109,20 +109,19 @@
                                                     </div>
                                                     <div class="col-md-8">
                                                         <div class="form-group custom-form-group mb-null" style="display:flex;flex-flow:row;">
-                                                          
 
-                                                               
 
-                                                            <input id="HonorFile" type="file" accept=".xls,.xlsx" @{ if (Model.PODetail != null)
-                                                                    {
-                                                                        @:disabled="disabled"
-                                                                    } }>
-                                                            <a id="btnImportHonor" href="javascript:void(0)" class="btn btn-default"  @{ if (Model.PODetail != null)
-                                                                    {
-                                                                        @:disabled="disabled"
-                                                                    } }>Import Excel</a>
+
+
+                                                            <input id="HonorFile" type="file" accept=".xls,.xlsx" @{ if (Model.PODetail != null) { @: disabled="disabled"
+                                                                   } }>
+                                                            <a id="btnImportHonor" href="javascript:void(0)" class="btn btn-default" @{ if (Model.PODetail != null) { @: disabled="disabled"
+                                                               } }>Import Excel</a>
                                                             <span id="downloadSpan" style="display:none">
                                                                 <a class="link" href="#">Download Result</a>
+                                                            </span>
+                                                            <span id="templateSpan" style="display:block">
+                                                                <a class="link" href="/Content/HonorariumImport/HonorariumImportTemplate.xlsx">Download Template</a>
                                                             </span>
                                                         </div>
 
@@ -1454,17 +1453,154 @@ $.ajax({
                 $(trEleNew).find('td:nth-child(2)').html(item.DeductionHead);
                 $('#tbodyDeductionList').append(trEleNew);
             }
-        });
+        });        
         $('#NeedUpdateTransDetail').val('false');
-        CalculateDeductionTotal();
+        
+        UpdateTransactionDetails();
 
+        CalculateDeductionTotal();
     },
     error: function (err) {
         console.log("error : " + err);
     }
 });
 }
+    //Rajesh VS11764
 
+    function UpdateTransactionDetails() {
+        var totalnetamount = 0;
+        var totalpayable = 0;
+        var totaltds = 0;
+        var TotalPayableToPCF = 0;
+        var TotalPayableToOH = 0;
+        var nettotal = 0;
+        var Hosalary = 0;
+        var HoBankcheque = 0;
+        var HOtdsten = 0;
+        var HOtdstwenty = 0;
+
+
+
+        $('#tbodyHo tr').each(function (idx, val) {
+            var amount = parseFloat($(this).closest('tr').find('input[name$=".Amount"]').val());
+            var tdspercent = $(this).closest('tr').find('select[name$=".tdsdropdown"] option:selected').text();
+            var HOBanktran = $(this).find('select[name$=".PaymentMode"]').val();
+            var HOTdsdrop = $(this).find('select[name$=".tdsdropdown"]').val();
+
+            tdspercent.replace(/%/, "");
+            tdspercent = parseFloat(tdspercent);
+            var tds = parseFloat((amount * tdspercent) / 100) || 0;
+            tds = Math.ceil(tds);
+            var netamount = parseFloat(amount - tds);
+            if (!isNaN(tds)) {
+                totaltds += tds;
+            }
+            if (!isNaN(netamount)) {
+                totalnetamount += netamount;
+            }
+            if (!isNaN(totalnetamount)) {
+                totalpayable = totalnetamount + totaltds;
+            }
+            console.log(totalpayable);
+
+            if (HOBanktran == 1 || HOBanktran == 2) {
+                HoBankcheque += netamount;
+            }
+            else if (HOBanktran == 3) {
+                Hosalary += netamount;
+            }
+
+            if (HOTdsdrop == 10) {
+                HOtdsten += tds;
+            }
+            else if (HOTdsdrop == 20) {
+                HOtdstwenty += tds;
+            }
+
+
+
+        });
+
+        $('#tbodyPCF tr').each(function (idx, val) {
+            var pcfamount = parseFloat($(this).closest('tr').find('input[name$=".PCFAmount"]').val());
+            var ohpercent = parseFloat($(this).closest('tr').find('select[name$=".OHDropdown"]').val());
+            var payabletoOH = parseFloat((pcfamount * ohpercent) / 100);
+            var payabletoPCF = parseFloat(pcfamount - payabletoOH);
+            if (!isNaN(payabletoOH)) {
+
+                TotalPayableToOH += payabletoOH;
+            }
+            if (!isNaN(payabletoPCF)) {
+                TotalPayableToPCF += payabletoPCF;
+            }
+        });
+
+        if (!isNaN(TotalPayableToPCF)) {
+            nettotal = TotalPayableToOH + TotalPayableToPCF + totalpayable;
+            var credit = parseFloat($('#txtnettotal').val());
+            console.log(TotalPayableToOH);
+            console.log(TotalPayableToPCF);
+
+        }
+
+        $('#tbodyExpenseList tr').each(function (idx, trval) {
+            AccHead = ($(this).find('select[name$=".AccountHeadId"]').val());
+            AccountGroupId = ($(this).find('select[name$=".AccountGroupId"]').val());
+
+            if (AccountGroupId == 38) {
+                ($(this).find('input[name$=".Amount"]').val(HoBankcheque.toFixed(2)));
+            }
+            else if (AccHead == 134) {
+                ($(this).find('input[name$=".Amount"]').val(nettotal.toFixed(2)));
+            }
+            if (AccHead == 41) {
+                ($(this).find('input[name$=".Amount"]').val(HOtdsten.toFixed(2)));
+            }
+            else if (AccHead == 356) {
+                ($(this).find('input[name$=".Amount"]').val(HOtdstwenty.toFixed(2)));
+            }
+            else if (AccHead == 316) {
+                ($(this).find('input[name$=".Amount"]').val(Hosalary.toFixed(2)));
+            }
+            else if (AccHead == 141) {
+                ($(this).find('input[name$=".Amount"]').val(TotalPayableToOH.toFixed(2)));
+            }
+            else if (AccHead == 316) {
+                ($(this).find('input[name$=".Amount"]').val(Hosalary.toFixed(2)));
+            }
+            else if (AccHead == 139) {
+                ($(this).find('input[name$=".Amount"]').val(TotalPayableToPCF.toFixed(2)));
+            }
+            //else if (AccHead == 319) {
+            //    ($(this).find('input[name$=".Amount"]').val());
+            //}
+            //else if (AccHead == 320) {
+            //    ($(this).find('input[name$=".Amount"]').val());
+            //}
+            //else if (AccHead == 377) {
+            //    ($(this).find('input[name$=".Amount"]').val());
+            //}
+        });
+
+        $('#tbodyExpenseList tr').each(function (idx, trval) {
+            var Amt = ($(this).find('input[name$=".Amount"]').val());
+            Amt = parseFloat(Amt) || 0;
+
+            if (Amt == 0) {
+                $(this).remove();
+            }            
+            //if (Amt == "") {              
+            //    $(this).remove();                
+            //}             
+            //else if (Amt == "0.00") {
+            //    $(this).remove();
+            //}
+            //else if (Amt == 0) {
+            //    $(this).remove();
+            //}   
+            
+        });        
+    };
 /* Tab Sections Start*/
 var currentTab = 0; // Current tab is set to be the first tab (0)
 showTab(currentTab); // Display the crurrent tab
@@ -1497,6 +1633,9 @@ if (currentTab + n < x.length) {
     // Hide the current tab:
     x[currentTab].style.display = "none";
     $(".custom-nav-pills li:eq(" + currentTab + ")").removeClass("active");
+    if (x.length == 2) {
+        UpdateTransactionDetails();
+    }
 } else {
     // ... the form gets submitted:
     formSave();
@@ -1717,7 +1856,7 @@ $('#btnImportHonor').click(function () {
     dataType: "json",
     processData: false,
     success: function (result) {
-    
+    console.log(result.xlspath);
     if (result.xlspath != "") {
    
       $(".link").attr("href", result.xlspath);
@@ -1729,10 +1868,11 @@ $('#btnImportHonor').click(function () {
             $("#thonorarium").find("tr:gt(2)").remove();
 
             // Excel Data to Input
-           
+            console.log(responseData);
 
             $.each(responseData, function (idx, item) {
-               
+                console.log(item);
+
                 $('#tbodyHO tr').remove();
                 var cln = $('#tbodyHo tr:nth-child(2)').clone().find("input[type!='checkbox']").val("").end();
                 $(cln).find('select[type="hidden"][name$=".PaymentMode"],select[type="hidden"][name$=".PaymentMode"]').val('testval').end();

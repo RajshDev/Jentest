@@ -141,8 +141,20 @@ namespace IOAS.Controllers
         {
             string test = User.Identity.Name;
             if (!string.IsNullOrWhiteSpace(test))
+            {
                 return RedirectToAction("Dashboard", "Home");
-            return View();
+            }
+            else
+            {
+                string userName = "";
+                if (Session["UserName"] != null)
+                    userName = Session["UserName"].ToString();
+
+                var logOff = AccountService.setLogoff(userName);
+                System.Web.HttpContext.Current.Session.Clear();
+                return View();
+            }
+
         }
         [HttpPost]
         //[CaptchaValidator]
@@ -152,7 +164,9 @@ namespace IOAS.Controllers
             {
                 try
                 {
-                    int UserId = AccountService.Logon(model);
+                    var currSess = System.Web.HttpContext.Current.Session.Contents.SessionID;
+                    Session["UserName"] = model.UserName;
+                    int UserId = AccountService.Logon(model, currSess);
                     if (UserId > 0)
                     {
                         FormsAuthentication.SetAuthCookie(model.UserName, false);
@@ -217,10 +231,11 @@ namespace IOAS.Controllers
             //Response.Cache.SetNoStore();
             //Response.Cookies.Clear();
             string UserName = User.Identity.Name;
-            bool setLoggedin = AccountService.setLogin(UserName);
+            bool setLoggedoff = AccountService.setLogoff(UserName);
             FormsAuthentication.SignOut();
             return RedirectToAction("Login", "Account");
         }
+
         [Authorized]
         public ActionResult ChangePassword()
         {
@@ -396,7 +411,7 @@ namespace IOAS.Controllers
         {
             string userName = User.Identity.Name;
             
-            object output = AccountService.setLogin(userName);
+            object output = AccountService.setLogoff(userName);
 
             return Json(output, JsonRequestBehavior.AllowGet);
         }

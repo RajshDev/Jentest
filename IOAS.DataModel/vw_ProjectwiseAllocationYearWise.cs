@@ -65,5 +65,8 @@ namespace IOAS.DataModel
         public string AgencyName { get; set; }
         public string ProposalNumber { get; set; }
         public string ProjectStatus { get; set; }
+        public Nullable<decimal> Allo_InternalTransfer { get; set; }
+        public Nullable<decimal> Allo_TransfertoOtherInstitute { get; set; }
+        public Nullable<decimal> Allo_Fellowship { get; set; }
     }
 }

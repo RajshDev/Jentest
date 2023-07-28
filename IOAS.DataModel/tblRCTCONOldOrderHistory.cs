@@ -34,5 +34,6 @@ namespace IOAS.DataModel
         public Nullable<bool> Migrated { get; set; }
         public Nullable<int> GST { get; set; }
         public Nullable<int> GSTApplicable { get; set; }
+        public int ID { get; set; }
     }
 }

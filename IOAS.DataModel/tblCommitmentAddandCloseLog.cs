@@ -30,5 +30,7 @@ namespace IOAS.DataModel
         public Nullable<System.DateTime> CRTD_TS { get; set; }
         public Nullable<int> UPTD_BY { get; set; }
         public Nullable<System.DateTime> UPTD_TS { get; set; }
+        public Nullable<int> BankID { get; set; }
+        public Nullable<int> Pre_BankID { get; set; }
     }
 }

@@ -29,30 +29,41 @@ margin-top: 40px;
                     @*<div style="text-align: center;color:red;">
                             <h2>Testing site</h2>
                         </div>*@
-                    <div class="lg-rgt-ds">
+                        <div class="lg-rgt-ds">
 
-                        @Html.ValidationSummary(true, "", new { @class = "text-red" })
-                        <h4 class="lg-hd">Login</h4>
-                        <div class="lg-cnt">
-                            <div class="custom-form-group">
-                                <label>User Name</label>
-                                @Html.TextBoxFor(M => M.UserName, new { @class = "form-control" })
-                                @Html.ValidationMessageFor(m => m.UserName)
+                            @Html.ValidationSummary(true, "", new { @class = "text-red" })
+                            <h4 class="lg-hd">Login</h4>
+                            <div class="lg-cnt">
+                                <div class="custom-form-group">
+                                    <label>User Name</label>
+                                    @Html.TextBoxFor(M => M.UserName, new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(m => m.UserName)
+                                </div>
+                                <div class="custom-form-group">
+                                    @Html.PasswordFor(M => M.Password, new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(m => m.Password)
+                                </div>
                             </div>
-                            <div class="custom-form-group">
-                                @Html.PasswordFor(M => M.Password, new { @class = "form-control" })
-                                @Html.ValidationMessageFor(m => m.Password)
+                            @*@Html.Recaptcha()
+                                @Html.ValidationMessage("ReCaptcha")*@
+                            <div class="g-recaptcha" data-callback="recaptchaCallback"
+                                 data-sitekey="6LdztccUAAAAANmy4O_-dGNMc178RuSZOAdkZs6z"></div>
+                            <div class="lg-ft">
+                                @*<a href="@Url.Action("ForgotPassword", "Account")" class="fd-btn">Forgot Password?</a>*@
+                                <input type="submit" class="btn btn-primary" value="Login" id="btnlogin" />
+                                <input type="reset" onclick="window.location.href='@Url.Action("Login", "Account")';" value="Reset" class="btn btn-default" />
                             </div>
                         </div>
-                        @*@Html.Recaptcha()
-                        @Html.ValidationMessage("ReCaptcha")*@
-                        <div class="g-recaptcha" data-callback="recaptchaCallback"
-                             data-sitekey="6LdztccUAAAAANmy4O_-dGNMc178RuSZOAdkZs6z"></div>
-                        <div class="lg-ft">
-                            @*<a href="@Url.Action("ForgotPassword", "Account")" class="fd-btn">Forgot Password?</a>*@
-                            <input type="submit" class="btn btn-primary" value="Login" id="btnlogin" />
-                            <input type="reset" onclick="window.location.href='@Url.Action("Login", "Account")';" value="Reset" class="btn btn-default" />
-                        </div>
+                   
+                    <div class="lg-rgt-ds" style="color:red">
+                        <p>
+                            <h3>
+                                <b>Note:</b><br />
+                            </h3>
+                            1.Kindly Logout properly and close all the tabs after every usage.<br />
+                            2.Only 4 tabs per user can be opened by duplication option in TULA.<br />
+                            3.Use only duplication option in TULA to traverse across the application.
+                        </p>
                     </div>
                 </div>
 
@@ -103,6 +114,8 @@ margin-top: 40px;
         $(window).resize(function () {
             setHeight();
         });
+        localStorage.clear();
+        sessionStorage.clear();
     });
     var checkCaptch = false;
     var recaptchaCallback = function (response) {

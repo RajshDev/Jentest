@@ -55,5 +55,6 @@ namespace IOAS.DataModel
         public Nullable<decimal> BankGuaranteeAmount { get; set; }
         public string BankGuaranteeRemarks { get; set; }
         public Nullable<bool> RCM_f { get; set; }
+        public Nullable<int> BankID { get; set; }
     }
 }

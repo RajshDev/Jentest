@@ -635,8 +635,7 @@ namespace IOAS.Models
         [Display(Name = "Project Funding Category")]
         public int ProjectFundingCategoryId { get; set; }
 
-
-        [RequiredIf("ProjectFundingCategoryId", 2, ErrorMessage = "Please Select Bank Name")]
+        [RequiredIfNot("ProjectFundingCategoryId", 1, ErrorMessage = "Please Select Bank Name")]
         [Display(Name = "Bank Name")]
         public string bankname { get; set; }
         public Nullable<int> BankID { get; set; }
@@ -652,7 +651,8 @@ namespace IOAS.Models
         //   public Nullable<int> BankID { get; set; }
 
         // public Nullable<int> id { get; set; }
-        [RequiredIf("ProjectFundingCategoryId", 2, ErrorMessage = "Please Select Bank Name")]
+        [RequiredIfNot("ProjectFundingCategoryId", 1, ErrorMessage = "Please Select Bank Name")]
+        
         [Display(Name = "Bank Name")]
         public string bankname { get; set; }
         public Nullable<int> BankID { get; set; }
@@ -1337,6 +1337,8 @@ public class projectFundingModel
         public int[] CoPIname { get; set; }
         public string[] CoPIEmail { get; set; }
         public string[] CoPIDepartment { get; set; }
+
+        public int ProjectFundingCategory { get; set; }
 
     }
     public class InternalProjectSearchModel

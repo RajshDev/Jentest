@@ -35,5 +35,6 @@ namespace IOAS.DataModel
         public Nullable<bool> Pmt_f { get; set; }
         public Nullable<int> SettlementCommitmentType { get; set; }
         public string Remarks { get; set; }
+        public Nullable<int> BankID { get; set; }
     }
 }
