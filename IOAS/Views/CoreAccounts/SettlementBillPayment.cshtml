@@ -555,7 +555,7 @@ new { @class = "form-control required" })
                     if (CurrentValue === '' || CurrentValue === null)
                         CurrentValue = 0;
                     if (parseFloat((result.TDSLimit - TotalInvoice) + CurrentValue) > 5000000) {
-                        $('#FailedAlert').html("The Total payment is" + " Rs: " + result.TDSLimit.toFixed(2) + " hence 194Q is applicable for goods. ");
+                        $('#FailedAlert').html("The Total paid / payable is" + " Rs: " + result.TDSLimit.toFixed(2) + " hence 194Q is applicable for goods. ");
                         $('#Failed').modal('show');
                         //hideTdsAmount.hide();
                     }
@@ -855,7 +855,7 @@ $.ajax({
         if (CurrentValue === '' || CurrentValue === null)
             CurrentValue = 0;
         if (parseFloat((result.TDSLimit - TotalInvoice) + CurrentValue) > 5000000) {
-            $('#FailedAlert').html("The Total payment is" + " Rs: " + result.TDSLimit.toFixed(2) + " hence 194Q is applicable for goods. ");
+            $('#FailedAlert').html("The Total paid / payable is" + " Rs: " + result.TDSLimit.toFixed(2) + " hence 194Q is applicable for goods. ");
             $('#Failed').modal('show');
         }
         UpdateGSTSplitUp();
@@ -1195,7 +1195,9 @@ if ($('#PaymentType').val() != '2') {
     $('#lblPOTtlTaxAmt').text(ttlPOTaxVal.toFixed(2));
     netPOVal = (ttlPOVal + ttlPOTaxVal).toFixed(2);
     $('#lblPONetAmt').text(netPOVal);
-    if ($('#TotalInvoiceValue').val() == 0 && $('#BillId').val() != "0") { $('#TotalInvoiceValue').val(netPOVal); }
+
+    
+
     var invAmt = parseFloat($('#InvoiceAmount').val()) || 0;
     var invTaxAmt = parseFloat($('#InvoiceTaxAmount').val()) || 0;
     $('#lblAdvTtlAmt').text(invAmt.toFixed(2));
@@ -1208,6 +1210,14 @@ if ($('#PaymentType').val() != '2') {
     var roundValItc = $('#hiddenTaxEligibleAmt').val() || 0;
     var validCmtAmt = (netAdvVal - roundValItc).toFixed(2);
     $('#lblcommitamt').html(validCmtAmt);
+   
+    if ($('#TotalInvoiceValue').val() == 0 && $('#BillId').val() != "0") {
+        $('#TotalInvoiceValue').val(validCmtAmt);
+        var SettleAmt = $('#lblAdvNetAmt').text() || 0;
+        var vendorid = $('#VendorId').val() || 0;
+        var TotalInvoice = $("#TotalInvoiceValue").val() || 0;
+        validatetds(vendorid, SettleAmt, TotalInvoice);
+    }
 } else {
     var ttlPOVal = 0, ttlPOTaxVal = 0, netPOVal = 0;
     var elgF = false;
@@ -1235,7 +1245,7 @@ if ($('#PaymentType').val() != '2') {
     $('#lblPOTtlTaxAmt').text(ttlPOTaxVal.toFixed(2));
     netPOVal = (ttlPOVal + ttlPOTaxVal).toFixed(2);
     $('#lblPONetAmt').text(netPOVal);
-    if ($('#TotalInvoiceValue').val() == 0) { $('#TotalInvoiceValue').val(netPOVal); }
+    //if ($('#TotalInvoiceValue').val() == 0) { $('#TotalInvoiceValue').val(netPOVal); }
     if (elgF)
         $('#isHaveElgGST').val('true');
     else
@@ -1256,6 +1266,14 @@ if ($('#PaymentType').val() != '2') {
     var roundValItc = $('#hiddenTaxEligibleAmt').val() || 0;
     var validCmtAmt = (netAdvVal - roundValItc).toFixed(2);
     $('#lblcommitamt').html(validCmtAmt);
+
+    if ($('#TotalInvoiceValue').val() == 0 && $('#BillId').val() != "0") {
+        $('#TotalInvoiceValue').val(validCmtAmt);
+        var SettleAmt = $('#lblAdvNetAmt').text() || 0;
+        var vendorid = $('#VendorId').val() || 0;
+        var TotalInvoice = $("#TotalInvoiceValue").val() || 0;
+        validatetds(vendorid, SettleAmt, TotalInvoice);
+    }
 }
 }
 $('#CommitmentAmount, #CreditorAmount, #ExpenseAmount, #CreditorAmount, input[name $=".PaymentAmount"], input[name $=".Quantity"], input[name $=".TotalAmount"], input[name $=".Amount"], #ttlCr, #ttlDr').on("copy cut paste drop", function () {
@@ -1409,36 +1427,43 @@ function ValidateTransaction() {
         //    }
         //}
         return msg;
-}
-// Next Button Alert Popup
-function validatetds(vendorId, settlementamt, TotalInvoice) {
-retval = true;
-$.ajax({
-    
-    type: "GET",
-    url: "@Url.Action("GetVendorDetails", "CoreAccounts")",
-     data: { "vendorId": vendorId, "poNumberRequired": true, "transTypeCode": 'ADV', "TDSRequired": true },
-    dataType: "json",
-    success: function (result) {
-        console.log(result.TDSLimit);
-        console.log(TotalInvoice);
-        console.log(settlementamt);
-        if (result.TDSLimit === '' || result.TDSLimit === null)
-            result.TDSLimit = 0;
-        if (TotalInvoice === '' || TotalInvoice === null)
-            TotalInvoice = 0;
-        if (settlementamt === '' || settlementamt === null)
-            settlementamt = 0;
-        var tdsCal = ((parseFloat(result.TDSLimit) - parseFloat(TotalInvoice)) + parseFloat(settlementamt))
-        if (tdsCal > 5000000) {
-            retval = false;
-            $('#FailedAlert').html("The Total payment is" + " Rs: " + tdsCal.toFixed(2) + " hence 194Q is applicable for goods.");
-            $('#Failed').modal('show');
-        }
     }
-});
-return retval;
-};
+ function validatetds(vendorId, settlementamt, TotalInvoice) {
+    retval = true;
+        $.ajax({    
+            type: "GET",   
+            url: "@Url.Action("GetVendorDetails", "CoreAccounts")",   
+            data: { "vendorId": vendorId, "poNumberRequired": true, "transTypeCode": 'ADV', "TDSRequired": true },
+            dataType: "json",
+            success: function (result) {
+                console.log(result.TDSLimit);
+                console.log(TotalInvoice);
+                console.log(settlementamt);
+                if (result.TDSLimit === '' || result.TDSLimit === null)
+                    result.TDSLimit = 0;
+                if (TotalInvoice === '' || TotalInvoice === null)
+                    TotalInvoice = 0;
+                if (settlementamt === '' || settlementamt === null)
+                    settlementamt = 0;
+                var tdsCal = 0;
+                payType = $('#PaymentType').val();
+                if (payType === "1")
+                { tdsCal = ((parseFloat(result.TDSLimit) - parseFloat(TotalInvoice)) + parseFloat(settlementamt)); }
+                else
+                {
+                    tdsCal = ((parseFloat(result.TDSLimit) - parseFloat(TotalInvoice)) + parseFloat(settlementamt));
+                    // tdsCal = (parseFloat(result.TDSLimit)  + parseFloat(settlementamt)) 
+                }
+                
+                if (tdsCal > 5000000) {
+                    retval = false;
+                    $('#FailedAlert').html("The Total payment is" + " Rs: " + tdsCal.toFixed(2) + " hence 194Q is applicable for goods.");
+                    $('#Failed').modal('show');
+                }
+            }
+        });
+    return retval;
+    };
 function validateForm(n) {
 // This function deals with validation of the form fields
 var isValid = false;
@@ -1450,12 +1475,13 @@ var stepElements = $(currentTabEle).find(inputs); // get inputs for current step
 var count = stepElements.length; // check that there are inputs
 if (count <= 0) {                // if there are not no reason to loop them
     return true;                 // this can be used to perform other action if there are no steps
-} else if (currentTab == 0) {
+}
+else if (currentTab == 0) {
 
     var content = $('#tbodyCommitmentSrchList tr td:last').html();
     var poTaxEleAmt = $('#hiddenTaxEligibleAmt').val() || 0;
     var invTaxEleAmt = $('#InvoiceTaxEligibleAmount').val() || 0;
-    var SettleAmt = $('#lblPONetAmt').text() || 0;
+    var SettleAmt = $('#lblAdvNetAmt').text() || 0;
     var vendorid = $('#VendorId').val() || 0;
     var TotalInvoice = $("#TotalInvoiceValue").val() || 0;
     validatetds(vendorid, SettleAmt, TotalInvoice);
