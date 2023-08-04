@@ -8250,8 +8250,7 @@ namespace IOAS.GenericServices
                                             amount = widthdrawdata.Item1;
                                             //amount = Math.Ceiling(amount);
                                         }
-                                        //var widthdrawAmount = CommitmentBalance - amount;
-                                        var widthdrawAmount = CommitmentBalance;
+                                        var widthdrawAmount = CommitmentBalance - amount;
                                         if (widthdrawAmount <= 0)
                                             widthdrawAmount = CommitmentBalance;
                                         edQuery.WithdrawAmmount = decimal.Round(widthdrawAmount, 2);
@@ -8614,8 +8613,7 @@ namespace IOAS.GenericServices
                                             if (!withdrawdata.Item6)
                                                 return Tuple.Create(0, "");
                                         }
-                                      //  var widthdrawAmount = CommitmentBalance - amount;
-                                        var widthdrawAmount =  amount;
+                                        var widthdrawAmount = CommitmentBalance - amount;
                                         if (widthdrawAmount <= 0)
                                             widthdrawAmount = CommitmentBalance;
                                         Order.WithdrawAmmount = decimal.Round(widthdrawAmount, 2);
@@ -14069,7 +14067,6 @@ namespace IOAS.GenericServices
                                     rc.Status != "Awaiting Committee Approval" && rc.Status != "InActive" && rc.Status != "Rejected"
                                     && rc.Status != "Cancel"
                                     && rc.Status != "Commitment Booked" && rc.Status != "Commitment Withdrawn"
-                                    // && (rc.AppointmentType == "Change Of Project" || rc.RequestType != "Withdraw Commitment")
                                     && (rc.IsBookedFullRequestAmount == false || rc.IsBookedFullRequestAmount == null)
                                     select new CommitmentRequestListModel()
                                     {
@@ -14090,7 +14087,6 @@ namespace IOAS.GenericServices
                                         RequestType = rc.RequestType,
 
                                     });
-
                     var predicate = PredicateBuilder.BaseAnd<CommitmentRequestListModel>();
                     if (!string.IsNullOrEmpty(model.ApplNo))
                         predicate = predicate.And(d => d.ReferenceNumber.Contains(model.ApplNo) || d.RequestType.Contains(model.ApplNo));
@@ -25686,9 +25682,9 @@ namespace IOAS.GenericServices
                                     //data.OTHPayDeductionId = othid;
                                     context.tblRCTOTHPaymentDeductionUploadDetail.Where(m => m.OTHPaymentDeductionUploadId == uploadId && m.EmployeeNumber == employeeNo).
                                         ToList().ForEach(m =>
-                                    {
-                                        m.OTHPayDeductionId = othid;
-                                    });
+                                        {
+                                            m.OTHPayDeductionId = othid;
+                                        });
                                     context.SaveChanges();
                                     if (detail.Count > 0)
                                     {
