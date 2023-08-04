@@ -6024,6 +6024,33 @@ namespace IOAS.GenericServices
                 return new AdhocOtherAllowDetailModel();
             }
         }
+
+
+
+        public int updateverify(int PayrollProDetId)
+        {
+            try
+            {
+
+                using (var context = new IOASDBEntities())
+                {
+                    var record = context.tbl_sal_edit_opt.Where(x => x.PayrollProDetId == PayrollProDetId).SingleOrDefault();
+                    if (record != null)
+                    {
+                        record.Verified_status = true;
+                        context.SaveChanges();
+                    }
+                    return 1;
+                }
+            }
+            catch (Exception ex)
+            {
+                return 0;
+            }
+
+
+
+        }
         public int RemoveVerifiedEmployee(int PaymentHeadId, string EmployeeId, int userId, bool verify, int? paymentId)
         {
             try
@@ -6057,6 +6084,13 @@ namespace IOAS.GenericServices
                                       m.PaymentNo = null;
                                   });
                             context.tblAdhocSalaryOtherAllowance.RemoveRange(context.tblAdhocSalaryOtherAllowance.Where(c => c.PaymentId == paymentId));
+                        }
+
+                        var removeid = context.tbl_sal_edit_opt.Where(x => x.PayrollProDetId == record.RCTPayrollProcessDetailId).SingleOrDefault();
+                        if (removeid != null)
+                        {
+                            removeid.Verified_status = false;
+                            context.SaveChanges();
                         }
 
                         //var otherPayment = (from OA in context.tblEmpOtherAllowance
@@ -6371,12 +6405,20 @@ namespace IOAS.GenericServices
                 DateTime startDate = Common.GetMonthFirstDate(PaymentMonthYear);
                 using (var context = new IOASDBEntities())
                 {
-                    var query = (from emp in context.tblRCTPayrollProcessDetail
-                                 where (String.IsNullOrEmpty(EmployeeName) || emp.CandidateName.Contains(EmployeeName))
-                               && (String.IsNullOrEmpty(EmployeeNo) || emp.EmployeeId.Contains(EmployeeNo))
-                               && (String.IsNullOrEmpty(DepartmentCode) || emp.DepartmentCode.Contains(DepartmentCode) || emp.DepartmentName.Contains(DepartmentCode))
-                               && !context.tblSalaryPayment.Any(m => m.RCTPayrollProcessDetailId == emp.RCTPayrollProcessDetailId)
-                               && emp.SalaryMonth == PaymentMonthYear && emp.SalaryType == typeOfPay && emp.ProcessStatus == "Active"
+
+                    var count_query = context.tbl_sal_edit_opt.Where(t => t.typeofpay == typeOfPay).Count();
+                    if (count_query == 0)
+                    {
+                        var exe_sp = context.Database.ExecuteSqlCommand("sp_sla_edit_opt @p0,@p1", typeOfPay, PaymentMonthYear);
+                    }
+
+
+                    var query = (from emp in context.tbl_sal_edit_opt
+                                 where
+                                    (String.IsNullOrEmpty(EmployeeName) || emp.CandidateName.Contains(EmployeeName))
+                                      && (String.IsNullOrEmpty(EmployeeNo) || emp.EmployeeId.Contains(EmployeeNo))
+                                      && (String.IsNullOrEmpty(DepartmentCode) || emp.DepartmentCode.Contains(DepartmentCode) || emp.DepartmentName.Contains(DepartmentCode))
+                                      && emp.Verified_status == false && emp.typeofpay == typeOfPay
                                  orderby emp.CandidateName
                                  select new
                                  {
@@ -6388,30 +6430,52 @@ namespace IOAS.GenericServices
                                      emp.DepartmentName,
                                      emp.Basic,
                                      emp.DesignationCode,
-                                     IsNotInMain = false,
-                                     PayrollProDetId = emp.RCTPayrollProcessDetailId
-                                 }).Concat(from emp in context.vw_RCTAdhocEmployeeMaster
-                                           where context.tblEmpOtherAllowance.Any(m => m.EmployeeIdStr == emp.EmployeeId && (m.IsPaid == null || m.IsPaid == false)) && typeOfPay != 2
-                                           && ((emp.IITMPensioner_f == true && typeOfPay == 0) || (emp.IITMPensioner_f == false && typeOfPay != 0))
-                                && (String.IsNullOrEmpty(EmployeeName) || emp.NAME.Contains(EmployeeName))
-                                && (String.IsNullOrEmpty(EmployeeNo) || emp.EmployeeId.Contains(EmployeeNo))
-                                && (String.IsNullOrEmpty(DepartmentCode) || emp.departmentcode.Contains(DepartmentCode) || emp.DEPARTMENT.Contains(DepartmentCode))
-                                && !context.tblRCTPayrollProcessDetail.Any(m => m.SalaryMonth == PaymentMonthYear && m.SalaryType == typeOfPay && m.ProcessStatus == "Active" && m.EmployeeId == emp.EmployeeId)
-                                       && !context.tblSalaryPayment.Any(m => m.PaymentMonthYear == PaymentMonthYear && m.TypeOfPayBill == typeOfPay && m.EmployeeId == emp.EmployeeId)
-                                           orderby emp.NAME
-                                           select new
-                                           {
-                                               emp.EmployeeId,
-                                               CandidateName = emp.NAME,
-                                               CommitmentNumber = emp.commitmentNo,
-                                               ProjectNumber = emp.PROJECTNO,
-                                               DepartmentCode = emp.departmentcode,
-                                               DepartmentName = emp.DEPARTMENT,
-                                               emp.Basic,
-                                               emp.DesignationCode,
-                                               IsNotInMain = true,
-                                               PayrollProDetId = 0
-                                           });
+                                     emp.IsNotInMain,
+                                     emp.PayrollProDetId
+                                 });
+
+
+                    //var query = (from emp in context.tblRCTPayrollProcessDetail
+                    //             where (String.IsNullOrEmpty(EmployeeName) || emp.CandidateName.Contains(EmployeeName))
+                    //           && (String.IsNullOrEmpty(EmployeeNo) || emp.EmployeeId.Contains(EmployeeNo))
+                    //           && (String.IsNullOrEmpty(DepartmentCode) || emp.DepartmentCode.Contains(DepartmentCode) || emp.DepartmentName.Contains(DepartmentCode))
+                    //           && !context.tblSalaryPayment.Any(m => m.RCTPayrollProcessDetailId == emp.RCTPayrollProcessDetailId)
+                    //           && emp.SalaryMonth == PaymentMonthYear && emp.SalaryType == typeOfPay && emp.ProcessStatus == "Active"
+                    //             orderby emp.CandidateName
+                    //             select new
+                    //             {
+                    //                 emp.EmployeeId,
+                    //                 emp.CandidateName,
+                    //                 emp.CommitmentNumber,
+                    //                 emp.ProjectNumber,
+                    //                 emp.DepartmentCode,
+                    //                 emp.DepartmentName,
+                    //                 emp.Basic,
+                    //                 emp.DesignationCode,
+                    //                 IsNotInMain = false,
+                    //                 PayrollProDetId = emp.RCTPayrollProcessDetailId
+                    //             }).Concat(from emp in context.vw_RCTAdhocEmployeeMaster
+                    //                       where context.tblEmpOtherAllowance.Any(m => m.EmployeeIdStr == emp.EmployeeId && (m.IsPaid == null || m.IsPaid == false)) && typeOfPay != 2
+                    //                       && ((emp.IITMPensioner_f == true && typeOfPay == 0) || (emp.IITMPensioner_f == false && typeOfPay != 0))
+                    //            && (String.IsNullOrEmpty(EmployeeName) || emp.NAME.Contains(EmployeeName))
+                    //            && (String.IsNullOrEmpty(EmployeeNo) || emp.EmployeeId.Contains(EmployeeNo))
+                    //            && (String.IsNullOrEmpty(DepartmentCode) || emp.departmentcode.Contains(DepartmentCode) || emp.DEPARTMENT.Contains(DepartmentCode))
+                    //            && !context.tblRCTPayrollProcessDetail.Any(m => m.SalaryMonth == PaymentMonthYear && m.SalaryType == typeOfPay && m.ProcessStatus == "Active" && m.EmployeeId == emp.EmployeeId)
+                    //                   && !context.tblSalaryPayment.Any(m => m.PaymentMonthYear == PaymentMonthYear && m.TypeOfPayBill == typeOfPay && m.EmployeeId == emp.EmployeeId)
+                    //                       orderby emp.NAME
+                    //                       select new
+                    //                       {
+                    //                           emp.EmployeeId,
+                    //                           CandidateName = emp.NAME,
+                    //                           CommitmentNumber = emp.commitmentNo,
+                    //                           ProjectNumber = emp.PROJECTNO,
+                    //                           DepartmentCode = emp.departmentcode,
+                    //                           DepartmentName = emp.DEPARTMENT,
+                    //                           emp.Basic,
+                    //                           emp.DesignationCode,
+                    //                           IsNotInMain = true,
+                    //                           PayrollProDetId = 0
+                    //                       });
                     var querylist = query.ToList();
                     var recordCount = querylist.Count();
                     querylist = querylist.Skip(skiprec).Take(pageSize).ToList();
