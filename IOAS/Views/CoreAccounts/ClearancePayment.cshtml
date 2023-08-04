@@ -54,6 +54,8 @@
                     @Html.Hidden("varCGSTInput")
                     @Html.Hidden("varSGSTInput")
                     @Html.Hidden("varIGSTInput")
+                    @Html.Hidden("tdsAmount")
+                    @Html.Hidden("tdsVendorIdFinder")
                 </div>
                 <div class="dis-none ds-tt" id="divRefEmailDate">
                     <span class="required">Email Date</span>
@@ -248,7 +250,7 @@
                 <div class="tab">
                     @Html.Partial("_InvoiceBreakUp", Model.InvoiceBreakDetail)
                     @Html.Partial("_PaymentBreakUp", Model.PaymentBreakDetail)
-                   
+
                 </div>
                 <div class="tab" id="PartialResultDivName">
                     @Html.Partial("_CommitmentDetails", Model.CommitmentDetail)
@@ -373,6 +375,7 @@
 <div id="popup"></div>
 
 <script>
+   
     $(function () {
         $('[data-toggle="tooltip"]').tooltip()
     });
@@ -387,7 +390,7 @@
     var defaultFromDate = moment(new Date()).add(-10, 'days').toDate();
     $('#srchFromDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true }).datepicker("setDate", defaultFromDate);
     $(document).ready(function () {
-
+        
         if (succMsg != '') {
             $('#alertSuccess').html(succMsg);
             $('#Success').modal('toggle');
@@ -402,6 +405,8 @@
         }
         var selSource = $('#Source').val();
         var agentId = $('#ClearanceAgentId').val();
+
+        var vendorId = $('#VendorId').val();
         if(agentId != ''){
             $.ajax({
                 type: "GET",
@@ -413,6 +418,7 @@
                     $('#lblAgentGSTIN').text(result.GSTIN);
                     $('#lblAgentAddr').text(result.Address);
                     $('#lblStateCode').text(result.StateCode);
+                   
                     UpdateGSTSplitUp()
                 },
                 error: function (err) {
@@ -454,6 +460,7 @@
         CalculatePOValue();
         CalculatePaymentBUTotal();
         $('#NeedUpdateTransDetail').val('false');
+        updatevendorsName();
     });
 
     function fillMasterDropDown(ele,data,fillDafaultText){
@@ -617,6 +624,7 @@
             }
         });
     }
+    
     function GetTransactionDetails() {
         var stateCode = $('#lblStateCode').html();
         var interstate = IsInterState(stateCode);
@@ -1051,12 +1059,145 @@
         }
         return msg;
     }
-    //$('#hiddenNetTotalAmt').change(function () {
-    //    amt = $(this).val();
-    //    $('#CreditorAmount').val(amt);
-    //});
-    function validateForm(n) {
+   
+    //Fuction Created for vendor alert popup by Rajesh
 
+    //TDSLimit is previous amount
+    //TDSLimit return values from database stored procedure
+    //editCal is last payment amount
+    //editCal return values from Model
+    //curTableTol is the current value you edit
+    //curTableTol return from UI Screen 
+    //vendorId is vendor id  
+    //vendorId return from UI Screen
+    //vendorname is vendor name 
+    //vendorname we see only the vendorid behind that vendor name will be there we fetch data from screeen   
+    
+    function validatetds(vendorId, vendorName, editCal, curTableTol) {
+        retval = true;
+        $.ajax({
+            type: "GET",
+            async: false,
+            url: "@Url.Action("GetVendorDetails", "CoreAccounts")",
+            data: { "vendorId": vendorId, "poNumberRequired": true, "transTypeCode": 'ADV', "TDSRequired": true },
+            dataType: "json",
+            success: function (result) { 
+                
+                var holeAmt = (parseFloat(result.TDSLimit) - parseFloat(editCal)) + parseFloat(curTableTol)
+                //if (parseFloat((result.TDSLimit - TotalInvoice) + CurrentValue)
+                if (holeAmt>5000000){
+
+                    //store the hole value and set popup message
+                    console.log('start1');
+                    console.log(holeAmt);
+                    // hide value                   
+                    tmpVendor = $("#tdsVendorIdFinder").val();
+                    tmpVendor = tmpVendor+ vendorName + " Total payment is Rs." + (parseFloat(holeAmt).toFixed(2)) + " hence 194Q is applicable for goods" + "<br>";    
+                                     
+                   $("#tdsVendorIdFinder").val(tmpVendor);                  
+                    return vendorId;
+                }
+                else {
+                    return 0;
+                }
+            }
+            });
+        return retval;
+    };
+    async function validatetds1(vendorId, vendorName, settleAmt) {
+        return new Promise
+(function (fullfilled, reject) {
+            $.ajax({
+                type: "GET",
+                url: "@Url.Action("GetVendorDetails", "CoreAccounts")",
+                data: { "vendorId": vendorId, "poNumberRequired": true, "transTypeCode": 'ADV', "TDSRequired": true },
+                dataType: "json",
+                success: function (result) {
+
+                    if (result.TDSLimit === '' || result.TDSLimit === null)
+                        result.TDSLimit = 0;
+                    if (settleAmt === '' || settleAmt === null)
+                        settleAmt = 0;
+
+                    if (result.TDSLimit + settleAmt > 5000000) {
+                        retval = false;
+
+                        console.log(vendorName);
+                        fullfilled(vendorName)
+                    }
+                    else {
+                        fullfilled("");
+                    }
+                },
+                error: function (result) {
+                    reject("");
+                }
+            });
+
+        });
+    }
+    async function updatevendorsName() {
+        var p = $.when();
+        var tdsres;
+        //clear hidden field        
+        $("#tdsAmount").val("");
+        $("#tdsVendorIdFinder").val("");
+        console.log("Trigger Start");
+        $('#tbodyPaymentBU tr').each(function (idx, val) {
+            
+            var Payment = $(this).find('input[name$="PaymentAmount"]').val();
+            var tdsPayment = $(this).find('input[name$="TDSPayable"]').val();
+            var vendorName = $(this).find('input[name$="autoComplete"]').val();
+            var vendorIds = $(this).find('input[name$="UserId"]').val();
+            if (tdsPayment === '' || tdsPayment === null)
+                tdsPayment = 0;
+            if (Payment === '' || Payment === null)
+                Payment = 0;
+            var curTableTol = parseFloat(Payment) + parseFloat(tdsPayment);            
+            //console.log(curTableTol);
+            //console.log(idx);
+            //console.log(vendorIds);
+            //console.log(vendorName);
+            //console.log(tdsPayment);
+            //console.log(Payment);
+
+            var jsdata = @Html.Raw(Json.Encode(Model.PaymentBreakDetail));
+            //var FinalTotval = $('#PaymentBUTotal').val()
+            console.log(jsdata);
+            vendorId = 0;
+            var editCal = 0; 
+            TDSPayable = 0;
+            
+            for (let i = 0; i < jsdata.length; i++) {
+                if (jsdata[i]["UserId"] == vendorIds) {
+                    editCal = jsdata[i]["PaymentAmount"];
+                    if (editCal === '' || editCal === null)
+                        editCal = 0;
+                    TDSPayable = jsdata[i]["TDSPayable"]
+                    console.log(TDSPayable);
+                    if (TDSPayable === '' || TDSPayable === null)
+                        TDSPayable = 0;
+
+                    editCal = parseFloat(TDSPayable) + parseFloat(editCal);                
+                    console.log(editCal);
+                    break;
+                }
+            };
+
+
+            tdsres = validatetds(vendorIds, vendorName, editCal, curTableTol);
+            console.log(tdsres);
+        });
+        var alertmsg = $("#tdsVendorIdFinder").val();
+
+        if ($("#tdsVendorIdFinder").val() != '') {
+            $('#FailedAlert').html(alertmsg);
+            $('#Failed').modal('show');
+        }
+
+
+    }
+   async function validateForm(n) {
         // This function deals with validation of the form fields
         var isValid = false;
         var hadError = false;
@@ -1074,6 +1215,10 @@
                 searchCommitment();
             }
         } if (currentTab == 1) {
+            var SettleAmt = $('#lblAdvTtlAmt').text() || 0;
+            var vendorid = $('#VendorId').val() || 0;
+            
+        await updatevendorsName();
 
             var validationMsg = ValidatePaymentBU()
             if (validationMsg != 'valid') {
