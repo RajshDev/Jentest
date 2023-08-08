@@ -10732,9 +10732,9 @@ namespace IOAS.Controllers
             try
             {
                 GeneralVoucherModel model = new GeneralVoucherModel();
-
+                ViewBag.SourceList = Common.GetSourceList();
                 model = coreAccountService.GetGeneralVoucherDetailsView(id);
-                ViewBag.paymentTDSAmount = model.PaymentTDSAmount.ToString();
+                ViewBag.paymentTDSAmount = model.PaymentTDSAmount.ToString();               
                 model.PFInit = Pfinit;
                 ViewBag.processGuideLineId = Common.GetProcessGuidelineId(70, "Others", model.PaymentDebitAmount ?? 0);
                 return View(model);
