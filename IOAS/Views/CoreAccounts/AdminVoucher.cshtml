@@ -613,49 +613,53 @@
         $("#tdsVendorIdFinder").val("");
         console.log("Trigger Start");
         $('#tbodyPaymentBU tr').each(function (idx, val) {
-            
-            var Payment = $(this).find('input[name$="PaymentAmount"]').val();
-            var tdsPayment = $(this).find('input[name$="TDSPayable"]').val();
-            var vendorName = $(this).find('input[name$="autoComplete"]').val();
-            var vendorIds = $(this).find('input[name$="UserId"]').val();
-            if (tdsPayment === '' || tdsPayment === null)
-                tdsPayment = 0;
-            if (Payment === '' || Payment === null)
-                Payment = 0;
-            var curTableTol = parseFloat(Payment) + parseFloat(tdsPayment);            
-            //console.log(curTableTol);
-            //console.log(idx);
-            //console.log(vendorIds);
-            //console.log(vendorName);
-            //console.log(tdsPayment);
-            //console.log(Payment);
+            var isThatVendor = $(this).find('select[name$=".CategoryId"]').val()
+            console.log(isThatVendor);
+            if (isThatVendor == 9) {
 
-            var jsdata = @Html.Raw(Json.Encode(Model.PaymentBreakDetail));
-            //var FinalTotval = $('#PaymentBUTotal').val()
-            console.log(jsdata);
-            vendorId = 0;
-            var editCal = 0; 
-            TDSPayable = 0;
-            
-            for (let i = 0; i < jsdata.length; i++) {
-                if (jsdata[i]["UserId"] == vendorIds) {
-                    editCal = jsdata[i]["PaymentAmount"];
-                    if (editCal === '' || editCal === null)
-                        editCal = 0;
-                    TDSPayable = jsdata[i]["TDSPayable"]
-                    console.log(TDSPayable);
-                    if (TDSPayable === '' || TDSPayable === null)
-                        TDSPayable = 0;
+                var Payment = $(this).find('input[name$="PaymentAmount"]').val();
+                var tdsPayment = $(this).find('input[name$="TDSPayable"]').val();
+                var vendorName = $(this).find('input[name$="autoComplete"]').val();
+                var vendorIds = $(this).find('input[name$="UserId"]').val();
+                if (tdsPayment === '' || tdsPayment === null)
+                    tdsPayment = 0;
+                if (Payment === '' || Payment === null)
+                    Payment = 0;
+                var curTableTol = parseFloat(Payment) + parseFloat(tdsPayment);
+                //console.log(curTableTol);
+                //console.log(idx);
+                //console.log(vendorIds);
+                //console.log(vendorName);
+                //console.log(tdsPayment);
+                //console.log(Payment);
 
-                    editCal = parseFloat(TDSPayable) + parseFloat(editCal);                
-                    console.log(editCal);
-                    break;
-                }
-            };
+                var jsdata = @Html.Raw(Json.Encode(Model.PaymentBreakDetail));
+                //var FinalTotval = $('#PaymentBUTotal').val()
+                console.log(jsdata);
+                vendorId = 0;
+                var editCal = 0;
+                TDSPayable = 0;
+
+                for (let i = 0; i < jsdata.length; i++) {
+                    if (jsdata[i]["UserId"] == vendorIds) {
+                        editCal = jsdata[i]["PaymentAmount"];
+                        if (editCal === '' || editCal === null)
+                            editCal = 0;
+                        TDSPayable = jsdata[i]["TDSPayable"]
+                        console.log(TDSPayable);
+                        if (TDSPayable === '' || TDSPayable === null)
+                            TDSPayable = 0;
+
+                        editCal = parseFloat(TDSPayable) + parseFloat(editCal);
+                        console.log(editCal);
+                        break;
+                    }
+                };
 
 
-            tdsres = validatetds(vendorIds, vendorName, editCal, curTableTol);
-            console.log(tdsres);
+                tdsres = validatetds(vendorIds, vendorName, editCal, curTableTol);
+                console.log(tdsres);
+            }
         });
         var alertmsg = $("#tdsVendorIdFinder").val();
 
