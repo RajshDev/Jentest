@@ -1698,14 +1698,5 @@ namespace IOAS.DataModel
         {
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("TestSPRCTTermEndReminder1");
         }
-    
-        public virtual int spVendorPaymentCeilingCheck(Nullable<int> vendorId, ObjectParameter vendorTrans)
-        {
-            var vendorIdParameter = vendorId.HasValue ?
-                new ObjectParameter("VendorId", vendorId) :
-                new ObjectParameter("VendorId", typeof(int));
-    
-            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("spVendorPaymentCeilingCheck", vendorIdParameter, vendorTrans);
-        }
     }
 }

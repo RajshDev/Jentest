@@ -11636,6 +11636,28 @@ namespace IOAS.Infrastructure
             }
             return transtype;
         }
+        public static List<TransactionAndTaxesModel> GetBillTransactionType()
+        {
+            List<TransactionAndTaxesModel> transtype = new List<TransactionAndTaxesModel>();
+            using (var context = new IOASDBEntities())
+            {
+                var query = (from C in context.vw_getPaymentBillTransactionType
+                             orderby C.TransactionType
+                             select new { C.TransactionType, C.TransactionTypeCode }).ToList();
+                if (query.Count > 0)
+                {
+                    for (int i = 0; i < query.Count; i++)
+                    {
+                        transtype.Add(new TransactionAndTaxesModel()
+                        {
+                            TransactionType = query[i].TransactionType,
+                            TransactionTypeId = query[i].TransactionTypeCode,
+                        });
+                    }
+                }
+            }
+            return transtype;
+        }
         public static string gettransactioncode(string typecode)
         {
             try

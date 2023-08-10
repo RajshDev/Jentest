@@ -1375,6 +1375,45 @@ namespace IOAS.Controllers
                 return Json(new { status = false, msg = "Something went wrong please contact administrator" }, JsonRequestBehavior.AllowGet);
             }
         }
+        [HttpGet]
+        public ActionResult BillReversal()
+        {
+            try
+            {
+                List<TransactionAndTaxesModel> model = new List<TransactionAndTaxesModel>();
+                ViewBag.TransType = Common.GetBillTransactionType();
+
+                return View();
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+                    (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                throw new Exception(ex.Message);
+            }
+        }
+        [HttpPost]
+        public ActionResult BillReversal(string transaction ,string Billnumber)
+        {
+            try
+            {
+                ViewBag.TransType = Common.GetBillTransactionType();
+
+                string msg = coreAccountService.BillReverse(transaction, Billnumber);
+                if (msg.Contains("Opened Successfully"))
+                    @TempData["succMsg"] = msg;
+                else
+                    @TempData["errMsg"] = msg;
+
+                return View();
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+                    (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                throw new Exception(ex.Message);
+            }
+        }
 
         [HttpGet]
         public JsonResult GetBillPaymentList(string typeCode)
@@ -1404,6 +1443,8 @@ namespace IOAS.Controllers
                     output.PONumberList = Common.GetBillPONumberList(vendorId, null, transTypeCode);
                 if (TDSRequired)
                     output.TDSList = Common.GetVendorTDSList(vendorId);
+
+
                 return Json(output, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -1445,7 +1486,7 @@ namespace IOAS.Controllers
             }
         }
         [HttpGet]
-        public JsonResult SearchCommitments(DateTime? fromDate, DateTime? toDate, int? projectType, int projectId, string keyword, int commitmentType = 0, int ProjectClassification = 0,int BankHeadId = 0)
+        public JsonResult SearchCommitments(DateTime? fromDate, DateTime? toDate, int? projectType, int projectId, string keyword, int commitmentType = 0, int ProjectClassification = 0, int BankHeadId = 0)
         {
             try
             {
@@ -2898,7 +2939,7 @@ namespace IOAS.Controllers
             return Json(data, JsonRequestBehavior.AllowGet);
         }
         [HttpGet]
-        public JsonResult LoadProjectList(string term, int? type = null, int? classification = null, int? BankHeadId =  null)
+        public JsonResult LoadProjectList(string term, int? type = null, int? classification = null, int? BankHeadId = null)
         {
             try
             {
@@ -2906,7 +2947,7 @@ namespace IOAS.Controllers
                 {
                     var data = new List<AutoCompleteModel>();
                     //Existing - General
-                    if(BankHeadId == 0 || BankHeadId == null )
+                    if (BankHeadId == 0 || BankHeadId == null)
                         data = Common.GetAutoCompleteProjectList(term, type);
                     else
                         data = Common.GetAutoCompleteProjectByBankIDList(term, type, BankHeadId); //CNA -SNA
@@ -4307,7 +4348,7 @@ namespace IOAS.Controllers
 
         [Authorized]
         [AcceptVerbs(HttpVerbs.Get)]
-        public JsonResult LoadPIBankProject(string PIId,int BankHeadId)
+        public JsonResult LoadPIBankProject(string PIId, int BankHeadId)
         {
             PIId = PIId == "" ? "0" : PIId;
             var locationdata = Common.getProjectListofPIandBank(Convert.ToInt32(PIId), BankHeadId);
@@ -4960,6 +5001,10 @@ namespace IOAS.Controllers
                     {
                         TempData["succMsg"] = "Summer Internship Student has been updated successfully.";
                         return RedirectToAction("SummerInternshipStudentList");
+                    }
+                    else if (result == -4)
+                    {
+                        TempData["errMsg"] = "Kindly reselect the project details.";
                     }
                     else
                         TempData["errMsg"] = "Something went wrong please contact administrator.";
@@ -7469,7 +7514,7 @@ namespace IOAS.Controllers
             ViewBag.BudgetHead = Common.getBudgetHead();
             ViewBag.Employee = Common.GetEmployeeName();
             ViewBag.AccountHead = Common.getBudgetHead();
-            if(BankHeadId > 0)
+            if (BankHeadId > 0)
                 ViewBag.ProjectNo = Common.getProjectNumberByBankId(BankHeadId);
             else
                 ViewBag.ProjectNo = Common.getProjectNumber();
@@ -8029,7 +8074,7 @@ namespace IOAS.Controllers
         {
             try
             {
-                object output = coreAccountService.GetProjectFundTransferList(model,pageIndex,  pageSize,PostedDate);
+                object output = coreAccountService.GetProjectFundTransferList(model, pageIndex, pageSize, PostedDate);
                 return Json(output, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -8299,7 +8344,7 @@ namespace IOAS.Controllers
                         TempData["errMsg"] = "There is a mismatch between the payment value and allocated commitment value. Please update the value to continue.";
                         return View(model);
                     }
-                    if(!Common.ValidateProjectBalanceOnReceipt(model.CreditProjectId ?? 0,0,model.DebitAmount ?? 0))
+                    if (!Common.ValidateProjectBalanceOnReceipt(model.CreditProjectId ?? 0, 0, model.DebitAmount ?? 0))
                     {
                         TempData["errMsg"] = "Should not exceed the credit project sanction value. Please update the value to continue.";
                         return View(model);
@@ -9492,7 +9537,7 @@ namespace IOAS.Controllers
             string docName = "";
             bool validimport = true;
             MemoryStream workStream = new MemoryStream();
-            string  savepath;
+            string savepath;
             if (file != null)
             {
                 string extension = Path.GetExtension(file.FileName).ToLower();
@@ -9519,7 +9564,7 @@ namespace IOAS.Controllers
                         System.Data.DataTable dt = _uty.ConvertCSVtoDataTable(path1);
                         listUpload = Converter.GetHonororiumEntityList<HonororiumExportListModel>(dt);
                     }
-                    else if (extension.ToLower().Trim() == ".xls"  && Environment.Is64BitOperatingSystem == false)
+                    else if (extension.ToLower().Trim() == ".xls" && Environment.Is64BitOperatingSystem == false)
                     {
                         connString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + path1 + ";Extended Properties=\"Excel 8.0;HDR=Yes;IMEX=1\"";
                         System.Data.DataTable dt = _uty.ConvertXSLXtoDataTable(path1, connString);
@@ -9554,14 +9599,14 @@ namespace IOAS.Controllers
                 honorpay.PayeeType = honorpay.PayeeType == null ? "" : honorpay.PayeeType;
                 honorpay.Amount = honorpay.Amount == null ? 0 : honorpay.Amount;
                 honorpay.TDS = honorpay.TDS == null ? 0 : honorpay.TDS;
-                int userid=0;
+                int userid = 0;
                 bool isNumeric = int.TryParse(honorpay.UserId, out userid);
 
 
                 switch (honorpay.PayeeType.ToUpper())
                 {
                     case "OTHERS":
-                        if (honorpay.Name ==null || honorpay.Name.Trim() == "")
+                        if (honorpay.Name == null || honorpay.Name.Trim() == "")
                             name_status = "Invalid Name";
 
                         break;
@@ -9623,7 +9668,7 @@ namespace IOAS.Controllers
                             name_status = "Invalid Staff ID";
                         break;
                     case "ADHOC STAFF": // Payee Type 5
-                        if (honorpay.UserId != "" )
+                        if (honorpay.UserId != "")
                         {
                             // int userid = (int)honorpay.UserId;
                             int tmp_userid = 0;
@@ -9649,18 +9694,18 @@ namespace IOAS.Controllers
                         break;
                 }
 
-                if (honorpay.Amount <= 0 || honorpay.Amount == null )
+                if (honorpay.Amount <= 0 || honorpay.Amount == null)
                 { amt_status = "Invalid Amount"; }
 
 
 
-                if (honorpay.TDS != 0 && honorpay.TDS != (decimal)0.10 && honorpay.TDS != (decimal)0.20  && honorpay.TDS != null)
+                if (honorpay.TDS != 0 && honorpay.TDS != (decimal)0.10 && honorpay.TDS != (decimal)0.20 && honorpay.TDS != null)
                 { tds_status = "Invalid TDS"; }
 
                 honorpay.Status = (name_status == "" ? "" : name_status + " / ") + (tds_status == "" ? "" : tds_status + " / ") + (amt_status == "" ? "" : amt_status + " / ");
                 if (honorpay.Status.Trim() == "")
                 {
-                    string[] arrPayment = { "", "Cheque", "Bank Transfer" ,"Salary"};
+                    string[] arrPayment = { "", "Cheque", "Bank Transfer", "Salary" };
                     string[] arrTdsSection = {"TDS on Contract  (94C) 2%","TDS on Salary (92B)","TDS on Fees (94J) 10%","TDS on Rent (94I) 10%",
 "TDS on Commission (94H) 5%","TDS Payable TDS Payable Income Tax","TDS on Contract  (94C) 1%","TDS on Rent (94I) 2%",
 "TDS on Non Residents (195) 10%","TDS on Non Residents (195) 15%","TDS on Non Residents (195) 20%",
@@ -9676,8 +9721,8 @@ namespace IOAS.Controllers
 
 
 
-                    honorpay.TDSAmt = honorpay.Amount * (honorpay.TDS );
-                    honorpay.NetAmount= honorpay.Amount - honorpay.TDSAmt;
+                    honorpay.TDSAmt = honorpay.Amount * (honorpay.TDS);
+                    honorpay.NetAmount = honorpay.Amount - honorpay.TDSAmt;
                     if (Array.IndexOf(arrPayment, honorpay.PaymentModeName) >= 0)
                     {
                         honorpay.PaymentModeVal = Array.IndexOf(arrPayment, honorpay.PaymentModeName);
@@ -9685,7 +9730,7 @@ namespace IOAS.Controllers
                         { pay_status = "Salary Not Allowed For " + honorpay.PayeeType; }
 
                         if (honorpay.PaymentModeVal == 2 &&
-                            ((honorpay.BankName == null || honorpay.Branch == null || honorpay.IFSC == null|| honorpay.AccountNo== null)||
+                            ((honorpay.BankName == null || honorpay.Branch == null || honorpay.IFSC == null || honorpay.AccountNo == null) ||
                             (honorpay.BankName.Trim() == "" || honorpay.Branch.Trim() == "" || honorpay.IFSC.Trim() == "" || honorpay.AccountNo.Trim() == "")))
                         { bank_status = "Invalid Bank/Branch/IFSC/AccounNo Details"; }
 
@@ -9704,7 +9749,7 @@ namespace IOAS.Controllers
                         honorpay.SelectedTdssection = "No PAN ";
 
                     }
-                    int tdsid=-1;
+                    int tdsid = -1;
                     if (honorpay.SelectedTdssection != null)
                         tdsid = Array.IndexOf(arrTdsSection, honorpay.SelectedTdssection.Trim());
                     if (tdsid >= 0)
@@ -9712,9 +9757,9 @@ namespace IOAS.Controllers
                         honorpay.SelectedTdssectionID = arrTdsSectionId[tdsid];
                         System.Text.RegularExpressions.Regex panregex = new System.Text.RegularExpressions.Regex("([A-Z]){5}([0-9]){4}([A-Z]){1}$");
 
-                        if ((honorpay.SelectedTdssectionID != "356" && honorpay.TDS  > 0 && honorpay.TDS*100 < 20) && (honorpay.PAN == null || honorpay.PAN.Trim() == ""))
+                        if ((honorpay.SelectedTdssectionID != "356" && honorpay.TDS > 0 && honorpay.TDS * 100 < 20) && (honorpay.PAN == null || honorpay.PAN.Trim() == ""))
                         { pay_status = "Pan No Required"; }
-                        else if ((honorpay.SelectedTdssectionID != "356" && honorpay.TDS > 0 && honorpay.TDS * 100 < 20) && !panregex.IsMatch(honorpay.PAN.Trim()) )
+                        else if ((honorpay.SelectedTdssectionID != "356" && honorpay.TDS > 0 && honorpay.TDS * 100 < 20) && !panregex.IsMatch(honorpay.PAN.Trim()))
                         { pay_status = "Invalid Pan no"; }
                     }
                     else if (honorpay.TDS > 0)
@@ -9722,7 +9767,7 @@ namespace IOAS.Controllers
 
                     honorpay.Status = (pay_status == "" ? "" : pay_status + " / ") + (tdsacc_status == "" ? "" : tdsacc_status + " / ") + (bank_status == "" ? "" : bank_status + " / "); ;
 
-                    if (honorpay.Status =="")
+                    if (honorpay.Status == "")
                         honorpay.Status = "Valid";
                     else
                         validimport = false;
@@ -9730,7 +9775,7 @@ namespace IOAS.Controllers
                 else
                 { validimport = false; }
 
-                if (honorpay.TDS == 0 )
+                if (honorpay.TDS == 0)
                 {
                     honorpay.PAN = "";
                     honorpay.SelectedTdssection = "";
@@ -9776,7 +9821,7 @@ namespace IOAS.Controllers
                 int counter = 2;
                 for (int i = 0; i < ColHeaders.Length; i++)
                 {
-                    ws.Cell(1,i+1 ).Value = ColHeaders[i];
+                    ws.Cell(1, i + 1).Value = ColHeaders[i];
 
                 }
 
@@ -9823,7 +9868,7 @@ namespace IOAS.Controllers
 
             }
 
-            var jsonResult = Json(new { status = msg, data = honoruploadlist ,xlspath=savepath}, JsonRequestBehavior.AllowGet);
+            var jsonResult = Json(new { status = msg, data = honoruploadlist, xlspath = savepath }, JsonRequestBehavior.AllowGet);
             jsonResult.MaxJsonLength = int.MaxValue;
             return jsonResult;
 
@@ -10732,9 +10777,9 @@ namespace IOAS.Controllers
             try
             {
                 GeneralVoucherModel model = new GeneralVoucherModel();
-
+                ViewBag.SourceList = Common.GetSourceList();
                 model = coreAccountService.GetGeneralVoucherDetailsView(id);
-                ViewBag.paymentTDSAmount = model.PaymentTDSAmount.ToString();
+                ViewBag.paymentTDSAmount = model.PaymentTDSAmount.ToString();               
                 model.PFInit = Pfinit;
                 ViewBag.processGuideLineId = Common.GetProcessGuidelineId(70, "Others", model.PaymentDebitAmount ?? 0);
                 return View(model);
@@ -13442,7 +13487,7 @@ namespace IOAS.Controllers
                 ViewBag.Student = Common.GetStudentList();
                 List<MasterlistviewModel> tds = new List<MasterlistviewModel>();
                 tds = Common.GetTDS();
-                var tdsfilter = tds.Where(t => t.id == 0 || t.id ==10 || t.id == 20);
+                var tdsfilter = tds.Where(t => t.id == 0 || t.id == 10 || t.id == 20);
                 ViewBag.TDS = tdsfilter;
 
                 ViewBag.OH = Common.GetOH();
@@ -18327,7 +18372,7 @@ namespace IOAS.Controllers
         public JsonResult LoadConsultancyOHPostCal(int projectid)
         {
             string projectfundingcategoryid = coreAccountService.getconsultancyfundingcategory(projectid);
-            return Json(projectfundingcategoryid,JsonRequestBehavior.AllowGet);
+            return Json(projectfundingcategoryid, JsonRequestBehavior.AllowGet);
         }
         public ActionResult OHReversalList()
         {
