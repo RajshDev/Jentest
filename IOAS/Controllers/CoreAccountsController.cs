@@ -5002,6 +5002,10 @@ namespace IOAS.Controllers
                         TempData["succMsg"] = "Summer Internship Student has been updated successfully.";
                         return RedirectToAction("SummerInternshipStudentList");
                     }
+                    else if (result == -4)
+                    {
+                        TempData["errMsg"] = "Kindly reselect the project details.";
+                    }
                     else
                         TempData["errMsg"] = "Something went wrong please contact administrator.";
 
