@@ -21308,31 +21308,50 @@ namespace IOAS.Controllers
                                     bool validamt = false;
                                     bool validdtstring = false;
                                     bool validamtstring = false;
+                                    Nullable<DateTime> dt = null;
 
                                     //Check Date is Valid
+                                    validdate = ws1.Cell(iRow, 5).TryGetValue<DateTime>(out tmpdate);
                                     validdtstring = (ws1.Cell(iRow, 5).TryGetValue<string>(out tmpvalue));
-
-                                    int dtpos1 = tmpvalue.IndexOf("-");
-                                    int dtpos2 = tmpvalue.LastIndexOf("-");
-                                    System.Globalization.CultureInfo provider = System.Globalization.CultureInfo.InvariantCulture;
-                                    Nullable<DateTime> dt = null;
-                                    if (dtpos1 > 0 && dtpos2 > 0 && dtpos1 < dtpos2 && tmpvalue.Length >= 8)
+                                    if (validdate)
                                     {
-                                        try
+                                        ws1.Cell(iRow, 1).Style.DateFormat.NumberFormatId = 14;
+                                        dt = ws1.Cell(iRow, 5).GetValue<DateTime>();
+                                        validdate = true;
+                                    }
+                                    else
+                                    {
+                                        int dtpos1 = tmpvalue.IndexOf("-");
+                                        int dtpos2 = tmpvalue.LastIndexOf("-");
+                                        if (dtpos1 == -1 && dtpos2 == -1)
                                         {
-                                            int dt_d = Int16.Parse(tmpvalue.Substring(0, dtpos1));
-                                            int dt_m = Int16.Parse(tmpvalue.Substring(dtpos1 + 1, (dtpos2 - dtpos1) - 1));
-                                            int dt_y = Int16.Parse(tmpvalue.Substring(dtpos2 + 1));
-                                            
-                                            dt = new DateTime(dt_y, dt_m, dt_d);
-                                            validdate = true;
+                                            dtpos1 = tmpvalue.IndexOf("/");
+                                            dtpos2 = tmpvalue.LastIndexOf("/");
                                         }
-                                        catch (Exception e)
+                                        if (dtpos1 == -1 && dtpos2 == -1)
                                         {
-                                            validdate = false;
+                                            dtpos1 = tmpvalue.IndexOf("\\");
+                                            dtpos2 = tmpvalue.LastIndexOf("\\");
+                                        }
+                                        System.Globalization.CultureInfo provider = System.Globalization.CultureInfo.InvariantCulture;
+                                       
+                                        if (dtpos1 > 0 && dtpos2 > 0 && dtpos1 < dtpos2 && tmpvalue.Length >= 8)
+                                        {
+                                            try
+                                            {
+                                                int dt_d = Int16.Parse(tmpvalue.Substring(0, dtpos1));
+                                                int dt_m = Int16.Parse(tmpvalue.Substring(dtpos1 + 1, (dtpos2 - dtpos1) - 1));
+                                                int dt_y = Int16.Parse(tmpvalue.Substring(dtpos2 + 1));
+
+                                                dt = new DateTime(dt_y, dt_m, dt_d);
+                                                validdate = true;
+                                            }
+                                            catch (Exception e)
+                                            {
+                                                validdate = false;
+                                            }
                                         }
                                     }
-
                                     //Check Amount is Valid
                                     validamtstring = (ws1.Cell(iRow, 3).TryGetValue<string>(out tmpvalue));
                                     tmpvalue = tmpvalue.Replace("INR", "");
