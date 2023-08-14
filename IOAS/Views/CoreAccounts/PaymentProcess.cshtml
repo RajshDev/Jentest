@@ -272,7 +272,7 @@
                         return $result.add($customSelect);
                     }
                     else {
-                        var $customLabel = $("<label>").html(item.ModeOfPayment)
+                        var $customLabel = $("<label name='Mode'>").html(item.ModeOfPayment)
                         return $result.add($customLabel);
                     }
 
@@ -286,10 +286,9 @@
                      var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
                      if (item.Status == "Open") {
                          statusList = [{ id: "", name: "Select Action" }, { id: "Verify", name: "Verify" }, { id: "View", name: "View" }]
-
                      }
                      else {
-                         statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }]
+                         statusList = [{ id: "", name: "Select Action" }, { id: "UnVerify", name: "UnVerify" }, { id: "View", name: "View" }]
                      }
                      var $customSelect = $("<select>")
                          .attr("class", "form-control").prop("selectedIndex", "")
@@ -308,6 +307,9 @@
                          else if (selVal == "Verify") {
                              var modeOfPayment = $(this).closest('tr').find('select[name="ModeOfPayment"]').val();
                              viewPaymentDetails("Verify",$('#BOADraftId').val() || null,item.PaymentPayeeId,false,modeOfPayment)
+                         } else if (selVal == "UnVerify") {
+                             var modeOfPayment = $(this).closest('tr').find('label[name="Mode"]').text();
+                             viewPaymentDetails("UnVerify", $('#BOADraftId').val() || null, item.PaymentPayeeId, false, modeOfPayment)
                          }
                          $(this).val("");
                          return false;
@@ -408,20 +410,38 @@
     function viewPaymentDetails(viewType,boaDraftId,payeeId,isEditMode,modeOfPayment){
         var token = $("input[name=__RequestVerificationToken]").val();
         var bankHead = $('#SelBankHead').val() || 0;
-        var searchData = { "__RequestVerificationToken": token, "viewType": viewType,"bankHeadId" : bankHead,"boaDraftId" : boaDraftId,"payeeId" :payeeId,"modeOfPayment": modeOfPayment,"isEditMode" : isEditMode};
-        $.ajax({
-            url: "@Url.Action("_PaymentDetails", "CoreAccounts")",
-            type: "POST",
-            data: searchData,
-            contentType: "application/x-www-form-urlencoded",
-            success: function (data) {
-                $("#popup").html(data);
-                $("#paymentDetailModal").modal('toggle');
-            },
-            error: function (err) {
-                console.log("error : " + err);
-            }
-        });
+        var searchData = { "__RequestVerificationToken": token, "viewType": viewType, "bankHeadId": bankHead, "boaDraftId": boaDraftId, "payeeId": payeeId, "modeOfPayment": modeOfPayment, "isEditMode": isEditMode };
+        var searchUnVerfiyData = { "boaDraftId": boaDraftId, "payeeId": payeeId, "modeOfPayment": modeOfPayment };
+        if (viewType == 'UnVerify') {
+            $.ajax({
+                url: "@Url.Action("UnVerifyPaymentProcess", "CoreAccounts")",
+                type: "POST",
+                data: searchUnVerfiyData,
+                contentType: "application/x-www-form-urlencoded",
+                success: function (data) {
+                    $("#popup").html(data);
+                    $("#paymentDetailModal").modal('toggle');
+                },
+                error: function (err) {
+                    console.log("error : " + err);
+                }
+            });
+        }
+        else {
+            $.ajax({
+                url: "@Url.Action("_PaymentDetails", "CoreAccounts")",
+                type: "POST",
+                data: searchData,
+                contentType: "application/x-www-form-urlencoded",
+                success: function (data) {
+                    $("#popup").html(data);
+                    $("#paymentDetailModal").modal('toggle');
+                },
+                error: function (err) {
+                    console.log("error : " + err);
+                }
+            });
+        }
     }
 
     /* Tab Sections Start*/

@@ -1,0 +1,164 @@
+Release Note:
+sprint_10
+bug:9532,9923(live),9407,9983,8289,9765
+Enhancement: 9841,9918,10024,9692,2735,10009(Live),9714
+
+--Praveen
+#9765 - Payment Payee duplication insertion in DB
+
+DB Changes:
+ALTER TABLE tblBOADraftDetail
+ADD UNIQUE (PaymentPayeeId);
+
+--Nandhini
+#9714 -- Salary Optimization
+code changes:
+staffpaymentservices.cs
+
+DB changes:
+CREATE TABLE [dbo].[tbl_sal_edit_opt](
+	[id] [int] IDENTITY(1,1) NOT NULL,
+	[EmployeeId] [nvarchar](30) NULL,
+	[CandidateName] [varchar](250) NULL,
+	[CommitmentNumber] [nvarchar](50) NULL,
+	[ProjectNumber] [nvarchar](100) NULL,
+	[DepartmentCode] [varchar](10) NULL,
+	[DepartmentName] [varchar](150) NULL,
+	[Basic] [decimal](18, 2) NULL,
+	[DesignationCode] [varchar](10) NULL,
+	[IsNotInMain] [bit] NULL,
+	[PayrollProDetId] [int] NULL,
+	[Verified_status] [bit] NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+
+storedprocedure : sp_sla_edit_opt
+
+
+
+--Yogesh
+#10009 Mail - Details to be add(Live)
+code changes:
+RCTOfficeOrder.cshtml
+RCTSendOrderTemplate.cshtml
+
+Bug #8289
+Reports - Recruitment daily report STE/OSG.
+
+RCTReportMasterController.cs
+
+Db Changes:
+
+Create new views:
+  vw_RCTOSGLOPReport 
+  vw_RCTOSGMaternity 
+  vw_RCTOSGStoppayment 
+
+Alter views:
+  vw_RCTOSGNewJoineeReport
+  vw_RCTSTENewJoineeReport
+
+
+--Madhu
+#10024 - Unverify option for Payment batch
+code changes:
+CoreAccountsController.cs
+CoreAccountService.cs
+PaymentProcess.cshtml
+
+--Yogesh
+#9407 - Documents Submission
+
+Code Changes:
+OSGModifyProfile.cshtml
+
+
+--Rajesh
+Enhancement done,
+9918 - notification for vendor payment above 50 lakhs 
+
+File Name:
+Coreaccountscontroller.cs 
+Coreaccountsservices.cs 
+Masterviewmodel.cs 
+
+settlementBillpayment.cshtml
+Advancebillpayment.cshtml 
+Advancepartbillpayment.cshtml 
+Partbillpayment.cshtml 
+_podetails.cshtml 
+
+DB Changes:
+Stored procedure: spvendorpaymentceilingcheck
+
+
+--Yogesh
+enhancement done,
+9841- GVR - Tapal Selection option
+
+File Name:
+GeneralVoucher.cshtml    
+AdminVoucher.cshtml
+CoreAccountsController.cs
+CoreAccountsModels.cs
+CoreAccountsService.cs
+
+DB Changes:
+Alter table tblGeneralVoucher add SourceEmailDate datetime
+Alter table tblGeneralVoucher add SourceReferenceNumber int
+Alter table tblGeneralVoucher add Source int
+
+Alter table tblAdminVoucher add SourceEmailDate datetime
+Alter table tblAdminVoucher add SourceReferenceNumber int
+Alter table tblAdminVoucher add Source int
+
+#2735 - GST Challan Details in the drop down of GST Offset
+
+GSTOffsetList.cshtml
+CoreAccountsController.cs
+CoreAccountsModels.cs
+Common.cs
+tblGSTOffsetChallonDetails.cs
+
+DB changes:
+
+ADD new table - tblGSTOffsetChallonDetails
+
+Create table tblGSTOffsetChallonDetails
+(
+GSTOffsetchallanId int identity (1,1),
+FK_GSTOffsetid int,
+CIN varchar(20),
+DepositDate datetime,
+CreatedDate datetime,
+CreateUser varchar(20),
+Status varchar(20)
+)
+
+ALTER TABLE tblGSTOffsetChallonDetails ADD PRIMARY KEY (GSTOffsetchallanId)
+
+
+--Madhu
+Bug, 
+9532- Issue in deducting OH - Reg
+File Name:
+CreateReceipt.cshtml
+
+--Rajesh
+Bug,
+9983 -Internal Project Opening --ProjectFundingCategory
+File Name:
+ProjectService.cs
+ProjectModel.cs
+
+--Thiru
+Enhancement:
+Feature #9692 UTR - Excel Upload with Custom Supported Date Formats
+File Name:
+CoreAccountController.cs
+UTR.cs

@@ -206,7 +206,7 @@ new { @class = "form-control" })
                                                     @Html.ValidationMessageFor(m => m.BankGuaranteeAmount)
                                                 </div>
                                             </div>
-                                           
+
                                         </div>
                                         <div class="row">
                                             <div class="col-md-3">
@@ -532,6 +532,8 @@ new { @class = "form-control" })
         }
         var selSource = $('#Source').val();
         var vendorId = $('#VendorId').val();
+        var TotalInvoice = $("#TotalInvoiceValue").val();
+        var CurrentValue = $("#lblAdvNetAmt").val();
         $('#btnAddExpense').addClass('dis-none');
         if (vendorId != '') {
             $.ajax({
@@ -545,6 +547,21 @@ new { @class = "form-control" })
                     $('#lblVendorAddr').text(result.Address);
                     $('#lblStateCode').text(result.StateCode);
                     $('#lblBankDetails').text(result.BankName + "-" + result.AccountNumber);
+                    
+                    console.log(result.TDSLimit);
+                    // 1st Open Alert Popup
+                    if (result.TDSLimit === '' || result.TDSLimit === null)
+                        result.TDSLimit = 0;
+                    if (TotalInvoice === '' || TotalInvoice === null)
+                        TotalInvoice = 0;
+                    if (CurrentValue === '' || CurrentValue === null)
+                        CurrentValue = 0;
+
+                    if (parseFloat((result.TDSLimit - TotalInvoice) + CurrentValue) > 5000000) {
+                        $('#FailedAlert').html("The Total paid / payable is" + " Rs: " + result.TDSLimit.toFixed(2) + " hence 194Q is applicable for goods. ");
+                        $('#Failed').modal('show');
+                    }
+                 
                     UpdateGSTSplitUp()
                 },
                 error: function (err) {
@@ -582,7 +599,7 @@ new { @class = "form-control" })
         var BankHead = $('#BankHead :selected').val();
 
         if (BankHead != '')
-        {                         
+        {
             $.getJSON("@Url.Action("LoadProjecttitlebybankid", "Project")", { projecttype: 1, bankid: BankHead },
         function (locationdata) {
             var select = $("#srchProjectNumber");
@@ -700,6 +717,10 @@ new { @class = "form-control" })
         $('#NeedUpdateTransDetail').val('true');
         var ele = $('#VendorTDSDetailId');
         $('#lblVendorName').html($('#VendorId option:selected').text());
+        var TotalInvoice = $("#TotalInvoiceValue").val();
+        var CurrentValue = $("#lblPONetAmt").val();
+        console.log(TotalInvoice);
+        console.log(CurrentValue);
         if (vendorId != '') {
             $('#lnkBillHistory').removeClass('dis-none');
             $.ajax({
@@ -713,6 +734,19 @@ new { @class = "form-control" })
                     $('#lblVendorAddr').text(result.Address);
                     $('#lblStateCode').text(result.StateCode);
                     $('#lblBankDetails').text(result.BankName + "-" + result.AccountNumber);
+                    if (result.TDSLimit === '' || result.TDSLimit === null)
+                        result.TDSLimit = 0;
+                    if (TotalInvoice === '' || TotalInvoice === null)
+                        TotalInvoice = 0;
+                    if (CurrentValue === '' || CurrentValue === null)
+                        CurrentValue = 0;
+                    
+                    console.log(result.TDSLimit);
+                    // Edit Vendor InputBox Alert Popup
+                    if (parseFloat((result.TDSLimit - TotalInvoice) + CurrentValue) > 5000000) {
+                        $('#FailedAlert').html("The Total paid / payable is" + " Rs: " + result.TDSLimit.toFixed(2) + " hence 194Q is applicable for goods. ");
+                        $('#Failed').modal('show');
+                    }
                     UpdateGSTSplitUp();
                     ele.empty();
                     ele.append($('<option/>', {
@@ -1034,20 +1068,26 @@ new { @class = "form-control" })
                     $(rowEle).find('.tdNetAmt').html(netAdvAmt.toFixed(2));
                 }
             });
+            console.log(netPOVal);
             if (elgF)
                 $('#isHaveElgGST').val('true');
             else
                 $('#isHaveElgGST').val('false');
             $('#lblPOTtlAmt').text(ttlPOVal.toFixed(2));
             $('#lblPOTtlTaxAmt').text(ttlPOTaxVal.toFixed(2));
+            console.log(netPOVal);
             netPOVal = (ttlPOVal + ttlPOTaxVal).toFixed(2);
             $('#lblPONetAmt').text(netPOVal);
+            //if ($('#TotalInvoiceValue').val() == 0 && $('#BillId').val() != "0") { $('#TotalInvoiceValue').val(netPOVal); }
+            console.log(netPOVal);
+            
             $('#lblAdvTtlAmt').text(ttlAdvVal.toFixed(2));
             $('#lblAdvTtlTaxAmt').text(ttlAdvTaxVal.toFixed(2));
             $('#hiddenTaxEligibleAmt').val(ttlGSTElgAmt.toFixed(2)).trigger('change');
             $('#lblTaxEligibleAmt').text(ttlGSTElgAmt.toFixed(2));
             netAdvVal = (ttlAdvVal + ttlAdvTaxVal).toFixed(2);
             $('#lblAdvNetAmt').text(netAdvVal);
+            if ($('#TotalInvoiceValue').val() == 0 && $('#BillId').val() != "0") { $('#TotalInvoiceValue').val(netAdvVal); }
             UpdateGSTSplitUp();
             var roundValItc = $('#hiddenTaxEligibleAmt').val() || 0;
             var validCmtAmt = (netAdvVal - roundValItc).toFixed(2);
@@ -1199,6 +1239,37 @@ new { @class = "form-control" })
         //}
         return msg;
     }
+
+    // Next Button Alert Popup
+    function validatetds(vendorId, settlementamt, TotalInvoice) {
+    retval = true;
+        $.ajax({    
+            type: "GET",   
+            url: "@Url.Action("GetVendorDetails", "CoreAccounts")",   
+            data: { "vendorId": vendorId, "poNumberRequired": true, "transTypeCode": 'ADV', "TDSRequired": true },
+            dataType: "json",
+            success: function (result) {
+                console.log(result.TDSLimit);
+                console.log(TotalInvoice);
+                console.log(settlementamt);
+                if (result.TDSLimit === '' || result.TDSLimit === null)
+                    result.TDSLimit = 0;
+                if (TotalInvoice === '' || TotalInvoice === null)
+                    TotalInvoice = 0;
+                if (settlementamt === '' || settlementamt === null)
+                    settlementamt = 0;
+                var tdsCal = ((parseFloat(result.TDSLimit) - parseFloat(TotalInvoice)) + parseFloat(settlementamt))
+                
+                if (tdsCal > 5000000) {
+                    retval = false;
+                    $('#FailedAlert').html("The Total paid / payable is" + " Rs: " + tdsCal.toFixed(2) + " hence 194Q is applicable for goods.");
+                    $('#Failed').modal('show');
+                }
+            }
+        });
+    return retval;
+    };
+
     function validateForm(n) {
         // This function deals with validation of the form fields
         var isValid = false;
@@ -1212,6 +1283,12 @@ new { @class = "form-control" })
             return true;                 // this can be used to perform other action if there are no steps
         } else if (currentTab == 0) {
             var content = $('#tbodyCommitmentSrchList tr td:last').html();
+            var SettleAmt = $('#lblAdvNetAmt').text() || 0;
+            var vendorid = $('#VendorId').val() || 0;
+            var TotalInvoice = $("#TotalInvoiceValue").val() || 0;
+            validatetds(vendorid, SettleAmt, TotalInvoice);
+            
+
             if (content == '') {
                 searchCommitment()
             }
@@ -1296,7 +1373,7 @@ new { @class = "form-control" })
     });
 
 
-    function EmptyCommitmentSelList() {        
+    function EmptyCommitmentSelList() {
         $('#tbodyCommitmentSelList tr').not(':first').remove();
         $('#tbodyCommitmentSelList tr td').not(':last').not(':nth-last-child(2)').html('');
         //$('#tbodyCommitmentSelList tr td:last').find("input").val("");
@@ -1304,7 +1381,7 @@ new { @class = "form-control" })
         $('#CommitmentAmount').val('');
     }
     function EmptyCommitmentSrchList() {
-        
+
         $('#tbodyCommitmentSrchList tr').not(':first').remove();
         $('#tbodyCommitmentSrchList tr td').not(':first').html('');
         $('#tbodyCommitmentSrchList tr td:first input').val('');

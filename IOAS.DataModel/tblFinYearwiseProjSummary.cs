@@ -22,5 +22,6 @@ namespace IOAS.DataModel
         public Nullable<decimal> Expenditure { get; set; }
         public Nullable<decimal> Balance { get; set; }
         public Nullable<decimal> OpeningBalance { get; set; }
+        public int ID { get; set; }
     }
 }

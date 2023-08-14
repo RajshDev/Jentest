@@ -45,5 +45,6 @@ namespace IOAS.DataModel
         public Nullable<bool> Pmt_f { get; set; }
         public Nullable<decimal> PaymentTDSAmount { get; set; }
         public Nullable<int> BankHeadId { get; set; }
+        public Nullable<int> BankID { get; set; }
     }
 }

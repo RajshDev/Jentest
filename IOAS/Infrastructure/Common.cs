@@ -11636,6 +11636,28 @@ namespace IOAS.Infrastructure
             }
             return transtype;
         }
+        public static List<TransactionAndTaxesModel> GetBillTransactionType()
+        {
+            List<TransactionAndTaxesModel> transtype = new List<TransactionAndTaxesModel>();
+            using (var context = new IOASDBEntities())
+            {
+                var query = (from C in context.vw_getPaymentBillTransactionType
+                             orderby C.TransactionType
+                             select new { C.TransactionType, C.TransactionTypeCode }).ToList();
+                if (query.Count > 0)
+                {
+                    for (int i = 0; i < query.Count; i++)
+                    {
+                        transtype.Add(new TransactionAndTaxesModel()
+                        {
+                            TransactionType = query[i].TransactionType,
+                            TransactionTypeId = query[i].TransactionTypeCode,
+                        });
+                    }
+                }
+            }
+            return transtype;
+        }
         public static string gettransactioncode(string typecode)
         {
             try
@@ -12993,6 +13015,33 @@ namespace IOAS.Infrastructure
    (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
                 throw ex;
 
+            }
+        }
+        public static bool GSTOffsetListChallan(GSTOffsetChallanDetail model,int GSTOffsetId, int LoggedInUser)
+        {
+            bool update = false;
+            tblGSTOffsetChallonDetails challan = new tblGSTOffsetChallonDetails();
+            challan.FK_GSTOffsetid = GSTOffsetId;
+            challan.CIN = model.GSTOffsetCINNumber;
+            challan.DepositDate = model.DepositDate;
+            challan.CreatedDate = DateTime.Now;
+            challan.CreateUser = LoggedInUser.ToString();
+            challan.Status = "Active";
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    var query = context.tblGSTOffsetChallonDetails.Add(challan);
+                    context.SaveChanges();
+                    update = true;
+                }
+                return update;
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+(object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                throw ex;
             }
         }
         public static bool ApprovalPendingForGSTOffset(int GSTOffsetId, int LoggedInUser)
@@ -21369,7 +21418,7 @@ namespace IOAS.Infrastructure
                 var IOAScontext = new IOASDBEntities();
                 using (var context = new IOASDBEntities())
                 {
-                    WfArr = context.tblWorkFlowlog.Select(m => m.WFreferencenbr).ToArray();
+                    WfArr = context.tblWorkFlowlog.Where(m => (m.WFreferencetype == "Proposal" || m.WFreferencetype == null) && m.IsDelete_f == true).Select(m => m.WFreferencenbr).ToArray();
                     SteArr = context.tblWorkFlowlog.Where(m => m.WFreferencetype == "ShortTermAppointment").Select(m => m.Referenceid ?? 0).ToArray();
                     OsgArr = context.tblWorkFlowlog.Where(m => m.WFreferencetype == "OutsourcingAppointment").Select(m => m.Referenceid ?? 0).ToArray();
                 }

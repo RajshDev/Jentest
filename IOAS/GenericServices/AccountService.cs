@@ -23,7 +23,7 @@ namespace IOAS.GenericServices
         /// </summary>
         /// <param name="logon"></param>
         /// <returns></returns>
-        public static int Logon(LogOnModel logon)
+        public static int Logon(LogOnModel logon,string currSession)
         {
             try
             {
@@ -37,18 +37,22 @@ namespace IOAS.GenericServices
                     {
                         var Loggedin = context.tblLoginDetails.OrderByDescending(l => l.LoginTime).FirstOrDefault(l => l.UserId == userquery.UserId);
                         if (Loggedin != null)
-                            if (Loggedin.isLoggedIn == true)
-                                return -3;
+                            if (Loggedin.isLoggedIn == true && Loggedin.currSession != currSession)
+                                    return -3;
                         if (userexpiry != null)
                             return -2;
-                        tblLoginDetails log = new tblLoginDetails();
-                        log.UserId = userquery.UserId;
-                        log.LoginTime = DateTime.Now;
-                        log.isLoggedIn = true;
-                        context.tblLoginDetails.Add(log);
-                        context.SaveChanges();
-                        return userquery.UserId;
 
+                        if (Loggedin != null)
+                        { 
+                            tblLoginDetails log = new tblLoginDetails();
+                            log.UserId = userquery.UserId;
+                            log.LoginTime = DateTime.Now;
+                            log.isLoggedIn = true;
+                            log.currSession = currSession;
+                            context.tblLoginDetails.Add(log);
+                            context.SaveChanges();
+                        }
+                        return userquery.UserId;
                     }
 
                     else
@@ -76,21 +80,21 @@ namespace IOAS.GenericServices
                     String Encpassword = Cryptography.Encrypt(logon.Password, "LFPassW0rd");
                     var userquery = context.tblUser.SingleOrDefault(dup => dup.UserName == logon.UserName && dup.Password == Encpassword && dup.Status == "Active");
                     var userexpiry = context.tblUser.SingleOrDefault(exp => exp.UserName == logon.UserName && exp.Password == Encpassword && exp.Status == "Active" && exp.ExpiryDate < DateTime.Now);
-                    var Loggedin = context.tblLoginDetails.OrderByDescending(l => l.LoginTime).FirstOrDefault(l => l.UserId == userquery.UserId);
+                    //var Loggedin = context.tblLoginDetails.OrderByDescending(l => l.LoginTime).FirstOrDefault(l => l.UserId == userquery.UserId);
 
                     if (userquery != null)
                     {
-                        if (Loggedin.isLoggedIn != null)
-                            if (Loggedin.isLoggedIn == true)
-                                return -3;
+                        //if (Loggedin.isLoggedIn != null)
+                        //    if (Loggedin.isLoggedIn == true)
+                        //        return -3;
                         if (userexpiry != null)
                             return -2;
-                        tblLoginDetails log = new tblLoginDetails();
-                        log.UserId = userquery.UserId;
-                        log.LoginTime = DateTime.Now;
-                        log.isLoggedIn = true;
-                        context.tblLoginDetails.Add(log);
-                        context.SaveChanges();
+                        //tblLoginDetails log = new tblLoginDetails();
+                        //log.UserId = userquery.UserId;
+                        //log.LoginTime = DateTime.Now;
+                        //log.isLoggedIn = true;
+                        //context.tblLoginDetails.Add(log);
+                        //context.SaveChanges();
                         return userquery.UserId;
                     }
                     else
@@ -108,7 +112,34 @@ namespace IOAS.GenericServices
                 return -1;
             }
         }
-        public static bool setLogin(string userName)
+        public static bool setLogin(string userName,string currSess)
+        {
+            using (var context = new IOASDBEntities())
+            {
+                
+                var user = context.tblUser.SingleOrDefault(dup => dup.UserName.ToLower() == userName.ToLower() && dup.Status == "Active");
+
+                if (user != null)
+                {
+                    var Loggedin = context.tblLoginDetails.OrderByDescending(l => l.LoginTime).FirstOrDefault(l => l.UserId == user.UserId);
+                    if (Loggedin != null)
+                        if (Loggedin.isLoggedIn == true )
+                        {
+                            //return false;
+                            var userloggedIn = context.tblLoginDetails.OrderByDescending(log => log.LoginTime).FirstOrDefault(log => log.UserId == user.UserId);
+                            if (userloggedIn != null)
+                            {
+                                userloggedIn.isLoggedIn = false;
+                                context.SaveChanges();
+                                return true;
+                            }
+                        }
+                }
+                return false;
+            }
+            
+        }
+        public static bool setLogoff(string userName)
         {
             using (var context = new IOASDBEntities())
             {
@@ -125,12 +156,12 @@ namespace IOAS.GenericServices
                             context.SaveChanges();
                             return true;
                         }
-                       
+
                     }
                 }
                 return false;
             }
-            
+
         }
         public static bool ChangePasswordforuser(ChangePasswordModel model, String username)
         {

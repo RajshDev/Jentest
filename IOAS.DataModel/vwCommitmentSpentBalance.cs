@@ -33,5 +33,8 @@ namespace IOAS.DataModel
         public string CommitmentNumber { get; set; }
         public string PurchaseOrder { get; set; }
         public string Subhead { get; set; }
+        public string ProjectNumber { get; set; }
+        public Nullable<int> ProjectType { get; set; }
+        public Nullable<int> ProjectClassification { get; set; }
     }
 }

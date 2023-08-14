@@ -19,5 +19,6 @@ namespace IOAS.DataModel
         public string ServiceType { get; set; }
         public string TaxCode { get; set; }
         public Nullable<decimal> TaxRate { get; set; }
+        public int ID { get; set; }
     }
 }

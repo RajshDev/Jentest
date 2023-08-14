@@ -2917,6 +2917,7 @@ namespace IOAS.GenericServices
                                 string Empno = query.EmployeeNo;
                                 var verct = (from vw in context.vw_RCTOverAllApplicationEntry
                                              where vw.EmployeeNo == Empno && vw.ApplicationType == "New" && vw.IsActiveNow == true
+                                             orderby vw.AppointmentEnddate descending
                                              select vw).FirstOrDefault();
                                 decimal sumofpayment = (from othd in context.tblRCTOTHPaymentDeductionDetail
                                                         where othd.OTHPayDeductionId == OthId && othd.OtherType == 1 && othd.Status != "InActive"
