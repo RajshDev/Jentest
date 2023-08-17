@@ -10498,13 +10498,15 @@ namespace IOAS.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult PrevNegativeBalance(int ProjectId)
+        public ActionResult PrevNegativeBalance(int ProjectId, int Piid)
         {
             NegativeBalanceModel model = new NegativeBalanceModel();
             try
             {
                 model.ProjectId = ProjectId;
-                model.PrevNeg = coreAccountService.GetPrevNegativeBalance(ProjectId);
+                model.PIId = Piid;
+                //model.PrevNeg = coreAccountService.GetPrevNegativeBalance(ProjectId);
+                model.PrevNeg = coreAccountService.GetProjectOverAllList(ProjectId,Piid);
                 ViewBag.TtlAmt = model.PrevNeg.Sum(m => m.NegBalance);
                 return PartialView(model);
             }
@@ -21556,6 +21558,21 @@ namespace IOAS.Controllers
                 return RedirectToAction("PaymentProcessInitList");
             }
         }
+
+        [HttpGet]
+        public JsonResult GetPanNumberOnly(int Vendorid, int CategoryId)
+        {
+            try
+            {
+                var data = coreAccountService.GetPanNumberOnly(Vendorid, CategoryId);
+                return Json(data, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
 
         #region backendprocess
         public ActionResult TestImprestEnhancement()
