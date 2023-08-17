@@ -727,7 +727,7 @@ namespace IOAS.Controllers
                         model.ChairpersonNameId = datacharperson.Item1;
                         model.ChairpersonName = datacharperson.Item2;
                     }
-                    ViewBag.processGuideLineId = Common.GetProcessGuidelineId(191, "", 0);
+                   ViewBag.processGuideLineId = Common.GetProcessGuidelineId(191, "", 0);
                 }
                 model.isDraftbtn = false;
                 return View(model);
@@ -9616,15 +9616,31 @@ namespace IOAS.Controllers
             }
         }
         [AcceptVerbs(HttpVerbs.Get)]
-        public JsonResult LoadPayRollInitaDate(string MonthAndYear, int SalaryType)
+        public JsonResult LoadPayRollInitaDate(string MonthAndYear, int SalaryType, int roleid)
         {
+            string saltype = "";
+            if (roleid == 102 || roleid == 103 || roleid == 104 || roleid == 104 || roleid == 105 || roleid == 106 || roleid == 93)
+            { saltype = "Adhoc"; }
+            else if (roleid == 107 || roleid == 108 || roleid == 109)
+            { saltype = "OSG"; }
+
             DateTime Frmdate = DateTime.Now;
             DateTime todate = DateTime.Now;
-            FinOp fac = new FinOp(System.DateTime.Now);
-            //if (SalaryType == 1)
-            //{
-            Frmdate = fac.GetMonthFirstDate(MonthAndYear);
-            todate = fac.GetMonthLastDate(MonthAndYear);
+
+            if (saltype == "Adhoc")
+            {
+                FinOp fac = new FinOp(System.DateTime.Now);
+                Frmdate = fac.GetMonthFirstDate(MonthAndYear);
+                todate = fac.GetMonthLastDate(MonthAndYear);
+            }
+            else
+            {
+                FinOp fac = new FinOp(System.DateTime.Now);
+                Frmdate = RequirementService.getOSGLastSalaryProcessdate().AddDays(1);
+                
+                //  Frmdate = fac.GetMonthFirstDate(MonthAndYear);
+                todate = fac.GetMonthLastDate(MonthAndYear);
+            }
             //}
             var result = new { FrmSalDate = Frmdate, toSalDate = todate };
             return Json(result, JsonRequestBehavior.AllowGet);
