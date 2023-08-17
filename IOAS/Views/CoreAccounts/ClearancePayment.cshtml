@@ -1071,25 +1071,9 @@
     //vendorId is vendor id  
     //vendorId return from UI Screen
     //vendorname is vendor name 
-    //vendorname we see only the vendorid behind that vendor name will be there we fetch data from screeen  
-     function getpan(vendorId, CategoryId) {
-         retval = true;
-        $.ajax({
-            type: "GET",
-            async: false,
-            url: "@Url.Action("GetPanNumberOnly", "CoreAccounts")",
-            data: { "vendorId": vendorId, "CategoryId": CategoryId},
-            dataType: "json",
-            success: function (result) { 
-                retval = result;
-                return result;
-                }              
-            });
-        return retval;
-    };
-
-    //vendor_id, vendor_name, vendor_oldValue, vendor_newValue, vendor_pan
-    function validatetds(vendorId, vendorName, editCal, curTableTol,vendorPan) {
+    //vendorname we see only the vendorid behind that vendor name will be there we fetch data from screeen   
+    
+    function validatetds(vendorId, vendorName, editCal, curTableTol) {
         retval = true;
         $.ajax({
             type: "GET",
@@ -1098,7 +1082,7 @@
             data: { "vendorId": vendorId, "poNumberRequired": true, "transTypeCode": 'ADV', "TDSRequired": true },
             dataType: "json",
             success: function (result) { 
-                               
+                
                 var holeAmt = (parseFloat(result.TDSLimit) - parseFloat(editCal)) + parseFloat(curTableTol)
                 //if (parseFloat((result.TDSLimit - TotalInvoice) + CurrentValue)
                 if (holeAmt>5000000){
@@ -1108,7 +1092,7 @@
                     console.log(holeAmt);
                     // hide value                   
                     tmpVendor = $("#tdsVendorIdFinder").val();
-                    tmpVendor = tmpVendor + vendorName + "(" +vendorPan +") Total payment is Rs." + (parseFloat(holeAmt).toFixed(2)) + "<br>";    
+                    tmpVendor = tmpVendor+ vendorName + " Total payment is Rs." + (parseFloat(holeAmt).toFixed(2)) + " hence 194Q is applicable for goods" + "<br>";    
                                      
                    $("#tdsVendorIdFinder").val(tmpVendor);                  
                     return vendorId;
@@ -1121,7 +1105,8 @@
         return retval;
     };
     async function validatetds1(vendorId, vendorName, settleAmt) {
-        return new Promise(function (fullfilled, reject) {
+        return new Promise
+(function (fullfilled, reject) {
             $.ajax({
                 type: "GET",
                 url: "@Url.Action("GetVendorDetails", "CoreAccounts")",
@@ -1154,120 +1139,58 @@
     async function updatevendorsName() {
         var p = $.when();
         var tdsres;
-        var vendors = [];
-        var vendorsfinal = [];
-
         //clear hidden field        
         $("#tdsAmount").val("");
         $("#tdsVendorIdFinder").val("");
         console.log("Trigger Start");
         $('#tbodyPaymentBU tr').each(function (idx, val) {
-            var isThatVendor = $(this).find('select[name$=".CategoryId"]').val()
-            console.log(isThatVendor);
-            if (isThatVendor == 4 || isThatVendor == 9) {
+            
+            var Payment = $(this).find('input[name$="PaymentAmount"]').val();
+            var tdsPayment = $(this).find('input[name$="TDSPayable"]').val();
+            var vendorName = $(this).find('input[name$="autoComplete"]').val();
+            var vendorIds = $(this).find('input[name$="UserId"]').val();
+            if (tdsPayment === '' || tdsPayment === null)
+                tdsPayment = 0;
+            if (Payment === '' || Payment === null)
+                Payment = 0;
+            var curTableTol = parseFloat(Payment) + parseFloat(tdsPayment);            
+            //console.log(curTableTol);
+            //console.log(idx);
+            //console.log(vendorIds);
+            //console.log(vendorName);
+            //console.log(tdsPayment);
+            //console.log(Payment);
 
-                var Payment = $(this).find('input[name$="PaymentAmount"]').val();
-                var tdsPayment = $(this).find('input[name$="TDSPayable"]').val();
-                var vendorName = $(this).find('input[name$="autoComplete"]').val();
-                var vendorIds = $(this).find('input[name$="UserId"]').val();
-                if (tdsPayment === '' || tdsPayment === null)
-                    tdsPayment = 0;
-                if (Payment === '' || Payment === null)
-                    Payment = 0;
-                var curTableTol = parseFloat(Payment) + parseFloat(tdsPayment);
-                //console.log(curTableTol);
-                //console.log(idx);
-                //console.log(vendorIds);
-                //console.log(vendorName);
-                //console.log(tdsPayment);
-                //console.log(Payment);
+            var jsdata = @Html.Raw(Json.Encode(Model.PaymentBreakDetail));
+            //var FinalTotval = $('#PaymentBUTotal').val()
+            console.log(jsdata);
+            vendorId = 0;
+            var editCal = 0; 
+            TDSPayable = 0;
+            
+            for (let i = 0; i < jsdata.length; i++) {
+                if (jsdata[i]["UserId"] == vendorIds) {
+                    editCal = jsdata[i]["PaymentAmount"];
+                    if (editCal === '' || editCal === null)
+                        editCal = 0;
+                    TDSPayable = jsdata[i]["TDSPayable"]
+                    console.log(TDSPayable);
+                    if (TDSPayable === '' || TDSPayable === null)
+                        TDSPayable = 0;
 
-                var jsdata = @Html.Raw(Json.Encode(Model.PaymentBreakDetail));
-                //var FinalTotval = $('#PaymentBUTotal').val()
-                console.log(jsdata);
-                vendorId = 0;
-                var editCal = 0;
-                TDSPayable = 0;
-                var panno = "";
-                for (let i = 0; i < jsdata.length; i++) {
-                    if (jsdata[i]["UserId"] == vendorIds) {
-                        editCal = jsdata[i]["PaymentAmount"];
-                        if (editCal === '' || editCal === null)
-                            editCal = 0;
-                        TDSPayable = jsdata[i]["TDSPayable"]
-                        console.log(TDSPayable);
-                        if (TDSPayable === '' || TDSPayable === null)
-                            TDSPayable = 0;
-
-                        editCal = parseFloat(TDSPayable) + parseFloat(editCal);
-                        console.log(editCal);
-                        break;
-                    }
-                };
-                panno = getpan(vendorIds, isThatVendor);
-                if (panno != '' && panno !=null) {
-                    vendors.push({ id: vendorIds, name: vendorName, oldValue: editCal, newValue: curTableTol, Panno: panno, tdsval: 0 }); 
+                    editCal = parseFloat(TDSPayable) + parseFloat(editCal);                
+                    console.log(editCal);
+                    break;
                 }
-                console.log(panno );
-                
+            };
 
-               // tdsres = validatetds(vendorIds, vendorName, editCal, curTableTol);
-                console.log(tdsres);
-            }
-        });
 
-        //Vendor Data Consolidated
-        for (let vendor in vendors) {
-            vendor_id = vendors[vendor].id;
-            vendor_name = ""; //vendors[vendor].name;
-            vendor_oldValue = 0;
-            vendor_newValue = 0;
-            vendor_pan = vendors[vendor].Panno;
-
-            for (let chkvendor in vendors) {
-                if (vendors[chkvendor].Panno == vendor_pan) {
-                    if (vendor_name == "")
-                        vendor_name = vendor_name.concat(vendors[chkvendor].name);
-                    else
-                        if (vendor_name.includes(vendors[chkvendor].name) == false) {
-                            vendor_name = vendor_name.concat(", ", vendors[chkvendor].name);
-                        }
-                    vendor_oldValue = vendor_oldValue + vendors[chkvendor].oldValue;
-                    vendor_newValue = vendor_newValue + vendors[chkvendor].newValue;
-                }
-            }
-
-            // console.log(vendor_id,vendor_oldValue,vendor_newValue);
-            let vendorexist = false;
-            for (let chkvendor in vendorsfinal) {
-                //   console.log(vendorsfinal[chkvendor].id,vendor_id);
-                if (vendorsfinal[chkvendor].Panno == vendor_pan) {
-                    vendorexist = true; break;
-                }
-            }
-
-            if (vendorexist == false) {
-                vendorsfinal.push({ id: vendor_id, name: vendor_name, oldValue: vendor_oldValue, newValue: vendor_newValue, Panno: vendor_pan, tdsval: 0 });
-            }
-        }
-        console.log(vendorsfinal);
-
-        for (let vendor in vendorsfinal) {
-            vendor_id = vendorsfinal[vendor].id;
-            vendor_name = vendorsfinal[vendor].name;
-            vendor_oldValue = vendorsfinal[vendor].oldValue;
-            vendor_newValue = vendorsfinal[vendor].newValue;
-            vendor_pan = vendorsfinal[vendor].Panno;
-
-            tdsres = validatetds(vendor_id, vendor_name, vendor_oldValue, vendor_newValue, vendor_pan);
+            tdsres = validatetds(vendorIds, vendorName, editCal, curTableTol);
             console.log(tdsres);
-        }
-
-
+        });
         var alertmsg = $("#tdsVendorIdFinder").val();
 
         if ($("#tdsVendorIdFinder").val() != '') {
-            alertmsg = alertmsg + " <br> hence 194Q is applicable for goods.";
             $('#FailedAlert').html(alertmsg);
             $('#Failed').modal('show');
         }
