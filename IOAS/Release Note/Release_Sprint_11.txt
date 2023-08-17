@@ -1,13 +1,68 @@
 Release Note:
 sprint_10
-bug:9532,9923(live),9407,9983
-Enhancement: 9841,9918,10024,9692,2735,10009(Live)
+bug:9532,9923(live),9407,9983,8289,9765
+Enhancement: 9841,9918,10024,9692,2735,10009(Live),9714
+
+--Praveen
+#9765 - Payment Payee duplication insertion in DB
+
+DB Changes:
+ALTER TABLE tblBOADraftDetail
+ADD UNIQUE (PaymentPayeeId);
+
+--Nandhini
+#9714 -- Salary Optimization
+code changes:
+staffpaymentservices.cs
+
+DB changes:
+CREATE TABLE [dbo].[tbl_sal_edit_opt](
+	[id] [int] IDENTITY(1,1) NOT NULL,
+	[EmployeeId] [nvarchar](30) NULL,
+	[CandidateName] [varchar](250) NULL,
+	[CommitmentNumber] [nvarchar](50) NULL,
+	[ProjectNumber] [nvarchar](100) NULL,
+	[DepartmentCode] [varchar](10) NULL,
+	[DepartmentName] [varchar](150) NULL,
+	[Basic] [decimal](18, 2) NULL,
+	[DesignationCode] [varchar](10) NULL,
+	[IsNotInMain] [bit] NULL,
+	[PayrollProDetId] [int] NULL,
+	[Verified_status] [bit] NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+
+storedprocedure : sp_sla_edit_opt
+
+
 
 --Yogesh
-#10009 Mail - Details to be add
+#10009 Mail - Details to be add(Live)
 code changes:
 RCTOfficeOrder.cshtml
 RCTSendOrderTemplate.cshtml
+
+Bug #8289
+Reports - Recruitment daily report STE/OSG.
+
+RCTReportMasterController.cs
+
+Db Changes:
+
+Create new views:
+  vw_RCTOSGLOPReport 
+  vw_RCTOSGMaternity 
+  vw_RCTOSGStoppayment 
+
+Alter views:
+  vw_RCTOSGNewJoineeReport
+  vw_RCTSTENewJoineeReport
+
 
 --Madhu
 #10024 - Unverify option for Payment batch
@@ -31,7 +86,8 @@ File Name:
 Coreaccountscontroller.cs 
 Coreaccountsservices.cs 
 Masterviewmodel.cs 
- 
+
+settlementBillpayment.cshtml
 Advancebillpayment.cshtml 
 Advancepartbillpayment.cshtml 
 Partbillpayment.cshtml 

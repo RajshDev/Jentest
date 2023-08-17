@@ -850,6 +850,7 @@ namespace IOAS.Controllers
                         headerModel.SaveStatus = "Success";
                         headerModel.PaymentHeadId = PaymentHeadId;
                         headerModel.OADetail = adhoc.GetAdhocOtherExpBreakUp(PaymentHeadId);
+                        int update_verify = adhoc.updateverify(payrollProDetId);
                     }
                     else if (result == -2)
                     {
