@@ -295,6 +295,15 @@ namespace IOAS.Models
 
     }
 
+    #region
+    public class BillReversal
+    {
+        public List<TransactionAndTaxesModel> Transaction { get; set; }
+        public string BillType { get; set; }
+        public string BillNumber { get; set; }
+    }
+    #endregion
+
     public class BillPODetailModel
     {
         public Nullable<Int32> BillPODetailId { get; set; }

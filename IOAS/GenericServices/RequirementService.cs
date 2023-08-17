@@ -430,7 +430,7 @@ namespace IOAS.GenericServices
                                     query.ModeOfRequest = Common.GetCodeControlAbbrId("ModeOfRequest", model.ModeOfRequest);
                                     query.RequestReceiveDate = model.RequestReceiveDate;
                                     query.ClosureDate = model.AnnouncementClosureDate;
-                                    query.FlowApprover = model.FlowApprover;                                   
+                                    query.FlowApprover = model.FlowApprover;
                                     if (model.AnnouncementCategory == "Project wise")
                                         query.ProjectID = model.ProjectId;
                                     query.PIName = model.PIId;
@@ -707,7 +707,7 @@ namespace IOAS.GenericServices
                                 create.DAComments = model.DAComments;
                                 create.ModeOfRequest = Common.GetCodeControlAbbrId("ModeOfRequest", model.ModeOfRequest);
                                 create.RequestReceiveDate = model.RequestReceiveDate;
-                                create.ClosureDate = model.AnnouncementClosureDate;                               
+                                create.ClosureDate = model.AnnouncementClosureDate;
                                 if (model.AnnouncementCategory == "Project wise")
                                     create.ProjectID = model.ProjectId;
                                 create.PIName = model.PIId;
@@ -984,7 +984,7 @@ namespace IOAS.GenericServices
                                                    b.AnnouncementCategory,
                                                    p.CodeValDetail,
                                                    b.RequestReceiveDate,
-                                                   b.ClosureDate, 
+                                                   b.ClosureDate,
                                                    b.CanceledReason,
                                                    FirstName = j == null ? "" : j.FirstName,
                                                    DepartmentName = j == null ? "" : j.DepartmentName
@@ -993,7 +993,7 @@ namespace IOAS.GenericServices
                     if (model.SearchINStatus == null)
                     {
                         list.TotalRecords = QryAnnouncementList.Where(x => x.Status != 13).Count();
-                        QryAnnouncementList = QryAnnouncementList.Where(x => x.Status != 13).Skip(skiprec).Take(pageSize).ToList();                        
+                        QryAnnouncementList = QryAnnouncementList.Where(x => x.Status != 13).Skip(skiprec).Take(pageSize).ToList();
                     }
                     else if (model.SearchINStatus != null)
                     {
@@ -1018,7 +1018,7 @@ namespace IOAS.GenericServices
                                 SNo = sno + i,
                                 AnnouncementID = QryAnnouncementList[i].AnnouncementID,
                                 RefNo = QryAnnouncementList[i].RefNo,
-                                CanceledReason=QryAnnouncementList[i].CanceledReason,
+                                CanceledReason = QryAnnouncementList[i].CanceledReason,
                                 AnnouncementTitle = QryAnnouncementList[i].AnnouncementTitle,
                                 AnnouncementRequestBy = Common.GetCodeControlDes(QryAnnouncementList[i].RequestedBy ?? 0, "Announcement Requestedby"),
                                 AnnouncementCategory = Common.GetCodeControlDes(QryAnnouncementList[i].AnnouncementCategory ?? 0, "Announcement Category"),
@@ -1030,7 +1030,7 @@ namespace IOAS.GenericServices
                                 StatusID = QryAnnouncementList[i].Status ?? 0,
                                 PIName = QryAnnouncementList[i].FirstName,
                                 PIDepartment = QryAnnouncementList[i].DepartmentName
-                        });
+                            });
                         }
                     }
 
@@ -2778,7 +2778,7 @@ namespace IOAS.GenericServices
             }
         }
 
-        public Tuple<bool, string> STEVWFInit(STEVerificationModel model,int id, int logged_in_user)
+        public Tuple<bool, string> STEVWFInit(STEVerificationModel model, int id, int logged_in_user)
         {
             try
             {
@@ -2832,7 +2832,7 @@ namespace IOAS.GenericServices
             }
         }
 
-        public Tuple<bool, string> STEOVWFInit(STEVerificationModel model,int id, int logged_in_user)
+        public Tuple<bool, string> STEOVWFInit(STEVerificationModel model, int id, int logged_in_user)
         {
             try
             {
@@ -2877,7 +2877,7 @@ namespace IOAS.GenericServices
             }
         }
 
-        public Tuple<bool, string> OSGOVWFInit(STEVerificationModel model,int id, int logged_in_user)
+        public Tuple<bool, string> OSGOVWFInit(STEVerificationModel model, int id, int logged_in_user)
         {
             try
             {
@@ -3549,7 +3549,7 @@ namespace IOAS.GenericServices
             }
         }
 
-        public Tuple<int,int, string> VerifySTE(STEVerificationModel model, int logged_in_userId, string button)
+        public Tuple<int, int, string> VerifySTE(STEVerificationModel model, int logged_in_userId, string button)
         {
             int res = 0, STEID = model.STEId ?? 0, OrderID = model.OrderId ?? 0;
             string EmployeeID = string.Empty, errMsg = string.Empty;
@@ -4007,7 +4007,7 @@ namespace IOAS.GenericServices
                                                 else
                                                 {
                                                     int STEEducationDetailID = item.EducationId ?? 0;
-                                                    var QryEducation = (from SM in context.tblRCTSTEEducationDetail where SM.STEID == STEID && SM.STEEducationDetailID == STEEducationDetailID  select SM).FirstOrDefault();
+                                                    var QryEducation = (from SM in context.tblRCTSTEEducationDetail where SM.STEID == STEID && SM.STEEducationDetailID == STEEducationDetailID select SM).FirstOrDefault();
                                                     if (QryEducation != null)
                                                     {
 
@@ -4083,7 +4083,7 @@ namespace IOAS.GenericServices
                                                 else
                                                 {
                                                     int ExperienceId = item.ExperienceId ?? 0;
-                                                    var QryExp = (from SM in context.tblRCTSTEExperienceDetail where SM.STEID == STEID && SM.STEExperienceDetailID == ExperienceId  select SM).FirstOrDefault();
+                                                    var QryExp = (from SM in context.tblRCTSTEExperienceDetail where SM.STEID == STEID && SM.STEExperienceDetailID == ExperienceId select SM).FirstOrDefault();
                                                     if (QryExp != null)
                                                     {
                                                         if (item.ExperienceTypeId != null)
@@ -6299,7 +6299,7 @@ namespace IOAS.GenericServices
             }
         }
 
-        public Tuple <int, int, string> UpdateVerificationOrder(STEVerificationModel model, int userId, string button)
+        public Tuple<int, int, string> UpdateVerificationOrder(STEVerificationModel model, int userId, string button)
         {
             int res = 0;
             string errMsg = string.Empty;
@@ -6315,7 +6315,7 @@ namespace IOAS.GenericServices
                             var query = (from o in context.tblOrder
                                          from od in context.tblOrderDetail
                                          from vw in context.vw_RCTOverAllApplicationEntry /*o.Status == "Awaiting Verification" || o.Status == "Awaiting Verification-Draft" &&*/
-                                         where  o.OrderId == model.OrderId
+                                         where o.OrderId == model.OrderId
                                          && o.OrderId == od.OrderId && o.OrderId == vw.OrderId
                                          select new { od, o, vw }).FirstOrDefault();
                             if (query != null)
@@ -6384,7 +6384,7 @@ namespace IOAS.GenericServices
                                 //transaction.Commit();
 
                                 PostOrderStatusLog(orderid, "Awaiting Verification", "Awaiting Verification-Draft", userId);
-                                res= 1;
+                                res = 1;
                                 return Tuple.Create(res, orderid, errMsg);
                             }
                         }
@@ -6402,7 +6402,7 @@ namespace IOAS.GenericServices
                                 var orderid = query.o.OrderId;
                                 if (TypeCode == "STE")
                                 {
-                                    var Data = STEOVWFInit(model,orderid, userId);
+                                    var Data = STEOVWFInit(model, orderid, userId);
                                     if (Data.Item1 == false)
                                     {
                                         return Tuple.Create(-1, orderid, Data.Item2);
@@ -6518,7 +6518,7 @@ namespace IOAS.GenericServices
                                 }
                                 else if (TypeCode == "OSG")
                                 {
-                                    var Data = OSGOVWFInit(model,orderid, userId);
+                                    var Data = OSGOVWFInit(model, orderid, userId);
                                     if (Data.Item1 == false)
                                     {
                                         return Tuple.Create(-1, orderid, Data.Item2);
@@ -6804,9 +6804,9 @@ namespace IOAS.GenericServices
                                                  where c.CommitmentNumber == QrySTE.A.CommitmentNo
                                                  select c).FirstOrDefault();
                                     var queryExp = (from E in context.tblRCTEmployeeExperience
-                                                  where E.ApplicationId == appid
-                                                  orderby E.EffectiveFrom descending
-                                                  select E).FirstOrDefault();
+                                                    where E.ApplicationId == appid
+                                                    orderby E.EffectiveFrom descending
+                                                    select E).FirstOrDefault();
                                     if (queryExp != null)
                                     {
                                         mastmodel.AppointmentStartDate = string.Format("{0:dd-MMMM-yyyy}", queryExp.EffectiveFrom);
@@ -6881,9 +6881,9 @@ namespace IOAS.GenericServices
                                     mastmodel.CommitmentAmmount = QryOSG.A.CommitmentAmount ?? 0;
                                     mastmodel.EmployeeCTC = getEmployeeCTC(QryOSG.A.OSGID);
                                     var queryExp = (from E in context.tblRCTEmployeeExperience
-                                                  where E.ApplicationId == appid
-                                                  orderby E.EffectiveFrom descending
-                                                  select E).FirstOrDefault();
+                                                    where E.ApplicationId == appid
+                                                    orderby E.EffectiveFrom descending
+                                                    select E).FirstOrDefault();
                                     if (queryExp != null)
                                     {
                                         mastmodel.AppointmentStartDate = string.Format("{0:dd-MMMM-yyyy}", queryExp.EffectiveFrom);
@@ -7388,7 +7388,7 @@ namespace IOAS.GenericServices
                                            where O.OrderId == Od.OrderId && O.Status == "Open"
                                            && O.isCommitmentReject != true && O.isGovAgencyFund != true
                                            && O.OrderId == model.OrderID
-                                           select new { O, Od }).FirstOrDefault();                            
+                                           select new { O, Od }).FirstOrDefault();
                             if (odQuery != null)
                             {
                                 OrderID = odQuery.O.OrderId;
@@ -7504,7 +7504,7 @@ namespace IOAS.GenericServices
                                                            where E.ApplicationId == model.ApplicationID
                                                            orderby E.EffectiveFrom descending
                                                            select E).FirstOrDefault();
-                                
+
                                 if (queryAmendmentOrder != null)
                                 {
                                     Order.AmendmentOrderID = queryAmendmentOrder.OrderId;
@@ -9392,7 +9392,7 @@ namespace IOAS.GenericServices
                                                            where E.ApplicationId == model.ApplicationID
                                                            orderby E.EffectiveFrom descending
                                                            select E).FirstOrDefault();
-                                
+
                                 if (queryAmendmentOrder != null)
                                 {
                                     Order.AmendmentOrderID = 0;
@@ -10002,7 +10002,7 @@ namespace IOAS.GenericServices
                                                            where E.ApplicationId == model.ApplicationID
                                                            orderby E.EffectiveFrom descending
                                                            select E).FirstOrDefault();
-                                
+
                                 if (queryAmendmentOrder != null)
                                 {
                                     Order.AmendmentOrderID = 0;
@@ -11100,10 +11100,11 @@ namespace IOAS.GenericServices
                                 if (odQuery != null)
                                 {
                                     OrderID = odQuery.o.OrderId;
+                                    var MaternityOrderID = OrderID;
                                     prestatus = odQuery.o.Status;
                                     var toDate = odQuery.o.ToDate;
                                     if (toDate.Value.AddDays(+2) <= model.RejoinDate)//If employee take extra leave system take loss of pay
-                                        ExecuteSPMaternity(null, model.RejoinDate);
+                                        ExecuteSPMaternity(null, model.RejoinDate, MaternityOrderID);
                                     string docname = "", docfileId = "", docpath = "";
                                     odQuery.od.isRejoined = model.RejoinDate != null ? true : false;
                                     odQuery.od.RejoinDate = model.RejoinDate;
@@ -11322,7 +11323,7 @@ namespace IOAS.GenericServices
                                     context.SaveChanges();
                                     res = 1;
                                 }
-                                else if(odPIInQuery != null)
+                                else if (odPIInQuery != null)
                                 {
                                     odPIInQuery.o.Status = "Initiated";
                                     prestatus = "PI Initiated";
@@ -13919,7 +13920,7 @@ namespace IOAS.GenericServices
             List<RCTPopupListModel> listmodel = new List<RCTPopupListModel>();
             List<AppointmenttypeExperienceModel> totexplistmodel = new List<AppointmenttypeExperienceModel>();
             try
-            {               
+            {
                 ExecuteSPEmployeeExperience();
                 using (var context = new IOASDBEntities())
                 {
@@ -13981,11 +13982,11 @@ namespace IOAS.GenericServices
                                          }).ToList();
 
                             listmodel.ForEach(x =>
-                            {                               
+                            {
                                 var data = DateDifference(x.EffectFromDate, x.EffectToDate);
                                 x.Years = data.Item1;
                                 x.Months = data.Item2;
-                                x.Days = data.Item3;                                                 
+                                x.Days = data.Item3;
                                 if (x.AppType == "OSG")
                                 {
                                     var emppfQuery = context.tblRCTSalaryCalcDetails.Where(s => s.ID == x.AppId && (x.OrderId == 0 || s.OrderId == x.OrderId)).Select(s => s.PFBasicWages).FirstOrDefault();
@@ -14011,7 +14012,7 @@ namespace IOAS.GenericServices
                                     var dateDiff = DateDifference(x.effectFrom, x.effectTo);
                                     x.Years = dateDiff.Item1;
                                     x.Months = dateDiff.Item2;
-                                    x.Days = dateDiff.Item3;                                    
+                                    x.Days = dateDiff.Item3;
                                 });
 
                                 var arrEffectFrom = listmodel.Select(x => x.EffectFromDate).ToArray();
@@ -15828,14 +15829,14 @@ namespace IOAS.GenericServices
                                                         orderquery.Status = "Awaiting Verification";
                                                     }
                                                 }
-                                                  //orderquery.Status = "Awaiting Committee Approval";
+                                                //orderquery.Status = "Awaiting Committee Approval";
                                             }
                                         }
                                         else
                                         {
                                             //if (commitrequest.AppointmentType == "Extension" && orderquery.Basic < basicpay && appointtyp != 4 && (isgovtagency == false || isgovtagency == null))
                                             //{
-                                               
+
                                             //    orderquery.Status = "Awaiting Committee Approval";
                                             //    if (typecode == "CON")
                                             //        orderquery.Status = "Awaiting Verification";
@@ -16143,7 +16144,7 @@ namespace IOAS.GenericServices
                                                         orderquery.Status = "Awaiting Verification";
                                                     }
                                                 }
-                                                    
+
                                             }
                                             else if (typecode == "CON")
                                             {
@@ -16173,7 +16174,7 @@ namespace IOAS.GenericServices
                                                         orderquery.Status = "Awaiting Verification";
                                                     }
                                                 }
-                                                  //orderquery.Status = "Awaiting Committee Approval";
+                                                //orderquery.Status = "Awaiting Committee Approval";
                                             }
                                         }
                                         else
@@ -16328,13 +16329,13 @@ namespace IOAS.GenericServices
                                         orderquery.UpdtUser = logged_in_userId;
                                         if (commitrequest.AppointmentType == "Change of Project")
                                         {
-                                             
+
                                             if (orderquery.OldDesignation != orderquery.NewDesignation)//|| orderquery.Basic > empdetls.A.Salary
                                             {
                                                 orderquery.Status = "Awaiting Committee Approval";
                                             }
-                                            else 
-                                            {                                               
+                                            else
+                                            {
                                                 orderquery.Status = "Awaiting Verification";
                                             }
                                             //orderquery.Status = "Awaiting Verification";
@@ -16412,7 +16413,7 @@ namespace IOAS.GenericServices
                                                     {
                                                         orderquery.Status = "Awaiting Verification";
                                                     }
-                                                  //orderquery.Status = "Awaiting Committee Approval";
+                                                    //orderquery.Status = "Awaiting Committee Approval";
                                                 }
                                             }
                                         }
@@ -19804,7 +19805,7 @@ namespace IOAS.GenericServices
             }
         }
 
-        public Tuple<bool, string> OSGVERWFInit(STEVerificationModel model,int id, int logged_in_user)
+        public Tuple<bool, string> OSGVERWFInit(STEVerificationModel model, int id, int logged_in_user)
         {
             try
             {
@@ -20403,8 +20404,8 @@ namespace IOAS.GenericServices
                         model.Appointmentstartdate = string.Format("{0:dd-MMMM-yyyy}", QryOSG.A.AppointmentStartdate);
                         model.AppointmentEndDate = string.Format("{0:dd-MMMM-yyyy}", QryOSG.A.AppointmentEnddate);
                         model.EmployeeWorkplace = QryOSG.A.EmployeeWorkplace;
-                        model.ActualDate= QryOSG.A.ActualDate;
-                        model.ActualDateView= string.Format("{0:dd-MMMM-yyyy}", QryOSG.A.ActualDate);
+                        model.ActualDate = QryOSG.A.ActualDate;
+                        model.ActualDateView = string.Format("{0:dd-MMMM-yyyy}", QryOSG.A.ActualDate);
                         model.Designation = QryOSG.Designation;
                         model.PayType = QryOSG.A.ConsolidatedPay == true ? "Consolidated Pay" : "Fellowship Pay";
                         model.VerificationRemarks = QryOSG.A.VerificationRemarks;
@@ -20628,7 +20629,7 @@ namespace IOAS.GenericServices
             }
         }
 
-        public Tuple<int,int, string> VerifyOSG(STEVerificationModel model, int logged_in_userId, string button)
+        public Tuple<int, int, string> VerifyOSG(STEVerificationModel model, int logged_in_userId, string button)
         {
             try
             {
@@ -20961,7 +20962,7 @@ namespace IOAS.GenericServices
                                 if (_qryOSG != null)
                                 {
                                     //_qryOSG.s.Status = "Sent for approval";
-                                    var Data = OSGVERWFInit(model,OSGID, logged_in_userId);
+                                    var Data = OSGVERWFInit(model, OSGID, logged_in_userId);
                                     if (Data.Item1 == false)
                                     {
                                         return Tuple.Create(-1, OSGID, Data.Item2);
@@ -22015,6 +22016,7 @@ namespace IOAS.GenericServices
                     var query = (from vw in context.vw_RCTOverAllApplicationEntry
                                  where vw.Status != "Cancel" && vw.ApplicationType == "New" && vw.IsActiveNow == true
                                  && vw.EmployeeNo == EmployeeNo
+                                 orderby vw.AppointmentEnddate descending
                                  select vw).FirstOrDefault();
                     if (query != null)
                     {
@@ -25019,7 +25021,25 @@ namespace IOAS.GenericServices
             }
         }
 
-
+        public static DateTime getOSGLastSalaryProcessdate()
+        {
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    var query = (from osg in context.tblRCTPayroll
+                                 where osg.AppointmentType == "OSG" && osg.Status == "Requested for salary processing"
+                                 select osg.EndDate).Max();
+                    if (query != null)
+                        return query ?? DateTime.Now;
+                }
+                return DateTime.Now;
+            }
+            catch (Exception ex)
+            {
+                return DateTime.Now;
+            }
+        }
 
         #region Stored Procedures
 
@@ -25062,13 +25082,13 @@ namespace IOAS.GenericServices
             }
         }
 
-        public static bool ExecuteSPMaternity(IOASDBEntities ctx = null, DateTime? RejoinDate = null)
+        public static bool ExecuteSPMaternity(IOASDBEntities ctx = null, DateTime? RejoinDate = null, int MaternityOrderID = 0)
         {
             try
             {
                 using (var context = ctx == null ? new IOASDBEntities() : ctx)
                 {
-                    context.Database.ExecuteSqlCommand("SPRCTMaternityLeave @p0", RejoinDate);
+                    context.Database.ExecuteSqlCommand("SPRCTMaternityLeave @p0,@p1", RejoinDate, MaternityOrderID);
                 }
                 return true;
             }
@@ -25681,9 +25701,9 @@ namespace IOAS.GenericServices
                                     //data.OTHPayDeductionId = othid;
                                     context.tblRCTOTHPaymentDeductionUploadDetail.Where(m => m.OTHPaymentDeductionUploadId == uploadId && m.EmployeeNumber == employeeNo).
                                         ToList().ForEach(m =>
-                                    {
-                                        m.OTHPayDeductionId = othid;
-                                    });
+                                        {
+                                            m.OTHPayDeductionId = othid;
+                                        });
                                     context.SaveChanges();
                                     if (detail.Count > 0)
                                     {
@@ -27993,7 +28013,7 @@ namespace IOAS.GenericServices
                         if (EffectiveFrom != null && EffectiveTo != null)
                         {
                             //decimal totaldays = Common.GetAvgDaysInAYear(EffectiveTo ?? DateTime.Now, EffectiveFrom ?? DateTime.Now);
-                            decimal totaldays = Common.GetAvgDaysInAYear(EffectiveFrom ?? DateTime.Now, EffectiveTo ?? DateTime.Now,true);
+                            decimal totaldays = Common.GetAvgDaysInAYear(EffectiveFrom ?? DateTime.Now, EffectiveTo ?? DateTime.Now, true);
                             var Differance = EffectiveFrom.Value.Subtract(EffectiveTo.Value).Days + 1;
                             //var Differance = EffectiveTo.Value.Subtract(EffectiveFrom.Value).Days + 1;
                             var totalYear = Differance / totaldays;
@@ -28932,7 +28952,7 @@ namespace IOAS.GenericServices
             {
                 using (var context = new IOASDBEntities())
                 {
-                    if (STEID > 0) 
+                    if (STEID > 0)
                     {
                         tblRCTSTEStatusLog log = new tblRCTSTEStatusLog();
                         log.STEID = STEID;
@@ -29091,7 +29111,7 @@ namespace IOAS.GenericServices
                     {
                         tblRCTOrderLog log = new tblRCTOrderLog();
                         log.OrderID = OrderId;
-                        log.PresentStatus = PreStatus; 
+                        log.PresentStatus = PreStatus;
                         log.NewStatus = NewStatus;
                         log.Crt_By = logged_in_userId;
                         log.Crt_TS = DateTime.Now;
@@ -29987,37 +30007,37 @@ namespace IOAS.GenericServices
                         EmployeeDateofBirth.to = EmployeeDateofBirth.to.Value.Date.AddDays(1).AddTicks(-2);
 
                     var prequery = (from vw in context.vw_RCTRelievedEmployees.AsNoTracking()
-                                     where (vw.Category == model.SearchInCategory)
-                                      //&& (vw.EmployeersID.Contains(model.SearchInEmployeeId) || string.IsNullOrEmpty(model.SearchInEmployeeId))
-                                      //&& (vw.CandidateName.Contains(model.SearchInName) || vw.Email.Contains(model.SearchInName) || vw.PostRecommended.Contains(model.SearchInName) || string.IsNullOrEmpty(model.SearchInName))
-                                      //&& (vw.ProjectNumber.Contains(model.SearchInProjectNumber) || string.IsNullOrEmpty(model.SearchInProjectNumber))
-                                      //&& (vw.Status.Contains(model.SearchInStatus) || string.IsNullOrEmpty(model.SearchInStatus))
-                                      //&& (vw.RelievingType.Contains(model.relievingType) || string.IsNullOrEmpty(model.relievingType))
-                                      //&& ((vw.DateofBirth >= EmployeeDateofBirth.@from && vw.DateofBirth <= EmployeeDateofBirth.to) || (EmployeeDateofBirth.@from == null || EmployeeDateofBirth.to == null))
-                                     orderby vw.OrderId descending
-                                     select new RelivingOrderList()
-                                     {
-                                         OrderId=vw.OrderId,
-                                         ApplicationId=vw.ApplicationId,
-                                         AppointmentType=vw.AppointmentType,
-                                         Category=vw.Category,
-                                         EmployeersID=vw.EmployeersID,
-                                         ApplicationNo=vw.ApplicationNo,
-                                         CandidateName=vw.CandidateName,
-                                         PIName=vw.PIName,
-                                         Status=vw.Status,
-                                         PostRecommended=vw.PostRecommended,
-                                         RelievingType=vw.RelievingType,
-                                         NOCDocSubmitted=vw.NOCDocSubmitted??false,
-                                         isGenarateRelieveOrder=vw.isGenarateRelieveOrder ?? false,
-                                         isGenarateFinalSettlement=vw.isGenarateFinalSettlement ?? false,
-                                         isGenarateServiceCertificate=vw.isGenarateServiceCertificate ?? false,
-                                         ProjectNumber=vw.ProjectNumber,
-                                         TypeofAppointment=vw.TypeofAppointment,
-                                         DateofBirth=vw.DateofBirth,
-                                         Email=vw.Email,
-                                         InitByPI_f=vw.InitByPI_f ?? false
-                                     });
+                                    where (vw.Category == model.SearchInCategory)
+                                    //&& (vw.EmployeersID.Contains(model.SearchInEmployeeId) || string.IsNullOrEmpty(model.SearchInEmployeeId))
+                                    //&& (vw.CandidateName.Contains(model.SearchInName) || vw.Email.Contains(model.SearchInName) || vw.PostRecommended.Contains(model.SearchInName) || string.IsNullOrEmpty(model.SearchInName))
+                                    //&& (vw.ProjectNumber.Contains(model.SearchInProjectNumber) || string.IsNullOrEmpty(model.SearchInProjectNumber))
+                                    //&& (vw.Status.Contains(model.SearchInStatus) || string.IsNullOrEmpty(model.SearchInStatus))
+                                    //&& (vw.RelievingType.Contains(model.relievingType) || string.IsNullOrEmpty(model.relievingType))
+                                    //&& ((vw.DateofBirth >= EmployeeDateofBirth.@from && vw.DateofBirth <= EmployeeDateofBirth.to) || (EmployeeDateofBirth.@from == null || EmployeeDateofBirth.to == null))
+                                    orderby vw.OrderId descending
+                                    select new RelivingOrderList()
+                                    {
+                                        OrderId = vw.OrderId,
+                                        ApplicationId = vw.ApplicationId,
+                                        AppointmentType = vw.AppointmentType,
+                                        Category = vw.Category,
+                                        EmployeersID = vw.EmployeersID,
+                                        ApplicationNo = vw.ApplicationNo,
+                                        CandidateName = vw.CandidateName,
+                                        PIName = vw.PIName,
+                                        Status = vw.Status,
+                                        PostRecommended = vw.PostRecommended,
+                                        RelievingType = vw.RelievingType,
+                                        NOCDocSubmitted = vw.NOCDocSubmitted ?? false,
+                                        isGenarateRelieveOrder = vw.isGenarateRelieveOrder ?? false,
+                                        isGenarateFinalSettlement = vw.isGenarateFinalSettlement ?? false,
+                                        isGenarateServiceCertificate = vw.isGenarateServiceCertificate ?? false,
+                                        ProjectNumber = vw.ProjectNumber,
+                                        TypeofAppointment = vw.TypeofAppointment,
+                                        DateofBirth = vw.DateofBirth,
+                                        Email = vw.Email,
+                                        InitByPI_f = vw.InitByPI_f ?? false
+                                    });
                     var predicate = PredicateBuilder.BaseAnd<RelivingOrderList>();
                     if (!string.IsNullOrEmpty(model.SearchInEmployeeId))
                         predicate = predicate.And(d => d.EmployeersID.Contains(model.SearchInEmployeeId) || d.EmployeersID.Contains(model.SearchInEmployeeId));
@@ -30029,10 +30049,10 @@ namespace IOAS.GenericServices
                         predicate = predicate.And(d => d.Status.Contains(model.SearchInStatus) || d.Status.Contains(model.SearchInStatus));
                     if (!string.IsNullOrEmpty(model.relievingType))
                         predicate = predicate.And(d => d.RelievingType.Contains(model.relievingType) || d.RelievingType.Contains(model.relievingType));
-                    if (EmployeeDateofBirth.@from!=null&& EmployeeDateofBirth.to!=null)
+                    if (EmployeeDateofBirth.@from != null && EmployeeDateofBirth.to != null)
                         predicate = predicate.And(d => d.DateofBirth >= EmployeeDateofBirth.@from && d.DateofBirth <= EmployeeDateofBirth.to);
-                    var querylist= prequery.Where(predicate).Skip(skiprec).Take(pageSize).ToList();
-                    list.TotalRecords=prequery.Where(predicate).Count();
+                    var querylist = prequery.Where(predicate).Skip(skiprec).Take(pageSize).ToList();
+                    list.TotalRecords = prequery.Where(predicate).Count();
                     if (querylist.Count > 0)
                     {
                         int sno = 0;
@@ -30042,7 +30062,7 @@ namespace IOAS.GenericServices
                             sno = (page - 1) * pageSize + 1;
                         for (int i = 0; i < querylist.Count; i++)
                         {
-                            int OrderID = querylist[i].OrderId??0;
+                            int OrderID = querylist[i].OrderId ?? 0;
                             string SendMailType = string.Empty;
                             string Status = querylist[i].Status;
                             if (Status == "Open" && querylist[i].Category == "CON" && context.tblRCTConsutantAppEmailLog.Where(x => x.OrderId == OrderID && x.TypeofMail == 12).ToList().Count == 0)
@@ -30059,7 +30079,7 @@ namespace IOAS.GenericServices
                             EmployeeList.Add(new OrderListModel()
                             {
                                 SNo = sno + i,
-                                OrderID = querylist[i].OrderId??0,
+                                OrderID = querylist[i].OrderId ?? 0,
                                 ID = querylist[i].ApplicationId ?? 0,
                                 TypeCodeID = querylist[i].AppointmentType ?? 0,
                                 CategoryName = querylist[i].Category,
@@ -30706,7 +30726,7 @@ namespace IOAS.GenericServices
                                            && (p.ProjectNumber.Contains(model.SearchInProjectNumber) || model.SearchInProjectNumber == null)
                                            && (vw.EmployeersID.Contains(model.SearchInEmployeeId) || model.SearchInEmployeeId == null)
                                            && (b.Status.Contains(model.SearchInStatus) || model.SearchInStatus == null)
-                                           && (vw.BasicPay==model.SearchBasicAmount || model.SearchBasicAmount == null)
+                                           && (vw.BasicPay == model.SearchBasicAmount || model.SearchBasicAmount == null)
                                            select new
                                            {
                                                vw.CandidateName,
