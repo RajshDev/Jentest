@@ -52,6 +52,26 @@ namespace IOAS
                 Response.ClearContent();
                 Response.RedirectToRoute("Default", new { controller = "Error", action = "AccessDenied" });
             }
-        }       
+        }
+        void Session_Start(object sender, EventArgs e)
+        {
+            if (HttpContext.Current.Request.IsAuthenticated)
+            {
+                string userName = "";
+                if (Session["UserName"] != null)
+                    userName = Session["UserName"].ToString();
+
+                //var logOff = AccountService.setLogoff(userName);
+
+                //old authentication, kill it
+                FormsAuthentication.SignOut();
+                //or use Response.Redirect to go to a different page
+                //FormsAuthentication.RedirectToLoginPage("Session=Expired");
+                Response.Redirect(("/Account/Login"));
+                HttpContext.Current.Response.End();
+            }
+
+        }
+
     }
 }
