@@ -21362,7 +21362,7 @@ namespace IOAS.Controllers
                     msg = "Please Upload Files in .xls or .xlsx format";
                 }
                 //if(path1!="")
-                //    System.IO.File.Delete(path1);
+                //System.IO.File.Delete(path1);
             }
             model.BOADraftId = boaDraftId;
             model.txDetail = list;
