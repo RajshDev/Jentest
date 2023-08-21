@@ -1400,7 +1400,7 @@ namespace IOAS.Controllers
                 var output = coreAccountService.GetVendorDetails(vendorId);
                 var tdslimit = coreAccountService.VendorPaymentTds(vendorId);
                 output.TDSLimit = (Decimal)tdslimit;
-                if (poNumberRequired)
+                if (poNumberRequired)   
                     output.PONumberList = Common.GetBillPONumberList(vendorId, null, transTypeCode);
                 if (TDSRequired)
                     output.TDSList = Common.GetVendorTDSList(vendorId);

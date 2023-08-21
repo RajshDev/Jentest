@@ -3676,11 +3676,11 @@ namespace IOAS.GenericServices
             int nxtStartYear = dtStart.Year + 1;
             int currEndYear = dtStart.Year;
             int currmonth = DateTime.Now.Month;
-            var ss =currmonth-1;
+            var ss = currmonth - 1;
             for (int i = currmonth; i <= 12; i++)
             {
                 var key = DateTimeFormatInfo.CurrentInfo.GetMonthName(i).Substring(0, 3) + " - " + currEndYear.ToString();
-                monthYear.Add(key);   
+                monthYear.Add(key);
             }
             for (int i = 1; i <= ss; i++)
             {
