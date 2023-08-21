@@ -3675,13 +3675,14 @@ namespace IOAS.GenericServices
             DateTime dtStart = SalFinStartDate(); // _FinSalStart; is changed by riyaz
             int nxtStartYear = dtStart.Year + 1;
             int currEndYear = dtStart.Year;
-
-            for (int i = 3; i <= 12; i++)
+            int currmonth = DateTime.Now.Month;
+            var ss = currmonth - 1;
+            for (int i = currmonth; i <= 12; i++)
             {
                 var key = DateTimeFormatInfo.CurrentInfo.GetMonthName(i).Substring(0, 3) + " - " + currEndYear.ToString();
                 monthYear.Add(key);
             }
-            for (int i = 1; i <= 2; i++)
+            for (int i = 1; i <= ss; i++)
             {
                 var key = DateTimeFormatInfo.CurrentInfo.GetMonthName(i).Substring(0, 3) + " - " + nxtStartYear.ToString();
                 monthYear.Add(key);
