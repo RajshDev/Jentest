@@ -7292,31 +7292,7 @@ namespace IOAS.Models
         public string date { get; set; }
         public string msg { get; set; }
     }
-    public class ProjectOverallReportModel
-    {
-        public int ProjectId { get; set; }
-        public string ProjectNumber { get; set; }
-        public string PIName { get; set; }
-        public Nullable<System.DateTime> StartDate { get; set; }
-        public Nullable<System.DateTime> CloseDate { get; set; }
-        public string FY { get; set; }
-        public Nullable<decimal> SanctionValue { get; set; }
-        public string ProjectType { get; set; }
-        public string ProjectStatus { get; set; }
-        public Nullable<decimal> Receipt { get; set; }
-        public Nullable<decimal> InterestEarned { get; set; }
-        public Nullable<decimal> Totalreceipt { get; set; }
-        public Nullable<decimal> TotalExpenditure { get; set; }
-        public Nullable<decimal> ClosingBalance { get; set; }
-        public Nullable<decimal> Pendingcommitment { get; set; }
-        public Nullable<decimal> Balanceaftercommitment { get; set; }
-        public Nullable<decimal> PendingtNegativebalance { get; set; }
-        public string Projectclassification { get; set; }
-        public string AgencyCode { get; set; }
-        public string SchemeCode { get; set; }
-        public Nullable<int> ProjectSubType { get; set; }
-
-    }
+   
     #region CommonProjectSearchModel
     public class CommonProjectSearchModel
     {
