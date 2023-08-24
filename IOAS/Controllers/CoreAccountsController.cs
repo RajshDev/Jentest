@@ -21382,8 +21382,7 @@ namespace IOAS.Controllers
                                     bool validdtstring = false;
                                     bool validamtstring = false;
                                     Nullable<DateTime> dt = null;
-
-                                    //Check Date is Valid
+                                                                        //Check Date is Valid
                                     validdate = ws1.Cell(iRow, 5).TryGetValue<DateTime>(out tmpdate);
                                     validdtstring = (ws1.Cell(iRow, 5).TryGetValue<string>(out tmpvalue));
                                     if (validdate)
@@ -21433,8 +21432,6 @@ namespace IOAS.Controllers
 
                                     decimal amt = 0;
                                     validamt = decimal.TryParse(tmpvalue.Trim(), out amt);
-
-
 
 
                                     //validdate = ws1.Cell(iRow, 5).TryGetValue<DateTime>(out tmpdate);
