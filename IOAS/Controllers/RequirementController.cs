@@ -727,7 +727,7 @@ namespace IOAS.Controllers
                         model.ChairpersonNameId = datacharperson.Item1;
                         model.ChairpersonName = datacharperson.Item2;
                     }
-                   ViewBag.processGuideLineId = Common.GetProcessGuidelineId(191, "", 0);
+                    ViewBag.processGuideLineId = Common.GetProcessGuidelineId(191, "", 0);
                 }
                 model.isDraftbtn = false;
                 return View(model);
@@ -9637,7 +9637,7 @@ namespace IOAS.Controllers
             {
                 FinOp fac = new FinOp(System.DateTime.Now);
                 Frmdate = RequirementService.getOSGLastSalaryProcessdate().AddDays(1);
-                
+
                 //  Frmdate = fac.GetMonthFirstDate(MonthAndYear);
                 todate = fac.GetMonthLastDate(MonthAndYear);
             }

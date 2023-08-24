@@ -7292,6 +7292,7 @@ namespace IOAS.Models
         public string date { get; set; }
         public string msg { get; set; }
     }
+   
     #region CommonProjectSearchModel
     public class CommonProjectSearchModel
     {
