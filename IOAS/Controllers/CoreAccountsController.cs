@@ -1393,6 +1393,47 @@ namespace IOAS.Controllers
         }
 
         [HttpGet]
+        public ActionResult BillReversal()
+        {
+            try
+            {
+                List<TransactionAndTaxesModel> model = new List<TransactionAndTaxesModel>();
+                ViewBag.TransType = Common.GetBillTransactionType();
+
+                return View();
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+                    (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                throw new Exception(ex.Message);
+            }
+        }
+
+        [HttpPost]
+        public ActionResult BillReversal(string transaction, string Billnumber)
+        {
+            try
+            {
+                ViewBag.TransType = Common.GetBillTransactionType();
+
+                string msg = coreAccountService.BillReverse(transaction, Billnumber);
+                if (msg.Contains("Opened Successfully"))
+                    @TempData["succMsg"] = msg;
+                else
+                    @TempData["errMsg"] = msg;
+
+                return View();
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+                    (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                throw new Exception(ex.Message);
+            }
+        }
+
+        [HttpGet]
         public JsonResult GetVendorDetails(int vendorId, bool poNumberRequired = false, string transTypeCode = "", bool TDSRequired = false)
         {
             try
