@@ -88,8 +88,8 @@
                                                 <div class="form-group custom-form-group">
                                                     <label class="required">PI</label>
                                                     @*@Html.DropDownListFor(m => m.ProjectId, new SelectList(ViewBag.ProjectList, "id", "name"), new { @class = "form-control selectpicker", @disabled = "disabled" })
-                    @Html.HiddenFor(m => m.ProjectId)
-                    @Html.ValidationMessageFor(m => m.ProjectId)*@
+                                                        @Html.HiddenFor(m => m.ProjectId)
+                                                        @Html.ValidationMessageFor(m => m.ProjectId)*@
                                                     @Html.TextBoxFor(m => m.PIName, new { @class = "form-control", @disabled = "disabled" })
                                                     @Html.TextBoxFor(m => m.PI, new { @class = "form-control dis-none" })
                                                     @Html.ValidationMessageFor(m => m.PI)
@@ -100,9 +100,9 @@
                                                     <label class="required">Country</label>
                                                     @Html.DropDownListFor(m => m.CountryId, new SelectList(ViewBag.CountryList, "CountryID", "CountryName"), new { @multiple = "multiple", @disabled = "disabled", @class = "form-control selectpicker", @title = "Select any" })
                                                     @for (int i = 0; i < Model.CountryId.Length; i++)
-                {
-                                    <input type="hidden" name="CountryId" value="@Model.CountryId[i]" />
-}
+                                                    {
+                                                        <input type="hidden" name="CountryId" value="@Model.CountryId[i]" />
+                                                    }
                                                     @Html.ValidationMessageFor(m => m.CountryId)
                                                 </div>
                                             </div>
@@ -234,14 +234,14 @@
                                                                 @Html.ValidationMessageFor(m => m.CategoryId)
                                                             </td>
                                                             @*<td class="tdDDLTraveler">
-                                                                @Html.DropDownListFor(m => m.TravellerId, new SelectList(ViewBag.TravellerList, "id", "name"), "Select any", new { @class = "form-control", @readonly = "readonly" })
-                                                               
-                                                                @Html.ValidationMessageFor(m => m.TravellerId)
-                                                            </td>
-                                                            <td class="tdTxtTraveler dis-none">
-                                                                @Html.TextBoxFor(m => m.TravellerName, new { @class = "form-control", @readonly = "readonly" })
-                                                                @Html.ValidationMessageFor(m => m.TravellerName)
-                                                            </td>*@
+                                                                    @Html.DropDownListFor(m => m.TravellerId, new SelectList(ViewBag.TravellerList, "id", "name"), "Select any", new { @class = "form-control", @readonly = "readonly" })
+
+                                                                    @Html.ValidationMessageFor(m => m.TravellerId)
+                                                                </td>
+                                                                <td class="tdTxtTraveler dis-none">
+                                                                    @Html.TextBoxFor(m => m.TravellerName, new { @class = "form-control", @readonly = "readonly" })
+                                                                    @Html.ValidationMessageFor(m => m.TravellerName)
+                                                                </td>*@
                                                             <td class="tdDDLTraveler">
                                                                 <input id="autoComplete" name="autoComplete" class="form-control" readonly />
                                                                 @Html.ValidationMessage("autoComplete")
@@ -271,7 +271,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         @*<div class="row">
                                 <div class="col-md-12 text-center mb-md mt-md">
                                     <input type="submit" class="btn btn-primary mr10" value="Submit" name="Button" id="btnSubmit" />
@@ -1078,7 +1078,7 @@
         return msg;
     }
 
-    
+
     //Fuction Created for vendor alert popup by Rajesh
 
     //TDSLimit is previous amount
@@ -1086,11 +1086,11 @@
     //editCal is last payment amount
     //editCal return values from Model
     //curTableTol is the current value you edit
-    //curTableTol return from UI Screen 
-    //vendorId is vendor id  
+    //curTableTol return from UI Screen
+    //vendorId is vendor id
     //vendorId return from UI Screen
-    //vendorname is vendor name 
-    //vendorname we see only the vendorid behind that vendor name will be there we fetch data from screeen  
+    //vendorname is vendor name
+    //vendorname we see only the vendorid behind that vendor name will be there we fetch data from screeen
      function getpan(vendorId, CategoryId) {
          retval = true;
         $.ajax({
@@ -1099,10 +1099,10 @@
             url: "@Url.Action("GetPanNumberOnly", "CoreAccounts")",
             data: { "vendorId": vendorId, "CategoryId": CategoryId},
             dataType: "json",
-            success: function (result) { 
+            success: function (result) {
                 retval = result;
                 return result;
-                }              
+                }
             });
         return retval;
     };
@@ -1116,8 +1116,8 @@
             url: "@Url.Action("GetVendorDetails", "CoreAccounts")",
             data: { "vendorId": vendorId, "poNumberRequired": true, "transTypeCode": 'ADV', "TDSRequired": true },
             dataType: "json",
-            success: function (result) { 
-                               
+            success: function (result) {
+
                 var holeAmt = (parseFloat(result.TDSLimit) - parseFloat(editCal)) + parseFloat(curTableTol)
                 //if (parseFloat((result.TDSLimit - TotalInvoice) + CurrentValue)
                 if (holeAmt>5000000){
@@ -1125,11 +1125,11 @@
                     //store the hole value and set popup message
                     console.log('start1');
                     console.log(holeAmt);
-                    // hide value                   
+                    // hide value
                     tmpVendor = $("#tdsVendorIdFinder").val();
-                    tmpVendor = tmpVendor + vendorName + "(" +vendorPan +") Total payment is Rs." + (parseFloat(holeAmt).toFixed(2)) + "<br>";    
-                                     
-                   $("#tdsVendorIdFinder").val(tmpVendor);                  
+                    tmpVendor = tmpVendor + vendorName + "(" +vendorPan +") Total payment is Rs." + (parseFloat(holeAmt).toFixed(2)) + "<br>";
+
+                   $("#tdsVendorIdFinder").val(tmpVendor);
                     return vendorId;
                 }
                 else {
@@ -1176,7 +1176,7 @@
         var vendors = [];
         var vendorsfinal = [];
 
-        //clear hidden field        
+        //clear hidden field
         $("#tdsAmount").val("");
         $("#tdsVendorIdFinder").val("");
         console.log("Trigger Start");
@@ -1225,10 +1225,10 @@
                 };
                 panno = getpan(vendorIds, isThatVendor);
                 if (panno != '' && panno !=null) {
-                    vendors.push({ id: vendorIds, name: vendorName, oldValue: editCal, newValue: curTableTol, Panno: panno, tdsval: 0 }); 
+                    vendors.push({ id: vendorIds, name: vendorName, oldValue: editCal, newValue: curTableTol, Panno: panno, tdsval: 0 });
                 }
                 console.log(panno );
-                
+
 
                // tdsres = validatetds(vendorIds, vendorName, editCal, curTableTol);
                 console.log(tdsres);

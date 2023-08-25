@@ -6064,6 +6064,15 @@ namespace IOAS.Models
         public int TotalRecords { get; set; }
         public List<ManDayModel> Mandayslist { get; set; }
     }
+
+    #region
+    public class BillReversal
+    {
+        public List<TransactionAndTaxesModel> Transaction { get; set; }
+        public string BillType { get; set; }
+        public string BillNumber { get; set; }
+    }
+    #endregion
     public class ManDayModel : CommonPaymentModel
     {
         public int SlNo { get; set; }
@@ -7292,6 +7301,7 @@ namespace IOAS.Models
         public string date { get; set; }
         public string msg { get; set; }
     }
+   
     #region CommonProjectSearchModel
     public class CommonProjectSearchModel
     {
