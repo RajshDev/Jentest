@@ -5712,6 +5712,7 @@ namespace IOAS.Models
     public class ProjectOverallReportModel
     {
         public int ProjectId { get; set; }
+        public int Piid { get; set; }
         public string ProjectNumber { get; set; }
         public string PIName { get; set; }
         public Nullable<System.DateTime> StartDate { get; set; }
@@ -5732,6 +5733,9 @@ namespace IOAS.Models
         public string AgencyCode { get; set; }
         public string SchemeCode { get; set; }
         public Nullable<int> ProjectSubType { get; set; }
+       
+
+         
 
     }
     public class PrevNegativeBalanceModel

@@ -969,19 +969,7 @@
         return msg;
     }
 
-    //Fuction Created for vendor alert popup by Rajesh
-
-    //TDSLimit is previous amount
-    //TDSLimit return values from database stored procedure
-    //editCal is last payment amount
-    //editCal return values from Model
-    //curTableTol is the current value you edit
-    //curTableTol return from UI Screen
-    //vendorId is vendor id
-    //vendorId return from UI Screen
-    //vendorname is vendor name
-    //vendorname we see only the vendorid behind that vendor name will be there we fetch data from screeen
-//Fuction Created for vendor alert popup by Rajesh
+    //Fuction Created for vendor alert popup by Rajesh VS11764
 
     //TDSLimit is previous amount
     //TDSLimit return values from database stored procedure
@@ -1010,13 +998,13 @@
     };
 
     //vendor_id, vendor_name, vendor_oldValue, vendor_newValue, vendor_pan
-    function validatetds(vendorId, vendorName, editCal, curTableTol,vendorPan) {
+    function validatetds(vendorId, vendorName, editCal, curTableTol, vendorPan, category) {
         retval = true;
         $.ajax({
             type: "GET",
             async: false,
             url: "@Url.Action("GetVendorDetails", "CoreAccounts")",
-            data: { "vendorId": vendorId, "poNumberRequired": true, "transTypeCode": 'ADV', "TDSRequired": true },
+            data: { "vendorId": vendorId, "poNumberRequired": true, "transTypeCode": 'ADV', "TDSRequired": true ,"category": category},
             dataType: "json",
             success: function (result) {
 
@@ -1091,6 +1079,7 @@
                 var tdsPayment = $(this).find('input[name$="TDSPayable"]').val();
                 var vendorName = $(this).find('input[name$="autoComplete"]').val();
                 var vendorIds = $(this).find('input[name$="UserId"]').val();
+                var VendorCategory = $(this).find('select[name$=".CategoryId"]').val();
                 if (tdsPayment === '' || tdsPayment === null)
                     tdsPayment = 0;
                 if (Payment === '' || Payment === null)
@@ -1127,7 +1116,7 @@
                 };
                 panno = getpan(vendorIds, isThatVendor);
                 if (panno != '' && panno !=null) {
-                    vendors.push({ id: vendorIds, name: vendorName, oldValue: editCal, newValue: curTableTol, Panno: panno, tdsval: 0 });
+                    vendors.push({ id: vendorIds, name: vendorName, oldValue: editCal, newValue: curTableTol, Panno: panno, tdsval: 0, category: VendorCategory });
                 }
                 console.log(panno );
 
@@ -1144,7 +1133,7 @@
             vendor_oldValue = 0;
             vendor_newValue = 0;
             vendor_pan = vendors[vendor].Panno;
-
+            vendor_category= vendors[vendor].category;
             for (let chkvendor in vendors) {
                 if (vendors[chkvendor].Panno == vendor_pan) {
                     if (vendor_name == "")
@@ -1168,7 +1157,7 @@
             }
 
             if (vendorexist == false) {
-                vendorsfinal.push({ id: vendor_id, name: vendor_name, oldValue: vendor_oldValue, newValue: vendor_newValue, Panno: vendor_pan, tdsval: 0 });
+                vendorsfinal.push({ id: vendor_id, name: vendor_name, oldValue: vendor_oldValue, newValue: vendor_newValue, Panno: vendor_pan, tdsval: 0, category: vendor_category });
             }
         }
         console.log(vendorsfinal);
@@ -1179,8 +1168,8 @@
             vendor_oldValue = vendorsfinal[vendor].oldValue;
             vendor_newValue = vendorsfinal[vendor].newValue;
             vendor_pan = vendorsfinal[vendor].Panno;
-
-            tdsres = validatetds(vendor_id, vendor_name, vendor_oldValue, vendor_newValue, vendor_pan);
+            vendor_category = vendorsfinal[vendor].category;
+            tdsres = validatetds(vendor_id, vendor_name, vendor_oldValue, vendor_newValue, vendor_pan, vendor_category);
             console.log(tdsres);
         }
 

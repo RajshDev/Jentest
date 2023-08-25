@@ -1434,14 +1434,14 @@ namespace IOAS.Controllers
         }
 
         [HttpGet]
-        public JsonResult GetVendorDetails(int vendorId, bool poNumberRequired = false, string transTypeCode = "", bool TDSRequired = false)
+        public JsonResult GetVendorDetails(int vendorId, bool poNumberRequired = false, string transTypeCode = "", bool TDSRequired = false, int category = 0)
         {
             try
             {
                 var output = coreAccountService.GetVendorDetails(vendorId);
-                var tdslimit = coreAccountService.VendorPaymentTds(vendorId);
+                var tdslimit = coreAccountService.VendorPaymentTds(vendorId, category);
                 output.TDSLimit = (Decimal)tdslimit;
-                if (poNumberRequired)   
+                if (poNumberRequired)
                     output.PONumberList = Common.GetBillPONumberList(vendorId, null, transTypeCode);
                 if (TDSRequired)
                     output.TDSList = Common.GetVendorTDSList(vendorId);
@@ -10538,7 +10538,7 @@ namespace IOAS.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
+      
         public ActionResult PrevNegativeBalance(int ProjectId, int Piid)
         {
             NegativeBalanceModel model = new NegativeBalanceModel();
@@ -20583,11 +20583,11 @@ namespace IOAS.Controllers
             }
         }
         [HttpGet]
-        public JsonResult VendorPaymentTds(int VendorId)
+        public JsonResult VendorPaymentTds(int VendorId, int category)
         {
             try
             {
-                double VendorPayment = coreAccountService.VendorPaymentTds(VendorId);
+                double VendorPayment = coreAccountService.VendorPaymentTds(VendorId, category);
                 return Json(new { VendorPayment, msg = "" }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
