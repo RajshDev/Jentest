@@ -10775,7 +10775,7 @@ namespace IOAS.Controllers
             try
             {
                 GeneralVoucherModel model = new GeneralVoucherModel();
-
+                ViewBag.SourceList = Common.GetSourceList();
                 model = coreAccountService.GetGeneralVoucherDetailsView(id);
                 ViewBag.paymentTDSAmount = model.PaymentTDSAmount.ToString();
                 model.PFInit = Pfinit;
