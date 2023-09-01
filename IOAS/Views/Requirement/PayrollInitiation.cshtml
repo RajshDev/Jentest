@@ -57,7 +57,10 @@
                                     <div class="form-group custom-form-group">
                                         <label class="required">To Date</label>
                                         @Html.TextBoxFor(m => m.ToInitDate, new { @class = "form-control", @readonly = "readonly" })
-                                        <div>@Html.ValidationMessageFor(m => m.ToInitDate)</div>
+                                        <div>
+                                            @Html.ValidationMessageFor(m => m.ToInitDate)
+                                            @Html.Hidden("RoleId", Model.RoleId)
+                                          </div>
                                     </div>
                                 </div>
                             </div>
@@ -116,14 +119,14 @@
         var month = $('#SalaryMonth').val();
         var typeid = $('#SalaryType').val();
         if(roleid == 107 || roleid == 108 || roleid == 109) {
-            typeid = 1
+            typeid = 1;
         }
         if (month != "" && typeid != "") {
-            $.getJSON("@Url.Action("LoadPayRollInitaDate", "Requirement")", { MonthAndYear: month, SalaryType: typeid },
+            $.getJSON("@Url.Action("LoadPayRollInitaDate", "Requirement")", { MonthAndYear: month, SalaryType: typeid , RoleId: roleid},
              function (result) {
                  if (result.FrmSalDate != null && result.toSalDate != null) {
                      if (typeid == 1) {
-                         var getdatefrm = moment(result.FrmSalDate).add(-1, 'month').toDate();
+                         var getdatefrm = moment(result.FrmSalDate).toDate();
                          //var frmdat = moment(result.FrmSalDate).toDate();
                          var todat = moment(result.toSalDate).toDate();
                          $('#FromInitDate').datepicker({
@@ -141,7 +144,7 @@
                          }).datepicker("option", "minDate", getdatefrm).datepicker("option", "maxDate", todat);
                      }
                      else {
-                         var getdatefrm = moment(result.FrmSalDate).add(-1, 'month').toDate();
+                         var getdatefrm = moment(result.FrmSalDate).toDate();
                          var todat = moment(result.toSalDate).toDate();
 
                          $('#FromInitDate').datepicker({
