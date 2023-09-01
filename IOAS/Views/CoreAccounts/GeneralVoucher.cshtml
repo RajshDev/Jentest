@@ -34,8 +34,9 @@
                 <div class="ds-tt" id="divRefNum">
                     <span class="required">Ref Number (WF / Tapal)</span>
                     @*@Html.DropDownListFor(m => m.SourceReferenceNumber, new SelectList(ViewBag.SourceRefNumberList, "id", "name"), "Select any",
-        new { @class = "form-control" })*@
+                        new { @class = "form-control" })*@
                     @Html.TextBoxFor(m => m.ReferenceNumber, new { @class = "form-control" })
+                    <a href="~/Views/CoreAccounts/GeneralVoucher.cshtml">~/Views/CoreAccounts/GeneralVoucher.cshtml</a>
                     @Html.TextBoxFor(m => m.SourceReferenceNumber, new { @class = "form-control dis-none" })
                     @Html.ValidationMessageFor(m => m.SourceReferenceNumber)
                     @Html.Hidden("SourceTapalOrWorkflow", "True")
@@ -51,6 +52,7 @@
                     @Html.Hidden("varIGSTInput")
                     @Html.Hidden("tdsAmount")
                     @Html.Hidden("tdsVendorIdFinder")
+
                 </div>
                 <div class="dis-none ds-tt" id="divRefEmailDate">
                     <span class="required">Email Date</span>
@@ -328,7 +330,7 @@
         CalculatePaymentValue();
         CalculatePaymentBUTotal();
         CalculatePayTxTotal();
-        updatevendorsName();       
+        updatevendorsName();
         var PaymentBank = $('#PaymentBank :selected').val();
 
         if (PaymentBank != '')
@@ -602,42 +604,58 @@
         // Otherwise, display the correct tab:
         showTab(currentTab);
     }
-    //Fuction Created for vendor alert popup by Rajesh
+
+    //Fuction Created for vendor alert popup by Rajesh VS11764
 
     //TDSLimit is previous amount
     //TDSLimit return values from database stored procedure
     //editCal is last payment amount
     //editCal return values from Model
     //curTableTol is the current value you edit
-    //curTableTol return from UI Screen 
-    //vendorId is vendor id  
+    //curTableTol return from UI Screen
+    //vendorId is vendor id
     //vendorId return from UI Screen
-    //vendorname is vendor name 
-    //vendorname we see only the vendorid behind that vendor name will be there we fetch data from screeen   
+    //vendorname is vendor name
+    //vendorname we see only the vendorid behind that vendor name will be there we fetch data from screeen
+     function getpan(vendorId, CategoryId) {
+         retval = true;
+        $.ajax({
+            type: "GET",
+            async: false,
+            url: "@Url.Action("GetPanNumberOnly", "CoreAccounts")",
+            data: { "vendorId": vendorId, "CategoryId": CategoryId},
+            dataType: "json",
+            success: function (result) {
+                retval = result;
+                return result;
+                }
+            });
+        return retval;
+    };
 
-    function validatetds(vendorId, vendorName, editCal, curTableTol) {
+    //vendor_id, vendor_name, vendor_oldValue, vendor_newValue, vendor_pan
+    function validatetds(vendorId, vendorName, editCal, curTableTol, vendorPan, category) {
         retval = true;
         $.ajax({
             type: "GET",
             async: false,
             url: "@Url.Action("GetVendorDetails", "CoreAccounts")",
-            data: { "vendorId": vendorId, "poNumberRequired": true, "transTypeCode": 'ADV', "TDSRequired": true },
+            data: { "vendorId": vendorId, "poNumberRequired": true, "transTypeCode": 'ADV', "TDSRequired": true ,"category": category},
             dataType: "json",
-            success: function (result) { 
-              
+            success: function (result) {
+
                 var holeAmt = (parseFloat(result.TDSLimit) - parseFloat(editCal)) + parseFloat(curTableTol)
                 //if (parseFloat((result.TDSLimit - TotalInvoice) + CurrentValue)
-                console.log(curTableTol);
                 if (holeAmt>5000000){
 
                     //store the hole value and set popup message
                     console.log('start1');
                     console.log(holeAmt);
-                    // hide value                   
+                    // hide value
                     tmpVendor = $("#tdsVendorIdFinder").val();
-                    tmpVendor = tmpVendor + vendorName + " Total payment is Rs." + (parseFloat(holeAmt).toFixed(2)) + " hence 194Q is applicable for goods" + "<br>";    
-                                     
-                   $("#tdsVendorIdFinder").val(tmpVendor);                  
+                    tmpVendor = tmpVendor + vendorName + "(" +vendorPan +") Total payment is Rs." + (parseFloat(holeAmt).toFixed(2)) + "<br>";
+
+                   $("#tdsVendorIdFinder").val(tmpVendor);
                     return vendorId;
                 }
                 else {
@@ -648,8 +666,7 @@
         return retval;
     };
     async function validatetds1(vendorId, vendorName, settleAmt) {
-        return new Promise
-(function (fullfilled, reject) {
+        return new Promise(function (fullfilled, reject) {
             $.ajax({
                 type: "GET",
                 url: "@Url.Action("GetVendorDetails", "CoreAccounts")",
@@ -682,7 +699,10 @@
     async function updatevendorsName() {
         var p = $.when();
         var tdsres;
-        //clear hidden field        
+        var vendors = [];
+        var vendorsfinal = [];
+
+        //clear hidden field
         $("#tdsAmount").val("");
         $("#tdsVendorIdFinder").val("");
         console.log("Trigger Start");
@@ -695,6 +715,7 @@
                 var tdsPayment = $(this).find('input[name$="TDSPayable"]').val();
                 var vendorName = $(this).find('input[name$="autoComplete"]').val();
                 var vendorIds = $(this).find('input[name$="UserId"]').val();
+                var VendorCategory = $(this).find('select[name$=".CategoryId"]').val();
                 if (tdsPayment === '' || tdsPayment === null)
                     tdsPayment = 0;
                 if (Payment === '' || Payment === null)
@@ -713,7 +734,7 @@
                 vendorId = 0;
                 var editCal = 0;
                 TDSPayable = 0;
-
+                var panno = "";
                 for (let i = 0; i < jsdata.length; i++) {
                     if (jsdata[i]["UserId"] == vendorIds) {
                         editCal = jsdata[i]["PaymentAmount"];
@@ -729,15 +750,70 @@
                         break;
                     }
                 };
+                panno = getpan(vendorIds, isThatVendor);
+                if (panno != '' && panno !=null) {
+                    vendors.push({ id: vendorIds, name: vendorName, oldValue: editCal, newValue: curTableTol, Panno: panno, tdsval: 0, category: VendorCategory });
+                }
+                console.log(panno );
 
 
-                tdsres = validatetds(vendorIds, vendorName, editCal, curTableTol);
+               // tdsres = validatetds(vendorIds, vendorName, editCal, curTableTol);
                 console.log(tdsres);
             }
         });
+
+        //Vendor Data Consolidated
+        for (let vendor in vendors) {
+            vendor_id = vendors[vendor].id;
+            vendor_name = ""; //vendors[vendor].name;
+            vendor_oldValue = 0;
+            vendor_newValue = 0;
+            vendor_pan = vendors[vendor].Panno;
+            vendor_category= vendors[vendor].category;
+            for (let chkvendor in vendors) {
+                if (vendors[chkvendor].Panno == vendor_pan) {
+                    if (vendor_name == "")
+                        vendor_name = vendor_name.concat(vendors[chkvendor].name);
+                    else
+                        if (vendor_name.includes(vendors[chkvendor].name) == false) {
+                            vendor_name = vendor_name.concat(", ", vendors[chkvendor].name);
+                        }
+                    vendor_oldValue = vendor_oldValue + vendors[chkvendor].oldValue;
+                    vendor_newValue = vendor_newValue + vendors[chkvendor].newValue;
+                }
+            }
+
+            // console.log(vendor_id,vendor_oldValue,vendor_newValue);
+            let vendorexist = false;
+            for (let chkvendor in vendorsfinal) {
+                //   console.log(vendorsfinal[chkvendor].id,vendor_id);
+                if (vendorsfinal[chkvendor].Panno == vendor_pan) {
+                    vendorexist = true; break;
+                }
+            }
+
+            if (vendorexist == false) {
+                vendorsfinal.push({ id: vendor_id, name: vendor_name, oldValue: vendor_oldValue, newValue: vendor_newValue, Panno: vendor_pan, tdsval: 0, category: vendor_category });
+            }
+        }
+        console.log(vendorsfinal);
+
+        for (let vendor in vendorsfinal) {
+            vendor_id = vendorsfinal[vendor].id;
+            vendor_name = vendorsfinal[vendor].name;
+            vendor_oldValue = vendorsfinal[vendor].oldValue;
+            vendor_newValue = vendorsfinal[vendor].newValue;
+            vendor_pan = vendorsfinal[vendor].Panno;
+            vendor_category = vendorsfinal[vendor].category;
+            tdsres = validatetds(vendor_id, vendor_name, vendor_oldValue, vendor_newValue, vendor_pan, vendor_category);
+            console.log(tdsres);
+        }
+
+
         var alertmsg = $("#tdsVendorIdFinder").val();
 
         if ($("#tdsVendorIdFinder").val() != '') {
+            alertmsg = alertmsg + " <br> hence 194Q is applicable for goods.";
             $('#FailedAlert').html(alertmsg);
             $('#Failed').modal('show');
         }
@@ -756,10 +832,11 @@
         if (count <= 0) {                // if there are not no reason to loop them
             return true;                 // this can be used to perform other action if there are no steps
         } else if (currentTab == 0) {
-            var validationMsg = ValidateTransaction()
             var SettleAmt = $('#lblAdvTtlAmt').text() || 0;
             var vendorid = $('#VendorId').val() || 0;
             await updatevendorsName();
+            var validationMsg = ValidateTransaction()
+
             if (validationMsg != 'valid') {
                 hadError = true;
                 $("#alert").text(validationMsg);

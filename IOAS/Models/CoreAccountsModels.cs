@@ -295,15 +295,6 @@ namespace IOAS.Models
 
     }
 
-    #region
-    public class BillReversal
-    {
-        public List<TransactionAndTaxesModel> Transaction { get; set; }
-        public string BillType { get; set; }
-        public string BillNumber { get; set; }
-    }
-    #endregion
-
     public class BillPODetailModel
     {
         public Nullable<Int32> BillPODetailId { get; set; }
@@ -5717,6 +5708,36 @@ namespace IOAS.Models
         public Nullable<decimal> CurrentClaimAmount { get; set; }
         public Nullable<decimal> TotalClaimAmount { get; set; }
     }
+
+    public class ProjectOverallReportModel
+    {
+        public int ProjectId { get; set; }
+        public int Piid { get; set; }
+        public string ProjectNumber { get; set; }
+        public string PIName { get; set; }
+        public Nullable<System.DateTime> StartDate { get; set; }
+        public Nullable<System.DateTime> CloseDate { get; set; }
+        public string FY { get; set; }
+        public Nullable<decimal> SanctionValue { get; set; }
+        public string ProjectType { get; set; }
+        public string ProjectStatus { get; set; }
+        public Nullable<decimal> Receipt { get; set; }
+        public Nullable<decimal> InterestEarned { get; set; }
+        public Nullable<decimal> Totalreceipt { get; set; }
+        public Nullable<decimal> TotalExpenditure { get; set; }
+        public Nullable<decimal> ClosingBalance { get; set; }
+        public Nullable<decimal> Pendingcommitment { get; set; }
+        public Nullable<decimal> Balanceaftercommitment { get; set; }
+        public Nullable<decimal> PendingtNegativebalance { get; set; }
+        public string Projectclassification { get; set; }
+        public string AgencyCode { get; set; }
+        public string SchemeCode { get; set; }
+        public Nullable<int> ProjectSubType { get; set; }
+       
+
+         
+
+    }
     public class PrevNegativeBalanceModel
     {
         public string ProjectNo { get; set; }
@@ -5743,6 +5764,9 @@ namespace IOAS.Models
         public decimal ProjectBalance { get; set; }
         public decimal AvailableBalance { get; set; }
     }
+
+   
+
     public class CloseNegativeBalanceModel
     {
         public int NegativeBalanceId { get; set; }
@@ -6044,6 +6068,15 @@ namespace IOAS.Models
         public int TotalRecords { get; set; }
         public List<ManDayModel> Mandayslist { get; set; }
     }
+
+    #region
+    public class BillReversal
+    {
+        public List<TransactionAndTaxesModel> Transaction { get; set; }
+        public string BillType { get; set; }
+        public string BillNumber { get; set; }
+    }
+    #endregion
     public class ManDayModel : CommonPaymentModel
     {
         public int SlNo { get; set; }
@@ -7272,6 +7305,7 @@ namespace IOAS.Models
         public string date { get; set; }
         public string msg { get; set; }
     }
+   
     #region CommonProjectSearchModel
     public class CommonProjectSearchModel
     {
@@ -7498,5 +7532,17 @@ namespace IOAS.Models
         public string UTRNO { get; set; }
         public string VerifyStatus { get; set; }
     }
+
+    //public class TDSPopupAlert
+    //{
+    //    public int VendorId { get; set; }
+    //    public string PanNum { get; set; }
+    //    public decimal TDSLimit { get; set; }
+    //    public decimal PrevValue { get; set; }
+    //    public decimal CurrentValue { get; set; }
+    //    public int alert { get; set; }
+
+    //}
+
     #endregion
 }

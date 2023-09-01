@@ -25021,7 +25021,25 @@ namespace IOAS.GenericServices
             }
         }
 
-
+        public static DateTime getOSGLastSalaryProcessdate()
+        {
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    var query = (from osg in context.tblRCTPayroll
+                                 where osg.AppointmentType == "OSG" && osg.Status == "Requested for salary processing"
+                                 select osg.EndDate).Max();
+                    if (query != null)
+                        return query ?? DateTime.Now;
+                }
+                return DateTime.Now;
+            }
+            catch (Exception ex)
+            {
+                return DateTime.Now;
+            }
+        }
 
         #region Stored Procedures
 
