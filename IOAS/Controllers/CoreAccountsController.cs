@@ -10673,6 +10673,7 @@ namespace IOAS.Controllers
                 ViewBag.AccountHeadList = emptyList;
                 ViewBag.TransactionTypeList = Common.GetCodeControlList("Transaction Type");
                 var detail = Common.GetCodeControlList("PaymentCategory");
+                ViewBag.SourceList = Common.GetSourceList();
                 detail.RemoveAt(2);
                 detail.RemoveAt(2);
                 ViewBag.PaymentCategoryList = detail;
