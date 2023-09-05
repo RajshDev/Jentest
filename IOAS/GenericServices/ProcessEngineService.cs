@@ -9,6 +9,7 @@ using IOAS.Models;
 using IOAS.DataModel;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Data.SqlClient;
 
 namespace IOAS.GenericServices
 {
@@ -397,38 +398,45 @@ namespace IOAS.GenericServices
                 model = Converter.GetEntityList<ProcessEngineModel>(dsTrasaction.Tables[0]);
                 using (var context = new IOASDBEntities())
                 {
-                    var records = (from po in context.tblProcessTransactionDetail
-                                   join pt in context.tblProcessTransaction on po.ProcessTransactionId equals pt.ProcessTransactionId
-                                   join pgd in context.tblProcessGuidelineDetail on pt.ProcessGuidelineDetailId equals pgd.ProcessGuidelineDetailId
-                                   from clarify in context.tblProcessTransactionDetail.Where(m => m.ProcessTransactionId == po.ProcessTransactionId && m.ActionStatus == "Clarify").OrderByDescending(m => m.TransactionTS).Take(1)
-                                   join user in context.tblUser on clarify.Approverid equals user.UserId
-                                   where po.Approverid == userId && po.ActionStatus == "Initiated" && po.Clarified == true && pt.Closed_F == false
-                                   && !context.tblProcessTransactionDetail.Any(m => m.RefId == po.RefId && m.RefFieldName == po.RefFieldName && m.ActionStatus == "Initiated" && (m.Rejected == true || m.Clarified == false || m.Clarified == null))
-                                   select new
-                                   {
-                                       po.ProcessTransactionId,
-                                       po.ProcessGuidelineDetailId,
-                                       po.RefId,
-                                       //po.RefNumber,
-                                       user.FirstName,
-                                       user.LastName,
-                                       pgd.FlowTitle,
-                                       pt.ActionLink,
-                                       po.TransactionTS,
-                                       po.ActionStatus,
-                                       pt.RefNumber
-                                   }).OrderByDescending(m => m.TransactionTS).ToList();
+                    //var records = (from po in context.tblProcessTransactionDetail
+                    //               join pt in context.tblProcessTransaction on po.ProcessTransactionId equals pt.ProcessTransactionId
+                    //               join pgd in context.tblProcessGuidelineDetail on pt.ProcessGuidelineDetailId equals pgd.ProcessGuidelineDetailId
+                    //               from clarify in context.tblProcessTransactionDetail.Where(m => m.ProcessTransactionId == po.ProcessTransactionId && m.ActionStatus == "Clarify").OrderByDescending(m => m.TransactionTS).Take(1)
+                    //               join user in context.tblUser on clarify.Approverid equals user.UserId
+                    //               where po.Approverid == userId && po.ActionStatus == "Initiated" && po.Clarified == true && pt.Closed_F == false
+                    //               && !context.tblProcessTransactionDetail.Any(m => m.RefId == po.RefId && m.RefFieldName == po.RefFieldName && m.ActionStatus == "Initiated" && (m.Rejected == true || m.Clarified == false || m.Clarified == null))
+                    //               select new
+                    //               {
+                    //                   po.ProcessTransactionId,
+                    //                   po.ProcessGuidelineDetailId,
+                    //                   po.RefId,
+                    //                   //po.RefNumber,
+                    //                   user.FirstName,
+                    //                   user.LastName,
+                    //                   pgd.FlowTitle,
+                    //                   pt.ActionLink,
+                    //                   po.TransactionTS,
+                    //                   po.ActionStatus,
+                    //                   pt.RefNumber
+                    //               }).OrderByDescending(m => m.TransactionTS).ToList();
+                    var UserId = new SqlParameter("@userId", SqlDbType.Int)
+                    {
+                        Value = userId
+                    };
+                    var records = context.Database.SqlQuery<ProcessEngineModel>(
+                                "EXEC Sp_GetProcessTransactionDetail @userId", UserId).ToList();
+
                     if (records.Count > 0)
                     {
                         for (int i = 0; i < records.Count; i++)
                         {
                             model.Add(new ProcessEngineModel
                             {
-                                ProcessTransactionId = records[i].ProcessTransactionId ?? 0,
+                                ProcessTransactionId = records[i].ProcessTransactionId ,
                                 ProcessGuidelineDetailId = Convert.ToInt32(records[i].ProcessGuidelineDetailId),
                                 FirstName = records[i].FirstName,
                                 LastName = records[i].LastName,
-                                RefId = records[i].RefId ?? 0,
+                                RefId = records[i].RefId,
                                 RefNumber = records[i].RefNumber,
                                 FlowTitle = records[i].FlowTitle,
                                 ActionLink = records[i].ActionLink,
