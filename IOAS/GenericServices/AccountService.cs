@@ -47,7 +47,10 @@ namespace IOAS.GenericServices
                             tblLoginDetails log = new tblLoginDetails();
                             log.UserId = userquery.UserId;
                             log.LoginTime = DateTime.Now;
-                            log.isLoggedIn = true;
+                            if (userquery.unRestrict != true)
+                                log.isLoggedIn = true;
+                            else
+                                log.isLoggedIn = false;
                             log.currSession = currSession;
                             context.tblLoginDetails.Add(log);
                             context.SaveChanges();
