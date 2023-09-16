@@ -36,9 +36,13 @@ namespace IOAS.GenericServices
                     if (userquery != null)
                     {
                         var Loggedin = context.tblLoginDetails.OrderByDescending(l => l.LoginTime).FirstOrDefault(l => l.UserId == userquery.UserId);
-                        if (Loggedin != null)
-                            if (Loggedin.isLoggedIn == true && Loggedin.currSession != currSession)
+                        if (userquery.unRestrict != true)
+                        {   
+                            if (Loggedin != null)
+                                if (Loggedin.isLoggedIn == true && Loggedin.currSession != currSession)
                                     return -3;
+                        }
+
                         if (userexpiry != null)
                             return -2;
 
