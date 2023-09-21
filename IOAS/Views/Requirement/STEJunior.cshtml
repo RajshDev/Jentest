@@ -74,6 +74,7 @@
                                                 @Html.HiddenFor(m => m.isDraftbtn)
                                                 @Html.HiddenFor(m => m.ApplicationNo)
                                                 @Html.HiddenFor(m => m.WfId)
+                                                @Html.HiddenFor(m => m.ReqTomail)
                                                 @if (Model != null && !String.IsNullOrWhiteSpace(Model.EmployeeType) && Model.EmployeeType == "Old Employee")
                                                 {
                                                     @Html.RadioButtonFor(M => M.EmployeeType, "Old Employee", new { @id = "IsOld", @checked = "checked" })@:&nbsp;<label>Old Employee</label> <br>
@@ -83,7 +84,7 @@
                                                 {
                                                     @Html.RadioButtonFor(M => M.EmployeeType, "Old Employee", new { @id = "IsOld" })@:&nbsp;<label>Old Employee</label> <br>
                                                     @Html.RadioButtonFor(M => M.EmployeeType, "New Employee", new { @id = "IsNew", @checked = "checked" })@:&nbsp;<label>New Employee</label> <br>
-                                                 }
+                                                }
                                                 <div>@Html.ValidationMessageFor(m => m.EmployeeType)</div>
                                             </div>
                                         </div>
@@ -585,8 +586,17 @@
                                             <div class="col-md-6">
                                                 <div class="form-group custom-form-group">
                                                     <label class="required">Requested By</label>
-                                                    @Html.TextBoxFor(m => m.AutoFillRequstedbyPI, new { @class = "form-control" })
+                                                    @Html.TextBoxFor(m => m.AutoFillRequstedbyPI, new { @class = "form-control required" })
+                                                    <div>@Html.ValidationMessageFor(m => m.AutoFillRequstedbyPI)</div>
                                                     @Html.HiddenFor(m => m.RequestedByPI)
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="">Employee Workplace</label>
+                                                    @Html.TextBoxFor(m => m.EmployeeWorkplace, new { @class = "form-control required", @placeholder = "Employee Workplace" })
+                                                    <div>@Html.ValidationMessageFor(m => m.EmployeeWorkplace)</div>
+                                                    @Html.HiddenFor(m => m.EmployeeWorkplace)
                                                 </div>
                                             </div>
                                         </div>
@@ -1053,24 +1063,26 @@
                 <div class="modal-body">
                     <div style="padding:10px;margin-left: 10px;" id="divBcc">
                         <label>To mail</label>
+                        <h4>@Html.DisplayFor(m => m.ReqTomail)</h4>
                         @if (Model.STEId > 0 && Model.Status != "Draft")
                         {
-                            <h4>@Html.DisplayFor(m => m.ToMail)</h4>
+
+                            @Html.TextBoxFor(m => m.ReqTomail, new { @id = "_reqToMail1", @class = "form-control mb20" })
                         }
                         else
                         {
-                            @Html.TextBoxFor(m => m.ToMail, new { @class = "form-control mb20" })
-                            @Html.ValidationMessageFor(m => m.ToMail)
+                            @Html.TextBoxFor(m => m.ReqTomail, new { @id = "_reqToMail2", @class = "form-control mb20" })
+
                         }
                         <label>Carbon Copy(CC) </label>
                         @if (Model.STEId > 0 && Model.Status != "Draft")
                         {
-                            <h4>@Html.DisplayFor(m => m.bcc)</h4>
+                            @Html.TextBoxFor(m => m.ToMail, new { @class = "form-control", @placeholder = "Separate emails by comma" })
                         }
                         else
                         {
-                            @Html.TextBoxFor(m => m.bcc, new { @class = "form-control", @placeholder = "Separate emails by comma" })
-                            @Html.ValidationMessageFor(m => m.bcc)
+                            @Html.TextBoxFor(m => m.ToMail, new { @class = "form-control", @placeholder = "Separate emails by comma" })
+                            @Html.ValidationMessageFor(m => m.ToMail)
                         }
                     </div>
                     <div style="padding:10px;overflow:auto" id="ShowDeviationNP">
@@ -1176,6 +1188,13 @@
 
         applyAutoComplete($('#AutoFillRequstedbyPI'), $('#RequestedByPI'), '@Url.Action("LoadPIList", "Requirement")');
 
+          applyAutoComplete($('#EmployeeWorkplace'),undefined, '@Url.Action("LoadWokrPlaceList", "Requirement")');
+
+
+        $('#AutoFillRequstedbyPI').change(function () {
+            RequestcoPI();
+         });
+
 
         $(document).on('keypress', 'input[id="DesignationCode"]', function () {
             var checkvalue = $('input[name="isConsolidatePay"]:checked').val() || "";
@@ -1214,6 +1233,23 @@
 
     });
 
+     function RequestcoPI() {
+            var Requestpi = $('#RequestedByPI').val();
+            $('#ReqTomail').val('');
+            $.ajax({
+                type: "GET",
+                url: "@Url.Action("STERequestedBy", "Requirement")",
+                data: { "Requestpi": Requestpi},
+                dataType: "json",
+                success: function (result) {
+                    $('#ReqTomail').val(result.ReqTomail);
+                    $('#_reqToMail1').val(result.ReqTomail);
+                    $('#_reqToMail2').val(result.ReqTomail);
+
+
+                }
+            });
+     }
     function changeBankName() {
         var bankname = $("#BankName").val();
         if (bankname == null || bankname == "")
@@ -1332,7 +1368,7 @@
                            $('#lblPIEmailID,#lblPIEmailID1').text(result.projectData.Email);
                            $('#lblPIPhone,#lblPIPhone1').text(result.projectData.Phone);
                            if($('#AutoFillRequstedbyPI').val() == "") {
-                               $('#AutoFillRequstedbyPI').val(result.projectData.PIName);
+                              // $('#AutoFillRequstedbyPI').val(result.projectData.PIName);
                                $('#RequestedByPI').val(result.projectData.PIId);
                            }
                            if(Status == "" || Status == "Draft")
@@ -1340,6 +1376,9 @@
                            $('#lblDepartmentCode,#lblDepartmentCode1').text(result.projectData.PIDepartmentCode);
                            $('#lblDepartmentName,#lblDepartmentName1').text(result.projectData.PIDepartmentName);
                            UpdateAppointmentDatePicker();
+                           if ($('#RequestedByPI').val() != "") {
+                               RequestcoPI();
+                           }
                            $(".loading-bg").addClass('dis-none');
                        }
                        else {
@@ -2339,11 +2378,17 @@
     function PopupConfirm() {
         $('#dialogConfirm').modal('toggle');
     }
-
-    $('#isbtnConfirm').click(function() {
+    $('#isbtnConfirm').click(function () {
         var ToMailId = $('#ToMail').val() || "";
-        if((Status == "" || Status == "Draft") && ToMailId == "")
-        {
+        var ReqMailId1 = $("#_reqToMail1").val();
+        var ReqMailId2 = $("#_reqToMail2").val();
+        if (ReqMailId1 == "" || ReqMailId1 == undefined) {
+            $('#ReqTomail').val($('#_reqToMail2').val());
+        }
+        else {
+            $('#ReqTomail').val($('#_reqToMail1').val());
+        }
+        if ((Status == "" || Status == "Draft" || Status == "Open") && ((ReqMailId1 == "" || ReqMailId1 == undefined) && (ReqMailId2 == undefined || ReqMailId2 == ""))) {
             $.alert('Please enter to mail');
             return;
         }
@@ -2526,6 +2571,7 @@
                 $('#PhdDetail').removeClass("required");
             }
             $('#Salary').removeClass("required");
+            $('#AutoFillRequstedbyPI').removeClass("required");
             $('#OldEmployeeNumber').removeClass("required");
             $('#NIDNumber').removeClass("required");
             $("#TypeofappointmentId").removeClass("required");

@@ -3355,8 +3355,15 @@ namespace IOAS.GenericServices
                     var query = (from S in IOAScontext.vw_RCTOverAllApplicationEntry
                                  from P in IOAScontext.tblProject
                                  from vw in IOAScontext.vwFacultyStaffDetails
-                                 where P.PIName == vw.UserId && S.ProjectId == P.ProjectId && S.ApplicationId == appid
+                                 from R in IOAScontext.tblRCTSTE
+                                 where S.ProjectId == P.ProjectId && S.ApplicationId == R.STEID && R.RequestedBy == vw.UserId && R.STEID == S.ApplicationId
                                  && S.Category == category && (S.OrderId == orderid || orderid == null)
+
+                                 //from P in context.tblProject
+                                 //from R in context.tblRCTSTE
+                                 //from F in context.vwFacultyStaffDetails
+                                 //where A.ProjectId == P.ProjectId && A.OrderId == orderId && R.RequestedBy == F.UserId
+                                 //&& R.STEID == A.ApplicationId
                                  select new
                                  {
                                      S.OrderId,
@@ -3380,7 +3387,8 @@ namespace IOAS.GenericServices
                                      S.Email,
                                      S.Category,
                                      S.isMsPhd,
-                                     S.PIName,
+                                     //S.PIName,
+                                     vw.FirstName,
                                      vw.DepartmentName
                                  }).FirstOrDefault();
 
@@ -3442,7 +3450,8 @@ namespace IOAS.GenericServices
                         ackmodel.TypeofAppointment = query.TypeofAppointment;
                         ackmodel.isMSPhd = query.isMsPhd ?? false;
                         ackmodel.MSPhD = MsOrPhD(appid, query.AppointmentType ?? 0);
-                        ackmodel.PIName = query.PIName;
+                        //ackmodel.PIName = query.PIName;
+                        ackmodel.PIName = query.FirstName;
                         ackmodel.Department = query.DepartmentName;
                         ackmodel.isExistingEmployee = true;
                         if (!isExistingEmployee(appid, query.AppointmentType ?? 0) && query.ApplicationType == "New")
@@ -4225,7 +4234,9 @@ namespace IOAS.GenericServices
 
                         var Qry = (from A in context.vw_RCTOverAllApplicationEntry
                                    from P in context.tblProject
-                                   where A.ProjectId == P.ProjectId && A.OrderId == orderId
+                                   from R in context.tblRCTSTE
+                                   from F in context.vwFacultyStaffDetails
+                                   where A.ProjectId == P.ProjectId && A.OrderId == orderId && R.RequestedBy == F.UserId && R.STEID == A.ApplicationId
                                    select new
                                    {
                                        A.ProfessionalType,
@@ -4242,7 +4253,8 @@ namespace IOAS.GenericServices
                                        A.crtdUserId,
                                        P.ProjectNumber,
                                        A.OrderId,
-                                       A.Category
+                                       A.Category,
+                                       F.FirstName
                                    }).FirstOrDefault();
                         if (Qry != null)
                         {
@@ -4268,7 +4280,8 @@ namespace IOAS.GenericServices
                             ackmodel.AppointmentEndDate = string.Format("{0:dd-MMMM-yyyy}", Qry.AppointmentEnddate);
                             ackmodel.DAName = Common.GetUserFirstName(logged_in_userId);
                             ackmodel.AppointmentType = Qry.ApplicationType;
-                            ackmodel.PIName = Qry.PIName;
+                            //ackmodel.PIName = Qry.PIName;
+                            ackmodel.PIName = Qry.FirstName;
 
                             emodel = ackmodel;
                             var bodyResp = _eb.RunCompile("RCTSendOrderTemplate.cshtml", "", ackmodel, typeof(NotePIModel));

@@ -1228,6 +1228,21 @@ namespace IOAS.Controllers
             return Json(result, JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet]
+        public JsonResult STERequestedBy(int Requestpi)
+        {
+            try
+            {
+                STEModel model = new STEModel();
+                model = recruitmentService.STERequestedByPI(Requestpi);
+                return Json(model, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                STEModel model = new STEModel();
+                return Json("");
+            }
+        }
         public ActionResult STEView(int STEID, string listf = null)
         {
             try
