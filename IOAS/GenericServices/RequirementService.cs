@@ -3414,6 +3414,14 @@ namespace IOAS.GenericServices
                             model.ProjectDetailsModel = getProjectSummary(query.o.NewProjectId ?? 0);
                             model.ProjectDetailsModel = GetOfferLetterProjectDetails(query.S.STEID);
                             model.ProjectNumber = model.ProjectDetailsModel.ProjectNumber;
+                            model.SalaryLevelId = query.o.SalaryLevelId;
+                            var querydes = (from sl in context.tblRCTSalaryLevel
+                                            where sl.SalaryLevelId == model.SalaryLevelId
+                                            select sl).FirstOrDefault();
+                            if (querydes != null)
+                            {
+                                model.SalaryLevel = querydes.LevelRange;
+                            }
                         }
                     }
                     else if (STEID > 0)
@@ -3440,12 +3448,20 @@ namespace IOAS.GenericServices
                             model.MsPhd = query.S.MsPhd ?? false;
                             model.MsOrPhd = query.S.MsPhdType == 1 ? "M.S" : query.S.MsPhdType == 2 ? "Ph.D" : "";
                             model.BasicPay = query.S.Salary;
+                            model.SalaryLevelId = query.S.SalaryLevelId;
                             //model.CommitmentAmount = query.S.CommitmentAmount ?? 0;
                             //model.offerDate = query.S.OfferDate ?? DateTime.Now;
                             //if (query.S.OfferDate < query.S.AppointmentStartdate)
                             //    model.offerDate = query.S.AppointmentStartdate ?? DateTime.Now;
                             model.offerDate = getOfferLetterDate(model.STEId, "STE", "OfferLetter");
                             model.EmployeeID = query.S.EmployeersID;
+                            var querydes = (from sl in context.tblRCTSalaryLevel
+                                            where sl.SalaryLevelId == model.SalaryLevelId
+                                            select sl).FirstOrDefault();
+                            if (querydes != null)
+                            {
+                                model.SalaryLevel = querydes.LevelRange;
+                            }
                         }
                     }
                 }
