@@ -4907,8 +4907,24 @@ namespace IOAS.GenericServices
                 return commit;
             }
         }
-        public static int CloseThisCommitment(CommitmentResultModel model, int UserId)        {            try            {               lock (ClsCommitlockObj)
-               {                 bool isClosed = true;                int result = 0;                List<BillCommitmentDetailModel> commitbalance = new List<BillCommitmentDetailModel>();                using (var context = new IOASDBEntities())                {                    var CommQry = (from C in context.tblCommitment                                   join D in context.tblCommitmentDetails on C.CommitmentId equals D.CommitmentId                                   where C.Status == "Active" && C.CommitmentId == model.ComitmentId                                   select new                                   { C, D }).FirstOrDefault();                        var prveBankID = CommQry.C.BankID;
+        public static int CloseThisCommitment(CommitmentResultModel model, int UserId)
+        {
+            try
+            {
+               lock (ClsCommitlockObj)
+               { 
+                bool isClosed = true;
+                int result = 0;
+                List<BillCommitmentDetailModel> commitbalance = new List<BillCommitmentDetailModel>();
+                using (var context = new IOASDBEntities())
+                {
+
+                    var CommQry = (from C in context.tblCommitment
+                                   join D in context.tblCommitmentDetails on C.CommitmentId equals D.CommitmentId
+                                   where C.Status == "Active" && C.CommitmentId == model.ComitmentId
+                                   select new
+                                   { C, D }).FirstOrDefault();
+                        var prveBankID = CommQry.C.BankID;
                         var bankheadname = (from D in context.tblAccountHead
                                             join P in context.tblProject on D.AccountHeadId equals P.BankID
                                             where (P.ProjectId == model.ProjectId && P.Status == "Active")
@@ -4951,7 +4967,8 @@ namespace IOAS.GenericServices
                                                  where (D.CommitmentId == model.ComitmentId)
                                                  select D).FirstOrDefault();
 
-                                    if (query != null)                                    {
+                                    if (query != null)
+                                    {
                                         query.Status = "Closed";
                                         query.UPDT_UserID = UserId;
                                         query.UPDT_TS = DateTime.Now;
@@ -5000,7 +5017,8 @@ namespace IOAS.GenericServices
                                         result = 1;
 
                                     }
-                                }                            }
+                                }
+                            }
                             else
                             {
                                 //var query = (from D in context.tblCommitment
@@ -5073,8 +5091,16 @@ namespace IOAS.GenericServices
 
                     //return 
 
-                }                return result;
-            }            }            catch (Exception ex)            {                return 0;            }        }
+                }
+                return result;
+            }
+            }
+            catch (Exception ex)
+            {
+                return 0;
+            }
+        }
+
 
       
         public static List<DepartmentModel> GetDepartmentlist()
