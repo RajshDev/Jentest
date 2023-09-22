@@ -485,6 +485,7 @@ namespace IOAS.Models
 
     public class STEModel
     {
+        public string ReqTomail { get; set; }
         public int STEId { get; set; }
         [Required]
         [Display(Name = "Type of appointment")]
@@ -2265,6 +2266,7 @@ namespace IOAS.Models
         public Nullable<decimal> MedicalAmount { get; set; }
         public bool isConsolidatePay { get; set; }
         public string PayType { get; set; }
+        public string PiFirstName { get; set; }
 
         public string FromDate { get; set; }
         public string ToDate { get; set; }

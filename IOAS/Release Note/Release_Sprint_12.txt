@@ -1,0 +1,146 @@
+Release Note:
+sprint_12
+
+bug:10449,9692,10180,10104,9841,8220,7246
+Enhancement: #9918,10057,9916,10255,9964
+
+--Balaji
+7246-Slowness in OSG Relieving Dashboard.
+Db changes:
+vw_RCTRelievedEmployees
+
+8220-DA comments  not reflected in the preview email - Deviation mail
+code Changes:
+RCTSTEDevTemplate.cshtml
+RCTOSGApplicationack.cshtml
+
+
+--Rajesh
+#9918--notification for vendor payment above 50 lakhs 
+code changes:
+•	AdminVoucher.cshtml 
+•	GeneralVoucher.cshtml  
+•	AdvancePartBillPayment.cshtml  
+•	ClearancePayment.cshtml  
+•	DomesticTravelPayment.cshtml  
+•	TravelAdvancePayment.cshtml  
+•	TravelSettlementPayment.cshtml   
+
+DB Changes:
+Stored procedure:
+•	 spvendorpaymentceilingcheck
+View:
+•	 vw_vendorsCategoryId
+
+#10255--Internal Negative Balance and Payment Batch approval is very slow
+code changes:
+
+DB changes:
+•	NegativeBalance.cshtml              
+•	AccountController.cs   
+•	CoreAccountsController.cs           
+•	CoreAccountsService.cs               
+•	CoreAccountsModels.cs              
+•	NegativeBalanceView.cshtml  
+
+Code Changes:
+•	vw_Projectoverallreport  
+
+
+--Yogesh
+#10057 – Maternity leave issues
+
+code changes:
+RequirementService.cs
+DB changes:
+SP – SPRCTMaternityLeave
+
+--Nandhini
+
+#9964 - Payment email trigger issue
+Code changes:
+CoreAccountservice.cs
+Db Changes:
+
+Alter table tblPaymentPayee add PayeeDetailID int
+Alter table tblPaymentPayee add IsMailSend bit
+
+CREATE TABLE [dbo].[tblPaymentProcessMailSend](
+    [Id] [int] IDENTITY(1,1) NOT NULL,
+    [boaDraftId] [int] NOT NULL,
+    [Ismailsend] [bit] NOT NULL,
+    [Created_date] [datetime] NOT NULL,
+    [Updated_date] [datetime] NOT NULL,
+CONSTRAINT [PK_tblPaymentProcessMailSend] PRIMARY KEY CLUSTERED 
+(
+    [Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+ 
+
+ALTER TABLE [dbo].[tblPaymentProcessMailSend] ADD  CONSTRAINT [DF_Table_1_created_date]  DEFAULT (getdate()) FOR [Created_date]
+GO
+
+ 
+
+ALTER TABLE [dbo].[tblPaymentProcessMailSend] ADD  CONSTRAINT [DF_tblPaymentProcessMailSend_Updated_date]  DEFAULT (getdate()) FOR [Updated_date]
+GO
+ 
+
+alter procedure UpdatePayment
+
+create view vw_GetPaymentMailDetails
+
+alter view vw_ReferencenowiseTDS
+
+--Madhu
+9916 - Payment bill Reversal Process
+
+code changes:
+CoreAccountcontroller.cs
+CoreAccountService.cs
+
+DB changes:
+BillReversal
+vw_getPaymentBillTransactionType
+
+insert into tblRoleaccess(RoleId,FunctionId,Read_f,Add_f,Delete_f,Approve_f,Update_f,DepartmentId,Status) 
+values(6,237,1,1,1,1,1,3,'Active')
+insert into tblFunction  (FunctionId, FunctionName, ActionName, ControllerName, ModuleID, MenuGroupID,Status, Updt_UserId, Updt_TS) 
+values (237,'Bill Reversal','BillReversal','CoreAccounts',5,6,'Active',262,getdate())
+Update tblFunction set MenuSeq = 225 where FunctionId = 237
+
+#10104 - Some bills are not showing in Tula - Reg
+code changes:
+CoreAccountscontroller.cs
+CoreAccountService.cs
+
+10449 - Over head payment process issue
+
+code changes:
+CoreAccountService.cs
+
+DB changes :
+Stored Procedure:
+[GetPCFData]
+GetOverheadsData
+
+#10176 - Bill previously complete list to be shown in print bill
+
+code Changes:
+CoreAccountService.cs
+
+--Thiru
+#9692 UTR - Excel Upload with Custom Supported Date Formats Reopened and Resolved
+code changes:
+CoreAccountController.cs
+
+
+--Praveen
+#10180 - Workflow Proposal data fetching logic changed for Project Proposal
+
+code changes :
+Common.cs
+
