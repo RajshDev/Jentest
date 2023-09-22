@@ -61,6 +61,7 @@
                     <tr>
                         <td colspan="2">
                             <label>Project Number</label>
+                            @Html.HiddenFor(m => m.PIId, new { @id = "txtPIId" })
                         </td>
                         <td colspan="2">
                             <h4>
@@ -104,6 +105,7 @@
                         </td>
                         <td colspan="2">
                             <h4>@Model.prjDetails.PIname</h4>
+                            <span class="col-md-4" id="spanPIID" style="display: none;"> </span>
                         </td>
                     </tr>
                     <tr>
@@ -209,10 +211,12 @@
     $(document).ready(function () {
 
         $('#lnkBillHistory').click(function () {
+            var PIID = $('input[name = "PIId"]').val();
+
             var projectId = '@Model.ProjectId';
             if (projectId != '') {
-                var token = $("input[name=__RequestVerificationToken]").val();
-                var searchData = { "__RequestVerificationToken": token, "ProjectId": projectId };
+
+                var searchData = { "ProjectId": projectId, "Piid": PIID };
                 $.ajax({
                     url: "@Url.Action("PrevNegativeBalance", "CoreAccounts")",
                     type: "POST",
@@ -240,9 +244,10 @@
 
     $(document).on('click', 'a.btnViewSummary', function () {
         var projNo = '@Model.ProjectNumber' || '';
+        var PIID = $('input[name = "PIId"]').val();
         if (projNo != '') {
             //var token = $("input[name=__RequestVerificationToken]").val();
-            var searchData = { "projectNo": projNo };
+            var searchData = { "projectNo": projNo, "Piid": PIID };
             $.ajax({
                 url: "@Url.Action("_ProjectSummary", "CoreAccounts")",
                 type: "POST",
