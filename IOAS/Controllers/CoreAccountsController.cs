@@ -17247,7 +17247,7 @@ namespace IOAS.Controllers
                 int logged_in_userid = user.Item1;
                 int user_role = user.Item2;
                 int page = 1;
-                int pageSize = 5;
+                int pageSize = 10;
                 ViewBag.PIName = Common.GetPIWithDetails();
                 var Projecttitle = Common.GetProjecttitledetails();
                 var projecttype = Common.getprojecttype();
@@ -17291,7 +17291,7 @@ namespace IOAS.Controllers
         {
             try
             {
-                int pageSize = 5;
+                int pageSize = 10;
                 var data = new PagedData<ReceiptSearchResultModel>();
                 ReceiptListModel model = new ReceiptListModel();
                 if (srchModel.ToDate != null)
@@ -17328,7 +17328,7 @@ namespace IOAS.Controllers
                 int user_role = user.Item2;
 
                 int page = 1;
-                int pageSize = 5;
+                int pageSize = 10;
                 ViewBag.PIName = Common.GetPIWithDetails();
                 var Projecttitle = Common.GetProjecttitledetails();
                 var projecttype = Common.getprojecttype();
@@ -17372,7 +17372,7 @@ namespace IOAS.Controllers
         {
             try
             {
-                int pageSize = 5;
+                int pageSize = 10;
                 var data = new PagedData<ReceiptSearchResultModel>();
                 ReceiptListModel model = new ReceiptListModel();
                 if (srchModel.ToDate != null)
