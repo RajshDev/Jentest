@@ -7746,7 +7746,7 @@ namespace IOAS.GenericServices
         #region Change of project,Extension,Enhancement
 
         public OrderModel getOrderProjectDetails(int appid, string appType, int ordertype)
-        {
+         {
             OrderModel model = new OrderModel();
             try
             {
@@ -25171,6 +25171,26 @@ namespace IOAS.GenericServices
                     var query = (from osg in context.tblRCTPayroll
                                  where osg.AppointmentType == "OSG" && osg.Status == "Requested for salary processing"
                                  select osg.EndDate).Max();
+                    if (query != null)
+                        return query ?? DateTime.Now;
+                }
+                return DateTime.Now;
+            }
+            catch (Exception ex)
+            {
+                return DateTime.Now;
+            }
+        }
+
+        public static DateTime getOSGFirstSalaryProcessdate()
+        {
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    var query = (from osg in context.tblRCTPayroll
+                                 where osg.AppointmentType == "OSG" && osg.Status == "Requested for salary processing"
+                                 select osg.StartDate).Max();
                     if (query != null)
                         return query ?? DateTime.Now;
                 }

@@ -3356,14 +3356,8 @@ namespace IOAS.GenericServices
                                  from P in IOAScontext.tblProject
                                  from vw in IOAScontext.vwFacultyStaffDetails
                                  from R in IOAScontext.tblRCTSTE
-                                 where S.ProjectId == P.ProjectId && S.ApplicationId == R.STEID && R.RequestedBy == vw.UserId && R.STEID == S.ApplicationId
+                                 where S.ProjectId == P.ProjectId && S.ApplicationId == R.STEID && R.RequestedBy == vw.UserId && S.ApplicationId== appid
                                  && S.Category == category && (S.OrderId == orderid || orderid == null)
-
-                                 //from P in context.tblProject
-                                 //from R in context.tblRCTSTE
-                                 //from F in context.vwFacultyStaffDetails
-                                 //where A.ProjectId == P.ProjectId && A.OrderId == orderId && R.RequestedBy == F.UserId
-                                 //&& R.STEID == A.ApplicationId
                                  select new
                                  {
                                      S.OrderId,
