@@ -912,6 +912,41 @@ namespace IOAS.GenericServices
             }
         }
 
+        public static bool DuplicateEntryValidation (string refNumber)
+        {
+            try
+            {
+                var DuplicateEntry="";
+                bool retunval = false;
+                using (var context = new IOASDBEntities())
+                {
+
+
+                    DuplicateEntry = (from Pt in context.tblProcessTransaction
+                                      where Pt.RefNumber == refNumber
+                                      select Pt.RefNumber).FirstOrDefault();
+
+                    if (refNumber != DuplicateEntry)
+                    {
+                        retunval = true;
+                    }
+
+
+
+                }
+                return retunval;
+
+
+            }
+
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+                (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                return false;
+            }
+        }
+
 
         private static ProcessEngineModel InsertProcessTransaction(ProcessEngineModel model)
         {
@@ -919,6 +954,7 @@ namespace IOAS.GenericServices
             {
                 using (var context = new IOASDBEntities())
                 {
+                   // var  DuplicateEntry = "";
                     tblProcessTransaction trans = new tblProcessTransaction();
                     tblProcessTransactionDetail transDetail = new tblProcessTransactionDetail();
                     if (model.ProcessTransactionId != 0)
@@ -953,28 +989,37 @@ namespace IOAS.GenericServices
                         trans.RefFieldName = model.RefFieldName;
                         trans.FunctionId = model.FunctionId;
                         trans.RefNumber = model.RefNumber;
-                        context.tblProcessTransaction.Add(trans);
-                        context.SaveChanges();
+                        //rajesh duplication
+
+
+                        //var DuplicateEntry = DuplicateEntryValidation(model.RefNumber.ToString());
+
+                        if (DuplicateEntryValidation(model.RefNumber.ToString()))
+                        {
+                            context.tblProcessTransaction.Add(trans);
+                            context.SaveChanges();
+                        }
                     }
 
+                    //  Right curly brace}
 
-                    transDetail.ProcessTransactionId = trans.ProcessTransactionId;
-                    transDetail.ProcessGuidelineDetailId = model.ProcessGuidelineDetailId;
-                    transDetail.ProcessSeqNumber = model.ProcessSeqNumber;
-                    transDetail.Approverid = model.ApproverId;
-                    transDetail.ActionStatus = model.ActionStatus;
-                    transDetail.TransactionTS = System.DateTime.Now;
-                    transDetail.TransactionIP = model.TransactionIP;
-                    transDetail.MacID = model.MacID;
-                    transDetail.RefId = model.RefId;
-                    transDetail.RefTable = model.RefTable;
-                    transDetail.RefFieldName = model.RefFieldName;
-                    transDetail.Comments = model.Comments;
-                    transDetail.Rejected = false;
-                    transDetail.Clarified = false;
-                    context.tblProcessTransactionDetail.Add(transDetail);
-                    context.SaveChanges();
-                    model.ProcessTransactionDetailId = transDetail.ProcessTransactionDetailId;
+
+                transDetail.ProcessTransactionId = trans.ProcessTransactionId;
+                transDetail.ProcessGuidelineDetailId = model.ProcessGuidelineDetailId;
+                transDetail.ProcessSeqNumber = model.ProcessSeqNumber;
+                transDetail.Approverid = model.ApproverId;
+                transDetail.ActionStatus = model.ActionStatus;
+                transDetail.TransactionTS = System.DateTime.Now;
+                transDetail.TransactionIP = model.TransactionIP;
+                transDetail.MacID = model.MacID;
+                transDetail.RefId = model.RefId;
+                transDetail.RefTable = model.RefTable;
+                transDetail.RefFieldName = model.RefFieldName;
+                transDetail.Comments = model.Comments;
+                transDetail.Rejected = false;
+                transDetail.Clarified = false;
+                context.tblProcessTransactionDetail.Add(transDetail);
+                context.SaveChanges();
 
                     if (model.ActionStatus == "Rejected" || model.ActionStatus == "Clarify")
                     {
@@ -992,12 +1037,13 @@ namespace IOAS.GenericServices
 
                         context.SaveChanges();
 
-                    }
+                    }                   
 
                     context.Dispose();
 
                     return model;
                 }
+                    
 
             }
             catch (Exception ex)
