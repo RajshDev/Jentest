@@ -1228,6 +1228,21 @@ namespace IOAS.Controllers
             return Json(result, JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet]
+        public JsonResult STERequestedBy(int Requestpi)
+        {
+            try
+            {
+                STEModel model = new STEModel();
+                model = recruitmentService.STERequestedByPI(Requestpi);
+                return Json(model, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                STEModel model = new STEModel();
+                return Json("");
+            }
+        }
         public ActionResult STEView(int STEID, string listf = null)
         {
             try
@@ -2299,24 +2314,26 @@ namespace IOAS.Controllers
                 model.RoleId = user.Item2;
                 if (model.ApplicationType == "STE")
                 {
-                    if (model.FlowApprover == "CMAdmin")
-                        ViewBag.processGuideLineId = Common.GetProcessGuidelineId(188, "STEORDVERAdminFlow", 0);
-                    else if (model.FlowApprover == "NDean")
-                        ViewBag.processGuideLineId = Common.GetProcessGuidelineId(188, "STEORDVERFlowDean", 0);
-                    else
-                        ViewBag.processGuideLineId = Common.GetProcessGuidelineId(188, "STEORDVER Flow", 0);
+                    //if (model.FlowApprover == "CMAdmin")
+                    //    ViewBag.processGuideLineId = Common.GetProcessGuidelineId(188, "STEORDVERAdminFlow", 0);
+                    //else if (model.FlowApprover == "NDean")
+                    //    ViewBag.processGuideLineId = Common.GetProcessGuidelineId(188, "STEORDVERFlowDean", 0);
+                    //else
+                    //    ViewBag.processGuideLineId = Common.GetProcessGuidelineId(188, "STEORDVER Flow", 0);
+                    ViewBag.processGuideLineId = Common.GetProcessGuidelineId(188, "STEORDVER Flow", 0);
                     model.List_f = getEmployeeActionLink("STE", listf);
                     ViewBag.currentRefId = model.STEId;
 
                 }
                 else if(model.ApplicationType == "OSG")
                 {
-                    if (model.FlowApprover == "CMAdmin")
-                        ViewBag.processGuideLineId = Common.GetProcessGuidelineId(206, "OSGORDVERAdminFlow", 0);
-                    else if (model.FlowApprover == "NDean")
-                        ViewBag.processGuideLineId = Common.GetProcessGuidelineId(206, "OSGORDVERFlowDean", 0);
-                    else
-                        ViewBag.processGuideLineId = Common.GetProcessGuidelineId(206, "OSGORDVER Flow", 0);
+                    //if (model.FlowApprover == "CMAdmin")
+                    //    ViewBag.processGuideLineId = Common.GetProcessGuidelineId(206, "OSGORDVERAdminFlow", 0);
+                    //else if (model.FlowApprover == "NDean")
+                    //    ViewBag.processGuideLineId = Common.GetProcessGuidelineId(206, "OSGORDVERFlowDean", 0);
+                    //else
+                    //    ViewBag.processGuideLineId = Common.GetProcessGuidelineId(206, "OSGORDVER Flow", 0);
+                    ViewBag.processGuideLineId = Common.GetProcessGuidelineId(206, "OSGORDVER Flow", 0);
                     model.List_f = getEmployeeActionLink("STE", listf);
                     ViewBag.currentRefId = model.OrderId;
 
@@ -9625,6 +9642,7 @@ namespace IOAS.Controllers
             { saltype = "OSG"; }
 
             DateTime Frmdate = DateTime.Now;
+            DateTime Frmdate_osg = DateTime.Now;
             DateTime todate = DateTime.Now;
 
             if (saltype == "Adhoc")
@@ -9636,13 +9654,14 @@ namespace IOAS.Controllers
             else
             {
                 FinOp fac = new FinOp(System.DateTime.Now);
-                Frmdate = RequirementService.getOSGLastSalaryProcessdate().AddDays(1);
 
+                Frmdate = RequirementService.getOSGFirstSalaryProcessdate();
+                Frmdate_osg = RequirementService.getOSGLastSalaryProcessdate();
                 //  Frmdate = fac.GetMonthFirstDate(MonthAndYear);
                 todate = fac.GetMonthLastDate(MonthAndYear);
             }
             //}
-            var result = new { FrmSalDate = Frmdate, toSalDate = todate };
+            var result = new { FrmSalDate = Frmdate, toSalDate = todate,FrmSalDateOSG = Frmdate_osg };
             return Json(result, JsonRequestBehavior.AllowGet);
         }
         [HttpPost]

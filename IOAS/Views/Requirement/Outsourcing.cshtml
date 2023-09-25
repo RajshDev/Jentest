@@ -120,16 +120,17 @@
                                                 @Html.HiddenFor(m => m.bccSaved)
                                                 @Html.HiddenFor(m => m.isDraftbtn)
                                                 @Html.HiddenFor(m => m.WfId)
+                                                @Html.HiddenFor(m => m.ReqTomail)
                                                 @if (Model != null && !String.IsNullOrWhiteSpace(Model.EmployeeType) && Model.EmployeeType == "Old Employee")
                                                 {
-                                                @Html.RadioButtonFor(M => M.EmployeeType, "Old Employee", new { @id = "IsOld", @checked = "checked" })@:&nbsp;<label>Old Employee</label> <br>
-                                                @Html.RadioButtonFor(M => M.EmployeeType, "New Employee", new { @id = "IsNew" })@:&nbsp;<label>New Employee</label> <br>
-                                            }
+                                                    @Html.RadioButtonFor(M => M.EmployeeType, "Old Employee", new { @id = "IsOld", @checked = "checked" })@:&nbsp;<label>Old Employee</label> <br>
+                                                    @Html.RadioButtonFor(M => M.EmployeeType, "New Employee", new { @id = "IsNew" })@:&nbsp;<label>New Employee</label> <br>
+                                                }
                                                 else
                                                 {
-                                                @Html.RadioButtonFor(M => M.EmployeeType, "Old Employee", new { @id = "IsOld" })@:&nbsp;<label>Old Employee</label> <br>
-                                                @Html.RadioButtonFor(M => M.EmployeeType, "New Employee", new { @id = "IsNew", @checked = "checked" })@:&nbsp;<label>New Employee</label> <br>
-                                            }
+                                                    @Html.RadioButtonFor(M => M.EmployeeType, "Old Employee", new { @id = "IsOld" })@:&nbsp;<label>Old Employee</label> <br>
+                                                    @Html.RadioButtonFor(M => M.EmployeeType, "New Employee", new { @id = "IsNew", @checked = "checked" })@:&nbsp;<label>New Employee</label> <br>
+                                                }
                                             </div>
                                         </div>
                                         <div class="col-md-4 dis-none" id="divOld">
@@ -651,8 +652,17 @@
                                             <div class="col-md-6">
                                                 <div class="form-group custom-form-group">
                                                     <label class="required">Requested By</label>
-                                                    @Html.TextBoxFor(m => m.AutoFillRequstedbyPI, new { @class = "form-control" })
+                                                    @Html.TextBoxFor(m => m.AutoFillRequstedbyPI, new { @class = "form-control required" })
+                                                    <div>@Html.ValidationMessageFor(m => m.AutoFillRequstedbyPI)</div>
                                                     @Html.HiddenFor(m => m.RequestedByPI)
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="">Employee Workplace</label>
+                                                    @Html.TextBoxFor(m => m.EmployeeWorkplace, new { @class = "form-control required", @placeholder = "Employee Workplace" })
+                                                    <div>@Html.ValidationMessageFor(m => m.EmployeeWorkplace)</div>
+                                                    @Html.HiddenFor(m => m.EmployeeWorkplace)
                                                 </div>
                                             </div>
                                         </div>
@@ -1346,24 +1356,25 @@
                 <div class="modal-body">
                     <div style="padding:10px;margin-left: 10px;" id="divBcc">
                         <label>To mail</label>
+                        <h4>@Html.DisplayFor(m => m.ReqTomail)</h4>
                         @if (Model.STEId > 0 && Model.Status != "Draft")
                         {
-                        <h4>@Html.DisplayFor(m => m.ToMail)</h4>
+                            @Html.TextBoxFor(m => m.ReqTomail, new { @id = "_reqToMail1", @class = "form-control mb20" })
                         }
                         else
                         {
-                        @Html.TextBoxFor(m => m.ToMail, new { @class = "form-control mb20", @id = "ToMail" })
-                        @Html.ValidationMessageFor(m => m.ToMail)
+                            @Html.TextBoxFor(m => m.ReqTomail, new { @id = "_reqToMail2", @class = "form-control mb20" })
+                            @*@Html.ValidationMessageFor(m => m.ToMail)*@
                         }
                         <label>Carbon Copy(CC)</label>
                         @if (Model.STEId > 0 && Model.Status != "Draft")
                         {
-                        <h4>@Html.DisplayFor(m => m.bcc)</h4>
+                            @Html.TextBoxFor(m => m.ToMail, new { @class = "form-control" })
                         }
                         else
                         {
-                        @Html.TextBoxFor(m => m.bcc, new { @class = "form-control", @placeholder = "Separate emails by comma" })
-                        @Html.ValidationMessageFor(m => m.bcc)
+                            @Html.TextBoxFor(m => m.ToMail, new { @class = "form-control", @placeholder = "Separate emails by comma" })                          
+                            @Html.ValidationMessageFor(m => m.ToMail)
                         }
                     </div>
                     <div style="padding:10px;overflow:auto" id="ShowDeviationND">
@@ -1689,6 +1700,12 @@
 
         applyAutoComplete($('#Vendorname'), $('#VendorId'), '@Url.Action("LoadVendorList", "Requirement")');
 
+         applyAutoComplete($('#EmployeeWorkplace'),undefined, '@Url.Action("LoadWokrPlaceList", "Requirement")');
+
+        $('#AutoFillRequstedbyPI').change(function () {
+            RequestcoPI();
+        });
+
         $(document).on('keypress', 'input[id="DesignationCode"]', function () {
             var checkedvalue = $('input[name="isConsolidatePay"]:checked').val() || "";
             if(checkedvalue == "") {
@@ -1726,6 +1743,23 @@
     if ($("#ProjectId").val() > 0)
         ProjectSummary()
 
+         function RequestcoPI() {
+            var Requestpi = $('#RequestedByPI').val();
+            $('#ReqTomail').val('');
+            $.ajax({
+                type: "GET",
+                url: "@Url.Action("STERequestedBy", "Requirement")",
+                data: { "Requestpi": Requestpi},
+                dataType: "json",
+                success: function (result) {
+                    $('#ReqTomail').val(result.ReqTomail);
+                    $('#_reqToMail1').val(result.ReqTomail);
+                    $('#_reqToMail2').val(result.ReqTomail);
+
+
+                }
+            });
+     }
     function changeBankName()
     {
         var bankname = $("#BankName").val();
@@ -1929,8 +1963,11 @@
                 $('#ToMail').val(result.projectData.Email);           
             $('#txtPIPhone,#txtPIPhone1').text(result.projectData.Phone);
             if($('#AutoFillRequstedbyPI').val() == "") {
-                $('#AutoFillRequstedbyPI').val(result.projectData.PIName);
+                //$('#AutoFillRequstedbyPI').val(result.projectData.PIName);
                 $('#RequestedByPI').val(result.projectData.PIId);
+            }
+            if ($('#RequestedByPI').val() != "") {
+                RequestcoPI();
             }
             $('#txtDepartmentCode,#txtDepartmentCode1').text(result.projectData.PIDepartmentCode);
             $('#txtDepartmentName,#txtDepartmentName1').text(result.projectData.PIDepartmentName);
@@ -3996,6 +4033,7 @@
         }
         else {
             $('#Salary').removeClass("required");
+            $('#AutoFillRequstedbyPI').removeClass("required");
             $('#OldEmployeeNumber').removeClass("required");
             $('#NIDNo').removeClass("required");
             $("#TypeofappointmentId").removeClass("required");
