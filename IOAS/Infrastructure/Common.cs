@@ -7051,6 +7051,241 @@ namespace IOAS.Infrastructure
                 return 0;
             }
         }
+        public static DateTime? GetCurrentFinYearFromDate()
+        {
+            try
+            {
+                DateTime? finFrom = null;
+                using (var context = new IOASDBEntities())
+                {
+                    var financialYear = context.tblFinYear.FirstOrDefault(m => m.CurrentYearFlag == true);
+                    if (financialYear != null)
+                        finFrom = Convert.ToDateTime(financialYear.StartDate);
+
+
+                }
+
+                return finFrom;
+            }
+
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+                (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                return null;
+            }
+        }
+
+        public static string GetRefNumberForValidation(string Refnum, string vouchertype)
+        {
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    var refnums = "";
+                    switch (vouchertype)
+                    {
+                        case "AdminVoucher":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && boa.TransactionTypeCode == "AVO" && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+
+                        case "Clearance":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && boa.TransactionTypeCode == "CLP" && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+
+                        case "Contra":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && boa.TransactionTypeCode == "CTR" && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+                        case "DirectFundTransfer":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && boa.TransactionTypeCode == "PDT" && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+                        case "Distribution":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && boa.TransactionTypeCode == "DIS" && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+                        case "PCFAndDistributionOverheads":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && boa.TransactionTypeCode == "DOP" && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+
+                        case "FixedDeposit":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && boa.TransactionTypeCode == "FDT" && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+                        case "FixedDepositClose":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && boa.TransactionTypeCode == "FDC" && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+                        case "ForeignRemittance":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && boa.TransactionTypeCode == "FRM" && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+                        case "GeneralVoucher":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && boa.TransactionTypeCode == "GVR" && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+                        case "GstOffset":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && boa.TransactionTypeCode == "GOF" && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+                        case "HeadCredit":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && boa.TransactionTypeCode == "HCR" && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+                        case "HeadWiseFundTransfer":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       from BED in context.tblBOAExpenditureDetail
+                                       where boa.Status == "Posted" && BED.TransactionTypeCode == "PFT" && BED.ReferenceNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select BED.ReferenceNumber).FirstOrDefault();
+                            break;
+
+                        case "Honorarium":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && boa.TransactionTypeCode == "HON" && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+                        case "Imprest":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && boa.TransactionTypeCode == "IMR" && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+                        case "ImprestRecoupment":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && boa.TransactionTypeCode == "IBR" && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+                        case "OHAddRev":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && boa.TransactionTypeCode == "OHAR" && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+                        case "OverheadPosting":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && boa.TransactionTypeCode == "OHP" && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+                        case "PartTimePayment":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && boa.TransactionTypeCode == "PTP" && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+                        case "ReceiptDate":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && boa.TransactionTypeCode == "RBU" && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+                        case "Reimbursement":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && boa.TransactionTypeCode == "REM" && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+                        case "SummerInternship":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && boa.TransactionTypeCode == "SMI" && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+                        case "TdsPayment":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && boa.TransactionTypeCode == "TXP" && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+                        case "TravelBill":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" &&( boa.TransactionTypeCode == "DTV"|| boa.TransactionTypeCode == "TAD" || boa.TransactionTypeCode == "TST") && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+                        case "BillDate":
+                            
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && (boa.TransactionTypeCode == "STM" || boa.TransactionTypeCode == "ADV" || boa.TransactionTypeCode == "PTV") && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+                        case "JournalBillDateChange":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && boa.TransactionTypeCode == "JV" && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+                    }
+                    return refnums.ToString();
+
+                }
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+                (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                return null;
+            }
+
+        }
         public static int GetPreviousFinYearId(int finId)
         {
             try
@@ -17640,7 +17875,9 @@ namespace IOAS.Infrastructure
                 using (var context = new IOASDBEntities())
                 {
                     var BoaDate = context.tblBOA.Where(m => m.RefNumber == RefNumber).OrderByDescending(m => m.BOAId).Select(m => m.PostedDate).FirstOrDefault();
-                    return Tuple.Create(string.Format("{0:dd-MMM-yyyy}", BoaDate), "", "");
+                    var BillDate = context.tblContra.Where(m => m.ContraNumber == RefNumber).FirstOrDefault();
+
+                    return Tuple.Create(string.Format("{0:dd-MMM-yyyy}", BoaDate), string.Format("{0:dd-MMM-yyyy}", BillDate.CRTD_TS), (string)"NA");
                 }
             }
             catch (Exception ex)

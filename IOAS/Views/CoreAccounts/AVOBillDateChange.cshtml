@@ -107,9 +107,16 @@
         </div>
     </div>
 }
-<script>
+    <script>
     var errMsg = '@TempData["errMsg"]';
     $(document).ready(function () {
+        fincurrent = moment(new Date()).toDate();
+        finyr = new Date('@TempData["Finyear"]');
+        console.log(finyr);
+        $('#BillDate,#CashDate').datepicker({
+            dateFormat: 'dd-mm-yy',
+            changeYear: true,
+        }).datepicker("option", "minDate", finyr).datepicker("option", "maxDate", fincurrent);
         if (errMsg == 'Failed') {
             $("#RefId,#RefNo,#BillDate,#ExpDate,#CashDate,#Remarks").val('');
             $("#CurrDate,#expendituredate,#cashbookdate,#Remarks").text('');
@@ -120,33 +127,66 @@
             $("#CurrDate,#expendituredate,#cashbookdate,#Remarks").text('');
             $('#alertSuccess').html("It has been updated successfully.");
             $('#Success').modal('toggle');
-}
+        }
     });
     $('#BillDate,#ExpDate,#CashDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
     $(document).on('click', '#RefNo', function () {
         applyAutoComplete($('#RefNo'), $('#RefId'), '@Url.Action("LoadAVORefernceNumber", "CoreAccounts")', 'BillDate', undefined, undefined);
        BillDate();
     });
-    $('#btnSubmit').click(function () {
-        var RefNumber = $("#RefId").val();
+
+    function GetRefNumber(Refnum) {
+        var RefNumValidate ='';
+        $.ajax({
+            type: "GET",
+            async: false,
+            url: '@Url.Action("GetRefNumberForValidationAVOBill", "CoreAccounts")',
+            data: {
+                "Refnum": Refnum, "vouchertype":'AdminVoucher'
+            },
+            dataType: "json",
+            success: function (result) {
+                RefNumValidate = result;
+                }
+        });
+        return RefNumValidate;
+    }
+
+    $('#btnSubmit').click( function () {
+        var RefNumber = $("#RefNo").val();
         var BillDate = $("#BillDate").val();
         var ExpDate = $("#ExpDate").val();
         var CashDate = $("#CashDate").val();
-        if (RefNumber != "") {
-            $('#formAVObillDate').submit();
-    }
+        validate(RefNumber);
+
+        //if (RefNumber != "") {
+        //    $('#formAVObillDate').submit();
+        //}
+
     });
-    function BillDate()
-    {
+    async function validate(RefNumber) {
+
+        var ValidateRefNumber = await GetRefNumber(RefNumber);
+
+        if (RefNumber == ValidateRefNumber && RefNumber != "") {
+            $('#formAVObillDate').submit();
+        }
+        else {
+            $('#FailedAlert').html("Invalid Reference Number");
+            $('#Failed').modal('show');
+        }
+    };
+
+        function BillDate(){
         var RefNumber = $("#RefId").val();
         if (RefNumber != "") {
             $.getJSON("@Url.Action("GetAVOBillDate", "CoreAccounts")", { RefNumber: RefNumber },
-        function (result) {
-            $("#cashbookdate").text(result.Item1);
-            $("#billdate").text(result.Item2);
-           
-        });
+                function (result) {
+                    $("#cashbookdate").text(result.Item1);
+                    $("#billdate").text(result.Item2);
+
+                });
+        }
     }
-    }
-</script>
+    </script>
 

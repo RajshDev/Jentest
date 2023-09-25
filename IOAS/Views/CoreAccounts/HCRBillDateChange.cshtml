@@ -120,6 +120,14 @@
 <script>
     var errMsg = '@TempData["errMsg"]';
     $(document).ready(function () {
+        fincurrent = moment(new Date()).toDate();
+        finyr = new Date('@TempData["Finyear"]');
+        console.log(finyr);
+        $('#BillDate,#CashDate').datepicker({
+            dateFormat: 'dd-mm-yy',
+            changeYear: true,
+        }).datepicker("option", "minDate", finyr).datepicker("option", "maxDate", fincurrent);
+        
         if (errMsg == 'Failed') {
             $("#RefId,#RefNo,#BillDate,#ExpDate,#CashDate,#Remarks").val('');
             $("#CurrDate,#expendituredate,#cashbookdate,#Remarks").text('');
@@ -135,59 +143,49 @@
             $('#Success').modal('toggle');
         }
     });
-    $(document).on('change', '#RefNo', function () {
-        DateModificationRange();
-    });
-    function DateModificationRange() {
-        var RefNo = $("#RefId").val();
-        $('#BillDate,#ExpDate,#CashDate').removeClass('hasDatepicker');
-        $("#BillDate").val('');
-        $("#ExpDate").val('');
-        $("#CashDate").val('');
-        $.ajax({
-            type: "POST",
-            data: JSON.stringify({ 'RefNo': RefNo }),
-            url: '@Url.Action("DateModificationRange", "CoreAccounts")',
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function (Result) {
-                var Item1 = Result.Item1.split('-');
-                var Item2 = Result.Item2.split('-');
-                var Date1 = new Date(parseInt(Item1[2]), parseInt(Item1[1]) - 1, parseInt(Item1[0]))
-                var Date2 = new Date(parseInt(Item2[2]), parseInt(Item2[1]) - 1, parseInt(Item2[0]))
-                $('#BillDate,#ExpDate,#CashDate').datepicker({ dateFormat: 'dd-MM-yy', minDate: Date1, maxDate: Date2 });
-
-            },
-        })
-    }
-    $('#BillDate,#ExpDate,#CashDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
+     $('#BillDate,#ExpDate,#CashDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
     $(document).on('click', '#RefNo', function () {
         applyAutoComplete($('#RefNo'), $('#RefId'), '@Url.Action("LoadHCRRefernceNumber", "CoreAccounts")', 'BillDate', undefined, undefined);
        BillDate();
     });
-    $('#btnSubmit').click(function () {
-        var RefNumber = $("#RefId").val();
+
+    function GetRefNumber(Refnum) {
+        var RefNumValidate ='';
+        $.ajax({
+            type: "GET",
+            async: false,
+            url: '@Url.Action("GetRefNumberForValidationAVOBill", "CoreAccounts")',
+            data: {
+                "Refnum": Refnum, "vouchertype":'HeadCredit'
+            },
+            dataType: "json",
+            success: function (result) {
+                RefNumValidate = result;
+                }
+        });
+        return RefNumValidate;
+    }
+
+    $('#btnSubmit').click( function () {
+        var RefNumber = $("#RefNo").val();
         var BillDate = $("#BillDate").val();
         var ExpDate = $("#ExpDate").val();
         var CashDate = $("#CashDate").val();
-        if (RefNumber != "") {
-            $('#formHCRDate').submit();
-            @*$.getJSON("@Url.Action("UpdateBillDate", "CoreAccounts")", { RefNumber: RefNumber, BillDate: BillDate, ExpDate: ExpDate, CashDate: CashDate },
-        function (result) {
-            if (result.Message == "Success") {
-                $('#alertSuccess').html("It has been updated successfully.");
-                $('#Success').modal('toggle');
-                $("#RefId,,#RefNo,#BillDate,#ExpDate,#CashDate").val('');
-                $("#CurrDate,#expendituredate,#cashbookdate").text('');
-            } else {
-                $('#FailedAlert').html("Something went wrong please contact administrator");
-                $('#Failed').modal('toggle');
-                $("#RefId,,#RefNo,#BillDate,#ExpDate,#CashDate").val('');
-                $("#CurrDate,#expendituredate,#cashbookdate").text('');
-            }
-        });*@
-    }
+        validate(RefNumber);
     });
+    async function validate(RefNumber) {
+
+        var ValidateRefNumber = await GetRefNumber(RefNumber);
+
+        if (RefNumber == ValidateRefNumber && RefNumber != "") {
+            $('#formHCRDate').submit();
+        }
+        else {
+            $('#FailedAlert').html("Invalid Reference Number");
+            $('#Failed').modal('show');
+        }
+    };
+    
     function BillDate()
     {
         var RefNumber = $("#RefId").val();
