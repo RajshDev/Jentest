@@ -157,25 +157,26 @@
                                                             <tbody id="tbodyPO">
                                                                 <tr>
                                                                     @*<td style="width: 400px;">Department </td>*@
-                                                                    <td >Vendor Name</td>
-                                                                    <td >Invoice Number </td>
-                                                                    <td >SAC / HSN</td>
+                                                                    <td>Vendor Name</td>
+                                                                    <td>Invoice Number </td>
+                                                                    <td>SAC / HSN</td>
                                                                     @*<td style="width: 200px;">(SAC / HSN) / Tax % </td>*@
-                                                                    <td >Invoice Date</td>
-                                                                    <td >Description</td>
-                                                                    <td >Amount</td>
-                                                                    <td >Tax %</td>
-                                                                    <td >Tax Amount</td>
-                                                                    <td >Total Amount</td>
-                                                                    <td >GSTIN</td>
-                                                                    <td >Tax Eligible</td>
-                                                                    <td >Interstate</td>
+                                                                    <td>Invoice Date</td>
+                                                                    <td>Description</td>
+                                                                    <td>Amount</td>
+                                                                    <td>Tax %</td>
+                                                                    <td>Tax Amount</td>
+                                                                    <td>Total Amount</td>
+                                                                    <td>Rounded Amount</td>
+                                                                    <td>GSTIN</td>
+                                                                    <td>Tax Eligible</td>
+                                                                    <td>Interstate</td>
 
                                                                     @*<td class="bg-blue">Adv %</td>
-                                                                        <td class="bg-blue">Advance Amt</td>
-                                                                        <td class="bg-blue dis-none">TAX</td>
-                                                                        <td class="bg-blue dis-none">Total</td>
-                                                                        <td></td>*@
+                            <td class="bg-blue">Advance Amt</td>
+                            <td class="bg-blue dis-none">TAX</td>
+                            <td class="bg-blue dis-none">Total</td>
+                            <td></td>*@
                                                                 </tr>
                                                                 @if (Model.PaymentDetails != null && Model.PaymentDetails.Count > 0)
                                                                 {
@@ -193,6 +194,7 @@
                                                                         var taxpercent = "PaymentDetails[" + count + "].TaxablePercentage";
                                                                         var taxvalue = "PaymentDetails[" + count + "].TaxValue";
                                                                         var totalvalue = "PaymentDetails[" + count + "].TotalValue";
+                                                                        var roundvalue = "PaymentDetails[" + count + "].Roundvalue";
                                                                         var gstin = "PaymentDetails[" + count + "].GSTIN";
                                                                         var taxEligible = "PaymentDetails[" + count + "].IsTaxEligible";
                                                                         var interstate = "PaymentDetails[" + count + "].IsInterstate";
@@ -236,6 +238,10 @@
                                                                             <td>
                                                                                 @Html.TextBox(@totalvalue, item.TotalValue, new { @class = "form-control", @readonly = true, @id = "Totalvalue", @autocomplete = "off" })
                                                                                 @Html.ValidationMessage(@totalvalue)
+                                                                            </td>
+                                                                            <td>
+                                                                                @Html.TextBox(@roundvalue, item.Roundvalue, new { @class = "form-control", @readonly = true, @id = "Roundvalue", @autocomplete = "off" })
+                                                                                @Html.ValidationMessage(@roundvalue)
                                                                             </td>
                                                                             <td>
                                                                                 @Html.TextBox(@gstin, item.GSTIN, new { @class = "form-control", @onchange = "calculateamount()" })
@@ -297,6 +303,10 @@
                                                                             @Html.ValidationMessage("PaymentDetails[0].TotalValue")
                                                                         </td>
                                                                         <td>
+                                                                            @Html.TextBox("PaymentDetails[0].roundvalue", "", new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)", @readonly = true })
+                                                                            @Html.ValidationMessage("PaymentDetails[0].roundvalue")
+                                                                        </td>
+                                                                        <td>
                                                                             @Html.TextBox("PaymentDetails[0].GSTIN", "", new { @class = "form-control" })
                                                                             @Html.ValidationMessage("PaymentDetails[0].GSTIN")
                                                                         </td>
@@ -315,122 +325,125 @@
                                                                 }
                                                             </tbody>
                                                         </table>
-
                                                     </div>
-
                                                 </div>
-
-                                            </div>
-                                        </div>
-
-                                        <div class="row">
-                                            <div class="col-md-3">
-                                                <div class="form-group custom-form-group">
-                                                    <label class="required">Bank</label>
-                                                    @Html.DropDownListFor(m => m.BankId, new SelectList(ViewBag.BankHeadList, "id", "name"), "Select any", new { @class = "form-control" })
-                                                    @Html.ValidationMessageFor(m => m.BankId)
-                                                    @Html.HiddenFor(m => m.BankHeadId)
-                                                </div>
-                                            </div>
-                                            <div class="col-md-9">
-                                                <div class="form-group custom-form-group">
-                                                    <label>Remarks</label>
-                                                    @Html.TextAreaFor(m => m.Remark, new { @class = "form-control", @id = "txtRemarks" })
-                                                    @Html.ValidationMessageFor(m => m.Remark)
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-md-3">
-                                                <div class="form-group custom-form-group">
-                                                    <label class="required">Mode of Payment</label>
-                                                    @Html.DropDownListFor(m => m.PaymentMode, new SelectList(ViewBag.PaymentMode, "id", "name"), "Select any", new { @class = "form-control required", @id = "txtpaymentmode" })
-                                                    @Html.ValidationMessageFor(m => m.PaymentMode)
-                                                </div>
-                                            </div>
-
-                                            <div class="col-md-6">
-                                                <div class="form-group custom-form-group">
-                                                    <label>Description</label>
-                                                    @Html.TextAreaFor(m => m.Description, new { @class = "form-control" })
-                                                    @Html.ValidationMessageFor(m => m.Description)
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="row" id="bankdetails">
-                                            <div class="col-md-3">
-                                                <div class="form-group custom-form-group">
-                                                    <label class="required">Bank Name</label>
-                                                    @Html.TextBoxFor(m => m.BankName, new { @class = "form-control", @id = "txtBankname" })
-                                                    @Html.ValidationMessageFor(m => m.BankName)
-                                                </div>
-                                            </div>
-                                            <div class="col-md-3">
-                                                <div class="form-group custom-form-group">
-                                                    <label class="required">Branch</label>
-                                                    @Html.TextBoxFor(m => m.BranchName, new { @class = "form-control", @id = "txtBranchname" })
-                                                    @Html.ValidationMessageFor(m => m.BranchName)
-                                                </div>
-                                            </div>
-                                            <div class="col-md-3">
-                                                <div class="form-group custom-form-group">
-                                                    <label class="required">Account Number</label>
-                                                    @Html.TextBoxFor(m => m.AccountNumber, new { @class = "form-control", @id = "txtAccountnumber" })
-                                                    @Html.ValidationMessageFor(m => m.AccountNumber)
-                                                </div>
-                                            </div>
-                                            <div class="col-md-3">
-                                                <div class="form-group custom-form-group">
-                                                    <label class="required">IFSC</label>
-                                                    @Html.TextBoxFor(m => m.IFSCCode, new { @class = "form-control", @id = "txtIFSC" })
-                                                    @Html.ValidationMessageFor(m => m.IFSCCode)
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="row">
-                                            <div class="col-md-3">
-                                                <div class="form-group custom-form-group">
-                                                    <label>Eligible Tax Amount</label>
-                                                    @Html.TextBoxFor(m => m.EligibleTaxValue, new { @class = "form-control", @id = "txtEligibleTaxValue", @readonly = true })
-                                                    @Html.ValidationMessageFor(m => m.EligibleTaxValue)
-                                                </div>
-                                            </div>
-                                            <div class="col-md-3">
-                                                <div class="form-group custom-form-group">
-                                                    <label>Total Tax Amount</label>
-                                                    @Html.TextBoxFor(m => m.TotalTaxValue, new { @class = "form-control", @id = "txtTotalTaxValue", @readonly = true })
-                                                    @Html.ValidationMessageFor(m => m.TotalTaxValue)
-                                                </div>
-                                            </div>
-                                            <div class="col-md-3">
-                                                <div class="form-group custom-form-group">
-                                                    <label class="required">Total Payment Amount</label>
-                                                    @Html.TextBoxFor(m => m.TotalAdhocPayValue, new { @class = "form-control", @id = "txtAdhocPayValue", @readonly = true })
-                                                    @Html.ValidationMessageFor(m => m.TotalAdhocPayValue)
-
-                                                </div>
-                                            </div>
-                                            <div class="col-md-3 pull-right">
-                                                <div class="reg-no custom-reg-no">
+                                                <label>Total Value :</label>
+                                                <div class="col-md-2 pull-right">
                                                     <div class="form-group custom-form-group">
-                                                        <label>Net Payable Amount</label>
-                                                        @Html.TextBoxFor(m => m.NetPayableValue, new { @class = "form-control", @id = "txtNetPayableValue", @readonly = true })
+                                                        <input type="text" class="form-control" id="txtRoundOfAdjustment" />
+                                                        @*@Html.ValidationMessageFor(m => m.roundOfAdjustment)*@
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-md-12">
-                                                <div class="form-group custom-form-group">
-                                                    <p> * Commitment shall be booked for an amount <label style="color:black; font-weight: bold" id="lblcommitamt"></label> (Net Payable Amount - Eligible Tax Amount) </p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                            </div>  
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-3">
+                                                            <div class="form-group custom-form-group">
+                                                                <label class="required">Bank</label>
+                                                                @Html.DropDownListFor(m => m.BankId, new SelectList(ViewBag.BankHeadList, "id", "name"), "Select any", new { @class = "form-control" })
+                                                                @Html.ValidationMessageFor(m => m.BankId)
+                                                                @Html.HiddenFor(m => m.BankHeadId)
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-9">
+                                                            <div class="form-group custom-form-group">
+                                                                <label>Remarks</label>
+                                                                @Html.TextAreaFor(m => m.Remark, new { @class = "form-control", @id = "txtRemarks" })
+                                                                @Html.ValidationMessageFor(m => m.Remark)
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-3">
+                                                            <div class="form-group custom-form-group">
+                                                                <label class="required">Mode of Payment</label>
+                                                                @Html.DropDownListFor(m => m.PaymentMode, new SelectList(ViewBag.PaymentMode, "id", "name"), "Select any", new { @class = "form-control required", @id = "txtpaymentmode" })
+                                                                @Html.ValidationMessageFor(m => m.PaymentMode)
+                                                            </div>
+                                                        </div>
 
-                                </div>
-                            </div>
+                                                        <div class="col-md-6">
+                                                            <div class="form-group custom-form-group">
+                                                                <label>Description</label>
+                                                                @Html.TextAreaFor(m => m.Description, new { @class = "form-control" })
+                                                                @Html.ValidationMessageFor(m => m.Description)
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row" id="bankdetails">
+                                                        <div class="col-md-3">
+                                                            <div class="form-group custom-form-group">
+                                                                <label class="required">Bank Name</label>
+                                                                @Html.TextBoxFor(m => m.BankName, new { @class = "form-control", @id = "txtBankname" })
+                                                                @Html.ValidationMessageFor(m => m.BankName)
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <div class="form-group custom-form-group">
+                                                                <label class="required">Branch</label>
+                                                                @Html.TextBoxFor(m => m.BranchName, new { @class = "form-control", @id = "txtBranchname" })
+                                                                @Html.ValidationMessageFor(m => m.BranchName)
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <div class="form-group custom-form-group">
+                                                                <label class="required">Account Number</label>
+                                                                @Html.TextBoxFor(m => m.AccountNumber, new { @class = "form-control", @id = "txtAccountnumber" })
+                                                                @Html.ValidationMessageFor(m => m.AccountNumber)
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <div class="form-group custom-form-group">
+                                                                <label class="required">IFSC</label>
+                                                                @Html.TextBoxFor(m => m.IFSCCode, new { @class = "form-control", @id = "txtIFSC" })
+                                                                @Html.ValidationMessageFor(m => m.IFSCCode)
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row">
+                                                        <div class="col-md-3">
+                                                            <div class="form-group custom-form-group">
+                                                                <label>Eligible Tax Amount</label>
+                                                                @Html.TextBoxFor(m => m.EligibleTaxValue, new { @class = "form-control", @id = "txtEligibleTaxValue", @readonly = true })
+                                                                @Html.ValidationMessageFor(m => m.EligibleTaxValue)
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <div class="form-group custom-form-group">
+                                                                <label>Total Tax Amount</label>
+                                                                @Html.TextBoxFor(m => m.TotalTaxValue, new { @class = "form-control", @id = "txtTotalTaxValue", @readonly = true })
+                                                                @Html.ValidationMessageFor(m => m.TotalTaxValue)
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <div class="form-group custom-form-group">
+                                                                <label class="required">Total Payment Amount</label>
+                                                                @Html.TextBoxFor(m => m.TotalAdhocPayValue, new { @class = "form-control", @id = "txtAdhocPayValue", @readonly = true })
+                                                                @Html.ValidationMessageFor(m => m.TotalAdhocPayValue)
+
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-3 pull-right">
+                                                            <div class="reg-no custom-reg-no">
+                                                                <div class="form-group custom-form-group">
+                                                                    <label>Net Payable Amount</label>
+                                                                    @Html.TextBoxFor(m => m.NetPayableValue, new { @class = "form-control", @id = "txtNetPayableValue", @readonly = true })
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <div class="form-group custom-form-group">
+                                                                <p> * Commitment shall be booked for an amount <label style="color:black; font-weight: bold" id="lblcommitamt"></label> (Net Payable Amount - Eligible Tax Amount) </p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
                         </div>
                     </div>
                 </div>
@@ -1064,6 +1077,44 @@
         applyAutoComplete(acEle, hdEle, '@Url.Action("LoadTypeOfServiceList")')
 
     });
+    
+    //function validateRoundOfAdjustment() {
+    //    var inputElement = $("txtRoundOfAdjustment").val();
+    //    var enteredValue = parseFloat(inputElement);
+
+    //    var validationMsg = "valid";
+
+    //    if (!isNaN(enteredValue) && enteredValue >= -10 && enteredValue <= 10) {
+    //        // Value is valid, clear error message
+    //        validationMsg = "";
+    //    } else {
+    //        // Value is not valid, show error message
+    //        $('#MsgValidation').html("Please enter a number between -10 and 10.");
+    //        $('#ValidationModal').modal('toggle');
+    //        return false;
+    //    }
+       
+    //}
+    function round(total) {
+
+        if (!isNaN(total)) {
+            var valToBeRounded = parseFloat(total);
+            var decimalPart = valToBeRounded % 1;
+
+            console.log(valToBeRounded);
+            if (decimalPart > 0.5) {
+                // Round up the number
+                var roundUpNumber = Math.ceil(valToBeRounded);
+                value = roundUpNumber;
+            }
+            else {
+                // Round off the number
+                var roundOffNumber = Math.round(valToBeRounded);
+                value = roundOffNumber;
+            }
+            return value;
+        }
+    }
     function calculateamount() {
         var totalamount = 0;
         var totaltax = 0;
@@ -1082,6 +1133,8 @@
             if (!isNaN(total)) {
                 $(this).find('input[name$=".TotalValue"]').val(total);
             }
+            var roundVal = round(total);
+            $(this).find('input[name$=".Roundvalue"]').val(roundVal);
             if (!isNaN(amount)) {
                 totalamount += amount;
             }
@@ -1091,7 +1144,9 @@
         totaltax = parseFloat((totaltax).toFixed(2));
 
         if (!isNaN(netpayabletotal)) {
-            $("#txtNetPayableValue").val((netpayabletotal).toFixed(2));
+            var netPayableTotalRoundVal = round(netpayabletotal);
+            $("#txtNetPayableValue").val((netPayableTotalRoundVal).toFixed(2));
+            
             // $("#CreditorAmount").val(netpayabletotal.toFixed(0));
         }
         if (!isNaN(totaltax)) {
@@ -1516,7 +1571,7 @@
     function ValidateCommitment() {
         var msg = 'valid';
         var commitmentAmt = parseFloat($('#CommitmentAmount').val());
-        var netPayAmt = parseFloat($('#txtNetPayableValue').val());
+        var netPayAmt = parseFloat($('#txtNetPayableValue').val()); console.log(netPayAmt);
         var eligtax = parseFloat($('#txtEligibleTaxValue').val());
         var ttlAdvAmt = netPayAmt - eligtax;
         // var advPct = parseInt($("#AdvancePercentage").val());
@@ -1645,6 +1700,12 @@
             if (content == '') {
                 searchCommitment()
             }
+            //var validationMsg = validateRoundOfAdjustment();
+            //if (validationMsg != 'valid') {
+            //    hadError = true;
+            //    $("#alert").text(validationMsg);
+            //    $('#Validation').modal('show');
+            //}
         }
         else if (currentTab == 1) {
             //var validationMsg = ValidateCommitment()
@@ -1658,7 +1719,10 @@
             }
             //}
             var netPayAmt = parseFloat($('#txtNetPayableValue').val());
+            var roundOff = parseFloat($('#txtRoundOfAdjustment').val());
             var credit = netPayAmt;
+
+            console.log("creditorAmount" + credit);
             $("#CreditorAmount").val(credit);
             //if(parseInt($("#AdvancePercentage").val()) == 100){
             CalculateDeductionTotal();
