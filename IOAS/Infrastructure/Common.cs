@@ -11690,6 +11690,73 @@ namespace IOAS.Infrastructure
             }
 
         }
+
+
+        public static vw_ProjectDetails specialApprovelAutoCompleteProject(int ProjectId)
+        {
+            try
+            {
+                vw_ProjectDetails ProjectSAModel = new vw_ProjectDetails();
+
+                using (var context = new IOASDBEntities())
+                {
+
+                    var ProjectSA = (from prj in context.vw_ProjectDetails
+                                     where prj.ProjectId == ProjectId
+                                     select prj).FirstOrDefault();
+                                      
+
+                   /* if (ProjectSA != null)
+                    {
+                        ProjectSAModel.ProjectId = ProjectSA.ProjectId;
+                        ProjectSAModel.ProjectNumber = ProjectSA.ProjectNumber;
+
+
+                    }*/
+                        return ProjectSA;
+                }
+            }
+
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+                (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                return new vw_ProjectDetails();
+
+
+            }
+        }
+
+
+
+
+        //done
+
+        public static string specialApprovelProjectNumber()
+        {
+            try
+            {
+               
+                using (var context = new IOASDBEntities())
+                {                   
+                var query = (from pro in context.tblProject where pro.Status == "Active"
+                             select pro.ProjectNumber).FirstOrDefault();
+
+                    return query;
+                }
+            }
+
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+                (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                throw ex;
+
+            }
+        }
+
+
+
         public static string getParttimeinternId()
         {
             try
@@ -11789,6 +11856,8 @@ namespace IOAS.Infrastructure
                 return false;
             }
         }
+
+
         public static bool ValidateGeneralVoucherStatus(int id, string status)
         {
             try
