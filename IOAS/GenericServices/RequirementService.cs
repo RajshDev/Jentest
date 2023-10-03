@@ -19550,6 +19550,14 @@ namespace IOAS.GenericServices
                                     {
                                         if (model.OtherDetail.Count > 0)
                                         {
+                                            List<int?> OtherDetailsID = new List<int?>().ToList();
+                                            for (int i = 0; i < model.OtherDetail.Count; i++)
+                                            { OtherDetailsID.Add(model.OtherDetail[i].OtherDetailId); }
+
+                                            context.tblRCTOSGOtherDetail.Where(x => x.OSGId == OSGID && !OtherDetailsID.Contains(x.OtherDetailsId) && x.Status == "Active")
+                                          .ToList()
+                                           .ForEach(m => m.Status = "InActive");
+                                            context.SaveChanges();
                                             for (int i = 0; i < model.OtherDetail.Count; i++)
                                             {
                                                 if (model.OtherDetail[i].OtherDetailId == null && model.OtherDetail[i].OtherNames != null)
