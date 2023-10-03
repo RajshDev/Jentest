@@ -36,9 +36,13 @@ namespace IOAS.GenericServices
                     if (userquery != null)
                     {
                         var Loggedin = context.tblLoginDetails.OrderByDescending(l => l.LoginTime).FirstOrDefault(l => l.UserId == userquery.UserId);
-                        if (Loggedin != null)
-                            if (Loggedin.isLoggedIn == true && Loggedin.currSession != currSession)
+                        if (userquery.unRestrict != true)
+                        {   
+                            if (Loggedin != null)
+                                if (Loggedin.isLoggedIn == true && Loggedin.currSession != currSession)
                                     return -3;
+                        }
+
                         if (userexpiry != null)
                             return -2;
 
@@ -4137,14 +4141,14 @@ namespace IOAS.GenericServices
                                      // from D  in context.tblCommitmentDetails
                                  from P in context.tblProject
                                      //where C.Status == "Active"
-                                 where (C.ProjectId == P.ProjectId)
+                                 where (C.Status != "Closed" && C.Status != "InActive") && (C.CommitmentBalance > 0) && (C.ProjectId == P.ProjectId)
                                  && (P.ProjectNumber.Contains(model.SearchProjectNumber) || model.SearchProjectNumber == null)
                                  && (C.CommitmentNumber.Contains(model.SearchCommitmentNumber) || model.SearchCommitmentNumber == null)
                                  && ((C.CRTD_TS > CreatedDate.@from && C.CRTD_TS < CreatedDate.to) || (CreatedDate.@from == null && CreatedDate.to == null))
                                  && (C.CommitmentAmount == model.CommitmentAmount || model.CommitmentAmount == null)
                                  && (C.CommitmentBalance == model.AvilableAmount || model.AvilableAmount == null)
                                  && (C.Status.Contains(model.Status) || model.Status == null)
-                                 orderby C.CommitmentId descending
+                                 orderby C.Status descending
                                  select new { C }).AsEnumerable()
                                  .Select((x, index) => new CommitmentResultModel()
                                  {
@@ -4165,7 +4169,7 @@ namespace IOAS.GenericServices
 
                                          from P in context.tblProject
                                              //where C.Status == "Active"
-                                         where (C.ProjectId == P.ProjectId)
+                                         where (C.Status != "Closed" && C.Status != "InActive") && (C.CommitmentBalance > 0) && (C.ProjectId == P.ProjectId)
                                          && (P.ProjectNumber.Contains(model.SearchProjectNumber) || model.SearchProjectNumber == null)
                                          && (C.CommitmentNumber.Contains(model.SearchCommitmentNumber) || model.SearchCommitmentNumber == null)
                                          && ((C.CRTD_TS > CreatedDate.@from && C.CRTD_TS < CreatedDate.to) || (CreatedDate.@from == null && CreatedDate.to == null))
@@ -4733,6 +4737,8 @@ namespace IOAS.GenericServices
             try
             {
                 var commitment = new PagedData<CommitmentResultModel>();
+                DateTime expiryfrom = DateTime.Now.AddDays(-91);
+                DateTime expiryto = DateTime.Now;
                 List<CommitmentResultModel> GetDetail = new List<CommitmentResultModel>();
                 using (var context = new IOASDBEntities())
                 {
@@ -4755,7 +4761,7 @@ namespace IOAS.GenericServices
                                        ComDet = D
                                    };
                     var predicate = PredicateBuilder.BaseAnd<CommitmentPredicate>();
-                    predicate = predicate.And(d => d.com.Status == "Active");
+                    predicate = predicate.And(d => d.com.Status == "Active" && d.prj.Status == "Active" && ((d.com.CRTD_TS < expiryfrom && d.com.CommitmentBalance > 0) || (d.com.CRTD_TS >= expiryfrom && d.com.CRTD_TS <= expiryto))) ;
                     if (!string.IsNullOrEmpty(model.Keyword))
                         predicate = predicate.And(d => d.com.CommitmentNumber.Contains(model.Keyword) || d.com.Status.Contains(model.Keyword));
                     if (model.ProjectType != null)
@@ -4901,8 +4907,24 @@ namespace IOAS.GenericServices
                 return commit;
             }
         }
-        public static int CloseThisCommitment(CommitmentResultModel model, int UserId)        {            try            {               lock (ClsCommitlockObj)
-               {                 bool isClosed = true;                int result = 0;                List<BillCommitmentDetailModel> commitbalance = new List<BillCommitmentDetailModel>();                using (var context = new IOASDBEntities())                {                    var CommQry = (from C in context.tblCommitment                                   join D in context.tblCommitmentDetails on C.CommitmentId equals D.CommitmentId                                   where C.Status == "Active" && C.CommitmentId == model.ComitmentId                                   select new                                   { C, D }).FirstOrDefault();                        var prveBankID = CommQry.C.BankID;
+        public static int CloseThisCommitment(CommitmentResultModel model, int UserId)
+        {
+            try
+            {
+               lock (ClsCommitlockObj)
+               { 
+                bool isClosed = true;
+                int result = 0;
+                List<BillCommitmentDetailModel> commitbalance = new List<BillCommitmentDetailModel>();
+                using (var context = new IOASDBEntities())
+                {
+
+                    var CommQry = (from C in context.tblCommitment
+                                   join D in context.tblCommitmentDetails on C.CommitmentId equals D.CommitmentId
+                                   where C.Status == "Active" && C.CommitmentId == model.ComitmentId
+                                   select new
+                                   { C, D }).FirstOrDefault();
+                        var prveBankID = CommQry.C.BankID;
                         var bankheadname = (from D in context.tblAccountHead
                                             join P in context.tblProject on D.AccountHeadId equals P.BankID
                                             where (P.ProjectId == model.ProjectId && P.Status == "Active")
@@ -4945,7 +4967,8 @@ namespace IOAS.GenericServices
                                                  where (D.CommitmentId == model.ComitmentId)
                                                  select D).FirstOrDefault();
 
-                                    if (query != null)                                    {
+                                    if (query != null)
+                                    {
                                         query.Status = "Closed";
                                         query.UPDT_UserID = UserId;
                                         query.UPDT_TS = DateTime.Now;
@@ -4994,7 +5017,8 @@ namespace IOAS.GenericServices
                                         result = 1;
 
                                     }
-                                }                            }
+                                }
+                            }
                             else
                             {
                                 //var query = (from D in context.tblCommitment
@@ -5067,8 +5091,16 @@ namespace IOAS.GenericServices
 
                     //return 
 
-                }                return result;
-            }            }            catch (Exception ex)            {                return 0;            }        }
+                }
+                return result;
+            }
+            }
+            catch (Exception ex)
+            {
+                return 0;
+            }
+        }
+
 
       
         public static List<DepartmentModel> GetDepartmentlist()

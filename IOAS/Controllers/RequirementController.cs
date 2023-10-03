@@ -2314,24 +2314,26 @@ namespace IOAS.Controllers
                 model.RoleId = user.Item2;
                 if (model.ApplicationType == "STE")
                 {
-                    if (model.FlowApprover == "CMAdmin")
-                        ViewBag.processGuideLineId = Common.GetProcessGuidelineId(188, "STEORDVERAdminFlow", 0);
-                    else if (model.FlowApprover == "NDean")
-                        ViewBag.processGuideLineId = Common.GetProcessGuidelineId(188, "STEORDVERFlowDean", 0);
-                    else
-                        ViewBag.processGuideLineId = Common.GetProcessGuidelineId(188, "STEORDVER Flow", 0);
+                    //if (model.FlowApprover == "CMAdmin")
+                    //    ViewBag.processGuideLineId = Common.GetProcessGuidelineId(188, "STEORDVERAdminFlow", 0);
+                    //else if (model.FlowApprover == "NDean")
+                    //    ViewBag.processGuideLineId = Common.GetProcessGuidelineId(188, "STEORDVERFlowDean", 0);
+                    //else
+                    //    ViewBag.processGuideLineId = Common.GetProcessGuidelineId(188, "STEORDVER Flow", 0);
+                    ViewBag.processGuideLineId = Common.GetProcessGuidelineId(188, "STEORDVER Flow", 0);
                     model.List_f = getEmployeeActionLink("STE", listf);
                     ViewBag.currentRefId = model.STEId;
 
                 }
                 else if(model.ApplicationType == "OSG")
                 {
-                    if (model.FlowApprover == "CMAdmin")
-                        ViewBag.processGuideLineId = Common.GetProcessGuidelineId(206, "OSGORDVERAdminFlow", 0);
-                    else if (model.FlowApprover == "NDean")
-                        ViewBag.processGuideLineId = Common.GetProcessGuidelineId(206, "OSGORDVERFlowDean", 0);
-                    else
-                        ViewBag.processGuideLineId = Common.GetProcessGuidelineId(206, "OSGORDVER Flow", 0);
+                    //if (model.FlowApprover == "CMAdmin")
+                    //    ViewBag.processGuideLineId = Common.GetProcessGuidelineId(206, "OSGORDVERAdminFlow", 0);
+                    //else if (model.FlowApprover == "NDean")
+                    //    ViewBag.processGuideLineId = Common.GetProcessGuidelineId(206, "OSGORDVERFlowDean", 0);
+                    //else
+                    //    ViewBag.processGuideLineId = Common.GetProcessGuidelineId(206, "OSGORDVER Flow", 0);
+                    ViewBag.processGuideLineId = Common.GetProcessGuidelineId(206, "OSGORDVER Flow", 0);
                     model.List_f = getEmployeeActionLink("STE", listf);
                     ViewBag.currentRefId = model.OrderId;
 

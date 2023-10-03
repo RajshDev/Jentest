@@ -26,7 +26,7 @@ $(function () {
     $("#ActiveCommitList").jsGrid({
         paging: true,
         pageIndex: 1,
-        pageSize: 5,
+        pageSize: 20,
         editing: false,
         filtering: true,
         pageLoading: true,
@@ -183,5 +183,5 @@ var loadDetails = function loadDetails() {
         FromCreatedDate: $('#FromCreatedDate').val() || null,
         ToCreatedDate: $('#ToCreatedDate').val() || null
     },
-    $("#ActiveCommitList").jsGrid("search", input, pageIndex = 1, pageSize = 5);
+    $("#ActiveCommitList").jsGrid("search", input, pageIndex = 1, pageSize = 20);
 };
