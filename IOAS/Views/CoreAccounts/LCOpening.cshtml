@@ -1000,40 +1000,34 @@
       $("input[name='ProjectNumber']").each(function () {
             projectChange($(this), 'U');
             var PjctId = $('input[name="ProjectId"]').val();
-            var commitmentIdMdl = @Html.Raw(Json.Encode(Model.CommitmentId));
+            var CommitmentId = @Html.Raw(Json.Encode(Model.CommitmentId)) || "";
             $.ajax({
                 type: "POST",
                 url: "@Url.Action("GetFRMDetailsbyProject", "CoreAccounts")",
                 data: { "ProjectId": PjctId },
-            traditional: true,
-            dataType: "json",
-            success: function (result) {
-                var select = $("#txtCommitmentNumber");
-                select.empty();
-                $.each(result.CommitmentList, function (index, itemData) {
-                    if (itemData.id == commitmentIdMdl)
-                    {
-                        select.append($('<option />', {
-                            value: itemData.id,
-                            text: itemData.name,
-                            selected:true
-                        }));
-                    }
-                    else {
+                traditional: true,
+                dataType: "json",
+                success: function (result) {
+
+                    var select = $("#txtCommitmentNumber");
+                    select.empty();
+
+                    $.each(result.CommitmentList, function (index, itemData) {
                         select.append($('<option/>', {
                             value: itemData.id,
                             text: itemData.name
                         }));
-                    }
-                });
-                select.selectpicker('refresh');
+                    });
+                    select.selectpicker('refresh');
+                    //$("#txtCommitmentNumber").val(CommitmentId);
+                    $('select[name="CommitmentId"]').val(CommitmentId);
+                    select.selectpicker('refresh');
                 },
                 error: function (err) {
                     console.log("error : " + err);
                 }
             });
         });
-
 
         @*var cndtsDetails = @Html.Raw(Json.Encode(Model.Conditions));
         $.each(cndtsDetails, function (i, result) {
