@@ -6068,56 +6068,6 @@ namespace IOAS.Models
         public int TotalRecords { get; set; }
         public List<ManDayModel> Mandayslist { get; set; }
     }
-    public class SpecialApproval
-    {
-        public int ProjectSpecialApprovalId { get; set; }
-        public int ProjectId { get; set; }
-        public int DocumentId { get; set; }
-        public string DocumentName { get; set; }
-        public string DocumentRemark { get; set; }
-        public string Status { get; set; }
-        public string AttachmentPath { get; set; }
-        public DateTime Crt_TS { get; set; }
-        public int ProjectNumber { get; set; }
-        
-
-    }
-
-    public class SpecialApprovalDoc
-    {
-        public int ProjectSpecialApprovalId { get; set; }
-        public int ProjectId { get; set; }
-        public int DocumentId { get; set; }
-        public string DocumentName { get; set; }
-        public string DocumentRemark { get; set; }
-        public string Status { get; set; }
-        public string AttachmentPath { get; set; }
-        public DateTime Crt_TS { get; set; }
-        public Nullable<int> SlNo { get; set; }
-    }
-
-
-    public class SpecialApprovalBoth
-    {
-        public int ProjectSpecialApprovalId { get; set; }
-        public int ProjectId { get; set; }
-        public int DocumentId { get; set; }
-        public string DocumentName { get; set; }
-        public string DocumentRemark { get; set; }
-        public string Status { get; set; }
-        public string AttachmentPath { get; set; }
-        public DateTime Crt_TS { get; set; }
-        public int TotalRecord { get; set; }
-        public Nullable<int> SlNo { get; set; }
-        public List<SpecialApprovalDoc> Spboth { get; set; }
-
-    }
-    //public class MasterlistviewModel
-    //{
-    //    public Nullable<int> id { get; set; }
-    //    public string name { get; set; }
-    //    public string code { get; set; }
-    //}
 
     #region
     public class BillReversal

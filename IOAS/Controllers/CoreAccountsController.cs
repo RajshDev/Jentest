@@ -1391,57 +1391,6 @@ namespace IOAS.Controllers
                 throw new Exception(ex.Message);
             }
         }
-        [AcceptVerbs(HttpVerbs.Get)]
-        public JsonResult SAAutoCompleteProjectDetails(int ProjectId)
-        {
-            var projectData = Common.specialApprovelAutoCompleteProject(Convert.ToInt32(ProjectId));
-            var result = new { projectData = projectData };
-            return Json(result, JsonRequestBehavior.AllowGet);
-        }
-
-
-        [HttpGet]
-        public ActionResult SpecialApproval()
-        {
-            try
-            {
-
-                ViewBag.SpecialApproval = Common.specialApprovelProjectNumber();
-                ViewBag.Docmenttype = Common.GetDocTypeList(9);
-
-                return View();
-            }
-            catch (Exception ex)
-            {
-                Infrastructure.IOASException.Instance.HandleMe(
-                    (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
-                throw new Exception(ex.Message);
-            }
-        }
-
-        [HttpPost]
-        public ActionResult SpecialApproval(SpecialApproval model )
-        {
-            try
-            {
-                ViewBag.Docmenttype = Common.GetDocTypeList(9);           
-
-                //If model Valid
-                    //Business logic
-
-                //else
-                //return View(model)
-
-                return View();
-            }
-            catch (Exception ex)
-            {
-                Infrastructure.IOASException.Instance.HandleMe(
-                    (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
-                throw new Exception(ex.Message);
-            }
-        }
-
 
         [HttpGet]
         public ActionResult BillReversal()
@@ -17548,52 +17497,6 @@ namespace IOAS.Controllers
             {
                 var data = Common.GetAutoCompleteInvoceListForReceipt(term, projectId);
                 return Json(data, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-
-
-        public ActionResult SpecialApprovalList()
-        {
-            return View();
-        }
-        [HttpGet]
-        public JsonResult GetSpecialApprovalList()
-        {
-            try
-            {
-                object output = coreAccountService.GetSpecialApprovalList();
-                return Json(output, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-        //[HttpPost]
-        //public JsonResult GetOtherReceiptList(SearchViewModel model, int pageIndex, int pageSize, DateFilterModel PostedDate)
-        //{
-        //    try
-        //    {
-        //        object output = coreAccountService.GetOtherReceiptList(model, pageIndex, pageSize, PostedDate);
-        //        return Json(output, JsonRequestBehavior.AllowGet);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw new Exception(ex.Message);
-        //    }
-        //}
-
-        [HttpPost]
-        public JsonResult GetSpecialApprovalList(SearchViewModel model, int pageIndex, int pageSize, DateFilterModel PostedDate)
-        {
-            try
-            {
-                object output = coreAccountService.GetSpecialApprovalList(model, pageIndex, pageSize, PostedDate);
-                return Json(output, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {

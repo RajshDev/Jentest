@@ -126,6 +126,6 @@ namespace IOAS.Models
 
         public List<TravelAdvanceModel> Travellist { get; set; }
         public List<OtherReceiptModel> Otherrecipt { get; set; }
-        public List<SpecialApprovalDoc> Spboth { get; set; }
+
     }
 }
