@@ -6714,9 +6714,10 @@ namespace IOAS.GenericServices
                                         //    }
                                         //}
                                         //var appid = query.o.AppointmentId ?? 0;
-
-                                        query.od.NotetoDean = model.FlowApprover == "NDean" ? true : false;
-                                        query.od.NotetoCMAdmin = model.FlowApprover == "CMAdmin" ? true : false;
+                                        //10554
+                                        //query.od.NotetoDean = model.FlowApprover == "NDean" ? true : false;
+                                        //query.od.NotetoCMAdmin = model.FlowApprover == "CMAdmin" ? true : false;
+                                        //10554
                                         //var Actualstartdate = query.o.FromDate;
                                         query.o.ActualAppointmentStartDate = query.o.FromDate;
                                         query.o.ActualAppointmentEndDate = query.o.ToDate;
