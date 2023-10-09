@@ -23637,10 +23637,14 @@ namespace IOAS.Infrastructure
             {
                 decimal recAmt = 0;
                 decimal negBal = 0;
+                //decimal? totalopeninvtaxablevalue = 0;              
                 using (var context = new IOASDBEntities())
                 {
+
+                    ProjectService prjModel = new ProjectService();
+                    var prjModel1 = prjModel.getProjectSummary(pId);
                     decimal sancVal = GetSanctionValue(pId);
-                    var query = context.tblReceipt.Where(r => r.ProjectId == pId && r.ReceiptId != recId && r.CategoryId != 16 && r.Status == "Completed").ToList();
+                    var query = context.tblReceipt.Where(r => r.ProjectId == pId && r.ReceiptId != recId && r.CategoryId != 16 && (r.Status != "Rejected" && r.Status != "InActive")).ToList();
                     recAmt = query.Sum(m => m.ReceiptAmount) ?? 0;
                     decimal cgst = query.Sum(m => m.CGST) ?? 0;
                     decimal sgst = query.Sum(m => m.SGST) ?? 0;
@@ -23651,6 +23655,9 @@ namespace IOAS.Infrastructure
                     negBal = (from U in context.tblNegativeBalance
                               where U.ProjectId == pId && U.Status == "Approved"
                               select U).Sum(m => m.NegativeBalanceAmount) ?? 0;
+                    decimal? totalopeninvtaxablevalue = (from I in context.vw_Oustanding
+                                                         where I.ProjectId == pId
+                                                         select I).Select(m => m.TaxableOutstanding).Sum();
                     decimal ttlAmt = 0;// recAmt + negBal;
                                        //if (negBal > 0 && amt < negBal)
                                        //    ttlAmt = recAmt + negBal - amt;
@@ -23660,12 +23667,7 @@ namespace IOAS.Infrastructure
                                        //                        where I.ProjectId == pId
                                        //                        select I).ToList();
                                        //decimal outstandInv = outstandInvQuery.Select(m => m.TaxableOutstanding).Sum() ?? 0;
-                    if (amt < 0)
-                        ttlAmt = recAmt + negBal + amt;
-                    else if (amt < negBal)
-                        ttlAmt = recAmt + negBal - amt;
-                    else
-                        ttlAmt = recAmt + amt - negBal;
+                        ttlAmt = recAmt + amt + (totalopeninvtaxablevalue ?? 0);
                     //else if (isInvoiceRec && amt > 0 && recId > 0)
                     //{
                     //    var queryOld = context.tblReceipt.Where(r => r.ReceiptId == recId).FirstOrDefault();
@@ -23717,6 +23719,12 @@ namespace IOAS.Infrastructure
                 return false;
             }
         }
+
+        private static object getProjectSummary(int pId)
+        {
+            throw new NotImplementedException();
+        }
+
         public static List<MasterlistviewModel> GetAccountGroupByAccountHead(int accountHeadId)
         {
             try
