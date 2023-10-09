@@ -9699,39 +9699,74 @@ namespace IOAS.Controllers
 
 
 
-                if (honorpay.TDS != 0 && honorpay.TDS != (decimal)0.10 && honorpay.TDS != (decimal)0.20  && honorpay.TDS != null)
+                if (honorpay.TDS != 0 && honorpay.TDS != (decimal)0.10 && honorpay.TDS != (decimal)0.20 && honorpay.TDS != (decimal)0.2080 && honorpay.TDS != (decimal)0.3120 && honorpay.TDS != (decimal)0.3432 && honorpay.TDS != (decimal)0.3588 && honorpay.TDS != null)
                 { tds_status = "Invalid TDS"; }
+
+                //                honorpay.Status = (name_status == "" ? "" : name_status + " / ") + (tds_status == "" ? "" : tds_status + " / ") + (amt_status == "" ? "" : amt_status + " / ");
+                //                if (honorpay.Status.Trim() == "")
+                //                {
+                //                    string[] arrPayment = { "", "Cheque", "Bank Transfer" ,"Salary"};
+                //                    string[] arrTdsSection = {"TDS on Contract  (94C) 2%","TDS on Salary (92B)","TDS on Fees (94J) 10%","TDS on Rent (94I) 10%",
+                //"TDS on Commission (94H) 5%","TDS Payable TDS Payable Income Tax","TDS on Contract  (94C) 1%","TDS on Rent (94I) 2%",
+                //"TDS on Non Residents (195) 10%","TDS on Non Residents (195) 15%","TDS on Non Residents (195) 20%",
+                //"TDS on Non Residents (195) 25%","TDS on Non Residents (195) 30%","TDS on Contract  (94C) 0.75%",
+                //"TDS on Non Residents (195) 31.2%","No PAN","TDS on Interest (194A) 10%","TDS on Contract (94C) 1.5%",
+                //"TDS on Commission (94H) 3.75%","TDS on Rent (94I) 7.5%","TDS on Rent (94I) 1.5%","TDS on Fees (94J) 7.5%",
+                //"94(J) - 2%","TDS on Contract  (94C) 4%","TDS on Fees (94J) 20%","TDS on Commission (94H) 10%","TDS on Rent (94I) 4%",
+                //"TDS on Rent (94I) 20%","TDS on Purchase of Goods  (94Q) 0.1%","TDS on Double Rate 5%","TDS on Fees (94J) 1.5%"};
+                //                    string[] arrTdsSectionId = {"39","40","41","42","43","135","330","331","332","333","334","335","336","350","355",
+                //"356","357","373","374","375","376","377","427","459","460","461","462","463","464","465","492" };
 
                 honorpay.Status = (name_status == "" ? "" : name_status + " / ") + (tds_status == "" ? "" : tds_status + " / ") + (amt_status == "" ? "" : amt_status + " / ");
                 if (honorpay.Status.Trim() == "")
                 {
-                    string[] arrPayment = { "", "Cheque", "Bank Transfer" ,"Salary"};
-                    string[] arrTdsSection = {"TDS on Contract  (94C) 2%","TDS on Salary (92B)","TDS on Fees (94J) 10%","TDS on Rent (94I) 10%",
-"TDS on Commission (94H) 5%","TDS Payable TDS Payable Income Tax","TDS on Contract  (94C) 1%","TDS on Rent (94I) 2%",
-"TDS on Non Residents (195) 10%","TDS on Non Residents (195) 15%","TDS on Non Residents (195) 20%",
-"TDS on Non Residents (195) 25%","TDS on Non Residents (195) 30%","TDS on Contract  (94C) 0.75%",
-"TDS on Non Residents (195) 31.2%","No PAN","TDS on Interest (194A) 10%","TDS on Contract (94C) 1.5%",
-"TDS on Commission (94H) 3.75%","TDS on Rent (94I) 7.5%","TDS on Rent (94I) 1.5%","TDS on Fees (94J) 7.5%",
-"94(J) - 2%","TDS on Contract  (94C) 4%","TDS on Fees (94J) 20%","TDS on Commission (94H) 10%","TDS on Rent (94I) 4%",
-"TDS on Rent (94I) 20%","TDS on Purchase of Goods  (94Q) 0.1%","TDS on Double Rate 5%","TDS on Fees (94J) 1.5%"};
-                    string[] arrTdsSectionId = {"39","40","41","42","43","135","330","331","332","333","334","335","336","350","355",
-"356","357","373","374","375","376","377","427","459","460","461","462","463","464","465","492" };
+                    string[] arrPayment = { "", "Cheque", "Bank Transfer", "Salary" };
+                    string[] arrTdsSection = {
+                        "TDS on Fees (94J) 10%",
+                        "No PAN",
+                        "TDS on Salary (92B) - 20.8%",
+                        "TDS on Salary (92B) - 31.2%",
+                        "TDS on Salary (92B) - 34.32%",
+                        "TDS on Salary (92B) - 35.88%"
+                    };
+                    string[] arrTdsSectionId = {
+                        "41",
+                        "356",
+                        "588",
+                        "589",
+                        "590",
+                        "591"
+                    };
+
+                    honorpay.TDSAmt = honorpay.Amount * (honorpay.TDS);
+                    honorpay.NetAmount = honorpay.Amount - honorpay.TDSAmt;
 
 
-
-
-
-                    honorpay.TDSAmt = honorpay.Amount * (honorpay.TDS );
-                    honorpay.NetAmount= honorpay.Amount - honorpay.TDSAmt;
                     if (Array.IndexOf(arrPayment, honorpay.PaymentModeName) >= 0)
                     {
                         honorpay.PaymentModeVal = Array.IndexOf(arrPayment, honorpay.PaymentModeName);
+                        /* Fetch Bank Details */
+                        if (honorpay.PaymentModeVal == 2)
+                        {
+                            var bankdata = Common.getStaffBankAccountDetails(Convert.ToInt32(honorpay.UserId), honorpay.PayeeType);
+                            if (bankdata.Count > 0)
+                            {
+                                honorpay.AccountNo = bankdata[0].AccountNumber;
+                                honorpay.BankName = bankdata[0].BankName;
+                                honorpay.Branch = bankdata[0].Branch;
+                                honorpay.IFSC = bankdata[0].IFSCCode;
+
+
+                            }
+
+                        }
+
                         if ((honorpay.PayeeType.ToUpper() == "STUDENT" || honorpay.PayeeType.ToUpper() == "OTHERS") && honorpay.PaymentModeVal == 3)
                         { pay_status = "Salary Not Allowed For " + honorpay.PayeeType; }
-
+                        // honorpay.Branch == null || || honorpay.Branch.Trim() == "" Branch Empty Omitted Rajesh S VS11764
                         if (honorpay.PaymentModeVal == 2 &&
-                            ((honorpay.BankName == null || honorpay.Branch == null || honorpay.IFSC == null|| honorpay.AccountNo== null)||
-                            (honorpay.BankName.Trim() == "" || honorpay.Branch.Trim() == "" || honorpay.IFSC.Trim() == "" || honorpay.AccountNo.Trim() == "")))
+                            ((honorpay.BankName == null || honorpay.IFSC == null || honorpay.AccountNo == null) ||
+                            (honorpay.BankName.Trim() == "" || honorpay.IFSC.Trim() == "" || honorpay.AccountNo.Trim() == "")))
                         { bank_status = "Invalid Bank/Branch/IFSC/AccounNo Details"; }
 
 
@@ -9744,9 +9779,29 @@ namespace IOAS.Controllers
 
                     }
 
-                    if (honorpay.TDS * 100 == 20)
+                    else if (honorpay.TDS * 100 == 20)
                     {
                         honorpay.SelectedTdssection = "No PAN ";
+
+                    }
+                    else if (honorpay.TDS * 100 == (Decimal)20.8)
+                    {
+                        honorpay.SelectedTdssection = "TDS on Salary (92B) - 20.8%";
+
+                    }
+                    else if (honorpay.TDS * 100 == (Decimal)31.2)
+                    {
+                        honorpay.SelectedTdssection = "TDS on Salary (92B) - 31.2%";
+                    }
+                    else if (honorpay.TDS * 100 == (Decimal)34.32)
+                    {
+                        honorpay.SelectedTdssection = "TDS on Salary (92B) - 34.32%";
+
+                    }
+
+                    else if (honorpay.TDS * 100 == (Decimal)35.88)
+                    {
+                        honorpay.SelectedTdssection = "TDS on Salary (92B) - 35.88%";
 
                     }
                     int tdsid=-1;
@@ -10058,6 +10113,21 @@ namespace IOAS.Controllers
                 var jsonResult = Json(data, JsonRequestBehavior.AllowGet);
                 jsonResult.MaxJsonLength = int.MaxValue;
                 return jsonResult;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        [HttpGet]
+        public JsonResult StaffBankAccountDeatils(int EmployeeId, string Category)
+        {
+            try
+            {
+
+                var data = Common.getStaffBankAccountDetails(EmployeeId, Category);
+                return Json(data, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -13490,7 +13560,7 @@ namespace IOAS.Controllers
                 ViewBag.Student = Common.GetStudentList();
                 List<MasterlistviewModel> tds = new List<MasterlistviewModel>();
                 tds = Common.GetTDS();
-                var tdsfilter = tds.Where(t => t.id == 0 || t.id ==10 || t.id == 20);
+                var tdsfilter = tds.Where(t => t.code == "0" || t.code == "10" || t.code == "20" || t.code == "20.8" || t.code == "31.2" || t.code == "34.32" || t.code == "35.88");
                 ViewBag.TDS = tdsfilter;
 
                 ViewBag.OH = Common.GetOH();
@@ -13506,7 +13576,7 @@ namespace IOAS.Controllers
                 List<MasterlistviewModel> tdssec = new List<MasterlistviewModel>();
 
                 tdssec = Common.GetHonororiumTdsSection();
-                var tdssecfilter = tdssec.Where(t => t.id == 41 || t.id == 356);
+                var tdssecfilter = tdssec.Where(t => t.id == 41 || t.id == 356 || t.id == 460 || (t.id >= 588 && t.id <= 591));
                 ViewBag.HonTdsSection = tdssecfilter;
                 var ptypeList = Common.getprojecttype();
                 int firstPType = ptypeList != null ? ptypeList[0].codevalAbbr : 0;

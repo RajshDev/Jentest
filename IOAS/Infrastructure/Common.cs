@@ -12470,7 +12470,8 @@ namespace IOAS.Infrastructure
                         tds.Add(new MasterlistviewModel()
                         {
                             id = query[i].CodeValAbbr,
-                            name = query[i].CodeValDetail
+                            code = (query[i].CodeValDetail.Replace("%", "")),
+                            name = query[i].CodeValDetail,
 
                         });
                     }
@@ -12478,6 +12479,127 @@ namespace IOAS.Infrastructure
             }
             return tds;
         }
+
+        //Rajesh Vs11764 -- PI BankAccountDetails For PI Salary Process
+        public static List<BankAccountMaster> getStaffBankAccountDetails(int EmployeeId, string Category)
+        {
+            try
+            {
+                string catvalue = "";
+                switch (Category)
+                {
+                    case "PI":
+                        catvalue = "Professor";
+                        break;
+                    case "Vendor Staff":
+                        catvalue = "ProjectStaff";
+                        break;
+                    case "Institute Staff":
+                        catvalue = "Staff";
+                        break;
+                    case "Adhoc Staff":
+                        catvalue = "AdhocStaff";
+                        break;
+                    default:
+                        catvalue = "";
+                        break;
+                }
+
+                List<BankAccountMaster> bankDetails = new List<BankAccountMaster>();
+                using (var context = new IOASDBEntities())
+                {
+                    if (Category == "PI" || Category == "Institute Staff")
+                    {
+                        var bankDetail = (from s in context.tblStaffBankAccount
+                                          where (s.Category == catvalue && s.UserId == EmployeeId)
+                                          select new { s.BankName, s.Branch, s.AccountNumber, s.IFSCCode, s.PAN }).Distinct().Take(1).ToList();
+                        if (bankDetail.Count > 0)
+                        {
+                            for (int i = 0; i < bankDetail.Count; i++)
+                            {
+                                bankDetails.Add(new BankAccountMaster()
+                                {
+                                    BankName = bankDetail[i].BankName,
+                                    Branch = bankDetail[i].Branch,
+                                    AccountNumber = bankDetail[i].AccountNumber,
+                                    IFSCCode = bankDetail[i].IFSCCode,
+                                    PAN = bankDetail[i].PAN
+
+                                });
+                            }
+                        }
+
+                    }
+
+                    //select s.BankName, Branch = '', AccountNumber = s.BankAccountNumber , s.IFSCCode, PAN = s.PANNo
+                    //    from tblRCTOutsourcing s inner
+                    //    join tblProjectStaffDetail pd on s.EmployeersID = pd.EmployeeId
+                    //                      where (pd.CastEmployeeId = 2964 and s.IsActiveNow = 1)
+                    else if (Category == "Vendor Staff")
+                    {
+                        var bankDetail = (from s in context.tblRCTOutsourcing
+                                          join pd in context.tblProjectStaffDetail on s.EmployeersID equals pd.EmployeeId
+                                          where pd.CastEmployeeId == EmployeeId && s.IsActiveNow == true
+                                          select new { s.BankName, Branch = "", AccountNumber = s.BankAccountNumber, s.IFSCCode, PAN = s.PANNo }).Distinct().Take(1).ToList();
+                        if (bankDetail.Count > 0)
+                        {
+                            for (int i = 0; i < bankDetail.Count; i++)
+                            {
+                                bankDetails.Add(new BankAccountMaster()
+                                {
+                                    BankName = bankDetail[i].BankName,
+                                    Branch = bankDetail[i].Branch,
+                                    AccountNumber = bankDetail[i].AccountNumber,
+                                    IFSCCode = bankDetail[i].IFSCCode,
+                                    PAN = bankDetail[i].PAN
+
+                                });
+                            }
+                        }
+
+                    }
+                    else if (Category == "Adhoc Staff")
+                    {
+                        var bankDetail = (from s in context.tblRCTSTE
+                                          join pd in context.tblProjectAdhocStaffDetails on s.EmployeersID equals pd.EmployeeId
+                                          where pd.CastEmployeeId == EmployeeId && s.IsActiveNow == true
+                                          select new { s.BankName, Branch = "", AccountNumber = s.BankAccountNumber, s.IFSCCode, PAN = s.PANNo }).Distinct().Take(1).ToList();
+
+
+                        if (bankDetail.Count > 0)
+                        {
+                            for (int i = 0; i < bankDetail.Count; i++)
+                            {
+                                bankDetails.Add(new BankAccountMaster()
+                                {
+                                    BankName = bankDetail[i].BankName,
+                                    Branch = bankDetail[i].Branch,
+                                    AccountNumber = bankDetail[i].AccountNumber,
+                                    IFSCCode = bankDetail[i].IFSCCode,
+                                    PAN = bankDetail[i].PAN
+
+                                });
+                            }
+                        }
+
+                    }
+
+
+
+                }
+                return bankDetails;
+            }
+            catch (Exception ex)
+            {
+                {
+                    Infrastructure.IOASException.Instance.HandleMe(
+                    (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                    throw ex;
+                }
+            }
+        }
+
+
         public static List<MasterlistviewModel> GetReceivedFrom()
         {
             List<MasterlistviewModel> tds = new List<MasterlistviewModel>();
