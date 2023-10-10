@@ -9755,6 +9755,7 @@ namespace IOAS.Controllers
                                 honorpay.BankName = bankdata[0].BankName;
                                 honorpay.Branch = bankdata[0].Branch;
                                 honorpay.IFSC = bankdata[0].IFSCCode;
+                                honorpay.PAN= bankdata[0].PAN;
 
 
                             }
@@ -9852,7 +9853,7 @@ namespace IOAS.Controllers
                 if (honorpay.PaymentModeVal == 3)
                 {
                     honorpay.BankName = honorpay.Branch = honorpay.AccountNo = honorpay.IFSC = "";
-                    honorpay.PAN = "";
+                    //honorpay.PAN = "";
                     honorpay.TDS = 0;
                     honorpay.SelectedTdssection = "";
                     honorpay.SelectedTdssectionID = "";
