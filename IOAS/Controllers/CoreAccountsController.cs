@@ -9626,7 +9626,7 @@ namespace IOAS.Controllers
                         {
                             //int userid = (int)honorpay.UserId;
                             honorpay.Name = Common.GetVWStudentName(honorpay.UserId, "Student");
-                            honorpay.UserId = "0";
+                            //honorpay.UserId = "0";
                             if (honorpay.Name.Trim() == "")
                             { name_status = "Invalid Student"; }
                         }
@@ -9857,6 +9857,11 @@ namespace IOAS.Controllers
                     honorpay.TDS = 0;
                     honorpay.SelectedTdssection = "";
                     honorpay.SelectedTdssectionID = "";
+                }
+
+                if (honorpay.PayeeType.ToUpper()=="STUDENT")
+                {
+                    honorpay.UserId = "0";
                 }
             }
             if (validimport == false)
@@ -14968,7 +14973,8 @@ namespace IOAS.Controllers
                 ViewBag.ReceviedFrom = Common.GetReceivedFrom();
                 ViewBag.CategoryList = Common.GetCodeControlList("AdhocCategory");
                 ViewBag.PaymentMode = Common.GetCodeControlList("ModeOfPayment");
-                ViewBag.PaymentType = Common.GetCodeControlList("PaymentType");
+                ViewBag.PaymentType = Common.GetCodeControlList("PaymentType");               
+                ViewBag.DistributionProject = Common.GetDistributionProjectNumber();
                 ViewBag.SourceRefNumberList =
                 ViewBag.AccountGroupList =
                 ViewBag.TypeOfServiceList =
@@ -14981,6 +14987,7 @@ namespace IOAS.Controllers
                 ViewBag.ProjectNumberList = ProjectService.LoadProjecttitledetails(firstPType);
                 InstituteSalaryPaymentModel model = new InstituteSalaryPaymentModel();
                 model.CreditorType = "PI/Student/Others";
+                
                 if (PaymentId > 0)
                 {
                     model = coreAccountService.GetInstituteSalaryPaymentDetails(PaymentId);

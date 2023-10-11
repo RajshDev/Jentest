@@ -274,7 +274,7 @@ namespace IOAS.GenericServices
                             decimal parsed = 0;
                             decimal.TryParse(Val, NumberStyles.AllowLeadingSign | NumberStyles.AllowExponent | NumberStyles.AllowTrailingSign |
             NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite | NumberStyles.AllowCurrencySymbol | NumberStyles.AllowDecimalPoint | NumberStyles.AllowThousands, CultureInfo.CurrentCulture, out parsed);
-                            if (parsed > 1) { parsed = parsed / 100; }
+                            if (parsed > 1 && propertyName == "TDS") { parsed = parsed / 100; }
                             entity.GetType().GetProperty(propertyName, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public).SetValue(entity, parsed, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public, null, null, null);
                         }
                         else if (entity.GetType().GetProperty(propertyName).PropertyType == typeof(System.String) || propertyName == "UserId")
