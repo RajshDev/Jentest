@@ -119,6 +119,7 @@ namespace IOAS.Models
         [Required]
         [Display(Name = "Accountant Name")]
         public string AccountantName { get; set; }
+        public string PAN { get; set; }
     }
     public class BankMasterListModel
     {
