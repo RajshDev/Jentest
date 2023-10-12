@@ -18352,6 +18352,34 @@ namespace IOAS.Infrastructure
                 return Codedetails;
             }
         }
+
+        public static string GetCodeControlnameTDS(string codeval, string codename)
+        {
+            try
+            {
+                string Codedetails = string.Empty;
+                codeval = codeval + "%";
+                using (var context = new IOASDBEntities())
+                {
+                    var query = (from c in context.tblCodeControl
+                                 where c.CodeValDetail == codeval && c.CodeName == codename
+                                 select c.CodeValDetail).FirstOrDefault();
+                    if (query != null)
+                    {
+                        Codedetails = query;
+                    }
+                }
+                return Codedetails.Replace("%","");
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+    (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                string Codedetails = string.Empty;
+                return Codedetails;
+            }
+        }
+
         public static bool ValidateBRSOnEdit(int brsId, string status = "")
         {
             try
