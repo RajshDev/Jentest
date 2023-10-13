@@ -24416,7 +24416,7 @@ namespace IOAS.Infrastructure
                     list = (from U in context.tblRCTDesignation
                             where ((U.DesignationCode.Contains(term) || U.Designation.Contains(term) || string.IsNullOrEmpty(term))
                             && U.TypeOfAppointment == TypeCode && U.ConsolidatedPay == isConsolidatePay
-                            && U.FellowshipPay == FellowshipPay && U.RecordStatus == "Active")
+                            && U.FellowshipPay == FellowshipPay && U.RecordStatus == "Active" && U.Status == 1)
                             orderby U.DesignationId
                             select new
                             {
