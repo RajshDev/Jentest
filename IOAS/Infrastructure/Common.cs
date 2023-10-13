@@ -7717,6 +7717,73 @@ namespace IOAS.Infrastructure
             }
 
         }
+
+        //rajesh vs11764 Distribution
+        public static List<MasterlistviewModel> GetDistributionProjectNumber()
+        {
+            try
+            {
+
+                List<MasterlistviewModel> list = new List<MasterlistviewModel>();
+
+                using (var context = new IOASDBEntities())
+                {
+                    list = (from P in context.tblProject                           
+                            join U in context.vwFacultyStaffDetails on P.PIName equals U.UserId
+                            where  P.ProjectId == 35690 || P.ProjectId == 3580
+                            orderby P.ProjectNumber
+                            group new { P.ProjectId, P.ProjectNumber, U.FirstName } by P.ProjectId into g
+                            select new
+                            {
+                                ProjectId = g.Key,
+                                ProjectNumber = g.Select(m => m.ProjectNumber).FirstOrDefault(),
+                                PIName = g.Select(m => m.FirstName).FirstOrDefault()
+                            })
+                            .AsEnumerable()
+                            .Select((x, index) => new MasterlistviewModel()
+                            {
+                                id = x.ProjectId,
+                                name = x.ProjectNumber + " - " + x.PIName
+                            }).ToList();
+
+                }
+
+                return list;
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+    (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                return new List<MasterlistviewModel>();
+            }
+
+        }
+        //    public static string GetDistributionProjectNumber()
+        //    {
+        //        try
+        //        {
+
+        //            using (var context = new IOASDBEntities())
+        //            {
+        //                var query = (from ProjDis in context.tblProject
+        //                             where ProjDis.ProjectId==35690
+        //                             //select ProjDis).FirstOrDefault();
+        //                             select new { ProjDis.ProjectNumber }).ToList();
+
+        //                return Convert.ToString(query);
+
+        //            }
+        //        }
+
+        //        catch (Exception ex)
+        //        {
+        //            Infrastructure.IOASException.Instance.HandleMe(
+        //(object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+        //            throw ex;
+
+        //        }
+        //    }
+
         public static string ValidateSettlement(string poNumber, Nullable<Int32> vendorId, decimal deductAmt, decimal expAmt, int negBillId = 0)
         {
             try
@@ -12470,7 +12537,8 @@ namespace IOAS.Infrastructure
                         tds.Add(new MasterlistviewModel()
                         {
                             id = query[i].CodeValAbbr,
-                            name = query[i].CodeValDetail
+                            code = (query[i].CodeValDetail.Replace("%", "")),
+                            name = query[i].CodeValDetail,
 
                         });
                     }
@@ -12478,6 +12546,127 @@ namespace IOAS.Infrastructure
             }
             return tds;
         }
+
+        //Rajesh Vs11764 -- PI BankAccountDetails For PI Salary Process
+        public static List<BankAccountMaster> getStaffBankAccountDetails(int EmployeeId, string Category)
+        {
+            try
+            {
+                string catvalue = "";
+                switch (Category)
+                {
+                    case "PI":
+                        catvalue = "Professor";
+                        break;
+                    case "Vendor Staff":
+                        catvalue = "ProjectStaff";
+                        break;
+                    case "Institute Staff":
+                        catvalue = "Staff";
+                        break;
+                    case "Adhoc Staff":
+                        catvalue = "AdhocStaff";
+                        break;
+                    default:
+                        catvalue = "";
+                        break;
+                }
+
+                List<BankAccountMaster> bankDetails = new List<BankAccountMaster>();
+                using (var context = new IOASDBEntities())
+                {
+                    if (Category == "PI" || Category == "Institute Staff")
+                    {
+                        var bankDetail = (from s in context.tblStaffBankAccount
+                                          where (s.Category == catvalue && s.UserId == EmployeeId)
+                                          select new { s.BankName, s.Branch, s.AccountNumber, s.IFSCCode, s.PAN }).Distinct().Take(1).ToList();
+                        if (bankDetail.Count > 0)
+                        {
+                            for (int i = 0; i < bankDetail.Count; i++)
+                            {
+                                bankDetails.Add(new BankAccountMaster()
+                                {
+                                    BankName = bankDetail[i].BankName,
+                                    Branch = bankDetail[i].Branch,
+                                    AccountNumber = bankDetail[i].AccountNumber,
+                                    IFSCCode = bankDetail[i].IFSCCode,
+                                    PAN = bankDetail[i].PAN
+
+                                });
+                            }
+                        }
+
+                    }
+
+                    //select s.BankName, Branch = '', AccountNumber = s.BankAccountNumber , s.IFSCCode, PAN = s.PANNo
+                    //    from tblRCTOutsourcing s inner
+                    //    join tblProjectStaffDetail pd on s.EmployeersID = pd.EmployeeId
+                    //                      where (pd.CastEmployeeId = 2964 and s.IsActiveNow = 1)
+                    else if (Category == "Vendor Staff")
+                    {
+                        var bankDetail = (from s in context.tblRCTOutsourcing
+                                          join pd in context.tblProjectStaffDetail on s.EmployeersID equals pd.EmployeeId
+                                          where pd.CastEmployeeId == EmployeeId && s.IsActiveNow == true
+                                          select new { s.BankName, Branch = "", AccountNumber = s.BankAccountNumber, s.IFSCCode, PAN = s.PANNo }).Distinct().Take(1).ToList();
+                        if (bankDetail.Count > 0)
+                        {
+                            for (int i = 0; i < bankDetail.Count; i++)
+                            {
+                                bankDetails.Add(new BankAccountMaster()
+                                {
+                                    BankName = bankDetail[i].BankName,
+                                    Branch = bankDetail[i].Branch,
+                                    AccountNumber = bankDetail[i].AccountNumber,
+                                    IFSCCode = bankDetail[i].IFSCCode,
+                                    PAN = bankDetail[i].PAN
+
+                                });
+                            }
+                        }
+
+                    }
+                    else if (Category == "Adhoc Staff")
+                    {
+                        var bankDetail = (from s in context.tblRCTSTE
+                                          join pd in context.tblProjectAdhocStaffDetails on s.EmployeersID equals pd.EmployeeId
+                                          where pd.CastEmployeeId == EmployeeId && s.IsActiveNow == true
+                                          select new { s.BankName, Branch = "", AccountNumber = s.BankAccountNumber, s.IFSCCode, PAN = s.PANNo }).Distinct().Take(1).ToList();
+
+
+                        if (bankDetail.Count > 0)
+                        {
+                            for (int i = 0; i < bankDetail.Count; i++)
+                            {
+                                bankDetails.Add(new BankAccountMaster()
+                                {
+                                    BankName = bankDetail[i].BankName,
+                                    Branch = bankDetail[i].Branch,
+                                    AccountNumber = bankDetail[i].AccountNumber,
+                                    IFSCCode = bankDetail[i].IFSCCode,
+                                    PAN = bankDetail[i].PAN
+
+                                });
+                            }
+                        }
+
+                    }
+
+
+
+                }
+                return bankDetails;
+            }
+            catch (Exception ex)
+            {
+                {
+                    Infrastructure.IOASException.Instance.HandleMe(
+                    (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                    throw ex;
+                }
+            }
+        }
+
+
         public static List<MasterlistviewModel> GetReceivedFrom()
         {
             List<MasterlistviewModel> tds = new List<MasterlistviewModel>();
@@ -18163,6 +18352,34 @@ namespace IOAS.Infrastructure
                 return Codedetails;
             }
         }
+
+        public static string GetCodeControlnameTDS(string codeval, string codename)
+        {
+            try
+            {
+                string Codedetails = string.Empty;
+                codeval = codeval + "%";
+                using (var context = new IOASDBEntities())
+                {
+                    var query = (from c in context.tblCodeControl
+                                 where c.CodeValDetail == codeval && c.CodeName == codename
+                                 select c.CodeValDetail).FirstOrDefault();
+                    if (query != null)
+                    {
+                        Codedetails = query;
+                    }
+                }
+                return Codedetails.Replace("%","");
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+    (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                string Codedetails = string.Empty;
+                return Codedetails;
+            }
+        }
+
         public static bool ValidateBRSOnEdit(int brsId, string status = "")
         {
             try
