@@ -3531,7 +3531,7 @@ namespace IOAS.Models
         public string Remarks { get; set; }
         public string Status { get; set; }
         public string InstituteSalaryDate { get; set; }
-        public string ProjectNumber { get; set; }
+        public int ProjectId { get; set; }
         
         public string MonthYear { get; set; }
         public string HiddenMonthYear { get; set; }
