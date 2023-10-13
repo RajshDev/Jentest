@@ -9741,7 +9741,7 @@ namespace IOAS.Controllers
                     honorpay.TDSAmt = honorpay.Amount * (honorpay.TDS);
                     honorpay.NetAmount = honorpay.Amount - honorpay.TDSAmt;
 
-
+                    
                     if (Array.IndexOf(arrPayment, honorpay.PaymentModeName) >= 0)
                     {
                         honorpay.PaymentModeVal = Array.IndexOf(arrPayment, honorpay.PaymentModeName);
@@ -9751,13 +9751,27 @@ namespace IOAS.Controllers
                             var bankdata = Common.getStaffBankAccountDetails(Convert.ToInt32(honorpay.UserId), honorpay.PayeeType);
                             if (bankdata.Count > 0)
                             {
-                                honorpay.AccountNo = bankdata[0].AccountNumber;
-                                honorpay.BankName = bankdata[0].BankName;
-                                honorpay.Branch = bankdata[0].Branch;
-                                honorpay.IFSC = bankdata[0].IFSCCode;
-                                honorpay.PAN= bankdata[0].PAN;
 
-
+                                if (honorpay.AccountNo == null || honorpay.AccountNo.Trim() == "")
+                                {
+                                    honorpay.AccountNo = bankdata[0].AccountNumber;
+                                }
+                                if (honorpay.BankName == null || honorpay.BankName.Trim() == "")
+                                {
+                                    honorpay.BankName = bankdata[0].BankName;
+                                }
+                                if (honorpay.Branch == null || honorpay.Branch.Trim() == "")
+                                {
+                                    honorpay.Branch = bankdata[0].Branch;
+                                }
+                                if (honorpay.IFSC == null || honorpay.IFSC.Trim() == "")
+                                {
+                                    honorpay.IFSC = bankdata[0].IFSCCode;
+                                }
+                                if (honorpay.PAN == null || honorpay.PAN.Trim() == "")
+                                {
+                                    honorpay.PAN = bankdata[0].PAN;
+                                }
                             }
 
                         }
@@ -9813,7 +9827,7 @@ namespace IOAS.Controllers
                         honorpay.SelectedTdssectionID = arrTdsSectionId[tdsid];
                         System.Text.RegularExpressions.Regex panregex = new System.Text.RegularExpressions.Regex("([A-Z]){5}([0-9]){4}([A-Z]){1}$");
 
-                        if ((honorpay.SelectedTdssectionID != "356" && honorpay.TDS  > 0 && honorpay.TDS*100 < 20) && (honorpay.PAN == null || honorpay.PAN.Trim() == ""))
+                        if ((honorpay.SelectedTdssectionID != "356" && honorpay.TDS  > 0 && honorpay.TDS*100 != 20) && (honorpay.PAN == null || honorpay.PAN.Trim() == ""))
                         { pay_status = "Pan No Required"; }
                         else if ((honorpay.SelectedTdssectionID != "356" && honorpay.TDS > 0 && honorpay.TDS * 100 < 20) && !panregex.IsMatch(honorpay.PAN.Trim()) )
                         { pay_status = "Invalid Pan no"; }
