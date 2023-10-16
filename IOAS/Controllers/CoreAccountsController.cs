@@ -15255,6 +15255,7 @@ namespace IOAS.Controllers
 
         [HttpPost]
         public JsonResult GetInstituteSalaryTypeSummary(string Month)
+        
         {
             try
             {

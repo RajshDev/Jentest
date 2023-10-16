@@ -912,6 +912,7 @@ namespace IOAS.GenericServices
             }
         }
 
+
         public static bool DuplicateEntryValidation (string refNumber)
         {
             try
