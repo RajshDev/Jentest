@@ -15253,6 +15253,24 @@ namespace IOAS.Controllers
             }
         }
 
+        [HttpPost]
+        public JsonResult GetInstituteSalaryTypeSummary(string Month)
+        
+        {
+            try
+            {
+                object output = coreAccountService.GetInstituteSalaryTypeSummary(Month);
+                return Json(output, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+       (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                throw ex;
+            }
+        }
+
+
         #endregion
         #region ManDay
         public ActionResult ManDay(int Mandayid = 0)

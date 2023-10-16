@@ -106,6 +106,7 @@
                         @Html.Partial("_CommitmentDetails", Model.CommitmentDetail)
                     </div>*@
                 <div class="tab">
+
                     @Html.Partial("_TransactionDetails", Model)
                 </div>
                 <div class="tab">
@@ -259,6 +260,7 @@
         else if (currentTab == 0) {
             if ($('#NeedUpdateTransDetail').val().toLowerCase() == 'true') {
                 GetTransactionDetails();
+                UpdateTransactionDetails();
             }
             var credit = parseFloat($('#amount').val());
             $("#CreditorAmount").val(credit);
@@ -393,9 +395,9 @@
     var db;
 
     $("#PaymentList").jsGrid({
-        paging: true,
+        paging: false,
         pageIndex: 1,
-        pageSize: 5,
+        pageSize: 1000,
         editing: false,
         filtering: true,
         pageLoading: true,
@@ -421,6 +423,7 @@
                             itemsCount: result.TotalRecords
                         }
                         deferred.resolve(da);
+                        
                     },
                     error: function (err) {
                         console.log("error : " + err);
@@ -531,12 +534,14 @@
                     db = result;
                     var amt = db;             
                     $("#amount").val(amt);
+                    
                 },
                 error: function (err) {
                     console.log("error : " + err);
                 }
         });
         loadDetails();
+        
     });
     $(document).ready(function () {
         var Month = $("#hiddenmonth").val();
@@ -556,6 +561,7 @@
                         amt += v1.Amount;
                     });
                     $("#amount").val(amt);
+                
                 },
                 error: function (err) {
                     console.log("error : " + err);
@@ -762,10 +768,80 @@
 
 
     function UpdateTransactionDetails() {
+      
+        var Month = $("#month").val();
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("GetInstituteSalaryTypeSummary", "CoreAccounts")',
+                data: JSON.stringify({ 'Month': Month }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (result) {
+                    db = result;
+                    console.log(result)
+                    let Honororium = 0;
+                    let Distribution = 0;
+                    let Mandays = 0;
+                    let FellowshipSalary = 0;                    
+                    let TotalAmount = 0;
 
-        $("#PaymentList").jsGrid()
+                    $.each(result, function (key, value) {
+                        console.log(value.Amount);
+                        console.log(value.Type);
+                        if (value.Type == "Honororium") {
+                            Honororium = value.Amount;
+                        } else if (value.Type == "Distribution") {
+                            Distribution = value.Amount;
+                        }
+                        else if (value.Type == "Mandays") {
+                            Distribution = value.Amount;
+                        }
+                        else if (value.Type == "FellowshipSalary") {
+                            Distribution = value.Amount;
+
+                        }
+                        TotalAmount = Distribution + Honororium + Mandays + FellowshipSalary;
+                        
+                        
+                    });
+                    
+
+                    $('#tbodyExpenseList tr').each(function (idx, trval) {
+                        AccHead = ($(this).find('select[name$=".AccountHeadId"]').val());
+                        AccountGroupId = ($(this).find('select[name$=".AccountGroupId"]').val());
+
+                        //if (AccountGroupId == 310) {
+                        //  //  ($(this).find('input[name$=".Amount"]').val(Distribution.toFixed(2)));
+                        //}
+                        if (AccHead == 317) {
+                            ($(this).find('input[name$=".Amount"]').val(Distribution.toFixed(2)));
+                        }
+                        else if (AccHead == 316) {
+                            ($(this).find('input[name$=".Amount"]').val(Honororium.toFixed(2)));
+                        }
+                        else if (AccHead == 318) {
+                            ($(this).find('input[name$=".Amount"]').val(Mandays.toFixed(2)));
+                        }
+                        else if (AccHead == 321) {
+                            ($(this).find('input[name$=".Amount"]').val(FellowshipSalary.toFixed(2)));
+                        }
+                        else if (AccHead == 493) {
+                            ($(this).find('input[name$=".Amount"]').val(TotalAmount.toFixed(2)));
+                        }
+                        
+                        
+                    });
+                     CalculateDeductionTotal();
+
+
+                },
+                error: function (err) {
+                    console.log("error : " + err);
+                }
+        });
     }
 
+    
 </script>
 
 <script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
