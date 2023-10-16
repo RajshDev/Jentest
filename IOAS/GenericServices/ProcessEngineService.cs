@@ -920,10 +920,9 @@ namespace IOAS.GenericServices
                 bool retunval = false;
                 using (var context = new IOASDBEntities())
                 {
-
-
+                    
                     DuplicateEntry = (from Pt in context.tblProcessTransaction
-                                      where Pt.RefNumber == refNumber
+                                      where  Pt.RefNumber == refNumber && Pt.Closed_F == true
                                       select Pt.RefNumber).FirstOrDefault();
 
                     if (refNumber != DuplicateEntry)
