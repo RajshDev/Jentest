@@ -9564,7 +9564,7 @@ namespace IOAS.Controllers
                         System.Data.DataTable dt = _uty.ConvertCSVtoDataTable(path1);
                         listUpload = Converter.GetHonororiumEntityList<HonororiumExportListModel>(dt);
                     }
-                    else if (extension.ToLower().Trim() == ".xls"  && Environment.Is64BitOperatingSystem == false)
+                    else if (extension.ToLower().Trim() == ".xls" && Environment.Is64BitOperatingSystem == false)
                     {
                         connString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + path1 + ";Extended Properties=\"Excel 8.0;HDR=Yes;IMEX=1\"";
                         System.Data.DataTable dt = _uty.ConvertXSLXtoDataTable(path1, connString);
@@ -9572,9 +9572,114 @@ namespace IOAS.Controllers
                     }
                     else
                     {
-                        connString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + path1 + ";Extended Properties=\"Excel 12.0;HDR=Yes;IMEX=1\"";
-                        System.Data.DataTable dt = _uty.ConvertXSLXtoDataTable(path1, connString);
-                        listUpload = Converter.GetHonororiumEntityList<HonororiumExportListModel>(dt);
+                        bool _FlagManualXL = true;
+
+                        if (_FlagManualXL)
+                        {
+
+                            /* Read Excel File Manully */
+                            XLWorkbook wbook = new XLWorkbook(path1);
+                            var ws1 = wbook.Worksheet(1);
+                            int DataRows = ws1.LastRowUsed().RowNumber();
+                            int DataCols = ws1.LastColumnUsed().ColumnNumber();
+                            string tmpvalue; DateTime tmpdate;
+                            if (DataCols == 14 && ws1.Cell(1, 1).GetValue<String>().Replace(" ", "").Trim().ToLower() == "sno"
+                                && ws1.Cell(1, 2).GetValue<String>().Replace(" ", "").Trim().ToLower() == "payeetype"
+                                && ws1.Cell(1, 3).GetValue<String>().Replace(" ", "").Trim().ToLower() == "userid"
+                                && ws1.Cell(1, 4).GetValue<String>().Replace(" ", "").Trim().ToLower() == "name"
+                                && ws1.Cell(1, 5).GetValue<String>().Replace(" ", "").Trim().ToLower() == "amount"
+                                && ws1.Cell(1, 6).GetValue<String>().Replace(" ", "").Trim().ToLower() == "tds"
+                                && ws1.Cell(1, 7).GetValue<String>().Replace(" ", "").Trim().ToLower() == "paymentmodename"
+                                && ws1.Cell(1, 8).GetValue<String>().Replace(" ", "").Trim().ToLower() == "bankname"
+                                && ws1.Cell(1, 9).GetValue<String>().Replace(" ", "").Trim().ToLower() == "branch"
+                                && ws1.Cell(1, 10).GetValue<String>().Replace(" ", "").Trim().ToLower() == "ifsc"
+                                && ws1.Cell(1,11).GetValue<String>().Replace(" ", "").Trim().ToLower() == "accountno"
+                                && ws1.Cell(1, 12).GetValue<String>().Replace(" ", "").Trim().ToLower() == "pan"
+                                
+                                )
+                            {
+                                List<HonororiumExportListModel> honxllist = new List<HonororiumExportListModel>();
+                                for (int iRow = 2; iRow <= DataRows; iRow++)
+                                {
+                                    bool validrow = false;
+                                    IXLRangeRow rowdata;
+
+                                    try
+                                    {
+                                        rowdata = ws1.Row(iRow).RowUsed(false);
+                                        validrow = true;
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        validrow = false;
+                                    }
+
+                                    if (validrow)
+                                    {
+
+                                        bool validdate = false;
+                                        bool validamt = false;
+                                        bool validdtstring = false;
+                                        bool validamtstring = false;
+                                        Nullable<DateTime> dt = null;
+                                        
+                                        //Check Amount is Valid
+                                        validamtstring = (ws1.Cell(iRow, 5).TryGetValue<string>(out tmpvalue));
+                                        tmpvalue = tmpvalue.Replace("INR", "");
+                                        tmpvalue = tmpvalue.Replace(" ", "");
+                                        tmpvalue = tmpvalue.Replace(",", "");
+
+                                        decimal amt = 0;
+                                        validamt = decimal.TryParse(tmpvalue.Trim(), out amt);
+
+
+                                        //validdate = ws1.Cell(iRow, 5).TryGetValue<DateTime>(out tmpdate);
+                                        //if (validamt)
+                                        {
+                                            decimal tdsval=0;
+                                            validamtstring = (ws1.Cell(iRow, 6).TryGetValue<Decimal>(out tdsval));
+
+                                            honxllist.Add(new HonororiumExportListModel()
+                                            {
+                                                SNo = ws1.Cell(iRow, 1).GetValue<int>(),
+                                                PayeeType= ws1.Cell(iRow, 2).GetValue<String>(),
+                                                UserId= ws1.Cell(iRow, 3).GetValue<String>(),
+                                                Name = ws1.Cell(iRow, 4).GetValue<String>(),
+                                                Amount = amt,
+                                                TDS = tdsval,
+                                                PaymentModeName= ws1.Cell(iRow, 7).GetValue<String>(),
+                                                BankName = ws1.Cell(iRow, 8).GetValue<String>(),
+                                                Branch = ws1.Cell(iRow, 8).GetValue<String>(),
+                                                IFSC = ws1.Cell(iRow, 10).GetValue<String>(),
+                                                AccountNo = ws1.Cell(iRow, 11).GetValue<String>(),
+                                                PAN = ws1.Cell(iRow, 12).GetValue<String>(),
+
+
+                                            });
+                                        }
+                                        
+
+                                    }
+
+                                  
+                                    listUpload = honxllist;
+                                }
+                            }
+                            else
+                            {
+                                msg = "Invalid Excel Format Uploaded";
+                            }
+                            /* var data = ws1.Cell("A1").GetValue<string>();
+
+                         /* end Read Excel File Manully */
+                        }
+                        else //ACE OLEDB Excel
+                        {
+
+                            connString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + path1 + ";Extended Properties=\"Excel 12.0;HDR=Yes;IMEX=1\"";
+                            System.Data.DataTable dt = _uty.ConvertXSLXtoDataTable(path1, connString);
+                            listUpload = Converter.GetHonororiumEntityList<HonororiumExportListModel>(dt);
+                        }
                     }
                     if (listUpload.Count > 0)
                         honoruploadlist.AddRange(listUpload);
@@ -9748,7 +9853,7 @@ namespace IOAS.Controllers
                         /* Fetch Bank Details */
                         if (honorpay.PaymentModeVal == 2)
                         {
-                            var bankdata = Common.getStaffBankAccountDetails(Convert.ToInt32(honorpay.UserId), honorpay.PayeeType);
+                            var bankdata = Common.getStaffBankAccountDetails(Convert.ToInt32(honorpay.UserId), honorpay.PayeeType,2);
                             if (bankdata.Count > 0)
                             {
 
@@ -10141,12 +10246,12 @@ namespace IOAS.Controllers
         }
 
         [HttpGet]
-        public JsonResult StaffBankAccountDeatils(int EmployeeId, string Category)
+        public JsonResult StaffBankAccountDeatils(int EmployeeId, string Category,int PayFor)
         {
             try
             {
 
-                var data = Common.getStaffBankAccountDetails(EmployeeId, Category);
+                var data = Common.getStaffBankAccountDetails(EmployeeId, Category, PayFor);
                 return Json(data, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
