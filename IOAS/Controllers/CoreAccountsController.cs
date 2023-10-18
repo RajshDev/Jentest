@@ -21694,10 +21694,12 @@ TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
                 }
                 if (validFileTypes.Contains(extension))
                 {
-                    if (System.IO.File.Exists(path1))
+                    /* Commented Below Lines for UTRStatement NAS UPLOAD  Not Required  ::: Thirumurugan K 18-Oct-2023 */
+                    /*if (System.IO.File.Exists(path1))
                     { System.IO.File.Delete(path1); }
                     file.SaveAs(path1);
-                    file.UploadFile("UTRStatement", docName);
+                    file.UploadFile("UTRStatement", docName);*/
+
                     string invalidrownos = "";
 
                     string t_Name;
