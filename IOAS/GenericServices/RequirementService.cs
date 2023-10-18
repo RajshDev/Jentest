@@ -3495,7 +3495,7 @@ namespace IOAS.GenericServices
                         {
                             model.Designation = query.D.Designation;
                             model.DesignationId = query.D.DesignationId;
-                            model.ProjectDetailsModel = getProjectSummary(query.S.ProjectId ?? 0);
+                            model.ProjectDetailsModel = getProjectSummary(query.S.ProjectId ?? 0,query.S.RequestedBy??0);
                             model.ProjectNumber = model.ProjectDetailsModel.ProjectNumber;
                             model.Typeofappointment = Common.GetCodeControlName(query.S.TypeofAppointment ?? 0, "STEAppointmenttype");
                             model.PayeeType = query.S.ConsolidatedPay == true ? "Consolidated Pay" : "Fellowship Pay";
