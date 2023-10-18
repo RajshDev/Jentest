@@ -9804,7 +9804,7 @@ namespace IOAS.Controllers
 
 
 
-                if (honorpay.TDS != 0 && honorpay.TDS != (decimal)0.10 && honorpay.TDS != (decimal)0.20 && honorpay.TDS != (decimal)0.2080 && honorpay.TDS != (decimal)0.3120 && honorpay.TDS != (decimal)0.3432 && honorpay.TDS != (decimal)0.3588 && honorpay.TDS != null)
+                if (honorpay.TDS != 0 && honorpay.TDS != (decimal)0.10 && honorpay.TDS != (decimal)0.20 && honorpay.TDS != (decimal)0.2080 && honorpay.TDS != (decimal)0.3120 && honorpay.TDS != (decimal)0.3432 && honorpay.TDS != (decimal)0.3588 && honorpay.TDS != null && honorpay.TDS != (decimal)0.3900 && honorpay.TDS != null)
                 { tds_status = "Invalid TDS"; }
 
                 //                honorpay.Status = (name_status == "" ? "" : name_status + " / ") + (tds_status == "" ? "" : tds_status + " / ") + (amt_status == "" ? "" : amt_status + " / ");
@@ -9832,7 +9832,8 @@ namespace IOAS.Controllers
                         "TDS on Salary (92B) - 20.8%",
                         "TDS on Salary (92B) - 31.2%",
                         "TDS on Salary (92B) - 34.32%",
-                        "TDS on Salary (92B) - 35.88%"
+                        "TDS on Salary (92B) - 35.88%",
+                        "TDS on Salary (92B) - 39%"
                     };
                     string[] arrTdsSectionId = {
                         "41",
@@ -9840,7 +9841,8 @@ namespace IOAS.Controllers
                         "588",
                         "589",
                         "590",
-                        "591"
+                        "591",
+                        "593"
                     };
 
                     honorpay.TDSAmt = honorpay.Amount * (honorpay.TDS);
@@ -9922,6 +9924,11 @@ namespace IOAS.Controllers
                     else if (honorpay.TDS * 100 == (Decimal)35.88)
                     {
                         honorpay.SelectedTdssection = "TDS on Salary (92B) - 35.88%";
+
+                    }
+                    else if (honorpay.TDS * 100 == (Decimal)39)
+                    {
+                        honorpay.SelectedTdssection = "TDS on Salary (92B) - 39%";
 
                     }
                     int tdsid=-1;
@@ -13685,7 +13692,7 @@ namespace IOAS.Controllers
                 ViewBag.Student = Common.GetStudentList();
                 List<MasterlistviewModel> tds = new List<MasterlistviewModel>();
                 tds = Common.GetTDS();
-                var tdsfilter = tds.Where(t => t.code == "0" || t.code == "10" || t.code == "20" || t.code == "20.8" || t.code == "31.2" || t.code == "34.32" || t.code == "35.88");
+                var tdsfilter = tds.Where(t => t.code == "0" || t.code == "10" || t.code == "20" || t.code == "20.8" || t.code == "31.2" || t.code == "34.32" || t.code == "35.88" || t.code == "39");
                 ViewBag.TDS = tdsfilter;
 
                 ViewBag.OH = Common.GetOH();
@@ -13701,7 +13708,7 @@ namespace IOAS.Controllers
                 List<MasterlistviewModel> tdssec = new List<MasterlistviewModel>();
 
                 tdssec = Common.GetHonororiumTdsSection();
-                var tdssecfilter = tdssec.Where(t => t.id == 41 || t.id == 356 || t.id == 460 || (t.id >= 588 && t.id <= 591));
+                var tdssecfilter = tdssec.Where(t => t.id == 41 || t.id == 356 || t.id == 460 || (t.id >= 588 && t.id <= 593));
                 ViewBag.HonTdsSection = tdssecfilter;
                 var ptypeList = Common.getprojecttype();
                 int firstPType = ptypeList != null ? ptypeList[0].codevalAbbr : 0;
@@ -21694,10 +21701,12 @@ TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
                 }
                 if (validFileTypes.Contains(extension))
                 {
-                    /* Commented Below Lines for UTRStatement NAS UPLOAD  Not Required  ::: Thirumurugan K 18-Oct-2023 */
-                    /*if (System.IO.File.Exists(path1))
+
+                    if (System.IO.File.Exists(path1))
                     { System.IO.File.Delete(path1); }
                     file.SaveAs(path1);
+                    
+                    /* Commented Below Lines for UTRStatement NAS UPLOAD  Not Required  ::: Thirumurugan K 18-Oct-2023 
                     file.UploadFile("UTRStatement", docName);*/
 
                     string invalidrownos = "";
