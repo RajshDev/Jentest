@@ -9649,7 +9649,7 @@ namespace IOAS.Controllers
                                                 TDS = tdsval,
                                                 PaymentModeName= ws1.Cell(iRow, 7).GetValue<String>(),
                                                 BankName = ws1.Cell(iRow, 8).GetValue<String>(),
-                                                Branch = ws1.Cell(iRow, 8).GetValue<String>(),
+                                                Branch = ws1.Cell(iRow, 9).GetValue<String>(),
                                                 IFSC = ws1.Cell(iRow, 10).GetValue<String>(),
                                                 AccountNo = ws1.Cell(iRow, 11).GetValue<String>(),
                                                 PAN = ws1.Cell(iRow, 12).GetValue<String>(),
@@ -9855,29 +9855,33 @@ namespace IOAS.Controllers
                         /* Fetch Bank Details */
                         if (honorpay.PaymentModeVal == 2)
                         {
-                            var bankdata = Common.getStaffBankAccountDetails(Convert.ToInt32(honorpay.UserId), honorpay.PayeeType,2);
-                            if (bankdata.Count > 0)
+                            int result;
+                            if (int.TryParse(honorpay.UserId, out result))
                             {
+                                var bankdata = Common.getStaffBankAccountDetails(Convert.ToInt32(honorpay.UserId), honorpay.PayeeType, 2);
+                                if (bankdata.Count > 0)
+                                {
 
-                                if (honorpay.AccountNo == null || honorpay.AccountNo.Trim() == "")
-                                {
-                                    honorpay.AccountNo = bankdata[0].AccountNumber;
-                                }
-                                if (honorpay.BankName == null || honorpay.BankName.Trim() == "")
-                                {
-                                    honorpay.BankName = bankdata[0].BankName;
-                                }
-                                if (honorpay.Branch == null || honorpay.Branch.Trim() == "")
-                                {
-                                    honorpay.Branch = bankdata[0].Branch;
-                                }
-                                if (honorpay.IFSC == null || honorpay.IFSC.Trim() == "")
-                                {
-                                    honorpay.IFSC = bankdata[0].IFSCCode;
-                                }
-                                if (honorpay.PAN == null || honorpay.PAN.Trim() == "")
-                                {
-                                    honorpay.PAN = bankdata[0].PAN;
+                                    if (honorpay.AccountNo == null || honorpay.AccountNo.Trim() == "")
+                                    {
+                                        honorpay.AccountNo = bankdata[0].AccountNumber;
+                                    }
+                                    if (honorpay.BankName == null || honorpay.BankName.Trim() == "")
+                                    {
+                                        honorpay.BankName = bankdata[0].BankName;
+                                    }
+                                    if (honorpay.Branch == null || honorpay.Branch.Trim() == "")
+                                    {
+                                        honorpay.Branch = bankdata[0].Branch;
+                                    }
+                                    if (honorpay.IFSC == null || honorpay.IFSC.Trim() == "")
+                                    {
+                                        honorpay.IFSC = bankdata[0].IFSCCode;
+                                    }
+                                    if (honorpay.PAN == null || honorpay.PAN.Trim() == "")
+                                    {
+                                        honorpay.PAN = bankdata[0].PAN;
+                                    }
                                 }
                             }
 
