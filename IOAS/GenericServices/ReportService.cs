@@ -781,14 +781,14 @@ namespace IOAS.GenericServices
                         for (int i = 0; i < Pay.Count; i++)
                         {
                             int catid = Convert.ToInt32(Pay[i].PayeeType);
-                            int TdsSec = Convert.ToInt32(Pay[i].TDSPercentage);
+                            string TdsSec = (Pay[i].TDSPercentage).ToString();
                             TDSList.Add(new TDSPerModel()
                             {
                                 PayeeName = Pay[i].PayeeName + "-" + Common.GetCodeControlName(catid, "HonorCategory"),
                                 BasicAmt = Convert.ToDecimal(Pay[i].Amount),
                                 NetAmt = Convert.ToDecimal(Pay[i].NetAmount),
                                 TDSAmt = Convert.ToDecimal(Pay[i].TDS),
-                                TDSPer = Common.GetCodeControlName(TdsSec, "TDS")
+                                TDSPer = Common.GetCodeControlnameTDS(TdsSec, "TDS")
                             });
                         }
                         for (int i = 0; i < Pay.Count; i++)
