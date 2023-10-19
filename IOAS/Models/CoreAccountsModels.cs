@@ -5345,7 +5345,6 @@ namespace IOAS.Models
         [Display(Name = "Tax value")]
         [Range(0, 9999999999999999.99)]
         public Nullable<decimal> TotalValue { get; set; }
-
         public Nullable<decimal> Roundvalue { get; set; }
         public Nullable<bool> IsInterstate { get; set; }
         public Nullable<Int32> TypeOfServiceOrCategory { get; set; }
