@@ -1090,7 +1090,7 @@ namespace IOAS.Models
         public string InvDate { get; set; }
         [RequiredIf("IsTaxEligible", true, ErrorMessage = "GSTIN field is required")]
         [MaxLength(15)]
-        [RegularExpression("^([0]{1}[1-9]{1}|[1-2]{1}[0-9]{1}|[3]{1}[0-7]{1})([a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[1-9a-zA-Z]{1}[zZ]{1}[0-9a-zA-Z]{1})+$", ErrorMessage = "Invalid GST Number")]
+        [RegularExpression("^([0]{1}[1-9]{1}|[1-2]{1}[0-9]{1}|[3]{1}[0-8]{1})([a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[1-9a-zA-Z]{1}[zZ]{1}[0-9a-zA-Z]{1})+$", ErrorMessage = "Invalid GST Number")]
         [Display(Name = "GST Number")]
         public string GSTIN { get; set; }
         public Nullable<bool> IsTaxEligible { get; set; }
@@ -1453,7 +1453,7 @@ namespace IOAS.Models
         public string InvDate { get; set; }
         [RequiredIf("IsTaxEligible", true, ErrorMessage = "GSTIN field is required")]
         [MaxLength(15)]
-        [RegularExpression("^([0]{1}[1-9]{1}|[1-2]{1}[0-9]{1}|[3]{1}[0-7]{1})([a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[1-9a-zA-Z]{1}[zZ]{1}[0-9a-zA-Z]{1})+$", ErrorMessage = "Invalid GST Number")]
+        [RegularExpression("^([0]{1}[1-9]{1}|[1-2]{1}[0-9]{1}|[3]{1}[0-8]{1})([a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[1-9a-zA-Z]{1}[zZ]{1}[0-9a-zA-Z]{1})+$", ErrorMessage = "Invalid GST Number")]
         [Display(Name = "GST Number")]
         public string GSTIN { get; set; }
         public Nullable<bool> IsTaxEligible { get; set; }
@@ -3531,7 +3531,7 @@ namespace IOAS.Models
         public string Remarks { get; set; }
         public string Status { get; set; }
         public string InstituteSalaryDate { get; set; }
-        public string ProjectNumber { get; set; }
+        public int ProjectId { get; set; }
         
         public string MonthYear { get; set; }
         public string HiddenMonthYear { get; set; }
@@ -4930,7 +4930,7 @@ namespace IOAS.Models
 
         [RequiredIf("IsTaxEligible", true, ErrorMessage = "GSTIN field is required")]
         [MaxLength(15)]
-        [RegularExpression("^([0]{1}[1-9]{1}|[1-2]{1}[0-9]{1}|[3]{1}[0-7]{1})([a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[1-9a-zA-Z]{1}[zZ]{1}[0-9a-zA-Z]{1})+$", ErrorMessage = "Invalid GST Number")]
+        [RegularExpression("^([0]{1}[1-9]{1}|[1-2]{1}[0-9]{1}|[3]{1}[0-8]{1})([a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[1-9a-zA-Z]{1}[zZ]{1}[0-9a-zA-Z]{1})+$", ErrorMessage = "Invalid GST Number")]
         [Display(Name = "GST Number")]
         public string GSTIN { get; set; }
 
@@ -5335,7 +5335,7 @@ namespace IOAS.Models
         public Nullable<DateTime> InvoiceDate { get; set; }
         public string InvDate { get; set; }
         [MaxLength(15)]
-        [RegularExpression("^([0]{1}[1-9]{1}|[1-2]{1}[0-9]{1}|[3]{1}[0-7]{1})([a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[1-9a-zA-Z]{1}[zZ]{1}[0-9a-zA-Z]{1})+$", ErrorMessage = "Invalid GST Number")]
+        [RegularExpression("^([0]{1}[1-9]{1}|[1-2]{1}[0-9]{1}|[3]{1}[0-8]{1})([a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[1-9a-zA-Z]{1}[zZ]{1}[0-9a-zA-Z]{1})+$", ErrorMessage = "Invalid GST Number")]
         [Display(Name = "GST Number")]
         public string GSTIN { get; set; }
         public Nullable<bool> IsTaxEligible { get; set; }
