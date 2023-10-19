@@ -55,7 +55,7 @@
                             @Html.Hidden("PODetail.Index", @count)
                         </td>
                         <td>
-                            @Html.TextBox(@amount, item.TotalAmount, new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)" })
+                            @Html.TextBox(@amount, item.TotalAmount, new { @class = "form-control roundoff", @onkeypress = "return ValidateDecimalOnly(event)" })
                             @Html.ValidationMessage(@amount)
                         </td>
                         <td>
@@ -94,7 +94,7 @@
                     </td>
 
                     <td>
-                        @Html.TextBox("PODetail[0].TotalAmount", "", new { @class = "form-control required", @onkeypress = "return ValidateDecimalOnly(event)", @onblur = "CalculatePOValue()", @autocomplete = "off" })
+                        @Html.TextBox("PODetail[0].TotalAmount", "", new { @class = "form-control required roundoff", @onkeypress = "return ValidateDecimalOnly(event)", @onblur = "CalculatePOValue()", @autocomplete = "off" })
                         @Html.ValidationMessage("PODetail[0].TotalAmount")
                     </td>
                     <td>
@@ -207,6 +207,31 @@
         $('#tbodyPO tr').find('input[name$=".IsTaxEligible"]').prop('checked', false);
         CalculatePOValue();
     }
+
+    //Round off calculation // 10616
+    function round(total) {
+
+        if (!isNaN(total)) {
+            console.log('Loaded..')
+            var valToBeRounded = parseFloat(total);
+            var decimalPart = valToBeRounded % 1;
+
+            console.log(valToBeRounded);
+            if (decimalPart > 0.5) {
+                // Round up the number
+                var roundUpNumber = Math.ceil(valToBeRounded);
+                value = roundUpNumber;
+            }
+            else {
+                // Round off the number
+                var roundOffNumber = Math.round(valToBeRounded);
+                value = roundOffNumber;
+            }
+            return value;
+        }
+    }
+
+
     function fillPODetail(poDetials) {
         var totInvoiceValue = 0.00;
 
@@ -220,9 +245,10 @@
                     trEle.find('input[name$=".Description"]').val(result.Description);
                     trEle.find('input[name$=".TypeOfServiceOrCategory"]').val(result.TypeOfServiceOrCategory);
                     trEle.find('input[name$=".ItemName"]').val(result.ItemName);
-                    trEle.find('input[name$=".TotalAmount"]').val(result.TotalAmount);
-
-                    totInvoiceValue = (parseFloat(totInvoiceValue) + parseFloat(result.TotalAmount));
+                    trEle.find('input[name$=".TotalAmount"]').val(round(result.TotalAmount));
+                    console.log('result.TotalAmount:' +round(result.TotalAmount));
+                    totInvoiceValue = (round(parseFloat(totInvoiceValue) + parseFloat(result.TotalAmount)));
+                    console.log('totinvoice ' + totInvoiceValue);
                     if (result.IsTaxEligible) {
                         trEle.find('input[type="hidden"][name$=".IsTaxEligible"]').val('true');
                         trEle.find('input[name$=".IsTaxEligible"]').prop('checked', true);
@@ -250,8 +276,8 @@
                     trEle.find('input[name$=".Description"]').val(result.Description);
                     trEle.find('input[name$=".TypeOfServiceOrCategory"]').val(result.TypeOfServiceOrCategory);
                     trEle.find('input[name$=".ItemName"]').val(result.ItemName);
-                    trEle.find('input[name$=".TotalAmount"]').val(result.TotalAmount);
-                    totInvoiceValue = (parseFloat(totInvoiceValue) + parseFloat(result.TotalAmount));
+                    trEle.find('input[name$=".TotalAmount"]').val(round(result.TotalAmount));
+                    totInvoiceValue = (round(parseFloat(totInvoiceValue) + parseFloat(result.TotalAmount)));
                     if (result.IsTaxEligible) {
                         trEle.find('input[type="hidden"][name$=".IsTaxEligible"]').val('true');
                         trEle.find('input[name$=".IsTaxEligible"]').prop('checked', true);

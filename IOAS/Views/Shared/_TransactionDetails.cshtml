@@ -4,7 +4,6 @@
 
         <div id="pnlLedgerInfo" class="row">
 
-
             <div class="col-md-12">
                 <div class="bl-lg-panel-box pb-null">
                     <div class="cmn-panel-box">
@@ -240,15 +239,15 @@
     function CalculateDeductionTotal() {
         var ttlExpVal = 0, ttlDrVal = 0, ttlDedtVal = 0, ttlJVExpVal = 0, ttlJVDrVal = 0;
         $('#tbodyExpenseList input[name$=".TransactionType"]').each(function (i, rowEle) {
-            var jv = $(this).closest('tr').find("input[name$='.IsJV']").val();
+            var jv = $(this).closest('tr').find("input[name$='.IsJV']").val(); 
             if ($(this).val() == 'Credit') {
                 var parseVal = parseFloat($(this).closest('tr').find("input[name$='.Amount']").val());
                 if (!isNaN(parseVal)) {
                     ttlExpVal = ttlExpVal + parseVal;
-                  
+
                     if (jv.toLowerCase() == "true")
                         ttlJVExpVal = ttlJVExpVal + parseVal;
-               
+
                 }
             } else if ($(this).val() == 'Debit') {
                 var parseVal = parseFloat($(this).closest('tr').find("input[name$='.Amount']").val());
@@ -287,6 +286,64 @@
         $('#ttlDr').val(tlDr);
         $('#ttlCr').val(ttlExpVal);
     }
+    //11335
+    function CalculateRoundingOffAdjustment(roundOffAdjustment, isCalPerformed) {
+        if (isNaN(roundOffAdjustment)) {
+            roundOffAdjustment = 0
+        }
+       var roundOffAdj = Number(roundOffAdjustment);
+        if (!isCalPerformed) {
+        $('#tbodyExpenseList select[name$=".AccountHeadId"]').each(function (i, rowEle) {
+            console.log('CREDIT IN');
+            //var jv = $(this).closest('tr').find("input[name$='.IsJV']").val(); 
+            if (roundOffAdj > 0) {
+                if ($(this).find(":selected").text() == 'Round off Debit') {
+                    var parseVal = parseFloat($(this).closest('tr').find("input[name$='.Amount']").val());
+                    if (!isNaN(parseVal)) {
+                        parseVal = parseVal + roundOffAdj;
+                        $(this).closest('tr').find("input[name$='.Amount']").val(parseVal);
+                        console.log('debit : ' + parseVal);
+                        //if (parseVal > 0) {
+                        //    //to set the values in credit amt as 0
+                        //    var $select = $(this).find(":selected").text('Round off Credit');
+                        //    var $closestRow = $select.closest('tr');
+                        //    var crVal = $closestRow.find("input[name$='.Amount']");
+                        //    crVal.val(0);  
+                        //}
+                    }
+
+                }
+            }
+            else
+            {
+                if ($(this).find(":selected").text() == 'Round off Credit') {
+                    var parseVal = parseFloat($(this).closest('tr').find("input[name$='.Amount']").val());
+                    if (!isNaN(parseVal)) {
+                        parseVal = parseVal + roundOffAdj;
+                        $(this).closest('tr').find("input[name$='.Amount']").val(parseVal);
+
+                    }
+                }
+            }
+        });
+        }
+        isCalPerformed = true;
+        return isCalPerformed;
+    }
+    function resetRoundoff(roundVal)
+    {
+        roundVal = Number(roundVal);
+        $('#tbodyExpenseList select[name$=".AccountHeadId"]').each(function (i, rowEle) {
+            if (roundVal > 0) {
+                $(this).find("option[value='319']").text('Round off Credit').closest('tr').find("input[name$='.Amount']").val(0);
+            }
+            else {
+                $(this).find("option[value='320']").text('Round off Debit').closest('tr').find("input[name$='.Amount']").val(0);
+            }
+        });
+    }
+    
+
     function FillTransactionDetails() {
         var subcode = $('#SubCode').val();
         var tCode = $('#TransactionTypeCode').val();
@@ -586,7 +643,6 @@
     });
     $('#btnReset').click(function () {
         GetTransactionDetails();
-        UpdateTransactionDetails()
     });
     $(document).on('click', 'a.removeExpense', function () {
         if ($('#tbodyExpenseList tr').length != 1) {

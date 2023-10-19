@@ -10,12 +10,13 @@
         <table class="table alter-table">
             <thead>
                 <tr>
-                    <td >Invoice Number </td>
-                    <td >Invoice Date</td>
-                    <td >Amount</td>
-                    <td >Tax %</td>
-                    <td >Tax Amount</td>
+                    <td>Invoice Number </td>
+                    <td>Invoice Date</td>
+                    <td>Amount</td>
+                    <td>Tax %</td>
+                    <td>Tax Amount</td>
                     <td>Tax Eligible</td>
+                    <td>Rounded Amount</td>
                 </tr>
             </thead>
             <tbody id="tbodyInvoiceBU">
@@ -30,6 +31,7 @@
                         var taxpercent = "InvoiceBreakDetail[" + count + "].TaxablePercentage";
                         var taxvalue = "InvoiceBreakDetail[" + count + "].TaxValue";
                         var taxEligible = "InvoiceBreakDetail[" + count + "].IsTaxEligible";
+                        var roundvalue = "InvoiceBreakDetail[" + count + "].Roundvalue";
                         <tr id="trdetails" class="p-b-sm">                            
                             <td>
                                 @Html.TextBox(@invoicenumber, item.InvoiceNumber, new { @class = "form-control required" })
@@ -55,6 +57,10 @@
                             <td>
                                 @Html.CheckBox(@taxEligible, item.IsTaxEligible)
                                 @Html.ValidationMessage(@taxEligible)
+                            </td>
+                            <td>
+                                @Html.TextBox(@roundvalue, item.Roundvalue, new { @class = "form-control", @readonly = true, @id = "Roundvalue", @autocomplete = "off" })
+                                @Html.ValidationMessage(@roundvalue)
                             </td>
                             <td>
                                 <a href="javascript:void(0)" class="btn-circle removeInvoiceBUDetail"><i class="ion-trash-a"></i></a>
@@ -94,7 +100,11 @@
                         <td>
                             @Html.CheckBox("InvoiceBreakDetail[0].IsTaxEligible", new { @id = "InvoiceBreakDetail_0_IsTaxEligible" })
                             @Html.ValidationMessage("InvoiceBreakDetail[0].IsTaxEligible")
-                        </td>                
+                        </td> 
+                        <td>
+                            @Html.TextBox("InvoiceBreakDetail[0].Roundvalue", "", new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)", @readonly = true })
+                            @Html.ValidationMessage("InvoiceBreakDetail[0].Roundvalue")
+                        </td>
                         <td>
                             <a href="javascript:void(0)" class="btn-circle removeInvoiceBUDetail"><i class="ion-trash-a"></i></a>
                         </td>
@@ -111,7 +121,7 @@
     </div>
 </div>
 <div class="row">
-    <div class="col-md-4 col-md-offset-4">
+    <div class="col-md-2 col-md-offset-5">
         <div class="form-group custom-form-group ">
             <label>Total Tax Amount :</label>
             @Html.TextBox("InvoiceTaxAmount", (string)ViewBag.invoiceTaxAmt, new { @class = "form-control" })
@@ -119,7 +129,14 @@
             @Html.ValidationMessage("InvoiceTaxAmount")
         </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-2 ">
+        <div class="form-group custom-form-group ">
+            <label>Round of Adjustment:</label>
+            <input type="text" class="form-control" id="txtRoundOfAdjustment" value="0" />
+            @Html.Hidden("RoundOfAdjustment")
+        </div>
+    </div>
+    <div class="col-md-3">
         <div class="form-group custom-form-group ">
             <label>Total Invoice Amount :</label>
             @Html.TextBox("InvoiceAmount", "", new { @class = "form-control", @readonly = true })
@@ -133,9 +150,12 @@
         //if (currentRefId == 0) {
         //    calculateAmount();
         //} else {
-            calculateAmountViewMode();
+        calculateAmountViewMode();
+        
         //}
     });
+   
+
     function calculateAmountViewMode() {
         var totalamount = 0;
         var totaltax = 0;
@@ -148,9 +168,10 @@
                 eligibletaxtotal = eligibletaxtotal + taxamount;
             totaltax += taxamount;
             totalamount += amount;
+            $(this).find('input[name$=".Roundvalue"]').val(round(taxamount + amount)) || 0;
         });
-        $("#InvoiceAmount").val(totalamount.toFixed(2));
-        //$("#InvoiceTaxAmount").val(totaltax.toFixed(2));
+        //$("#InvoiceAmount").val(totalamount.toFixed(2));\\10616
+        $("#InvoiceAmount").val(round(totalamount));
         $("#InvoiceTaxEligibleAmount").val(eligibletaxtotal.toFixed(2));
         CalculatePOValue();
     }
@@ -168,6 +189,7 @@
         $(cln).find("input[name='InvoiceBreakDetail.Index']").val(index);
         $(cln).find('input[type="hidden"][name$=".IsTaxEligible"]').val('false');
         $(cln).find('input[name$=".IsTaxEligible"]').prop('checked', false);
+        //$(cln).find('input[name$=".Roundvalue"]').val(round(result.Amount + result.TaxValue));
         $(cln).find("input, select,textarea").each(function () {
             $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
             if($(this).attr("id"))
@@ -193,6 +215,7 @@
         var totalamount = 0;
         var totaltax = 0;
         var eligibletaxtotal = 0;
+        var adjVal = parseFloat($("#txtRoundOfAdjustment").val());
         $('#tbodyInvoiceBU tr').each(function (idx, val) {
             var amount = parseFloat($(this).find('input[name$=".Amount"]').val()) || 0;
             var taxpercent = parseFloat($(this).find('select[name$=".TaxablePercentage"]').val()) || 0;
@@ -203,11 +226,40 @@
                 eligibletaxtotal = eligibletaxtotal + taxamount;
             totaltax += taxamount;
             totalamount += amount;
+            //10616
+            var roundVal = round(totalamount);
+            if (!isNaN(Number(roundVal))) {
+                $(this).find('input[name$=".Roundvalue"]').val(roundVal);
+            }            
         });
-        $("#InvoiceAmount").val(totalamount.toFixed(2));
+        //$("#InvoiceAmount").val(totalamount.toFixed(2));//10616
+        $("#InvoiceAmount").val(round(totalamount + adjVal));
         $("#InvoiceTaxAmount").val(totaltax.toFixed(2));
         $("#InvoiceTaxEligibleAmount").val(eligibletaxtotal.toFixed(2));
         CalculatePOValue();
+    }
+
+    //10616
+    function round(total) {
+
+        if (!isNaN(total)) {
+            console.log('Loaded..')
+            var valToBeRounded = parseFloat(total);
+            var decimalPart = valToBeRounded % 1;
+
+            console.log(valToBeRounded);
+            if (decimalPart > 0.5) {
+                // Round up the number
+                var roundUpNumber = Math.ceil(valToBeRounded);
+                value = roundUpNumber;
+            }
+            else {
+                // Round off the number
+                var roundOffNumber = Math.round(valToBeRounded);
+                value = roundOffNumber;
+            }
+            return value;
+        }
     }
     function EmptyInvoiceBU() {
         $('#tbodyInvoiceBU tr').not(':first').remove();
