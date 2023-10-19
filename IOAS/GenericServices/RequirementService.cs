@@ -263,8 +263,69 @@ namespace IOAS.GenericServices
             }
         }
 
-        //yogesh 
-    
+        //yogesh by Requested PIID
+        public static ProjectDetails getProjectSummary(int ProjectId,int RequestedPIId)
+        {
+            try
+            {
+                ProjectDetails prjModel = new ProjectDetails();
+                using (var context = new IOASDBEntities())
+                {
+
+                    var qryProject = (from prj in context.tblProject
+                                      where prj.ProjectId == ProjectId
+                                      select prj).FirstOrDefault();
+                    if (qryProject.SponsoringAgency > 0)
+                    {
+                        var AgencyQry = context.tblAgencyMaster.Where(m => m.AgencyId == qryProject.SponsoringAgency).FirstOrDefault();
+                        if (AgencyQry != null)
+                            prjModel.SponsoringAgency = AgencyQry.AgencyName;
+                    }
+
+                    if (qryProject != null)
+                    {
+                        string pType = Common.getprojectTypeName(qryProject.ProjectType ?? 0);
+                        if (qryProject.ProjectType == 1 && qryProject.ProjectSubType != 1)
+                            pType += qryProject.SponProjectCategory == "1" ? "-PFMS" : qryProject.SponProjectCategory == "2" ? "-NON-PFMS" : "";
+                        else if (qryProject.ProjectType == 1 && qryProject.ProjectSubType == 1)
+                            pType += " - Internal";
+                        prjModel.ProjectType = pType;
+                        prjModel.ProjectTitle = qryProject.ProjectTitle;
+                        prjModel.PIId = qryProject.PIName;
+                        prjModel.PIName = Common.GetPIName(RequestedPIId , false);
+                        prjModel.ProjectStartDate = String.Format("{0:dd-MMM-yyyy}", qryProject.TentativeStartDate);
+                        prjModel.ProjectClosureDate = string.Format("{0:dd-MMM-yyyy}", Common.GetProjectDueDate(ProjectId) ?? qryProject.TentativeCloseDate);
+                        prjModel.ProjectNumber = qryProject.ProjectNumber;
+                        prjModel.ProjectID = qryProject.ProjectId;
+                        if (qryProject.PIName > 0)
+                        {
+                            var qryPIDetails = (from prj in context.vwFacultyStaffDetails
+                                                where prj.UserId == qryProject.PIName
+                                                select prj).FirstOrDefault();
+                            if (qryPIDetails != null)
+                            {
+                                prjModel.Email = qryPIDetails.Email;
+                                prjModel.Phone = qryPIDetails.ContactNumber;
+                                prjModel.PIDepartmentCode = qryPIDetails.DepartmentCode;
+                                prjModel.PIDepartmentName = qryPIDetails.DepartmentName;
+                                prjModel.PICode = qryPIDetails.EmployeeId;
+                                prjModel.PIDesignation = qryPIDetails.Designation;
+                            }
+                        }
+                    }
+
+                }
+                return prjModel;
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler WriteLog = new ErrorHandler();
+                WriteLog.SendErrorToText(ex);
+                ProjectDetails prjModel = new ProjectDetails();
+                return prjModel;
+            }
+        }
+
 
         public static ProjectDetails GetOfferLetterProjectDetails(int STEId)
         {
@@ -3434,7 +3495,7 @@ namespace IOAS.GenericServices
                         {
                             model.Designation = query.D.Designation;
                             model.DesignationId = query.D.DesignationId;
-                            model.ProjectDetailsModel = getProjectSummary(query.S.ProjectId ?? 0);
+                            model.ProjectDetailsModel = getProjectSummary(query.S.ProjectId ?? 0,query.S.RequestedBy??0);
                             model.ProjectNumber = model.ProjectDetailsModel.ProjectNumber;
                             model.Typeofappointment = Common.GetCodeControlName(query.S.TypeofAppointment ?? 0, "STEAppointmenttype");
                             model.PayeeType = query.S.ConsolidatedPay == true ? "Consolidated Pay" : "Fellowship Pay";
@@ -13687,7 +13748,7 @@ namespace IOAS.GenericServices
                         model.EmployeeId = query.EmployeersID;
                         model.Name = query.ProfessionalType + " " + query.CandidateName.ToUpper();
                         model.ApplicationNo = getOfferDetails(query.ApplicationId ?? 0, query.Category, orderid);
-                        model.ProjectDetail = getProjectSummary(query.ProjectId ?? 0);
+                    
                         model.Designation = query.PostRecommended;
                         model.Appointmentstartdate = string.Format("{0:dd-MMMM-yyyy}", query.AppointmentStartdate);
                         model.AppointmentEndDate = string.Format("{0:dd-MMMM-yyyy}", query.AppointmentEnddate);
@@ -13713,17 +13774,26 @@ namespace IOAS.GenericServices
                         model.MsPhd_f = query.isMsPhd;
                         model.RollNumber = query.PhdDetail;
                         model.TypeofAppointment = query.TypeofAppointment;
-                        if (query.AppointmentType == 3 && query.isMsPhd == true)
+                        if (query.AppointmentType == 3 )
                         {
+
                             var QryOSG = context.tblRCTOutsourcing.FirstOrDefault(m => m.OSGID == query.ApplicationId);
                             if (QryOSG != null)
-                                model.MsPhdType = QryOSG.MsPhdType == 1 ? "M.S" : QryOSG.MsPhdType == 2 ? "Ph.D" : "";
+                            {
+                                if (query.isMsPhd == true)
+                                { model.MsPhdType = QryOSG.MsPhdType == 1 ? "M.S" : QryOSG.MsPhdType == 2 ? "Ph.D" : ""; }
+                                model.ProjectDetail = getProjectSummary(query.ProjectId ?? 0, QryOSG.RequestedBy ?? 0);
+                            }
                         }
-                        else if (query.AppointmentType == 2 && query.isMsPhd == true)
+                        else if (query.AppointmentType == 2)
                         {
                             var QrySTE = context.tblRCTSTE.FirstOrDefault(m => m.STEID == query.ApplicationId);
                             if (QrySTE != null)
-                                model.MsPhdType = QrySTE.MsPhdType == 1 ? "M.S" : QrySTE.MsPhdType == 2 ? "Ph.D" : "";
+                            {
+                                if (query.isMsPhd == true)
+                                { model.MsPhdType = QrySTE.MsPhdType == 1 ? "M.S" : QrySTE.MsPhdType == 2 ? "Ph.D" : ""; }
+                                model.ProjectDetail = getProjectSummary(query.ProjectId ?? 0, QrySTE.RequestedBy ?? 0);
+                            }
                         }
 
                         model.ConsolidatedPay = query.ConsolidatedPay ?? false;
