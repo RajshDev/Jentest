@@ -292,7 +292,7 @@ namespace IOAS.Models
 
         public List<VendorInvoiceBreakUpDetailModel> InvoiceBreakDetail { get; set; } = new List<VendorInvoiceBreakUpDetailModel>();
         public bool BillProcessingStatus { get; set; }
-
+        
     }
 
     public class BillPODetailModel
@@ -4942,6 +4942,7 @@ namespace IOAS.Models
         public string HSNCode { get; set; }
         [RequiredIfNot("HSNCode", null, ErrorMessage = "Vendor field is required")]
         public string Vendor { get; set; }
+        public Nullable<decimal> Roundvalue { get; set; }
     }
     public class VendorInvoiceBreakUpDetailModel
     {
