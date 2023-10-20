@@ -558,7 +558,7 @@
         else
         {
             var strtodate = '@string.Format("{0:dd-MMMM-yyyy}", Model.ToDate)';
-            $('#txtHRAtodate').text(strtodate);
+            $('#txtHRAtodate').text(strtodate)
             $('#ToDate').val(strtodate);
         }
 
@@ -588,7 +588,7 @@
                             var HRAPercentage = parseFloat(result.DesignationData.HRAPercentage);
                             HRAPercentage = HRAPercentage / 100;
                             var hra = Salary * HRAPercentage;
-                            $('#HRA').val(Math.round (hra));
+                            $('#HRA').val(Math.round(hra).toFixed(0));
                             calculatetaxTotal();
                         }
                     }
@@ -654,10 +654,11 @@
             var months = 0,days = 0;
             days = startworkingdays + endworkingdays;
             months = objData.monthcount || 0;
-            var hra = parseFloat($("#HRA").val()) || 0;
+            var hra = parseFloat($("#HRA").val()).toFixed(0) || 0;
             var hraper = $('#HRAPercentage').val() || 0;
             hraper = hraper / 100;
-            hra =  Salary * hraper;
+            hra = Salary * hraper;
+            hra = parseFloat(hra).toFixed(0);
             $("#HRA").val(hra);
 
             var Tot = 0;
@@ -763,7 +764,8 @@
             AppointmentStartDate: $('#FromDate').val(),
             AppointmentEndDate: $('#ToDate').val(),
             OrderType: "HRA Booking",
-            BasicPay : $('#HRA').val(),
+            BasicPay: parseFloat($('#HRA').val()).toFixed(2),
+            
             AppId : $('#ApplicationID').val(),
             AppType : 'STE'
         }
