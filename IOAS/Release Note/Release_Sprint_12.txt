@@ -112,6 +112,25 @@ insert into tblFunction  (FunctionId, FunctionName, ActionName, ControllerName, 
 values (237,'Bill Reversal','BillReversal','CoreAccounts',5,6,'Active',262,getdate())
 Update tblFunction set MenuSeq = 225 where FunctionId = 237
 
+CREATE TABLE [dbo].tblBillReversalLog(
+	[BillReversalLogId] [int] IDENTITY(1,1) NOT FOR REPLICATION NOT NULL,
+	[BillId] [int] NULL,
+	[BillNumber] [varchar](max) NULL,
+	[TransactionType] [varchar](max) NULL,
+	[Crtd_Ts] [datetime] NULL,
+	[Crtd_UserID] int NULL	
+PRIMARY KEY CLUSTERED 
+(
+	[BillReversalLogId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+
+
+ALTER TABLE tblBillReversalLog
+ALTER COLUMN [Crtd_UserID] int;
+
+
 #10104 - Some bills are not showing in Tula - Reg
 code changes:
 CoreAccountscontroller.cs
