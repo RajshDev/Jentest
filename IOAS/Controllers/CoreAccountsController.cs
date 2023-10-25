@@ -1416,8 +1416,8 @@ namespace IOAS.Controllers
             try
             {
                 ViewBag.TransType = Common.GetBillTransactionType();
-
-                string msg = coreAccountService.BillReverse(transaction, Billnumber);
+                var userName = User.Identity.Name;
+                string msg = coreAccountService.BillReverse(transaction, Billnumber, userName);
                 if (msg.Contains("Opened Successfully"))
                     @TempData["succMsg"] = msg;
                 else
