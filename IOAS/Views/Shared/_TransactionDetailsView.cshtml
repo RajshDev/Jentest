@@ -116,87 +116,90 @@
 
     </tbody>
 </table>
-<h3>Taxes</h3>
 
-<table class="table table-bordered mb-null">
-    <thead>
-        <tr>
-            <th>Group</th>
-            <th>Account Head</th>
-            <th>Amount</th>
-        </tr>
-    </thead>
-    <tbody id="tbodyDeductionList">
-        @if (Model.DeductionDetail != null && Model.DeductionDetail.Count() > 0)
-        {
-            var count = 0;
-            foreach (var item in Model.DeductionDetail)
+<div id="Taxes">
+    <h3>Taxes</h3>
+
+    <table class="table table-bordered mb-null">
+        <thead>
+            <tr>
+                <th>Group</th>
+                <th>Account Head</th>
+                <th>Amount</th>
+            </tr>
+        </thead>
+        <tbody id="tbodyDeductionList">
+            @if (Model.DeductionDetail != null && Model.DeductionDetail.Count() > 0)
             {
-                var amt = "DeductionDetail[" + count + "].Amount";
-                var groupId = "DeductionDetail[" + count + "].AccountGroupId";
-                var headId = "DeductionDetail[" + count + "].DeductionHeadId";
-                var deductDetailId = "DeductionDetail[" + count + "].BillDeductionDetailId";
-                var deductionHead = "DeductionDetail[" + count + "].DeductionHead";
-                var accountGroup = "DeductionDetail[" + count + "].AccountGroup";
+                var count = 0;
+                foreach (var item in Model.DeductionDetail)
+                {
+                    var amt = "DeductionDetail[" + count + "].Amount";
+                    var groupId = "DeductionDetail[" + count + "].AccountGroupId";
+                    var headId = "DeductionDetail[" + count + "].DeductionHeadId";
+                    var deductDetailId = "DeductionDetail[" + count + "].BillDeductionDetailId";
+                    var deductionHead = "DeductionDetail[" + count + "].DeductionHead";
+                    var accountGroup = "DeductionDetail[" + count + "].AccountGroup";
+                    <tr>
+                        <td>@item.AccountGroup</td>
+                        <td>@item.DeductionHead</td>
+                        <td>
+                            <h4>@item.Amount</h4>
+                            @Html.Hidden(@amt, item.Amount, new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)", @onblur = "CalculateDeductionTotal()", @autocomplete = "off" })
+                            @Html.Hidden(@groupId, item.AccountGroupId)
+                            @Html.Hidden(@headId, item.DeductionHeadId)
+                            @Html.Hidden(@deductDetailId, item.BillDeductionDetailId)
+                            @Html.Hidden(@deductionHead, item.DeductionHead)
+                            @Html.Hidden(@accountGroup, item.AccountGroup)
+                        </td>
+                    </tr>
+                    count++;
+
+                }
+            }
+            else
+            {
                 <tr>
-                    <td>@item.AccountGroup</td>
-                    <td>@item.DeductionHead</td>
+
+                    <td></td>
+                    <td></td>
                     <td>
-                        <h4>@item.Amount</h4>
-                        @Html.Hidden(@amt, item.Amount, new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)", @onblur = "CalculateDeductionTotal()", @autocomplete = "off" })
-                        @Html.Hidden(@groupId, item.AccountGroupId)
-                        @Html.Hidden(@headId, item.DeductionHeadId)
-                        @Html.Hidden(@deductDetailId, item.BillDeductionDetailId)
-                        @Html.Hidden(@deductionHead, item.DeductionHead)
-                        @Html.Hidden(@accountGroup, item.AccountGroup)
+                        @Html.Hidden("DeductionDetail[0].Amount", "", new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)", @onblur = "CalculateDeductionTotal()", @autocomplete = "off" })
+                        @Html.ValidationMessage("DeductionDetail[0].Amount")
+                        @Html.Hidden("DeductionDetail[0].AccountGroupId")
+                        @Html.Hidden("DeductionDetail[0].DeductionHeadId")
+                        @Html.Hidden("DeductionDetail[0].BillDeductionDetailId")
+                        @Html.Hidden("DeductionDetail[0].DeductionHead")
+                        @Html.Hidden("DeductionDetail[0].AccountGroup")
                     </td>
                 </tr>
-                count++;
-
             }
-        }
-        else
-        {
             <tr>
-
-                <td></td>
-                <td></td>
                 <td>
-                    @Html.Hidden("DeductionDetail[0].Amount", "", new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)", @onblur = "CalculateDeductionTotal()", @autocomplete = "off" })
-                    @Html.ValidationMessage("DeductionDetail[0].Amount")
-                    @Html.Hidden("DeductionDetail[0].AccountGroupId")
-                    @Html.Hidden("DeductionDetail[0].DeductionHeadId")
-                    @Html.Hidden("DeductionDetail[0].BillDeductionDetailId")
-                    @Html.Hidden("DeductionDetail[0].DeductionHead")
-                    @Html.Hidden("DeductionDetail[0].AccountGroup")
+                    <label>Total Value <span class="dr">(Dr)</span> :</label>
+                    @Html.HiddenFor(m => m.DeductionAmount, new { @class = "form-control", @readonly = "readonly", @autocomplete = "off" })
+                    @Html.DisplayFor(m => m.DeductionAmount)
                 </td>
-            </tr>
-        }
-        <tr>
-            <td>
-                <label>Total Value <span class="dr">(Dr)</span> :</label>
-                @Html.HiddenFor(m => m.DeductionAmount, new { @class = "form-control", @readonly = "readonly", @autocomplete = "off" })
-                @Html.DisplayFor(m => m.DeductionAmount)
-            </td>
-            <td class="reg-no">
-               
+                <td class="reg-no">
+
                     <label class="lblval">Total Credit <span class="cr">(Cr)</span> :</label>
                     @*<input value="" name="CreditAmount" id="ttlCr" class="form-control" readonly="readonly" autocomplete="off" type="text">*@
                     @Html.Hidden("ttlJVCr")
-                    <h4 id="ttlCr"class="tatval"></h4>
-                
-            </td>
-            <td class="reg-no">
-              
-                    <label  class="lblval">Total Debit <span class="dr">(Dr)</span> :</label>
+                    <h4 id="ttlCr" class="tatval"></h4>
+
+                </td>
+                <td class="reg-no">
+
+                    <label class="lblval">Total Debit <span class="dr">(Dr)</span> :</label>
                     @*<input value="" name="DebitAmount" id="ttlDr" class="form-control" readonly="readonly" autocomplete="off" type="text">*@
                     @Html.Hidden("ttlJVDr")
                     <h4 id="ttlDr" class="tatval"></h4>
-               
-            </td>
-        </tr>
-    </tbody>
-</table>
+
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
 
 <script type="text/javascript">
     function CalculateDeductionTotal() {

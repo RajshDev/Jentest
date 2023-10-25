@@ -15142,7 +15142,7 @@ namespace IOAS.Controllers
         {
             try
             {
-                var emptyList = new List<InstituteSalaryPaymentModel>();
+                /*var emptyList = new List<InstituteSalaryPaymentModel>();
                 ViewBag.SourceList = Common.GetSourceList();
                 ViewBag.SourceRefNumberList = emptyList;
                 ViewBag.PIName = Common.GetPIWithDetails();
@@ -15163,21 +15163,23 @@ namespace IOAS.Controllers
                 var ptypeList = Common.getprojecttype();
                 int firstPType = ptypeList != null ? ptypeList[0].codevalAbbr : 0;
                 ViewBag.ProjectTypeList = ptypeList;
-                ViewBag.ProjectNumberList = ProjectService.LoadProjecttitledetails(firstPType);
+                //ViewBag.ProjectNumberList = ProjectService.LoadProjecttitledetails(firstPType);
                 InstituteSalaryPaymentModel model = new InstituteSalaryPaymentModel();
                 model.CreditorType = "PI/Student/Others";
-                if (PaymentId > 0)
-                {
-                    model = coreAccountService.GetInstituteSalaryPaymentDetails(PaymentId);
-                }
-                else
-                {
-                    model.CheckListDetail = Common.GetCheckedList(86);
-                    model.NeedUpdateTransDetail = true;
-                }
-                ViewBag.disabled = "Disabled";
-                ViewBag.processGuideLineId = 1;
-                TempData["viewMode"] = "ViewOnly";
+                //if (PaymentId > 0)
+                //{
+                //    model = coreAccountService.GetInstituteSalaryPaymentDetails(PaymentId);
+                //}
+                //else
+                //{
+                //    model.CheckListDetail = Common.GetCheckedList(86);
+                //    model.NeedUpdateTransDetail = true;
+                //}
+                //ViewBag.disabled = "Disabled";
+                //ViewBag.processGuideLineId = 1;
+                //TempData["viewMode"] = "ViewOnly";*/
+                InstituteSalaryPaymentModel model = new InstituteSalaryPaymentModel();
+                model = coreAccountService.GetInstituteSalaryPaymentDetails(PaymentId);
                 return View(model);
 
             }
