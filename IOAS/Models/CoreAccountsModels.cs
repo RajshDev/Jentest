@@ -3531,13 +3531,15 @@ namespace IOAS.Models
         public string Remarks { get; set; }
         public string Status { get; set; }
         public string InstituteSalaryDate { get; set; }
-        public int ProjectId { get; set; }
-        
+        public int ProjectId { get; set; }        
         public string MonthYear { get; set; }
         public string HiddenMonthYear { get; set; }
-        public Nullable<DateTime> FromDate { get; set; }
+
         public Nullable<DateTime> ToDate { get; set; }
+
         public decimal Amount { get; set; }
+
+        public string InstituteSalaryPaymentNumber { get; set; }
         public List<InstituteSalaryPaymentListModel> IMS { get; set; }
     }
 
@@ -3551,6 +3553,7 @@ namespace IOAS.Models
         public string Name { get; set; }
         public string Type { get; set; }
         public decimal Amount { get; set; }
+        public Nullable<DateTime> FromDate { get; set; }
     }
     public class SearchGridInstituteSalary
     {

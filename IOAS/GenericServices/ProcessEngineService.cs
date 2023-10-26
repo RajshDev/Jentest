@@ -913,7 +913,7 @@ namespace IOAS.GenericServices
         }
 
 
-        public static bool DuplicateEntryValidation (string refNumber)
+        public static bool DuplicateEntryValidation (string refNumber , int ProcessGuidelineDetailId)
         {
             try
             {
@@ -923,7 +923,7 @@ namespace IOAS.GenericServices
                 {
                     
                     DuplicateEntry = (from Pt in context.tblProcessTransaction
-                                      where  Pt.RefNumber == refNumber && Pt.Closed_F == true
+                                      where  Pt.RefNumber == refNumber && Pt.Closed_F == true && Pt.ProcessGuidelineDetailId==ProcessGuidelineDetailId
                                       select Pt.RefNumber).FirstOrDefault();
 
                     if (refNumber != DuplicateEntry)
@@ -994,7 +994,7 @@ namespace IOAS.GenericServices
 
                         //var DuplicateEntry = DuplicateEntryValidation(model.RefNumber.ToString());
 
-                        if (DuplicateEntryValidation(model.RefNumber.ToString()))
+                        if (DuplicateEntryValidation(model.RefNumber.ToString(),model.ProcessGuidelineDetailId))
                         {
                             context.tblProcessTransaction.Add(trans);
                             context.SaveChanges();
