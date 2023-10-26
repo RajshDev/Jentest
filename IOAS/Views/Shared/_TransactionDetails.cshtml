@@ -303,13 +303,6 @@
                         parseVal = parseVal + roundOffAdj;
                         $(this).closest('tr').find("input[name$='.Amount']").val(parseVal);
                         console.log('debit : ' + parseVal);
-                        //if (parseVal > 0) {
-                        //    //to set the values in credit amt as 0
-                        //    var $select = $(this).find(":selected").text('Round off Credit');
-                        //    var $closestRow = $select.closest('tr');
-                        //    var crVal = $closestRow.find("input[name$='.Amount']");
-                        //    crVal.val(0);  
-                        //}
                     }
 
                 }
@@ -319,6 +312,8 @@
                 if ($(this).find(":selected").text() == 'Round off Credit') {
                     var parseVal = parseFloat($(this).closest('tr').find("input[name$='.Amount']").val());
                     if (!isNaN(parseVal)) {
+                        //reset the amount to 0 for -ve round off values.
+                        $(this).closest('tr').find("input[name$='.Amount']").val(0);
                         parseVal = parseVal + roundOffAdj;
                         $(this).closest('tr').find("input[name$='.Amount']").val(parseVal);
 
@@ -333,13 +328,33 @@
     function resetRoundoff(roundVal)
     {
         roundVal = Number(roundVal);
+       
         $('#tbodyExpenseList select[name$=".AccountHeadId"]').each(function (i, rowEle) {
+            //var creditRoundOff = $(this).find("option[value='319']").text('Round off Credit').closest('tr').find("input[name$='.Amount']").val();
+            //console.log('creditRoundOff:' + creditRoundOff);
+
+            //if (roundVal > 0) {
+            //    $(this).find("option[value='319']").text('Round off Credit').closest('tr').find("input[name$='.Amount']").val(0);
+            //}
+            //else
+            //{
+            //    $(this).find("option[value='320']").text('Round off Debit').closest('tr').find("input[name$='.Amount']").val(0);
+            //}
+            var $row = $(this).closest('tr');
+            var $creditOption = $row.find("option[value='319']");
+            var $debitOption = $row.find("option[value='320']");
+            var $amountInput = $row.find("input[name$='.Amount']");
+
             if (roundVal > 0) {
-                $(this).find("option[value='319']").text('Round off Credit').closest('tr').find("input[name$='.Amount']").val(0);
+                $creditOption.text('Round off Credit');
+                $debitOption.text('Round off Debit');
+                $amountInput.val(0);
+            } else {
+                $creditOption.text('Round off Credit');
+                $debitOption.text('Round off Debit');
+                $amountInput.val(0);
             }
-            else {
-                $(this).find("option[value='320']").text('Round off Debit').closest('tr').find("input[name$='.Amount']").val(0);
-            }
+            
         });
     }
     
