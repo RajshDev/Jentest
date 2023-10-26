@@ -728,7 +728,7 @@ namespace IOAS.GenericServices
                                join PT in context.tblProcessTransaction on PGD.ProcessGuidelineDetailId equals PT.ProcessGuidelineDetailId
                                //join PTD in context.tblProcessTransactionDetail on PT.ProcessTransactionId equals PTD.ProcessTransactionId
                                join U in context.tblUser on WF.ApproverId equals U.UserId
-                               where WF.ProcessGuidelineId == this._processGuideLineId && PT.RefId == this._refId
+                               where WF.ProcessGuidelineId == this._processGuideLineId && PT.RefId == this._refId && U.Status != "InActive"
                                orderby WF.ApproverLevel ascending
                                select new
                                {
