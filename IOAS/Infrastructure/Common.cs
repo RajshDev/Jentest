@@ -7727,10 +7727,10 @@ namespace IOAS.Infrastructure
                 List<MasterlistviewModel> list = new List<MasterlistviewModel>();
 
                 using (var context = new IOASDBEntities())
-                {
+                {//35690
                     list = (from P in context.tblProject                           
                             join U in context.vwFacultyStaffDetails on P.PIName equals U.UserId
-                            where  P.ProjectId == 35690 
+                            where  P.ProjectId == 35690
                             orderby P.ProjectNumber
                             group new { P.ProjectId, P.ProjectNumber, U.FirstName } by P.ProjectId into g
                             select new
@@ -12548,7 +12548,7 @@ namespace IOAS.Infrastructure
         }
 
         //Rajesh Vs11764 -- PI BankAccountDetails For PI Salary Process
-        public static List<BankAccountMaster> getStaffBankAccountDetails(int EmployeeId, string Category)
+        public static List<BankAccountMaster> getStaffBankAccountDetails(int EmployeeId, string Category , int PayFor)
         {
             try
             {
@@ -12578,7 +12578,7 @@ namespace IOAS.Infrastructure
                     if (Category == "PI" || Category == "Institute Staff")
                     {
                         var bankDetail = (from s in context.tblStaffBankAccount
-                                          where (s.Category == catvalue && s.UserId == EmployeeId)
+                                          where (s.Category == catvalue && s.UserId == EmployeeId && s.PayFor== PayFor)
                                           select new { s.BankName, s.Branch, s.AccountNumber, s.IFSCCode, s.PAN }).Distinct().Take(1).ToList();
                         if (bankDetail.Count > 0)
                         {

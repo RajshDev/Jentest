@@ -714,7 +714,7 @@
         //    $('#Validation').modal('show');
         //    return;
         //}
-        if (value != 10 && value != 20 && value != 0 && value != 20.8 && value != 31.2 && value != 34.32 && value != 35.88) {
+        if (value != 10 && value != 20 && value != 0 && value != 20.8 && value != 31.2 && value != 34.32 && value != 35.88 && value != 39) {
             $(this).val('');
             $("#alert").text("This TDS percent not available");
             $('#Validation').modal('show');
@@ -726,7 +726,7 @@
         }
         //Bug #7202 End of changes
 
-        if (value > 0 && (value == 10 || value == 20 || value == 20.8 || value == 31.2 || value == 34.32 || value == 35.88)) {
+        if (value > 0 && (value == 10 || value == 20 || value == 20.8 || value == 31.2 || value == 34.32 || value == 35.88 || value == 39)) {
             if (value == 10) {
                 $('select[name="PODetail[' + index + '].HonororiumTdsSection"]').val(41);
             }
@@ -747,12 +747,20 @@
                 $('select[name="PODetail[' + index + '].HonororiumTdsSection"]').val(591);
 
             }
+            else if (value == 39) {
+                $('select[name="PODetail[' + index + '].HonororiumTdsSection"]').val(593);
+
+            }
 
         }
-        if (value > 0 && value != 20 && value != 20.8 && value != 31.2 && value != 34.32 && value != 35.88  )
+        if (value > 0 && value != 20 && value != 20.8 && value != 31.2 && value != 34.32 && value != 35.88 && value != 39)
             $(this).closest('tr').find('input[name$=".PAN"]').prop("readonly", false).addClass('required');
         else {
             $(this).closest('tr').find('input[name$=".PAN"]').prop("readonly", true).removeClass('required');
+            
+        }
+        var id = $(this).closest('tr').find('select[name$=".PaymentMode"]').val();
+        if (id == 3) {
             $(this).closest('tr').find('input[name$=".PAN"]').val("");
         }
         //if (value > 0 && value != 20)
@@ -779,7 +787,7 @@
             $(this).closest('tr').find('input[name$=".Branch"]').prop("readonly", false).addClass('required');
             $(this).closest('tr').find('input[name$=".AccountNo"]').prop("readonly", false).addClass('required');
             $(this).closest('tr').find('input[name$=".IFSC"]').prop("readonly", false).addClass('required');
-            //$(this).closest('tr').find('input[name$=".PAN"]').prop("readonly", false).addClass('required');
+            $(this).closest('tr').find('input[name$=".PAN"]').prop("readonly", false).addClass('required');
 
         }
         else {
@@ -787,6 +795,9 @@
             $(this).closest('tr').find('input[name$=".Branch"]').prop("readonly", true).val("").removeClass('required');
             $(this).closest('tr').find('input[name$=".AccountNo"]').prop("readonly", true).val("").removeClass('required');
             $(this).closest('tr').find('input[name$=".IFSC"]').prop("readonly", true).val("").removeClass('required');
+            if (id == 3 ) {
+                $(this).closest('tr').find('input[name$=".PAN"]').prop("readonly", true).val("").removeClass('required');
+            }
             // $(this).closest('tr').find('input[name$=".PAN"]').prop("readonly", true).val("").removeClass('required');
 
 
@@ -1527,6 +1538,7 @@ $(ele).autocomplete({
         var HOtdsthirtyPointTwo = 0;  
         var HOtdsthirtyPointThreeTwo = 0;  
         var HOtdsthirtyPointEightEight = 0;  
+        var HOtdsthirtyPointNine = 0;  
 
 
 
@@ -1577,7 +1589,12 @@ $(ele).autocomplete({
             }
             else if (HOTdsdrop == 35.88) {
                 HOtdsthirtyPointEightEight += tds;
-            }      
+            } 
+            else if (HOTdsdrop == 39) {
+                HOtdsthirtyPointNine += tds;
+            } 
+
+
         });
 
         $('#tbodyPCF tr').each(function (idx, val) {
@@ -1631,6 +1648,10 @@ $(ele).autocomplete({
             }
             else if (AccHead == 591) {
                 ($(this).find('input[name$=".Amount"]').val(HOtdsthirtyPointEightEight.toFixed(2)));
+
+            }
+            else if (AccHead == 593) {
+                ($(this).find('input[name$=".Amount"]').val(HOtdsthirtyPointNine.toFixed(2)));
 
             }
             else if (AccHead == 316) {
@@ -1763,7 +1784,7 @@ showTab(currentTab); // Display the crurrent tab
             type: "GET",
             async: false,
             url: "@Url.Action("StaffBankAccountDeatils", "CoreAccounts")",
-            data: { "EmployeeId": EmployeeId, "Category": Category },
+            data: { "EmployeeId": EmployeeId, "Category": Category,"PayFor" :2 },
             dataType: "json",
             success: function (result) {
                 retval = result;
@@ -1808,7 +1829,7 @@ showTab(currentTab); // Display the crurrent tab
                 //    $('#Validation').modal('show');
                 //}
 
-                if (value != 10 && value != 20 && value != 0 && value != 20.8 && value != 31.2 && value != 34.32 && value != 35.88  ) {
+                if (value != 10 && value != 20 && value != 0 && value != 20.8 && value != 31.2 && value != 34.32 && value != 35.88 && value != 39) {
                     hadError = true;
                     $("#alert").text("Selected TDS percent not available");
                     $('#Validation').modal('show');

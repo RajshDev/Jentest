@@ -533,6 +533,7 @@ new { @class = "form-control required" })
         var vendorId = $('#VendorId').val();
         var TotalInvoice = $("#TotalInvoiceValue").val();
         var CurrentValue = $("#lblPONetAmt").val();
+        var isCalPerformed = false;
         $('#btnAddExpense').addClass('dis-none');
         if (vendorId != '') {
             $.ajax({
@@ -881,6 +882,23 @@ $('#lnkBillHistory').addClass('dis-none');
     }
 });
 
+    //10616
+    $('#txtRoundOfAdjustment').change(function () {
+        isCalPerformed = false;
+        validateRoundOfAdjustment();
+        resetRoundoff($(this).val());
+        calculateAmount();
+    });
+
+    function validateRoundOfAdjustment() {
+        var msg = 'valid';
+        var number = parseFloat($("#txtRoundOfAdjustment").val());
+        if ((!isNaN(number) && number > -10 && number < 10) || number == "") {
+        } else {
+            msg = 'Please enter a number between -10 and 10.';
+        }
+        return msg;
+    }
 
 function AddNewExpense() {
 //var stateCode = $('#lblStateCode').html();
@@ -1182,34 +1200,43 @@ if ($('#PaymentType').val() != '2') {
             //var poTaxVal = amt * taxPct / 100;
             //ttlPOTaxVal = ttlPOTaxVal + poTaxVal;
             $(rowEle).find('.tdAdvPct').html(advPct.toFixed(2));
-            $(rowEle).find('.tdAdvAmt').html(advAmt.toFixed(2));
-            $(rowEle).find('.tdTaxAmt').html(advTaxVal.toFixed(2));
-            $(rowEle).find('.tdNetAmt').html(netAdvAmt.toFixed(2));
+            //$(rowEle).find('.tdAdvAmt').html(advAmt.toFixed(2));
+            $(rowEle).find('.tdAdvAmt').html(round(advAmt));
+            //$(rowEle).find('.tdTaxAmt').html(advTaxVal.toFixed(2));
+            //$(rowEle).find('.tdNetAmt').html(netAdvAmt.toFixed(2));
+            $(rowEle).find('.tdTaxAmt').html(round(advTaxVal));
+            $(rowEle).find('.tdNetAmt').html(round(netAdvAmt));
+            
         }
     });
     if (elgF)
         $('#isHaveElgGST').val('true');
     else
         $('#isHaveElgGST').val('false');
-    $('#lblPOTtlAmt').text(ttlPOVal.toFixed(2));
+    $('#lblPOTtlAmt').text(round(ttlPOVal));
+    //$('#lblPOTtlTaxAmt').text(round(ttlPOTaxVal));
     $('#lblPOTtlTaxAmt').text(ttlPOTaxVal.toFixed(2));
     netPOVal = (ttlPOVal + ttlPOTaxVal).toFixed(2);
-    $('#lblPONetAmt').text(netPOVal);
+    $('#lblPONetAmt').text(round(netPOVal));
 
     
 
     var invAmt = parseFloat($('#InvoiceAmount').val()) || 0;
     var invTaxAmt = parseFloat($('#InvoiceTaxAmount').val()) || 0;
-    $('#lblAdvTtlAmt').text(invAmt.toFixed(2));
+    //$('#lblAdvTtlAmt').text(invAmt.toFixed(2));
+    $('#lblAdvTtlAmt').text(round(invAmt));
     $('#lblAdvTtlTaxAmt').text(invTaxAmt.toFixed(2));
+    //$('#lblAdvTtlTaxAmt').text(round(invTaxAmt));
     $('#hiddenTaxEligibleAmt').val(ttlGSTElgAmt.toFixed(2));
     $('#lblTaxEligibleAmt').text(ttlGSTElgAmt.toFixed(2));
+    //$('#lblTaxEligibleAmt').text(round(ttlGSTElgAmt));
     netAdvVal = (invTaxAmt + invAmt);
-    $('#lblAdvNetAmt').text(netAdvVal.toFixed(2));
+    //$('#lblAdvNetAmt').text(netAdvVal.toFixed(2));
+    $('#lblAdvNetAmt').text(round(netAdvVal));
     UpdateGSTSplitUp();
     var roundValItc = $('#hiddenTaxEligibleAmt').val() || 0;
     var validCmtAmt = (netAdvVal - roundValItc).toFixed(2);
-    $('#lblcommitamt').html(validCmtAmt);
+    $('#lblcommitamt').html(round(validCmtAmt));
    
     if ($('#TotalInvoiceValue').val() == 0 && $('#BillId').val() != "0") {
         $('#TotalInvoiceValue').val(validCmtAmt);
@@ -1241,10 +1268,14 @@ if ($('#PaymentType').val() != '2') {
             }
         }
     });
-    $('#lblPOTtlAmt').text(ttlPOVal.toFixed(2));
+    //$('#lblPOTtlAmt').text(ttlPOVal.toFixed(2));
     $('#lblPOTtlTaxAmt').text(ttlPOTaxVal.toFixed(2));
+
+    $('#lblPOTtlAmt').text(round(ttlPOVal));
+    //$('#lblPOTtlTaxAmt').text(round(ttlPOTaxVal));
     netPOVal = (ttlPOVal + ttlPOTaxVal).toFixed(2);
-    $('#lblPONetAmt').text(netPOVal);
+    //$('#lblPONetAmt').text(netPOVal);
+    $('#lblPONetAmt').text(round(netPOVal));
     //if ($('#TotalInvoiceValue').val() == 0) { $('#TotalInvoiceValue').val(netPOVal); }
     if (elgF)
         $('#isHaveElgGST').val('true');
@@ -1258,14 +1289,15 @@ if ($('#PaymentType').val() != '2') {
     $('#lblTaxEligibleAmt').text(ttlGSTElgAmt.toFixed(2));
     var setAmt = invAmt - ttlAdv;
     var setTaxAmt = invTaxAmt - ttlTax;
-    $('#lblAdvTtlAmt').text(setAmt.toFixed(2));
+    //$('#lblAdvTtlAmt').text(setAmt.toFixed(2));
+    $('#lblAdvTtlAmt').text(round(setAmt));
     $('#lblAdvTtlTaxAmt').text(setTaxAmt.toFixed(2));
     netAdvVal = (setAmt + setTaxAmt).toFixed(2);
     $('#lblAdvNetAmt').text(netAdvVal);
     UpdateGSTSplitUp();
     var roundValItc = $('#hiddenTaxEligibleAmt').val() || 0;
     var validCmtAmt = (netAdvVal - roundValItc).toFixed(2);
-    $('#lblcommitamt').html(validCmtAmt);
+    $('#lblcommitamt').html(round(validCmtAmt));
 
     if ($('#TotalInvoiceValue').val() == 0 && $('#BillId').val() != "0") {
         $('#TotalInvoiceValue').val(validCmtAmt);
@@ -1499,6 +1531,12 @@ else if (currentTab == 0) {
         else
             searchCommitment();
     }
+    var validationMsg = validateRoundOfAdjustment()
+    if (validationMsg != 'valid') {
+        hadError = true;
+        $("#alert").text(validationMsg);
+        $('#Validation').modal('show');
+    }
 } else if (currentTab == 1) {
     var validationMsg = ValidateCommitment()
     if (validationMsg != 'valid') {
@@ -1523,6 +1561,10 @@ else if (currentTab == 0) {
         //}else{
         //}
         //$("#DeductionAmount, #ttlDr, #ExpenseAmount").val('');
+        var roundOffAdjustment = $("#txtRoundOfAdjustment").val();
+        if (roundOffAdjustment != "") {
+            isCalPerformed = CalculateRoundingOffAdjustment(roundOffAdjustment, isCalPerformed);
+        }
     }
 } else if (currentTab == 2) {
     var validationMsg = ValidateTransaction()

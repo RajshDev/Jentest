@@ -292,7 +292,7 @@ namespace IOAS.Models
 
         public List<VendorInvoiceBreakUpDetailModel> InvoiceBreakDetail { get; set; } = new List<VendorInvoiceBreakUpDetailModel>();
         public bool BillProcessingStatus { get; set; }
-
+        
     }
 
     public class BillPODetailModel
@@ -3531,13 +3531,15 @@ namespace IOAS.Models
         public string Remarks { get; set; }
         public string Status { get; set; }
         public string InstituteSalaryDate { get; set; }
-        public int ProjectId { get; set; }
-        
+        public int ProjectId { get; set; }        
         public string MonthYear { get; set; }
         public string HiddenMonthYear { get; set; }
-        public Nullable<DateTime> FromDate { get; set; }
+
         public Nullable<DateTime> ToDate { get; set; }
+
         public decimal Amount { get; set; }
+
+        public string InstituteSalaryPaymentNumber { get; set; }
         public List<InstituteSalaryPaymentListModel> IMS { get; set; }
     }
 
@@ -3551,6 +3553,7 @@ namespace IOAS.Models
         public string Name { get; set; }
         public string Type { get; set; }
         public decimal Amount { get; set; }
+        public Nullable<DateTime> FromDate { get; set; }
     }
     public class SearchGridInstituteSalary
     {
@@ -4942,6 +4945,7 @@ namespace IOAS.Models
         public string HSNCode { get; set; }
         [RequiredIfNot("HSNCode", null, ErrorMessage = "Vendor field is required")]
         public string Vendor { get; set; }
+        public Nullable<decimal> Roundvalue { get; set; }
     }
     public class VendorInvoiceBreakUpDetailModel
     {
@@ -4966,6 +4970,7 @@ namespace IOAS.Models
         [Required]
         public Nullable<DateTime> InvoiceDate { get; set; }
         public string InvoiceDateView { get; set; }
+        public Nullable<decimal> Roundvalue { get; set; }
     }
     public class BillHistoryModel
     {
@@ -5345,6 +5350,7 @@ namespace IOAS.Models
         [Display(Name = "Tax value")]
         [Range(0, 9999999999999999.99)]
         public Nullable<decimal> TotalValue { get; set; }
+        public Nullable<decimal> Roundvalue { get; set; }
         public Nullable<bool> IsInterstate { get; set; }
         public Nullable<Int32> TypeOfServiceOrCategory { get; set; }
     }
