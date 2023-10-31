@@ -295,7 +295,8 @@ namespace IOAS.Controllers
             {
                 decimal advAmt = (item.TotalAmount * model.AdvancePercentage / 100) ?? 0;
                 ttlAdvAmt += advAmt;
-                ttlAdvAmt = Math.Round(ttlAdvAmt, 2, MidpointRounding.AwayFromZero);
+                //ttlAdvAmt = Math.Round(ttlAdvAmt, 2, MidpointRounding.AwayFromZero);
+                ttlAdvAmt = (int)Math.Round(ttlAdvAmt);
             }
 
             if (ttlAdvAmt != commitmentAmt)
@@ -21988,9 +21989,7 @@ TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
         // Partial Payment Process Posting - Created by Praveen 11-01-2023
         public ActionResult PostMissedBatchItems(int draftId)
         {
-            if (coreAccountService.PaymentTestBOATransaction(draftId, 1))
-                return RedirectToAction("PaymentProcessInitList");
-            else
+                coreAccountService.getPCFDOHReceiptBOAmodeldetails(96874, 6024, "Distribution");
                 return RedirectToAction("PaymentProcessInitList");
         }
 
