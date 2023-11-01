@@ -4970,6 +4970,7 @@ namespace IOAS.Models
         [Required]
         public Nullable<DateTime> InvoiceDate { get; set; }
         public string InvoiceDateView { get; set; }
+        public Nullable<decimal> Roundvalue { get; set; }
     }
     public class BillHistoryModel
     {
