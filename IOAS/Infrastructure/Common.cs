@@ -7226,8 +7226,8 @@ namespace IOAS.Infrastructure
                         case "ReceiptDate":
                             refnums = (from boa in context.tblBOA
                                        from fy in context.tblFinYear
-                                       where boa.Status == "Posted" && boa.TransactionTypeCode == "RBU" && boa.RefNumber == Refnum
-                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       where boa.Status == "Posted" && (boa.TransactionTypeCode == "RBU" || boa.TransactionTypeCode == "RCV") && boa.RefNumber == Refnum
+                                        && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
                                        select boa.RefNumber).FirstOrDefault();
                             break;
                         case "Reimbursement":

@@ -991,14 +991,14 @@ namespace IOAS.GenericServices
                         trans.RefNumber = model.RefNumber;
                         //rajesh duplication
 
-
+                        context.tblProcessTransaction.Add(trans);
+                        context.SaveChanges();
                         //var DuplicateEntry = DuplicateEntryValidation(model.RefNumber.ToString());
 
-                        if (DuplicateEntryValidation(model.RefNumber.ToString(),model.ProcessGuidelineDetailId))
-                        {
-                            context.tblProcessTransaction.Add(trans);
-                            context.SaveChanges();
-                        }
+                        //if (DuplicateEntryValidation(model.RefNumber.ToString(),model.ProcessGuidelineDetailId))
+                        //{
+                            
+                        //}
                     }
 
                     //  Right curly brace}
