@@ -230,6 +230,7 @@
                     <label>Total Debit <span class="dr">(Dr)</span> :</label>
                     <input value="" name="DebitAmount" id="ttlDr" class="form-control" readonly="readonly" autocomplete="off" type="text">
                     @Html.Hidden("ttlJVDr")
+                    @Html.Hidden("roundOffAdjustmentVal")
                 </div>
             </div>
         </div>
@@ -291,37 +292,12 @@
         if (isNaN(roundOffAdjustment)) {
             roundOffAdjustment = 0
         }
-       var roundOffAdj = Number(roundOffAdjustment);
-        if (!isCalPerformed) {
-        $('#tbodyExpenseList select[name$=".AccountHeadId"]').each(function (i, rowEle) {
-            console.log('CREDIT IN');
-            //var jv = $(this).closest('tr').find("input[name$='.IsJV']").val(); 
-            if (roundOffAdj > 0) {
-                if ($(this).find(":selected").text() == 'Round off Debit') {
-                    var parseVal = parseFloat($(this).closest('tr').find("input[name$='.Amount']").val());
-                    if (!isNaN(parseVal)) {
-                        parseVal = parseVal + roundOffAdj;
-                        $(this).closest('tr').find("input[name$='.Amount']").val(parseVal);
-                        console.log('debit : ' + parseVal);
-                    }
-
-                }
-            }
-            else
-            {
-                if ($(this).find(":selected").text() == 'Round off Credit') {
-                    var parseVal = parseFloat($(this).closest('tr').find("input[name$='.Amount']").val());
-                    if (!isNaN(parseVal)) {
-                        //reset the amount to 0 for -ve round off values.
-                        $(this).closest('tr').find("input[name$='.Amount']").val(0);
-                        parseVal = parseVal + roundOffAdj;
-                        $(this).closest('tr').find("input[name$='.Amount']").val(parseVal);
-
-                    }
-                }
-            }
-        });
-        }
+        //var roundOffAdj = Number(roundOffAdjustment);
+        $('#roundOffAdjustmentVal').val(roundOffAdjustment);
+        //console.log('ROUND:');
+        var roundOffAdj = Number($('#roundOffAdjustmentVal').val());
+        
+        setRoundOffAmounts();
         isCalPerformed = true;
         return isCalPerformed;
     }
@@ -329,7 +305,7 @@
     {
         roundVal = Number(roundVal);
        
-        $('#tbodyExpenseList select[name$=".AccountHeadId"]').each(function (i, rowEle) {
+        //$('#tbodyExpenseList select[name$=".AccountHeadId"]').each(function (i, rowEle) {
             //var creditRoundOff = $(this).find("option[value='319']").text('Round off Credit').closest('tr').find("input[name$='.Amount']").val();
             //console.log('creditRoundOff:' + creditRoundOff);
 
@@ -340,6 +316,13 @@
             //{
             //    $(this).find("option[value='320']").text('Round off Debit').closest('tr').find("input[name$='.Amount']").val(0);
             //}
+        //var roundOffDebitValue = $('#tbodyExpenseList select[name$=".AccountHeadId"]').filter(function () {
+        //    return $(this).find(":selected");
+        //});
+        //var roundOffCreditValue = $('#tbodyExpenseList select[name$=".AccountHeadId"]').filter(function () {
+        //    return $(this).find(":selected").text() === 'Round off Credit';
+        //});
+
             var $row = $(this).closest('tr');
             var $creditOption = $row.find("option[value='319']");
             var $debitOption = $row.find("option[value='320']");
@@ -355,7 +338,7 @@
                 $amountInput.val(0);
             }
             
-        });
+        //});
     }
     
 
@@ -467,9 +450,9 @@
                             $.each(item.AccountHeadList, function (idx, itemData) {
                                 if (itemData.id == $("#varImprestBank").val()) {
                                     selectHead.append($('<option/>', {
-                                    value: itemData.id,
-                                    text: itemData.name,
-                                }));
+                                        value: itemData.id,
+                                        text: itemData.name,
+                                    }));
                                 }
 
                             });
@@ -599,12 +582,48 @@
                     });
                 }
                 $('#NeedUpdateTransDetail').val('false');
+                setRoundOffAmounts();
                 CalculateDeductionTotal();
             },
             error: function (err) {
                 console.log("error : " + err);
             }
         });
+    }
+    //10616 Round off Feature
+    function setRoundOffAmounts() {
+        var roundOffAdj = $('#roundOffAdjustmentVal').val();
+        roundOffAdj = Number(roundOffAdj);
+        console.log('roundOff' + roundOffAdj);
+
+            console.log('roundOff IN' + roundOffAdj);
+            var roundOffDebitValue = $('#tbodyExpenseList select[name$=".AccountHeadId"]').filter(function () {
+                return $(this).find(":selected").text() === 'Round off Debit';
+            });
+            var roundOffCreditValue = $('#tbodyExpenseList select[name$=".AccountHeadId"]').filter(function () {
+                return $(this).find(":selected").text() === 'Round off Credit';
+            });
+
+            if (roundOffAdj > 0) {
+                console.log('Debit in' + roundOffAdj);
+                var parseVal = roundOffDebitValue.closest('tr').find("input[name$='.Amount']").val();
+                if (!isNaN(parseVal)) {
+                    roundOffCreditValue.closest('tr').find("input[name$='.Amount']").val(0);
+                    parseVal = parseFloat(parseVal) + parseFloat(roundOffAdj);
+                    roundOffDebitValue.closest('tr').find("input[name$='.Amount']").val(parseVal);
+                }
+                //}
+            }
+            else { 
+                console.log('Credit in' + roundOffAdj);
+                var parseVal = roundOffCreditValue.closest('tr').find("input[name$='.Amount']").val();
+                if (!isNaN(parseVal)) {
+                    roundOffDebitValue.closest('tr').find("input[name$='.Amount']").val(0);
+                    parseVal = parseFloat(parseVal) + parseFloat(roundOffAdj);
+                    roundOffCreditValue.closest('tr').find("input[name$='.Amount']").val(parseVal);
+                }
+            }
+
     }
     function EmptyExpenseDeductionDetails() {
         $('#tbodyDeductionList tr').not(':first').remove();

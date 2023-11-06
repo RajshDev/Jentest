@@ -520,6 +520,7 @@ new { @class = "form-control required" })
     $('#srchToDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true }).datepicker("setDate", "0");
     var defaultFromDate = moment(new Date()).add(-10, 'days').toDate();
     $('#srchFromDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true }).datepicker("setDate", defaultFromDate);
+    var isCalPerformed = false;
     $(document).ready(function () {
         if (succMsg != '') {
             $('#alertSuccess').html(succMsg);
@@ -533,7 +534,7 @@ new { @class = "form-control required" })
         var vendorId = $('#VendorId').val();
         var TotalInvoice = $("#TotalInvoiceValue").val();
         var CurrentValue = $("#lblPONetAmt").val();
-        var isCalPerformed = false;
+
         $('#btnAddExpense').addClass('dis-none');
         if (vendorId != '') {
             $.ajax({
@@ -886,8 +887,13 @@ $('#lnkBillHistory').addClass('dis-none');
     $('#txtRoundOfAdjustment').change(function () {
         isCalPerformed = false;
         validateRoundOfAdjustment();
-        resetRoundoff($(this).val());
+        var roundOffAdjustment = $(this).val();
         calculateAmount();
+        if (roundOffAdjustment != "") {
+            isCalPerformed = CalculateRoundingOffAdjustment(roundOffAdjustment, isCalPerformed);
+        }
+        //resetRoundoff($(this).val());
+        
     });
 
     function validateRoundOfAdjustment() {
@@ -954,7 +960,8 @@ url: "@Url.Action("GetAddNewExpenseDetails", "CoreAccounts")",
 });
 }
 
-function GetTransactionDetails() {
+    function GetTransactionDetails()
+    {
 var icsrOH = $('#ICSROverHead_f').is(':checked');
 var rcm = $('#RCM_f').is(':checked');
 var stateCode = $('#lblStateCode').html();
@@ -1000,8 +1007,13 @@ if (!interstate && invElgTaxAmt > 0) {
 } else if (invElgTaxAmt > 0) {
     /**/
     $("#varIGSTInput").val(invElgTaxAmt.toFixed(2));
-}
-FillTransactionDetails();
+        }
+        FillTransactionDetails();
+    //var roundOffAdjustment = $("#txtRoundOfAdjustment").val();
+    //if (roundOffAdjustment != "") {
+    //    debugger;
+    //    isCalPerformed = CalculateRoundingOffAdjustment(roundOffAdjustment, false);
+    //}
 @*var stateCode = $('#lblStateCode').html();
         var interstate = IsInterState(stateCode);
         var BillType = $('#BillType').val();
@@ -1389,7 +1401,7 @@ $("#tbodyCommitmentSelList tr").each(function () {
     if (parseVal > avlBal)
         msg = "Commitment payment value should not be greater than available balance."
 });
-if (validCmtAmt != commitmentAmt) {
+if (round(validCmtAmt) != commitmentAmt) {
     msg = 'There is a mismatch between the settlement value and allocated commitment value. Please update the value to continue.';
 }
 return msg;
@@ -1561,10 +1573,7 @@ else if (currentTab == 0) {
         //}else{
         //}
         //$("#DeductionAmount, #ttlDr, #ExpenseAmount").val('');
-        var roundOffAdjustment = $("#txtRoundOfAdjustment").val();
-        if (roundOffAdjustment != "") {
-            isCalPerformed = CalculateRoundingOffAdjustment(roundOffAdjustment, isCalPerformed);
-        }
+        
     }
 } else if (currentTab == 2) {
     var validationMsg = ValidateTransaction()
