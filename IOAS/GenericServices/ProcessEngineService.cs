@@ -954,7 +954,7 @@ namespace IOAS.GenericServices
             {
                 using (var context = new IOASDBEntities())
                 {
-                   // var  DuplicateEntry = "";
+                    
                     tblProcessTransaction trans = new tblProcessTransaction();
                     tblProcessTransactionDetail transDetail = new tblProcessTransactionDetail();
                     if (model.ProcessTransactionId != 0)
@@ -989,62 +989,62 @@ namespace IOAS.GenericServices
                         trans.RefFieldName = model.RefFieldName;
                         trans.FunctionId = model.FunctionId;
                         trans.RefNumber = model.RefNumber;
-                        //rajesh duplication
+                        //rajesh duplication                       
 
-                        context.tblProcessTransaction.Add(trans);
-                        context.SaveChanges();
-                        //var DuplicateEntry = DuplicateEntryValidation(model.RefNumber.ToString());
-
-                        //if (DuplicateEntryValidation(model.RefNumber.ToString(),model.ProcessGuidelineDetailId))
-                        //{
-                            
-                        //}
+                        if (DuplicateEntryValidation(model.RefNumber.ToString(), model.ProcessGuidelineDetailId))
+                        {
+                            context.tblProcessTransaction.Add(trans);
+                            context.SaveChanges();
+                        }
                     }
-
-                    //  Right curly brace}
-
-
-                transDetail.ProcessTransactionId = trans.ProcessTransactionId;
-                transDetail.ProcessGuidelineDetailId = model.ProcessGuidelineDetailId;
-                transDetail.ProcessSeqNumber = model.ProcessSeqNumber;
-                transDetail.Approverid = model.ApproverId;
-                transDetail.ActionStatus = model.ActionStatus;
-                transDetail.TransactionTS = System.DateTime.Now;
-                transDetail.TransactionIP = model.TransactionIP;
-                transDetail.MacID = model.MacID;
-                transDetail.RefId = model.RefId;
-                transDetail.RefTable = model.RefTable;
-                transDetail.RefFieldName = model.RefFieldName;
-                transDetail.Comments = model.Comments;
-                transDetail.Rejected = false;
-                transDetail.Clarified = false;
-                context.tblProcessTransactionDetail.Add(transDetail);
-                context.SaveChanges();
-
-                    if (model.ActionStatus == "Rejected" || model.ActionStatus == "Clarify")
+                    var GetProcessTransactionId = trans.ProcessTransactionId;
+                    
+                    if (GetProcessTransactionId != 0 || GetProcessTransactionId != null)
                     {
-                        var details = context.tblProcessTransactionDetail
-                            .Where(p => p.RefId == model.RefId && p.ProcessTransactionId == model.ProcessTransactionId
-                            && p.Rejected == false && p.Clarified == false).ToList();
-                        if (model.ActionStatus == "Rejected")
-                        {
-                            details.ForEach(p => p.Rejected = true);
-                        }
-                        if (model.ActionStatus == "Clarify")
-                        {
-                            details.ForEach(p => p.Clarified = true);
-                        }
-
+                        transDetail.ProcessTransactionId = trans.ProcessTransactionId;
+                        transDetail.ProcessGuidelineDetailId = model.ProcessGuidelineDetailId;
+                        transDetail.ProcessSeqNumber = model.ProcessSeqNumber;
+                        transDetail.Approverid = model.ApproverId;
+                        transDetail.ActionStatus = model.ActionStatus;
+                        transDetail.TransactionTS = System.DateTime.Now;
+                        transDetail.TransactionIP = model.TransactionIP;
+                        transDetail.MacID = model.MacID;
+                        transDetail.RefId = model.RefId;
+                        transDetail.RefTable = model.RefTable;
+                        transDetail.RefFieldName = model.RefFieldName;
+                        transDetail.Comments = model.Comments;
+                        transDetail.Rejected = false;
+                        transDetail.Clarified = false;
+                        context.tblProcessTransactionDetail.Add(transDetail);
                         context.SaveChanges();
 
-                    }                   
+                        if (model.ActionStatus == "Rejected" || model.ActionStatus == "Clarify")
+                        {
+                            var details = context.tblProcessTransactionDetail
+                                .Where(p => p.RefId == model.RefId && p.ProcessTransactionId == model.ProcessTransactionId
+                                && p.Rejected == false && p.Clarified == false).ToList();
+                            if (model.ActionStatus == "Rejected")
+                            {
+                                details.ForEach(p => p.Rejected = true);
+                            }
+                            if (model.ActionStatus == "Clarify")
+                            {
+                                details.ForEach(p => p.Clarified = true);
+                            }
 
-                    context.Dispose();
+                            context.SaveChanges();
 
-                    return model;
-                }
-                    
+                        }
 
+                        context.Dispose();
+
+                        return model;
+                    }
+                    else
+                    {
+                        return null; 
+                    }
+                }  
             }
             catch (Exception ex)
             {
