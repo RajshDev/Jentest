@@ -548,7 +548,7 @@ new { @class = "form-control required" })
                     $('#lblVendorAddr').text(result.Address);
                     $('#lblStateCode').text(result.StateCode);
                     $('#lblBankDetails').text(result.BankName + "-" + result.AccountNumber);
-                    console.log(result.TDSLimit);
+                    
                     // 1st Open Alert Popup
                     if (result.TDSLimit === '' || result.TDSLimit === null)
                         result.TDSLimit = 0;
@@ -831,8 +831,7 @@ var selPO = $('#selPONumber');
 selPO.empty();
 var TotalInvoice = $("#TotalInvoiceValue").val();
 var CurrentValue = $("#lblPONetAmt").val();
-console.log(TotalInvoice);
-console.log(CurrentValue);
+
 if (vendorId != '') {
 $('#lnkBillHistory').removeClass('dis-none');
 $.ajax({
@@ -883,15 +882,16 @@ $('#lnkBillHistory').addClass('dis-none');
     }
 });
 
-    //10616
+    10616
     $('#txtRoundOfAdjustment').change(function () {
-        isCalPerformed = false;
+        //isCalPerformed = false;
         validateRoundOfAdjustment();
-        var roundOffAdjustment = $(this).val();
+        //var roundOffAdjustment = $(this).val();
         calculateAmount();
-        if (roundOffAdjustment != "") {
-            isCalPerformed = CalculateRoundingOffAdjustment(roundOffAdjustment, isCalPerformed);
-        }
+        CalculatePOValue();
+        //if (roundOffAdjustment != "") {
+        //    isCalPerformed = CalculateRoundingOffAdjustment(roundOffAdjustment, isCalPerformed);
+        //}
         //resetRoundoff($(this).val());
         
     });
@@ -1185,19 +1185,22 @@ if ($('#PaymentType').val() != '2') {
     var ttlPOVal = 0, ttlPOTaxVal = 0, netPOVal = 0, ttlAdvVal = 0, ttlAdvTaxVal = 0, netAdvVal = 0;
     var elgF = false;
     var ttlGSTElgAmt = 0;
+    //10616 - RoundOff Feature
+    var adjVal = parseFloat($("#txtRoundOfAdjustment").val()); console.log('adjVal' + adjVal);
     $('#tbodyPO tr').not(':first').each(function (i, rowEle) {
         var amt = parseFloat($(rowEle).find('input[name$=".TotalAmount"]').val());
         var chckElg = $(rowEle).find('input[type="checkbox"][name$=".IsTaxEligible"]').prop('checked');
         if (chckElg)
             elgF = true;
         if (!isNaN(amt))
-            ttlPOVal = ttlPOVal + amt;
+            ttlPOVal = ttlPOVal + amt + adjVal;
         if (amt > 0) {
             var taxPct = parseFloat($(rowEle).find('select[name$=".TaxPct"]').val());
             if (isNaN(taxPct))
                 taxPct = 0;
             var advTaxVal = 0, advAmt = 0, netAdvAmt = 0;
             advAmt = amt * advPct / 100;
+           
             ttlAdvVal = ttlAdvVal + advAmt;
             if (taxPct > 0) {
                 var taxAmt = amt * taxPct / 100;
@@ -1208,6 +1211,7 @@ if ($('#PaymentType').val() != '2') {
                 if (chckElg)
                     ttlGSTElgAmt = ttlGSTElgAmt + advTaxVal;
             }
+            advAmt = advAmt + adjVal;
             netAdvAmt = advAmt + advTaxVal;
             //var poTaxVal = amt * taxPct / 100;
             //ttlPOTaxVal = ttlPOTaxVal + poTaxVal;
@@ -1216,7 +1220,7 @@ if ($('#PaymentType').val() != '2') {
             $(rowEle).find('.tdAdvAmt').html(round(advAmt));
             //$(rowEle).find('.tdTaxAmt').html(advTaxVal.toFixed(2));
             //$(rowEle).find('.tdNetAmt').html(netAdvAmt.toFixed(2));
-            $(rowEle).find('.tdTaxAmt').html(round(advTaxVal));
+            $(rowEle).find('.tdTaxAmt').html(advTaxVal);
             $(rowEle).find('.tdNetAmt').html(round(netAdvAmt));
             
         }
@@ -1225,13 +1229,13 @@ if ($('#PaymentType').val() != '2') {
         $('#isHaveElgGST').val('true');
     else
         $('#isHaveElgGST').val('false');
+    
     $('#lblPOTtlAmt').text(round(ttlPOVal));
     //$('#lblPOTtlTaxAmt').text(round(ttlPOTaxVal));
     $('#lblPOTtlTaxAmt').text(ttlPOTaxVal.toFixed(2));
     netPOVal = (ttlPOVal + ttlPOTaxVal).toFixed(2);
-    $('#lblPONetAmt').text(round(netPOVal));
-
-    
+    console.log('Net PO value' + netPOVal);
+    $('#lblPONetAmt').text(round(netPOVal + adjVal));
 
     var invAmt = parseFloat($('#InvoiceAmount').val()) || 0;
     var invTaxAmt = parseFloat($('#InvoiceTaxAmount').val()) || 0;
@@ -1242,13 +1246,14 @@ if ($('#PaymentType').val() != '2') {
     $('#hiddenTaxEligibleAmt').val(ttlGSTElgAmt.toFixed(2));
     $('#lblTaxEligibleAmt').text(ttlGSTElgAmt.toFixed(2));
     //$('#lblTaxEligibleAmt').text(round(ttlGSTElgAmt));
-    netAdvVal = (invTaxAmt + invAmt);
+    netAdvVal = (invTaxAmt + round(invAmt));
+    netAdvVal = (invTaxAmt + round(invAmt))
     //$('#lblAdvNetAmt').text(netAdvVal.toFixed(2));
     $('#lblAdvNetAmt').text(round(netAdvVal));
     UpdateGSTSplitUp();
-    var roundValItc = $('#hiddenTaxEligibleAmt').val() || 0;
-    var validCmtAmt = (netAdvVal - roundValItc).toFixed(2);
-    $('#lblcommitamt').html(round(validCmtAmt));
+    var roundValItc = $('#hiddenTaxEligibleAmt').val() || 0; console.log('roundValItc' + roundValItc);
+    var validCmtAmt = (round(netAdvVal) - roundValItc).toFixed(2); console.log('netAdvVal' + netAdvVal);
+    $('#lblcommitamt').html(validCmtAmt);
    
     if ($('#TotalInvoiceValue').val() == 0 && $('#BillId').val() != "0") {
         $('#TotalInvoiceValue').val(validCmtAmt);
@@ -1267,7 +1272,7 @@ if ($('#PaymentType').val() != '2') {
         if (chckElg)
             elgF = true;
         if (!isNaN(amt))
-            ttlPOVal = ttlPOVal + amt;
+            ttlPOVal = ttlPOVal + amt ;
         if (amt > 0) {
             var taxPct = parseFloat($(rowEle).find('select[name$=".TaxPct"]').val());
             if (isNaN(taxPct))
@@ -1287,6 +1292,8 @@ if ($('#PaymentType').val() != '2') {
     //$('#lblPOTtlTaxAmt').text(round(ttlPOTaxVal));
     netPOVal = (ttlPOVal + ttlPOTaxVal).toFixed(2);
     //$('#lblPONetAmt').text(netPOVal);
+    
+    console.log('Net PO value' + netPOVal);
     $('#lblPONetAmt').text(round(netPOVal));
     //if ($('#TotalInvoiceValue').val() == 0) { $('#TotalInvoiceValue').val(netPOVal); }
     if (elgF)
@@ -1299,17 +1306,18 @@ if ($('#PaymentType').val() != '2') {
     var invTaxAmt = parseFloat($('#InvoiceTaxAmount').val()) || 0;
     $('#hiddenTaxEligibleAmt').val(ttlGSTElgAmt.toFixed(2));
     $('#lblTaxEligibleAmt').text(ttlGSTElgAmt.toFixed(2));
-    var setAmt = invAmt - ttlAdv;
+    var setAmt = round(invAmt) - ttlAdv;
     var setTaxAmt = invTaxAmt - ttlTax;
     //$('#lblAdvTtlAmt').text(setAmt.toFixed(2));
-    $('#lblAdvTtlAmt').text(round(setAmt));
+    $('#lblAdvTtlAmt').text(setAmt);
     $('#lblAdvTtlTaxAmt').text(setTaxAmt.toFixed(2));
     netAdvVal = (setAmt + setTaxAmt).toFixed(2);
+    netAdvVal = netAdvVal;
     $('#lblAdvNetAmt').text(netAdvVal);
     UpdateGSTSplitUp();
     var roundValItc = $('#hiddenTaxEligibleAmt').val() || 0;
     var validCmtAmt = (netAdvVal - roundValItc).toFixed(2);
-    $('#lblcommitamt').html(round(validCmtAmt));
+    $('#lblcommitamt').html(validCmtAmt);
 
     if ($('#TotalInvoiceValue').val() == 0 && $('#BillId').val() != "0") {
         $('#TotalInvoiceValue').val(validCmtAmt);
@@ -1400,8 +1408,11 @@ $("#tbodyCommitmentSelList tr").each(function () {
     var avlBal = parseFloat($(eleAvlBal).val()) || 0;
     if (parseVal > avlBal)
         msg = "Commitment payment value should not be greater than available balance."
-});
-if (round(validCmtAmt) != commitmentAmt) {
+    });
+    console.log('Valid Commitment Amount' + validCmtAmt);
+    console.log('commitment Amount' + commitmentAmt);
+
+if (validCmtAmt != commitmentAmt) {
     msg = 'There is a mismatch between the settlement value and allocated commitment value. Please update the value to continue.';
 }
 return msg;
@@ -1480,9 +1491,6 @@ function ValidateTransaction() {
             data: { "vendorId": vendorId, "poNumberRequired": true, "transTypeCode": 'ADV', "TDSRequired": true },
             dataType: "json",
             success: function (result) {
-                console.log(result.TDSLimit);
-                console.log(TotalInvoice);
-                console.log(settlementamt);
                 if (result.TDSLimit === '' || result.TDSLimit === null)
                     result.TDSLimit = 0;
                 if (TotalInvoice === '' || TotalInvoice === null)
@@ -1525,6 +1533,7 @@ else if (currentTab == 0) {
     var content = $('#tbodyCommitmentSrchList tr td:last').html();
     var poTaxEleAmt = $('#hiddenTaxEligibleAmt').val() || 0;
     var invTaxEleAmt = $('#InvoiceTaxEligibleAmount').val() || 0;
+    
     var SettleAmt = $('#lblAdvNetAmt').text() || 0;
     var vendorid = $('#VendorId').val() || 0;
     var TotalInvoice = $("#TotalInvoiceValue").val() || 0;
