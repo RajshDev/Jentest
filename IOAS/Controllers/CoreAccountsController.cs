@@ -1415,6 +1415,23 @@ namespace IOAS.Controllers
                 throw new Exception(ex.Message);
             }
         }
+        [HttpGet]
+        public ActionResult AllocationFreezingUnFreezing()
+        {
+            try
+            {
+
+                ViewBag.Title = "rajesh";
+
+                return View();
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+                    (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                throw new Exception(ex.Message);
+            }
+        }
 
         [HttpPost]
         public ActionResult BillReversal(string transaction, string Billnumber)

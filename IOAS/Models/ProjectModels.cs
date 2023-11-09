@@ -822,7 +822,7 @@ namespace IOAS.Models
         public string SelectProject { get; set; }
         public Nullable<int> Projecttype { get; set; }
         public string PIname { get; set; }
-
+        public int ProjectId { get; set; }
         [DataType(DataType.DateTime)]
         public Nullable<DateTime> PresentDueDate { get; set; }
         public string PrsntDueDate { get; set; }

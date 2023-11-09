@@ -1,0 +1,129 @@
+﻿@model IOAS.Models.ProjectEnhancementModel
+@{
+    ViewBag.Title = "AllocationFreezingUnFreezing";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+
+    <link href="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/css/bootstrap-select.min.css")" rel="stylesheet" />
+}
+
+<div class="row hd-tt-bg" id="addnewpage">
+    <div class="col-md-4">
+        <h3>Allocation Freezing UnFreezing</h3></div>
+</div>
+@using (Html.BeginForm("SpecialApproval", "CoreAccounts", FormMethod.Post, new { @class = "", role = "form", @id = "formOTHJuniorApp", enctype = "multipart/form-data" }))
+{
+    <div class="page-wrapper" id="">
+        <div class="white-bg">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group custom-form-group mb-sm">
+                        <label class="required">Project Number</label>
+                        @Html.TextBoxFor(m => m.ProjectNumber, new { @class = "form-control" })
+                        @Html.HiddenFor(m => m.ProjectId)
+                        <div>@Html.ValidationMessageFor(m => m.ProjectNumber)</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group custom-form-group mb-sm">
+                        <label>Project Title</label>
+                        <h4 id="lblProjecttitle"></h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <div class="white-bg">
+            <div class="row">
+                <div class="col-md-12">
+                    <h3 class="spl-title">Supporting Documents</h3>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group custom-form-group ">
+                        <label> Document Name </label>
+                        @Html.TextBoxFor(m => m.AttachmentName, new { @class = "form-control", @id = "docname" })
+
+                        @Html.ValidationMessageFor(m => m.AttachmentName)
+
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group custom-form-group mt5">
+                        <label> Attach Approval document (".pdf", ".doc", ".docx") </label>
+                        <input type="file" name="file" id="ApprovalDocument" />&nbsp;&nbsp;&nbsp;
+                        @Html.ValidationMessageFor(m => m.AttachmentPath)
+                        <a href="#" class="link1" target="_blank"></a>
+                    </div>
+                </div>               
+
+            </div>
+        </div>
+    </div>
+
+
+
+}
+
+<script>
+
+    applyAutoComplete($('#ProjectNumber'), $('#ProjectId'), '@Url.Action("LoadProjectList","CoreAccounts")', 'ProjectSummary', true);
+
+  $('#ProjectNumber').change(function() {
+        var projectnumber = $('#ProjectNumber').val();
+        projectnumber = projectnumber.trim();
+        if(projectnumber == "")
+            $('#ProjectId').val('');
+        $("#Appointmentstartdate, #AppointmentEndDate").val('');
+    });
+
+    function ProjectSummary() {
+        var projectId = $("#ProjectId").val();
+        if (projectId != "" || projectId != 0) {
+            
+            $.getJSON("@Url.Action("LoadProjectDetails", "Requirement")", { ProjectId: projectId },
+                   function (result) {
+                       if (result.projectData.ProjectNumber != null) {
+                           $('#labelProjectNumber').text(result.projectData.ProjectNumber);
+                           $('#lblProjecttitle,#lblProjecttitle1').text(result.projectData.ProjectTitle);
+                           $('#lblClietAgency,#lblClietAgency1').text(result.projectData.SponsoringAgency);
+                           $('#lblProjectType,#lblProjectType1').text(result.projectData.ProjectType);
+                           $('#lblPIName,#lblPIName1').text(result.projectData.PIName);
+                           $('#lblProjectStartDate,#lblProjectStartDate1').text(result.projectData.ProjectStartDate);
+                           $('#lblProjectClosureDate,#lblProjectClosureDate1').text(result.projectData.ProjectClosureDate);
+                           $('#lblPICode,#lblPICode1').text(result.projectData.PICode);
+                           $('#lblPIEmailID,#lblPIEmailID1').text(result.projectData.Email);
+                           $('#lblPIPhone,#lblPIPhone1').text(result.projectData.Phone);
+                           if($('#AutoFillRequstedbyPI').val() == "") {
+                              // $('#AutoFillRequstedbyPI').val(result.projectData.PIName);
+                               $('#RequestedByPI').val(result.projectData.PIId);
+                           }
+                           if(Status == "" || Status == "Draft")
+                               $('#ToMail').val(result.projectData.Email);
+                           $('#lblDepartmentCode,#lblDepartmentCode1').text(result.projectData.PIDepartmentCode);
+                           $('#lblDepartmentName,#lblDepartmentName1').text(result.projectData.PIDepartmentName);
+                           UpdateAppointmentDatePicker();
+                           if ($('#RequestedByPI').val() != "") {
+                               RequestcoPI();
+                           }
+                           
+                       }
+                       
+                   });
+        }
+    }
+
+
+    
+
+
+</script>
+<link href="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/css/bootstrap-select.min.css")" rel="stylesheet" />
+<script src="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/js/bootstrap-select.min.js")"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>
+

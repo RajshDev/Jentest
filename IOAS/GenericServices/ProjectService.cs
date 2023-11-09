@@ -4575,6 +4575,23 @@ namespace IOAS.GenericServices
                                         }
 
                                     }
+                                    for (int i = 0; i < model.Allochead.Length; i++)
+                                    {
+                                        if (model.Allochead[i] != 0)
+                                        {
+                                            tblProjectAllocation TestAll = new tblProjectAllocation();
+                                            TestAll.AllocationHead = model.Allochead[i];
+                                            TestAll.ProjectId = projectid;
+                                            TestAll.AllocationValue = Convert.ToDecimal(0.00);
+                                            TestAll.CrtdUserId = model.CrtdUserid;
+                                            TestAll.CrtdTS = DateTime.Now;                                                                                 
+                                            context.tblProjectAllocation.Add(TestAll);
+                                            context.SaveChanges();
+
+                                        }
+
+                                    }
+
                                 }
                                 context.SaveChanges();
                             }
