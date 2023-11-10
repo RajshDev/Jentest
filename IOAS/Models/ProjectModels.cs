@@ -822,7 +822,7 @@ namespace IOAS.Models
         public string SelectProject { get; set; }
         public Nullable<int> Projecttype { get; set; }
         public string PIname { get; set; }
-        public int ProjectId { get; set; }
+        //public int ProjectId { get; set; }
         [DataType(DataType.DateTime)]
         public Nullable<DateTime> PresentDueDate { get; set; }
         public string PrsntDueDate { get; set; }
@@ -1406,5 +1406,23 @@ public class projectFundingModel
 
     }
     #endregion
+
+    public class FreezingUnFreezingModel
+    {
+        public int ProjectEnhancementAllocationId { get; set; }
+        public int ProjectEnhancementId { get; set; }
+        public int ProjectId { get; set; }
+        public bool IsActive { get; set; }
+        public int AllocationHead { get; set; }
+        public decimal OldValue { get; set; }
+        public decimal EnhancedValue { get; set; }
+        public decimal TotalValue { get; set; }
+        public int CrtdUserId { get; set; }
+        public DateTime CrtdTS { get; set; }
+        public bool IsCurrentVersion { get; set; }
+        public string Status { get; set; }
+        public string ProjectNumber { get; set; }
+    }
+
 
 }

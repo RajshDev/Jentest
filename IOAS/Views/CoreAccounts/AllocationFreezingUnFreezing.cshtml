@@ -1,4 +1,4 @@
-﻿@model IOAS.Models.ProjectEnhancementModel
+﻿@model IOAS.Models.FreezingUnFreezingModel
 @{
     ViewBag.Title = "AllocationFreezingUnFreezing";
     Layout = "~/Views/Shared/_LayoutFluid.cshtml";
@@ -10,8 +10,9 @@
     <div class="col-md-4">
         <h3>Allocation Freezing UnFreezing</h3></div>
 </div>
-@using (Html.BeginForm("SpecialApproval", "CoreAccounts", FormMethod.Post, new { @class = "", role = "form", @id = "formOTHJuniorApp", enctype = "multipart/form-data" }))
-{
+@using (Html.BeginForm("ProjectEnhancement", "Project", FormMethod.Post, new { @class = "", role = "form", @id = "formPEH", enctype = "multipart/form-data" }))
+
+    {
     <div class="page-wrapper" id="">
         <div class="white-bg">
             <div class="row">
@@ -34,7 +35,7 @@
 
 
 
-        <div class="white-bg">
+        @*<div class="white-bg">
             <div class="row">
                 <div class="col-md-12">
                     <h3 class="spl-title">Supporting Documents</h3>
@@ -61,7 +62,7 @@
                 </div>               
 
             </div>
-        </div>
+        </div>*@
     </div>
 
 
@@ -77,8 +78,9 @@
         projectnumber = projectnumber.trim();
         if(projectnumber == "")
             $('#ProjectId').val('');
-        $("#Appointmentstartdate, #AppointmentEndDate").val('');
+      $("#Appointmentstartdate, #AppointmentEndDate").val('');
     });
+  
 
     function ProjectSummary() {
         var projectId = $("#ProjectId").val();
@@ -88,33 +90,32 @@
                    function (result) {
                        if (result.projectData.ProjectNumber != null) {
                            $('#labelProjectNumber').text(result.projectData.ProjectNumber);
-                           $('#lblProjecttitle,#lblProjecttitle1').text(result.projectData.ProjectTitle);
-                           $('#lblClietAgency,#lblClietAgency1').text(result.projectData.SponsoringAgency);
-                           $('#lblProjectType,#lblProjectType1').text(result.projectData.ProjectType);
-                           $('#lblPIName,#lblPIName1').text(result.projectData.PIName);
-                           $('#lblProjectStartDate,#lblProjectStartDate1').text(result.projectData.ProjectStartDate);
-                           $('#lblProjectClosureDate,#lblProjectClosureDate1').text(result.projectData.ProjectClosureDate);
-                           $('#lblPICode,#lblPICode1').text(result.projectData.PICode);
-                           $('#lblPIEmailID,#lblPIEmailID1').text(result.projectData.Email);
-                           $('#lblPIPhone,#lblPIPhone1').text(result.projectData.Phone);
-                           if($('#AutoFillRequstedbyPI').val() == "") {
-                              // $('#AutoFillRequstedbyPI').val(result.projectData.PIName);
-                               $('#RequestedByPI').val(result.projectData.PIId);
-                           }
-                           if(Status == "" || Status == "Draft")
-                               $('#ToMail').val(result.projectData.Email);
-                           $('#lblDepartmentCode,#lblDepartmentCode1').text(result.projectData.PIDepartmentCode);
-                           $('#lblDepartmentName,#lblDepartmentName1').text(result.projectData.PIDepartmentName);
-                           UpdateAppointmentDatePicker();
-                           if ($('#RequestedByPI').val() != "") {
-                               RequestcoPI();
-                           }
-                           
+                           $('#lblProjecttitle,#lblProjecttitle1').text(result.projectData.ProjectTitle);                         
+                           GetProjectEnhancementAllocation(projectId)   
                        }
                        
-                   });
+                });
+            
         }
+        
     }
+    //$('#ProjectNumber').click(function () {
+    //    var projectId = $('#ProjectId').val('');
+    //    GetProjectEnhancementAllocation(projectId)
+    //});
+    function GetProjectEnhancementAllocation(projectId) {         
+        $.ajax({
+            type: "GET",          
+            url: "@Url.Action("GetAllocationFreezeUnFreezeData", "CoreAccounts")",
+            data: { "projectId": projectId},
+            dataType: "json",
+            success: function (result) {
+                retval = result;
+                return result;
+                }
+            });
+        return retval;
+    };
 
 
     

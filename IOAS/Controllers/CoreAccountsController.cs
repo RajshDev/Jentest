@@ -1419,9 +1419,7 @@ namespace IOAS.Controllers
         public ActionResult AllocationFreezingUnFreezing()
         {
             try
-            {
-
-                ViewBag.Title = "rajesh";
+            {                   
 
                 return View();
             }
@@ -1429,6 +1427,22 @@ namespace IOAS.Controllers
             {
                 Infrastructure.IOASException.Instance.HandleMe(
                     (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                throw new Exception(ex.Message);
+            }
+        }
+
+        [HttpGet]
+        public JsonResult GetAllocationFreezeUnFreezeData(int projectId)
+        {
+            try
+            {
+                object output = Common.GetFreezeAndUnFreezeData(projectId);
+                return Json(output, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+       (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
                 throw new Exception(ex.Message);
             }
         }

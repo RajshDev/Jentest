@@ -11857,6 +11857,29 @@ namespace IOAS.Infrastructure
                 return false;
             }
         }
+
+        //public static int GetFreezeAndUnFreezeData(int projectId)
+        //{
+
+        //    try
+        //    {
+        //        using (var context = new IOASDBEntities())
+        //        {
+                    
+        //            var query = (from C in context.tblProjectEnhancementAllocation
+        //                         where C.ProjectId == projectId && C.Status == "Active" && C.IsCurrentVersion == true
+        //                         select C).FirstOrDefault();
+        //            return Convert.ToInt16(query);
+        //        }               
+        //    }
+           
+        //        catch (Exception ex)
+        //    {
+        //        Infrastructure.IOASException.Instance.HandleMe(
+        //        (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+        //        throw ex;
+        //    }
+        //}
         public static bool ValidateGeneralVoucherStatus(int id, string status)
         {
             try
@@ -11978,6 +12001,56 @@ namespace IOAS.Infrastructure
                 throw ex;
             }
         }
+
+        public static List<FreezingUnFreezingModel> GetFreezeAndUnFreezeData(int projectId)
+        {
+            List<FreezingUnFreezingModel> FreezeData = new List<FreezingUnFreezingModel>();
+            try
+            {
+
+                using (var context = new IOASDBEntities())
+                {                  
+
+                    var query = (from C in context.tblProjectEnhancementAllocation
+                                 where C.ProjectId == projectId && C.Status == "Active" && C.IsCurrentVersion == true
+                                 select C).ToList();
+                    if (query.Count > 0)
+                    {
+                        for (int i = 0; i < query.Count; i++)
+                        {
+                            FreezeData.Add(new FreezingUnFreezingModel()
+                            {
+                                ProjectEnhancementAllocationId =query[i].ProjectEnhancementAllocationId,
+                                ProjectEnhancementId = Convert.ToInt32(query[i].ProjectEnhancementId),
+                                ProjectId = query[i].ProjectId ?? 0,
+                                IsActive = Convert.ToBoolean(query[i].IsActive),
+                                AllocationHead = query[i].AllocationHead ?? 0,
+                                OldValue = query[i].OldValue ?? 0,
+                                EnhancedValue = query[i].EnhancedValue ?? 0,
+                                TotalValue = query[i].TotalValue ?? 0,
+                                CrtdUserId = query[i].CrtdUserId ?? 0,
+                                CrtdTS = Convert.ToDateTime(query[i].CrtdTS) ,
+                                IsCurrentVersion = Convert.ToBoolean(query[i].AllocationHead),
+                                Status = Convert.ToString(query[i].AllocationHead)
+                            });
+                        }
+                    }
+
+
+                }
+                return FreezeData;
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+                (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                return null;
+            }
+
+        }
+
+
+
         public static List<TransactionAndTaxesModel> GetSubCode()
         {
             List<TransactionAndTaxesModel> transtype = new List<TransactionAndTaxesModel>();
