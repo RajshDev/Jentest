@@ -3383,7 +3383,7 @@ namespace IOAS.GenericServices
                                      S.isMsPhd,
                                      //S.PIName,
                                      vw.FirstName,
-                                     vw.DepartmentName
+                                     R.EmployeeWorkplace
                                  }).FirstOrDefault();
 
                     if (query != null)
@@ -3446,7 +3446,7 @@ namespace IOAS.GenericServices
                         ackmodel.MSPhD = MsOrPhD(appid, query.AppointmentType ?? 0);
                         //ackmodel.PIName = query.PIName;
                         ackmodel.PIName = query.FirstName;
-                        ackmodel.Department = query.DepartmentName;
+                        ackmodel.Department = query.EmployeeWorkplace;
                         ackmodel.isExistingEmployee = true;
                         if (!isExistingEmployee(appid, query.AppointmentType ?? 0) && query.ApplicationType == "New")
                             ackmodel.isExistingEmployee = false;
