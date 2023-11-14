@@ -13,29 +13,49 @@
 @using (Html.BeginForm("ProjectEnhancement", "Project", FormMethod.Post, new { @class = "", role = "form", @id = "formPEH", enctype = "multipart/form-data" }))
 
     {
-    <div class="page-wrapper" id="">
-        <div class="white-bg">
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="form-group custom-form-group mb-sm">
-                        <label class="required">Project Number</label>
-                        @Html.TextBoxFor(m => m.ProjectNumber, new { @class = "form-control" })
-                        @Html.HiddenFor(m => m.ProjectId)
-                        <div>@Html.ValidationMessageFor(m => m.ProjectNumber)</div>
-                    </div>
+<div class="page-wrapper" id="">
+    <div class="white-bg">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-group custom-form-group mb-sm">
+                    <label class="required">Project Number</label>
+                    @Html.TextBoxFor(m => m.ProjectNumber, new { @class = "form-control" })
+                    @Html.HiddenFor(m => m.ProjectId)
+
                 </div>
-                <div class="col-md-6">
-                    <div class="form-group custom-form-group mb-sm">
-                        <label>Project Title</label>
-                        <h4 id="lblProjecttitle"></h4>
-                    </div>
+            </div>
+
+
+            <div class="col-md-6">
+                <div class="form-group custom-form-group mb-sm">
+                    <label>Project Title</label>
+                    <h4 id="lblProjecttitle"></h4>
                 </div>
             </div>
         </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <h3 class="spl-title">Allocation Details</h3>
+        </div>
+    </div>
 
 
 
-        @*<div class="white-bg">
+    <table id="allochdtbl" >
+        <thead>
+            <tr>
+                <th> Allocation Head </th>
+                <th> Present Value</th>
+                <th> Status</th>
+            </tr>
+        </thead>
+        <tbody id="allochdlist"></tbody>
+    </table>
+    
+
+    @*<div class="white-bg">
             <div class="row">
                 <div class="col-md-12">
                     <h3 class="spl-title">Supporting Documents</h3>
@@ -59,17 +79,18 @@
                         @Html.ValidationMessageFor(m => m.AttachmentPath)
                         <a href="#" class="link1" target="_blank"></a>
                     </div>
-                </div>               
+                </div>
 
             </div>
         </div>*@
-    </div>
+</div>
 
 
 
 }
 
 <script>
+
 
     applyAutoComplete($('#ProjectNumber'), $('#ProjectId'), '@Url.Action("LoadProjectList","CoreAccounts")', 'ProjectSummary', true);
 
@@ -81,28 +102,17 @@
       $("#Appointmentstartdate, #AppointmentEndDate").val('');
     });
   
-
     function ProjectSummary() {
         var projectId = $("#ProjectId").val();
         if (projectId != "" || projectId != 0) {
-            
+          
             $.getJSON("@Url.Action("LoadProjectDetails", "Requirement")", { ProjectId: projectId },
                    function (result) {
-                       if (result.projectData.ProjectNumber != null) {
-                           $('#labelProjectNumber').text(result.projectData.ProjectNumber);
-                           $('#lblProjecttitle,#lblProjecttitle1').text(result.projectData.ProjectTitle);                         
-                           GetProjectEnhancementAllocation(projectId)   
-                       }
-                       
-                });
-            
+                       console.log(result);
+                       GetProjectEnhancementAllocation(projectId);
+                   });
         }
-        
     }
-    //$('#ProjectNumber').click(function () {
-    //    var projectId = $('#ProjectId').val('');
-    //    GetProjectEnhancementAllocation(projectId)
-    //});
     function GetProjectEnhancementAllocation(projectId) {         
         $.ajax({
             type: "GET",          
@@ -111,10 +121,31 @@
             dataType: "json",
             success: function (result) {
                 retval = result;
-                return result;
+                $("#allochdtbl").find("tbody").empty();
+                
+                for (var key in retval ) {
+                    console.log(retval[key].AllocationHead);
+
+                    rowdata = "<tr><td>" + retval[key].AllocationHead + "</td>";
+                    rowdata += "<td>" + retval[key].OldValue + "</td>";
+                    rowdata += "<td>" + retval[key].Status + "</td></tr>";
+
+                   
+
+                
+                //    $(this).closest('div').find('input[name="Allochead"]').val($(this).val());
+                    $("#allochdtbl").find("tbody").append(rowdata);
+
+                
+                    
+
+                    //$("#allochdlist").val('');    
+
+                }
+
                 }
             });
-        return retval;
+        
     };
 
 
