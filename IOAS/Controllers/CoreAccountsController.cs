@@ -2999,6 +2999,28 @@ namespace IOAS.Controllers
             }
         }
 
+        [HttpPost]
+        public ActionResult AllocationFreezingUnFreezing(FreezingUnFreezingModel model)
+        {
+            try
+            {
+                //var projectData = Common.FreezeUnfreezeLoadProjectDetails(Convert.ToInt32(ProjectId));
+                //var result = new { projectData = projectData };
+                //return Json(result, JsonRequestBehavior.AllowGet);
+
+
+
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+       (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                throw new Exception(ex.Message);
+            }
+        }
+
+
         [HttpGet]
         public JsonResult LoadProjectList(string term, int? type = null, int? classification = null, int? BankHeadId =  null)
         {

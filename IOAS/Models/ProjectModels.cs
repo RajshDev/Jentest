@@ -1411,7 +1411,8 @@ public class projectFundingModel
     {
         public string ProjectNumber { get; set; }
         public int ProjectId { get; set; }      
-        public int AllocationHead { get; set; }        
+        public int AllocationHead { get; set; }
+        public int[] AllocationHeadId { get; set; }
         public decimal OldValue { get; set; }
         public decimal EnhancedValue { get; set; }
         public decimal TotalValue { get; set; }
@@ -1419,7 +1420,10 @@ public class projectFundingModel
         public DateTime CrtdTS { get; set; }        
         public string Status { get; set; }
         public string HeadName { get; set; }
-        public bool Freeze { get; set; }
+        
+        public string[] HeadNameList { get; set; }
+        public string[] FreezeList { get; set; }
+        public string Freeze{ get; set; }
 
     }
 

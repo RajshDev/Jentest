@@ -8939,7 +8939,7 @@ namespace IOAS.Infrastructure
                 
                 using (var context = new IOASDBEntities())
                 {
-                    var query = (from P in context.tblProject
+                    list = (from P in context.tblProject
                                 where P.ProjectId == ProjectId && P.Status == "Active"
                                 
                                   select new ProjectResultModels()
@@ -8962,6 +8962,7 @@ namespace IOAS.Infrastructure
             
 
         }
+
 
 
 
