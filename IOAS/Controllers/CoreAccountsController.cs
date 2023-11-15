@@ -1419,8 +1419,9 @@ namespace IOAS.Controllers
         public ActionResult AllocationFreezingUnFreezing()
         {
             try
-            {                   
-
+            {
+                var allocatehead = Common.getallocationhead();
+                ViewBag.allocatehead = allocatehead;
                 return View();
             }
             catch (Exception ex)
@@ -1436,6 +1437,8 @@ namespace IOAS.Controllers
         {
             try
             {
+                var allocatehead = Common.getallocationhead();
+                ViewBag.allocatehead = allocatehead;
                 object output = Common.GetFreezeAndUnFreezeData(projectId);
                 return Json(output, JsonRequestBehavior.AllowGet);
             }
@@ -2975,6 +2978,27 @@ namespace IOAS.Controllers
 
             return Json(data, JsonRequestBehavior.AllowGet);
         }
+
+        [HttpGet]
+        public JsonResult FreezeUnfreezeLoadProjectList(string ProjectId) 
+        {
+            try
+            {
+                var projectData = Common.FreezeUnfreezeLoadProjectDetails(Convert.ToInt32(ProjectId));
+                var result = new { projectData = projectData };
+                return Json(result, JsonRequestBehavior.AllowGet);
+
+              
+
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+       (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                throw new Exception(ex.Message);
+            }
+        }
+
         [HttpGet]
         public JsonResult LoadProjectList(string term, int? type = null, int? classification = null, int? BankHeadId =  null)
         {

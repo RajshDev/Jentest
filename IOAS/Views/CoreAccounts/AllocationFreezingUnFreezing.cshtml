@@ -8,82 +8,86 @@
 
 <div class="row hd-tt-bg" id="addnewpage">
     <div class="col-md-4">
-        <h3>Allocation Freezing UnFreezing</h3></div>
+        <h3>Allocation Freezing UnFreezing</h3>
+    </div>
 </div>
 @using (Html.BeginForm("ProjectEnhancement", "Project", FormMethod.Post, new { @class = "", role = "form", @id = "formPEH", enctype = "multipart/form-data" }))
 
-    {
-<div class="page-wrapper" id="">
-    <div class="white-bg">
+{
+    <div class="page-wrapper" id="">
+        <div class="white-bg">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group custom-form-group mb-sm">
+                        <label class="required">Project Number</label>
+                        @Html.TextBoxFor(m => m.ProjectNumber, new { @class = "form-control" })
+                        @Html.HiddenFor(m => m.ProjectId)
+
+                    </div>
+                </div>
+
+
+                <div class="col-md-6">
+                    <div class="form-group custom-form-group mb-sm">
+                        <label>Project Title</label>
+                        <h4 id="lblProjecttitle"></h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <br />
+        <br />
+
+
         <div class="row">
-            <div class="col-md-4">
-                <div class="form-group custom-form-group mb-sm">
-                    <label class="required">Project Number</label>
-                    @Html.TextBoxFor(m => m.ProjectNumber, new { @class = "form-control" })
-                    @Html.HiddenFor(m => m.ProjectId)
-
-                </div>
-            </div>
-
-
-            <div class="col-md-6">
-                <div class="form-group custom-form-group mb-sm">
-                    <label>Project Title</label>
-                    <h4 id="lblProjecttitle"></h4>
-                </div>
+            <div class="col-md-2">
+                <h3 class="spl-title">Allocation Details</h3>
+                <input type="hidden" id="Projectid" name="Projectid" value="">
             </div>
         </div>
-    </div>
+        <table class="table table-bordered ct-tb ct-tr-tb" id="allochdtbl">
+            <thead>
+                <tr>
+                    <th> Allocation Head Name </th>
+                    <th> Total Value</th>
+                    <th> Status</th>
+                    <th>Freeze Allocation</th>
+                </tr>
+            </thead>
+            <tbody id="allochdlist"></tbody>
+        </table>
 
-    <div class="row">
-        <div class="col-md-12">
-            <h3 class="spl-title">Allocation Details</h3>
-        </div>
-    </div>
 
-
-
-    <table id="allochdtbl" >
-        <thead>
-            <tr>
-                <th> Allocation Head </th>
-                <th> Present Value</th>
-                <th> Status</th>
-            </tr>
-        </thead>
-        <tbody id="allochdlist"></tbody>
-    </table>
-    
-
-    @*<div class="white-bg">
-            <div class="row">
-                <div class="col-md-12">
-                    <h3 class="spl-title">Supporting Documents</h3>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="form-group custom-form-group ">
-                        <label> Document Name </label>
-                        @Html.TextBoxFor(m => m.AttachmentName, new { @class = "form-control", @id = "docname" })
-
-                        @Html.ValidationMessageFor(m => m.AttachmentName)
-
+        @*<div class="white-bg">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h3 class="spl-title">Supporting Documents</h3>
                     </div>
                 </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group ">
+                            <label> Document Name </label>
+                            @Html.TextBoxFor(m => m.AttachmentName, new { @class = "form-control", @id = "docname" })
 
-                <div class="col-md-4">
-                    <div class="form-group custom-form-group mt5">
-                        <label> Attach Approval document (".pdf", ".doc", ".docx") </label>
-                        <input type="file" name="file" id="ApprovalDocument" />&nbsp;&nbsp;&nbsp;
-                        @Html.ValidationMessageFor(m => m.AttachmentPath)
-                        <a href="#" class="link1" target="_blank"></a>
+                            @Html.ValidationMessageFor(m => m.AttachmentName)
+
+                        </div>
                     </div>
-                </div>
 
-            </div>
-        </div>*@
-</div>
+                    <div class="col-md-4">
+                        <div class="form-group custom-form-group mt5">
+                            <label> Attach Approval document (".pdf", ".doc", ".docx") </label>
+                            <input type="file" name="file" id="ApprovalDocument" />&nbsp;&nbsp;&nbsp;
+                            @Html.ValidationMessageFor(m => m.AttachmentPath)
+                            <a href="#" class="link1" target="_blank"></a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>*@
+    </div>
 
 
 
@@ -101,11 +105,11 @@
             $('#ProjectId').val('');
       $("#Appointmentstartdate, #AppointmentEndDate").val('');
     });
-  
+
     function ProjectSummary() {
         var projectId = $("#ProjectId").val();
         if (projectId != "" || projectId != 0) {
-          
+            $("$Projectid").val(projectId);
             $.getJSON("@Url.Action("LoadProjectDetails", "Requirement")", { ProjectId: projectId },
                    function (result) {
                        console.log(result);
@@ -113,45 +117,34 @@
                    });
         }
     }
-    function GetProjectEnhancementAllocation(projectId) {         
-        $.ajax({
-            type: "GET",          
+    function GetProjectEnhancementAllocation(projectId) {
+        $.ajax
+            ({
+            type: "GET",
             url: "@Url.Action("GetAllocationFreezeUnFreezeData", "CoreAccounts")",
             data: { "projectId": projectId},
             dataType: "json",
-            success: function (result) {
-                retval = result;
-                $("#allochdtbl").find("tbody").empty();
-                
-                for (var key in retval ) {
-                    console.log(retval[key].AllocationHead);
+                success: function (result) {
+                    retval = result;
+                    $("#allochdtbl").find("tbody").empty();
+                    for (var key in retval) {
+                        console.log(retval[key].AllocationHead);
+                        rowdata = "<tr><td>" + retval[key].HeadName + "</td>";
+                        rowdata += "<td>" + retval[key].TotalValue + "</td>";
+                        rowdata += "<td>" + retval[key].TotalValue + "</td>";
 
-                    rowdata = "<tr><td>" + retval[key].AllocationHead + "</td>";
-                    rowdata += "<td>" + retval[key].OldValue + "</td>";
-                    rowdata += "<td>" + retval[key].Status + "</td></tr>";
+                        rowdata += "<td> <select name='freeze' id='freeze'><option value=1>Freeze</option> <option value=0 > UnFreezed</option ></select >";
+                        rowdata += "<input type = 'hidden' id = 'AllocationHeadId' name = 'AllocationHeadId' value = " + retval[key].AllocationHead+" > </td ></tr > ";
+                        
 
-                   
+                        $("#allochdtbl").find("tbody").append(rowdata);
 
-                
-                //    $(this).closest('div').find('input[name="Allochead"]').val($(this).val());
-                    $("#allochdtbl").find("tbody").append(rowdata);
-
-                
-                    
-
-                    //$("#allochdlist").val('');    
-
-                }
+                    }
 
                 }
             });
-        
+
     };
-
-
-    
-
-
 </script>
 <link href="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/css/bootstrap-select.min.css")" rel="stylesheet" />
 <script src="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/js/bootstrap-select.min.js")"></script>

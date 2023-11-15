@@ -7255,12 +7255,12 @@ namespace IOAS.Infrastructure
                         case "TravelBill":
                             refnums = (from boa in context.tblBOA
                                        from fy in context.tblFinYear
-                                       where boa.Status == "Posted" &&( boa.TransactionTypeCode == "DTV"|| boa.TransactionTypeCode == "TAD" || boa.TransactionTypeCode == "TST") && boa.RefNumber == Refnum
+                                       where boa.Status == "Posted" && (boa.TransactionTypeCode == "DTV" || boa.TransactionTypeCode == "TAD" || boa.TransactionTypeCode == "TST") && boa.RefNumber == Refnum
                                        && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
                                        select boa.RefNumber).FirstOrDefault();
                             break;
                         case "BillDate":
-                            
+
                             refnums = (from boa in context.tblBOA
                                        from fy in context.tblFinYear
                                        where boa.Status == "Posted" && (boa.TransactionTypeCode == "STM" || boa.TransactionTypeCode == "ADV" || boa.TransactionTypeCode == "PTV") && boa.RefNumber == Refnum
@@ -7729,7 +7729,7 @@ namespace IOAS.Infrastructure
 
                 using (var context = new IOASDBEntities())
                 {//35690
-                    list = (from P in context.tblProject                           
+                    list = (from P in context.tblProject
                             join U in context.vwFacultyStaffDetails on P.PIName equals U.UserId
                             where  P.ProjectId == 35690
                             orderby P.ProjectNumber
@@ -8931,6 +8931,40 @@ namespace IOAS.Infrastructure
             }
 
         }
+        public static List<ProjectResultModels> FreezeUnfreezeLoadProjectDetails(int ProjectId)
+        {
+            try
+            {
+                List<ProjectResultModels> list = new List<ProjectResultModels>();
+                
+                using (var context = new IOASDBEntities())
+                {
+                    var query = (from P in context.tblProject
+                                where P.ProjectId == ProjectId && P.Status == "Active"
+                                
+                                  select new ProjectResultModels()
+                                  {
+                                     proposalTitle=P.ProjectTitle,
+                                     proposalId = P.ProjectId
+
+                                  }).ToList();
+
+
+                }
+                return list;
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+                (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                throw ex;
+            }
+            
+
+        }
+
+
+
         public static List<AutoCompleteModel> GetAutoCompleteProjectList(string term, int? type = null, int? classification = null)
         {
             try
@@ -12012,31 +12046,38 @@ namespace IOAS.Infrastructure
                 {                  
 
                     var query = (from C in context.tblProjectEnhancementAllocation
+                                 join A in context.tblBudgetHead on C.AllocationHead equals A.BudgetHeadId
                                  where C.ProjectId == projectId && C.Status == "Active" && C.IsCurrentVersion == true
-                                 select C).ToList();
+                                 select new {
+                                     C.ProjectId,
+                                     C.AllocationHead,
+                                     C.OldValue,
+                                     C.EnhancedValue,
+                                     C.TotalValue,
+                                     C.CrtdTS,
+                                     C.CrtdUserId,
+                                     C.Status,
+                                     A.HeadName
+
+                                 }).ToList();
                     if (query.Count > 0)
                     {
                         for (int i = 0; i < query.Count; i++)
                         {
                             FreezeData.Add(new FreezingUnFreezingModel()
                             {
-                                ProjectEnhancementAllocationId =query[i].ProjectEnhancementAllocationId,
-                                ProjectEnhancementId = Convert.ToInt32(query[i].ProjectEnhancementId),
                                 ProjectId = query[i].ProjectId ?? 0,
-                                IsActive = Convert.ToBoolean(query[i].IsActive),
-                                AllocationHead = query[i].AllocationHead ?? 0,
+                                AllocationHead = query[i].AllocationHead ?? 0,                                
                                 OldValue = query[i].OldValue ?? 0,
                                 EnhancedValue = query[i].EnhancedValue ?? 0,
                                 TotalValue = query[i].TotalValue ?? 0,
                                 CrtdUserId = query[i].CrtdUserId ?? 0,
-                                CrtdTS = Convert.ToDateTime(query[i].CrtdTS) ,
-                                IsCurrentVersion = Convert.ToBoolean(query[i].AllocationHead),
-                                Status = Convert.ToString(query[i].AllocationHead)
+                                CrtdTS = Convert.ToDateTime(query[i].CrtdTS),
+                                Status = Convert.ToString(query[i].Status),
+                                HeadName = query[i].HeadName
                             });
                         }
                     }
-
-
                 }
                 return FreezeData;
             }
