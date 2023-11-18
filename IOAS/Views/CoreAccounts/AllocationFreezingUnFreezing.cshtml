@@ -25,12 +25,17 @@
 
                 </div>
             </div>
-
-
-            <div class="col-md-6">
+            <div class="col-md-5">
                 <div class="form-group custom-form-group mb-sm">
                     <label>Project Title</label>
                     <h4 id="lblProjecttitle"></h4>
+                </div>
+            </div>
+
+            <div class="col-md-1">
+                <div class="form-group custom-form-group mb-sm">
+                    <label>Sanction Value </label>
+                    <h4 id="PrtSanctionValue"></h4>
                 </div>
             </div>
         </div>
@@ -40,24 +45,30 @@
     <br />
 
 
-    <div class="row">
-        <div class="col-md-2">
-            <h3 class="spl-title">Allocation Details</h3>
-            <input type="hidden" id="ProjectId" name="ProjectId" value="">
-        </div>
+    <div class="col-md-2">
+        @*<h3 class="spl-title">Allocation Details</h3>*@
+        <input type="hidden" id="ProjectId" name="ProjectId" value="">
     </div>
     <table class="table table-bordered ct-tb ct-tr-tb" id="allochdtbl">
+
         <thead>
             <tr>
                 <th> Allocation Head Name </th>
                 <th> Total Value</th>
                 <th> Status</th>
                 <th>Freeze Allocation</th>
+
             </tr>
         </thead>
         <tbody id="allochdlist"></tbody>
     </table>
-    <input  type="submit" value="Save as draft" id="btnSave" />
+    <div class="row">
+        <div class="col-md-12 mt-md mb-lg text-center">
+            <input type="submit" value="Submit" class="btn btn-primary" id="btnSave" />
+
+        </div>
+    </div>
+    @*<input type="submit" value="Save as draft" id="btnSave" />*@
 </div>
 }
 
@@ -71,15 +82,25 @@
             $('#ProjectId').val('');
       $("#Appointmentstartdate, #AppointmentEndDate").val('');
     });
- 
+
     function ProjectSummary() {
         var projectId = $("#ProjectId").val();
         if (projectId != "" || projectId != 0) {
             $("#ProjectId").val(projectId);
             $.getJSON("@Url.Action("FreezeUnfreezeLoadProjectList", "CoreAccounts")", { ProjectId: projectId },
-                   function (result) {
-                       console.log(result);
+                function (result) {
+                    console.log(result);
+                    
+                    $('#lblProjecttitle').text(result.projectsData[0].Projecttitle );
+                        //$('#lblProjecttitle,#lblProjecttitle1').text(result.projectData.ProjectTitle);
+                    $('#PrtSanctionValue').text(result.projectsData[0].EnhancedSanctionValue);
+                    
+
+
+                       
                        GetProjectEnhancementAllocation(projectId);
+                       //$("#PrtSanctionValue").val(result.DesignationData.Designation);
+                       //$("#lblProjecttitle").val(result.DesignationData.Designation);
                    });
         }
     }
@@ -92,25 +113,33 @@
             dataType: "json",
                 success: function (result) {
                     retval = result;
-                    console.log(retval);
+                    //console.log(retval);
                     $("#allochdtbl").find("tbody").empty();
                     var ix = 0;
                     for (var key in retval) {
-                        console.log(retval[key].AllocationHead);
+                        //console.log(retval[key].AllocationHead); 
                         rowdata = "<tr><td>" + retval[key].HeadName + "</td>";
                         rowdata += "<td>" + retval[key].TotalValue + "</td>";
                         rowdata += "<td>" + retval[key].TotalValue + "</td>";
-                        rowdata += "<td> <select name='FreezeList[" + ix + "]' id='FreezeList[" + ix + "]''><option value=1>Freeze</option> <option value=0 > UnFreezed</option ></select >";
+                        if (retval[key].Freeze=="1") {
+                            rowdata += "<td> <select name='FreezeList[" + ix + "]' id='FreezeList[" + ix + "]''><option value=0 > UnFreezed</option ><option value=1 SELECTED>Freeze</option></select >";
+                        }
+                        else {
+                            rowdata += "<td> <select name='FreezeList[" + ix + "]' id='FreezeList[" + ix + "]''><option value=0 SELECTED> UnFreezed</option ><option value=1>Freeze</option></select >";
+                        }                       
                         rowdata += "<input type = 'hidden' id = 'AllocationHeadId[" + ix + "]'' name = 'AllocationHeadId[" + ix + "]'' value = " + retval[key].AllocationHead+" > </td ></tr > ";                      
-                        $("#allochdtbl").find("tbody").append(rowdata);
-                        
+                        $("#allochdtbl").find("tbody").append(rowdata);                        
                         ix = ix + 1;
                     }
 
                 }
             });
+        ProjectSummary();
 
     };
+
+
+   
 </script>
 <link href="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/css/bootstrap-select.min.css")" rel="stylesheet" />
 <script src="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/js/bootstrap-select.min.js")"></script>

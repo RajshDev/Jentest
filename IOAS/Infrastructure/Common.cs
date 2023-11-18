@@ -8931,22 +8931,23 @@ namespace IOAS.Infrastructure
             }
 
         }
-        public static List<ProjectResultModels> FreezeUnfreezeLoadProjectDetails(int ProjectId)
+        public static List<ProjectEnhancementModel> FreezeUnfreezeLoadProjectDetails(int ProjectId)
         {
             try
             {
-                List<ProjectResultModels> list = new List<ProjectResultModels>();
+                List<ProjectEnhancementModel> list = new List<ProjectEnhancementModel>();
                 
                 using (var context = new IOASDBEntities())
                 {
                     list = (from P in context.tblProject
                                 where P.ProjectId == ProjectId && P.Status == "Active"
                                 
-                                  select new ProjectResultModels()
+                                  select new ProjectEnhancementModel()
                                   {
-                                     proposalTitle=P.ProjectTitle,
-                                     proposalId = P.ProjectId
-
+                                     ProjectNumber=P.ProjectNumber,
+                                     Projecttitle=P.ProjectTitle,
+                                     EnhancedSanctionValue=P.SanctionValue,
+                                     
                                   }).ToList();
 
 
@@ -12037,6 +12038,58 @@ namespace IOAS.Infrastructure
             }
         }
 
+        public static bool PostMethodForFreezedata(FreezingUnFreezingModel model)
+        {
+
+
+            using (var context = new IOASDBEntities())
+            {
+                using (var transaction = context.Database.BeginTransaction())
+                {
+                    try
+                    {
+                        for (int i = 0; i < model.FreezeList.Length; i++)
+
+                        {
+                            
+                            {
+                                int AllocHdId = model.AllocationHeadId[i];
+                                var FreezeAllocaionQuery = (from P in context.tblProjectAllocation where P.ProjectId == model.ProjectId && P.AllocationHead == AllocHdId select P).FirstOrDefault();
+                                if (FreezeAllocaionQuery != null)
+                                {
+
+                                    //Update tblProject status
+                                    FreezeAllocaionQuery.IsFreeze = model.FreezeList[i] == "1" ? 1 : 0;
+
+                                    context.SaveChanges();
+
+                                }
+
+
+                            }
+
+                        }
+
+                        transaction.Commit();
+                        return true;
+
+
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        //Infrastructure.IOASException.Instance.HandleMe(this, ex);
+                        return false;
+                    }
+                }
+                
+            }
+
+            return true;
+
+        }
+
+
         public static List<FreezingUnFreezingModel> GetFreezeAndUnFreezeData(int projectId)
         {
             List<FreezingUnFreezingModel> FreezeData = new List<FreezingUnFreezingModel>();
@@ -12048,7 +12101,8 @@ namespace IOAS.Infrastructure
 
                     var query = (from C in context.tblProjectEnhancementAllocation
                                  join A in context.tblBudgetHead on C.AllocationHead equals A.BudgetHeadId
-                                 where C.ProjectId == projectId && C.Status == "Active" && C.IsCurrentVersion == true
+                                 join PA in context.tblProjectAllocation on C.AllocationHead equals PA.AllocationHead 
+                                 where PA.ProjectId == C.ProjectId && C.ProjectId == projectId && C.Status == "Active" && C.IsCurrentVersion == true
                                  select new {
                                      C.ProjectId,
                                      C.AllocationHead,
@@ -12058,7 +12112,9 @@ namespace IOAS.Infrastructure
                                      C.CrtdTS,
                                      C.CrtdUserId,
                                      C.Status,
-                                     A.HeadName
+                                     A.HeadName,
+                                     PA.IsFreeze
+                                  
 
                                  }).ToList();
                     if (query.Count > 0)
@@ -12075,7 +12131,10 @@ namespace IOAS.Infrastructure
                                 CrtdUserId = query[i].CrtdUserId ?? 0,
                                 CrtdTS = Convert.ToDateTime(query[i].CrtdTS),
                                 Status = Convert.ToString(query[i].Status),
-                                HeadName = query[i].HeadName
+                                HeadName = query[i].HeadName,
+                                Freeze= Convert.ToString(query[i].IsFreeze)
+
+
                             });
                         }
                     }

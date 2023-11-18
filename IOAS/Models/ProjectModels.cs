@@ -1410,7 +1410,9 @@ public class projectFundingModel
     public class FreezingUnFreezingModel
     {
         public string ProjectNumber { get; set; }
-        public int ProjectId { get; set; }      
+        public int ProjectId { get; set; }
+        public Nullable<decimal> OldSanctionValue { get; set; }
+
         public int AllocationHead { get; set; }
         public int[] AllocationHeadId { get; set; }
         public decimal OldValue { get; set; }

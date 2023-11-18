@@ -1432,6 +1432,45 @@ namespace IOAS.Controllers
             }
         }
 
+        [HttpPost]
+        public ActionResult AllocationFreezingUnFreezing(FreezingUnFreezingModel model)
+        {
+            try
+            {
+                bool Freeze = Common.PostMethodForFreezedata(model);
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+       (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                throw new Exception(ex.Message);
+            }
+        }
+
+
+        [HttpGet]
+        public JsonResult FreezeUnfreezeLoadProjectList(string ProjectId)
+        {
+            try
+            {
+                var projectData = Common.FreezeUnfreezeLoadProjectDetails(Convert.ToInt32(ProjectId));
+                var result = new { projectsData = projectData };
+                return Json(result, JsonRequestBehavior.AllowGet);
+
+
+
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+       (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                throw new Exception(ex.Message);
+            }
+        }
+
+
+
         [HttpGet]
         public JsonResult GetAllocationFreezeUnFreezeData(int projectId)
         {
@@ -1449,7 +1488,7 @@ namespace IOAS.Controllers
                 throw new Exception(ex.Message);
             }
         }
-
+                          
         [HttpPost]
         public ActionResult BillReversal(string transaction, string Billnumber)
         {
@@ -2977,47 +3016,6 @@ namespace IOAS.Controllers
             var data = coreAccountService.GetTravelCommitmentDetails(travelBillId);
 
             return Json(data, JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpGet]
-        public JsonResult FreezeUnfreezeLoadProjectList(string ProjectId) 
-        {
-            try
-            {
-                var projectData = Common.FreezeUnfreezeLoadProjectDetails(Convert.ToInt32(ProjectId));
-                var result = new { projectData = projectData };
-                return Json(result, JsonRequestBehavior.AllowGet);
-
-              
-
-            }
-            catch (Exception ex)
-            {
-                Infrastructure.IOASException.Instance.HandleMe(
-       (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
-                throw new Exception(ex.Message);
-            }
-        }
-
-        [HttpPost]
-        public ActionResult AllocationFreezingUnFreezing(FreezingUnFreezingModel model)
-        {
-            try
-            {
-                //var projectData = Common.FreezeUnfreezeLoadProjectDetails(Convert.ToInt32(ProjectId));
-                //var result = new { projectData = projectData };
-                //return Json(result, JsonRequestBehavior.AllowGet);
-
-
-
-                return View(model);
-            }
-            catch (Exception ex)
-            {
-                Infrastructure.IOASException.Instance.HandleMe(
-       (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
-                throw new Exception(ex.Message);
-            }
         }
 
 
