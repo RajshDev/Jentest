@@ -1885,7 +1885,7 @@ namespace IOAS.GenericServices
                                 if (model.Category == 1)
                                 {
                                     var id = Convert.ToInt32(model.Userid);
-                                    var exstinguser = context.tblStaffBankAccount.Where(e => e.UserId == id && e.Category == "Professor").FirstOrDefault();
+                                    var exstinguser = context.tblStaffBankAccount.Where(e => e.UserId == id && e.Category == "Professor" &&e.PayFor == model.PayFor).FirstOrDefault();
                                     if (exstinguser != null)
                                         return 5;
                                     var vwCombine = (from Vw in context.tblFacultyDetail
@@ -1904,12 +1904,13 @@ namespace IOAS.GenericServices
                                     create.CRTD_By = model.CreateUser;
                                     create.Branch = model.Branch;
                                     create.BankName = model.BankName;
+                                    create.PayFor = model.PayFor;
                                     context.tblStaffBankAccount.Add(create);
                                     context.SaveChanges();
                                 }
                                 else if (model.Category == 2)
                                 {
-                                    var exstinguser = context.tblStaffBankAccount.Where(e => e.EmployeeId == model.Userid && e.Category == "Student").FirstOrDefault();
+                                    var exstinguser = context.tblStaffBankAccount.Where(e => e.EmployeeId == model.Userid && e.Category == "Student" && e.PayFor == model.PayFor).FirstOrDefault();
                                     if (exstinguser != null)
                                         return 5;
                                     var vwCombine = (from Vw in context.tblStudentDetail
@@ -1928,13 +1929,14 @@ namespace IOAS.GenericServices
                                     create.CRTD_By = model.CreateUser;
                                     create.Branch = model.Branch;
                                     create.BankName = model.BankName;
+                                    create.PayFor = model.PayFor;
                                     context.tblStaffBankAccount.Add(create);
                                     context.SaveChanges();
                                 }
                                 else if (model.Category == 3)
                                 {
                                     var id = Convert.ToInt32(model.Userid);
-                                    var exstinguser = context.tblStaffBankAccount.Where(e => e.UserId == id && e.Category == "ProjectStaff").FirstOrDefault();
+                                    var exstinguser = context.tblStaffBankAccount.Where(e => e.UserId == id && e.Category == "ProjectStaff" && e.PayFor == model.PayFor).FirstOrDefault();
                                     if (exstinguser != null)
                                         return 5;
                                     var vwCombine = (from Vw in context.tblProjectStaffDetail
@@ -1953,13 +1955,14 @@ namespace IOAS.GenericServices
                                     create.CRTD_By = model.CreateUser;
                                     create.Branch = model.Branch;
                                     create.BankName = model.BankName;
+                                    create.PayFor = model.PayFor;
                                     context.tblStaffBankAccount.Add(create);
                                     context.SaveChanges();
                                 }
                                 else if (model.Category == 4)
                                 {
                                     var id = Convert.ToInt32(model.Userid);
-                                    var exstinguser = context.tblStaffBankAccount.Where(e => e.UserId == id && e.Category == "Staff").FirstOrDefault();
+                                    var exstinguser = context.tblStaffBankAccount.Where(e => e.UserId == id && e.Category == "Staff" && e.PayFor == model.PayFor).FirstOrDefault();
                                     if (exstinguser != null)
                                         return 5;
                                     var vwCombine = (from Vw in context.tblStaffDetail
@@ -1978,13 +1981,14 @@ namespace IOAS.GenericServices
                                     create.CRTD_By = model.CreateUser;
                                     create.Branch = model.Branch;
                                     create.BankName = model.BankName;
+                                    create.PayFor = model.PayFor;
                                     context.tblStaffBankAccount.Add(create);
                                     context.SaveChanges();
                                 }
                                 else if (model.Category == 5)
                                 {
                                     var id = Convert.ToInt32(model.Userid);
-                                    var exstinguser = context.tblStaffBankAccount.Where(e => e.UserId == id && e.Category == "AdhocStaff").FirstOrDefault();
+                                    var exstinguser = context.tblStaffBankAccount.Where(e => e.UserId == id && e.Category == "AdhocStaff" && e.PayFor == model.PayFor).FirstOrDefault();
                                     if (exstinguser != null)
                                         return 5;
                                     var vwCombine = (from Vw in context.tblProjectAdhocStaffDetails
@@ -2003,6 +2007,7 @@ namespace IOAS.GenericServices
                                     create.CRTD_By = model.CreateUser;
                                     create.Branch = model.Branch;
                                     create.BankName = model.BankName;
+                                    create.PayFor = model.PayFor;
                                     context.tblStaffBankAccount.Add(create);
                                     context.SaveChanges();
                                 }
