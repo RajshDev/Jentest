@@ -938,6 +938,8 @@ namespace IOAS.Controllers
                     ViewBag.TypeOfServiceList = Common.GetTypeOfServiceList(model.BillType ?? 0);
                     ViewBag.PONumberList = Common.GetBillPONumberList(model.VendorId, model.PONumber, "ADV");
                     ViewBag.VendorTDSList = Common.GetVendorTDSList(model.VendorId);
+                    ViewBag.RoundOfAdjustment = model.RoundOfAdjustment.ToString();
+                    ViewBag.totInvoiceAmt = model.totInvoiceAmt.ToString();
                     ViewBag.invoiceTaxAmt = model.InvoiceTaxAmount.ToString();
                 }
                 else
@@ -1003,6 +1005,9 @@ namespace IOAS.Controllers
                 ViewBag.DocmentTypeList = Common.GetDocTypeList(31);
                 ViewBag.ProjectNumberList = ProjectService.LoadProjecttitledetails(firstPType);
                 ViewBag.invoiceTaxAmt = model.InvoiceTaxAmount.ToString();
+                ViewBag.RoundOfAdjustment = model.RoundOfAdjustment.ToString();
+                ViewBag.totInvoiceAmt = model.totInvoiceAmt.ToString();
+
                 if (model.ExpenseDetail != null)
                 {
                     foreach (var item in model.ExpenseDetail)

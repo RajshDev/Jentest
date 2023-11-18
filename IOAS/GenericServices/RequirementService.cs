@@ -11825,8 +11825,25 @@ namespace IOAS.GenericServices
                                         select new { o, d }).FirstOrDefault();
                         if (odrQuery != null)
                         {
-                            model.RequestedfromPI = Common.GetPIName(odrQuery.o.RequestedBy ?? 0);
+
+                            if (odrQuery.o.RequestedBy != null)
+                            {
+                                model.RequestedfromPI = Common.GetPIName(odrQuery.o.RequestedBy ?? 0);
+                            }
+                            else
+                            {
+                                var mastQuery = (from A in context.tblRCTSTE
+                                                 where A.STEID == appid && A.isEmployee == true
+                                                 select A).FirstOrDefault();
+                                if (mastQuery != null)
+                                {
+                                    model.RequestedfromPI = Common.GetPIName(mastQuery.RequestedBy ?? 0);
+                                }
+
+                            }
+                            
                         }
+                        
                     }
                     else if (appTypeId == 1)
                     {

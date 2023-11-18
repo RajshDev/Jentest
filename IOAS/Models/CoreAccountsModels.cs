@@ -292,7 +292,10 @@ namespace IOAS.Models
 
         public List<VendorInvoiceBreakUpDetailModel> InvoiceBreakDetail { get; set; } = new List<VendorInvoiceBreakUpDetailModel>();
         public bool BillProcessingStatus { get; set; }
-        
+
+        public Nullable<decimal> RoundOfAdjustment { get; set; }
+        public Nullable<decimal> totInvoiceAmt { get; set; }
+
     }
 
     public class BillPODetailModel
@@ -4971,6 +4974,8 @@ namespace IOAS.Models
         public Nullable<DateTime> InvoiceDate { get; set; }
         public string InvoiceDateView { get; set; }
         public Nullable<decimal> Roundvalue { get; set; }
+        public Nullable<decimal> RoundOfAdjustment { get; set; }
+
     }
     public class BillHistoryModel
     {
@@ -5285,6 +5290,8 @@ namespace IOAS.Models
         public string SourceName { get; set; }
         public string SourceEmail { get; set; }
         public bool PFInit { get; set; }
+
+        public Nullable<decimal> RoundOfAdjustment { get; set; }
     }
     public class AdhocPaySearchResultModel
     {
