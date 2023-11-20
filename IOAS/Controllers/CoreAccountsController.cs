@@ -1437,7 +1437,8 @@ namespace IOAS.Controllers
         {
             try
             {
-                bool Freeze = Common.PostMethodForFreezedata(model);
+                int userId = Common.GetUserid(User.Identity.Name);
+                bool Freeze = Common.PostMethodForFreezedata(model, userId);
                 return View(model);
             }
             catch (Exception ex)

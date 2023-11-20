@@ -12038,7 +12038,7 @@ namespace IOAS.Infrastructure
             }
         }
 
-        public static bool PostMethodForFreezedata(FreezingUnFreezingModel model)
+        public static bool PostMethodForFreezedata(FreezingUnFreezingModel model, int logged_in_user)
         {
 
 
@@ -12062,6 +12062,13 @@ namespace IOAS.Infrastructure
                                     FreezeAllocaionQuery.IsFreeze = model.FreezeList[i] == "1" ? 1 : 0;
 
                                     context.SaveChanges();
+
+                                }
+                                else
+                                {
+                                     //Insert to FreezeAllocaionQuery tblProjectAllocation
+
+                                        
 
                                 }
 
