@@ -2952,6 +2952,50 @@ namespace IOAS.GenericServices
             }
 
         }
+
+        public static bool PostMethodForFreezedata(FreezingUnFreezingModel model, int logged_in_user)
+        {
+            using (var context = new IOASDBEntities())
+            {
+                using (var transaction = context.Database.BeginTransaction())
+                {
+                    try
+                    {
+                        for (int i = 0; i < model.FreezeList.Length; i++)
+
+                        {
+
+                            {
+                                int AllocHdId = model.AllocationHeadId[i];
+                                var FreezeAllocaionQuery = (from P in context.tblProjectAllocation where P.ProjectId == model.ProjectId && P.AllocationHead == AllocHdId select P).FirstOrDefault();
+                                if (FreezeAllocaionQuery != null)
+                                {
+
+                                    //Update tblProject status
+                                    FreezeAllocaionQuery.IsFreeze = model.FreezeList[i] == "1" ? 1 : 0;
+                                    context.SaveChanges();
+
+                                }
+                                else
+                                {
+                                    //Insert to FreezeAllocaionQuery tblProjectAllocation
+                                }
+                            }
+                        }
+                        transaction.Commit();
+                        return true;
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        //Infrastructure.IOASException.Instance.HandleMe(this, ex);
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
         public static CreateProjectModel EditProject(int ProjectId)
         {
             try
