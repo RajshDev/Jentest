@@ -7859,6 +7859,7 @@ namespace IOAS.GenericServices
                                 model.PayType = QryCON.A.ConsolidatedPay == true ? "Consolidated Pay" : "Fellowship pay";
                                 model.ToMail = QryCON.A.ToMail;
                                 model.CCMail = QryCON.A.Bcc;
+                                model.EmpPFBasicWages = 0;
 
                             }
                         }
@@ -7903,6 +7904,7 @@ namespace IOAS.GenericServices
                                 model.Qualification = Common.getQualificationWordings(appid, appType);
                                 model.ToMail = QrySTE.A.ToMail;
                                 model.CCMail = QrySTE.A.bcc;
+                                model.EmpPFBasicWages = 0;
                             }
                         }
                         else if (appTypeId == 3)
