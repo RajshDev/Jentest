@@ -1463,8 +1463,8 @@
                                                             </div>
                                                             <div class="col-md-6">
                                                                 <div class="form-group custom-form-group mb-sm ">
-                                                                    <label>PF Basic Wages</label>
-                                                                    @Html.TextBoxFor(m => m.EmpPFBasicWages, new { @class = "form-control", @id = "EmpPFBasicWages" })
+                                                                    <label class="required">PF Basic Wages</label>
+                                                                    @Html.TextBoxFor(m => m.EmpPFBasicWages, new { @class = "form-control", @id = "EmpPFBasicWages", @required = "required" })
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -2018,7 +2018,7 @@
     $('#ProfessionalId').change(function () {
         FillSalaryCalcDetls();
     });
-    $('input[name=EmpPFBasicWages]').keyup(function () {
+    $('input[name=EmpPFBasicWages]').change(function () {
         //var emppfbasicwages = $('input[name=EmpPFBasicWages]').val();
         FillSalaryCalcDetls();
         //calculatetaxTotal();
@@ -2035,8 +2035,25 @@
     $('select[name=PhysicallyChallenged]').change(function () {
         FillSalaryCalcDetls();
     });
-    $('#btnSubmitSalaryCalc').click(function () {
-        PopupSalaryConfirm();
+    $('#btnSubmitSalaryCalc').click(function (d)
+    {
+        d.preventDefault();
+        var isValid = $('#formOSG').valid();
+        var EmpfBasicwages = $('#EmpPFBasicWages').val();
+       // if (EmpfBasicwages == "") {
+        if (EmpfBasicwages.trim() != "" && parseInt(EmpfBasicwages.trim())>=0) {
+            isValid = true;
+        }
+        else {
+            isValid = false;
+            $('#alert').html("Please Enter EmpPFBasicWages");
+            $('#Validation').modal('toggle');
+            return false;
+        }
+
+
+        if (isValid) { PopupSalaryConfirm(); }
+        
     });
     $('#issalaryConfirm').click(function () {
         $('#dialogSalaryConfirm').modal('toggle');
@@ -2064,7 +2081,7 @@
     function FillSalaryCalcDetls() {
         var Vendorid = $('#VendorId').val();
         var salary = $('#Salary').val();
-        var emppfbasicwages = $('input[name=EmpPFBasicWages]').val() || 0;
+        var emppfbasicwages = $('input[name=EmpPFBasicWages]').val();
         var isemppfwages = true;
         if(Vendorid != "" && salary != ""){
             $.getJSON("@Url.Action("LoadSalCalPercent", "Requirement")", { VendorId: Vendorid, Salary: salary },
