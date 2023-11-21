@@ -332,9 +332,8 @@
                                                     <div class="form-group custom-form-group">
                                                         <label>Round of Adjustment:</label>
                                                         @*<input type="text" class="form-control" id="txtRoundOfAdjustment" oninput="validateRoundOfAdjustment(this)" />*@
-                                                        <input type="text" class="form-control" id="txtRoundOfAdjustment" value="0" />
-                                                        @Html.Hidden("RoundOfAdjustment")
-                                                        @*@Html.ValidationMessageFor(m => m.roundOfAdjustment)*@
+                                                        @Html.TextBoxFor(m => m.RoundOfAdjustment, new { @class = "form-control", @id = "txtRoundOfAdjustment" })
+                                                        @Html.ValidationMessageFor(m => m.RoundOfAdjustment)
                                                     </div>
                                                 </div>
                                             </div>  
@@ -783,8 +782,9 @@
     $('#txtRoundOfAdjustment').change(function () {
         isCalPerformed = false;
         validateRoundOfAdjustment();
-        resetRoundoff($(this).val());
+        //resetRoundoff($(this).val());
         calculateamount();
+        calculateeligibletaxamount();
     });
 
     $('#formSI').submit(function () {
@@ -1107,11 +1107,11 @@
     function round(total) {
 
         if (!isNaN(total)) {
-            console.log('Loaded..')
+            
             var valToBeRounded = parseFloat(total);
             var decimalPart = valToBeRounded % 1;
 
-            console.log(valToBeRounded);
+            
             if (decimalPart > 0.5) {
                 // Round up the number
                 var roundUpNumber = Math.ceil(valToBeRounded);
@@ -1245,7 +1245,7 @@
         });
         if (!isNaN(eligibletaxtotal)) {
             $("#txtEligibleTaxValue").val(eligibletaxtotal.toFixed(2));
-            var netpayamt = parseFloat($('#txtNetPayableValue').val());
+            var netpayamt = parseFloat($('#txtNetPayableValue').val()); 
             var commitamt = (netpayamt - eligibletaxtotal).toFixed(2);            
             $('#lblcommitamt').html(commitamt);
         }
@@ -1744,9 +1744,9 @@
             //if(parseInt($("#AdvancePercentage").val()) == 100){
             CalculateDeductionTotal();
             //11335
-            if (roundOffAdjustment != "") {
-                isCalPerformed = CalculateRoundingOffAdjustment(roundOffAdjustment, isCalPerformed);
-            }
+            //if (roundOffAdjustment != "") {
+            //    isCalPerformed = CalculateRoundingOffAdjustment(roundOffAdjustment, isCalPerformed);
+            //}
             //$("#CreditorAmount, #ttlCr").val($('#lblAdvTtlAmt').text());
             //}else{
             //    $("#CreditorAmount, #ttlCr").val($('#lblAdvNetAmt').text());

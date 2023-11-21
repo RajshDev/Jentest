@@ -121,26 +121,36 @@
     </div>
 </div>
 <div class="row">
-    <div class="col-md-2 col-md-offset-5">
-        <div class="form-group custom-form-group ">
-            <label>Total Tax Amount :</label>
-            @Html.TextBox("InvoiceTaxAmount", (string)ViewBag.invoiceTaxAmt, new { @class = "form-control" })
-            @Html.Hidden("InvoiceTaxEligibleAmount")
-            @Html.ValidationMessage("InvoiceTaxAmount")
+
+    
+        <div class="col-md-3 col-md-offset-3">
+            <div class="form-group custom-form-group ">
+                <label>Total Taxable Amount :</label>
+                @Html.TextBox("InvoiceAmount", "", new { @class = "form-control", @readonly = true })
+                @Html.ValidationMessage("InvoiceAmount")
+            </div>
         </div>
-    </div>
-    <div class="col-md-2 ">
+    
+        <div class="col-md-2">
+            <div class="form-group custom-form-group ">
+                <label>Total Tax Amount :</label>
+                @Html.TextBox("InvoiceTaxAmount", (string)ViewBag.invoiceTaxAmt, new { @class = "form-control" })
+                @Html.Hidden("InvoiceTaxEligibleAmount")
+                @Html.ValidationMessage("InvoiceTaxAmount")
+            </div>
+        </div>
+    <div class="col-md-2">
         <div class="form-group custom-form-group ">
             <label>Round of Adjustment:</label>
-            <input type="text" class="form-control" id="txtRoundOfAdjustment" value="0" />
-            @Html.Hidden("RoundOfAdjustment")
+            @Html.TextBox("RoundOfAdjustment", (string)ViewBag.RoundOfAdjustment, new { @class = "form-control", @id = "txtRoundOfAdjustment" })
+            @Html.ValidationMessage("RoundOfAdjustment")
         </div>
     </div>
-    <div class="col-md-3">
+    <div class="col-md-2">
         <div class="form-group custom-form-group ">
-            <label>Total Invoice Amount :</label>
-            @Html.TextBox("InvoiceAmount", "", new { @class = "form-control", @readonly = true })
-            @Html.ValidationMessage("InvoiceAmount")
+            <label>Total Invoice Amount:</label>
+            @Html.TextBox("totInvoiceAmt", (string)ViewBag.totInvoiceAmt, new { @class = "form-control", @id = "totInvoiceAmt" })
+            @Html.ValidationMessage("totInvoiceAmt")
         </div>
     </div>
 </div>
@@ -159,20 +169,27 @@
     function calculateAmountViewMode() {
         var totalamount = 0;
         var totaltax = 0;
+        var totInvoiceAmount = 0;
         var eligibletaxtotal = 0;
+        var adjVal = parseFloat($("#txtRoundOfAdjustment").val());
         $('#tbodyInvoiceBU tr').each(function (idx, val) {
             var amount = parseFloat($(this).find('input[name$=".Amount"]').val()) || 0;
             var taxamount = parseFloat($(this).find('input[name$=".TaxValue"]').val()) || 0;
+            var roundoffamount = parseFloat($(this).find('input[name$=".Roundvalue"]').val()) || 0; 
             var isEle = $(this).find('input[name$=".IsTaxEligible"]');
             if (isEle.prop("checked") == true)
                 eligibletaxtotal = eligibletaxtotal + taxamount;
             totaltax += taxamount;
-            totalamount += amount;
+            totalamount += amount;            
             $(this).find('input[name$=".Roundvalue"]').val(round(taxamount + amount)) || 0;
+            var roundoffamount = parseFloat($(this).find('input[name$=".Roundvalue"]').val()) || 0; 
+            totInvoiceAmount += roundoffamount; 
+
         });
         //$("#InvoiceAmount").val(totalamount.toFixed(2));\\10616
         $("#InvoiceAmount").val(round(totalamount));
         $("#InvoiceTaxEligibleAmount").val(eligibletaxtotal.toFixed(2));
+        $("#totInvoiceAmt").val(totInvoiceAmount + adjVal);
         CalculatePOValue();
     }
     $('input[name$=".InvoiceDate"]').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
@@ -215,9 +232,11 @@
         var totalamount = 0;
         var totaltax = 0;
         var eligibletaxtotal = 0;
+        var totInvoiceAmount = 0 ;
         var adjVal = parseFloat($("#txtRoundOfAdjustment").val());
         $('#tbodyInvoiceBU tr').each(function (idx, val) {
             var amount = parseFloat($(this).find('input[name$=".Amount"]').val()) || 0;
+            
             var taxpercent = parseFloat($(this).find('select[name$=".TaxablePercentage"]').val()) || 0;
             var taxamount = parseFloat((amount * taxpercent) / 100) || 0;
             $(this).find('input[name$=".TaxValue"]').val(taxamount.toFixed(2));
@@ -225,17 +244,26 @@
             if (isEle.prop("checked") == true)
                 eligibletaxtotal = eligibletaxtotal + taxamount;
             totaltax += taxamount;
-            totalamount += amount;
+            //totalamount += amount;
+            totalamount += round(amount) ;
             //10616
-            var roundVal = round(totalamount);
+            //var roundVal = round(totalamount);
+            var roundVal = round(amount + taxamount);
             if (!isNaN(Number(roundVal))) {
                 $(this).find('input[name$=".Roundvalue"]').val(roundVal);
-            }            
+               
+            var roundoffamount = parseFloat($(this).find('input[name$=".Roundvalue"]').val()) || 0;
+                totInvoiceAmount += roundoffamount;
+            }  
+           
         });
         //$("#InvoiceAmount").val(totalamount.toFixed(2));//10616
-        $("#InvoiceAmount").val(round(totalamount + adjVal));
+        $("#InvoiceAmount").val(round(totalamount));
         $("#InvoiceTaxAmount").val(totaltax.toFixed(2));
         $("#InvoiceTaxEligibleAmount").val(eligibletaxtotal.toFixed(2));
+        console.log('totInvoiceAmount: ' + totInvoiceAmount);
+        
+        $("#totInvoiceAmt").val(totInvoiceAmount + adjVal);
         CalculatePOValue();
     }
 

@@ -7226,8 +7226,8 @@ namespace IOAS.Infrastructure
                         case "ReceiptDate":
                             refnums = (from boa in context.tblBOA
                                        from fy in context.tblFinYear
-                                       where boa.Status == "Posted" && boa.TransactionTypeCode == "RBU" && boa.RefNumber == Refnum
-                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       where boa.Status == "Posted" && (boa.TransactionTypeCode == "RBU" || boa.TransactionTypeCode == "RCV") && boa.RefNumber == Refnum
+                                        && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
                                        select boa.RefNumber).FirstOrDefault();
                             break;
                         case "Reimbursement":
@@ -27523,21 +27523,21 @@ namespace IOAS.Infrastructure
                                 funddeviation = true;
                         }
                     }
-                    //else if (!prjDetail.HeadWise.Any(m => m.AllocationId == 1))
-                    //    funddeviation = true;
-                    //else if (prjDetail.HeadWise.Any(m => m.AllocationId == 1))
-                    //{
-                    //    var headwisedata = prjDetail.HeadWise.Where(x => x.AllocationId == 1).FirstOrDefault();
-                    //    var AvailableAmt = headwisedata.Available;
-                    //    if (AvailableAmt < commitmentAmount)
-                    //        funddeviation = true;
+                    else if (!prjDetail.HeadWise.Any(m => m.AllocationId == 1))
+                        funddeviation = true;
+                    else if (prjDetail.HeadWise.Any(m => m.AllocationId == 1))
+                    {
+                        var headwisedata = prjDetail.HeadWise.Where(x => x.AllocationId == 1).FirstOrDefault();
+                        var AvailableAmt = headwisedata.Available;
+                        if (AvailableAmt < commitmentAmount)
+                            funddeviation = true;
 
-                    //    if (AvailableAmt >= commitmentAmount && !funddeviation)
-                    //    {
-                    //        if (netBalance < commitmentAmount)
-                    //            funddeviation = true;
-                    //    }
-                    //}
+                        if (AvailableAmt >= commitmentAmount && !funddeviation)
+                        {
+                            if (netBalance < commitmentAmount)
+                                funddeviation = true;
+                        }
+                    }
                 }
                 return funddeviation;
             }
