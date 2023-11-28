@@ -1168,8 +1168,9 @@ namespace IOAS.Controllers
             ttlGSTElgAmt = Math.Round(ttlGSTElgAmt, 2, MidpointRounding.AwayFromZero);
             //netAdvAmt = Math.Round(netAdvAmt, 2, MidpointRounding.AwayFromZero);
             netAdvAmt = (int)Math.Round(netAdvAmt);
-            netAdvAmt = netAdvAmt - ttlGSTElgAmt;
             var invAmt = netAdvAmt;
+            netAdvAmt = netAdvAmt - ttlGSTElgAmt;
+            
             if (netAdvAmt != commitmentAmt)
                 msg = "There is a mismatch between the settlement value and allocated commitment value. Please update the value to continue.";
             if (netDrAmt != crAmt || (netCrAmt + ttlJVExpVal) != crAmt)
