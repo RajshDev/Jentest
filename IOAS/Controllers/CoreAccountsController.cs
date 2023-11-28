@@ -1169,13 +1169,15 @@ namespace IOAS.Controllers
             //netAdvAmt = Math.Round(netAdvAmt, 2, MidpointRounding.AwayFromZero);
             netAdvAmt = (int)Math.Round(netAdvAmt);
             netAdvAmt = netAdvAmt - ttlGSTElgAmt;
+            var invAmt = netAdvAmt;
             if (netAdvAmt != commitmentAmt)
                 msg = "There is a mismatch between the settlement value and allocated commitment value. Please update the value to continue.";
             if (netDrAmt != crAmt || (netCrAmt + ttlJVExpVal) != crAmt)
                 msg = msg == "Valid" ? "Not a valid entry. Credit and Debit value are not equal" : msg + "<br />Not a valid entry. Credit and Debit value are not equal";
             if (ttlJVExpVal != ttlJVDrVal)
                 msg = msg == "Valid" ? "Not a valid entry. Credit and Debit value of JV are not equal" : msg + "<br />Not a valid entry. Credit and Debit value of JV are not equal";
-            if (TransAmt != (model.InvoiceAmount + model.InvoiceTaxAmount) && !model.RCM_f)
+            //if (TransAmt !=  (model.InvoiceAmount + model.InvoiceTaxAmount) && !model.RCM_f)
+            if (TransAmt != invAmt && !model.RCM_f)
                 msg = msg == "Valid" ? "There is a mismatch between the credit value and invoice value. Please update the value to continue." : msg + "<br />There is a mismatch between the credit value and invoice value. Please update the value to continue.";
             //if (ttlExpAmt != commitmentAmt)
             //    msg = msg == "Valid" ? "There is a mismatch between the expense value and allocated commitment value. Please update the value to continue." : msg + "<br />There is a mismatch between the expense value and allocated commitment value. Please update the value to continue.";
