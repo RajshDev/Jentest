@@ -3007,6 +3007,35 @@ namespace IOAS.GenericServices
                 }
             }
         }
+
+        public static int GetFreezeAndAllocationValues(int ProjectId, int AllocationId)
+        {
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+
+                    var Freezedata = (from FreezeLog in context.tblAllocationFreezeLog                               
+                               where FreezeLog.ProjectId== ProjectId && FreezeLog.AllocationHead== AllocationId
+                               select FreezeLog.IsFreeze).FirstOrDefault();
+
+                    if (Freezedata == null)
+                        return 0;
+                    else
+                        return (int)Freezedata;
+
+                }
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+                (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                return -1;
+            }
+
+        }
+
+
         public static CreateProjectModel EditProject(int ProjectId)
         {
             try

@@ -389,6 +389,21 @@ namespace IOAS.Controllers
             }
 
         }
+
+        [HttpGet]
+        public JsonResult GetFreezeAndAllocationData(int ProjectId, int AllocationId)
+        {
+            try
+            {
+                var data = ProjectService.GetFreezeAndAllocationValues(ProjectId, AllocationId);
+                return Json(data, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
         [Authorize]
         [HttpPost]
         public ActionResult ProjectEnhancement(ProjectEnhancementModel model, HttpPostedFileBase file)

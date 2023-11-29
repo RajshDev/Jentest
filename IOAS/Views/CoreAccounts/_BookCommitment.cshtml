@@ -697,6 +697,7 @@
             width: '100%',
             placeholder: "Select / Enter subhead"
         });
+        
     });
 
     $('.selectpicker').selectpicker({
@@ -791,8 +792,10 @@
                         value: itemData.id,
                         text: itemData.name
                     }));
+                    
                 });
                 select.selectpicker('refresh');
+               
             }
             else {
                 $("#prjDetails").addClass('menu-hide');
@@ -817,11 +820,43 @@
             $("#commitNo").text("");
         }
     }
+    
+    function GetFreezeValueData() {
+       
+        var ProjectId = $("#SelProjectNumber").val();
+        var AllocHdId = $("#selAllocationHead").val();
+        //var AllocationId = $(this).val();
+        var isFreezeDataValid =0;
+        $.ajax({
+            type: "GET",
+            async: false,
+            url: '@Url.Action("GetFreezeAndAllocationData", "Project")',
+            data: {
+                "ProjectId": ProjectId, "AllocationId": AllocHdId},
+            dataType: "json",
+            success: function (result) {
+                isFreezeDataValid = result;
+                //console.log(isFreezeDataValid);
+                //console.log(result);
+                if (isFreezeDataValid == 1) {
+                    messageBox('Allocation Head Freezed', "warning");
+                }
+                else {
+                    console.log(isFreezeDataValid);
+                }
+                              
+                }
+        });
+        return isFreezeDataValid;
+        //console.log(isFreezeDataValid);
+        //console.log(result);
+    }
 
     $('select[name^="selAllocationHead"]').change(function () {
 
         var ProjectId = $("#SelProjectNumber").val();
         var AllocationId = $(this).val();
+        GetFreezeValueData();
         if (AllocationId != 0) {
             $.getJSON("@Url.Action("GetAllocationValue", "Account")", { ProjectID: ProjectId, AllocationID: AllocationId },
                            function (allocData) {
@@ -946,6 +981,7 @@
         return new Date(p[2], months[p[1].toLowerCase()], p[0]);
     }
     $("#btnSave").on('click', function (e) {
+        
         if (requestRunning) { // don't do anything if an AJAX request is pending
             return;
         }
@@ -974,6 +1010,7 @@
         var validAllowcationH = $("#selAllocationHead").val() || 0;
         var AllocatinHead = [];
         var Amount = [];
+
         if (CommitType == "") {
             isValid = false;
             messageBox('Commitment type field is required', "warning");
