@@ -824,7 +824,6 @@ namespace IOAS.DataModel
         public virtual DbSet<vw_RCTOSGAttendanceReport> vw_RCTOSGAttendanceReport { get; set; }
         public virtual DbSet<vw_RCTOSGChagofprojectReport> vw_RCTOSGChagofprojectReport { get; set; }
         public virtual DbSet<vw_RCTOSGExtensionEnhancementReport> vw_RCTOSGExtensionEnhancementReport { get; set; }
-        public virtual DbSet<vw_RCTOSGNewJoineeReport> vw_RCTOSGNewJoineeReport { get; set; }
         public virtual DbSet<vw_RCTOSGPayroll> vw_RCTOSGPayroll { get; set; }
         public virtual DbSet<vw_RCTOSGRelievingReport> vw_RCTOSGRelievingReport { get; set; }
         public virtual DbSet<vw_RCTOTHPayDeductionReport> vw_RCTOTHPayDeductionReport { get; set; }
@@ -840,7 +839,6 @@ namespace IOAS.DataModel
         public virtual DbSet<vw_RCTSalaryAgencyComponentLog> vw_RCTSalaryAgencyComponentLog { get; set; }
         public virtual DbSet<vw_RCTSTEExtensionEnhancementReport> vw_RCTSTEExtensionEnhancementReport { get; set; }
         public virtual DbSet<vw_RCTSTELOPReport> vw_RCTSTELOPReport { get; set; }
-        public virtual DbSet<vw_RCTSTENewJoineeReport> vw_RCTSTENewJoineeReport { get; set; }
         public virtual DbSet<vw_RCTSTERelievingReport> vw_RCTSTERelievingReport { get; set; }
         public virtual DbSet<vw_ReceiptDetails> vw_ReceiptDetails { get; set; }
         public virtual DbSet<vw_ReceiptExclInterest> vw_ReceiptExclInterest { get; set; }
@@ -916,6 +914,14 @@ namespace IOAS.DataModel
         public virtual DbSet<tblTaxMasterInvoice> tblTaxMasterInvoice { get; set; }
         public virtual DbSet<tblLoginDetails> tblLoginDetails { get; set; }
         public virtual DbSet<tblGSTOffsetChallonDetails> tblGSTOffsetChallonDetails { get; set; }
+        public virtual DbSet<tbl_sal_edit_opt> tbl_sal_edit_opt { get; set; }
+        public virtual DbSet<tblPaymentProcessMailSend> tblPaymentProcessMailSend { get; set; }
+        public virtual DbSet<vw_getPaymentBillTransactionType> vw_getPaymentBillTransactionType { get; set; }
+        public virtual DbSet<vw_Projectoverallreport> vw_Projectoverallreport { get; set; }
+        public virtual DbSet<vw_vendorsCategoryId> vw_vendorsCategoryId { get; set; }
+        public virtual DbSet<vw_RCTOSGNewJoineeReport> vw_RCTOSGNewJoineeReport { get; set; }
+        public virtual DbSet<vw_RCTSTENewJoineeReport> vw_RCTSTENewJoineeReport { get; set; }
+        public virtual DbSet<tblBillReversalLog> tblBillReversalLog { get; set; }
     
         public virtual int AnnualAccounts(Nullable<System.DateTime> date, Nullable<System.DateTime> date2)
         {
@@ -1697,6 +1703,45 @@ namespace IOAS.DataModel
         public virtual int TestSPRCTTermEndReminder1()
         {
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("TestSPRCTTermEndReminder1");
+        }
+    
+        public virtual int BillReversal(string billNumber, string transactionType, ObjectParameter value)
+        {
+            var billNumberParameter = billNumber != null ?
+                new ObjectParameter("BillNumber", billNumber) :
+                new ObjectParameter("BillNumber", typeof(string));
+    
+            var transactionTypeParameter = transactionType != null ?
+                new ObjectParameter("TransactionType", transactionType) :
+                new ObjectParameter("TransactionType", typeof(string));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("BillReversal", billNumberParameter, transactionTypeParameter, value);
+        }
+    
+        public virtual int sp_sla_edit_opt(Nullable<int> typeOfPay, string paymentMonthYear)
+        {
+            var typeOfPayParameter = typeOfPay.HasValue ?
+                new ObjectParameter("typeOfPay", typeOfPay) :
+                new ObjectParameter("typeOfPay", typeof(int));
+    
+            var paymentMonthYearParameter = paymentMonthYear != null ?
+                new ObjectParameter("PaymentMonthYear", paymentMonthYear) :
+                new ObjectParameter("PaymentMonthYear", typeof(string));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("sp_sla_edit_opt", typeOfPayParameter, paymentMonthYearParameter);
+        }
+    
+        public virtual int spVendorPaymentCeilingCheck(Nullable<int> vendorId, Nullable<int> category, ObjectParameter vendorTrans)
+        {
+            var vendorIdParameter = vendorId.HasValue ?
+                new ObjectParameter("VendorId", vendorId) :
+                new ObjectParameter("VendorId", typeof(int));
+    
+            var categoryParameter = category.HasValue ?
+                new ObjectParameter("Category", category) :
+                new ObjectParameter("Category", typeof(int));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("spVendorPaymentCeilingCheck", vendorIdParameter, categoryParameter, vendorTrans);
         }
     }
 }

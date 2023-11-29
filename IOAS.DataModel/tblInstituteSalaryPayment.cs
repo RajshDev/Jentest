@@ -26,5 +26,7 @@ namespace IOAS.DataModel
         public string Remarks { get; set; }
         public Nullable<decimal> Amount { get; set; }
         public Nullable<int> CheckListVerifiedBy { get; set; }
+        public Nullable<int> ProjectId { get; set; }
+        public Nullable<int> ReceiptId { get; set; }
     }
 }
