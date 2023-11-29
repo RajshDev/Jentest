@@ -2965,23 +2965,36 @@ namespace IOAS.GenericServices
 
                         {
 
+                            int FreezeDataOnly = 0;
+                            int AllocHdId = model.AllocationHeadId[i];
+                            var FreezeAllocaionQuery = (from P in context.tblAllocationFreezeLog where P.ProjectId == model.ProjectId && P.AllocationHead == AllocHdId && P.IsCurrentVersion==1 select P).FirstOrDefault();
+                            if (FreezeAllocaionQuery != null)
                             {
-                                int AllocHdId = model.AllocationHeadId[i];
-                                var FreezeAllocaionQuery = (from P in context.tblProjectAllocation where P.ProjectId == model.ProjectId && P.AllocationHead == AllocHdId select P).FirstOrDefault();
-                                if (FreezeAllocaionQuery != null)
-                                {
-
-                                    //Update tblProject status
-                                    FreezeAllocaionQuery.IsFreeze = model.FreezeList[i] == "1" ? 1 : 0;
-                                    context.SaveChanges();
-
-                                }
-                                else
-                                {
-                                    //Insert to FreezeAllocaionQuery tblProjectAllocation
-                                }
+                                FreezeDataOnly =Convert.ToInt16(FreezeAllocaionQuery.IsFreeze);                               
+                                FreezeAllocaionQuery.IsCurrentVersion = 0;
+                                FreezeAllocaionQuery.Status = "InActive";
+                                context.SaveChanges();
                             }
+
+                           
+                            //var FreezeDataOnly = (from P in context.vw_ProjectAllocationHeadList where P.ProjectId == model.ProjectId && P.IsFreeze==1 select P).FirstOrDefault();
+                            int ArrFreeze = Convert.ToInt32(model.FreezeList[i]);                            
+                            if (FreezeDataOnly != ArrFreeze || ArrFreeze == 1)
+                            {
+                                tblAllocationFreezeLog Freezes = new tblAllocationFreezeLog();
+                                Freezes.ProjectId = model.ProjectId;                                
+                                Freezes.AllocationHead = AllocHdId;
+                                Freezes.CrtdUserId = logged_in_user;
+                                Freezes.CrtdTS = DateTime.Now;
+                                Freezes.Status = "Active";                                
+                                Freezes.IsFreeze = ArrFreeze;
+                                Freezes.IsCurrentVersion = 1;
+                                context.tblAllocationFreezeLog.Add(Freezes);
+                                context.SaveChanges();
+                            }
+                            
                         }
+
                         transaction.Commit();
                         return true;
                     }
@@ -2993,9 +3006,7 @@ namespace IOAS.GenericServices
                     }
                 }
             }
-            return true;
         }
-
         public static CreateProjectModel EditProject(int ProjectId)
         {
             try

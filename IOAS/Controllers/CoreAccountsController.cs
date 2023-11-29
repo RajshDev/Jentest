@@ -1458,9 +1458,6 @@ namespace IOAS.Controllers
                 var projectData = Common.FreezeUnfreezeLoadProjectDetails(Convert.ToInt32(ProjectId));
                 var result = new { projectsData = projectData };
                 return Json(result, JsonRequestBehavior.AllowGet);
-
-
-
             }
             catch (Exception ex)
             {
