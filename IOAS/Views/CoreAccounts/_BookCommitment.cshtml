@@ -824,8 +824,7 @@
     function GetFreezeValueData() {
        
         var ProjectId = $("#SelProjectNumber").val();
-        var AllocHdId = $("#selAllocationHead").val();
-        //var AllocationId = $(this).val();
+        var AllocHdId = $("#selAllocationHead").val();        
         var isFreezeDataValid =0;
         $.ajax({
             type: "GET",
@@ -835,9 +834,7 @@
                 "ProjectId": ProjectId, "AllocationId": AllocHdId},
             dataType: "json",
             success: function (result) {
-                isFreezeDataValid = result;
-                //console.log(isFreezeDataValid);
-                //console.log(result);
+                isFreezeDataValid = result;               
                 if (isFreezeDataValid == 1) {
                     messageBox('Allocation Head Freezed', "warning");
                 }
@@ -848,8 +845,7 @@
                 }
         });
         return isFreezeDataValid;
-        //console.log(isFreezeDataValid);
-        //console.log(result);
+        
     }
 
     $('select[name^="selAllocationHead"]').change(function () {
@@ -980,6 +976,8 @@
         var p = s.split('-');
         return new Date(p[2], months[p[1].toLowerCase()], p[0]);
     }
+
+
     $("#btnSave").on('click', function (e) {
         
         if (requestRunning) { // don't do anything if an AJAX request is pending
@@ -1010,6 +1008,20 @@
         var validAllowcationH = $("#selAllocationHead").val() || 0;
         var AllocatinHead = [];
         var Amount = [];
+
+        isdatafreezed(isFreezeDataValid);
+        //if (dataval == 1) {
+        //    isValid = false;
+        //    messageBox('Allocation Head Freezed <br/> Unable To Save Allocation ', "warning");
+        //    return false;
+        //}
+
+        //var dataval = Freezevalues(GetFreezeValueData);
+        //if (dataval == 1) {
+        //    isValid = false;
+        //    messageBox('Allocation Head Freezed <br/> Unable To Save Allocation ', "warning");
+        //    return false;
+        //}
 
         if (CommitType == "") {
             isValid = false;
@@ -1428,6 +1440,15 @@
         }
     });
 
+    async function isdatafreezed(isFreezeDataValid) {
+        var Checkisvalid = await GetFreezeValueData(isFreezeDataValid);     
+        if (Checkisvalid == 1) {
+            isValid = false;
+            messageBox('Allocation Head Freezed <br/> Unable To Save Allocation', "warning");
+            return false;
+        }
+       
+    };
 
 
     function duplicatecheck(isValid) {
