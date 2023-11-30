@@ -8214,7 +8214,7 @@ namespace IOAS.GenericServices
                                 model.ToMail = QrySTE.A.ToMail;
                                 model.CCMail = QrySTE.A.bcc;
                                 model.MailSent_f = context.tblRCTSTEEmailLog.Any(m => m.OrderId == orderid && m.TypeofMail == 6 && m.IsSend == true);
-
+                                model.EmpPFBasicWages = 0;
                             }
                             else if (apptype == 3)
                             {
@@ -8285,6 +8285,7 @@ namespace IOAS.GenericServices
                                 model.ToMail = QryOSG.A.ToMail;
                                 model.CCMail = QryOSG.A.bcc;
                                 model.MailSent_f = context.tblRCTOSGEmailLog.Any(m => m.OrderId == orderid && m.TypeofMail == 6 && !m.Subject.Contains("structure approval"));
+                                model.EmpPFBasicWages = 0;
                                 if (appid > 0 && orderid > 0)
                                 {
                                     var Qrysalcalc = (from A in context.tblRCTSalaryCalcDetails
