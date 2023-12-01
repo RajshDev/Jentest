@@ -51,7 +51,7 @@
                                                             </div>
                                                         </div>
                                                         @if (Model.commitmentId > 0)
-                                                        { <div id="prjDetails">
+                                                        {<div id="prjDetails">
                                                                 <div class="form-group custom-form-group mb-s-md mt-md">
                                                                     <label class="col-md-6">Project Type</label>
                                                                     <span class="col-md-6" id="spanType">@Model.prjDetails.ProjectType</span>
@@ -821,28 +821,12 @@
         }
     }
 
-    async function GetFreezeValueData(savemode=false) {
-        
-        var data = await GetFreezeValueAjax();
-        
-        if (data == 1) {
-            isValid = false;
-            console.log('vibes');
-            if (savemode)
-                messageBox('Allocation Head Freezed, Cannot Save Commitment', "warning");
-                else
-            messageBox('Allocation Head Freezed', "warning");
+    function GetFreezeValueData() {
 
-            return false;
-        }
-        else
-            return true;
-    }
-      function GetFreezeValueAjax() {
         var ProjectId = $("#SelProjectNumber").val();
         var AllocHdId = $("#selAllocationHead").val();
-        //var isFreezeDataValid = 0;
-         $.ajax({
+        var isFreezeDataValid =0;
+        $.ajax({
             type: "GET",
             async: false,
             url: '@Url.Action("GetFreezeAndAllocationData", "Project")',
@@ -850,15 +834,10 @@
                 "ProjectId": ProjectId, "AllocationId": AllocHdId},
             dataType: "json",
             success: function (result) {
-                isFreezeDataValid = result;            
-                           
+                isFreezeDataValid = result;                
                 }
         });
         return isFreezeDataValid;
-      
-
-
-        
 
     }
 
@@ -866,17 +845,13 @@
 
         var ProjectId = $("#SelProjectNumber").val();
         var AllocationId = $(this).val();
-        // GetFreezeValueData().then(function (data) {
-        //    if (data == 1) {
-        //        isValid = false;
-        //        console.log('vibes');
-        //        messageBox('Allocation Head Freezed', "warning");
 
-        //        return false;
-        //    }
-        //});
-        GetFreezeValueData();
+        var firstmessfreeze = GetFreezeValueData();
+        if (firstmessfreeze == 1) {
+            messageBox('Allocation Head Freezed', "warning");
+        }
        
+
         if (AllocationId != 0) {
             $.getJSON("@Url.Action("GetAllocationValue", "Account")", { ProjectID: ProjectId, AllocationID: AllocationId },
                            function (allocData) {
@@ -1030,16 +1005,17 @@
         var isYearwise = $("#hdnIsYearWise").val();
         var isHaveAllocation = $("#hdnIsAllocation").val();
         var validAllowcationH = $("#selAllocationHead").val() || 0;
-    var AllocatinHead = [];
+        var AllocatinHead = [];
         var Amount = [];
 
-        var freezeret = GetFreezeValueData(true);
-        if (!freezeret) {
-            console.log("freezecheck");
+        
+
+        var dataval = GetFreezeValueData();
+        if (dataval == 1) {
             isValid = false;
+            messageBox('Allocation Head Freezed <br/> Unable To Save Allocation', "warning");
             return false;
         }
-        
 
         if (CommitType == "") {
             isValid = false;
@@ -1458,7 +1434,16 @@
         }
     });
 
-    
+    //async function isdatafreezed(isFreezeDataValid) {
+    //    var Checkisvalid = await GetFreezeValueData(isFreezeDataValid);
+    //    if (Checkisvalid == 1) {
+    //        isValid = false;
+    //        messageBox('Allocation Head Freezed <br/> Unable To Save Allocation', "warning");
+    //        return false;
+    //    }
+
+    //};
+
 
     function duplicatecheck(isValid) {
         var values = [];
