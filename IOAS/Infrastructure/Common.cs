@@ -12060,19 +12060,55 @@ namespace IOAS.Infrastructure
                                  }).ToList();
                     if (query.Count > 0)
                     {
-                        for (int i = 0; i < query.Count; i++)
+                        var headval = query.Where(HeadList => HeadList.AllocationHead==28 || HeadList.AllocationHead == 29);
+                        if (query.Count == 2 && headval.Count() == 2)
                         {
-                            FreezeData.Add(new FreezingUnFreezingModel()
+                            var queryone = (from C in context.vw_ProjectAllocationAllHeadList
+                                            where C.ProjectId == projectId
+                                            select new
+                                            {
+                                                C.ProjectId,
+                                                C.BudgetHeadId,
+                                                C.ProjectNumber,
+                                                C.HeadName,
+                                                C.TotalValue,
+                                                C.IsFreeze,
+                                            }).ToList();
+                            if (queryone.Count > 0)
+
                             {
-                                ProjectId = query[i].ProjectId,
-                                AllocationHead = query[i].AllocationHead ?? 0, 
-                                ProjectNumber= query[i].ProjectNumber,                                                                                      
-                                HeadName = query[i].HeadName,
-                                TotalValue = query[i].TotalValue ?? 0,
-                                Freeze = Convert.ToInt32(query[i].IsFreeze)
-                            });
+
+                                for (int i = 0; i < queryone.Count; i++)
+                                {
+                                    FreezeData.Add(new FreezingUnFreezingModel()
+                                    {
+                                        ProjectId = query[i].ProjectId,
+                                        AllocationHead = query[i].AllocationHead ?? 0,
+                                        ProjectNumber = query[i].ProjectNumber,
+                                        HeadName = query[i].HeadName,
+                                        TotalValue = query[i].TotalValue ?? 0,
+                                        Freeze = Convert.ToInt32(query[i].IsFreeze)
+                                    });
+                                }
+                            }
+                        }
+                        else
+                        {
+                            for (int i = 0; i < query.Count; i++)
+                            {
+                                FreezeData.Add(new FreezingUnFreezingModel()
+                                {
+                                    ProjectId = query[i].ProjectId,
+                                    AllocationHead = query[i].AllocationHead ?? 0,
+                                    ProjectNumber = query[i].ProjectNumber,
+                                    HeadName = query[i].HeadName,
+                                    TotalValue = query[i].TotalValue ?? 0,
+                                    Freeze = Convert.ToInt32(query[i].IsFreeze)
+                                });
+                            }
                         }
                     }
+                   
                 }
                 return FreezeData;
             }

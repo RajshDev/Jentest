@@ -1439,6 +1439,17 @@ namespace IOAS.Controllers
             {
                 int userId = Common.GetUserid(User.Identity.Name);
                 bool Freeze =ProjectService.PostMethodForFreezedata(model, userId);
+                
+                if (Freeze == true)
+                {
+                    TempData["succMsg"] = "Project Allocation has been Freezed and Un-Freezed successfully, Project number - " + model.ProjectNumber + ".";
+                    return RedirectToAction("AllocationFreezingUnFreezing");
+
+                }
+                else
+                {
+                    TempData["errMsg"] = "Something went wrong please contact administrator.";
+                }
                 return View(model);
             }
             catch (Exception ex)
