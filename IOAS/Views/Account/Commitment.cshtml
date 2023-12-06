@@ -868,10 +868,39 @@ else
         var p = s.split('-');
         return new Date(p[2], months[p[1].toLowerCase()], p[0]);
     }
+
+    function GetFreezeValueData() {
+
+        var ProjectId = $("#SelProjectNumber").val();
+        var AllocHdId = $("#selAllocationHead").val();
+        var isFreezeDataValid =0;
+        $.ajax({
+            type: "GET",
+            async: false,
+            url: '@Url.Action("GetFreezeAndAllocationData", "Project")',
+            data: {
+                "ProjectId": ProjectId, "AllocationId": AllocHdId},
+            dataType: "json",
+            success: function (result) {
+                isFreezeDataValid = result;                
+                }
+        });
+        return isFreezeDataValid;
+
+    }
+
+
     $('select[name^="selAllocationHead"]').change(function () {
 
         var ProjectId = $("#SelProjectNumber").val();
         var AllocationId = $(this).val();
+        var Allocationname = $("#selAllocationHead").val();
+        console.log(Allocationname);
+        var firstmessfreeze = GetFreezeValueData();
+        if (firstmessfreeze == 1) {
+            messageBox('Allocation Head Freezed', "warning");
+        }
+
         if (AllocationId != 0) {
             $.getJSON("@Url.Action("GetAllocationValue", "Account")", { ProjectID: ProjectId, AllocationID: AllocationId },
                            function (allocData) {
@@ -1021,6 +1050,14 @@ else
         var BankId = $("#BankId").val() || 0;
         var AllocatinHead = [];
         var Amount = [];
+
+        var dataval = GetFreezeValueData();
+        if (dataval == 1) {
+            isValid = false;
+            messageBox('Allocation Head Freezed <br/> Unable To Save Allocation', "warning");
+            return false;
+        }
+
         if (CommitType == "") {
             isValid = false;
             $('#alert').html('Commitment type field is required');
