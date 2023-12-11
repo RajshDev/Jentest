@@ -295,7 +295,8 @@ namespace IOAS.Controllers
             {
                 decimal advAmt = (item.TotalAmount * model.AdvancePercentage / 100) ?? 0;
                 ttlAdvAmt += advAmt;
-                ttlAdvAmt = Math.Round(ttlAdvAmt, 2, MidpointRounding.AwayFromZero);
+                //ttlAdvAmt = Math.Round(ttlAdvAmt, 2, MidpointRounding.AwayFromZero);
+                ttlAdvAmt = (int)Math.Round(ttlAdvAmt);
             }
 
             if (ttlAdvAmt != commitmentAmt)
@@ -559,6 +560,8 @@ namespace IOAS.Controllers
                 decimal advAmt = (item.TotalAmount * model.AdvancePercentage / 100) ?? 0;
                 decimal advTax = (advAmt * item.TaxPct / 100) ?? 0;
                 ttlAdvAmt += advAmt;
+                //10616 - Round Off feature
+                advAmt = (int)Math.Round(advAmt);
                 netAdvAmt += advAmt + advTax;
                 if (item.IsTaxEligible)
                     ttlGSTElgAmt = ttlGSTElgAmt + advTax;
@@ -935,6 +938,8 @@ namespace IOAS.Controllers
                     ViewBag.TypeOfServiceList = Common.GetTypeOfServiceList(model.BillType ?? 0);
                     ViewBag.PONumberList = Common.GetBillPONumberList(model.VendorId, model.PONumber, "ADV");
                     ViewBag.VendorTDSList = Common.GetVendorTDSList(model.VendorId);
+                    ViewBag.RoundOfAdjustment = model.RoundOfAdjustment.ToString();
+                    ViewBag.totInvoiceAmt = model.totInvoiceAmt.ToString();
                     ViewBag.invoiceTaxAmt = model.InvoiceTaxAmount.ToString();
                 }
                 else
@@ -1000,6 +1005,9 @@ namespace IOAS.Controllers
                 ViewBag.DocmentTypeList = Common.GetDocTypeList(31);
                 ViewBag.ProjectNumberList = ProjectService.LoadProjecttitledetails(firstPType);
                 ViewBag.invoiceTaxAmt = model.InvoiceTaxAmount.ToString();
+                ViewBag.RoundOfAdjustment = model.RoundOfAdjustment.ToString();
+                ViewBag.totInvoiceAmt = model.totInvoiceAmt.ToString();
+
                 if (model.ExpenseDetail != null)
                 {
                     foreach (var item in model.ExpenseDetail)
@@ -1139,6 +1147,7 @@ namespace IOAS.Controllers
                         ttlGSTElgAmt = ttlGSTElgAmt + advTax;
                 }
                 ttlAdvAmt = model.InvoiceAmount ?? 0;
+                ttlAdvAmt = (int)Math.Round(ttlAdvAmt);
                 netAdvAmt = ttlAdvAmt + (model.InvoiceTaxAmount ?? 0);
             }
             else
@@ -1152,19 +1161,24 @@ namespace IOAS.Controllers
                         ttlGSTElgAmt = ttlGSTElgAmt + advTax;
                     }
                 }
-                ttlAdvAmt = (model.InvoiceAmount ?? 0) - (model.hiddenSettAmt ?? 0);
+                //ttlAdvAmt = (model.InvoiceAmount ?? 0) - (model.hiddenSettAmt ?? 0);
+                ttlAdvAmt = ttlAdvAmt  - (model.hiddenSettAmt ?? 0);
                 netAdvAmt = ttlAdvAmt + (Convert.ToDecimal(model.InvoiceTaxAmount) - Convert.ToDecimal(model.hiddenSettTaxAmt));
             }
             ttlGSTElgAmt = Math.Round(ttlGSTElgAmt, 2, MidpointRounding.AwayFromZero);
-            netAdvAmt = Math.Round(netAdvAmt, 2, MidpointRounding.AwayFromZero);
+            //netAdvAmt = Math.Round(netAdvAmt, 2, MidpointRounding.AwayFromZero);
+            netAdvAmt = (int)Math.Round(netAdvAmt);
+            var invAmt = netAdvAmt;
             netAdvAmt = netAdvAmt - ttlGSTElgAmt;
+            
             if (netAdvAmt != commitmentAmt)
                 msg = "There is a mismatch between the settlement value and allocated commitment value. Please update the value to continue.";
             if (netDrAmt != crAmt || (netCrAmt + ttlJVExpVal) != crAmt)
                 msg = msg == "Valid" ? "Not a valid entry. Credit and Debit value are not equal" : msg + "<br />Not a valid entry. Credit and Debit value are not equal";
             if (ttlJVExpVal != ttlJVDrVal)
                 msg = msg == "Valid" ? "Not a valid entry. Credit and Debit value of JV are not equal" : msg + "<br />Not a valid entry. Credit and Debit value of JV are not equal";
-            if (TransAmt != (model.InvoiceAmount + model.InvoiceTaxAmount) && !model.RCM_f)
+            //if (TransAmt !=  (model.InvoiceAmount + model.InvoiceTaxAmount) && !model.RCM_f)
+            if (TransAmt != invAmt && !model.RCM_f)
                 msg = msg == "Valid" ? "There is a mismatch between the credit value and invoice value. Please update the value to continue." : msg + "<br />There is a mismatch between the credit value and invoice value. Please update the value to continue.";
             //if (ttlExpAmt != commitmentAmt)
             //    msg = msg == "Valid" ? "There is a mismatch between the expense value and allocated commitment value. Please update the value to continue." : msg + "<br />There is a mismatch between the expense value and allocated commitment value. Please update the value to continue.";
@@ -1416,8 +1430,8 @@ namespace IOAS.Controllers
             try
             {
                 ViewBag.TransType = Common.GetBillTransactionType();
-
-                string msg = coreAccountService.BillReverse(transaction, Billnumber);
+                var userName = User.Identity.Name;
+                string msg = coreAccountService.BillReverse(transaction, Billnumber, userName);
                 if (msg.Contains("Opened Successfully"))
                     @TempData["succMsg"] = msg;
                 else
@@ -8475,6 +8489,8 @@ namespace IOAS.Controllers
         public ActionResult PDTBillDateChange()
         {
             BillStatusModel model = new BillStatusModel();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             return View(model);
         }
         [HttpPost]
@@ -8484,6 +8500,8 @@ namespace IOAS.Controllers
             var empty = new BillStatusModel();
             BillStatusModel data = new BillStatusModel();
             CoreAccountsService pro = new CoreAccountsService();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             TempData["errMsg"] = pro.UpdatePDTBillDate(model, logged_in_user) == true ? "Success" : "Failed";
             return View(model);
         }
@@ -9560,7 +9578,7 @@ namespace IOAS.Controllers
                         System.Data.DataTable dt = _uty.ConvertCSVtoDataTable(path1);
                         listUpload = Converter.GetHonororiumEntityList<HonororiumExportListModel>(dt);
                     }
-                    else if (extension.ToLower().Trim() == ".xls"  && Environment.Is64BitOperatingSystem == false)
+                    else if (extension.ToLower().Trim() == ".xls" && Environment.Is64BitOperatingSystem == false)
                     {
                         connString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + path1 + ";Extended Properties=\"Excel 8.0;HDR=Yes;IMEX=1\"";
                         System.Data.DataTable dt = _uty.ConvertXSLXtoDataTable(path1, connString);
@@ -9568,9 +9586,114 @@ namespace IOAS.Controllers
                     }
                     else
                     {
-                        connString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + path1 + ";Extended Properties=\"Excel 12.0;HDR=Yes;IMEX=1\"";
-                        System.Data.DataTable dt = _uty.ConvertXSLXtoDataTable(path1, connString);
-                        listUpload = Converter.GetHonororiumEntityList<HonororiumExportListModel>(dt);
+                        bool _FlagManualXL = true;
+
+                        if (_FlagManualXL)
+                        {
+
+                            /* Read Excel File Manully */
+                            XLWorkbook wbook = new XLWorkbook(path1);
+                            var ws1 = wbook.Worksheet(1);
+                            int DataRows = ws1.LastRowUsed().RowNumber();
+                            int DataCols = ws1.LastColumnUsed().ColumnNumber();
+                            string tmpvalue; DateTime tmpdate;
+                            if (DataCols == 14 && ws1.Cell(1, 1).GetValue<String>().Replace(" ", "").Trim().ToLower() == "sno"
+                                && ws1.Cell(1, 2).GetValue<String>().Replace(" ", "").Trim().ToLower() == "payeetype"
+                                && ws1.Cell(1, 3).GetValue<String>().Replace(" ", "").Trim().ToLower() == "userid"
+                                && ws1.Cell(1, 4).GetValue<String>().Replace(" ", "").Trim().ToLower() == "name"
+                                && ws1.Cell(1, 5).GetValue<String>().Replace(" ", "").Trim().ToLower() == "amount"
+                                && ws1.Cell(1, 6).GetValue<String>().Replace(" ", "").Trim().ToLower() == "tds"
+                                && ws1.Cell(1, 7).GetValue<String>().Replace(" ", "").Trim().ToLower() == "paymentmodename"
+                                && ws1.Cell(1, 8).GetValue<String>().Replace(" ", "").Trim().ToLower() == "bankname"
+                                && ws1.Cell(1, 9).GetValue<String>().Replace(" ", "").Trim().ToLower() == "branch"
+                                && ws1.Cell(1, 10).GetValue<String>().Replace(" ", "").Trim().ToLower() == "ifsc"
+                                && ws1.Cell(1,11).GetValue<String>().Replace(" ", "").Trim().ToLower() == "accountno"
+                                && ws1.Cell(1, 12).GetValue<String>().Replace(" ", "").Trim().ToLower() == "pan"
+                                
+                                )
+                            {
+                                List<HonororiumExportListModel> honxllist = new List<HonororiumExportListModel>();
+                                for (int iRow = 2; iRow <= DataRows; iRow++)
+                                {
+                                    bool validrow = false;
+                                    IXLRangeRow rowdata;
+
+                                    try
+                                    {
+                                        rowdata = ws1.Row(iRow).RowUsed(false);
+                                        validrow = true;
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        validrow = false;
+                                    }
+
+                                    if (validrow)
+                                    {
+
+                                        bool validdate = false;
+                                        bool validamt = false;
+                                        bool validdtstring = false;
+                                        bool validamtstring = false;
+                                        Nullable<DateTime> dt = null;
+                                        
+                                        //Check Amount is Valid
+                                        validamtstring = (ws1.Cell(iRow, 5).TryGetValue<string>(out tmpvalue));
+                                        tmpvalue = tmpvalue.Replace("INR", "");
+                                        tmpvalue = tmpvalue.Replace(" ", "");
+                                        tmpvalue = tmpvalue.Replace(",", "");
+
+                                        decimal amt = 0;
+                                        validamt = decimal.TryParse(tmpvalue.Trim(), out amt);
+
+
+                                        //validdate = ws1.Cell(iRow, 5).TryGetValue<DateTime>(out tmpdate);
+                                        //if (validamt)
+                                        {
+                                            decimal tdsval=0;
+                                            validamtstring = (ws1.Cell(iRow, 6).TryGetValue<Decimal>(out tdsval));
+
+                                            honxllist.Add(new HonororiumExportListModel()
+                                            {
+                                                SNo = ws1.Cell(iRow, 1).GetValue<int>(),
+                                                PayeeType= ws1.Cell(iRow, 2).GetValue<String>(),
+                                                UserId= ws1.Cell(iRow, 3).GetValue<String>(),
+                                                Name = ws1.Cell(iRow, 4).GetValue<String>(),
+                                                Amount = amt,
+                                                TDS = tdsval,
+                                                PaymentModeName= ws1.Cell(iRow, 7).GetValue<String>(),
+                                                BankName = ws1.Cell(iRow, 8).GetValue<String>(),
+                                                Branch = ws1.Cell(iRow, 9).GetValue<String>(),
+                                                IFSC = ws1.Cell(iRow, 10).GetValue<String>(),
+                                                AccountNo = ws1.Cell(iRow, 11).GetValue<String>(),
+                                                PAN = ws1.Cell(iRow, 12).GetValue<String>(),
+
+
+                                            });
+                                        }
+                                        
+
+                                    }
+
+                                  
+                                    listUpload = honxllist;
+                                }
+                            }
+                            else
+                            {
+                                msg = "Invalid Excel Format Uploaded";
+                            }
+                            /* var data = ws1.Cell("A1").GetValue<string>();
+
+                         /* end Read Excel File Manully */
+                        }
+                        else //ACE OLEDB Excel
+                        {
+
+                            connString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + path1 + ";Extended Properties=\"Excel 12.0;HDR=Yes;IMEX=1\"";
+                            System.Data.DataTable dt = _uty.ConvertXSLXtoDataTable(path1, connString);
+                            listUpload = Converter.GetHonororiumEntityList<HonororiumExportListModel>(dt);
+                        }
                     }
                     if (listUpload.Count > 0)
                         honoruploadlist.AddRange(listUpload);
@@ -9622,7 +9745,7 @@ namespace IOAS.Controllers
                         {
                             //int userid = (int)honorpay.UserId;
                             honorpay.Name = Common.GetVWStudentName(honorpay.UserId, "Student");
-                            honorpay.UserId = "0";
+                            //honorpay.UserId = "0";
                             if (honorpay.Name.Trim() == "")
                             { name_status = "Invalid Student"; }
                         }
@@ -9695,39 +9818,97 @@ namespace IOAS.Controllers
 
 
 
-                if (honorpay.TDS != 0 && honorpay.TDS != (decimal)0.10 && honorpay.TDS != (decimal)0.20  && honorpay.TDS != null)
+                if (honorpay.TDS != 0 && honorpay.TDS != (decimal)0.10 && honorpay.TDS != (decimal)0.20 && honorpay.TDS != (decimal)0.2080 && honorpay.TDS != (decimal)0.3120 && honorpay.TDS != (decimal)0.3432 && honorpay.TDS != (decimal)0.3588 && honorpay.TDS != null && honorpay.TDS != (decimal)0.3900 && honorpay.TDS != (decimal)0.30 && honorpay.TDS != null)
                 { tds_status = "Invalid TDS"; }
+
+                //                honorpay.Status = (name_status == "" ? "" : name_status + " / ") + (tds_status == "" ? "" : tds_status + " / ") + (amt_status == "" ? "" : amt_status + " / ");
+                //                if (honorpay.Status.Trim() == "")
+                //                {
+                //                    string[] arrPayment = { "", "Cheque", "Bank Transfer" ,"Salary"};
+                //                    string[] arrTdsSection = {"TDS on Contract  (94C) 2%","TDS on Salary (92B)","TDS on Fees (94J) 10%","TDS on Rent (94I) 10%",
+                //"TDS on Commission (94H) 5%","TDS Payable TDS Payable Income Tax","TDS on Contract  (94C) 1%","TDS on Rent (94I) 2%",
+                //"TDS on Non Residents (195) 10%","TDS on Non Residents (195) 15%","TDS on Non Residents (195) 20%",
+                //"TDS on Non Residents (195) 25%","TDS on Non Residents (195) 30%","TDS on Contract  (94C) 0.75%",
+                //"TDS on Non Residents (195) 31.2%","No PAN","TDS on Interest (194A) 10%","TDS on Contract (94C) 1.5%",
+                //"TDS on Commission (94H) 3.75%","TDS on Rent (94I) 7.5%","TDS on Rent (94I) 1.5%","TDS on Fees (94J) 7.5%",
+                //"94(J) - 2%","TDS on Contract  (94C) 4%","TDS on Fees (94J) 20%","TDS on Commission (94H) 10%","TDS on Rent (94I) 4%",
+                //"TDS on Rent (94I) 20%","TDS on Purchase of Goods  (94Q) 0.1%","TDS on Double Rate 5%","TDS on Fees (94J) 1.5%"};
+                //                    string[] arrTdsSectionId = {"39","40","41","42","43","135","330","331","332","333","334","335","336","350","355",
+                //"356","357","373","374","375","376","377","427","459","460","461","462","463","464","465","492" };
 
                 honorpay.Status = (name_status == "" ? "" : name_status + " / ") + (tds_status == "" ? "" : tds_status + " / ") + (amt_status == "" ? "" : amt_status + " / ");
                 if (honorpay.Status.Trim() == "")
                 {
-                    string[] arrPayment = { "", "Cheque", "Bank Transfer" ,"Salary"};
-                    string[] arrTdsSection = {"TDS on Contract  (94C) 2%","TDS on Salary (92B)","TDS on Fees (94J) 10%","TDS on Rent (94I) 10%",
-"TDS on Commission (94H) 5%","TDS Payable TDS Payable Income Tax","TDS on Contract  (94C) 1%","TDS on Rent (94I) 2%",
-"TDS on Non Residents (195) 10%","TDS on Non Residents (195) 15%","TDS on Non Residents (195) 20%",
-"TDS on Non Residents (195) 25%","TDS on Non Residents (195) 30%","TDS on Contract  (94C) 0.75%",
-"TDS on Non Residents (195) 31.2%","No PAN","TDS on Interest (194A) 10%","TDS on Contract (94C) 1.5%",
-"TDS on Commission (94H) 3.75%","TDS on Rent (94I) 7.5%","TDS on Rent (94I) 1.5%","TDS on Fees (94J) 7.5%",
-"94(J) - 2%","TDS on Contract  (94C) 4%","TDS on Fees (94J) 20%","TDS on Commission (94H) 10%","TDS on Rent (94I) 4%",
-"TDS on Rent (94I) 20%","TDS on Purchase of Goods  (94Q) 0.1%","TDS on Double Rate 5%","TDS on Fees (94J) 1.5%"};
-                    string[] arrTdsSectionId = {"39","40","41","42","43","135","330","331","332","333","334","335","336","350","355",
-"356","357","373","374","375","376","377","427","459","460","461","462","463","464","465","492" };
+                    string[] arrPayment = { "", "Cheque", "Bank Transfer", "Salary" };
+                    string[] arrTdsSection = {
+                        "TDS on Fees (94J) 10%",
+                        "No PAN",
+                        "TDS on Salary (92B) - 20.8%",
+                        "TDS on Salary (92B) - 31.2%",
+                        "TDS on Salary (92B) - 34.32%",
+                        "TDS on Salary (92B) - 35.88%",
+                        "TDS on Salary (92B) - 39%",
+                        "TDS on Salary (92B) - 30%"
+                    };
+                    string[] arrTdsSectionId = {
+                        "41",
+                        "356",
+                        "588",
+                        "589",
+                        "590",
+                        "591",
+                        "593",
+                        "600"
+                    };
 
+                    honorpay.TDSAmt = honorpay.Amount * (honorpay.TDS);
+                    honorpay.NetAmount = honorpay.Amount - honorpay.TDSAmt;
 
-
-
-
-                    honorpay.TDSAmt = honorpay.Amount * (honorpay.TDS );
-                    honorpay.NetAmount= honorpay.Amount - honorpay.TDSAmt;
+                    
                     if (Array.IndexOf(arrPayment, honorpay.PaymentModeName) >= 0)
                     {
                         honorpay.PaymentModeVal = Array.IndexOf(arrPayment, honorpay.PaymentModeName);
+                        /* Fetch Bank Details */
+                        if (honorpay.PaymentModeVal == 2)
+                        {
+                            int result;
+                            if (int.TryParse(honorpay.UserId, out result))
+                            {
+                                var bankdata = Common.getStaffBankAccountDetails(Convert.ToInt32(honorpay.UserId), honorpay.PayeeType, 2);
+                                if (bankdata.Count > 0)
+                                {
+
+                                    if (honorpay.AccountNo == null || honorpay.AccountNo.Trim() == "")
+                                    {
+                                        honorpay.AccountNo = bankdata[0].AccountNumber;
+                                    }
+                                    if (honorpay.BankName == null || honorpay.BankName.Trim() == "")
+                                    {
+                                        honorpay.BankName = bankdata[0].BankName;
+                                    }
+                                    if (honorpay.Branch == null || honorpay.Branch.Trim() == "")
+                                    {
+                                        honorpay.Branch = bankdata[0].Branch;
+                                    }
+                                    if (honorpay.IFSC == null || honorpay.IFSC.Trim() == "")
+                                    {
+                                        honorpay.IFSC = bankdata[0].IFSCCode;
+                                    }
+                                    if (honorpay.PAN == null || honorpay.PAN.Trim() == "")
+                                    {
+                                        honorpay.PAN = bankdata[0].PAN;
+                                    }
+                                }
+                            }
+
+                        }
+
                         if ((honorpay.PayeeType.ToUpper() == "STUDENT" || honorpay.PayeeType.ToUpper() == "OTHERS") && honorpay.PaymentModeVal == 3)
                         { pay_status = "Salary Not Allowed For " + honorpay.PayeeType; }
-
+                        // honorpay.Branch == null || || honorpay.Branch.Trim() == "" Branch Empty Omitted Rajesh S VS11764
                         if (honorpay.PaymentModeVal == 2 &&
-                            ((honorpay.BankName == null || honorpay.Branch == null || honorpay.IFSC == null|| honorpay.AccountNo== null)||
-                            (honorpay.BankName.Trim() == "" || honorpay.Branch.Trim() == "" || honorpay.IFSC.Trim() == "" || honorpay.AccountNo.Trim() == "")))
+                            ((honorpay.BankName == null || honorpay.IFSC == null || honorpay.AccountNo == null) ||
+                            (honorpay.BankName.Trim() == "" || honorpay.IFSC.Trim() == "" || honorpay.AccountNo.Trim() == "")))
                         { bank_status = "Invalid Bank/Branch/IFSC/AccounNo Details"; }
 
 
@@ -9740,9 +9921,39 @@ namespace IOAS.Controllers
 
                     }
 
-                    if (honorpay.TDS * 100 == 20)
+                    else if (honorpay.TDS * 100 == 20)
                     {
                         honorpay.SelectedTdssection = "No PAN ";
+
+                    }
+                    else if (honorpay.TDS * 100 == (Decimal)20.8)
+                    {
+                        honorpay.SelectedTdssection = "TDS on Salary (92B) - 20.8%";
+
+                    }
+                    else if (honorpay.TDS * 100 == (Decimal)31.2)
+                    {
+                        honorpay.SelectedTdssection = "TDS on Salary (92B) - 31.2%";
+                    }
+                    else if (honorpay.TDS * 100 == (Decimal)34.32)
+                    {
+                        honorpay.SelectedTdssection = "TDS on Salary (92B) - 34.32%";
+
+                    }
+
+                    else if (honorpay.TDS * 100 == (Decimal)35.88)
+                    {
+                        honorpay.SelectedTdssection = "TDS on Salary (92B) - 35.88%";
+
+                    }
+                    else if (honorpay.TDS * 100 == (Decimal)39)
+                    {
+                        honorpay.SelectedTdssection = "TDS on Salary (92B) - 39%";
+
+                    }
+                    else if (honorpay.TDS * 100 == (Decimal)30)
+                    {
+                        honorpay.SelectedTdssection = "TDS on Salary (92B) - 30%";
 
                     }
                     int tdsid=-1;
@@ -9753,7 +9964,7 @@ namespace IOAS.Controllers
                         honorpay.SelectedTdssectionID = arrTdsSectionId[tdsid];
                         System.Text.RegularExpressions.Regex panregex = new System.Text.RegularExpressions.Regex("([A-Z]){5}([0-9]){4}([A-Z]){1}$");
 
-                        if ((honorpay.SelectedTdssectionID != "356" && honorpay.TDS  > 0 && honorpay.TDS*100 < 20) && (honorpay.PAN == null || honorpay.PAN.Trim() == ""))
+                        if ((honorpay.SelectedTdssectionID != "356" && honorpay.TDS  > 0 && honorpay.TDS*100 != 20) && (honorpay.PAN == null || honorpay.PAN.Trim() == ""))
                         { pay_status = "Pan No Required"; }
                         else if ((honorpay.SelectedTdssectionID != "356" && honorpay.TDS > 0 && honorpay.TDS * 100 < 20) && !panregex.IsMatch(honorpay.PAN.Trim()) )
                         { pay_status = "Invalid Pan no"; }
@@ -9793,10 +10004,15 @@ namespace IOAS.Controllers
                 if (honorpay.PaymentModeVal == 3)
                 {
                     honorpay.BankName = honorpay.Branch = honorpay.AccountNo = honorpay.IFSC = "";
-                    honorpay.PAN = "";
+                    //honorpay.PAN = "";
                     honorpay.TDS = 0;
                     honorpay.SelectedTdssection = "";
                     honorpay.SelectedTdssectionID = "";
+                }
+
+                if (honorpay.PayeeType.ToUpper()=="STUDENT")
+                {
+                    honorpay.UserId = "0";
                 }
             }
             if (validimport == false)
@@ -10054,6 +10270,21 @@ namespace IOAS.Controllers
                 var jsonResult = Json(data, JsonRequestBehavior.AllowGet);
                 jsonResult.MaxJsonLength = int.MaxValue;
                 return jsonResult;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        [HttpGet]
+        public JsonResult StaffBankAccountDeatils(int EmployeeId, string Category,int PayFor)
+        {
+            try
+            {
+
+                var data = Common.getStaffBankAccountDetails(EmployeeId, Category, PayFor);
+                return Json(data, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -13486,7 +13717,7 @@ namespace IOAS.Controllers
                 ViewBag.Student = Common.GetStudentList();
                 List<MasterlistviewModel> tds = new List<MasterlistviewModel>();
                 tds = Common.GetTDS();
-                var tdsfilter = tds.Where(t => t.id == 0 || t.id ==10 || t.id == 20);
+                var tdsfilter = tds.Where(t => t.code == "0" || t.code == "10" || t.code == "20" || t.code == "20.8" || t.code == "30" || t.code == "31.2" || t.code == "34.32" || t.code == "35.88" || t.code == "39" );
                 ViewBag.TDS = tdsfilter;
 
                 ViewBag.OH = Common.GetOH();
@@ -13502,7 +13733,7 @@ namespace IOAS.Controllers
                 List<MasterlistviewModel> tdssec = new List<MasterlistviewModel>();
 
                 tdssec = Common.GetHonororiumTdsSection();
-                var tdssecfilter = tdssec.Where(t => t.id == 41 || t.id == 356);
+                var tdssecfilter = tdssec.Where(t => t.id == 41 || t.id == 356 || t.id == 460 || t.id == 600 || (t.id >= 588 && t.id <= 593));
                 ViewBag.HonTdsSection = tdssecfilter;
                 var ptypeList = Common.getprojecttype();
                 int firstPType = ptypeList != null ? ptypeList[0].codevalAbbr : 0;
@@ -14893,7 +15124,8 @@ namespace IOAS.Controllers
                 ViewBag.ReceviedFrom = Common.GetReceivedFrom();
                 ViewBag.CategoryList = Common.GetCodeControlList("AdhocCategory");
                 ViewBag.PaymentMode = Common.GetCodeControlList("ModeOfPayment");
-                ViewBag.PaymentType = Common.GetCodeControlList("PaymentType");
+                ViewBag.PaymentType = Common.GetCodeControlList("PaymentType");               
+                ViewBag.DistributionProject = Common.GetDistributionProjectNumber();
                 ViewBag.SourceRefNumberList =
                 ViewBag.AccountGroupList =
                 ViewBag.TypeOfServiceList =
@@ -14906,6 +15138,7 @@ namespace IOAS.Controllers
                 ViewBag.ProjectNumberList = ProjectService.LoadProjecttitledetails(firstPType);
                 InstituteSalaryPaymentModel model = new InstituteSalaryPaymentModel();
                 model.CreditorType = "PI/Student/Others";
+                
                 if (PaymentId > 0)
                 {
                     model = coreAccountService.GetInstituteSalaryPaymentDetails(PaymentId);
@@ -14930,7 +15163,7 @@ namespace IOAS.Controllers
         {
             try
             {
-                var emptyList = new List<InstituteSalaryPaymentModel>();
+                /*var emptyList = new List<InstituteSalaryPaymentModel>();
                 ViewBag.SourceList = Common.GetSourceList();
                 ViewBag.SourceRefNumberList = emptyList;
                 ViewBag.PIName = Common.GetPIWithDetails();
@@ -14951,21 +15184,23 @@ namespace IOAS.Controllers
                 var ptypeList = Common.getprojecttype();
                 int firstPType = ptypeList != null ? ptypeList[0].codevalAbbr : 0;
                 ViewBag.ProjectTypeList = ptypeList;
-                ViewBag.ProjectNumberList = ProjectService.LoadProjecttitledetails(firstPType);
+                //ViewBag.ProjectNumberList = ProjectService.LoadProjecttitledetails(firstPType);
                 InstituteSalaryPaymentModel model = new InstituteSalaryPaymentModel();
                 model.CreditorType = "PI/Student/Others";
-                if (PaymentId > 0)
-                {
-                    model = coreAccountService.GetInstituteSalaryPaymentDetails(PaymentId);
-                }
-                else
-                {
-                    model.CheckListDetail = Common.GetCheckedList(86);
-                    model.NeedUpdateTransDetail = true;
-                }
-                ViewBag.disabled = "Disabled";
-                ViewBag.processGuideLineId = 1;
-                TempData["viewMode"] = "ViewOnly";
+                //if (PaymentId > 0)
+                //{
+                //    model = coreAccountService.GetInstituteSalaryPaymentDetails(PaymentId);
+                //}
+                //else
+                //{
+                //    model.CheckListDetail = Common.GetCheckedList(86);
+                //    model.NeedUpdateTransDetail = true;
+                //}
+                //ViewBag.disabled = "Disabled";
+                //ViewBag.processGuideLineId = 1;
+                //TempData["viewMode"] = "ViewOnly";*/
+                InstituteSalaryPaymentModel model = new InstituteSalaryPaymentModel();
+                model = coreAccountService.GetInstituteSalaryPaymentDetails(PaymentId);
                 return View(model);
 
             }
@@ -15156,6 +15391,24 @@ namespace IOAS.Controllers
                 throw ex;
             }
         }
+
+        [HttpPost]
+        public JsonResult GetInstituteSalaryTypeSummary(string Month)
+        
+        {
+            try
+            {
+                object output = coreAccountService.GetInstituteSalaryTypeSummary(Month);
+                return Json(output, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+       (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                throw ex;
+            }
+        }
+
 
         #endregion
         #region ManDay
@@ -16061,6 +16314,8 @@ namespace IOAS.Controllers
         public ActionResult BillStatusChange()
         {
             BillStatusModel model = new BillStatusModel();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             return View(model);
         }
         [HttpPost]
@@ -16070,6 +16325,8 @@ namespace IOAS.Controllers
             var empty = new BillStatusModel();
             BillStatusModel data = new BillStatusModel();
             CoreAccountsService pro = new CoreAccountsService();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             //model.Message = pro.UpdateBillDate(model, logged_in_user) == true ? "Success" : "Failed";
             TempData["errMsg"] = pro.UpdateBillDate(model, logged_in_user) == true ? "Success" : "Failed";
             return View(model);
@@ -16113,6 +16370,8 @@ namespace IOAS.Controllers
         public ActionResult TravelBillDateChange()
         {
             BillStatusModel model = new BillStatusModel();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             return View(model);
         }
         [HttpPost]
@@ -16122,6 +16381,8 @@ namespace IOAS.Controllers
             var empty = new BillStatusModel();
             BillStatusModel data = new BillStatusModel();
             CoreAccountsService pro = new CoreAccountsService();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             TempData["errMsg"] = pro.UpdateTravelBillDate(model, logged_in_user) == true ? "Success" : "Failed";
             return View(model);
         }
@@ -16164,6 +16425,8 @@ namespace IOAS.Controllers
         public ActionResult CLPBillDateChange()
         {
             BillStatusModel model = new BillStatusModel();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             return View(model);
         }
         [HttpPost]
@@ -16173,6 +16436,8 @@ namespace IOAS.Controllers
             var empty = new BillStatusModel();
             BillStatusModel data = new BillStatusModel();
             CoreAccountsService pro = new CoreAccountsService();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             TempData["errMsg"] = pro.UpdateCLPBillDate(model, logged_in_user) == true ? "Success" : "Failed";
             return View(model);
         }
@@ -16215,6 +16480,8 @@ namespace IOAS.Controllers
         public ActionResult HonorBillDateChange()
         {
             BillStatusModel model = new BillStatusModel();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             return View(model);
         }
         [HttpPost]
@@ -16224,6 +16491,8 @@ namespace IOAS.Controllers
             var empty = new BillStatusModel();
             BillStatusModel data = new BillStatusModel();
             CoreAccountsService pro = new CoreAccountsService();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             TempData["errMsg"] = pro.UpdateHonorBillDate(model, logged_in_user) == true ? "Success" : "Failed";
             return View(model);
         }
@@ -16264,7 +16533,10 @@ namespace IOAS.Controllers
         [HttpGet]
         public ActionResult GVRBillDateChange()
         {
+
             BillStatusModel model = new BillStatusModel();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             return View(model);
         }
         [HttpPost]
@@ -16274,6 +16546,8 @@ namespace IOAS.Controllers
             var empty = new BillStatusModel();
             BillStatusModel data = new BillStatusModel();
             CoreAccountsService pro = new CoreAccountsService();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             TempData["errMsg"] = pro.UpdateGVRBillDate(model, logged_in_user) == true ? "Success" : "Failed";
             return View(model);
         }
@@ -16315,6 +16589,8 @@ namespace IOAS.Controllers
         public ActionResult ReimbursBillDateChange()
         {
             BillStatusModel model = new BillStatusModel();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             return View(model);
         }
         [HttpPost]
@@ -16324,6 +16600,8 @@ namespace IOAS.Controllers
             var empty = new BillStatusModel();
             BillStatusModel data = new BillStatusModel();
             CoreAccountsService pro = new CoreAccountsService();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             TempData["errMsg"] = pro.UpdateReimbursBillDate(model, logged_in_user) == true ? "Success" : "Failed";
             return View(model);
         }
@@ -16365,6 +16643,8 @@ namespace IOAS.Controllers
         public ActionResult ReceiptBillDateChange()
         {
             BillStatusModel model = new BillStatusModel();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             return View(model);
         }
         [HttpPost]
@@ -16374,6 +16654,8 @@ namespace IOAS.Controllers
             var empty = new BillStatusModel();
             BillStatusModel data = new BillStatusModel();
             CoreAccountsService pro = new CoreAccountsService();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             TempData["errMsg"] = pro.UpdateReceiptBillDate(model, logged_in_user) == true ? "Success" : "Failed";
             return View(model);
         }
@@ -17248,7 +17530,7 @@ namespace IOAS.Controllers
                 int logged_in_userid = user.Item1;
                 int user_role = user.Item2;
                 int page = 1;
-                int pageSize = 5;
+                int pageSize = 10;
                 ViewBag.PIName = Common.GetPIWithDetails();
                 var Projecttitle = Common.GetProjecttitledetails();
                 var projecttype = Common.getprojecttype();
@@ -17292,7 +17574,7 @@ namespace IOAS.Controllers
         {
             try
             {
-                int pageSize = 5;
+                int pageSize = 10;
                 var data = new PagedData<ReceiptSearchResultModel>();
                 ReceiptListModel model = new ReceiptListModel();
                 if (srchModel.ToDate != null)
@@ -17329,7 +17611,7 @@ namespace IOAS.Controllers
                 int user_role = user.Item2;
 
                 int page = 1;
-                int pageSize = 5;
+                int pageSize = 10;
                 ViewBag.PIName = Common.GetPIWithDetails();
                 var Projecttitle = Common.GetProjecttitledetails();
                 var projecttype = Common.getprojecttype();
@@ -17373,7 +17655,7 @@ namespace IOAS.Controllers
         {
             try
             {
-                int pageSize = 5;
+                int pageSize = 10;
                 var data = new PagedData<ReceiptSearchResultModel>();
                 ReceiptListModel model = new ReceiptListModel();
                 if (srchModel.ToDate != null)
@@ -18957,6 +19239,8 @@ namespace IOAS.Controllers
         public ActionResult PFTBillDateChange()
         {
             BillStatusModel model = new BillStatusModel();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             return View(model);
         }
         [HttpPost]
@@ -18966,6 +19250,8 @@ namespace IOAS.Controllers
             var empty = new BillStatusModel();
             BillStatusModel data = new BillStatusModel();
             CoreAccountsService pro = new CoreAccountsService();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             TempData["errMsg"] = pro.UpdatePFTBillDate(model, logged_in_user) == true ? "Success" : "Failed";
             return View(model);
         }
@@ -19012,6 +19298,8 @@ namespace IOAS.Controllers
         public ActionResult ContraBillDateChange()
         {
             BillStatusModel model = new BillStatusModel();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             return View(model);
         }
         [HttpPost]
@@ -19021,6 +19309,8 @@ namespace IOAS.Controllers
             var empty = new BillStatusModel();
             BillStatusModel data = new BillStatusModel();
             CoreAccountsService pro = new CoreAccountsService();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             TempData["errMsg"] = pro.UpdateContraBillDate(model, logged_in_user) == true ? "Success" : "Failed";
             return View(model);
         }
@@ -19058,6 +19348,8 @@ namespace IOAS.Controllers
         public ActionResult ImprestBillDateChange()
         {
             BillStatusModel model = new BillStatusModel();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             return View(model);
         }
         [HttpPost]
@@ -19067,6 +19359,8 @@ namespace IOAS.Controllers
             var empty = new BillStatusModel();
             BillStatusModel data = new BillStatusModel();
             CoreAccountsService pro = new CoreAccountsService();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             TempData["errMsg"] = pro.UpdateImprestBillDate(model, logged_in_user) == true ? "Success" : "Failed";
             return View(model);
         }
@@ -19104,6 +19398,8 @@ namespace IOAS.Controllers
         public ActionResult ImprestRecoupBillDateChange()
         {
             BillStatusModel model = new BillStatusModel();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             return View(model);
         }
         [HttpPost]
@@ -19113,6 +19409,8 @@ namespace IOAS.Controllers
             var empty = new BillStatusModel();
             BillStatusModel data = new BillStatusModel();
             CoreAccountsService pro = new CoreAccountsService();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             TempData["errMsg"] = pro.UpdateImprestRecoupBillDate(model, logged_in_user) == true ? "Success" : "Failed";
             return View(model);
         }
@@ -19150,6 +19448,8 @@ namespace IOAS.Controllers
         public ActionResult PTPBillDateChange()
         {
             BillStatusModel model = new BillStatusModel();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             return View(model);
         }
         [HttpPost]
@@ -19159,6 +19459,8 @@ namespace IOAS.Controllers
             var empty = new BillStatusModel();
             BillStatusModel data = new BillStatusModel();
             CoreAccountsService pro = new CoreAccountsService();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             TempData["errMsg"] = pro.UpdatePTPBillDate(model, logged_in_user) == true ? "Success" : "Failed";
             return View(model);
         }
@@ -19197,6 +19499,8 @@ namespace IOAS.Controllers
         public ActionResult SMIBillDateChange()
         {
             BillStatusModel model = new BillStatusModel();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             return View(model);
         }
         [HttpPost]
@@ -19206,6 +19510,8 @@ namespace IOAS.Controllers
             var empty = new BillStatusModel();
             BillStatusModel data = new BillStatusModel();
             CoreAccountsService pro = new CoreAccountsService();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             TempData["errMsg"] = pro.UpdateSMIBillDate(model, logged_in_user) == true ? "Success" : "Failed";
             return View(model);
         }
@@ -19244,6 +19550,8 @@ namespace IOAS.Controllers
         public ActionResult DISBillDateChange()
         {
             BillStatusModel model = new BillStatusModel();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             return View(model);
         }
         [HttpPost]
@@ -19253,6 +19561,8 @@ namespace IOAS.Controllers
             var empty = new BillStatusModel();
             BillStatusModel data = new BillStatusModel();
             CoreAccountsService pro = new CoreAccountsService();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             TempData["errMsg"] = pro.UpdateDISBillDate(model, logged_in_user) == true ? "Success" : "Failed";
             return View(model);
         }
@@ -19291,6 +19601,8 @@ namespace IOAS.Controllers
         public ActionResult FRMBillDateChange()
         {
             BillStatusModel model = new BillStatusModel();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             return View(model);
         }
         [HttpPost]
@@ -19300,6 +19612,8 @@ namespace IOAS.Controllers
             var empty = new BillStatusModel();
             BillStatusModel data = new BillStatusModel();
             CoreAccountsService pro = new CoreAccountsService();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             TempData["errMsg"] = pro.UpdateFRMBillDate(model, logged_in_user) == true ? "Success" : "Failed";
             return View(model);
         }
@@ -20213,6 +20527,8 @@ namespace IOAS.Controllers
         public ActionResult DOPBillDateChange()
         {
             BillStatusModel model = new BillStatusModel();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             return View(model);
         }
         [HttpPost]
@@ -20222,6 +20538,8 @@ namespace IOAS.Controllers
             var empty = new BillStatusModel();
             BillStatusModel data = new BillStatusModel();
             CoreAccountsService pro = new CoreAccountsService();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             TempData["errMsg"] = pro.UpdateDOPBillDate(model, logged_in_user) == true ? "Success" : "Failed";
             return View(model);
         }
@@ -20260,6 +20578,8 @@ namespace IOAS.Controllers
         public ActionResult OHARBillDateChange()
         {
             BillStatusModel model = new BillStatusModel();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             return View(model);
         }
         [HttpPost]
@@ -20269,6 +20589,8 @@ namespace IOAS.Controllers
             var empty = new BillStatusModel();
             BillStatusModel data = new BillStatusModel();
             CoreAccountsService pro = new CoreAccountsService();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             TempData["errMsg"] = pro.UpdateOHARBillDate(model, logged_in_user) == true ? "Success" : "Failed";
             return View(model);
         }
@@ -20307,6 +20629,8 @@ namespace IOAS.Controllers
         public ActionResult FDCBillDateChange()
         {
             BillStatusModel model = new BillStatusModel();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             return View(model);
         }
         [HttpPost]
@@ -20316,6 +20640,8 @@ namespace IOAS.Controllers
             var empty = new BillStatusModel();
             BillStatusModel data = new BillStatusModel();
             CoreAccountsService pro = new CoreAccountsService();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             TempData["errMsg"] = pro.UpdateFDCBillDate(model, logged_in_user) == true ? "Success" : "Failed";
             return View(model);
         }
@@ -20353,6 +20679,8 @@ namespace IOAS.Controllers
         public ActionResult FDTBillDateChange()
         {
             BillStatusModel model = new BillStatusModel();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             return View(model);
         }
         [HttpPost]
@@ -20362,6 +20690,8 @@ namespace IOAS.Controllers
             var empty = new BillStatusModel();
             BillStatusModel data = new BillStatusModel();
             CoreAccountsService pro = new CoreAccountsService();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             TempData["errMsg"] = pro.UpdateFDTBillDate(model, logged_in_user) == true ? "Success" : "Failed";
             return View(model);
         }
@@ -20399,6 +20729,8 @@ namespace IOAS.Controllers
         public ActionResult GstOffSetDateChange()
         {
             BillStatusModel model = new BillStatusModel();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             return View(model);
         }
         [HttpPost]
@@ -20408,6 +20740,8 @@ namespace IOAS.Controllers
             var empty = new BillStatusModel();
             BillStatusModel data = new BillStatusModel();
             CoreAccountsService pro = new CoreAccountsService();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             TempData["errMsg"] = pro.UpdateGstOffsetDate(model, logged_in_user) == true ? "Success" : "Failed";
             return View(model);
         }
@@ -20445,6 +20779,8 @@ namespace IOAS.Controllers
         public ActionResult TdsPaymentDateChange()
         {
             BillStatusModel model = new BillStatusModel();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             return View(model);
         }
         [HttpPost]
@@ -20454,6 +20790,8 @@ namespace IOAS.Controllers
             var empty = new BillStatusModel();
             BillStatusModel data = new BillStatusModel();
             CoreAccountsService pro = new CoreAccountsService();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             TempData["errMsg"] = pro.TdsPaymentDate(model, logged_in_user) == true ? "Success" : "Failed";
             return View(model);
         }
@@ -20790,6 +21128,8 @@ namespace IOAS.Controllers
         public ActionResult OHPBillDateChange()
         {
             BillStatusModel model = new BillStatusModel();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             return View(model);
         }
         [HttpPost]
@@ -20799,6 +21139,8 @@ namespace IOAS.Controllers
             var empty = new BillStatusModel();
             BillStatusModel data = new BillStatusModel();
             CoreAccountsService pro = new CoreAccountsService();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             TempData["errMsg"] = pro.UpdateOHPBillDate(model, logged_in_user) == true ? "Success" : "Failed";
             return View(model);
         }
@@ -21088,7 +21430,24 @@ namespace IOAS.Controllers
         public ActionResult AVOBillDateChange()
         {
             BillStatusModel model = new BillStatusModel();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             return View(model);
+
+        }
+
+        [HttpGet]
+        public JsonResult GetRefNumberForValidationAVOBill(string Refnum,string  vouchertype)
+        {
+            try
+            {
+                var data = Common.GetRefNumberForValidation(Refnum,vouchertype);
+                return Json(data, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
         [HttpPost]
         public ActionResult AVOBillDateChange(BillStatusModel model)
@@ -21097,6 +21456,8 @@ namespace IOAS.Controllers
             var empty = new BillStatusModel();
             BillStatusModel data = new BillStatusModel();
             CoreAccountsService pro = new CoreAccountsService();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             TempData["errMsg"] = pro.UpdateAVOBillDate(model, logged_in_user) == true ? "Success" : "Failed";
             return View(model);
         }
@@ -21134,6 +21495,8 @@ namespace IOAS.Controllers
         public ActionResult HCRBillDateChange()
         {
             BillStatusModel model = new BillStatusModel();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             return View(model);
         }
         [HttpPost]
@@ -21143,6 +21506,8 @@ namespace IOAS.Controllers
             var empty = new BillStatusModel();
             BillStatusModel data = new BillStatusModel();
             CoreAccountsService pro = new CoreAccountsService();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             TempData["errMsg"] = pro.UpdateHCRDate(model, logged_in_user) == true ? "Success" : "Failed";
             return View(model);
         }
@@ -21363,10 +21728,14 @@ namespace IOAS.Controllers
                 }
                 if (validFileTypes.Contains(extension))
                 {
+
                     if (System.IO.File.Exists(path1))
                     { System.IO.File.Delete(path1); }
                     file.SaveAs(path1);
-                    file.UploadFile("UTRStatement", docName);
+                    
+                    /* Commented Below Lines for UTRStatement NAS UPLOAD  Not Required  ::: Thirumurugan K 18-Oct-2023 
+                    file.UploadFile("UTRStatement", docName);*/
+
                     string invalidrownos = "";
 
                     string t_Name;
@@ -21575,6 +21944,8 @@ namespace IOAS.Controllers
         public ActionResult JournalBillDateChange()
         {
             BillStatusModel model = new BillStatusModel();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             return View(model);
         }
         [HttpPost]
@@ -21584,6 +21955,8 @@ namespace IOAS.Controllers
             var empty = new BillStatusModel();
             BillStatusModel data = new BillStatusModel();
             CoreAccountsService pro = new CoreAccountsService();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             TempData["errMsg"] = pro.UpdateJournalBillDate(model, logged_in_user) == true ? "Success" : "Failed";
             return View(model);
         }
@@ -21636,9 +22009,7 @@ namespace IOAS.Controllers
         // Partial Payment Process Posting - Created by Praveen 11-01-2023
         public ActionResult PostMissedBatchItems(int draftId)
         {
-            if (coreAccountService.PaymentTestBOATransaction(draftId, 1))
-                return RedirectToAction("PaymentProcessInitList");
-            else
+                coreAccountService.getPCFDOHReceiptBOAmodeldetails(96874, 6024, "Distribution");
                 return RedirectToAction("PaymentProcessInitList");
         }
 

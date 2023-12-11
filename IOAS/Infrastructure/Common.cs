@@ -7051,6 +7051,241 @@ namespace IOAS.Infrastructure
                 return 0;
             }
         }
+        public static DateTime? GetCurrentFinYearFromDate()
+        {
+            try
+            {
+                DateTime? finFrom = null;
+                using (var context = new IOASDBEntities())
+                {
+                    var financialYear = context.tblFinYear.FirstOrDefault(m => m.CurrentYearFlag == true);
+                    if (financialYear != null)
+                        finFrom = Convert.ToDateTime(financialYear.StartDate);
+
+
+                }
+
+                return finFrom;
+            }
+
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+                (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                return null;
+            }
+        }
+
+        public static string GetRefNumberForValidation(string Refnum, string vouchertype)
+        {
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    var refnums = "";
+                    switch (vouchertype)
+                    {
+                        case "AdminVoucher":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && boa.TransactionTypeCode == "AVO" && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+
+                        case "Clearance":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && boa.TransactionTypeCode == "CLP" && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+
+                        case "Contra":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && boa.TransactionTypeCode == "CTR" && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+                        case "DirectFundTransfer":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && boa.TransactionTypeCode == "PDT" && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+                        case "Distribution":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && boa.TransactionTypeCode == "DIS" && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+                        case "PCFAndDistributionOverheads":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && boa.TransactionTypeCode == "DOP" && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+
+                        case "FixedDeposit":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && boa.TransactionTypeCode == "FDT" && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+                        case "FixedDepositClose":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && boa.TransactionTypeCode == "FDC" && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+                        case "ForeignRemittance":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && boa.TransactionTypeCode == "FRM" && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+                        case "GeneralVoucher":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && boa.TransactionTypeCode == "GVR" && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+                        case "GstOffset":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && boa.TransactionTypeCode == "GOF" && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+                        case "HeadCredit":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && boa.TransactionTypeCode == "HCR" && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+                        case "HeadWiseFundTransfer":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       from BED in context.tblBOAExpenditureDetail
+                                       where boa.Status == "Posted" && BED.TransactionTypeCode == "PFT" && BED.ReferenceNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select BED.ReferenceNumber).FirstOrDefault();
+                            break;
+
+                        case "Honorarium":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && boa.TransactionTypeCode == "HON" && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+                        case "Imprest":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && boa.TransactionTypeCode == "IMR" && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+                        case "ImprestRecoupment":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && boa.TransactionTypeCode == "IBR" && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+                        case "OHAddRev":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && boa.TransactionTypeCode == "OHAR" && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+                        case "OverheadPosting":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && boa.TransactionTypeCode == "OHP" && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+                        case "PartTimePayment":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && boa.TransactionTypeCode == "PTP" && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+                        case "ReceiptDate":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && (boa.TransactionTypeCode == "RBU" || boa.TransactionTypeCode == "RCV") && boa.RefNumber == Refnum
+                                        && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+                        case "Reimbursement":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && boa.TransactionTypeCode == "REM" && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+                        case "SummerInternship":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && boa.TransactionTypeCode == "SMI" && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+                        case "TdsPayment":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && boa.TransactionTypeCode == "TXP" && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+                        case "TravelBill":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" &&( boa.TransactionTypeCode == "DTV"|| boa.TransactionTypeCode == "TAD" || boa.TransactionTypeCode == "TST") && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+                        case "BillDate":
+                            
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && (boa.TransactionTypeCode == "STM" || boa.TransactionTypeCode == "ADV" || boa.TransactionTypeCode == "PTV") && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+                        case "JournalBillDateChange":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && boa.TransactionTypeCode == "JV" && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+                    }
+                    return refnums.ToString();
+
+                }
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+                (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                return null;
+            }
+
+        }
         public static int GetPreviousFinYearId(int finId)
         {
             try
@@ -7482,6 +7717,73 @@ namespace IOAS.Infrastructure
             }
 
         }
+
+        //rajesh vs11764 Distribution
+        public static List<MasterlistviewModel> GetDistributionProjectNumber()
+        {
+            try
+            {
+
+                List<MasterlistviewModel> list = new List<MasterlistviewModel>();
+
+                using (var context = new IOASDBEntities())
+                {//35690
+                    list = (from P in context.tblProject                           
+                            join U in context.vwFacultyStaffDetails on P.PIName equals U.UserId
+                            where  P.ProjectId == 35690
+                            orderby P.ProjectNumber
+                            group new { P.ProjectId, P.ProjectNumber, U.FirstName } by P.ProjectId into g
+                            select new
+                            {
+                                ProjectId = g.Key,
+                                ProjectNumber = g.Select(m => m.ProjectNumber).FirstOrDefault(),
+                                PIName = g.Select(m => m.FirstName).FirstOrDefault()
+                            })
+                            .AsEnumerable()
+                            .Select((x, index) => new MasterlistviewModel()
+                            {
+                                id = x.ProjectId,
+                                name = x.ProjectNumber + " - " + x.PIName
+                            }).ToList();
+
+                }
+
+                return list;
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+    (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                return new List<MasterlistviewModel>();
+            }
+
+        }
+        //    public static string GetDistributionProjectNumber()
+        //    {
+        //        try
+        //        {
+
+        //            using (var context = new IOASDBEntities())
+        //            {
+        //                var query = (from ProjDis in context.tblProject
+        //                             where ProjDis.ProjectId==35690
+        //                             //select ProjDis).FirstOrDefault();
+        //                             select new { ProjDis.ProjectNumber }).ToList();
+
+        //                return Convert.ToString(query);
+
+        //            }
+        //        }
+
+        //        catch (Exception ex)
+        //        {
+        //            Infrastructure.IOASException.Instance.HandleMe(
+        //(object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+        //            throw ex;
+
+        //        }
+        //    }
+
         public static string ValidateSettlement(string poNumber, Nullable<Int32> vendorId, decimal deductAmt, decimal expAmt, int negBillId = 0)
         {
             try
@@ -12235,7 +12537,8 @@ namespace IOAS.Infrastructure
                         tds.Add(new MasterlistviewModel()
                         {
                             id = query[i].CodeValAbbr,
-                            name = query[i].CodeValDetail
+                            code = (query[i].CodeValDetail.Replace("%", "")),
+                            name = query[i].CodeValDetail,
 
                         });
                     }
@@ -12243,6 +12546,127 @@ namespace IOAS.Infrastructure
             }
             return tds;
         }
+
+        //Rajesh Vs11764 -- PI BankAccountDetails For PI Salary Process
+        public static List<BankAccountMaster> getStaffBankAccountDetails(int EmployeeId, string Category , int PayFor)
+        {
+            try
+            {
+                string catvalue = "";
+                switch (Category)
+                {
+                    case "PI":
+                        catvalue = "Professor";
+                        break;
+                    case "Vendor Staff":
+                        catvalue = "ProjectStaff";
+                        break;
+                    case "Institute Staff":
+                        catvalue = "Staff";
+                        break;
+                    case "Adhoc Staff":
+                        catvalue = "AdhocStaff";
+                        break;
+                    default:
+                        catvalue = "";
+                        break;
+                }
+
+                List<BankAccountMaster> bankDetails = new List<BankAccountMaster>();
+                using (var context = new IOASDBEntities())
+                {
+                    if (Category == "PI" || Category == "Institute Staff")
+                    {
+                        var bankDetail = (from s in context.tblStaffBankAccount
+                                          where (s.Category == catvalue && s.UserId == EmployeeId && s.PayFor== PayFor)
+                                          select new { s.BankName, s.Branch, s.AccountNumber, s.IFSCCode, s.PAN }).Distinct().Take(1).ToList();
+                        if (bankDetail.Count > 0)
+                        {
+                            for (int i = 0; i < bankDetail.Count; i++)
+                            {
+                                bankDetails.Add(new BankAccountMaster()
+                                {
+                                    BankName = bankDetail[i].BankName,
+                                    Branch = bankDetail[i].Branch,
+                                    AccountNumber = bankDetail[i].AccountNumber,
+                                    IFSCCode = bankDetail[i].IFSCCode,
+                                    PAN = bankDetail[i].PAN
+
+                                });
+                            }
+                        }
+
+                    }
+
+                    //select s.BankName, Branch = '', AccountNumber = s.BankAccountNumber , s.IFSCCode, PAN = s.PANNo
+                    //    from tblRCTOutsourcing s inner
+                    //    join tblProjectStaffDetail pd on s.EmployeersID = pd.EmployeeId
+                    //                      where (pd.CastEmployeeId = 2964 and s.IsActiveNow = 1)
+                    else if (Category == "Vendor Staff")
+                    {
+                        var bankDetail = (from s in context.tblRCTOutsourcing
+                                          join pd in context.tblProjectStaffDetail on s.EmployeersID equals pd.EmployeeId
+                                          where pd.CastEmployeeId == EmployeeId && s.IsActiveNow == true
+                                          select new { s.BankName, Branch = "", AccountNumber = s.BankAccountNumber, s.IFSCCode, PAN = s.PANNo }).Distinct().Take(1).ToList();
+                        if (bankDetail.Count > 0)
+                        {
+                            for (int i = 0; i < bankDetail.Count; i++)
+                            {
+                                bankDetails.Add(new BankAccountMaster()
+                                {
+                                    BankName = bankDetail[i].BankName,
+                                    Branch = bankDetail[i].Branch,
+                                    AccountNumber = bankDetail[i].AccountNumber,
+                                    IFSCCode = bankDetail[i].IFSCCode,
+                                    PAN = bankDetail[i].PAN
+
+                                });
+                            }
+                        }
+
+                    }
+                    else if (Category == "Adhoc Staff")
+                    {
+                        var bankDetail = (from s in context.tblRCTSTE
+                                          join pd in context.tblProjectAdhocStaffDetails on s.EmployeersID equals pd.EmployeeId
+                                          where pd.CastEmployeeId == EmployeeId && s.IsActiveNow == true
+                                          select new { s.BankName, Branch = "", AccountNumber = s.BankAccountNumber, s.IFSCCode, PAN = s.PANNo }).Distinct().Take(1).ToList();
+
+
+                        if (bankDetail.Count > 0)
+                        {
+                            for (int i = 0; i < bankDetail.Count; i++)
+                            {
+                                bankDetails.Add(new BankAccountMaster()
+                                {
+                                    BankName = bankDetail[i].BankName,
+                                    Branch = bankDetail[i].Branch,
+                                    AccountNumber = bankDetail[i].AccountNumber,
+                                    IFSCCode = bankDetail[i].IFSCCode,
+                                    PAN = bankDetail[i].PAN
+
+                                });
+                            }
+                        }
+
+                    }
+
+
+
+                }
+                return bankDetails;
+            }
+            catch (Exception ex)
+            {
+                {
+                    Infrastructure.IOASException.Instance.HandleMe(
+                    (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                    throw ex;
+                }
+            }
+        }
+
+
         public static List<MasterlistviewModel> GetReceivedFrom()
         {
             List<MasterlistviewModel> tds = new List<MasterlistviewModel>();
@@ -17640,7 +18064,9 @@ namespace IOAS.Infrastructure
                 using (var context = new IOASDBEntities())
                 {
                     var BoaDate = context.tblBOA.Where(m => m.RefNumber == RefNumber).OrderByDescending(m => m.BOAId).Select(m => m.PostedDate).FirstOrDefault();
-                    return Tuple.Create(string.Format("{0:dd-MMM-yyyy}", BoaDate), "", "");
+                    var BillDate = context.tblContra.Where(m => m.ContraNumber == RefNumber).FirstOrDefault();
+
+                    return Tuple.Create(string.Format("{0:dd-MMM-yyyy}", BoaDate), string.Format("{0:dd-MMM-yyyy}", BillDate.CRTD_TS), (string)"NA");
                 }
             }
             catch (Exception ex)
@@ -17926,6 +18352,34 @@ namespace IOAS.Infrastructure
                 return Codedetails;
             }
         }
+
+        public static string GetCodeControlnameTDS(string codeval, string codename)
+        {
+            try
+            {
+                string Codedetails = string.Empty;
+                codeval = codeval + "%";
+                using (var context = new IOASDBEntities())
+                {
+                    var query = (from c in context.tblCodeControl
+                                 where c.CodeValDetail == codeval && c.CodeName == codename
+                                 select c.CodeValDetail).FirstOrDefault();
+                    if (query != null)
+                    {
+                        Codedetails = query;
+                    }
+                }
+                return Codedetails.Replace("%","");
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+    (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                string Codedetails = string.Empty;
+                return Codedetails;
+            }
+        }
+
         public static bool ValidateBRSOnEdit(int brsId, string status = "")
         {
             try
@@ -23400,10 +23854,14 @@ namespace IOAS.Infrastructure
             {
                 decimal recAmt = 0;
                 decimal negBal = 0;
+                //decimal? totalopeninvtaxablevalue = 0;              
                 using (var context = new IOASDBEntities())
                 {
+
+                    ProjectService prjModel = new ProjectService();
+                    var prjModel1 = prjModel.getProjectSummary(pId);
                     decimal sancVal = GetSanctionValue(pId);
-                    var query = context.tblReceipt.Where(r => r.ProjectId == pId && r.ReceiptId != recId && r.CategoryId != 16 && r.Status == "Completed").ToList();
+                    var query = context.tblReceipt.Where(r => r.ProjectId == pId && r.ReceiptId != recId && r.CategoryId != 16 && (r.Status != "Rejected" && r.Status != "InActive")).ToList();
                     recAmt = query.Sum(m => m.ReceiptAmount) ?? 0;
                     decimal cgst = query.Sum(m => m.CGST) ?? 0;
                     decimal sgst = query.Sum(m => m.SGST) ?? 0;
@@ -23414,6 +23872,9 @@ namespace IOAS.Infrastructure
                     negBal = (from U in context.tblNegativeBalance
                               where U.ProjectId == pId && U.Status == "Approved"
                               select U).Sum(m => m.NegativeBalanceAmount) ?? 0;
+                    decimal? totalopeninvtaxablevalue = (from I in context.vw_Oustanding
+                                                         where I.ProjectId == pId
+                                                         select I).Select(m => m.TaxableOutstanding).Sum();
                     decimal ttlAmt = 0;// recAmt + negBal;
                                        //if (negBal > 0 && amt < negBal)
                                        //    ttlAmt = recAmt + negBal - amt;
@@ -23423,12 +23884,7 @@ namespace IOAS.Infrastructure
                                        //                        where I.ProjectId == pId
                                        //                        select I).ToList();
                                        //decimal outstandInv = outstandInvQuery.Select(m => m.TaxableOutstanding).Sum() ?? 0;
-                    if (amt < 0)
-                        ttlAmt = recAmt + negBal + amt;
-                    else if (amt < negBal)
-                        ttlAmt = recAmt + negBal - amt;
-                    else
-                        ttlAmt = recAmt + amt - negBal;
+                        ttlAmt = recAmt + amt + (totalopeninvtaxablevalue ?? 0);
                     //else if (isInvoiceRec && amt > 0 && recId > 0)
                     //{
                     //    var queryOld = context.tblReceipt.Where(r => r.ReceiptId == recId).FirstOrDefault();
@@ -23480,6 +23936,12 @@ namespace IOAS.Infrastructure
                 return false;
             }
         }
+
+        private static object getProjectSummary(int pId)
+        {
+            throw new NotImplementedException();
+        }
+
         public static List<MasterlistviewModel> GetAccountGroupByAccountHead(int accountHeadId)
         {
             try
@@ -24171,7 +24633,7 @@ namespace IOAS.Infrastructure
                     list = (from U in context.tblRCTDesignation
                             where ((U.DesignationCode.Contains(term) || U.Designation.Contains(term) || string.IsNullOrEmpty(term))
                             && U.TypeOfAppointment == TypeCode && U.ConsolidatedPay == isConsolidatePay
-                            && U.FellowshipPay == FellowshipPay && U.RecordStatus == "Active")
+                            && U.FellowshipPay == FellowshipPay && U.RecordStatus == "Active" && U.Status == 1)
                             orderby U.DesignationId
                             select new
                             {
@@ -27061,21 +27523,21 @@ namespace IOAS.Infrastructure
                                 funddeviation = true;
                         }
                     }
-                    //else if (!prjDetail.HeadWise.Any(m => m.AllocationId == 1))
-                    //    funddeviation = true;
-                    //else if (prjDetail.HeadWise.Any(m => m.AllocationId == 1))
-                    //{
-                    //    var headwisedata = prjDetail.HeadWise.Where(x => x.AllocationId == 1).FirstOrDefault();
-                    //    var AvailableAmt = headwisedata.Available;
-                    //    if (AvailableAmt < commitmentAmount)
-                    //        funddeviation = true;
+                    else if (!prjDetail.HeadWise.Any(m => m.AllocationId == 1))
+                        funddeviation = true;
+                    else if (prjDetail.HeadWise.Any(m => m.AllocationId == 1))
+                    {
+                        var headwisedata = prjDetail.HeadWise.Where(x => x.AllocationId == 1).FirstOrDefault();
+                        var AvailableAmt = headwisedata.Available;
+                        if (AvailableAmt < commitmentAmount)
+                            funddeviation = true;
 
-                    //    if (AvailableAmt >= commitmentAmount && !funddeviation)
-                    //    {
-                    //        if (netBalance < commitmentAmount)
-                    //            funddeviation = true;
-                    //    }
-                    //}
+                        if (AvailableAmt >= commitmentAmount && !funddeviation)
+                        {
+                            if (netBalance < commitmentAmount)
+                                funddeviation = true;
+                        }
+                    }
                 }
                 return funddeviation;
             }

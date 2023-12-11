@@ -414,8 +414,9 @@
                                                 <div class="col-md-3">
                                                     <div class="form-group custom-form-group">
                                                         <label>Medical</label> <br>
-                                                        <h4 id="MedicalText"></h4>
-                                                        @Html.DropDownListFor(m => m.Medical, new SelectList(ViewBag.Medical, "id", "name"), "Select Medical", new { @class = "form-control dis-none", @data_val = "false" })
+                                                        <h4 id="MedicalText" class="dis-none"></h4>
+                                                        @Html.DropDownListFor(m => m.Medical, new SelectList(ViewBag.Medical, "id", "name"), "Select Medical", new { @class = "form-control required", @data_val = "false" })
+                                                        <div>@Html.ValidationMessageFor(m => m.Medical)</div>
                                                     </div>
                                                 </div>
                                             }
@@ -459,7 +460,7 @@
                                                     @Html.Hidden("MaxSalary", 0)
                                                     @if (Model.TypeCode == "OSG")
                                                     {
-                                                        <a href="#" class="bl-bg-txt" onclick="salarycalcpopup();">Salary Calculation</a>       }
+                                                        <a href="#" class="bl-bg-txt" onclick="salarycalcpopup();">Salary Calculation</a>}
                                                 </div>
                                             </div>
                                             @if (Model.ApplicationID > 0 && Model.TypeCode == "STE")
@@ -997,11 +998,11 @@
         @Html.HiddenFor(m => m.List_f)
         @if (!string.IsNullOrEmpty(Model.List_f))
         {
-        <button type="button" class="btn btn-default" onclick="window.location.href='@Url.Action(Model.List_f,"Requirement")';">Close</button>
+            <button type="button" class="btn btn-default" onclick="window.location.href='@Url.Action(Model.List_f,"Requirement")';">Close</button>
         }
         else
         {
-        <button type="button" class="btn btn-default" onclick="window.location.href='@Url.Action("EmployeeMaster","Requirement")';">Close</button>
+            <button type="button" class="btn btn-default" onclick="window.location.href='@Url.Action("EmployeeMaster","Requirement")';">Close</button>
         }
     </div>
 
@@ -1207,6 +1208,7 @@
                     <div style="padding:10px;margin-left: 10px;" id="divBcc">
                         <label>To mail</label>
                         <h4>@Html.DisplayFor(m => m.ToMail)</h4>
+                        @*@Html.TextBoxFor(m => m.ToMail, new { @class = "form-control mb20" })*@
                         <label>Carbon Copy(CC)</label>
                         <h4>@Html.DisplayFor(m => m.CCMail)</h4>
                     </div>
@@ -1295,8 +1297,9 @@
                                                                 </div>*@
                                                             <div class="col-md-6">
                                                                 <div class="form-group custom-form-group mb-sm ">
-                                                                    <label>PF Basic Wages</label>
-                                                                    @Html.TextBoxFor(m => m.EmpPFBasicWages, new { @class = "form-control", @id = "EmpPFBasicWages" })
+                                                                    <label class="required">PF Basic Wages</label>
+                                                                    @Html.TextBoxFor(m => m.EmpPFBasicWages, new { @class = "form-control", @id = "EmpPFBasicWages", @required = "required" })
+                                                                    <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.EmpPFBasicWages)</div>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -1728,7 +1731,7 @@
     });
 
 
-    $('input[name=EmpPFBasicWages]').keyup(function () {
+    $('input[name=EmpPFBasicWages]').change(function () {
         //var emppfbasicwages = $('input[name=EmpPFBasicWages]').val();
         FillSalaryCalcDetls();
     });
@@ -1740,9 +1743,30 @@
     $('select[name=PhysicallyChallenged]').change(function () {
         FillSalaryCalcDetls();
     });
-    $('#btnSubmitSalaryCalc').click(function () {
-        PopupSalaryConfirm();
+    $('#btnSubmitSalaryCalc').click(function (d) {
+        //$('#btnSubmitSalaryCalc').click(function (d) {
+
+            d.preventDefault();
+            var isValid = $('#formExtension').valid();
+            var EmpfBasicwages = $('#EmpPFBasicWages').val();
+            if (EmpfBasicwages.trim() != "" && parseInt(EmpfBasicwages.trim()) >= 0) {
+                isValid = true;
+            }
+            else {
+                isValid = false;
+                $('#alert').html("Please Enter EmpPFBasicWages");
+                $('#Validation').modal('toggle');
+                return false;
+            }
+
+
+            if (isValid) { PopupSalaryConfirm(); }
+            //$('#formSTEJuniorApp').Submit();
+
+       
     });
+
+  
 
     $('#issalaryConfirm').click(function () {
         $('#dialogSalaryConfirm').modal('toggle');
@@ -1760,6 +1784,7 @@
         $('#dialogSalaryConfirm').modal('toggle');
         $('#salarycalc').modal('toggle');
     }
+ 
 
     function calculatetaxTotal(isarrearpay)
     {
@@ -2713,7 +2738,7 @@
     function FillSalaryCalcDetls() {
         var Vendorid = $('#VendorId').val();
         var salary = $('#Salary').val();
-        var emppfbasicwages = $('input[name=EmpPFBasicWages]').val() || 0;
+        var emppfbasicwages = $('input[name=EmpPFBasicWages]').val();
         var isemppfwages = true;
         $.getJSON("@Url.Action("LoadSalCalPercent", "Requirement")", { VendorId: Vendorid, Salary: salary },
     function (result) {

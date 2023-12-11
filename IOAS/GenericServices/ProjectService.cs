@@ -6029,7 +6029,7 @@ namespace IOAS.GenericServices
                                             if (funding[i].ForgnProjectFundingNonGovtBody == 1)
                                             {
                                                 prjModel.ForeignNonGevDep = query.ForgnNonGovtAgencyDepartment;
-                                                prjModel.ForeignNonGevDepAmount = Convert.ToDecimal(query.ForgnNonGovtAgencyDepartment);
+                                                prjModel.ForeignNonGevDepAmount = Convert.ToDecimal(query.ForgnNonGovtAgencyDepartmentAmount);
                                                 prjModel.ForeignNonGevDepCountry = Common.GetProjectCountryName(query.ForgnNonGovtAgencyDepartmentCountry ?? 0);
 
                                             }

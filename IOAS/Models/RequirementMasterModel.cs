@@ -410,7 +410,7 @@ namespace IOAS.Models
         public string Status { get; set; }
         [Required]
         [MaxLength(15)]
-        [RegularExpression("^([0]{1}[1-9]{1}|[1-2]{1}[0-9]{1}|[3]{1}[0-7]{1})([a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[1-9a-zA-Z]{1}[zZ]{1}[0-9a-zA-Z]{1})+$", ErrorMessage = "Invalid GST Number")]
+        [RegularExpression("^([0]{1}[1-9]{1}|[1-2]{1}[0-9]{1}|[3]{1}[0-8]{1})([a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[1-9a-zA-Z]{1}[zZ]{1}[0-9a-zA-Z]{1})+$", ErrorMessage = "Invalid GST Number")]
         [Display(Name = "GST Number")]
         public string GSTIN { get; set; }
         [RegularExpression("^([\\w+-.%]+@[\\w-.]+\\.[A-Za-z]{2,6},?)+$", ErrorMessage = "Invalid CC Mail example:abc@mail.com,abx")]

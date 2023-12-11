@@ -495,7 +495,7 @@
                                                         <div class="form-group custom-form-group">
                                                             <label>Medical</label> <br>
                                                             <h4 id="MedicalText" class="dis-none"></h4>
-                                                            @Html.DropDownListFor(m => m.Medical, new SelectList(ViewBag.Medical, "id", "name"), "Select Medical", new { @class = "form-control", @data_val = "false" })
+                                                            @Html.DropDownListFor(m => m.Medical, new SelectList(ViewBag.Medical, "id", "name"), "Select Medical", new { @class = "form-control required ", @data_val = "false" })
                                                             <div>@Html.ValidationMessageFor(m => m.Medical)</div>
                                                         </div>
                                                     </div>
@@ -1199,8 +1199,10 @@
                                                                 </div>*@
                                                             <div class="col-md-6">
                                                                 <div class="form-group custom-form-group mb-sm ">
-                                                                    <label>PF Basic Wages</label>
-                                                                    @Html.TextBoxFor(m => m.EmpPFBasicWages, new { @class = "form-control", @id = "EmpPFBasicWages" })
+                                                                    <label class="required">PF Basic Wages</label>
+                                                                    @Html.TextBoxFor(m => m.EmpPFBasicWages, new { @class = "form-control", @id = "EmpPFBasicWages", @required = "required" })
+                                                                    <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.EmpPFBasicWages)</div>
+                                                              
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -1601,15 +1603,32 @@
         }
     });
 
-    $('input[name=EmpPFBasicWages]').keyup(function () {
+    $('input[name=EmpPFBasicWages]').change(function () {
         FillSalaryCalcDetls();
     });
 
     $('input[name=RecommendedSalary]').change(function () {
         FillSalaryCalcDetls();
     });
-    $('#btnSubmitSalaryCalc').click(function () {
-        PopupSalaryConfirm();
+    $('#btnSubmitSalaryCalc').click(function (d) {
+
+        d.preventDefault();
+        var isValid = $('#formSTEJuniorApp').valid();
+        var EmpfBasicwages = $('#EmpPFBasicWages').val();
+        if (EmpfBasicwages.trim() != "" && parseInt(EmpfBasicwages.trim()) >=0 )  {
+            isValid = true; 
+        }
+        else {
+            isValid = false;
+            $('#alert').html("Please Enter EmpPFBasicWages");
+            $('#Validation').modal('toggle');
+            return false;}
+
+
+        if (isValid) { PopupSalaryConfirm();}
+            //$('#formSTEJuniorApp').Submit();
+
+        
     });
     $('#issalaryConfirm').click(function () {
         $('#dialogSalaryConfirm').modal('toggle');
@@ -2027,7 +2046,7 @@
     function FillSalaryCalcDetls() {
         var Vendorid = $('#VendorId').val();
         var salary = $('#Salary').val();
-        var emppfbasicwages = $('input[name=EmpPFBasicWages]').val() || 0;
+        var emppfbasicwages = $('input[name=EmpPFBasicWages]').val();
         var isemppfwages = true;
         $.getJSON("@Url.Action("LoadSalCalPercent", "Requirement")", { VendorId: Vendorid, Salary: salary },
     function (result) {
@@ -3682,8 +3701,8 @@
                 }
             });
         }
-    });
 
+    });
 
 </script>
 <script src="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/js/bootstrap-select.min.js")"></script>

@@ -263,6 +263,159 @@ namespace IOAS.GenericServices
             }
         }
 
+        //yogesh by Requested PIID
+        public static ProjectDetails getProjectSummary(int ProjectId,int RequestedPIId)
+        {
+            try
+            {
+                ProjectDetails prjModel = new ProjectDetails();
+                using (var context = new IOASDBEntities())
+                {
+
+                    var qryProject = (from prj in context.tblProject
+                                      where prj.ProjectId == ProjectId
+                                      select prj).FirstOrDefault();
+                    if (qryProject.SponsoringAgency > 0)
+                    {
+                        var AgencyQry = context.tblAgencyMaster.Where(m => m.AgencyId == qryProject.SponsoringAgency).FirstOrDefault();
+                        if (AgencyQry != null)
+                            prjModel.SponsoringAgency = AgencyQry.AgencyName;
+                    }
+
+                    if (qryProject != null)
+                    {
+                        string pType = Common.getprojectTypeName(qryProject.ProjectType ?? 0);
+                        if (qryProject.ProjectType == 1 && qryProject.ProjectSubType != 1)
+                            pType += qryProject.SponProjectCategory == "1" ? "-PFMS" : qryProject.SponProjectCategory == "2" ? "-NON-PFMS" : "";
+                        else if (qryProject.ProjectType == 1 && qryProject.ProjectSubType == 1)
+                            pType += " - Internal";
+                        prjModel.ProjectType = pType;
+                        prjModel.ProjectTitle = qryProject.ProjectTitle;
+                        prjModel.PIId = qryProject.PIName;
+                        prjModel.PIName = Common.GetPIName(RequestedPIId , false);
+                        prjModel.ProjectStartDate = String.Format("{0:dd-MMM-yyyy}", qryProject.TentativeStartDate);
+                        prjModel.ProjectClosureDate = string.Format("{0:dd-MMM-yyyy}", Common.GetProjectDueDate(ProjectId) ?? qryProject.TentativeCloseDate);
+                        prjModel.ProjectNumber = qryProject.ProjectNumber;
+                        prjModel.ProjectID = qryProject.ProjectId;
+                        if (qryProject.PIName > 0)
+                        {
+                            var qryPIDetails = (from prj in context.vwFacultyStaffDetails
+                                                where prj.UserId == qryProject.PIName
+                                                select prj).FirstOrDefault();
+                            if (qryPIDetails != null)
+                            {
+                                prjModel.Email = qryPIDetails.Email;
+                                prjModel.Phone = qryPIDetails.ContactNumber;
+                                prjModel.PIDepartmentCode = qryPIDetails.DepartmentCode;
+                                prjModel.PIDepartmentName = qryPIDetails.DepartmentName;
+                                prjModel.PICode = qryPIDetails.EmployeeId;
+                                prjModel.PIDesignation = qryPIDetails.Designation;
+                            }
+                        }
+                    }
+
+                }
+                return prjModel;
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler WriteLog = new ErrorHandler();
+                WriteLog.SendErrorToText(ex);
+                ProjectDetails prjModel = new ProjectDetails();
+                return prjModel;
+            }
+        }
+
+
+        public static ProjectDetails GetOfferLetterProjectDetails(int STEId)
+        {
+            try
+            {
+                ProjectDetails prjModel = new ProjectDetails();
+                using (var context = new IOASDBEntities())
+                {
+
+                    var qryProject = (from prj in context.tblProject
+                                      from r in context.tblRCTSTE
+                                      where prj.ProjectId ==r.ProjectId && r.STEID == STEId 
+                                      select new { prj, r } ).FirstOrDefault();
+                    if (qryProject.prj.SponsoringAgency > 0)
+                    {
+                        var AgencyQry = context.tblAgencyMaster.Where(m => m.AgencyId == qryProject.prj.SponsoringAgency).FirstOrDefault();
+                        if (AgencyQry != null)
+                            prjModel.SponsoringAgency = AgencyQry.AgencyName;
+                    }
+
+                    if (qryProject != null)
+                    {
+                        string pType = Common.getprojectTypeName(qryProject.prj.ProjectType ?? 0);
+                        if (qryProject.prj.ProjectType == 1 && qryProject.prj.ProjectSubType != 1)
+                            pType += qryProject.prj.SponProjectCategory == "1" ? "-PFMS" : qryProject.prj.SponProjectCategory == "2" ? "-NON-PFMS" : "";
+                        else if (qryProject.prj.ProjectType == 1 && qryProject.prj.ProjectSubType == 1)
+                            pType += " - Internal";
+                        prjModel.ProjectType = pType;
+                        prjModel.ProjectTitle = qryProject.prj.ProjectTitle;
+                        prjModel.PIId = qryProject.prj.PIName;
+                        prjModel.PIName = Common.GetPIName(qryProject.r.RequestedBy ?? 0, false);
+                        prjModel.ProjectStartDate = String.Format("{0:dd-MMM-yyyy}", qryProject.prj.TentativeStartDate);
+                        prjModel.ProjectClosureDate = string.Format("{0:dd-MMM-yyyy}", Common.GetProjectDueDate(qryProject.prj.ProjectId) ?? qryProject.prj.TentativeCloseDate);
+                        prjModel.ProjectNumber = qryProject.prj.ProjectNumber;
+                        prjModel.ProjectID = qryProject.prj.ProjectId;
+                        if (qryProject.prj.PIName > 0)
+                        {
+                            var qryPIDetails = (from prj in context.vwFacultyStaffDetails
+                                                where prj.UserId == qryProject.prj.PIName
+                                                select prj).FirstOrDefault();
+                            if (qryPIDetails != null)
+                            {
+                                prjModel.Email = qryPIDetails.Email;
+                                prjModel.Phone = qryPIDetails.ContactNumber;
+                                prjModel.PIDepartmentCode = qryPIDetails.DepartmentCode;
+                                prjModel.PIDepartmentName = qryPIDetails.DepartmentName;
+                                prjModel.PICode = qryPIDetails.EmployeeId;
+                                prjModel.PIDesignation = qryPIDetails.Designation;
+                            }
+                        }
+                    }
+
+                }
+                return prjModel;
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler WriteLog = new ErrorHandler();
+                WriteLog.SendErrorToText(ex);
+                ProjectDetails prjModel = new ProjectDetails();
+                return prjModel;
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         public static ProjectDetails getPIDetails(int PIID)
         {
             ProjectDetails model = new ProjectDetails();
@@ -1364,8 +1517,8 @@ namespace IOAS.GenericServices
                                 }
                                 else
                                 {
-                                    add.bcc = model.bcc;
-                                    add.ToMail = model.ToMail;
+                                    add.bcc = model.ToMail;
+                                    add.ToMail = model.ReqTomail;
                                 }
                                 newstatus = add.Status;
                                 add.ProfessionalType = model.ProfessionalId;
@@ -1406,6 +1559,7 @@ namespace IOAS.GenericServices
                                 add.ProjectId = model.ProjectId;
                                 add.DesignationId = model.DesignationId;
                                 add.SalaryLevelId = model.SalaryLevelId;
+                                add.EmployeeWorkplace = model.EmployeeWorkplace;
                                 //if (model.MsPhd || model.TypeofappointmentId == 2)
                                 //{
                                 //    STE.Medical = 3;
@@ -1643,10 +1797,10 @@ namespace IOAS.GenericServices
                                         queryedit.Status = "Draft";
                                     else
                                     {
-                                        if (!string.IsNullOrEmpty(model.bcc))
-                                            queryedit.bcc = model.bcc;
                                         if (!string.IsNullOrEmpty(model.ToMail))
-                                            queryedit.ToMail = model.ToMail;
+                                            queryedit.bcc = model.ToMail;
+                                        if (!string.IsNullOrEmpty(model.ReqTomail))
+                                            queryedit.ToMail = model.ReqTomail;
                                     }
                                     newstatus = queryedit.Status;
                                     res = queryedit.Status == "Open" ? 1 : (queryedit.Status.Contains("Note") || queryedit.Status == "Draft") ? 2 : 0;
@@ -1710,6 +1864,7 @@ namespace IOAS.GenericServices
                                     queryedit.MsPhdType = model.MsPhdType;
                                     queryedit.PhdDetail = model.PhdDetail;
                                     queryedit.Comments = model.Comments;
+                                    queryedit.EmployeeWorkplace = model.EmployeeWorkplace;
                                     if (model.PIJustificationFile != null)
                                     {
                                         foreach (var item in model.PIJustificationFile)
@@ -2282,6 +2437,29 @@ namespace IOAS.GenericServices
             }
         }
 
+        public STEModel STERequestedByPI(int Requestpi)
+        {
+            STEModel model = new STEModel();
+            List<STEEducationModel> EducationList = new List<STEEducationModel>();
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+
+                    var query = (from FSD in context.vwFacultyStaffDetails
+                                 where FSD.UserId == Requestpi
+                                 select FSD.Email).FirstOrDefault();
+                    model.ReqTomail = query;
+
+                }
+
+                return model;
+            }
+            catch (Exception ex)
+            {
+                return model;
+            }
+        }
         public STEViewModel GetSTEView(int STEID)
         {
             STEViewModel viewmodel = new STEViewModel();
@@ -3295,6 +3473,7 @@ namespace IOAS.GenericServices
                             model.offerDate = getOfferLetterDate(model.STEId, "STE", "OfferLetter", orderId);
                             model.EmployeeID = query.S.EmployeersID;
                             model.ProjectDetailsModel = getProjectSummary(query.o.NewProjectId ?? 0);
+                            model.ProjectDetailsModel = GetOfferLetterProjectDetails(query.S.STEID);
                             model.ProjectNumber = model.ProjectDetailsModel.ProjectNumber;
                             model.SalaryLevelId = query.o.SalaryLevelId;
                             var querydes = (from sl in context.tblRCTSalaryLevel
@@ -3316,7 +3495,7 @@ namespace IOAS.GenericServices
                         {
                             model.Designation = query.D.Designation;
                             model.DesignationId = query.D.DesignationId;
-                            model.ProjectDetailsModel = getProjectSummary(query.S.ProjectId ?? 0);
+                            model.ProjectDetailsModel = getProjectSummary(query.S.ProjectId ?? 0,query.S.RequestedBy??0);
                             model.ProjectNumber = model.ProjectDetailsModel.ProjectNumber;
                             model.Typeofappointment = Common.GetCodeControlName(query.S.TypeofAppointment ?? 0, "STEAppointmenttype");
                             model.PayeeType = query.S.ConsolidatedPay == true ? "Consolidated Pay" : "Fellowship Pay";
@@ -6351,8 +6530,10 @@ namespace IOAS.GenericServices
                                 query.o.Status = "Awaiting Verification-Draft";
 
                                 var orderid = query.o.OrderId;
-                                query.od.NotetoDean = model.FlowApprover == "NDean" ? true : false;
-                                query.od.NotetoCMAdmin = model.FlowApprover == "CMAdmin" ? true : false;
+                                //10554
+                                //query.od.NotetoDean = model.FlowApprover == "NDean" ? true : false;
+                                //query.od.NotetoCMAdmin = model.FlowApprover == "CMAdmin" ? true : false;
+                                //10554
                                 //var Actualstartdate = query.o.FromDate;
                                 query.o.ActualAppointmentStartDate = query.o.FromDate;
                                 query.o.ActualAppointmentEndDate = query.o.ToDate;
@@ -6477,9 +6658,10 @@ namespace IOAS.GenericServices
                                         //    }
                                         //}
                                         //var appid = query.o.AppointmentId ?? 0;
-
-                                        query.od.NotetoDean = model.FlowApprover == "NDean" ? true : false;
-                                        query.od.NotetoCMAdmin = model.FlowApprover == "CMAdmin" ? true : false;
+                                        //10554
+                                        //query.od.NotetoDean = model.FlowApprover == "NDean" ? true : false;
+                                        //query.od.NotetoCMAdmin = model.FlowApprover == "CMAdmin" ? true : false;
+                                        //10554
                                         //var Actualstartdate = query.o.FromDate;
                                         query.o.ActualAppointmentStartDate = query.o.FromDate;
                                         query.o.ActualAppointmentEndDate = query.o.ToDate;
@@ -6593,9 +6775,10 @@ namespace IOAS.GenericServices
                                         //    }
                                         //}
                                         //var appid = query.o.AppointmentId ?? 0;
-
-                                        query.od.NotetoDean = model.FlowApprover == "NDean" ? true : false;
-                                        query.od.NotetoCMAdmin = model.FlowApprover == "CMAdmin" ? true : false;
+                                        //10554
+                                        //query.od.NotetoDean = model.FlowApprover == "NDean" ? true : false;
+                                        //query.od.NotetoCMAdmin = model.FlowApprover == "CMAdmin" ? true : false;
+                                        //10554
                                         //var Actualstartdate = query.o.FromDate;
                                         query.o.ActualAppointmentStartDate = query.o.FromDate;
                                         query.o.ActualAppointmentEndDate = query.o.ToDate;
@@ -7628,7 +7811,7 @@ namespace IOAS.GenericServices
         #region Change of project,Extension,Enhancement
 
         public OrderModel getOrderProjectDetails(int appid, string appType, int ordertype)
-        {
+         {
             OrderModel model = new OrderModel();
             try
             {
@@ -7676,6 +7859,7 @@ namespace IOAS.GenericServices
                                 model.PayType = QryCON.A.ConsolidatedPay == true ? "Consolidated Pay" : "Fellowship pay";
                                 model.ToMail = QryCON.A.ToMail;
                                 model.CCMail = QryCON.A.Bcc;
+                                model.EmpPFBasicWages = 0;
 
                             }
                         }
@@ -7720,6 +7904,7 @@ namespace IOAS.GenericServices
                                 model.Qualification = Common.getQualificationWordings(appid, appType);
                                 model.ToMail = QrySTE.A.ToMail;
                                 model.CCMail = QrySTE.A.bcc;
+                                model.EmpPFBasicWages = 0;
                             }
                         }
                         else if (appTypeId == 3)
@@ -8029,7 +8214,7 @@ namespace IOAS.GenericServices
                                 model.ToMail = QrySTE.A.ToMail;
                                 model.CCMail = QrySTE.A.bcc;
                                 model.MailSent_f = context.tblRCTSTEEmailLog.Any(m => m.OrderId == orderid && m.TypeofMail == 6 && m.IsSend == true);
-
+                                model.EmpPFBasicWages = 0;
                             }
                             else if (apptype == 3)
                             {
@@ -8100,6 +8285,7 @@ namespace IOAS.GenericServices
                                 model.ToMail = QryOSG.A.ToMail;
                                 model.CCMail = QryOSG.A.bcc;
                                 model.MailSent_f = context.tblRCTOSGEmailLog.Any(m => m.OrderId == orderid && m.TypeofMail == 6 && !m.Subject.Contains("structure approval"));
+                                model.EmpPFBasicWages = 0;
                                 if (appid > 0 && orderid > 0)
                                 {
                                     var Qrysalcalc = (from A in context.tblRCTSalaryCalcDetails
@@ -11642,8 +11828,25 @@ namespace IOAS.GenericServices
                                         select new { o, d }).FirstOrDefault();
                         if (odrQuery != null)
                         {
-                            model.RequestedfromPI = Common.GetPIName(odrQuery.o.RequestedBy ?? 0);
+
+                            if (odrQuery.o.RequestedBy != null)
+                            {
+                                model.RequestedfromPI = Common.GetPIName(odrQuery.o.RequestedBy ?? 0);
+                            }
+                            else
+                            {
+                                var mastQuery = (from A in context.tblRCTSTE
+                                                 where A.STEID == appid && A.isEmployee == true
+                                                 select A).FirstOrDefault();
+                                if (mastQuery != null)
+                                {
+                                    model.RequestedfromPI = Common.GetPIName(mastQuery.RequestedBy ?? 0);
+                                }
+
+                            }
+                            
                         }
+                        
                     }
                     else if (appTypeId == 1)
                     {
@@ -13439,67 +13642,72 @@ namespace IOAS.GenericServices
                 {
                     if (orderid > 0)
                     {
+                        //yogesh
                         var query = (from o in context.vw_RCTOverAllApplicationEntry
-                                     where o.OrderId == orderid
-                                     select o).FirstOrDefault();
+                                     from  prj in context.tblProject 
+                                     from  vwp in context.vwFacultyStaffDetails 
+                                     from rct in context.tblRCTSTE
+                                     where o.OrderId == orderid  && rct.RequestedBy == vwp.UserId && rct.STEID == o.ApplicationId && o.ProjectId == prj.ProjectId
+                                     select new { o, vwp }).FirstOrDefault();
                         if (query != null)
                         {
-                            model.applicationtype = query.Category;
-                            model.ApplicantName = query.ProfessionalType + " " + query.CandidateName.ToUpper();
+                            model.applicationtype = query.o.Category;
+                            model.ApplicantName = query.o.ProfessionalType + " " + query.o.CandidateName.ToUpper();
                             //model.OrderNo = query.OrderNo;
-                            model.OrderNo = getOfferDetails(query.ApplicationId ?? 0, query.Category, orderid); /*query.S.ApplicationNumber;*/
-                            model.PayType = query.ConsolidatedPay == true ? "Consolidated pay" : "fellowship pay";
-                            model.Pay = query.BasicPay ?? 0;
-                            model.HRA = query.HRA ?? 0;
-                            model.MedicalAmount = (query.MedicalType == 1 || query.MedicalType == 2) ? query.MedicalAmmount : (Decimal)0;
-                            model.Designation = query.PostRecommended;
-                            model.ProjectDetail = getProjectSummary(query.ProjectId ?? 0);
-                            model.FromDate = string.Format("{0:dd-MMMM-yyyy}", query.AppointmentStartdate);
-                            model.ToDate = string.Format("{0:dd-MMMM-yyyy}", query.AppointmentEnddate);
-                            DateTime OfferDate = getOfferLetterDate(query.ApplicationId ?? 0, query.Category, "Order", orderid);
+                            model.OrderNo = getOfferDetails(query.o.ApplicationId ?? 0, query.o.Category, orderid); /*query.S.ApplicationNumber;*/
+                            model.PayType = query.o.ConsolidatedPay == true ? "Consolidated pay" : "fellowship pay";
+                            model.Pay = query.o.BasicPay ?? 0;
+                            model.HRA = query.o.HRA ?? 0;
+                            model.MedicalAmount = (query.o.MedicalType == 1 || query.o.MedicalType == 2) ? query.o.MedicalAmmount : (Decimal)0;
+                            model.Designation = query.o.PostRecommended;
+                            model.ProjectDetail = getProjectSummary(query.o.ProjectId ?? 0);
+                            model.FromDate = string.Format("{0:dd-MMMM-yyyy}", query.o.AppointmentStartdate);
+                            model.ToDate = string.Format("{0:dd-MMMM-yyyy}", query.o.AppointmentEnddate);
+                            DateTime OfferDate = getOfferLetterDate(query.o.ApplicationId ?? 0, query.o.Category, "Order", orderid);
                             model.OrderDate = string.Format("{0:dd-MMMM-yyyy}", OfferDate);
-                            model.PaymentThroughAgency_f = query.CSIRStaffPayMode == 2 ? true : false;
-                            model.MsPhd_f = query.isMsPhd;
-                            model.RollNumber = query.PhdDetail;
-                            model.Gender = query.Sex;
+                            model.PaymentThroughAgency_f = query.o.CSIRStaffPayMode == 2 ? true : false;
+                            model.MsPhd_f = query.o.isMsPhd;
+                            model.RollNumber = query.o.PhdDetail;
+                            model.Gender = query.o.Sex;
+                            model.PiFirstName = query.vwp.FirstName;
                             //Requirement Bug #8535 Order-reference number issue
-                            var OrrderDetail = getReferenceOfferDetails(query.ApplicationId ?? 0, query.AppointmentType ?? 0, query.OrderId);
+                            var OrrderDetail = getReferenceOfferDetails(query.o.ApplicationId ?? 0, query.o.AppointmentType ?? 0, query.o.OrderId);
                             if (OrrderDetail != null)
                             {
                                 model.ReferenceNumber = OrrderDetail.Item1;
                                 model.ReferenceOrder = OrrderDetail.Item2;
                                 model.ExtensionOfficeOrderDate = string.Format("{0:dd-MMMM-yyyy}", OrrderDetail.Item3);
                             }
-                            model.EmployeeNo = query.EmployeersID;
-                            model.Email = query.Email;
-                            model.ApplicationNo = query.ApplicationNo;
-                            model.isConsolidatePay = query.ConsolidatedPay ?? false;
-                            model.ContactNumber = query.ContactNumber;
-                            if (query.AppointmentType == 3)
+                            model.EmployeeNo = query.o.EmployeersID;
+                            model.Email = query.o.Email;
+                            model.ApplicationNo = query.o.ApplicationNo;
+                            model.isConsolidatePay = query.o.ConsolidatedPay ?? false;
+                            model.ContactNumber = query.o.ContactNumber;
+                            if (query.o.AppointmentType == 3)
                             {
-                                var mastquery = context.tblRCTOutsourcing.Where(m => m.OSGID == query.ApplicationId).FirstOrDefault();
+                                var mastquery = context.tblRCTOutsourcing.Where(m => m.OSGID == query.o.ApplicationId).FirstOrDefault();
                                 if (mastquery != null)
                                 {
-                                    if (query.isMsPhd == true)
+                                    if (query.o.isMsPhd == true)
                                         model.MsPhdType = mastquery.MsPhdType == 1 ? "M.S" : mastquery.MsPhdType == 2 ? "Ph.D" : "";
                                     model.AmendmentFromDate = string.Format("{0:dd-MMMM-yyyy}", mastquery.ActualAppointmentStartDate);
                                     model.AmendmentToDate = string.Format("{0:dd-MMMM-yyyy}", mastquery.ActualAppointmentEndDate);
                                 }
                             }
-                            else if (query.AppointmentType == 2)
+                            else if (query.o.AppointmentType == 2)
                             {
-                                var mastquery = context.tblRCTSTE.Where(m => m.STEID == query.ApplicationId).FirstOrDefault();
+                                var mastquery = context.tblRCTSTE.Where(m => m.STEID == query.o.ApplicationId).FirstOrDefault();
                                 if (mastquery != null)
                                 {
-                                    if (query.isMsPhd == true)
+                                    if (query.o.isMsPhd == true)
                                         model.MsPhdType = mastquery.MsPhdType == 1 ? "M.S" : mastquery.MsPhdType == 2 ? "Ph.D" : "";
                                     model.AmendmentFromDate = string.Format("{0:dd-MMMM-yyyy}", mastquery.ActualAppointmentStartDate);
                                     model.AmendmentToDate = string.Format("{0:dd-MMMM-yyyy}", mastquery.ActualAppointmentEndDate);
                                 }
                             }
-                            else if (query.AppointmentType == 1)
+                            else if (query.o.AppointmentType == 1)
                             {
-                                var mastquery = context.tblRCTConsultantAppointment.Where(m => m.ConsultantAppointmentId == query.ApplicationId).FirstOrDefault();
+                                var mastquery = context.tblRCTConsultantAppointment.Where(m => m.ConsultantAppointmentId == query.o.ApplicationId).FirstOrDefault();
                                 if (mastquery != null)
                                 {
                                     model.AmendmentFromDate = string.Format("{0:dd-MMMM-yyyy}", mastquery.ActualAppointmentStartDate);
@@ -13508,19 +13716,19 @@ namespace IOAS.GenericServices
                             }
 
                             int?[] expType = new int?[] { 2, 3, 4 };
-                            if (context.tblOrder.Any(m => m.AppointmentId == query.ApplicationId && m.AppointmentType == query.AppointmentType && m.Status == "Completed" && expType.Contains(m.OrderType) && m.isExtended == true && m.isUpdated == true))
+                            if (context.tblOrder.Any(m => m.AppointmentId == query.o.ApplicationId && m.AppointmentType == query.o.AppointmentType && m.Status == "Completed" && expType.Contains(m.OrderType) && m.isExtended == true && m.isUpdated == true))
                             {
-                                var queryodr = context.tblOrder.OrderByDescending(m => m.OrderId).FirstOrDefault(m => m.AppointmentId == query.ApplicationId && m.AppointmentType == query.AppointmentType && m.Status == "Completed" && expType.Contains(m.OrderType) && m.isExtended == true && m.isUpdated == true);
+                                var queryodr = context.tblOrder.OrderByDescending(m => m.OrderId).FirstOrDefault(m => m.AppointmentId == query.o.ApplicationId && m.AppointmentType == query.o.AppointmentType && m.Status == "Completed" && expType.Contains(m.OrderType) && m.isExtended == true && m.isUpdated == true);
                                 if (queryodr != null)
                                     model.AmendmentToDate = string.Format("{0:dd-MMMM-yyyy}", queryodr.ToDate);
                             }
 
-                            if (query.ApplicationType == "Relieving")
+                            if (query.o.ApplicationType == "Relieving")
                             {
                                 var qurryrelieving = (from O in context.tblOrder
                                                       from r in context.tblRCTRelievingLog
                                                       from Od in context.tblOrderDetail
-                                                      where O.OrderId == Od.OrderId && O.OrderId == r.OrderId && O.OrderId == query.OrderId
+                                                      where O.OrderId == Od.OrderId && O.OrderId == r.OrderId && O.OrderId == query.o.OrderId
                                                       select new { Od.RelievingDate, r.isGenarateRelieveOrder, Od.RelievingMode }).FirstOrDefault();
                                 if (qurryrelieving != null)
                                 {
@@ -13560,7 +13768,7 @@ namespace IOAS.GenericServices
                         model.EmployeeId = query.EmployeersID;
                         model.Name = query.ProfessionalType + " " + query.CandidateName.ToUpper();
                         model.ApplicationNo = getOfferDetails(query.ApplicationId ?? 0, query.Category, orderid);
-                        model.ProjectDetail = getProjectSummary(query.ProjectId ?? 0);
+                    
                         model.Designation = query.PostRecommended;
                         model.Appointmentstartdate = string.Format("{0:dd-MMMM-yyyy}", query.AppointmentStartdate);
                         model.AppointmentEndDate = string.Format("{0:dd-MMMM-yyyy}", query.AppointmentEnddate);
@@ -13586,17 +13794,26 @@ namespace IOAS.GenericServices
                         model.MsPhd_f = query.isMsPhd;
                         model.RollNumber = query.PhdDetail;
                         model.TypeofAppointment = query.TypeofAppointment;
-                        if (query.AppointmentType == 3 && query.isMsPhd == true)
+                        if (query.AppointmentType == 3 )
                         {
+
                             var QryOSG = context.tblRCTOutsourcing.FirstOrDefault(m => m.OSGID == query.ApplicationId);
                             if (QryOSG != null)
-                                model.MsPhdType = QryOSG.MsPhdType == 1 ? "M.S" : QryOSG.MsPhdType == 2 ? "Ph.D" : "";
+                            {
+                                if (query.isMsPhd == true)
+                                { model.MsPhdType = QryOSG.MsPhdType == 1 ? "M.S" : QryOSG.MsPhdType == 2 ? "Ph.D" : ""; }
+                                model.ProjectDetail = getProjectSummary(query.ProjectId ?? 0, QryOSG.RequestedBy ?? 0);
+                            }
                         }
-                        else if (query.AppointmentType == 2 && query.isMsPhd == true)
+                        else if (query.AppointmentType == 2)
                         {
                             var QrySTE = context.tblRCTSTE.FirstOrDefault(m => m.STEID == query.ApplicationId);
                             if (QrySTE != null)
-                                model.MsPhdType = QrySTE.MsPhdType == 1 ? "M.S" : QrySTE.MsPhdType == 2 ? "Ph.D" : "";
+                            {
+                                if (query.isMsPhd == true)
+                                { model.MsPhdType = QrySTE.MsPhdType == 1 ? "M.S" : QrySTE.MsPhdType == 2 ? "Ph.D" : ""; }
+                                model.ProjectDetail = getProjectSummary(query.ProjectId ?? 0, QrySTE.RequestedBy ?? 0);
+                            }
                         }
 
                         model.ConsolidatedPay = query.ConsolidatedPay ?? false;
@@ -18631,8 +18848,8 @@ namespace IOAS.GenericServices
                                     OSG.Status = "Draft";
                                 else
                                 {
-                                    OSG.bcc = model.bcc;
-                                    OSG.ToMail = model.ToMail;
+                                    OSG.bcc = model.ToMail;
+                                    OSG.ToMail = model.ReqTomail;
                                 }
                                 NewStatus = OSG.Status;
                                 OSG.TypeofAppointment = model.TypeofappointmentId;
@@ -18704,6 +18921,7 @@ namespace IOAS.GenericServices
                                 OSG.ProjectId = model.ProjectId;
                                 OSG.DesignationId = model.DesignationId;
                                 OSG.SalaryLevelId = model.SalaryLevelId;
+                                OSG.EmployeeWorkplace = model.EmployeeWorkplace; 
                                 //if (model.MsPhd || model.TypeofappointmentId == 2)
                                 //{
                                 //    STE.Medical = 3;
@@ -19043,11 +19261,11 @@ namespace IOAS.GenericServices
                                     {
                                         if (model.bcc != null)
                                         {
-                                            qryOSG.bcc = model.bcc;
+                                            qryOSG.bcc = model.ToMail;
                                         }
                                         if (model.ToMail != null)
                                         {
-                                            qryOSG.ToMail = model.ToMail;
+                                            qryOSG.ToMail = model.ReqTomail;
                                         }
                                     }
                                     NewStatus = qryOSG.Status;
@@ -19115,6 +19333,7 @@ namespace IOAS.GenericServices
                                     qryOSG.MsPhdType = model.MsPhdType;
                                     qryOSG.Comments = model.Comments;
                                     qryOSG.PhdDetail = model.PhdDetail;
+                                    qryOSG.EmployeeWorkplace = model.EmployeeWorkplace;
                                     if (model.PIJustificationFile != null)
                                     {
                                         var QryUpdatePIJustification = (from P in context.tblRCTOSGPIJustificationDoc where P.OSGID == OSGID orderby P.DocsID select P).ToList();
@@ -19425,6 +19644,14 @@ namespace IOAS.GenericServices
                                     {
                                         if (model.OtherDetail.Count > 0)
                                         {
+                                            List<int?> OtherDetailsID = new List<int?>().ToList();
+                                            for (int i = 0; i < model.OtherDetail.Count; i++)
+                                            { OtherDetailsID.Add(model.OtherDetail[i].OtherDetailId); }
+
+                                            context.tblRCTOSGOtherDetail.Where(x => x.OSGId == OSGID && !OtherDetailsID.Contains(x.OtherDetailsId) && x.Status == "Active")
+                                          .ToList()
+                                           .ForEach(m => m.Status = "InActive");
+                                            context.SaveChanges();
                                             for (int i = 0; i < model.OtherDetail.Count; i++)
                                             {
                                                 if (model.OtherDetail[i].OtherDetailId == null && model.OtherDetail[i].OtherNames != null)
@@ -25053,6 +25280,26 @@ namespace IOAS.GenericServices
                     var query = (from osg in context.tblRCTPayroll
                                  where osg.AppointmentType == "OSG" && osg.Status == "Requested for salary processing"
                                  select osg.EndDate).Max();
+                    if (query != null)
+                        return query ?? DateTime.Now;
+                }
+                return DateTime.Now;
+            }
+            catch (Exception ex)
+            {
+                return DateTime.Now;
+            }
+        }
+
+        public static DateTime getOSGFirstSalaryProcessdate()
+        {
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    var query = (from osg in context.tblRCTPayroll
+                                 where osg.AppointmentType == "OSG" && osg.Status == "Requested for salary processing"
+                                 select osg.StartDate).Max();
                     if (query != null)
                         return query ?? DateTime.Now;
                 }

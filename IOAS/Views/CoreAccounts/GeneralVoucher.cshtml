@@ -402,6 +402,22 @@
             $('select[name$=".CategoryId"],input[name$=".PaymentAmount"],select[name$=".ModeOfPayment"]').addClass('required');
         }
     }
+
+    $('#tbodyPaymentBU').on('blur', '.roundoff', function () {
+        roundoffAlert(this);
+    });
+    
+    function roundoffAlert(inVal) {
+        var Value = $(inVal).val();
+        //var decimalPattern = /^[-+]?[0-9]*\.?[0-9]+$/;
+        var valToBeRounded = parseFloat(Value);
+        var decimalPart = valToBeRounded % 1;
+
+        if (decimalPart > 0) {
+            $("#alert").text("Please enter a rounded off value!");
+            $('#Validation').modal('show');
+        }
+    }
     function CalculatePayTxTotal() {
         var ttlDrVal = 0;
         var ttlExpVal = parseFloat($('#PaymentBankAmount').val()) || 0;

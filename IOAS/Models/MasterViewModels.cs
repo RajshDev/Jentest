@@ -119,6 +119,11 @@ namespace IOAS.Models
         [Required]
         [Display(Name = "Accountant Name")]
         public string AccountantName { get; set; }
+        public string PAN { get; set; }
+
+        [Required]
+        [Display(Name = "Payment Type")]
+        public Nullable<int> PayFor { get; set; }
     }
     public class BankMasterListModel
     {
@@ -176,7 +181,7 @@ namespace IOAS.Models
         [Display(Name = "TAN Number")]
         public string TAN { get; set; }
         [MaxLength(15)]
-        // [RegularExpression("^([0]{1}[1-9]{1}|[1-2]{1}[0-9]{1}|[3]{1}[0-7]{1})([a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[1-9a-zA-Z]{1}[zZ]{1}[0-9a-zA-Z]{1})+$", ErrorMessage = "Invalid GST Number")]
+        // [RegularExpression("^([0]{1}[1-9]{1}|[1-2]{1}[0-9]{1}|[3]{1}[0-8]{1})([a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[1-9a-zA-Z]{1}[zZ]{1}[0-9a-zA-Z]{1})+$", ErrorMessage = "Invalid GST Number")]
         [Display(Name = "GST Number")]
         public string GSTIN { get; set; }
 

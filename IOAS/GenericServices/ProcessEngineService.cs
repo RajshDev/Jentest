@@ -728,7 +728,7 @@ namespace IOAS.GenericServices
                                join PT in context.tblProcessTransaction on PGD.ProcessGuidelineDetailId equals PT.ProcessGuidelineDetailId
                                //join PTD in context.tblProcessTransactionDetail on PT.ProcessTransactionId equals PTD.ProcessTransactionId
                                join U in context.tblUser on WF.ApproverId equals U.UserId
-                               where WF.ProcessGuidelineId == this._processGuideLineId && PT.RefId == this._refId
+                               where WF.ProcessGuidelineId == this._processGuideLineId && PT.RefId == this._refId && U.Status != "InActive"
                                orderby WF.ApproverLevel ascending
                                select new
                                {
@@ -913,12 +913,48 @@ namespace IOAS.GenericServices
         }
 
 
+        public static bool DuplicateEntryValidation (string refNumber , int ProcessGuidelineDetailId)
+        {
+            try
+            {
+                var DuplicateEntry="";
+                bool retunval = false;
+                using (var context = new IOASDBEntities())
+                {
+                    
+                    DuplicateEntry = (from Pt in context.tblProcessTransaction
+                                      where  Pt.RefNumber == refNumber && Pt.Closed_F == true && Pt.ProcessGuidelineDetailId==ProcessGuidelineDetailId
+                                      select Pt.RefNumber).FirstOrDefault();
+
+                    if (refNumber != DuplicateEntry)
+                    {
+                        retunval = true;
+                    }
+
+
+
+                }
+                return retunval;
+
+
+            }
+
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+                (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                return false;
+            }
+        }
+
+
         private static ProcessEngineModel InsertProcessTransaction(ProcessEngineModel model)
         {
             try
             {
                 using (var context = new IOASDBEntities())
                 {
+                    
                     tblProcessTransaction trans = new tblProcessTransaction();
                     tblProcessTransactionDetail transDetail = new tblProcessTransactionDetail();
                     if (model.ProcessTransactionId != 0)
@@ -953,52 +989,62 @@ namespace IOAS.GenericServices
                         trans.RefFieldName = model.RefFieldName;
                         trans.FunctionId = model.FunctionId;
                         trans.RefNumber = model.RefNumber;
-                        context.tblProcessTransaction.Add(trans);
-                        context.SaveChanges();
+                        //rajesh duplication                       
+
+                        if (DuplicateEntryValidation(model.RefNumber.ToString(), model.ProcessGuidelineDetailId))
+                        {
+                            context.tblProcessTransaction.Add(trans);
+                            context.SaveChanges();
+                        }
                     }
-
-
-                    transDetail.ProcessTransactionId = trans.ProcessTransactionId;
-                    transDetail.ProcessGuidelineDetailId = model.ProcessGuidelineDetailId;
-                    transDetail.ProcessSeqNumber = model.ProcessSeqNumber;
-                    transDetail.Approverid = model.ApproverId;
-                    transDetail.ActionStatus = model.ActionStatus;
-                    transDetail.TransactionTS = System.DateTime.Now;
-                    transDetail.TransactionIP = model.TransactionIP;
-                    transDetail.MacID = model.MacID;
-                    transDetail.RefId = model.RefId;
-                    transDetail.RefTable = model.RefTable;
-                    transDetail.RefFieldName = model.RefFieldName;
-                    transDetail.Comments = model.Comments;
-                    transDetail.Rejected = false;
-                    transDetail.Clarified = false;
-                    context.tblProcessTransactionDetail.Add(transDetail);
-                    context.SaveChanges();
-                    model.ProcessTransactionDetailId = transDetail.ProcessTransactionDetailId;
-
-                    if (model.ActionStatus == "Rejected" || model.ActionStatus == "Clarify")
+                    var GetProcessTransactionId = trans.ProcessTransactionId;
+                    
+                    if (GetProcessTransactionId != 0 || GetProcessTransactionId != null)
                     {
-                        var details = context.tblProcessTransactionDetail
-                            .Where(p => p.RefId == model.RefId && p.ProcessTransactionId == model.ProcessTransactionId
-                            && p.Rejected == false && p.Clarified == false).ToList();
-                        if (model.ActionStatus == "Rejected")
-                        {
-                            details.ForEach(p => p.Rejected = true);
-                        }
-                        if (model.ActionStatus == "Clarify")
-                        {
-                            details.ForEach(p => p.Clarified = true);
-                        }
-
+                        transDetail.ProcessTransactionId = trans.ProcessTransactionId;
+                        transDetail.ProcessGuidelineDetailId = model.ProcessGuidelineDetailId;
+                        transDetail.ProcessSeqNumber = model.ProcessSeqNumber;
+                        transDetail.Approverid = model.ApproverId;
+                        transDetail.ActionStatus = model.ActionStatus;
+                        transDetail.TransactionTS = System.DateTime.Now;
+                        transDetail.TransactionIP = model.TransactionIP;
+                        transDetail.MacID = model.MacID;
+                        transDetail.RefId = model.RefId;
+                        transDetail.RefTable = model.RefTable;
+                        transDetail.RefFieldName = model.RefFieldName;
+                        transDetail.Comments = model.Comments;
+                        transDetail.Rejected = false;
+                        transDetail.Clarified = false;
+                        context.tblProcessTransactionDetail.Add(transDetail);
                         context.SaveChanges();
 
+                        if (model.ActionStatus == "Rejected" || model.ActionStatus == "Clarify")
+                        {
+                            var details = context.tblProcessTransactionDetail
+                                .Where(p => p.RefId == model.RefId && p.ProcessTransactionId == model.ProcessTransactionId
+                                && p.Rejected == false && p.Clarified == false).ToList();
+                            if (model.ActionStatus == "Rejected")
+                            {
+                                details.ForEach(p => p.Rejected = true);
+                            }
+                            if (model.ActionStatus == "Clarify")
+                            {
+                                details.ForEach(p => p.Clarified = true);
+                            }
+
+                            context.SaveChanges();
+
+                        }
+
+                        context.Dispose();
+
+                        return model;
                     }
-
-                    context.Dispose();
-
-                    return model;
-                }
-
+                    else
+                    {
+                        return null; 
+                    }
+                }  
             }
             catch (Exception ex)
             {

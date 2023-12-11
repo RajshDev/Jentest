@@ -110,6 +110,14 @@
 <script>
     var errMsg = '@TempData["errMsg"]';
     $(document).ready(function () {
+       fincurrent = moment(new Date()).toDate();
+        finyr = new Date('@TempData["Finyear"]');
+        console.log(finyr);
+        $('#BillDate,#CashDate').datepicker({
+            dateFormat: 'dd-mm-yy',
+            changeYear: true,
+        }).datepicker("option", "minDate", finyr).datepicker("option", "maxDate", fincurrent);
+     
         if (errMsg == 'Failed') {
             $("#RefId,#RefNo,#BillDate,#ExpDate,#CashDate,#Remarks").val('');
             $("#CurrDate,#expendituredate,#cashbookdate,#Remarks").text('');
@@ -125,9 +133,9 @@
             $('#Success').modal('toggle');
         }
     });
-    $(document).on('change', '#RefNo', function () {
-        DateModificationRange();
-    });
+    //$(document).on('change', '#RefNo', function () {
+    //    DateModificationRange();
+    //});
     function DateModificationRange() {
         var RefNo = $("#RefId").val();
         $('#BillDate,#ExpDate,#CashDate').removeClass('hasDatepicker');
@@ -153,15 +161,48 @@
         applyAutoComplete($('#RefNo'), $('#RefId'), '@Url.Action("LoadPDTRefernceNumber", "CoreAccounts")', 'BillDate', undefined, undefined);
        BillDate();
     });
+ function GetRefNumber(Refnum) {
+        var RefNumValidate ='';
+        $.ajax({
+            type: "GET",
+            async: false,
+            url: '@Url.Action("GetRefNumberForValidationAVOBill", "CoreAccounts")',
+            data: {
+                "Refnum": Refnum, "vouchertype":'DirectFundTransfer'
+            },
+            dataType: "json",
+            success: function (result) {
+                RefNumValidate = result;
+                }
+        });
+        return RefNumValidate;
+    }
+
     $('#btnSubmit').click(function () {
-        var RefNumber = $("#RefId").val();
+        var RefNumber = $("#RefNo").val();
         var BillDate = $("#BillDate").val();
         var ExpDate = $("#ExpDate").val();
         var CashDate = $("#CashDate").val();
-        if (RefNumber != "") {
-            $('#formPDTbillDate').submit();
-    }
+        validate(RefNumber);
+
+        //if (RefNumber != "") {
+        //    $('#formAVObillDate').submit();
+        //}
+
     });
+    async function validate(RefNumber) {
+
+        var ValidateRefNumber = await GetRefNumber(RefNumber);
+
+        if (RefNumber == ValidateRefNumber && RefNumber != "") {
+            $('#formPDTbillDate').submit();
+        }
+        else {
+            $('#FailedAlert').html("Invalid Reference Number");
+            $('#Failed').modal('show');
+        }
+    
+    };
     function BillDate()
     {
         var RefNumber = $("#RefId").val();
