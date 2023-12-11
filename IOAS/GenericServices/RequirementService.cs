@@ -19256,13 +19256,18 @@ namespace IOAS.GenericServices
                                     }
                                     else
                                     {
-                                        if (model.bcc != null)
+                                        if (model.ToMail != null)
                                         {
                                             qryOSG.bcc = model.ToMail;
                                         }
-                                        if (model.ToMail != null)
+                                        if(model.bcc != null)
+                                        {
+                                            qryOSG.bcc = model.bcc;
+                                        }
+                                        if (model.ReqTomail != null)
                                         {
                                             qryOSG.ToMail = model.ReqTomail;
+                                            //qryOSG.bcc = model.ToMail;
                                         }
                                     }
                                     NewStatus = qryOSG.Status;
