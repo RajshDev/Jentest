@@ -381,6 +381,7 @@ namespace IOAS.Models
         public bool ICSROverHead_f { get; set; }
         public Nullable<int> VendorId { get; set; }
         public Nullable<decimal> hiddenSettAmt { get; set; }
+        public Nullable<decimal> hiddenRoundOffAmt { get; set; }
         public Nullable<decimal> hiddenSettTaxAmt { get; set; }
         public Nullable<decimal> hiddenTaxEligibleAmt { get; set; }
         public string GST { get; set; }
@@ -6797,6 +6798,7 @@ namespace IOAS.Models
         public string GSTIN { get; set; }
         public string PAN { get; set; }
         public string BankGuaranteeRemarks { get; set; }
+        public Nullable<decimal> RoundOfAdjustment { get; set; }
         public List<PayableModel> Payable { get; set; }
         public List<CommListModel> Comm { get; set; }
         public List<TDSITListModel> TDSIT { get; set; }

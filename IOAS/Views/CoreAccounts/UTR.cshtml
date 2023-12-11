@@ -442,6 +442,9 @@
                     $('#DocumentPath').val(responseData.DocumentPath);
                     $.each(responseData.txDetail, function (idx, item) {
                         var txDate = new Date(parseInt(item.InputValueDate.replace(/(^.*\()|([+-].*$)/g, '')));
+                        // var txDate_formatted = txDate.getDate() + '/' + (txDate.getMonth() + 1) + '/' + txDate.getFullYear();
+                        var txDate_formatted = txDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }).replace(/ /g, '/');
+                        //var txDate_formatted = txDate.getDate() + '/' + (txDate.getMonth() + 1) + '/' + txDate.getFullYear();
                         var day = txDate.getDate();       // yields date
                         var month = txDate.getMonth() + 1;    // yields month (add one as '.getMonth()' is zero indexed)
                         var year = txDate.getFullYear();  // yields year
@@ -452,7 +455,7 @@
                              .append($('<td>').append(item.Recordreferencenumber).append($('<input/>', { type: 'hidden', name: "txDetail[" + idx + "].Recordreferencenumber", value: item.Recordreferencenumber })))
                              .append($('<td>').append(item.Amount).append($('<input/>', { type: 'hidden', name: "txDetail[" + idx + "].Amount", value: item.Amount })))
                              .append($('<td>').append(item.BeneficiaryAccountNumber).append($('<input/>', { type: 'hidden', name: "txDetail[" + idx + "].BeneficiaryAccountNumber", value: item.BeneficiaryAccountNumber })))
-                                .append($('<td>').append(day + "/" + month + "/" + year).append($('<input/>', { type: 'hidden', name: "txDetail[" + idx + "].InputValueDate", value: txDate.toLocaleString() }))).append($('<input/>', { type: 'hidden', name: "txDetail.index", value: idx })).append($('<input/>', { type: 'hidden', name: "txDetail[" + idx + "].BOADraftDetailId", value: item.BOADraftDetailId }))
+                                .append($('<td>').append(day + "/" + month + "/" + year).append($('<input/>', { type: 'hidden', name: "txDetail[" + idx + "].InputValueDate", value: txDate_formatted }))).append($('<input/>', { type: 'hidden', name: "txDetail.index", value: idx })).append($('<input/>', { type: 'hidden', name: "txDetail[" + idx + "].BOADraftDetailId", value: item.BOADraftDetailId }))
                                 .append($('<td>').append(item.Status).append($('<input/>', { type: 'hidden', name: "txDetail[" + idx + "].Status", value: item.Status })))
                                 .append($('<td>').append(item.UserReferenceNumber).append($('<input/>', { type: 'hidden', name: "txDetail[" + idx + "].UserReferenceNumber", value: item.UserReferenceNumber })))
                                 .append($('<td>').append(item.UTRNO).append($('<input/>', { type: 'hidden', name: "txDetail[" + idx + "].UTRNO", value: item.UTRNO })))

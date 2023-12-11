@@ -7859,6 +7859,7 @@ namespace IOAS.GenericServices
                                 model.PayType = QryCON.A.ConsolidatedPay == true ? "Consolidated Pay" : "Fellowship pay";
                                 model.ToMail = QryCON.A.ToMail;
                                 model.CCMail = QryCON.A.Bcc;
+                                model.EmpPFBasicWages = 0;
 
                             }
                         }
@@ -7903,6 +7904,7 @@ namespace IOAS.GenericServices
                                 model.Qualification = Common.getQualificationWordings(appid, appType);
                                 model.ToMail = QrySTE.A.ToMail;
                                 model.CCMail = QrySTE.A.bcc;
+                                model.EmpPFBasicWages = 0;
                             }
                         }
                         else if (appTypeId == 3)
@@ -8212,7 +8214,7 @@ namespace IOAS.GenericServices
                                 model.ToMail = QrySTE.A.ToMail;
                                 model.CCMail = QrySTE.A.bcc;
                                 model.MailSent_f = context.tblRCTSTEEmailLog.Any(m => m.OrderId == orderid && m.TypeofMail == 6 && m.IsSend == true);
-
+                                model.EmpPFBasicWages = 0;
                             }
                             else if (apptype == 3)
                             {
@@ -8283,6 +8285,7 @@ namespace IOAS.GenericServices
                                 model.ToMail = QryOSG.A.ToMail;
                                 model.CCMail = QryOSG.A.bcc;
                                 model.MailSent_f = context.tblRCTOSGEmailLog.Any(m => m.OrderId == orderid && m.TypeofMail == 6 && !m.Subject.Contains("structure approval"));
+                                model.EmpPFBasicWages = 0;
                                 if (appid > 0 && orderid > 0)
                                 {
                                     var Qrysalcalc = (from A in context.tblRCTSalaryCalcDetails

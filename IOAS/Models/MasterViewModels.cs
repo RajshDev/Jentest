@@ -120,6 +120,10 @@ namespace IOAS.Models
         [Display(Name = "Accountant Name")]
         public string AccountantName { get; set; }
         public string PAN { get; set; }
+
+        [Required]
+        [Display(Name = "Payment Type")]
+        public Nullable<int> PayFor { get; set; }
     }
     public class BankMasterListModel
     {

@@ -1168,14 +1168,17 @@ namespace IOAS.Controllers
             ttlGSTElgAmt = Math.Round(ttlGSTElgAmt, 2, MidpointRounding.AwayFromZero);
             //netAdvAmt = Math.Round(netAdvAmt, 2, MidpointRounding.AwayFromZero);
             netAdvAmt = (int)Math.Round(netAdvAmt);
+            var invAmt = netAdvAmt;
             netAdvAmt = netAdvAmt - ttlGSTElgAmt;
+            
             if (netAdvAmt != commitmentAmt)
                 msg = "There is a mismatch between the settlement value and allocated commitment value. Please update the value to continue.";
             if (netDrAmt != crAmt || (netCrAmt + ttlJVExpVal) != crAmt)
                 msg = msg == "Valid" ? "Not a valid entry. Credit and Debit value are not equal" : msg + "<br />Not a valid entry. Credit and Debit value are not equal";
             if (ttlJVExpVal != ttlJVDrVal)
                 msg = msg == "Valid" ? "Not a valid entry. Credit and Debit value of JV are not equal" : msg + "<br />Not a valid entry. Credit and Debit value of JV are not equal";
-            if (TransAmt != (model.InvoiceAmount + model.InvoiceTaxAmount) && !model.RCM_f)
+            //if (TransAmt !=  (model.InvoiceAmount + model.InvoiceTaxAmount) && !model.RCM_f)
+            if (TransAmt != invAmt && !model.RCM_f)
                 msg = msg == "Valid" ? "There is a mismatch between the credit value and invoice value. Please update the value to continue." : msg + "<br />There is a mismatch between the credit value and invoice value. Please update the value to continue.";
             //if (ttlExpAmt != commitmentAmt)
             //    msg = msg == "Valid" ? "There is a mismatch between the expense value and allocated commitment value. Please update the value to continue." : msg + "<br />There is a mismatch between the expense value and allocated commitment value. Please update the value to continue.";
@@ -9815,7 +9818,7 @@ namespace IOAS.Controllers
 
 
 
-                if (honorpay.TDS != 0 && honorpay.TDS != (decimal)0.10 && honorpay.TDS != (decimal)0.20 && honorpay.TDS != (decimal)0.2080 && honorpay.TDS != (decimal)0.3120 && honorpay.TDS != (decimal)0.3432 && honorpay.TDS != (decimal)0.3588 && honorpay.TDS != null && honorpay.TDS != (decimal)0.3900 && honorpay.TDS != null)
+                if (honorpay.TDS != 0 && honorpay.TDS != (decimal)0.10 && honorpay.TDS != (decimal)0.20 && honorpay.TDS != (decimal)0.2080 && honorpay.TDS != (decimal)0.3120 && honorpay.TDS != (decimal)0.3432 && honorpay.TDS != (decimal)0.3588 && honorpay.TDS != null && honorpay.TDS != (decimal)0.3900 && honorpay.TDS != (decimal)0.30 && honorpay.TDS != null)
                 { tds_status = "Invalid TDS"; }
 
                 //                honorpay.Status = (name_status == "" ? "" : name_status + " / ") + (tds_status == "" ? "" : tds_status + " / ") + (amt_status == "" ? "" : amt_status + " / ");
@@ -9844,7 +9847,8 @@ namespace IOAS.Controllers
                         "TDS on Salary (92B) - 31.2%",
                         "TDS on Salary (92B) - 34.32%",
                         "TDS on Salary (92B) - 35.88%",
-                        "TDS on Salary (92B) - 39%"
+                        "TDS on Salary (92B) - 39%",
+                        "TDS on Salary (92B) - 30%"
                     };
                     string[] arrTdsSectionId = {
                         "41",
@@ -9853,7 +9857,8 @@ namespace IOAS.Controllers
                         "589",
                         "590",
                         "591",
-                        "593"
+                        "593",
+                        "600"
                     };
 
                     honorpay.TDSAmt = honorpay.Amount * (honorpay.TDS);
@@ -9944,6 +9949,11 @@ namespace IOAS.Controllers
                     else if (honorpay.TDS * 100 == (Decimal)39)
                     {
                         honorpay.SelectedTdssection = "TDS on Salary (92B) - 39%";
+
+                    }
+                    else if (honorpay.TDS * 100 == (Decimal)30)
+                    {
+                        honorpay.SelectedTdssection = "TDS on Salary (92B) - 30%";
 
                     }
                     int tdsid=-1;
@@ -13707,7 +13717,7 @@ namespace IOAS.Controllers
                 ViewBag.Student = Common.GetStudentList();
                 List<MasterlistviewModel> tds = new List<MasterlistviewModel>();
                 tds = Common.GetTDS();
-                var tdsfilter = tds.Where(t => t.code == "0" || t.code == "10" || t.code == "20" || t.code == "20.8" || t.code == "31.2" || t.code == "34.32" || t.code == "35.88" || t.code == "39");
+                var tdsfilter = tds.Where(t => t.code == "0" || t.code == "10" || t.code == "20" || t.code == "20.8" || t.code == "30" || t.code == "31.2" || t.code == "34.32" || t.code == "35.88" || t.code == "39" );
                 ViewBag.TDS = tdsfilter;
 
                 ViewBag.OH = Common.GetOH();
@@ -13723,7 +13733,7 @@ namespace IOAS.Controllers
                 List<MasterlistviewModel> tdssec = new List<MasterlistviewModel>();
 
                 tdssec = Common.GetHonororiumTdsSection();
-                var tdssecfilter = tdssec.Where(t => t.id == 41 || t.id == 356 || t.id == 460 || (t.id >= 588 && t.id <= 593));
+                var tdssecfilter = tdssec.Where(t => t.id == 41 || t.id == 356 || t.id == 460 || t.id == 600 || (t.id >= 588 && t.id <= 593));
                 ViewBag.HonTdsSection = tdssecfilter;
                 var ptypeList = Common.getprojecttype();
                 int firstPType = ptypeList != null ? ptypeList[0].codevalAbbr : 0;

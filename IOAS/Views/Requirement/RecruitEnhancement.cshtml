@@ -326,11 +326,13 @@
                                                     @if (Model.OrderID > 0)
                                                     {
                                                         @Html.TextBoxFor(m => m.ProjectNumber, new { @class = "form-control ", @required = "required" })
+                                                        @Html.Hidden("hdnProjectNumber", Model.OldPrjDetailModel.ProjectNumber)
                                                         <div>@Html.ValidationMessageFor(m => m.ProjectNumber)</div>
                                                         @Html.HiddenFor(m => m.ProjectId)
                                                     }
                                                     else
                                                     {
+                                                        @Html.Hidden("hdnProjectNumber", Model.OldPrjDetailModel.ProjectNumber)
                                                         @Html.TextBox("ProjectNumber", Model.OldPrjDetailModel.ProjectNumber, new { @class = "form-control ", @required = "required" })
                                                         <div>@Html.ValidationMessageFor(m => m.ProjectNumber)</div>
                                                         @Html.Hidden("ProjectId", Model.OldPrjDetailModel.ProjectID, new { @class = "required" })
@@ -432,8 +434,10 @@
                                                 <div class="form-group custom-form-group">
                                                     <label>Designation Code</label>
                                                     @Html.TextBoxFor(m => m.DesignationCode, new { @class = "form-control required", @autocomplete = "off" })
+                                                    @Html.Hidden("hdnDesignationCode", Model.OldPrjDetailModel.DesignationCode)
+
                                                     <div>@Html.ValidationMessageFor(m => m.DesignationCode)</div>
-                                                    @if (!string.IsNullOrEmpty(Model.OtherDesignation)) 
+                                                    @if (!string.IsNullOrEmpty(Model.OtherDesignation))
                                                     {
                                                         <em style="color:red;font-size:15px;"><b>PI requested designation : @Html.DisplayFor(m => m.OtherDesignation)</b></em>
                                                     }
@@ -488,9 +492,11 @@
                                                         if (Model.TypeCode == "OSG")
                                                         {
                                                             @Html.TextBoxFor(m => m.Salary, new { @class = "form-control", @onkeypress = "return isNumberKey(event)", @autocomplete = "off", @onchange = "FillSalaryCalcDetls();" })
+                                                            @Html.Hidden("hdnSalary", Model.OldPrjDetailModel.Salary)
                                                         }
                                                         else
                                                         {
+                                                            @Html.Hidden("hdnSalary", Model.OldPrjDetailModel.Salary)
                                                             @Html.TextBoxFor(m => m.Salary, new { @class = "form-control", @onkeypress = "return isNumberKey(event)", @autocomplete = "off" })
                                                         }
                                                         <div>@Html.ValidationMessageFor(m => m.Salary)</div>
@@ -498,11 +504,14 @@
                                                     else
                                                     {
                                                         if (Model.TypeCode == "OSG")
+
                                                         {
+                                                            @Html.Hidden("hdnSalary", Model.OldPrjDetailModel.Salary)
                                                             @Html.TextBox("Salary", Model.OldPrjDetailModel.Salary, new { @class = "form-control", @onkeypress = "return isNumberKey(event)", @autocomplete = "off", @onchange = "FillSalaryCalcDetls();" })
                                                         }
                                                         else
                                                         {
+                                                            @Html.Hidden("hdnSalary", Model.OldPrjDetailModel.Salary)
                                                             @Html.TextBox("Salary", Model.OldPrjDetailModel.Salary, new { @class = "form-control", @onkeypress = "return isNumberKey(event)", @autocomplete = "off" })
                                                         }
                                                         <div>@Html.ValidationMessage("Salary")</div>
@@ -613,9 +622,10 @@
                                         <div class="row">
                                             <div class="col-md-3">
                                                 <div class="form-group custom-form-group">
-                                                    <label class="required">Enhancement From Date</label>
+                                                    <label class="required">Enhancement From Date </label>
                                                     <h4 id="txt-FromDate" class="">@Html.DisplayFor(m => m.OldPrjDetailModel.AppointmentClosureDate)</h4>
                                                     @Html.EditorFor(m => m.FromDate, new { @class = "form-control", @required = "required" })
+                                                    @Html.Hidden("hdnFromDate", Model.OldPrjDetailModel.AppointmentClosureDate, new { @id = "hdnFromDate" })
                                                     <div>@Html.ValidationMessageFor(m => m.FromDate)</div>
                                                 </div>
                                             </div>
@@ -1196,8 +1206,9 @@
                                                                 </div>*@
                                                             <div class="col-md-6">
                                                                 <div class="form-group custom-form-group mb-sm ">
-                                                                    <label>PF Basic Wages</label>
-                                                                    @Html.TextBoxFor(m => m.EmpPFBasicWages, new { @class = "form-control", @id = "EmpPFBasicWages" })
+                                                                    <label class="required">PF Basic Wages</label>
+                                                                    @Html.TextBoxFor(m => m.EmpPFBasicWages, new { @class = "form-control", @id = "EmpPFBasicWages", @required = "required" })
+                                                                    <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.EmpPFBasicWages)</div>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -2006,7 +2017,7 @@
     //    calculatetaxTotal();
     //});
 
-    $('input[name=EmpPFBasicWages]').keyup(function () {
+    $('input[name=EmpPFBasicWages]').change (function () {
         //var emppfbasicwages = $('input[name=EmpPFBasicWages]').val();
         FillSalaryCalcDetls();
         //calculatetaxTotal();
@@ -2018,8 +2029,26 @@
     //$('select[name=PhysicallyChallenged]').change(function () {
     //    FillSalaryCalcDetls();
     //});
-    $('#btnSubmitSalaryCalc').click(function () {
-        PopupSalaryConfirm();
+    $('#btnSubmitSalaryCalc').click(function (d) {
+
+        d.preventDefault();
+        var isValid = $('#formExtension').valid();
+        var EmpfBasicwages = $('#EmpPFBasicWages').val();
+        if (EmpfBasicwages.trim() != "" && parseInt(EmpfBasicwages.trim()) >= 0) {
+            isValid = true;
+        }
+        else {
+            isValid = false;
+            $('#alert').html("Please Enter EmpPFBasicWages");
+            $('#Validation').modal('toggle');
+            return false;
+        }
+
+
+        if (isValid) { PopupSalaryConfirm(); }
+        //$('#formSTEJuniorApp').Submit();
+
+       
     });
     $('#issalaryConfirm').click(function () {
         $('#dialogSalaryConfirm').modal('toggle');
@@ -2825,6 +2854,25 @@
                 } // set our flag if there was an error
             }
         });
+
+
+        if (n == 1) {
+            if ($('#ProjectNumber').val() == $('#hdnProjectNumber').val() &&
+                $('#DesignationCode').val() == $('#hdnDesignationCode').val() &&
+                $('#Salary').val() == $('#hdnSalary').val()) {
+                $.confirm({
+                    title: 'Warning!',
+                    content: 'Please Change Project Number / Designation / Salary',
+                    type: 'orange',
+                    buttons: {
+                        Ok: function () {
+                            //close
+                        },
+                    },
+                });
+                return false;
+            }
+        }
         if (!hadError && n != 2 && ($('#Status').val() == "" || $('#Status').val().includes("Open") || $('#Status').val().includes("Note to PI") || $('#Status').val().includes("PI Initiated"))) {
 
             if ($('#FromDate').val() == "" || $('#ToDate').val() == "") {
@@ -3419,7 +3467,7 @@
     function FillSalaryCalcDetls() {
         var Vendorid = $('#VendorId').val();
         var salary = $('#Salary').val();
-        var emppfbasicwages = $('input[name=EmpPFBasicWages]').val() || 0;
+        var emppfbasicwages = $('input[name=EmpPFBasicWages]').val() ;
         var isemppfwages = true;
         $.getJSON("@Url.Action("LoadSalCalPercent", "Requirement")", { VendorId: Vendorid, Salary: salary },
     function (result) {
@@ -4206,6 +4254,31 @@
             });
         }
     });
+    //$('#nextBtn')
+    
+    //    .click(function (d) {
+    //        d.preventDefault();
+    //        var ProjectNumber = $('#ProjectNumber').val();
+    //        if (ProjectNumber == 0 || ProjectNumber == null || ProjectNumber == "")
+    //            alert('Hello!');
+    //    })
+    //    .click(function (d) {
+    //        d.preventDefault();
+    //        var DesignationCode = $('#DesignationCode').val();
+    //        if (DesignationCode == 0 || DesignationCode == null || DesignationCode == "")
+    //            // alert('Hello!');
+    //            alert('Hello again!');
+    //    })
+
+    //    .click(function (d) {
+    //        d.preventDefault();
+    //        var Salary = $('#Salary').val();
+    //        if (Salary == 0 || Salary == null || Salary == "")
+    //            // alert('Hello!');
+    //            alert('Hello yet again!');
+    //    });
+
+
 </script>
 <script src="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/js/bootstrap-select.min.js")"></script>
 <script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
