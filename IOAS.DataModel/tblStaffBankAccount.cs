@@ -30,6 +30,5 @@ namespace IOAS.DataModel
         public string Branch { get; set; }
         public string BankName { get; set; }
         public string PAN { get; set; }
-        public Nullable<int> PayFor { get; set; }
     }
 }

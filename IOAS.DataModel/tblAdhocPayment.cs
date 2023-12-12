@@ -43,6 +43,5 @@ namespace IOAS.DataModel
         public Nullable<int> CommitmentId { get; set; }
         public Nullable<bool> Pmt_f { get; set; }
         public Nullable<int> BankID { get; set; }
-        public Nullable<decimal> RoundOffAdjustment { get; set; }
     }
 }
