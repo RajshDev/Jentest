@@ -2552,11 +2552,17 @@ namespace IOAS.GenericServices
                                                                   FileName = c.FileName,
                                                                   FilePath = c.DocsName,
                                                               }).ToList();
+                        //viewmodel.PIJustificationCommands = (from c in context.tblRCTSTEPIJustificationDocs
+                        //                                     where c.STEID == STEID && !string.IsNullOrEmpty(c.Description)
+                        //                                     && c.Deleted_f != true
+                        //                                     group c by c.Description into grp
+                        //                                     select grp.Key).ToList();
+
                         viewmodel.PIJustificationCommands = (from c in context.tblRCTSTEPIJustificationDocs
-                                                             where c.STEID == STEID && !string.IsNullOrEmpty(c.Description)
-                                                             && c.Deleted_f != true
-                                                             group c by c.Description into grp
-                                                             select grp.Key).ToList();
+                                                             where c.STEID == STEID && !string.IsNullOrEmpty(c.Description) && c.Deleted_f != true
+                                                         orderby c.DocsID descending
+                                                         select c.Description).Take(1).ToList();
+
                         viewmodel.Comments = query.A.Comments;
                         viewmodel.CommiteeMemberId1 = query.A.CommitteeMember ?? 0;
                         viewmodel.CommiteeMemberId2 = query.A.CommitteeMembers ?? 0;
