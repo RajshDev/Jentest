@@ -485,7 +485,8 @@ namespace IOAS.Models
 
     public class STEModel
     {
-        public string ReqTomail { get; set; }
+        [RegularExpression("^[a-zA-Z0-9_\\.-]+@([a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$", ErrorMessage = "Invalid To Mail")]
+        public string ReqTomail { get; set; }  
         public int STEId { get; set; }
         [Required]
         [Display(Name = "Type of appointment")]
@@ -644,7 +645,7 @@ namespace IOAS.Models
         public bool isDraftbtn { get; set; }
         [RegularExpression("^([\\w+-.%]+@[\\w-.]+\\.[A-Za-z]{2,6},?)+$", ErrorMessage = "Invalid CC Mail Example:abc@mail.com,abx@mail.in,abz@mail.com")]
         public string bcc { get; set; }
-        [RegularExpression("^[a-zA-Z0-9_\\.-]+@([a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$", ErrorMessage = "Invalid To Mail")]
+        //[RegularExpression("^[a-zA-Z0-9_\\.-]+@([a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$", ErrorMessage = "Invalid To Mail")]
         public string ToMail { get; set; }
         public string EmployeeWorkplace { get; set; }
         public bool bccSaved { get; set; }
