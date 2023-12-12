@@ -22,5 +22,8 @@ namespace IOAS.DataModel
         public Nullable<decimal> GSTTDS { get; set; }
         public Nullable<int> PayeeType { get; set; }
         public Nullable<int> PayeeId { get; set; }
+        public int RefID { get; set; }
+        public Nullable<int> Payeedetailid { get; set; }
+        public string Code { get; set; }
     }
 }
